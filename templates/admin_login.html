@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaAI - Admin Portal Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .login-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100vw;
+            background: var(--bg-main);
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 36px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .login-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            text-align: center;
+        }
+
+        .login-sparkle {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.7));
+        }
+
+        .login-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .login-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            height: 46px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0 16px;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.92rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-violet);
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-login-submit {
+            width: 100%;
+            height: 46px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            margin-top: 6px;
+        }
+
+        .btn-login-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.55);
+        }
+
+        .error-alert {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .login-footer-link {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .login-footer-link a {
+            color: var(--accent-violet);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-footer-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="dark-theme">
+
+    <div class="login-wrapper">
+        <div class="login-card">
+            
+            <div class="login-brand">
+                <svg class="login-sparkle" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#sparkle_grad_login)"/>
+                    <defs>
+                        <linearGradient id="sparkle_grad_login" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#C084FC"/>
+                            <stop offset="1" stop-color="#E879F9"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1 class="login-title">NovaAI Admin Authentication</h1>
+                <p class="login-subtitle">Please sign in with your admin credentials to access the Knowledge Base panel.</p>
+            </div>
+
+            {% if error %}
+            <div class="error-alert">
+                ⚠️ {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="{% url 'admin_login' %}" method="POST" class="login-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Enter admin username" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter admin password" required>
+                </div>
+
+                <button type="submit" class="btn-login-submit">Sign In to Admin Dashboard</button>
+            </form>
+
+            <div class="login-footer-link">
+                <a href="{% url 'home' %}">← Return to NovaAI Main Chat</a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
