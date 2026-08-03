@@ -1,6 +1,6 @@
 /**
  * NovaAI Frontend Master JavaScript
- * Handles chat interactions, model switching, sidebar toggles, and responsive state.
+ * Handles real-time chat interactions, Gemini API calls, sidebar toggles, and dynamic session management.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,19 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const heroContainer = document.getElementById('heroContainer');
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
+    const recentChatsList = document.getElementById('recentChatsList');
     const chatInput = document.getElementById('chatInput');
     const btnSendMessage = document.getElementById('btnSendMessage');
     const btnNewChat = document.getElementById('btnNewChat');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-    const modelTabs = document.querySelectorAll('.model-tab[data-model]');
-    const modelItems = document.querySelectorAll('.model-item[data-model]');
-    const promptPills = document.querySelectorAll('.prompt-pill-btn');
-    const actionCards = document.querySelectorAll('.action-card');
-    const historyItems = document.querySelectorAll('.chat-history-item');
-
-    let currentModel = 'gpt-4o';
+    let currentModel = 'gemini-flash-latest';
     let isChatActive = false;
+    let currentChatId = null;
+    let sessions = {}; // Map of sessionId -> { id, title, time, messages: [] }
+
+    // Load saved sessions from localStorage
+    loadSessionsFromStorage();
 
     // ==========================================
     // 1. SIDEBAR TOGGLE HANDLERS
@@ -42,58 +42,118 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Responsive Auto-Collapse on small screens
     function checkWindowSize() {
-        if (window.innerWidth < 1100) {
+        if (window.innerWidth < 1100 && sidebarRight) {
             sidebarRight.classList.add('collapsed');
-        } else {
+        } else if (sidebarRight) {
             sidebarRight.classList.remove('collapsed');
         }
-        if (window.innerWidth < 850) {
+        if (window.innerWidth < 850 && sidebarLeft) {
             sidebarLeft.classList.add('collapsed');
         }
     }
     window.addEventListener('resize', checkWindowSize);
 
     // ==========================================
-    // 2. MODEL SWITCHER SYNC (Bidirectional)
+    // 2. DYNAMIC SESSION & RECENT CHATS MANAGEMENT
     // ==========================================
-    function setActiveModel(modelKey) {
-        currentModel = modelKey;
+    function createNewSession(firstPromptText) {
+        const sessionId = 'chat_' + Date.now();
+        const shortTitle = truncateText(firstPromptText, 28);
+        
+        sessions[sessionId] = {
+            id: sessionId,
+            title: shortTitle,
+            time: 'Just now',
+            messages: []
+        };
+        
+        currentChatId = sessionId;
 
-        // Header tabs
-        modelTabs.forEach(tab => {
-            if (tab.dataset.model === modelKey) {
-                tab.classList.add('active');
-            } else {
-                tab.classList.remove('active');
-            }
-        });
+        // Create DOM element for Left Sidebar
+        const chatItem = document.createElement('div');
+        chatItem.className = 'chat-history-item active';
+        chatItem.dataset.chatId = sessionId;
+        chatItem.innerHTML = `
+            <svg class="chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span class="chat-title">${escapeHTML(shortTitle)}</span>
+            <span class="chat-time">Just now</span>
+        `;
 
-        // Right panel models list
-        modelItems.forEach(item => {
-            const check = item.querySelector('.model-check');
-            if (item.dataset.model === modelKey) {
-                item.classList.add('active');
-                if (check) check.classList.remove('hidden');
-            } else {
-                item.classList.remove('active');
-                if (check) check.classList.add('hidden');
-            }
-        });
+        // De-activate existing items and prepend new one
+        document.querySelectorAll('.chat-history-item').forEach(item => item.classList.remove('active'));
+        recentChatsList.insertBefore(chatItem, recentChatsList.firstChild);
+
+        // Bind click listener to new item
+        chatItem.addEventListener('click', () => switchSession(sessionId));
+
+        saveSessionsToStorage();
+        return sessionId;
     }
 
-    modelTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            setActiveModel(tab.dataset.model);
-        });
-    });
+    function switchSession(sessionId) {
+        currentChatId = sessionId;
+        const session = sessions[sessionId];
 
-    modelItems.forEach(item => {
-        item.addEventListener('click', () => {
-            setActiveModel(item.dataset.model);
+        // Update active class in sidebar
+        document.querySelectorAll('.chat-history-item').forEach(item => {
+            if (item.dataset.chatId === sessionId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
         });
-    });
+
+        // Clear and render messages for this session
+        isChatActive = true;
+        heroContainer.style.display = 'none';
+        chatMessagesContainer.classList.remove('hidden');
+        chatMessagesContainer.innerHTML = '';
+
+        if (session && session.messages) {
+            session.messages.forEach(msg => {
+                if (msg.role === 'user') {
+                    renderUserBubble(msg.text);
+                } else {
+                    renderAssistantBubble(msg.text, msg.model || 'NovaAI Gemini');
+                }
+            });
+        }
+        scrollToBottom();
+    }
+
+    function loadSessionsFromStorage() {
+        try {
+            const stored = localStorage.getItem('nova_ai_sessions');
+            if (stored) {
+                sessions = JSON.parse(stored);
+                // Re-render recent chats list from storage
+                recentChatsList.innerHTML = '';
+                Object.values(sessions).reverse().forEach(sess => {
+                    const chatItem = document.createElement('div');
+                    chatItem.className = 'chat-history-item';
+                    chatItem.dataset.chatId = sess.id;
+                    chatItem.innerHTML = `
+                        <svg class="chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <span class="chat-title">${escapeHTML(sess.title)}</span>
+                        <span class="chat-time">${escapeHTML(sess.time || '1h ago')}</span>
+                    `;
+                    chatItem.addEventListener('click', () => switchSession(sess.id));
+                    recentChatsList.appendChild(chatItem);
+                });
+            }
+        } catch (e) {
+            console.error("Could not load sessions from localStorage:", e);
+        }
+    }
+
+    function saveSessionsToStorage() {
+        try {
+            localStorage.setItem('nova_ai_sessions', JSON.stringify(sessions));
+        } catch (e) {
+            console.error("Could not save sessions to localStorage:", e);
+        }
+    }
 
     // ==========================================
     // 3. CHAT ENGINE & MESSAGE RENDERING
@@ -106,8 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function appendUserMessage(text) {
-        triggerChatMode();
+    function renderUserBubble(text) {
         const msgBubble = document.createElement('div');
         msgBubble.className = 'message-bubble user';
         msgBubble.innerHTML = `
@@ -118,17 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollToBottom();
     }
 
-    function appendAssistantMessage(initialText = '') {
+    function renderAssistantBubble(text, modelDisplay = 'NovaAI Gemini') {
         const msgBubble = document.createElement('div');
         msgBubble.className = 'message-bubble assistant';
-        
-        const modelNameDisplay = getModelDisplayName(currentModel);
-
         msgBubble.innerHTML = `
             <div class="msg-avatar">✦</div>
             <div class="msg-body">
-                <div style="font-size: 0.76rem; font-weight: 700; color: var(--accent-pink); margin-bottom: 4px;">${modelNameDisplay}</div>
-                <div class="msg-text-content">${initialText}</div>
+                <div style="font-size: 0.76rem; font-weight: 700; color: var(--accent-pink); margin-bottom: 4px;">${escapeHTML(modelDisplay)}</div>
+                <div class="msg-text-content">${formatMarkdown(text)}</div>
             </div>
         `;
         chatMessagesContainer.appendChild(msgBubble);
@@ -136,43 +192,72 @@ document.addEventListener('DOMContentLoaded', () => {
         return msgBubble.querySelector('.msg-text-content');
     }
 
-    function generateAIResponse(userQuery) {
-        const targetElement = appendAssistantMessage('<span class="typing-dots">Thinking...</span>');
+    function appendUserMessage(text) {
+        triggerChatMode();
 
-        setTimeout(() => {
-            const responses = {
-                'explain quantum computing in simple terms': `Quantum computing leverages quantum mechanics principles like **superposition** and **entanglement** to perform complex calculations exponentially faster than classical computers.\n\nKey Concepts:\n• **Qubits**: Unlike binary bits (0 or 1), qubits can exist in a state of 0, 1, or both simultaneously.\n• **Superposition**: Enables parallel processing across vast combinations of data.\n• **Entanglement**: Qubits interlink, allowing instantaneous correlation across the system.`,
-                'write a python function to sort a list': `Here is a clean Python function implementing QuickSort:\n\n\`\`\`python\ndef quicksort(arr):\n    if len(arr) <= 1:\n        return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)\n\n# Example usage:\nnumbers = [3, 6, 8, 10, 1, 2, 1]\nprint(quicksort(numbers)) # [1, 1, 2, 3, 6, 8, 10]\n\`\`\``,
-                'default': `Here is a comprehensive breakdown for **"${userQuery}"** using **${getModelDisplayName(currentModel)}**:\n\n1. **Core Strategy**: Define precise requirements and establish an intuitive framework.\n2. **Execution Steps**: Implement optimized logic with dark-mode aesthetic styling and real-time processing.\n3. **Optimization**: Ensure responsive rendering across all viewports and device sizes.`
-            };
+        // Create new session if none is active
+        if (!currentChatId) {
+            createNewSession(text);
+        }
 
-            const queryKey = userQuery.toLowerCase().trim();
-            const responseContent = responses[queryKey] || responses['default'];
+        // Store user message
+        if (sessions[currentChatId]) {
+            sessions[currentChatId].messages.push({ role: 'user', text: text });
+            saveSessionsToStorage();
+        }
 
-            typeWriterEffect(targetElement, responseContent);
-        }, 800);
+        renderUserBubble(text);
+    }
+
+    async function generateAIResponse(userQuery) {
+        const targetElement = renderAssistantBubble('', 'NovaAI Gemini');
+        targetElement.innerHTML = '<span class="typing-dots">Thinking...</span>';
+
+        try {
+            const res = await fetch('/api/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: userQuery,
+                    model: currentModel
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.response) {
+                // Store assistant response in session
+                if (currentChatId && sessions[currentChatId]) {
+                    sessions[currentChatId].messages.push({ role: 'assistant', text: data.response });
+                    saveSessionsToStorage();
+                }
+                typeWriterEffect(targetElement, data.response);
+            } else {
+                const errMsg = data.error || 'Failed to get response from Gemini AI.';
+                targetElement.innerHTML = `<span style="color: #f87171;">⚠️ ${escapeHTML(errMsg)}</span>`;
+            }
+        } catch (err) {
+            targetElement.innerHTML = `<span style="color: #f87171;">⚠️ Connection error: ${escapeHTML(err.message)}</span>`;
+        }
     }
 
     function typeWriterEffect(element, text) {
         element.innerHTML = '';
         let i = 0;
-        const formattedText = text.replace(/\n/g, '<br>');
+        const formattedText = formatMarkdown(text);
         
         const timer = setInterval(() => {
             if (i < formattedText.length) {
-                // handle HTML tags gracefully
-                if (formattedText.substring(i, i + 4) === '<br>') {
-                    element.innerHTML += '<br>';
-                    i += 4;
-                } else {
-                    element.innerHTML += formattedText.charAt(i);
-                    i++;
-                }
+                element.innerHTML = formattedText.substring(0, i + 1);
+                i++;
                 scrollToBottom();
             } else {
                 clearInterval(timer);
+                element.innerHTML = formattedText;
             }
-        }, 15);
+        }, 12);
     }
 
     function sendMessage() {
@@ -202,28 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
     });
 
-    // ==========================================
-    // 4. PROMPT PILLS & QUICK ACTION CARDS
-    // ==========================================
-    promptPills.forEach(pill => {
-        pill.addEventListener('click', () => {
-            const promptText = pill.dataset.prompt || pill.querySelector('span').innerText;
-            appendUserMessage(promptText);
-            generateAIResponse(promptText);
-        });
-    });
-
-    actionCards.forEach(card => {
-        card.addEventListener('click', () => {
-            const actionText = card.dataset.action;
-            chatInput.value = actionText;
-            chatInput.focus();
-        });
-    });
-
     // Reset to New Chat
     btnNewChat.addEventListener('click', () => {
+        currentChatId = null;
         isChatActive = false;
+        document.querySelectorAll('.chat-history-item').forEach(i => i.classList.remove('active'));
         chatMessagesContainer.innerHTML = '';
         chatMessagesContainer.classList.add('hidden');
         heroContainer.style.display = 'flex';
@@ -231,34 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.focus();
     });
 
-    // Recent History Item Click
-    historyItems.forEach(item => {
-        item.addEventListener('click', () => {
-            historyItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-            const title = item.querySelector('.chat-title').innerText;
-            
-            isChatActive = false;
-            chatMessagesContainer.innerHTML = '';
-            appendUserMessage(title);
-            generateAIResponse(title);
-        });
-    });
 
     // ==========================================
-    // 5. HELPER UTILITIES & KEYBOARD SHORTCUTS
+    // 4. HELPER UTILITIES & FORMATTING
     // ==========================================
-    function getModelDisplayName(key) {
-        const names = {
-            'gpt-4o': 'GPT-4o',
-            'claude-3.5': 'Claude 3.5 Sonnet',
-            'deepseek-v3': 'DeepSeek V3',
-            'gemini-1.5': 'Gemini 1.5 Pro',
-            'llama-3': 'Llama 3 70B'
-        };
-        return names[key] || 'NovaAI Pro';
-    }
-
     function scrollToBottom() {
         const mainBody = document.getElementById('mainBody');
         if (mainBody) {
@@ -266,7 +310,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function truncateText(str, maxLength) {
+        if (!str) return 'New Chat';
+        return str.length > maxLength ? str.substring(0, maxLength) + '...' : str;
+    }
+
+    function formatMarkdown(text) {
+        if (!text) return '';
+        let formatted = escapeHTML(text);
+        formatted = formatted.replace(/\n\n/g, '<br><br>');
+        formatted = formatted.replace(/\n/g, '<br>');
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        formatted = formatted.replace(/`([^`]+)`/g, '<code style="background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px;">$1</code>');
+        return formatted;
+    }
+
     function escapeHTML(str) {
+        if (!str) return '';
         return str.replace(/[&<>'"]/g, 
             tag => ({
                 '&': '&amp;',
@@ -286,7 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Theme Toggle Placeholder Notice
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
             document.body.classList.toggle('light-theme');
