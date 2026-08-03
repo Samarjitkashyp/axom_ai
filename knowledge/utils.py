@@ -1,5 +1,6 @@
 import os
 import csv
+from django.db.models import Q
 from .models import KnowledgeDocument, KnowledgeChunk
 
 def extract_text_from_file(file_path, file_type):
@@ -67,7 +68,6 @@ def create_knowledge_chunks(document_obj, chunk_size=800, overlap=100):
     if not text:
         return
 
-    # Delete any existing chunks for this document
     document_obj.chunks.all().delete()
 
     chunks_data = []
@@ -94,28 +94,39 @@ def create_knowledge_chunks(document_obj, chunk_size=800, overlap=100):
 
 def search_knowledge_base(query, top_k=3):
     """
-    Searches database KnowledgeChunks for relevant context matching user query.
-    Returns combined context string or empty string.
+    High-performance database query checking if user question exists in Knowledge Base.
+    Returns (context_string, source_doc_titles).
     """
     if not query:
-        return ""
+        return "", []
 
-    tokens = [t.lower() for t in query.split() if len(t) > 2]
+    clean_query = query.strip()
+    tokens = [t.lower() for t in clean_query.split() if len(t) > 2]
+    
     if not tokens:
-        tokens = [query.lower()]
+        tokens = [clean_query.lower()]
 
-    matching_chunks = set()
-
+    # Fast OR Query filtering on Database Chunks
+    q_objects = Q()
     for token in tokens:
-        chunks = KnowledgeChunk.objects.filter(content__icontains=token).select_related('document')[:top_k]
-        for c in chunks:
-            matching_chunks.add(c)
+        q_objects |= Q(content__icontains=token) | Q(keywords__icontains=token)
 
-    if not matching_chunks:
-        return ""
+    chunks = KnowledgeChunk.objects.filter(q_objects).select_related('document')[:top_k]
+
+    if not chunks.exists():
+        # Fallback check on Document Title
+        for token in tokens:
+            docs = KnowledgeDocument.objects.filter(Q(title__icontains=token) | Q(extracted_text__icontains=token))[:2]
+            if docs.exists():
+                context_blocks = [f"[Document: {d.title}]\n{d.extracted_text[:1000]}" for d in docs]
+                titles = [d.title for d in docs]
+                return "\n\n".join(context_blocks), titles
+        return "", []
 
     context_blocks = []
-    for chunk in list(matching_chunks)[:top_k]:
+    titles = set()
+    for chunk in chunks:
         context_blocks.append(f"[Document: {chunk.document.title}]\n{chunk.content}")
+        titles.add(chunk.document.title)
 
-    return "\n\n".join(context_blocks)
+    return "\n\n".join(context_blocks), list(titles)

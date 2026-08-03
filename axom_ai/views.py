@@ -6,6 +6,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from knowledge.utils import search_knowledge_base
 
+# Global HTTP Session for connection pooling & ultra-fast API calls
+http_session = requests.Session()
+
 def home_view(request):
     return render(request, 'index.html')
 
@@ -23,28 +26,33 @@ def chat_api_view(request):
     if not prompt:
         return JsonResponse({'error': 'Prompt cannot be empty'}, status=400)
 
+    # 1. First Step: Search Local Database Knowledge Base
+    custom_context, source_docs = search_knowledge_base(prompt, top_k=3)
+
     api_key = os.getenv('GEMINI_API_KEY')
     if not api_key:
+        if custom_context:
+            return JsonResponse({
+                'response': f"Information from Database Knowledge Base:\n\n{custom_context}",
+                'from_database': True,
+                'source_docs': source_docs
+            })
         return JsonResponse({'error': 'Gemini API key is not configured on the server.'}, status=500)
 
-    # 1. Search Custom Database Knowledge Base (RAG Pipeline)
-    custom_context = search_knowledge_base(prompt, top_k=3)
-
-    # 2. Formulate Prompt (Augmenting with custom database knowledge if available)
+    # 2. Formulate Prompt (Augment with Database Context if found)
     if custom_context:
         final_prompt = (
-            f"You are NovaAI with Custom Knowledge Base Integration.\n"
-            f"Here is retrieved knowledge from the internal database:\n"
+            f"Retrieved Context from Internal Database Knowledge Base:\n"
             f"----------------------------------------\n"
             f"{custom_context}\n"
             f"----------------------------------------\n\n"
             f"User Question: {prompt}\n\n"
-            f"Instruction: Answer the user's question clearly using the provided internal database context whenever relevant. If context is provided, rely on it primarily."
+            f"Instruction: Answer the user's question clearly and concisely using the provided internal database context. Focus on the facts from the database."
         )
     else:
         final_prompt = prompt
 
-    # Sequence of verified working Gemini/Gemma models for this API key
+    # Candidate active models for fast response
     candidate_models = [
         'gemini-flash-latest',
         'gemini-3.5-flash-lite',
@@ -67,7 +75,8 @@ def chat_api_view(request):
                     }
                 ]
             }
-            res = requests.post(url, headers=headers, json=payload, timeout=25)
+            # Short 8s timeout for maximum speed
+            res = http_session.post(url, headers=headers, json=payload, timeout=8)
             res_data = res.json()
 
             if res.status_code == 200 and 'candidates' in res_data and len(res_data['candidates']) > 0:
@@ -76,7 +85,8 @@ def chat_api_view(request):
                 if parts and 'text' in parts[0]:
                     return JsonResponse({
                         'response': parts[0]['text'],
-                        'custom_knowledge_used': bool(custom_context)
+                        'from_database': bool(custom_context),
+                        'source_docs': source_docs
                     })
 
             if 'error' in res_data and 'message' in res_data['error']:
@@ -85,9 +95,17 @@ def chat_api_view(request):
             last_error = str(err)
             continue
 
+    # Fast Fallback: If API fails or is rate-limited, return database context if available!
+    if custom_context:
+        return JsonResponse({
+            'response': f"📄 Found in Database Knowledge Base ({', '.join(source_docs)}):\n\n{custom_context}",
+            'from_database': True,
+            'source_docs': source_docs
+        })
+
     if 'Quota exceeded' in last_error or '429' in last_error:
         return JsonResponse({
             'error': 'Google Gemini API Rate Limit reached for Free Tier. Please retry in a minute.'
         }, status=429)
 
-    return JsonResponse({'error': f"Gemini API Error: {last_error}"}, status=400)
+    return JsonResponse({'error': f"API Error: {last_error}"}, status=400)

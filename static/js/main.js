@@ -228,7 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             if (res.ok && data.response) {
-                // Store assistant response in session
+                if (data.from_database) {
+                    const parentMsg = targetElement.previousElementSibling;
+                    if (parentMsg) {
+                        parentMsg.innerHTML += ` <span style="display: inline-block; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); color: #4ade80; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: 6px;">📁 Database Match</span>`;
+                    }
+                }
                 if (currentChatId && sessions[currentChatId]) {
                     sessions[currentChatId].messages.push({ role: 'assistant', text: data.response });
                     saveSessionsToStorage();
@@ -250,15 +255,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const timer = setInterval(() => {
             if (i < formattedText.length) {
-                element.innerHTML = formattedText.substring(0, i + 1);
-                i++;
+                element.innerHTML = formattedText.substring(0, i + 2);
+                i += 2;
                 scrollToBottom();
             } else {
                 clearInterval(timer);
                 element.innerHTML = formattedText;
             }
-        }, 12);
+        }, 6);
     }
+
 
     function sendMessage() {
         const text = chatInput.value.trim();
