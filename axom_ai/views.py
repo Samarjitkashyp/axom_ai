@@ -4,6 +4,7 @@ import requests
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from knowledge.utils import search_knowledge_base
 
 def home_view(request):
     return render(request, 'index.html')
@@ -26,6 +27,23 @@ def chat_api_view(request):
     if not api_key:
         return JsonResponse({'error': 'Gemini API key is not configured on the server.'}, status=500)
 
+    # 1. Search Custom Database Knowledge Base (RAG Pipeline)
+    custom_context = search_knowledge_base(prompt, top_k=3)
+
+    # 2. Formulate Prompt (Augmenting with custom database knowledge if available)
+    if custom_context:
+        final_prompt = (
+            f"You are NovaAI with Custom Knowledge Base Integration.\n"
+            f"Here is retrieved knowledge from the internal database:\n"
+            f"----------------------------------------\n"
+            f"{custom_context}\n"
+            f"----------------------------------------\n\n"
+            f"User Question: {prompt}\n\n"
+            f"Instruction: Answer the user's question clearly using the provided internal database context whenever relevant. If context is provided, rely on it primarily."
+        )
+    else:
+        final_prompt = prompt
+
     # Sequence of verified working Gemini/Gemma models for this API key
     candidate_models = [
         'gemini-flash-latest',
@@ -44,7 +62,7 @@ def chat_api_view(request):
                 "contents": [
                     {
                         "parts": [
-                            {"text": prompt}
+                            {"text": final_prompt}
                         ]
                     }
                 ]
@@ -56,7 +74,10 @@ def chat_api_view(request):
                 candidate = res_data['candidates'][0]
                 parts = candidate.get('content', {}).get('parts', [])
                 if parts and 'text' in parts[0]:
-                    return JsonResponse({'response': parts[0]['text']})
+                    return JsonResponse({
+                        'response': parts[0]['text'],
+                        'custom_knowledge_used': bool(custom_context)
+                    })
 
             if 'error' in res_data and 'message' in res_data['error']:
                 last_error = res_data['error']['message']
