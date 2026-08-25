@@ -17,3 +17,6 @@ Modelfile/
 
 # OS
 .DS_Store
+
+# Django collectstatic output
+staticfiles/
