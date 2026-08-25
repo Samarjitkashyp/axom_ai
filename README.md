@@ -4,6 +4,8 @@ A self-hosted AI chat assistant built with **Django + React**, powered by a **lo
 
 It runs fully offline for everyday questions and only uses the cloud (Gemini) for live web search or as a backup.
 
+> 🌐 **Live demo:** http://3.6.237.64:8000 &nbsp;·&nbsp; deployed on AWS Lightsail with an automated CI/CD pipeline (see below).
+
 ---
 
 ## ✨ Features
@@ -174,6 +176,38 @@ Then set `OLLAMA_MODEL=axom-custom` in `.env`.
 
 ---
 
+## ☁️ Deployment (AWS Lightsail)
+
+The app is deployed on an AWS Lightsail instance in **Gemini-only mode** (`USE_LOCAL_LLM=False`),
+since small cloud instances don't have enough RAM for a local model. Static files are served by
+**WhiteNoise** (no separate web server needed) and the app runs under **Gunicorn**.
+
+A one-shot deploy script is included — see **[deploy/DEPLOY.md](deploy/DEPLOY.md)**:
+```bash
+curl -O https://raw.githubusercontent.com/Samarjitkashyp/axom_ai/main/deploy/deploy.sh
+# edit GEMINI_API_KEY + DB_PASSWORD inside, then:
+bash deploy.sh
+```
+It sets up swap, PostgreSQL, the virtualenv, `.env`, migrations, static files, and a Gunicorn
+service automatically.
+
+---
+
+## 🔄 CI/CD (GitHub Actions)
+
+Every push to `main` runs an automated pipeline (`.github/workflows/deploy.yml`):
+
+```
+git push  →  CI: Django check + migrate + React build
+          →  CD: SSH to server → git pull → migrate → collectstatic → restart Gunicorn
+          →  live site updated automatically
+```
+
+Deployment uses SSH secrets stored in the repo (`LIGHTSAIL_HOST`, `LIGHTSAIL_USER`,
+`LIGHTSAIL_SSH_KEY`). Tests must pass before deployment runs.
+
+---
+
 ## 📁 Project Structure
 
 ```
@@ -184,6 +218,8 @@ axom_ai/
 ├── static/             # CSS/JS + built frontend bundle (static/dist)
 ├── templates/          # Django templates (index, admin login)
 ├── training/           # Fine-tuning notebook + guide + sample data
+├── deploy/             # Lightsail deploy script + deployment guide
+├── .github/workflows/  # CI/CD pipeline (GitHub Actions)
 ├── requirements.txt
 ├── .env.example        # Copy to .env and fill in
 └── manage.py
