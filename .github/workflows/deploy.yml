@@ -1,0 +1,104 @@
+name: CI/CD
+
+# Runs on every push/PR to main. On a push to main, if tests pass, it
+# automatically deploys to the Lightsail server over SSH.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ---------------------------------------------------------------- CI (tests)
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: axom_ai
+          POSTGRES_USER: axom_user
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Django check + migrate (sanity)
+        env:
+          SECRET_KEY: ci-test-secret-key
+          DEBUG: 'False'
+          ALLOWED_HOSTS: localhost,127.0.0.1
+          DB_NAME: axom_ai
+          DB_USER: axom_user
+          DB_PASSWORD: testpass
+          DB_HOST: localhost
+          DB_PORT: '5432'
+          USE_LOCAL_LLM: 'False'
+        run: |
+          python manage.py check
+          python manage.py migrate --noinput
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+  # ------------------------------------------------------------ CD (deploy)
+  deploy:
+    needs: test
+    # Only deploy on a real push to main (never on pull requests).
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check SSH secrets are configured
+        id: check
+        run: |
+          if [ -z "${{ secrets.LIGHTSAIL_HOST }}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SSH secrets not set yet — skipping deploy. Add LIGHTSAIL_HOST / LIGHTSAIL_USER / LIGHTSAIL_SSH_KEY in repo Settings > Secrets."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy to Lightsail over SSH
+        if: steps.check.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.LIGHTSAIL_HOST }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/axom_ai
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            python manage.py migrate --noinput
+            python manage.py collectstatic --noinput
+            sudo systemctl restart axom
+            echo "Deploy complete."
