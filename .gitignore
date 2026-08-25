@@ -1,7 +1,19 @@
-.venv/
+# Python
 *.pyc
 __pycache__/
-.env
+venv/
+.venv/
+
+# Django
 db.sqlite3
-.DS_Store
 media/
+
+# Secrets — never commit real keys
+.env
+
+# Local LLM model files (too large for git — see README to train/pull)
+*.gguf
+Modelfile/
+
+# OS
+.DS_Store

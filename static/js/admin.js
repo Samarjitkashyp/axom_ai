@@ -1,5 +1,5 @@
 /**
- * NovaAI Admin Panel JavaScript
+ * Axom AI Admin Panel JavaScript
  * Handles drag-and-drop file ingestion and document management APIs.
  */
 

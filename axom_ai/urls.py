@@ -9,13 +9,15 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home_view, name='home'),
     path('api/chat/', views.chat_api_view, name='chat_api'),
+    path('api/login/', views.login_api_view, name='login_api'),
     
     # Custom Admin Authentication & Dashboard Routes
     path('admin-panel/login/', knowledge_views.admin_login_view, name='admin_login'),
     path('admin-panel/logout/', knowledge_views.admin_logout_view, name='admin_logout'),
-    path('admin-panel/', knowledge_views.admin_panel_view, name='admin_panel'),
+    path('admin-panel/', views.admin_panel_view, name='admin_panel'),
     
     # Knowledge Base Upload / Delete APIs
+    path('api/documents/', knowledge_views.list_documents_api, name='list_documents'),
     path('api/upload/', knowledge_views.upload_document_api, name='upload_document'),
     path('api/delete-document/<int:doc_id>/', knowledge_views.delete_document_api, name='delete_document'),
 ]

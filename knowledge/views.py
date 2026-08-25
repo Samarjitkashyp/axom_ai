@@ -2,9 +2,8 @@ import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.csrf import csrf_exempt
 from .models import KnowledgeDocument, KnowledgeChunk
-from .utils import extract_text_from_file, create_knowledge_chunks
+from .utils import extract_text_from_file, create_knowledge_chunks, create_qa_pairs
 
 def admin_login_view(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -26,7 +25,7 @@ def admin_login_view(request):
 
 def admin_logout_view(request):
     logout(request)
-    return redirect('admin_login')
+    return redirect('home')
 
 def admin_panel_view(request):
     if not request.user.is_authenticated or not request.user.is_staff:
@@ -51,7 +50,6 @@ def admin_panel_view(request):
     }
     return render(request, 'admin_panel.html', context)
 
-@csrf_exempt
 def upload_document_api(request):
     if not request.user.is_authenticated or not request.user.is_staff:
         return JsonResponse({'error': 'Unauthorized. Admin authentication required.'}, status=401)
@@ -69,6 +67,10 @@ def upload_document_api(request):
     ext = os.path.splitext(file_name)[1].lower()
     if ext in ['.pdf']:
         file_type = 'pdf'
+    elif ext in ['.docx']:
+        file_type = 'docx'
+    elif ext in ['.jsonl', '.json']:
+        file_type = 'jsonl'
     elif ext in ['.xlsx', '.xls', '.csv']:
         file_type = 'excel'
     elif ext in ['.png', '.jpg', '.jpeg', '.webp']:
@@ -91,6 +93,7 @@ def upload_document_api(request):
         doc.save()
 
         create_knowledge_chunks(doc)
+        create_qa_pairs(doc)
 
         return JsonResponse({
             'success': True,
@@ -108,7 +111,6 @@ def upload_document_api(request):
     except Exception as e:
         return JsonResponse({'error': f"Processing failed: {str(e)}"}, status=500)
 
-@csrf_exempt
 def delete_document_api(request, doc_id):
     if not request.user.is_authenticated or not request.user.is_staff:
         return JsonResponse({'error': 'Unauthorized. Admin authentication required.'}, status=401)
@@ -126,3 +128,36 @@ def delete_document_api(request, doc_id):
         return JsonResponse({'error': 'Document not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+def list_documents_api(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'error': 'Unauthorized. Admin authentication required.'}, status=401)
+    
+    documents = KnowledgeDocument.objects.all().order_by('-uploaded_at')
+    total_docs = documents.count()
+    total_chunks = KnowledgeChunk.objects.count()
+    total_storage = sum([doc.file_size for doc in documents])
+
+    if total_storage > 1024 * 1024:
+        storage_display = f"{total_storage / (1024 * 1024):.2f} MB"
+    else:
+        storage_display = f"{total_storage / 1024:.1f} KB"
+
+    docs_data = []
+    for doc in documents:
+        docs_data.append({
+            'id': doc.id,
+            'title': doc.title,
+            'file_type': doc.file_type,
+            'uploaded_at': doc.uploaded_at.strftime('%b %d, %Y %H:%M'),
+            'file_size': f"{doc.file_size / 1024:.1f} KB",
+            'status': doc.status,
+            'chunks_count': doc.chunks.count()
+        })
+
+    return JsonResponse({
+        'documents': docs_data,
+        'total_docs': total_docs,
+        'total_chunks': total_chunks,
+        'storage_display': storage_display
+    })

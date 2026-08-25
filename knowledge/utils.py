@@ -1,7 +1,9 @@
 import os
 import csv
+import re
+import difflib
 from django.db.models import Q
-from .models import KnowledgeDocument, KnowledgeChunk
+from .models import KnowledgeDocument, KnowledgeChunk, QAPair
 
 def extract_text_from_file(file_path, file_type):
     """
@@ -21,6 +23,59 @@ def extract_text_from_file(file_path, file_type):
                 if page_text:
                     extracted_pages.append(f"--- Page {i+1} ---\n{page_text}")
             text_content = "\n\n".join(extracted_pages)
+
+        # JSONL / JSON Extraction — training-style Q&A pairs made searchable
+        elif file_type == 'jsonl' or file_path.endswith(('.jsonl', '.json')):
+            import json
+            blocks = []
+
+            def format_obj(obj):
+                if isinstance(obj, dict):
+                    if 'instruction' in obj and 'output' in obj:
+                        return f"Q: {obj['instruction']}\nA: {obj['output']}"
+                    if 'question' in obj and 'answer' in obj:
+                        return f"Q: {obj['question']}\nA: {obj['answer']}"
+                    return "\n".join(f"{k}: {v}" for k, v in obj.items())
+                return str(obj)
+
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                raw = f.read().strip()
+
+            # Try whole-file JSON first (a JSON array), else parse line-by-line (JSONL).
+            parsed_whole = None
+            try:
+                parsed_whole = json.loads(raw)
+            except Exception:
+                parsed_whole = None
+
+            if isinstance(parsed_whole, list):
+                for obj in parsed_whole:
+                    blocks.append(format_obj(obj))
+            elif isinstance(parsed_whole, dict):
+                blocks.append(format_obj(parsed_whole))
+            else:
+                for line in raw.splitlines():
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        blocks.append(format_obj(json.loads(line)))
+                    except Exception:
+                        blocks.append(line)
+
+            text_content = "\n\n".join(blocks)
+
+        # Word DOCX Extraction using python-docx (paragraphs + tables)
+        elif file_type == 'docx' or file_path.endswith('.docx'):
+            import docx
+            document = docx.Document(file_path)
+            blocks = [p.text for p in document.paragraphs if p.text and p.text.strip()]
+            for table in document.tables:
+                for row in table.rows:
+                    cells = [c.text.strip() for c in row.cells if c.text and c.text.strip()]
+                    if cells:
+                        blocks.append(" | ".join(cells))
+            text_content = "\n".join(blocks)
 
         # Excel / CSV Extraction using openpyxl or csv
         elif file_type in ['excel', 'csv', 'xlsx', 'xls'] or file_path.endswith(('.xlsx', '.xls', '.csv')):
@@ -90,6 +145,60 @@ def create_knowledge_chunks(document_obj, chunk_size=800, overlap=100):
         chunk_index += 1
 
     KnowledgeChunk.objects.bulk_create(chunks_data)
+
+
+def create_qa_pairs(document_obj):
+    """
+    Parse 'Q: ...\nA: ...' blocks out of the document's extracted text (produced
+    for JSONL / Q&A files) and store them as QAPair rows for instant lookup.
+    Documents without Q&A structure simply produce no pairs.
+    """
+    text = document_obj.extracted_text or ""
+    document_obj.qa_pairs.all().delete()
+
+    pairs = []
+    for block in text.split("\n\n"):
+        block = block.strip()
+        if block.startswith("Q:") and "\nA:" in block:
+            q_part, a_part = block.split("\nA:", 1)
+            question = q_part[2:].strip()
+            answer = a_part.strip()
+            if question and answer:
+                pairs.append(QAPair(document=document_obj, question=question, answer=answer))
+
+    if pairs:
+        QAPair.objects.bulk_create(pairs)
+
+
+def _normalize(s):
+    """Lowercase, strip punctuation and collapse whitespace for matching."""
+    return re.sub(r'\s+', ' ', re.sub(r'[^\w\s]', '', s.lower())).strip()
+
+
+def find_instant_answer(query, threshold=0.82):
+    """
+    Return a stored answer if the query exactly (or nearly) matches a saved
+    question. Returns None when there is no confident match, so the caller
+    falls back to RAG + the language model.
+    """
+    qn = _normalize(query)
+    if not qn:
+        return None
+
+    best_answer = None
+    best_ratio = 0.0
+    for qa in QAPair.objects.all().only('question', 'answer'):
+        pn = _normalize(qa.question)
+        if not pn:
+            continue
+        if pn == qn:
+            return qa.answer  # exact match — instant
+        ratio = difflib.SequenceMatcher(None, qn, pn).ratio()
+        if ratio > best_ratio:
+            best_ratio = ratio
+            best_answer = qa.answer
+
+    return best_answer if best_ratio >= threshold else None
 
 
 def search_knowledge_base(query, top_k=3):

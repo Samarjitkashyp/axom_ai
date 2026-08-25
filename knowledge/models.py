@@ -20,3 +20,16 @@ class KnowledgeChunk(models.Model):
 
     def __str__(self):
         return f"Chunk {self.chunk_index} of {self.document.title}"
+
+class QAPair(models.Model):
+    """
+    Exact question -> answer pairs (from JSONL / Q&A files). Used by the
+    'Instant Answer' layer to return a stored answer immediately, without
+    invoking the language model.
+    """
+    document = models.ForeignKey(KnowledgeDocument, on_delete=models.CASCADE, related_name='qa_pairs')
+    question = models.TextField()
+    answer = models.TextField()
+
+    def __str__(self):
+        return f"Q&A: {self.question[:50]}"
