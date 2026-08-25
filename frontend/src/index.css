@@ -41,6 +41,36 @@
     --header-height: 64px;
 }
 
+/* ==========================================================================
+   LIGHT THEME  (body.light-theme) — flips the palette for the theme toggle
+   ========================================================================== */
+body.light-theme {
+    --bg-main: #f6f7fb;
+    --bg-sidebar-left: #ffffff;
+    --bg-sidebar-right: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #eef0f6;
+    --bg-input: #ffffff;
+    --bg-pill: #eef0f6;
+    --bg-pill-active: #e7e3f7;
+
+    --text-primary: #16182a;
+    --text-secondary: #4a4d63;
+    --text-muted: #7a7d93;
+    --text-dim: #a2a5ba;
+
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-focus: rgba(168, 85, 247, 0.5);
+    --border-glow: rgba(168, 85, 247, 0.25);
+}
+/* Light-theme fixes for a few hard-coded dark surfaces */
+body.light-theme .top-header { background-color: rgba(255, 255, 255, 0.85); }
+body.light-theme .message-bubble.assistant { background: #ffffff; }
+body.light-theme .icon-btn:hover { background-color: rgba(0, 0, 0, 0.05); }
+
+/* Mobile backdrop (hidden on desktop; shown by the mobile media query below) */
+.mobile-backdrop { display: none; }
+
 /* Reset & Global */
 * {
     margin: 0;
@@ -1873,6 +1903,16 @@ kbd {
     }
     .sidebar-left  { left: 0; }
     .sidebar-right { right: 0; }
+
+    /* Dark scrim behind an open sidebar; tapping it closes the drawer.
+       z-index sits below the sidebar (20) but above the chat. */
+    .mobile-backdrop.visible {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 19;
+    }
 
     /* Tighter header + body spacing on small screens. */
     .top-header { padding: 0 12px; }

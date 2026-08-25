@@ -143,6 +143,15 @@ export default function App() {
 
   return (
     <div className="app-layout">
+      {/* Mobile backdrop — tap the dark area to close an open sidebar */}
+      <div
+        className={`mobile-backdrop ${(!leftSidebarCollapsed || !rightSidebarCollapsed) ? 'visible' : ''}`}
+        onClick={() => {
+          setLeftSidebarCollapsed(true);
+          setRightSidebarCollapsed(true);
+        }}
+      />
+
       {/* LEFT SIDEBAR */}
       <SidebarLeft
         sessions={sessions}
