@@ -247,10 +247,11 @@ def search_knowledge_base(query, top_k=3):
         return "", []
 
     clean_query = query.strip()
-    tokens = [t.lower() for t in clean_query.split() if len(t) > 2]
-    
+    # Only meaningful keywords (stopwords like "kaise", "kya" dropped) so an
+    # off-topic query with common filler words doesn't falsely match context.
+    tokens = list(_keywords(clean_query))
     if not tokens:
-        tokens = [clean_query.lower()]
+        return "", []
 
     # Fast OR Query filtering on Database Chunks
     q_objects = Q()
@@ -260,13 +261,13 @@ def search_knowledge_base(query, top_k=3):
     chunks = KnowledgeChunk.objects.filter(q_objects).select_related('document')[:top_k]
 
     if not chunks.exists():
-        # Fallback check on Document Title
+        # Fallback: match a document by TITLE only (precise) — not full text, so a
+        # single common word can't drag in an unrelated document's content.
         for token in tokens:
-            docs = KnowledgeDocument.objects.filter(Q(title__icontains=token) | Q(extracted_text__icontains=token))[:2]
+            docs = KnowledgeDocument.objects.filter(title__icontains=token)[:1]
             if docs.exists():
-                context_blocks = [f"[Document: {d.title}]\n{d.extracted_text[:1000]}" for d in docs]
-                titles = [d.title for d in docs]
-                return "\n\n".join(context_blocks), titles
+                d = docs[0]
+                return f"[Document: {d.title}]\n{d.extracted_text[:1000]}", [d.title]
         return "", []
 
     context_blocks = []

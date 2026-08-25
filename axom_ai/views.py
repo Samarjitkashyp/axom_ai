@@ -21,6 +21,15 @@ OLLAMA_NUM_PREDICT = int(os.getenv('OLLAMA_NUM_PREDICT', '400'))   # cap output 
 OLLAMA_NUM_THREAD = int(os.getenv('OLLAMA_NUM_THREAD', '4'))        # physical CPU cores
 OLLAMA_KEEP_ALIVE = os.getenv('OLLAMA_KEEP_ALIVE', '30m')           # keep model warm in RAM
 
+# STRICT_KB_MODE: when there is no relevant knowledge-base context, answer with an
+# honest "I don't know" instead of letting the model invent a (possibly wrong) reply.
+# Set STRICT_KB_MODE=False in .env to allow free general-purpose answers instead.
+STRICT_KB_MODE = os.getenv('STRICT_KB_MODE', 'True').lower() in ('true', '1', 't')
+DONT_KNOW_MSG = (
+    "Iske baare me mere paas abhi pakki (verified) jaankari nahi hai. "
+    "Main sirf apne knowledge base ke aadhaar par hi sahi jawab de sakta hoon."
+)
+
 
 def call_local_llm(final_prompt, system_instruction, timeout=120):
     """
@@ -105,23 +114,39 @@ def chat_api_view(request):
                 'engine': 'instant',
             })
 
-    # 2b. Bypass database check if web search is enabled
+    # 2b. Bypass database check if web search is enabled. Otherwise pull only the
+    #     single best-matching context (top_k=1) so the model can't blend two
+    #     unrelated facts together (which caused wrong "mixed" answers).
     if web_search:
         custom_context, source_docs = "", []
     else:
-        # Search Local Database Knowledge Base
-        custom_context, source_docs = search_knowledge_base(prompt, top_k=3)
+        custom_context, source_docs = search_knowledge_base(prompt, top_k=1)
 
-    # 4. Formulate Prompt (Augment with Database Context if found)
+    # 3. "I don't know" gate: if nothing relevant is in the knowledge base (and we
+    #    aren't doing a web search), don't let the model invent an answer.
+    if (not web_search) and (not custom_context) and STRICT_KB_MODE:
+        return JsonResponse({
+            'response': DONT_KNOW_MSG,
+            'from_database': False,
+            'source_docs': [],
+            'web_search': False,
+            'sources': [],
+            'engine': 'no-answer',
+        })
+
+    # 4. Formulate prompt. With DB context, force the model to answer ONLY from that
+    #    context and to say "don't know" rather than guess or combine facts.
     if custom_context:
         final_prompt = (
             f"{system_instruction}\n\n"
-            f"Retrieved Context from Internal Database Knowledge Base:\n"
-            f"----------------------------------------\n"
+            f"Answer the user's question using ONLY the context below. Do NOT use any "
+            f"outside knowledge and do NOT combine unrelated facts. If the answer is not "
+            f"clearly present in the context, reply EXACTLY with this and nothing else:\n"
+            f"\"{DONT_KNOW_MSG}\"\n\n"
+            f"Context:\n----------------------------------------\n"
             f"{custom_context}\n"
             f"----------------------------------------\n\n"
-            f"User Question: {prompt}\n\n"
-            f"Instruction: Answer the user's question using the provided context while strictly respecting the system constraints."
+            f"User Question: {prompt}\n\nAnswer (from the context only):"
         )
     else:
         final_prompt = f"{system_instruction}\n\nUser Question: {prompt}"
