@@ -175,30 +175,67 @@ def _normalize(s):
     return re.sub(r'\s+', ' ', re.sub(r'[^\w\s]', '', s.lower())).strip()
 
 
-def find_instant_answer(query, threshold=0.82):
+# Common grammatical / question words that carry little topical meaning. Keeping
+# these out of matching lets different phrasings of the same question line up.
+_STOPWORDS = {
+    'kya', 'hai', 'hain', 'tha', 'the', 'ka', 'ke', 'ki', 'ko', 'me', 'mein', 'se',
+    'aur', 'ek', 'ye', 'yeh', 'wo', 'woh', 'iska', 'uska', 'par', 'hi', 'bhi',
+    'kaise', 'kaun', 'kaunsa', 'kaunsi', 'kab', 'kahan', 'kyun', 'kitna',
+    'hota', 'hoti', 'hote', 'kar', 'karo', 'karta', 'batao', 'bata', 'baare', 'samjhao',
+    'is', 'are', 'was', 'a', 'an', 'of', 'to', 'in', 'on', 'the', 'for', 'and', 'about',
+    'what', 'which', 'who', 'how', 'when', 'where', 'why', 'tell', 'does', 'do', 'me', 'my',
+}
+
+
+def _keywords(s):
+    """Meaningful lowercase tokens (drops stopwords and very short words)."""
+    return {t for t in re.sub(r'[^\w\s]', ' ', s.lower()).split()
+            if len(t) > 2 and t not in _STOPWORDS}
+
+
+def find_instant_answer(query, threshold=0.6):
     """
-    Return a stored answer if the query exactly (or nearly) matches a saved
-    question. Returns None when there is no confident match, so the caller
-    falls back to RAG + the language model.
+    Return a stored answer when the query shares enough meaningful keywords with
+    a saved question. This is phrasing-tolerant ("Bihu kab hota hai?", "When is
+    Bihu?", "Rongali Bihu kya hai?" all match) and fast even with many pairs:
+    the database pre-filters to questions sharing at least one keyword, then we
+    score only those. Returns None when nothing is confident enough, so the
+    caller falls back to RAG + the language model.
     """
-    qn = _normalize(query)
-    if not qn:
+    q_tokens = _keywords(query)
+    if not q_tokens:
         return None
 
+    qn = _normalize(query)
+
+    # DB-side pre-filter: only pull questions that share a keyword (fast at scale).
+    q_filter = Q()
+    for t in q_tokens:
+        q_filter |= Q(question__icontains=t)
+    candidates = QAPair.objects.filter(q_filter).only('question', 'answer')[:3000]
+
     best_answer = None
-    best_ratio = 0.0
-    for qa in QAPair.objects.all().only('question', 'answer'):
-        pn = _normalize(qa.question)
-        if not pn:
-            continue
-        if pn == qn:
+    best_score = 0.0
+    for qa in candidates:
+        if _normalize(qa.question) == qn:
             return qa.answer  # exact match — instant
-        ratio = difflib.SequenceMatcher(None, qn, pn).ratio()
-        if ratio > best_ratio:
-            best_ratio = ratio
+
+        p_tokens = _keywords(qa.question)
+        if not p_tokens:
+            continue
+        inter = len(q_tokens & p_tokens)
+        if inter == 0:
+            continue
+        # Overlap coefficient (tolerant to extra words), tie-broken by Jaccard
+        # so a tighter, more specific question wins when coverage is equal.
+        overlap = inter / min(len(q_tokens), len(p_tokens))
+        jaccard = inter / len(q_tokens | p_tokens)
+        score = overlap + jaccard * 0.001
+        if score > best_score:
+            best_score = score
             best_answer = qa.answer
 
-    return best_answer if best_ratio >= threshold else None
+    return best_answer if best_score >= threshold else None
 
 
 def search_knowledge_base(query, top_k=3):
