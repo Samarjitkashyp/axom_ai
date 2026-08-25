@@ -1852,3 +1852,46 @@ kbd {
             font-size: 0.9rem;
         }
     
+
+/* ==========================================================================
+   MOBILE RESPONSIVE  (phones, <= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* 100dvh = the REAL visible height on phones, so the chat input never hides
+       behind the browser's address/navigation bar (the main mobile bug). */
+    body { height: 100dvh; }
+    .app-layout { height: 100dvh; }
+    .main-content { height: 100dvh; width: 100%; }
+
+    /* Sidebars slide OVER the chat as drawers instead of squeezing it. */
+    .sidebar-left,
+    .sidebar-right {
+        position: fixed;
+        top: 0;
+        height: 100dvh;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+    }
+    .sidebar-left  { left: 0; }
+    .sidebar-right { right: 0; }
+
+    /* Tighter header + body spacing on small screens. */
+    .top-header { padding: 0 12px; }
+    .main-body { padding: 16px 12px 150px 12px; }
+
+    /* Chat input: full width + respects the phone's bottom safe area. */
+    .chat-input-area {
+        padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px)) 12px;
+    }
+    .input-card { border-radius: 14px; padding: 10px 12px; max-width: 100%; }
+    /* 16px font stops iOS from auto-zooming when the textarea is focused. */
+    .chat-textarea { font-size: 16px; }
+
+    /* Messages use more of the width on mobile. */
+    .message-bubble { padding: 12px 14px; gap: 10px; }
+    .message-bubble.user { max-width: 92%; }
+
+    /* Hero / greeting fits a small screen. */
+    .greeting-title { font-size: 1.5rem; }
+    .greeting-subtitle { font-size: 0.9rem; }
+    .orb-container { transform: scale(0.8); }
+}
