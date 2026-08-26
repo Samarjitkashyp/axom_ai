@@ -3,6 +3,7 @@ import SidebarLeft from './components/SidebarLeft';
 import SidebarRight from './components/SidebarRight';
 import ChatWindow from './components/ChatWindow';
 import AdminPanel from './components/AdminPanel';
+import SettingsPage from './components/SettingsPage';
 import LoginModal from './components/LoginModal';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
@@ -128,6 +129,20 @@ export default function App() {
     );
   }
 
+  // Render Settings View
+  if (currentView === 'settings') {
+    return (
+      <SettingsPage
+        sessions={sessions}
+        onBack={() => setCurrentView('chat')}
+        onSwitchSession={setCurrentChatId}
+        deleteSession={deleteSession}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+    );
+  }
+
   // Render Main Layout (Chat View)
   const currentSession = currentChatId ? sessions[currentChatId] : null;
 
@@ -153,6 +168,7 @@ export default function App() {
         deleteSession={deleteSession}
         togglePin={togglePin}
         clearAllSessions={clearAllSessions}
+        onOpenSettings={() => setCurrentView('settings')}
       />
 
       {/* MAIN CHAT CANVAS */}

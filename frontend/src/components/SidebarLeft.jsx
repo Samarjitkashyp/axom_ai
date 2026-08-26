@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, MessageSquare, LogOut, ChevronDown, LayoutDashboard,
-  MoreVertical, Pin, PinOff, Trash2, Archive, X,
+  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon,
 } from 'lucide-react';
 
 const RECENT_LIMIT = 15;
@@ -16,11 +16,11 @@ export default function SidebarLeft({
   deleteSession,
   togglePin,
   clearAllSessions,
+  onOpenSettings,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [openMenuId, setOpenMenuId] = useState(null);      // per-chat 3-dot menu
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
-  const [archiveOpen, setArchiveOpen] = useState(false);
 
   useEffect(() => {
     const closeAll = () => { setDropdownOpen(false); setOpenMenuId(null); setHeaderMenuOpen(false); };
@@ -34,7 +34,7 @@ export default function SidebarLeft({
   const pinned = all.filter((s) => s.pinned).reverse();
   const nonPinned = all.filter((s) => !s.pinned).reverse();
   const recent = nonPinned.slice(0, RECENT_LIMIT);
-  const archived = nonPinned.slice(RECENT_LIMIT);
+  const archivedCount = nonPinned.length - recent.length;
 
   const menuBtnStyle = {
     background: 'transparent', border: 'none', color: 'var(--text-muted)',
@@ -45,7 +45,7 @@ export default function SidebarLeft({
     position: 'absolute', right: '8px', top: '30px', zIndex: 60,
     background: 'var(--bg-card)', border: '1px solid var(--border-color)',
     borderRadius: '10px', boxShadow: '0 8px 22px rgba(0,0,0,0.5)', padding: '4px',
-    display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '130px',
+    display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '150px',
   };
   const popItem = {
     display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px',
@@ -123,10 +123,10 @@ export default function SidebarLeft({
             <MoreVertical size={16} />
           </button>
           {headerMenuOpen && (
-            <div style={{ ...popStyle, top: '26px', minWidth: '180px' }} onClick={(e) => e.stopPropagation()}>
-              <button style={popItem} onClick={() => { setArchiveOpen(true); setHeaderMenuOpen(false); }}>
-                <Archive size={14} />
-                <span>Archived chats ({archived.length})</span>
+            <div style={{ ...popStyle, top: '26px', minWidth: '190px' }} onClick={(e) => e.stopPropagation()}>
+              <button style={popItem} onClick={() => { onOpenSettings(); setHeaderMenuOpen(false); }}>
+                <SettingsIcon size={14} />
+                <span>Settings</span>
               </button>
               <button
                 style={{ ...popItem, color: '#f87171' }}
@@ -156,13 +156,14 @@ export default function SidebarLeft({
               Koi chat nahi. "New Chat" se shuru karo.
             </div>
           )}
-          {archived.length > 0 && (
-            <button className="archive-link" onClick={() => setArchiveOpen(true)}>
-              <Archive size={14} />
-              <span>Archived chats ({archived.length})</span>
-            </button>
-          )}
         </div>
+
+        {/* Settings (with archived chats inside) */}
+        <button className="settings-link" onClick={onOpenSettings}>
+          <SettingsIcon size={16} />
+          <span>Settings</span>
+          {archivedCount > 0 && <span className="archived-badge">{archivedCount} archived</span>}
+        </button>
       </div>
 
       {/* User Profile Card */}
@@ -216,57 +217,6 @@ export default function SidebarLeft({
               </a>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Archive Modal */}
-      {archiveOpen && (
-        <div className="archive-overlay" onClick={() => setArchiveOpen(false)}>
-          <div className="archive-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="archive-modal-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800 }}>
-                <Archive size={18} /> Archived Chats ({archived.length})
-              </div>
-              <button style={menuBtnStyle} onClick={() => setArchiveOpen(false)}><X size={18} /></button>
-            </div>
-            <div className="archive-modal-body">
-              {archived.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', padding: '20px', textAlign: 'center' }}>
-                  Koi archived chat nahi. (16+ purani chats yahan aati hain.)
-                </div>
-              ) : (
-                archived.map((s) => (
-                  <div key={s.id} className="archive-row">
-                    <MessageSquare size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                    <span
-                      className="archive-title"
-                      onClick={() => { onSwitchSession(s.id); setArchiveOpen(false); }}
-                    >
-                      {s.title}
-                    </span>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', flexShrink: 0 }}>{s.time}</span>
-                    <button style={{ ...menuBtnStyle, color: '#f87171' }} title="Delete" onClick={() => deleteSession(s.id)}>
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-            {archived.length > 0 && (
-              <div className="archive-modal-footer">
-                <button
-                  className="btn-delete-all"
-                  onClick={() => {
-                    if (window.confirm('Saari archived chats delete kar dein?')) {
-                      archived.forEach((s) => deleteSession(s.id));
-                    }
-                  }}
-                >
-                  <Trash2 size={14} /> Delete all archived
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       )}
     </aside>
