@@ -66,6 +66,48 @@ User question  (+ chosen reply language)
 
 ---
 
+## ⚡ Quick Start (copy-paste)
+
+```bash
+# 1. clone + enter
+git clone https://github.com/Samarjitkashyp/axom_ai.git
+cd axom_ai
+
+# 2. python env + dependencies  (installs Django, bge-m3, etc.)
+python -m venv venv
+venv\Scripts\activate            # Windows   (mac/linux: source venv/bin/activate)
+pip install -r requirements.txt
+
+# 3. create the PostgreSQL database (run once in psql)
+#    CREATE DATABASE axom_ai;
+#    CREATE USER axom_user WITH PASSWORD 'your_db_password';
+#    ALTER DATABASE axom_ai OWNER TO axom_user;
+
+# 4. config
+copy .env.example .env           # Windows   (mac/linux: cp .env.example .env)
+#    then edit .env → set SECRET_KEY, DB_PASSWORD, GEMINI_API_KEY
+
+# 5. database tables + admin login
+python manage.py migrate
+python manage.py createsuperuser
+
+# 6. local model (optional — skip if USE_LOCAL_LLM=False)
+ollama pull qwen2.5:0.5b
+
+# 7. run
+python manage.py runserver
+```
+
+Then open **http://127.0.0.1:8000/**. To load knowledge: go to **/admin-panel/**, upload a
+`.jsonl` file, then run `python manage.py backfill_embeddings` so semantic search works.
+
+> The first time semantic search runs, **bge-m3 (~2 GB)** downloads automatically and loads into
+> RAM (needs ~2–3 GB free). The first query is slow; after that it's fast.
+
+The detailed, explained version of every step is below.
+
+---
+
 ## 🚀 Setup — Step by Step
 
 ### 1. Clone
