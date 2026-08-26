@@ -126,9 +126,9 @@ export default function SidebarRight({
         </div>
         <ul className="quick-tips-list">
           <li><span className="tip-dot">•</span> Use <kbd>Ctrl+K</kbd> to focus chat input</li>
-          <li><span className="tip-dot">•</span> Web Search requires a login</li>
-          <li><span className="tip-dot">•</span> Axom AI answers history incidents 1900+</li>
-          <li><span className="tip-dot">•</span> Upload documents in Admin Panel to build KB</li>
+          <li><span className="tip-dot">•</span> Ask about Assam in English or Hinglish</li>
+          <li><span className="tip-dot">•</span> Pin or delete chats from the ⋮ menu</li>
+          <li><span className="tip-dot">•</span> Manage archived chats in Settings</li>
         </ul>
       </div>
     </aside>

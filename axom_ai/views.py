@@ -218,7 +218,10 @@ def chat_api_view(request):
         "Give clear, accurate, and well-structured answers. Use Markdown formatting (headings, bullet "
         "points, and code blocks) where it improves readability. If you are unsure about something, say so "
         "honestly instead of making up facts. When internal database context is provided, prefer it and "
-        "cite the relevant details from it."
+        "cite the relevant details from it. "
+        "IMPORTANT: Never invent specific facts — such as names of people or officials, "
+        "who currently holds a government post, dates, or statistics. If you do not reliably "
+        "know a specific factual answer, clearly say you are not certain instead of guessing a name or number."
     )
 
     sem_score = 0.0
@@ -244,14 +247,11 @@ def chat_api_view(request):
                 'web_search': False, 'sources': [], 'engine': 'semantic',
             })
 
-    # 2c. Keyword chunk search — only for queries that are at least somewhat topical
-    #     (semantic score close to the match threshold). This keeps greetings and
-    #     chit-chat ("how are you", "what can you do") from accidentally matching a
-    #     common word in the knowledge base and getting an "I don't know" reply.
-    if (not web_search) and sem_score >= 0.60:
-        custom_context, source_docs = search_knowledge_base(prompt, top_k=1)
-    else:
-        custom_context, source_docs = "", []
+    # 2c. Keyword-chunk RAG removed: semantic search already covers the Q&A
+    #     knowledge base, and single common-word chunk matches (e.g. "assam")
+    #     pulled off-topic context. Anything semantic misses now goes to the
+    #     general model, which is instructed not to invent specific facts.
+    custom_context, source_docs = "", []
 
     # 3. Optional strict gate (off by default so greetings / general chat still work):
     #    only blocks answers when explicitly enabled AND nothing relevant was found.

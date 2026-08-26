@@ -13,7 +13,7 @@ from .models import KnowledgeDocument, KnowledgeChunk, QAPair
 # The model is loaded lazily once and kept resident in the process.
 # --------------------------------------------------------------------------
 EMBED_MODEL = os.getenv('EMBED_MODEL', 'BAAI/bge-m3')
-SEMANTIC_THRESHOLD = float(os.getenv('SEMANTIC_THRESHOLD', '0.65'))
+SEMANTIC_THRESHOLD = float(os.getenv('SEMANTIC_THRESHOLD', '0.72'))
 _EMBED_MODEL_OBJ = None
 _QA_CACHE = None  # (ids, answers, normalized_matrix, count)
 
