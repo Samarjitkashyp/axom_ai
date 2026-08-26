@@ -1,5 +1,7 @@
 import os
 import json
+import time
+from datetime import datetime
 import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
@@ -8,6 +10,30 @@ from knowledge.utils import search_knowledge_base, find_instant_answer, semantic
 
 # Global HTTP Session for connection pooling & ultra-fast API calls
 http_session = requests.Session()
+
+# ---------------------------------------------------------------------------
+# Simple per-IP rate limit (protects the public chat + Gemini quota from abuse).
+# In-memory is fine because we run a single Gunicorn worker.
+# ---------------------------------------------------------------------------
+RATE_LIMIT = int(os.getenv('CHAT_RATE_LIMIT', '20'))       # messages
+RATE_WINDOW = int(os.getenv('CHAT_RATE_WINDOW', '60'))     # per this many seconds
+_RATE_HITS = {}
+
+
+def _client_ip(request):
+    fwd = request.META.get('HTTP_X_FORWARDED_FOR')
+    return fwd.split(',')[0].strip() if fwd else request.META.get('REMOTE_ADDR', '?')
+
+
+def _is_rate_limited(ip):
+    now = time.time()
+    hits = [t for t in _RATE_HITS.get(ip, []) if now - t < RATE_WINDOW]
+    if len(hits) >= RATE_LIMIT:
+        _RATE_HITS[ip] = hits
+        return True
+    hits.append(now)
+    _RATE_HITS[ip] = hits
+    return False
 
 # ---------------------------------------------------------------------------
 # Local LLM (Ollama) configuration — primary engine, Gemini is the fallback.
@@ -77,6 +103,12 @@ def chat_api_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse(
+            {'error': 'Bahut zyada messages — thodi der ruk kar dobara try karo.'},
+            status=429,
+        )
+
     try:
         data = json.loads(request.body.decode('utf-8'))
         prompt = data.get('prompt', '').strip()
@@ -90,7 +122,9 @@ def chat_api_view(request):
     import re
 
     # 1. System prompt — general-purpose AI assistant (ChatGPT / DeepSeek style).
+    today = datetime.now().strftime('%A, %d %B %Y')
     system_instruction = (
+        f"Today's date is {today}. "
         "You are Axom AI, a helpful, knowledgeable, and friendly general-purpose AI assistant. "
         "You can answer questions and help with any topic, including history, science, mathematics, "
         "programming and code, general knowledge, writing, reasoning, and everyday advice. "
