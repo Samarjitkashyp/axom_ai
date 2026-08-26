@@ -81,7 +81,7 @@ After=network.target postgresql.service
 [Service]
 User=$(whoami)
 WorkingDirectory=${APP_DIR}
-ExecStart=${APP_DIR}/venv/bin/gunicorn --workers 2 --timeout 120 --bind 0.0.0.0:8000 axom_ai.wsgi:application
+ExecStart=${APP_DIR}/venv/bin/gunicorn --workers 1 --timeout 120 --bind 0.0.0.0:8000 axom_ai.wsgi:application
 Restart=always
 
 [Install]
