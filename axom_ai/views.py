@@ -19,6 +19,11 @@ RATE_LIMIT = int(os.getenv('CHAT_RATE_LIMIT', '20'))       # messages
 RATE_WINDOW = int(os.getenv('CHAT_RATE_WINDOW', '60'))     # per this many seconds
 _RATE_HITS = {}
 
+# Memory management knobs.
+MEMORY_CHAR_BUDGET = int(os.getenv('MEMORY_CHAR_BUDGET', '3500'))   # conversation context budget
+MAX_MSGS_PER_SESSION = int(os.getenv('MAX_MSGS_PER_SESSION', '100'))  # messages kept per chat
+MAX_SESSIONS_PER_KEY = int(os.getenv('MAX_SESSIONS_PER_KEY', '50'))   # non-pinned chats kept
+
 
 def _client_ip(request):
     fwd = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -57,6 +62,19 @@ def _save_chat(request, client_id, user_text, assistant_text, title=None):
         if assistant_text:
             ChatMessage.objects.create(session=sess, role='assistant', text=assistant_text)
         sess.save(update_fields=['updated_at'])
+
+        # --- storage limits ---
+        # 1. cap messages per session (drop the oldest beyond the limit)
+        msg_ids = list(sess.messages.order_by('-created_at').values_list('id', flat=True))
+        if len(msg_ids) > MAX_MSGS_PER_SESSION:
+            ChatMessage.objects.filter(id__in=msg_ids[MAX_MSGS_PER_SESSION:]).delete()
+        # 2. cap non-pinned sessions per browser (drop the oldest beyond the limit)
+        extra = list(
+            ChatSession.objects.filter(session_key=key, pinned=False)
+            .order_by('-updated_at').values_list('id', flat=True)[MAX_SESSIONS_PER_KEY:]
+        )
+        if extra:
+            ChatSession.objects.filter(id__in=extra).delete()
     except Exception:
         pass
 
@@ -265,18 +283,25 @@ def chat_api_view(request):
             'web_search': False, 'sources': [], 'engine': 'no-answer',
         })
 
-    # 4. Formulate the model prompt, including the recent conversation so follow-up
-    #    questions ("thoda aur detail me", "aur batao") keep their context.
+    # 4. Formulate the model prompt with recent conversation for follow-up context.
+    #    Memory management: keep the newest turns within a character budget (so short
+    #    messages give more context, long ones fewer) — older turns are dropped.
     hist_block = ""
     turns = []
-    for h in history[-6:]:
+    used = 0
+    for h in reversed(history):  # newest first
         if not isinstance(h, dict):
             continue
         t = str(h.get('text', '')).strip()
         if not t:
             continue
         who = 'Assistant' if h.get('role') == 'assistant' else 'User'
-        turns.append(f"{who}: {t}")
+        line = f"{who}: {t}"
+        if turns and used + len(line) > MEMORY_CHAR_BUDGET:
+            break
+        turns.append(line)
+        used += len(line)
+    turns.reverse()  # back to chronological order
     if turns:
         hist_block = "Conversation so far:\n" + "\n".join(turns) + "\n\n"
     # system_instruction is sent separately (Gemini systemInstruction / Ollama system).
