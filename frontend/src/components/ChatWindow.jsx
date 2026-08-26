@@ -121,8 +121,8 @@ export default function ChatWindow({
         }),
       });
 
-      // --- Streaming path (local Ollama model): tokens arrive live ---
-      if (res.ok && res.headers.get('X-Engine') === 'local' && res.body) {
+      // --- Streaming path (local Ollama or Gemini): tokens arrive live ---
+      if (res.ok && res.headers.get('X-Engine') && res.body) {
         const fromDb = res.headers.get('X-From-Database') === 'true';
         setStreamingSources([]);
         setStreamingModel('Axom AI');

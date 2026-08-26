@@ -265,6 +265,57 @@ def chat_api_view(request):
         'gemini-3-flash-preview',
     ]
 
+    # 6a. STREAM the general/RAG answer from Gemini so the first words reach the
+    #     user immediately (feels fast). web_search stays non-streaming below —
+    #     it needs the grounding metadata (sources) that arrives at the end.
+    if not web_search:
+        for model_id in candidate_models:
+            try:
+                s_url = (f"https://generativelanguage.googleapis.com/v1beta/models/"
+                         f"{model_id}:streamGenerateContent?alt=sse&key={api_key}")
+                g_res = http_session.post(
+                    s_url,
+                    json={
+                        "contents": [{"parts": [{"text": final_prompt}]}],
+                        "systemInstruction": {"parts": [{"text": system_instruction}]},
+                    },
+                    stream=True, timeout=30,
+                )
+            except Exception:
+                continue
+            if g_res.status_code == 200:
+                def gemini_stream(resp=g_res):
+                    try:
+                        for raw in resp.iter_lines():
+                            if not raw:
+                                continue
+                            line = raw.decode('utf-8', 'ignore')
+                            if not line.startswith('data:'):
+                                continue
+                            data = line[5:].strip()
+                            if not data:
+                                continue
+                            try:
+                                obj = json.loads(data)
+                            except Exception:
+                                continue
+                            for cand in obj.get('candidates', []):
+                                for part in cand.get('content', {}).get('parts', []):
+                                    if part.get('text'):
+                                        yield part['text']
+                    finally:
+                        resp.close()
+
+                sresp = StreamingHttpResponse(gemini_stream(), content_type='text/plain; charset=utf-8')
+                sresp['X-Engine'] = 'gemini'
+                sresp['X-From-Database'] = 'true' if custom_context else 'false'
+                sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
+                sresp['Cache-Control'] = 'no-cache'
+                sresp['X-Accel-Buffering'] = 'no'
+                return sresp
+            g_res.close()
+        # streaming failed for all models — fall through to the non-streaming loop
+
     last_error = ""
 
     for model_id in candidate_models:
