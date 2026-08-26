@@ -100,6 +100,7 @@ def chat_api_view(request):
         "cite the relevant details from it."
     )
 
+    sem_score = 0.0
     if not web_search:
         # 2a. INSTANT ANSWER: exact/near keyword match to a stored Q&A → verbatim
         #     answer immediately (no model, no latency).
@@ -120,11 +121,14 @@ def chat_api_view(request):
                 'web_search': False, 'sources': [], 'engine': 'semantic',
             })
 
-    # 2c. Keyword chunk search (mainly for PDF/free-text docs without Q&A pairs).
-    if web_search:
-        custom_context, source_docs = "", []
-    else:
+    # 2c. Keyword chunk search — only for queries that are at least somewhat topical
+    #     (semantic score close to the match threshold). This keeps greetings and
+    #     chit-chat ("how are you", "what can you do") from accidentally matching a
+    #     common word in the knowledge base and getting an "I don't know" reply.
+    if (not web_search) and sem_score >= 0.60:
         custom_context, source_docs = search_knowledge_base(prompt, top_k=1)
+    else:
+        custom_context, source_docs = "", []
 
     # 3. Optional strict gate (off by default so greetings / general chat still work):
     #    only blocks answers when explicitly enabled AND nothing relevant was found.

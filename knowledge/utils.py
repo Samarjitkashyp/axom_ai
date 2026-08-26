@@ -282,6 +282,10 @@ _STOPWORDS = {
     'hota', 'hoti', 'hote', 'kar', 'karo', 'karta', 'batao', 'bata', 'baare', 'samjhao',
     'is', 'are', 'was', 'a', 'an', 'of', 'to', 'in', 'on', 'the', 'for', 'and', 'about',
     'what', 'which', 'who', 'how', 'when', 'where', 'why', 'tell', 'does', 'do', 'me', 'my',
+    # conversational filler — so greetings/chit-chat don't accidentally match KB text
+    'you', 'your', 'yours', 'am', 'be', 'been', 'being', 'doing', 'going', 'get',
+    'hello', 'hii', 'hey', 'namaste', 'thanks', 'thank', 'please', 'okay', 'yes', 'no',
+    'ho', 'hu', 'hoon', 'aap', 'tum', 'raha', 'rahe', 'rahi', 'good', 'nice', 'help',
 }
 
 
