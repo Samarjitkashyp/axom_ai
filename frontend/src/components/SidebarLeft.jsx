@@ -19,14 +19,23 @@ export default function SidebarLeft({
   onOpenSettings,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [openMenuId, setOpenMenuId] = useState(null);
+  const [menuFor, setMenuFor] = useState(null); // { id, top, left } — fixed-positioned
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
 
   useEffect(() => {
-    const closeAll = () => { setDropdownOpen(false); setOpenMenuId(null); setHeaderMenuOpen(false); };
+    const closeAll = () => { setDropdownOpen(false); setMenuFor(null); setHeaderMenuOpen(false); };
     window.addEventListener('click', closeAll);
     return () => window.removeEventListener('click', closeAll);
   }, []);
+
+  const openItemMenu = (e, id) => {
+    e.stopPropagation();
+    if (menuFor && menuFor.id === id) { setMenuFor(null); return; }
+    const r = e.currentTarget.getBoundingClientRect();
+    const MENU_H = 92;
+    const top = (window.innerHeight - r.bottom < MENU_H) ? r.top - MENU_H : r.bottom + 4;
+    setMenuFor({ id, top, left: Math.max(8, r.right - 150) });
+  };
 
   const handleProfileClick = (e) => { e.stopPropagation(); setDropdownOpen((p) => !p); };
 
@@ -62,27 +71,13 @@ export default function SidebarLeft({
     >
       {session.pinned ? <Pin size={13} className="chat-icon" /> : <MessageSquare size={14} className="chat-icon" />}
       <span className="chat-title">{session.title}</span>
-      <button
-        style={menuBtnStyle}
-        title="Options"
-        onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === session.id ? null : session.id); }}
-      >
+      <button style={menuBtnStyle} title="Options" onClick={(e) => openItemMenu(e, session.id)}>
         <MoreVertical size={15} />
       </button>
-      {openMenuId === session.id && (
-        <div style={popStyle} onClick={(e) => e.stopPropagation()}>
-          <button style={popItem} onClick={() => { togglePin(session.id); setOpenMenuId(null); }}>
-            {session.pinned ? <PinOff size={14} /> : <Pin size={14} />}
-            <span>{session.pinned ? 'Unpin' : 'Pin'}</span>
-          </button>
-          <button style={{ ...popItem, color: '#f87171' }} onClick={() => { deleteSession(session.id); setOpenMenuId(null); }}>
-            <Trash2 size={14} />
-            <span>Delete</span>
-          </button>
-        </div>
-      )}
     </div>
   );
+
+  const menuSession = menuFor ? sessions[menuFor.id] : null;
 
   return (
     <aside className={`sidebar-left ${isCollapsed ? 'collapsed' : ''}`} id="sidebarLeft">
@@ -217,6 +212,28 @@ export default function SidebarLeft({
               </a>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Per-chat menu — fixed positioning so it is never clipped by the list scroll */}
+      {menuFor && menuSession && (
+        <div
+          style={{
+            position: 'fixed', top: menuFor.top, left: menuFor.left, zIndex: 1000,
+            background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+            borderRadius: '10px', boxShadow: '0 8px 22px rgba(0,0,0,0.55)', padding: '4px',
+            display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '142px',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button style={popItem} onClick={() => { togglePin(menuFor.id); setMenuFor(null); }}>
+            {menuSession.pinned ? <PinOff size={14} /> : <Pin size={14} />}
+            <span>{menuSession.pinned ? 'Unpin' : 'Pin'}</span>
+          </button>
+          <button style={{ ...popItem, color: '#f87171' }} onClick={() => { deleteSession(menuFor.id); setMenuFor(null); }}>
+            <Trash2 size={14} />
+            <span>Delete</span>
+          </button>
         </div>
       )}
     </aside>
