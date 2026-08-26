@@ -1,33 +1,43 @@
 # 🧠 Axom AI
 
-A self-hosted AI chat assistant built with **Django + React**, powered by a **local LLM (Ollama)** with a **Google Gemini** fallback and a **RAG knowledge base** you can feed with your own documents.
+A self-hosted, multilingual AI chat assistant built with **Django + React**. It answers from
+your own knowledge base using **semantic search (BAAI/bge-m3)**, runs a **local LLM (Ollama)**
+offline with a **Google Gemini** fallback, and replies in **English, Hinglish, or Assamese**.
 
-It runs fully offline for everyday questions and only uses the cloud (Gemini) for live web search or as a backup.
-
-> 🌐 **Live demo:** http://3.6.237.64:8000 &nbsp;·&nbsp; deployed on AWS Lightsail with an automated CI/CD pipeline (see below).
+> 🌐 **Live demo:** http://3.6.237.64:8000 &nbsp;·&nbsp; deployed on AWS Lightsail with an automated CI/CD pipeline.
 
 ---
 
 ## ✨ Features
 
-- 💬 **ChatGPT-style chat UI** — streaming responses, token-by-token, with a typing indicator
-- 🧩 **3-layer hybrid answer engine** (see below) — fast *and* accurate
-- 📚 **Knowledge base / RAG** — upload PDF, DOCX, Excel, CSV, TXT, or JSONL from the admin panel; the model answers using your data
-- ⚡ **Instant Answer** — exact Q&A matches return in milliseconds, no model needed
+- 💬 **ChatGPT-style chat** — token-by-token streaming with a typing indicator
+- 🎯 **Accurate, no hallucination** — answers come verbatim from your knowledge base; the model
+  is told never to invent names/dates/facts and to say "not certain" instead
+- 🌏 **Multilingual replies** — pick **English / Hinglish / অসমীয়া (Assamese)** per message
+- 🔎 **Semantic search (bge-m3)** — matches questions by *meaning*, across wording and language
+  ("When is Bihu?" ↔ "Rongali Bihu kya hai?")
+- ⚡ **Instant answers** — exact keyword matches return in milliseconds, no model call
+- 🧠 **Conversation memory** — follow-ups ("aur batao", "detail me") keep context (token-budget window)
+- 📚 **Knowledge base** — upload PDF, DOCX, Excel, CSV, TXT, or **JSONL** (Q&A) from the admin panel
+- 🗂️ **Chat management** — pin / delete via a 3-dot menu, archive old chats, dedicated **Settings** page
 - 🔐 **Secure admin panel** — staff-only document management
-- 🌐 **Web search** — real-time answers with sources (via Gemini grounding)
+- 🛡️ **Production-ready** — per-IP rate limiting, health endpoint, storage limits + auto-cleanup
+- 📱 **Responsive + theming** — mobile layout, dark/light theme toggle
 - 🖥️ **Runs on modest hardware** — small local models work on CPU-only machines
 
-### How answers are produced
+### How an answer is produced
 
 ```
-User question
+User question  (+ chosen reply language)
    │
-   ├─ 1. INSTANT ANSWER   → exact/near match in stored Q&A?  → return instantly (0 ms)
+   ├─ 1. INSTANT       → exact keyword match to a stored Q&A?    → verbatim (0 ms)
    │
-   ├─ 2. RAG + LOCAL LLM  → relevant document context found? → local model answers (streamed)
+   ├─ 2. SEMANTIC      → closest meaning match (bge-m3 ≥ threshold)? → verbatim from the data
+   │        └─ language routing: verified Assamese record → used directly;
+   │           Hinglish → verbatim; English/Assamese → translated (facts kept exact)
    │
-   └─ 3. GEMINI FALLBACK  → web search, or local unavailable → Gemini answers (with sources)
+   └─ 3. MODEL         → nothing in the KB → local Ollama (offline) or Gemini,
+            answering in the chosen language and refusing to invent specific facts
 ```
 
 ---
@@ -39,32 +49,32 @@ User question
 | Backend | Django 5.2 (Python) |
 | Frontend | React 19 + Vite |
 | Database | PostgreSQL |
+| Semantic search | `BAAI/bge-m3` via sentence-transformers (multilingual embeddings) |
 | Local LLM | Ollama (`qwen2.5:0.5b` / `llama3.2:1b`, or your own fine-tuned model) |
-| Cloud LLM | Google Gemini API |
+| Cloud LLM | Google Gemini API (streaming, translation, fallback) |
 | Doc parsing | pypdf, python-docx, openpyxl, Pillow |
+| Serving | Gunicorn + WhiteNoise |
 
 ---
 
 ## 📋 Prerequisites
 
-Install these first:
-
 - [Python 3.11+](https://www.python.org/downloads/)
 - [PostgreSQL](https://www.postgresql.org/download/)
-- [Node.js 18+](https://nodejs.org/) (only if you want to rebuild the frontend)
-- [Ollama](https://ollama.com/download) (for the local model)
+- [Node.js 18+](https://nodejs.org/) (only to rebuild the frontend)
+- [Ollama](https://ollama.com/download) (for the local model — optional if you use Gemini only)
 
 ---
 
-## 🚀 Setup — Step by Step (A to Z)
+## 🚀 Setup — Step by Step
 
-### 1. Clone the repository
+### 1. Clone
 ```bash
 git clone https://github.com/Samarjitkashyp/axom_ai.git
 cd axom_ai
 ```
 
-### 2. Create a Python virtual environment & install dependencies
+### 2. Virtual environment + dependencies
 ```bash
 python -m venv venv
 # Windows:
@@ -74,137 +84,145 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 ```
+> This installs `sentence-transformers` (for bge-m3). The model (~2 GB) downloads automatically
+> the first time semantic search runs.
 
-### 3. Set up PostgreSQL
-Create a database and user (adjust names/passwords as you like):
+### 3. PostgreSQL
 ```sql
 CREATE DATABASE axom_ai;
 CREATE USER axom_user WITH PASSWORD 'your_db_password';
-GRANT ALL PRIVILEGES ON DATABASE axom_ai TO axom_user;
+ALTER DATABASE axom_ai OWNER TO axom_user;
 ```
 
-### 4. Configure environment variables
-Copy the example file and fill in your own values:
+### 4. Environment variables
 ```bash
 cp .env.example .env
 ```
-Then edit `.env`:
-- `SECRET_KEY` — any long random string
-- `DB_*` — match the database you created above
-- `GEMINI_API_KEY` — free key from https://aistudio.google.com/apikey (needed for web search / fallback)
-- `OLLAMA_MODEL` — the local model to use (see step 6)
+Edit `.env` — at minimum: `SECRET_KEY`, `DB_*`, and `GEMINI_API_KEY`
+(free key: https://aistudio.google.com/apikey). See **Configuration** below for all options.
 
-> ⚠️ **Never commit your real `.env`** — it holds secrets. It is already in `.gitignore`.
+> ⚠️ Never commit your real `.env` — it's already in `.gitignore`.
 
-### 5. Run migrations & create an admin user
+### 5. Migrate + admin user
 ```bash
 python manage.py migrate
 python manage.py createsuperuser
 ```
-The superuser can log into the admin panel to manage the knowledge base.
 
-### 6. Install the local model (Ollama)
-Make sure Ollama is installed and running, then pull a small model:
+### 6. Local model (optional — for offline replies)
 ```bash
-ollama pull qwen2.5:0.5b     # fastest, good for low-end PCs
-# or
-ollama pull llama3.2:1b      # slightly better quality, a bit slower
+ollama pull qwen2.5:0.5b     # fast, low-end PCs
+# or  ollama pull llama3.2:1b
 ```
-Set the same name in `.env` → `OLLAMA_MODEL=qwen2.5:0.5b`.
-
-> Want your **own fine-tuned model**? See [training/README_TRAINING.md](training/README_TRAINING.md).
+Set `OLLAMA_MODEL` in `.env`. To run Gemini-only, set `USE_LOCAL_LLM=False`.
 
 ### 7. (Optional) Rebuild the frontend
-A prebuilt bundle is already included in `static/dist/`, so the app runs without this step.
-Only needed if you change React code in `frontend/`:
+A prebuilt bundle is committed in `static/dist/`, so the app runs without this. Only if you
+change React code in `frontend/`:
 ```bash
-cd frontend
-npm install
-npm run build     # outputs to ../static/dist
-cd ..
+cd frontend && npm install && npm run build && cd ..
 ```
 
-### 8. Run the server
+### 8. Run
 ```bash
 python manage.py runserver
 ```
 
-Open in your browser:
 | Page | URL |
 |------|-----|
 | 💬 Chat | http://127.0.0.1:8000/ |
 | 🔐 Admin panel | http://127.0.0.1:8000/admin-panel/ |
 | ⚙️ Django admin | http://127.0.0.1:8000/admin/ |
+| ❤️ Health check | http://127.0.0.1:8000/health/ |
 
 ---
 
 ## 📖 Usage
 
 ### Chatting
-Just type a question. Normal questions are answered by the local model (offline). Toggle **Web Search** to get live answers with sources via Gemini.
+Type a question and pick a **reply language** (English / Hinglish / অসমীয়া) below the input.
+Answers stream in live. Follow-ups keep context.
 
-### Adding knowledge (RAG)
-1. Go to **/admin-panel/** and log in with your superuser account.
-2. Upload a file — **PDF, DOCX, Excel, CSV, TXT, or JSONL**.
-3. The file is parsed into searchable chunks. Now the model answers using that content.
+### Adding knowledge
+1. Open **/admin-panel/** and log in as a staff user.
+2. Upload **PDF, DOCX, Excel, CSV, TXT, or JSONL**.
+3. Content is parsed into Q&A pairs / chunks and embedded for semantic search.
 
-**JSONL format** (best for exact Q&A — powers the Instant Answer layer):
+**JSONL format** (best — powers instant + semantic answers):
 ```json
 {"instruction": "What is the capital of Assam?", "output": "The capital of Assam is Dispur."}
-{"instruction": "...", "output": "..."}
 ```
-Each `instruction → output` pair also becomes an **instant** answer (returned in milliseconds on an exact/near match).
+For verified Assamese answers, set `answer_assamese` on a `QAPair` (via Django admin) — it is then
+used directly for Assamese replies instead of translation.
+
+### Embeddings
+After uploading data, generate embeddings so semantic search works:
+```bash
+python manage.py backfill_embeddings   # dedupes, trims paraphrases, embeds with bge-m3
+```
+
+---
+
+## ⚙️ Configuration (`.env`)
+
+| Variable | Purpose |
+|----------|---------|
+| `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS` | Django basics |
+| `DB_*` | PostgreSQL connection |
+| `GEMINI_API_KEY` | Gemini (streaming, translation, fallback) |
+| `USE_LOCAL_LLM` | `True` = local Ollama first; `False` = Gemini only |
+| `OLLAMA_MODEL` / `OLLAMA_*` | local model + performance knobs |
+| `SEMANTIC_THRESHOLD` | min similarity to accept a KB match (default 0.72) |
+| `STRICT_KB_MODE` | `True` = say "don't know" when not in KB; `False` = general answers |
+| `CHAT_RATE_LIMIT` / `CHAT_RATE_WINDOW` | per-IP rate limit |
+| `MEMORY_CHAR_BUDGET` | conversation context size |
+| `MAX_MSGS_PER_SESSION` / `MAX_SESSIONS_PER_KEY` | storage limits |
 
 ---
 
 ## 🎓 Train your own model (free)
 
-You can fine-tune a small model on your own data using a **free GPU** on Kaggle/Colab, then run it locally.
+Fine-tune a small model on your data using a **free GPU** on Kaggle/Colab, then run it locally.
+See **[training/README_TRAINING.md](training/README_TRAINING.md)** (ready-to-run notebook + sample data).
 
-See the full guide: **[training/README_TRAINING.md](training/README_TRAINING.md)**
-It includes a ready-to-run notebook (`training/axom_finetune.ipynb`) and a sample dataset.
-
-After training you get a `.gguf` file — load it into Ollama:
+After training you get a `.gguf` — load it into Ollama:
 ```bash
-# In a folder containing your model.gguf, create a file named "Modelfile":
-#   FROM ./your-model.Q4_K_M.gguf
+# in a folder with your .gguf, create a file "Modelfile":  FROM ./your-model.Q4_K_M.gguf
 ollama create axom-custom -f Modelfile
 ```
-Then set `OLLAMA_MODEL=axom-custom` in `.env`.
+Then set `OLLAMA_MODEL=axom-custom`.
 
-> ℹ️ **Model files are not included in this repo** — `.gguf` files are large (hundreds of MB) and exceed GitHub's limits. Train your own with the notebook above, or `ollama pull` a base model.
+> ℹ️ Model files (`.gguf`) are **not** in this repo — they exceed GitHub's limits. Train your own or `ollama pull` a base model.
 
 ---
 
 ## ☁️ Deployment (AWS Lightsail)
 
-The app is deployed on an AWS Lightsail instance in **Gemini-only mode** (`USE_LOCAL_LLM=False`),
-since small cloud instances don't have enough RAM for a local model. Static files are served by
-**WhiteNoise** (no separate web server needed) and the app runs under **Gunicorn**.
+Runs in **Gemini-only mode** by default on small instances; bge-m3 semantic search runs on
+2 GB+ RAM (with **1 Gunicorn worker** so the model loads once). Static files via **WhiteNoise**.
 
-A one-shot deploy script is included — see **[deploy/DEPLOY.md](deploy/DEPLOY.md)**:
+One-shot deploy — see **[deploy/DEPLOY.md](deploy/DEPLOY.md)**:
 ```bash
 curl -O https://raw.githubusercontent.com/Samarjitkashyp/axom_ai/main/deploy/deploy.sh
-# edit GEMINI_API_KEY + DB_PASSWORD inside, then:
+# edit GEMINI_API_KEY + DB_PASSWORD, then:
 bash deploy.sh
 ```
-It sets up swap, PostgreSQL, the virtualenv, `.env`, migrations, static files, and a Gunicorn
-service automatically.
+Sets up swap, PostgreSQL, virtualenv, `.env`, migrations, static files, and a Gunicorn service.
+
+**Uptime monitoring:** point any monitor (e.g. UptimeRobot) at `http://<host>:8000/health/`.
+**Storage cleanup:** a weekly cron runs `python manage.py cleanup_old_chats`.
 
 ---
 
 ## 🔄 CI/CD (GitHub Actions)
 
-Every push to `main` runs an automated pipeline (`.github/workflows/deploy.yml`):
-
+Every push to `main` runs `.github/workflows/deploy.yml`:
 ```
 git push  →  CI: Django check + migrate + React build
           →  CD: SSH to server → git pull → migrate → collectstatic → restart Gunicorn
           →  live site updated automatically
 ```
-
-Deployment uses SSH secrets stored in the repo (`LIGHTSAIL_HOST`, `LIGHTSAIL_USER`,
-`LIGHTSAIL_SSH_KEY`). Tests must pass before deployment runs.
+Uses SSH secrets (`LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`). Tests must pass before deploy.
 
 ---
 
@@ -212,16 +230,17 @@ Deployment uses SSH secrets stored in the repo (`LIGHTSAIL_HOST`, `LIGHTSAIL_USE
 
 ```
 axom_ai/
-├── axom_ai/            # Django project (settings, urls, chat API views)
-├── knowledge/          # Knowledge base app (models, upload/RAG, instant answer)
+├── axom_ai/            # Django project — chat API, language routing, streaming, views
+├── knowledge/          # KB app — models, ingestion, semantic search, chat history
+│   └── management/     # backfill_embeddings, cleanup_old_chats commands
 ├── frontend/           # React + Vite source (build → static/dist)
-├── static/             # CSS/JS + built frontend bundle (static/dist)
+├── static/             # CSS/JS + built frontend bundle
 ├── templates/          # Django templates (index, admin login)
 ├── training/           # Fine-tuning notebook + guide + sample data
-├── deploy/             # Lightsail deploy script + deployment guide
-├── .github/workflows/  # CI/CD pipeline (GitHub Actions)
+├── deploy/             # Lightsail deploy script + guide
+├── .github/workflows/  # CI/CD pipeline
 ├── requirements.txt
-├── .env.example        # Copy to .env and fill in
+├── .env.example
 └── manage.py
 ```
 
@@ -229,13 +248,14 @@ axom_ai/
 
 ## 🩺 Troubleshooting
 
-- **Answers come from Gemini, not the local model** → Ollama isn't running. Start it (`ollama serve`) or open the Ollama app.
-- **First answer is slow (~10s), then fast** → The model is loading into RAM (cold start). It stays warm afterwards (`OLLAMA_KEEP_ALIVE`).
-- **`ollama serve` says "address already in use"** → Ollama is already running. That's fine.
-- **Admin panel shows the chat instead of the dashboard** → You must log in as a **staff** user at `/admin-panel/login/`.
+- **Semantic search returns nothing** → run `python manage.py backfill_embeddings` after uploading data.
+- **First semantic reply is slow (~15s)** → bge-m3 is loading into RAM; it stays warm afterwards (pre-warmed on startup).
+- **Answers come from Gemini, not local** → Ollama isn't running (`ollama serve`), or `USE_LOCAL_LLM=False`.
+- **Out-of-memory with bge-m3** → use **1 Gunicorn worker**, or a smaller embedding model / more RAM.
+- **Admin panel shows chat instead of dashboard** → log in as a **staff** user at `/admin-panel/login/`.
 
 ---
 
 ## 📜 License
 
-This project is for educational/personal use.
+For educational / personal use.
