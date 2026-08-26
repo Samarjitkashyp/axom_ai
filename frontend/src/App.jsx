@@ -36,9 +36,6 @@ export default function App() {
     subtitle: '',
   });
 
-  // Web search status
-  const [isWebSearchActive, setIsWebSearchActive] = useState(false);
-
   // Custom Hooks
   const { remainingWords, deductWords, maxWords } = useWordLimit(user.isAuthenticated);
   const {
@@ -115,16 +112,6 @@ export default function App() {
     return newSessionId;
   };
 
-  const handleToggleWebSearch = () => {
-    if (!user.isAuthenticated) {
-      triggerLoginModal(
-        "Web Search Locked",
-        "Login is required to activate real-time web search. Please sign in to continue."
-      );
-      return;
-    }
-    setIsWebSearchActive((prev) => !prev);
-  };
 
   const navigateToChat = () => {
     window.history.pushState(null, '', '/');
@@ -167,8 +154,6 @@ export default function App() {
         currentSession={currentSession}
         onSendMessage={handleSendMessage}
         onAddMessage={addMessageToSession}
-        isWebSearchActive={isWebSearchActive}
-        onToggleWebSearch={handleToggleWebSearch}
         user={user}
         onToggleLeftSidebar={() => setLeftSidebarCollapsed((prev) => !prev)}
         onToggleRightSidebar={() => setRightSidebarCollapsed((prev) => !prev)}

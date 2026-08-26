@@ -7,8 +7,6 @@ export default function ChatWindow({
   currentSession,
   onSendMessage,
   onAddMessage,
-  isWebSearchActive,
-  onToggleWebSearch,
   user,
   onToggleLeftSidebar,
   onToggleRightSidebar,
@@ -117,7 +115,7 @@ export default function ChatWindow({
         signal: abortControllerRef.current.signal,
         body: JSON.stringify({
           prompt: text,
-          web_search: isWebSearchActive,
+          web_search: false,
           session_id: sessionId,
         }),
       });
@@ -410,17 +408,7 @@ export default function ChatWindow({
             />
           </div>
           <div className="input-controls-row">
-            <div className="controls-left">
-              <button
-                className={`ctrl-icon-btn ${isWebSearchActive ? 'active' : ''}`}
-                onClick={onToggleWebSearch}
-                title="Toggle Web Search"
-                style={{ width: 'auto', padding: '0 12px', borderRadius: '20px', fontWeight: 700, fontSize: '0.76rem', gap: '6px', display: 'flex', alignItems: 'center', transition: 'all 0.3s ease' }}
-              >
-                <Globe size={14} />
-                <span>{isWebSearchActive ? 'Web Search Activated' : 'Web Search'}</span>
-              </button>
-            </div>
+            <div className="controls-left"></div>
             <div className="controls-right">
               <button
                 className="btn-send-message"
