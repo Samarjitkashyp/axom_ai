@@ -117,6 +117,9 @@ export default function ChatWindow({
           prompt: text,
           web_search: false,
           session_id: sessionId,
+          history: (currentSession?.messages || [])
+            .slice(-6)
+            .map((m) => ({ role: m.role, text: m.text })),
         }),
       });
 

@@ -200,6 +200,9 @@ def chat_api_view(request):
         prompt = data.get('prompt', '').strip()
         web_search = data.get('web_search', False)
         client_id = str(data.get('session_id', '') or '')
+        history = data.get('history', [])
+        if not isinstance(history, list):
+            history = []
     except Exception:
         return JsonResponse({'error': 'Invalid JSON body'}, status=400)
 
@@ -262,22 +265,22 @@ def chat_api_view(request):
             'web_search': False, 'sources': [], 'engine': 'no-answer',
         })
 
-    # 4. Formulate prompt. With DB context, force the model to answer ONLY from that
-    #    context and to say "don't know" rather than guess or combine facts.
-    if custom_context:
-        final_prompt = (
-            f"{system_instruction}\n\n"
-            f"Answer the user's question using ONLY the context below. Do NOT use any "
-            f"outside knowledge and do NOT combine unrelated facts. If the answer is not "
-            f"clearly present in the context, reply EXACTLY with this and nothing else:\n"
-            f"\"{DONT_KNOW_MSG}\"\n\n"
-            f"Context:\n----------------------------------------\n"
-            f"{custom_context}\n"
-            f"----------------------------------------\n\n"
-            f"User Question: {prompt}\n\nAnswer (from the context only):"
-        )
-    else:
-        final_prompt = f"{system_instruction}\n\nUser Question: {prompt}"
+    # 4. Formulate the model prompt, including the recent conversation so follow-up
+    #    questions ("thoda aur detail me", "aur batao") keep their context.
+    hist_block = ""
+    turns = []
+    for h in history[-6:]:
+        if not isinstance(h, dict):
+            continue
+        t = str(h.get('text', '')).strip()
+        if not t:
+            continue
+        who = 'Assistant' if h.get('role') == 'assistant' else 'User'
+        turns.append(f"{who}: {t}")
+    if turns:
+        hist_block = "Conversation so far:\n" + "\n".join(turns) + "\n\n"
+    # system_instruction is sent separately (Gemini systemInstruction / Ollama system).
+    final_prompt = f"{hist_block}User Question: {prompt}"
 
     # 5. PRIMARY ENGINE: local Ollama model, STREAMED token-by-token so the first
     #    word reaches the user immediately. Skipped for web_search (needs Gemini's
