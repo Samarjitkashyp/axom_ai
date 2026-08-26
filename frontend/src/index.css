@@ -2261,3 +2261,35 @@ kbd {
     .settings-content { padding: 18px; }
     .archive-grid { grid-template-columns: 1fr; }
 }
+
+/* Language selector in the chat input */
+.lang-selector {
+    display: inline-flex;
+    gap: 3px;
+    padding: 3px;
+    background: var(--bg-pill);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+}
+.lang-btn {
+    padding: 5px 11px;
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.lang-btn:hover { color: var(--text-primary); }
+.lang-btn.active {
+    background: var(--gradient-primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.35);
+}
+@media (max-width: 768px) {
+    .lang-btn { padding: 5px 8px; font-size: 0.7rem; }
+}

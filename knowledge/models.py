@@ -30,6 +30,9 @@ class QAPair(models.Model):
     document = models.ForeignKey(KnowledgeDocument, on_delete=models.CASCADE, related_name='qa_pairs')
     question = models.TextField()
     answer = models.TextField()
+    # Optional verified Assamese-script answer. When present it is used directly for
+    # Assamese replies; otherwise the answer is translated on the fly.
+    answer_assamese = models.TextField(blank=True)
     # Semantic vector (JSON list of floats) from the Gemini embedding API — lets us
     # match a question by MEANING, not just shared keywords.
     embedding = models.TextField(blank=True)

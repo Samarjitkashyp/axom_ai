@@ -218,6 +218,7 @@ def chat_api_view(request):
         prompt = data.get('prompt', '').strip()
         web_search = data.get('web_search', False)
         client_id = str(data.get('session_id', '') or '')
+        language = str(data.get('language', 'hinglish') or 'hinglish').lower()
         history = data.get('history', [])
         if not isinstance(history, list):
             history = []
@@ -229,10 +230,18 @@ def chat_api_view(request):
 
     import re
 
+    # Language the user picked for the reply.
+    LANG_LABEL = {
+        'english': 'English',
+        'hinglish': 'Hinglish (Hindi written in Roman/English letters)',
+        'assamese': 'the Assamese language using Assamese script (অসমীয়া)',
+    }
+    target_lang = LANG_LABEL.get(language, LANG_LABEL['hinglish'])
+
     # 1. System prompt — general-purpose AI assistant (ChatGPT / DeepSeek style).
     today = datetime.now().strftime('%A, %d %B %Y')
     system_instruction = (
-        f"Today's date is {today}. "
+        f"Today's date is {today}. Always write your reply in {target_lang}. "
         "You are Axom AI, a helpful, knowledgeable, and friendly general-purpose AI assistant. "
         "You can answer questions and help with any topic, including history, science, mathematics, "
         "programming and code, general knowledge, writing, reasoning, and everyday advice. "
@@ -245,38 +254,42 @@ def chat_api_view(request):
         "know a specific factual answer, clearly say you are not certain instead of guessing a name or number."
     )
 
-    sem_score = 0.0
+    # 2. Find a knowledge-base answer (exact keyword match → semantic meaning match).
+    kb_answer, kb_assamese = None, ''
     if not web_search:
-        # 2a. INSTANT ANSWER: exact/near keyword match to a stored Q&A → verbatim
-        #     answer immediately (no model, no latency).
-        instant = find_instant_answer(prompt)
-        if instant:
-            _save_chat(request, client_id, prompt, instant)
+        ia, ia_asm = find_instant_answer(prompt)
+        if ia:
+            kb_answer, kb_assamese = ia, ia_asm
+        else:
+            sa, sa_asm, _score = semantic_find_answer(prompt)
+            if sa:
+                kb_answer, kb_assamese = sa, sa_asm
+
+    # 2b. Language routing for a KB hit (Hybrid: verified record first, else translate).
+    translate_source = None
+    if kb_answer:
+        if language == 'assamese' and kb_assamese.strip():
+            # Verified Assamese record → return it directly (accurate, no model).
+            _save_chat(request, client_id, prompt, kb_assamese)
             return JsonResponse({
-                'response': instant, 'from_database': True, 'source_docs': [],
+                'response': kb_assamese, 'from_database': True, 'source_docs': [],
+                'web_search': False, 'sources': [], 'engine': 'db-assamese',
+            })
+        if language == 'hinglish':
+            # Stored data is already Hinglish → return verbatim (fast, no model).
+            _save_chat(request, client_id, prompt, kb_answer)
+            return JsonResponse({
+                'response': kb_answer, 'from_database': True, 'source_docs': [],
                 'web_search': False, 'sources': [], 'engine': 'instant',
             })
+        # English, or Assamese without a stored record → translate the exact answer.
+        translate_source = kb_answer
 
-        # 2b. SEMANTIC ANSWER: match the question by MEANING (embeddings) — catches
-        #     different wording/language ("New Year" ↔ "Bihu"). Returns the stored
-        #     answer verbatim, so it is always factually consistent with the data.
-        sem_answer, sem_score = semantic_find_answer(prompt)
-        if sem_answer:
-            _save_chat(request, client_id, prompt, sem_answer)
-            return JsonResponse({
-                'response': sem_answer, 'from_database': True, 'source_docs': [],
-                'web_search': False, 'sources': [], 'engine': 'semantic',
-            })
+    custom_context = translate_source or ""
+    source_docs = []
 
-    # 2c. Keyword-chunk RAG removed: semantic search already covers the Q&A
-    #     knowledge base, and single common-word chunk matches (e.g. "assam")
-    #     pulled off-topic context. Anything semantic misses now goes to the
-    #     general model, which is instructed not to invent specific facts.
-    custom_context, source_docs = "", []
-
-    # 3. Optional strict gate (off by default so greetings / general chat still work):
-    #    only blocks answers when explicitly enabled AND nothing relevant was found.
-    if (not web_search) and (not custom_context) and STRICT_KB_MODE:
+    # 3. Strict gate (only when there is NO KB answer and strict mode is enabled).
+    if (not web_search) and (not kb_answer) and STRICT_KB_MODE:
         _save_chat(request, client_id, prompt, DONT_KNOW_MSG)
         return JsonResponse({
             'response': DONT_KNOW_MSG, 'from_database': False, 'source_docs': [],
@@ -304,8 +317,17 @@ def chat_api_view(request):
     turns.reverse()  # back to chronological order
     if turns:
         hist_block = "Conversation so far:\n" + "\n".join(turns) + "\n\n"
-    # system_instruction is sent separately (Gemini systemInstruction / Ollama system).
-    final_prompt = f"{hist_block}User Question: {prompt}"
+
+    if translate_source:
+        # Translate the exact KB answer into the chosen language — keep facts identical.
+        final_prompt = (
+            f"Rewrite the following information in {target_lang}. Keep every fact exactly "
+            f"the same. Do not add, remove, or change any information. Output only the "
+            f"rewritten text:\n\n{translate_source}"
+        )
+    else:
+        # system_instruction is sent separately (Gemini systemInstruction / Ollama system).
+        final_prompt = f"{hist_block}User Question: {prompt}"
 
     # 5. PRIMARY ENGINE: local Ollama model, STREAMED token-by-token so the first
     #    word reaches the user immediately. Skipped for web_search (needs Gemini's

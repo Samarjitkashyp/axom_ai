@@ -24,6 +24,12 @@ export default function ChatWindow({
   const [streamingFromDb, setStreamingFromDb] = useState(false);
   const [copiedMessageIndex, setCopiedMessageIndex] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [language, setLanguage] = useState(() => localStorage.getItem('axom_ai_lang') || 'hinglish');
+
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+    try { localStorage.setItem('axom_ai_lang', lang); } catch (e) { /* ignore */ }
+  };
 
   const abortControllerRef = useRef(null);
   const mainBodyRef = useRef(null);
@@ -117,6 +123,7 @@ export default function ChatWindow({
           prompt: text,
           web_search: false,
           session_id: sessionId,
+          language,
           history: (currentSession?.messages || [])
             .slice(-20)
             .map((m) => ({ role: m.role, text: m.text })),
@@ -411,7 +418,23 @@ export default function ChatWindow({
             />
           </div>
           <div className="input-controls-row">
-            <div className="controls-left"></div>
+            <div className="controls-left">
+              <div className="lang-selector" title="Reply language">
+                {[
+                  { key: 'english', label: 'EN' },
+                  { key: 'hinglish', label: 'Hinglish' },
+                  { key: 'assamese', label: 'অসমীয়া' },
+                ].map((l) => (
+                  <button
+                    key={l.key}
+                    className={`lang-btn ${language === l.key ? 'active' : ''}`}
+                    onClick={() => changeLanguage(l.key)}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="controls-right">
               <button
                 className="btn-send-message"

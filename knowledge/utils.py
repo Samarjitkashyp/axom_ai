@@ -62,46 +62,49 @@ def _load_qa_matrix():
     """Load all QAPair embeddings into a normalized numpy matrix (cached)."""
     global _QA_CACHE
     total = QAPair.objects.exclude(embedding='').count()
-    if _QA_CACHE is not None and _QA_CACHE[3] == total:
+    if _QA_CACHE is not None and _QA_CACHE[4] == total:
         return _QA_CACHE
-    ids, answers, vecs = [], [], []
-    for qa in QAPair.objects.exclude(embedding='').only('id', 'answer', 'embedding').iterator():
+    ids, answers, asms, vecs = [], [], [], []
+    for qa in QAPair.objects.exclude(embedding='').only('id', 'answer', 'answer_assamese', 'embedding').iterator():
         try:
             vecs.append(json.loads(qa.embedding))
             ids.append(qa.id)
             answers.append(qa.answer)
+            asms.append(qa.answer_assamese)
         except Exception:
             continue
     if not vecs:
-        _QA_CACHE = ([], [], None, 0)
+        _QA_CACHE = ([], [], [], None, 0)
         return _QA_CACHE
     mat = np.asarray(vecs, dtype=np.float32)
     norms = np.linalg.norm(mat, axis=1, keepdims=True)
     norms[norms == 0] = 1.0
-    _QA_CACHE = (ids, answers, mat / norms, total)
+    _QA_CACHE = (ids, answers, asms, mat / norms, total)
     return _QA_CACHE
 
 
 def semantic_find_answer(query, threshold=None):
-    """Return (answer, score) for the semantically closest stored question, or
-    (None, score) if nothing is confident enough. Answer is returned verbatim
-    from the knowledge base, so it is always factually consistent with the data."""
+    """Return (answer, answer_assamese, score) for the semantically closest stored
+    question, or (None, '', score) if nothing is confident enough. The answer is
+    verbatim from the knowledge base, so it stays factually consistent with the data."""
     if threshold is None:
         threshold = SEMANTIC_THRESHOLD
-    ids, answers, mat, total = _load_qa_matrix()
+    ids, answers, asms, mat, total = _load_qa_matrix()
     if mat is None:
-        return None, 0.0
+        return None, '', 0.0
     qv = _embed_texts([query])
     if not qv:
-        return None, 0.0
+        return None, '', 0.0
     q = np.asarray(qv[0], dtype=np.float32)
     n = np.linalg.norm(q)
     if n == 0:
-        return None, 0.0
+        return None, '', 0.0
     sims = mat @ (q / n)
     idx = int(np.argmax(sims))
     score = float(sims[idx])
-    return (answers[idx], score) if score >= threshold else (None, score)
+    if score >= threshold:
+        return answers[idx], asms[idx], score
+    return None, '', score
 
 def extract_text_from_file(file_path, file_type):
     """
@@ -306,7 +309,7 @@ def find_instant_answer(query, threshold=0.6):
     """
     q_tokens = _keywords(query)
     if not q_tokens:
-        return None
+        return None, ''
 
     qn = _normalize(query)
 
@@ -314,13 +317,13 @@ def find_instant_answer(query, threshold=0.6):
     q_filter = Q()
     for t in q_tokens:
         q_filter |= Q(question__icontains=t)
-    candidates = QAPair.objects.filter(q_filter).only('question', 'answer')[:3000]
+    candidates = QAPair.objects.filter(q_filter).only('question', 'answer', 'answer_assamese')[:3000]
 
-    best_answer = None
+    best_answer, best_asm = None, ''
     best_score = 0.0
     for qa in candidates:
         if _normalize(qa.question) == qn:
-            return qa.answer  # exact match — instant
+            return qa.answer, qa.answer_assamese  # exact match — instant
 
         p_tokens = _keywords(qa.question)
         if not p_tokens:
@@ -336,8 +339,11 @@ def find_instant_answer(query, threshold=0.6):
         if score > best_score:
             best_score = score
             best_answer = qa.answer
+            best_asm = qa.answer_assamese
 
-    return best_answer if best_score >= threshold else None
+    if best_score >= threshold:
+        return best_answer, best_asm
+    return None, ''
 
 
 def search_knowledge_base(query, top_k=3):
