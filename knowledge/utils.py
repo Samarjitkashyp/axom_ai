@@ -9,57 +9,45 @@ from django.db.models import Q
 from .models import KnowledgeDocument, KnowledgeChunk, QAPair
 
 # --------------------------------------------------------------------------
-# Semantic search config (Gemini embedding API — no local model / no extra RAM)
+# Semantic search — BAAI/bge-m3 (multilingual, runs locally, no rate limits).
+# The model is loaded lazily once and kept resident in the process.
 # --------------------------------------------------------------------------
-EMBED_MODEL = os.getenv('EMBED_MODEL', 'gemini-embedding-001')
-EMBED_DIM = int(os.getenv('EMBED_DIM', '768'))
-SEMANTIC_THRESHOLD = float(os.getenv('SEMANTIC_THRESHOLD', '0.62'))
-_EMBED_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{EMBED_MODEL}"
+EMBED_MODEL = os.getenv('EMBED_MODEL', 'BAAI/bge-m3')
+SEMANTIC_THRESHOLD = float(os.getenv('SEMANTIC_THRESHOLD', '0.65'))
+_EMBED_MODEL_OBJ = None
 _QA_CACHE = None  # (ids, answers, normalized_matrix, count)
 
 
-def _embed_batch(texts, task_type, retries=0):
-    """Embed a list of texts via the Gemini embedding API. Returns a list of
-    vectors, or None on failure (caller falls back to keyword search).
-    `retries` > 0 adds backoff on rate limits — used by the bulk backfill, not
-    by the live chat path (which should fail fast)."""
-    import time
-    key = os.getenv('GEMINI_API_KEY')
-    if not key or not texts:
+def _get_model():
+    """Lazy-load the sentence-transformers model once (kept in memory)."""
+    global _EMBED_MODEL_OBJ
+    if _EMBED_MODEL_OBJ is None:
+        from sentence_transformers import SentenceTransformer
+        _EMBED_MODEL_OBJ = SentenceTransformer(EMBED_MODEL)
+    return _EMBED_MODEL_OBJ
+
+
+def _embed_texts(texts):
+    """Embed a list of texts locally with bge-m3. Returns a list of normalized
+    vectors, or None on failure (caller falls back to keyword search)."""
+    if not texts:
         return None
-    reqs = [{
-        'model': f'models/{EMBED_MODEL}',
-        'content': {'parts': [{'text': t}]},
-        'taskType': task_type,
-        'outputDimensionality': EMBED_DIM,
-    } for t in texts]
-    for attempt in range(retries + 1):
-        try:
-            r = requests.post(f"{_EMBED_URL}:batchEmbedContents",
-                              params={'key': key}, json={'requests': reqs}, timeout=60)
-            if r.status_code == 200:
-                d = r.json()
-                if 'embeddings' in d:
-                    return [e['values'] for e in d['embeddings']]
-            elif r.status_code == 429 and attempt < retries:
-                time.sleep(8 * (attempt + 1))  # rate-limit backoff
-                continue
-        except Exception:
-            if attempt < retries:
-                time.sleep(3)
-                continue
-        break
-    return None
+    try:
+        model = _get_model()
+        vecs = model.encode(texts, normalize_embeddings=True, batch_size=32)
+        return [v.tolist() for v in vecs]
+    except Exception:
+        return None
 
 
-def backfill_qa_embeddings(batch_size=100):
+def backfill_qa_embeddings(batch_size=256):
     """Compute + store embeddings for every QAPair that doesn't have one yet."""
     global _QA_CACHE
     pending = list(QAPair.objects.filter(embedding='').only('id', 'question'))
     done = 0
     for i in range(0, len(pending), batch_size):
         batch = pending[i:i + batch_size]
-        vecs = _embed_batch([qa.question for qa in batch], 'RETRIEVAL_DOCUMENT', retries=4)
+        vecs = _embed_texts([qa.question for qa in batch])
         if not vecs or len(vecs) != len(batch):
             continue
         for qa, v in zip(batch, vecs):
@@ -103,7 +91,7 @@ def semantic_find_answer(query, threshold=None):
     ids, answers, mat, total = _load_qa_matrix()
     if mat is None:
         return None, 0.0
-    qv = _embed_batch([query], 'RETRIEVAL_QUERY')
+    qv = _embed_texts([query])
     if not qv:
         return None, 0.0
     q = np.asarray(qv[0], dtype=np.float32)
