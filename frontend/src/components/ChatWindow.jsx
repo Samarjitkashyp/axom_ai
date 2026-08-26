@@ -118,6 +118,7 @@ export default function ChatWindow({
         body: JSON.stringify({
           prompt: text,
           web_search: isWebSearchActive,
+          session_id: sessionId,
         }),
       });
 

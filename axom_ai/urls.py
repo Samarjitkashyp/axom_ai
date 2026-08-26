@@ -9,7 +9,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home_view, name='home'),
     path('api/chat/', views.chat_api_view, name='chat_api'),
+    path('api/history/', views.chat_history_view, name='chat_history'),
     path('api/login/', views.login_api_view, name='login_api'),
+    path('health/', views.health_view, name='health'),
     
     # Custom Admin Authentication & Dashboard Routes
     path('admin-panel/login/', knowledge_views.admin_login_view, name='admin_login'),

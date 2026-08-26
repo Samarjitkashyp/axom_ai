@@ -36,3 +36,30 @@ class QAPair(models.Model):
 
     def __str__(self):
         return f"Q&A: {self.question[:50]}"
+
+
+class ChatSession(models.Model):
+    """A saved chat conversation, keyed by the browser's Django session (works for
+    anonymous users) plus the frontend-generated client id."""
+    session_key = models.CharField(max_length=64, db_index=True)
+    client_id = models.CharField(max_length=64, db_index=True)
+    title = models.CharField(max_length=200, default='New Chat')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('session_key', 'client_id')
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.client_id})"
+
+
+class ChatMessage(models.Model):
+    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name='messages')
+    role = models.CharField(max_length=16)  # 'user' | 'assistant'
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']

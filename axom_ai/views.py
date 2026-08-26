@@ -35,6 +35,52 @@ def _is_rate_limited(ip):
     _RATE_HITS[ip] = hits
     return False
 
+
+# ---------------------------------------------------------------------------
+# Server-side chat history (persists across sessions, unlike localStorage).
+# Keyed by the browser's Django session so it works for anonymous users too.
+# ---------------------------------------------------------------------------
+def _save_chat(request, client_id, user_text, assistant_text, title=None):
+    """Persist one user+assistant exchange. Never raises (best-effort)."""
+    try:
+        from knowledge.models import ChatSession, ChatMessage
+        if not request.session.session_key:
+            request.session.save()
+        key = request.session.session_key
+        if not key or not client_id:
+            return
+        sess, _ = ChatSession.objects.get_or_create(
+            session_key=key, client_id=client_id,
+            defaults={'title': ((title or user_text) or 'New Chat')[:60]},
+        )
+        ChatMessage.objects.create(session=sess, role='user', text=user_text)
+        if assistant_text:
+            ChatMessage.objects.create(session=sess, role='assistant', text=assistant_text)
+        sess.save(update_fields=['updated_at'])
+    except Exception:
+        pass
+
+
+def chat_history_view(request):
+    """Return this browser-session's saved conversations (newest first)."""
+    from knowledge.models import ChatSession
+    key = request.session.session_key
+    out = []
+    if key:
+        for s in ChatSession.objects.filter(session_key=key).prefetch_related('messages')[:50]:
+            out.append({
+                'id': s.client_id,
+                'title': s.title,
+                'time': s.updated_at.strftime('%b %d, %H:%M'),
+                'messages': [{'role': m.role, 'text': m.text} for m in s.messages.all()],
+            })
+    return JsonResponse({'sessions': out})
+
+
+def health_view(request):
+    """Lightweight health check for uptime monitors."""
+    return JsonResponse({'status': 'ok'})
+
 # ---------------------------------------------------------------------------
 # Local LLM (Ollama) configuration — primary engine, Gemini is the fallback.
 # ---------------------------------------------------------------------------
@@ -113,6 +159,7 @@ def chat_api_view(request):
         data = json.loads(request.body.decode('utf-8'))
         prompt = data.get('prompt', '').strip()
         web_search = data.get('web_search', False)
+        client_id = str(data.get('session_id', '') or '')
     except Exception:
         return JsonResponse({'error': 'Invalid JSON body'}, status=400)
 
@@ -140,6 +187,7 @@ def chat_api_view(request):
         #     answer immediately (no model, no latency).
         instant = find_instant_answer(prompt)
         if instant:
+            _save_chat(request, client_id, prompt, instant)
             return JsonResponse({
                 'response': instant, 'from_database': True, 'source_docs': [],
                 'web_search': False, 'sources': [], 'engine': 'instant',
@@ -150,6 +198,7 @@ def chat_api_view(request):
         #     answer verbatim, so it is always factually consistent with the data.
         sem_answer, sem_score = semantic_find_answer(prompt)
         if sem_answer:
+            _save_chat(request, client_id, prompt, sem_answer)
             return JsonResponse({
                 'response': sem_answer, 'from_database': True, 'source_docs': [],
                 'web_search': False, 'sources': [], 'engine': 'semantic',
@@ -167,6 +216,7 @@ def chat_api_view(request):
     # 3. Optional strict gate (off by default so greetings / general chat still work):
     #    only blocks answers when explicitly enabled AND nothing relevant was found.
     if (not web_search) and (not custom_context) and STRICT_KB_MODE:
+        _save_chat(request, client_id, prompt, DONT_KNOW_MSG)
         return JsonResponse({
             'response': DONT_KNOW_MSG, 'from_database': False, 'source_docs': [],
             'web_search': False, 'sources': [], 'engine': 'no-answer',
@@ -216,6 +266,7 @@ def chat_api_view(request):
 
         if ollama_res is not None and ollama_res.status_code == 200:
             def token_stream():
+                acc = []
                 try:
                     for line in ollama_res.iter_lines():
                         if not line:
@@ -226,11 +277,13 @@ def chat_api_view(request):
                             continue
                         chunk = obj.get('response', '')
                         if chunk:
+                            acc.append(chunk)
                             yield chunk
                         if obj.get('done'):
                             break
                 finally:
                     ollama_res.close()
+                    _save_chat(request, client_id, prompt, ''.join(acc))
 
             stream_resp = StreamingHttpResponse(
                 token_stream(), content_type='text/plain; charset=utf-8'
@@ -285,6 +338,7 @@ def chat_api_view(request):
                 continue
             if g_res.status_code == 200:
                 def gemini_stream(resp=g_res):
+                    acc = []
                     try:
                         for raw in resp.iter_lines():
                             if not raw:
@@ -302,9 +356,11 @@ def chat_api_view(request):
                             for cand in obj.get('candidates', []):
                                 for part in cand.get('content', {}).get('parts', []):
                                     if part.get('text'):
+                                        acc.append(part['text'])
                                         yield part['text']
                     finally:
                         resp.close()
+                        _save_chat(request, client_id, prompt, ''.join(acc))
 
                 sresp = StreamingHttpResponse(gemini_stream(), content_type='text/plain; charset=utf-8')
                 sresp['X-Engine'] = 'gemini'
@@ -378,6 +434,7 @@ def chat_api_view(request):
                                 seen_uris.add(uri_clean)
                                 sources.append({'title': uri_clean, 'uri': uri_clean})
 
+                    _save_chat(request, client_id, prompt, response_text)
                     return JsonResponse({
                         'response': response_text,
                         'from_database': bool(custom_context),

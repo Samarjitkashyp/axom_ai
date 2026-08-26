@@ -21,6 +21,31 @@ export function useChatSessions() {
     }
   }, [sessions]);
 
+  // On startup, merge in this browser-session's server-saved chat history
+  // (so conversations persist even if localStorage is cleared / another device).
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/history/', { headers: { Accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data || !Array.isArray(data.sessions)) return;
+        setSessions((prev) => {
+          const merged = { ...prev };
+          data.sessions.forEach((s) => {
+            merged[s.id] = {
+              id: s.id,
+              title: s.title,
+              time: s.time,
+              messages: s.messages || [],
+            };
+          });
+          return merged;
+        });
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   const startNewSession = (firstPrompt) => {
     const sessionId = 'chat_' + Date.now();
     const shortTitle = firstPrompt.length > 28 ? firstPrompt.substring(0, 28) + '...' : firstPrompt;
