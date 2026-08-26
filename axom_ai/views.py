@@ -4,7 +4,7 @@ import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
-from knowledge.utils import search_knowledge_base, find_instant_answer
+from knowledge.utils import search_knowledge_base, find_instant_answer, semantic_find_answer
 
 # Global HTTP Session for connection pooling & ultra-fast API calls
 http_session = requests.Session()
@@ -24,7 +24,7 @@ OLLAMA_KEEP_ALIVE = os.getenv('OLLAMA_KEEP_ALIVE', '30m')           # keep model
 # STRICT_KB_MODE: when there is no relevant knowledge-base context, answer with an
 # honest "I don't know" instead of letting the model invent a (possibly wrong) reply.
 # Set STRICT_KB_MODE=False in .env to allow free general-purpose answers instead.
-STRICT_KB_MODE = os.getenv('STRICT_KB_MODE', 'True').lower() in ('true', '1', 't')
+STRICT_KB_MODE = os.getenv('STRICT_KB_MODE', 'False').lower() in ('true', '1', 't')
 DONT_KNOW_MSG = (
     "Iske baare me mere paas abhi pakki (verified) jaankari nahi hai. "
     "Main sirf apne knowledge base ke aadhaar par hi sahi jawab de sakta hoon."
@@ -100,38 +100,38 @@ def chat_api_view(request):
         "cite the relevant details from it."
     )
 
-    # 2a. INSTANT ANSWER layer: if the question matches a stored Q&A pair, return
-    #     the exact answer immediately — no model, no latency. (Skip for web_search.)
     if not web_search:
+        # 2a. INSTANT ANSWER: exact/near keyword match to a stored Q&A → verbatim
+        #     answer immediately (no model, no latency).
         instant = find_instant_answer(prompt)
         if instant:
             return JsonResponse({
-                'response': instant,
-                'from_database': True,
-                'source_docs': [],
-                'web_search': False,
-                'sources': [],
-                'engine': 'instant',
+                'response': instant, 'from_database': True, 'source_docs': [],
+                'web_search': False, 'sources': [], 'engine': 'instant',
             })
 
-    # 2b. Bypass database check if web search is enabled. Otherwise pull only the
-    #     single best-matching context (top_k=1) so the model can't blend two
-    #     unrelated facts together (which caused wrong "mixed" answers).
+        # 2b. SEMANTIC ANSWER: match the question by MEANING (embeddings) — catches
+        #     different wording/language ("New Year" ↔ "Bihu"). Returns the stored
+        #     answer verbatim, so it is always factually consistent with the data.
+        sem_answer, sem_score = semantic_find_answer(prompt)
+        if sem_answer:
+            return JsonResponse({
+                'response': sem_answer, 'from_database': True, 'source_docs': [],
+                'web_search': False, 'sources': [], 'engine': 'semantic',
+            })
+
+    # 2c. Keyword chunk search (mainly for PDF/free-text docs without Q&A pairs).
     if web_search:
         custom_context, source_docs = "", []
     else:
         custom_context, source_docs = search_knowledge_base(prompt, top_k=1)
 
-    # 3. "I don't know" gate: if nothing relevant is in the knowledge base (and we
-    #    aren't doing a web search), don't let the model invent an answer.
+    # 3. Optional strict gate (off by default so greetings / general chat still work):
+    #    only blocks answers when explicitly enabled AND nothing relevant was found.
     if (not web_search) and (not custom_context) and STRICT_KB_MODE:
         return JsonResponse({
-            'response': DONT_KNOW_MSG,
-            'from_database': False,
-            'source_docs': [],
-            'web_search': False,
-            'sources': [],
-            'engine': 'no-answer',
+            'response': DONT_KNOW_MSG, 'from_database': False, 'source_docs': [],
+            'web_search': False, 'sources': [], 'engine': 'no-answer',
         })
 
     # 4. Formulate prompt. With DB context, force the model to answer ONLY from that

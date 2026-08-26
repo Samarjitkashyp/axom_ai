@@ -1,9 +1,119 @@
 import os
 import csv
 import re
+import json
 import difflib
+import requests
+import numpy as np
 from django.db.models import Q
 from .models import KnowledgeDocument, KnowledgeChunk, QAPair
+
+# --------------------------------------------------------------------------
+# Semantic search config (Gemini embedding API — no local model / no extra RAM)
+# --------------------------------------------------------------------------
+EMBED_MODEL = os.getenv('EMBED_MODEL', 'gemini-embedding-001')
+EMBED_DIM = int(os.getenv('EMBED_DIM', '768'))
+SEMANTIC_THRESHOLD = float(os.getenv('SEMANTIC_THRESHOLD', '0.62'))
+_EMBED_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{EMBED_MODEL}"
+_QA_CACHE = None  # (ids, answers, normalized_matrix, count)
+
+
+def _embed_batch(texts, task_type, retries=0):
+    """Embed a list of texts via the Gemini embedding API. Returns a list of
+    vectors, or None on failure (caller falls back to keyword search).
+    `retries` > 0 adds backoff on rate limits — used by the bulk backfill, not
+    by the live chat path (which should fail fast)."""
+    import time
+    key = os.getenv('GEMINI_API_KEY')
+    if not key or not texts:
+        return None
+    reqs = [{
+        'model': f'models/{EMBED_MODEL}',
+        'content': {'parts': [{'text': t}]},
+        'taskType': task_type,
+        'outputDimensionality': EMBED_DIM,
+    } for t in texts]
+    for attempt in range(retries + 1):
+        try:
+            r = requests.post(f"{_EMBED_URL}:batchEmbedContents",
+                              params={'key': key}, json={'requests': reqs}, timeout=60)
+            if r.status_code == 200:
+                d = r.json()
+                if 'embeddings' in d:
+                    return [e['values'] for e in d['embeddings']]
+            elif r.status_code == 429 and attempt < retries:
+                time.sleep(8 * (attempt + 1))  # rate-limit backoff
+                continue
+        except Exception:
+            if attempt < retries:
+                time.sleep(3)
+                continue
+        break
+    return None
+
+
+def backfill_qa_embeddings(batch_size=100):
+    """Compute + store embeddings for every QAPair that doesn't have one yet."""
+    global _QA_CACHE
+    pending = list(QAPair.objects.filter(embedding='').only('id', 'question'))
+    done = 0
+    for i in range(0, len(pending), batch_size):
+        batch = pending[i:i + batch_size]
+        vecs = _embed_batch([qa.question for qa in batch], 'RETRIEVAL_DOCUMENT', retries=4)
+        if not vecs or len(vecs) != len(batch):
+            continue
+        for qa, v in zip(batch, vecs):
+            qa.embedding = json.dumps(v)
+        QAPair.objects.bulk_update(batch, ['embedding'])
+        done += len(batch)
+    _QA_CACHE = None
+    return done
+
+
+def _load_qa_matrix():
+    """Load all QAPair embeddings into a normalized numpy matrix (cached)."""
+    global _QA_CACHE
+    total = QAPair.objects.exclude(embedding='').count()
+    if _QA_CACHE is not None and _QA_CACHE[3] == total:
+        return _QA_CACHE
+    ids, answers, vecs = [], [], []
+    for qa in QAPair.objects.exclude(embedding='').only('id', 'answer', 'embedding').iterator():
+        try:
+            vecs.append(json.loads(qa.embedding))
+            ids.append(qa.id)
+            answers.append(qa.answer)
+        except Exception:
+            continue
+    if not vecs:
+        _QA_CACHE = ([], [], None, 0)
+        return _QA_CACHE
+    mat = np.asarray(vecs, dtype=np.float32)
+    norms = np.linalg.norm(mat, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    _QA_CACHE = (ids, answers, mat / norms, total)
+    return _QA_CACHE
+
+
+def semantic_find_answer(query, threshold=None):
+    """Return (answer, score) for the semantically closest stored question, or
+    (None, score) if nothing is confident enough. Answer is returned verbatim
+    from the knowledge base, so it is always factually consistent with the data."""
+    if threshold is None:
+        threshold = SEMANTIC_THRESHOLD
+    ids, answers, mat, total = _load_qa_matrix()
+    if mat is None:
+        return None, 0.0
+    qv = _embed_batch([query], 'RETRIEVAL_QUERY')
+    if not qv:
+        return None, 0.0
+    q = np.asarray(qv[0], dtype=np.float32)
+    n = np.linalg.norm(q)
+    if n == 0:
+        return None, 0.0
+    sims = mat @ (q / n)
+    idx = int(np.argmax(sims))
+    score = float(sims[idx])
+    return (answers[idx], score) if score >= threshold else (None, score)
 
 def extract_text_from_file(file_path, file_type):
     """
