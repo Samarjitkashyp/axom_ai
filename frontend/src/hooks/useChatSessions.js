@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getCsrfToken } from '../utils/security';
 
 export function useChatSessions() {
   const [sessions, setSessions] = useState(() => {
@@ -21,8 +22,7 @@ export function useChatSessions() {
     }
   }, [sessions]);
 
-  // On startup, merge in this browser-session's server-saved chat history
-  // (so conversations persist even if localStorage is cleared / another device).
+  // On startup, merge in this browser-session's server-saved chat history.
   useEffect(() => {
     let cancelled = false;
     fetch('/api/history/', { headers: { Accept: 'application/json' } })
@@ -36,6 +36,7 @@ export function useChatSessions() {
               id: s.id,
               title: s.title,
               time: s.time,
+              pinned: !!s.pinned,
               messages: s.messages || [],
             };
           });
@@ -46,18 +47,19 @@ export function useChatSessions() {
     return () => { cancelled = true; };
   }, []);
 
+  const postAction = (body) =>
+    fetch('/api/history/action/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() || '' },
+      body: JSON.stringify(body),
+    }).catch(() => {});
+
   const startNewSession = (firstPrompt) => {
     const sessionId = 'chat_' + Date.now();
     const shortTitle = firstPrompt.length > 28 ? firstPrompt.substring(0, 28) + '...' : firstPrompt;
-
     setSessions((prev) => ({
       ...prev,
-      [sessionId]: {
-        id: sessionId,
-        title: shortTitle,
-        time: 'Just now',
-        messages: []
-      }
+      [sessionId]: { id: sessionId, title: shortTitle, time: 'Just now', pinned: false, messages: [] },
     }));
     setCurrentChatId(sessionId);
     return sessionId;
@@ -69,19 +71,32 @@ export function useChatSessions() {
       if (!session) return prev;
       return {
         ...prev,
-        [sessionId]: {
-          ...session,
-          messages: [
-            ...session.messages,
-            { role, text, model, ...extra }
-          ]
-        }
+        [sessionId]: { ...session, messages: [...session.messages, { role, text, model, ...extra }] },
       };
     });
   };
 
-  const resetCurrentSession = () => {
+  const resetCurrentSession = () => setCurrentChatId(null);
+
+  const deleteSession = (id) => {
+    setSessions((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setCurrentChatId((cur) => (cur === id ? null : cur));
+    postAction({ action: 'delete', session_id: id });
+  };
+
+  const togglePin = (id) => {
+    setSessions((prev) => (prev[id] ? { ...prev, [id]: { ...prev[id], pinned: !prev[id].pinned } } : prev));
+    postAction({ action: 'pin', session_id: id });
+  };
+
+  const clearAllSessions = () => {
+    setSessions({});
     setCurrentChatId(null);
+    postAction({ action: 'clear' });
   };
 
   return {
@@ -90,6 +105,9 @@ export function useChatSessions() {
     setCurrentChatId,
     startNewSession,
     addMessageToSession,
-    resetCurrentSession
+    resetCurrentSession,
+    deleteSession,
+    togglePin,
+    clearAllSessions,
   };
 }

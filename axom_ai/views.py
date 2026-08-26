@@ -67,14 +67,54 @@ def chat_history_view(request):
     key = request.session.session_key
     out = []
     if key:
-        for s in ChatSession.objects.filter(session_key=key).prefetch_related('messages')[:50]:
+        qs = ChatSession.objects.filter(session_key=key).prefetch_related('messages')[:200]
+        for s in qs:
             out.append({
                 'id': s.client_id,
                 'title': s.title,
                 'time': s.updated_at.strftime('%b %d, %H:%M'),
+                'pinned': s.pinned,
                 'messages': [{'role': m.role, 'text': m.text} for m in s.messages.all()],
             })
     return JsonResponse({'sessions': out})
+
+
+def chat_action_view(request):
+    """Manage saved chats: pin/unpin, delete one, or clear all — for this session."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST is allowed'}, status=405)
+    from knowledge.models import ChatSession
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    key = request.session.session_key
+    if not key:
+        return JsonResponse({'ok': True})
+
+    action = data.get('action')
+    qs = ChatSession.objects.filter(session_key=key)
+
+    if action == 'clear':
+        qs.delete()
+        return JsonResponse({'ok': True})
+
+    cid = data.get('session_id')
+    if not cid:
+        return JsonResponse({'error': 'session_id required'}, status=400)
+    sess = qs.filter(client_id=cid).first()
+    if not sess:
+        return JsonResponse({'ok': True})
+
+    if action == 'delete':
+        sess.delete()
+        return JsonResponse({'ok': True})
+    if action == 'pin':
+        sess.pinned = not sess.pinned
+        sess.save(update_fields=['pinned'])
+        return JsonResponse({'ok': True, 'pinned': sess.pinned})
+    return JsonResponse({'error': 'Unknown action'}, status=400)
 
 
 def health_view(request):

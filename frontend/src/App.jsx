@@ -45,6 +45,9 @@ export default function App() {
     startNewSession,
     addMessageToSession,
     resetCurrentSession,
+    deleteSession,
+    togglePin,
+    clearAllSessions,
   } = useChatSessions();
 
   // Listen to popstate (back/forward browser buttons or custom dispatch)
@@ -147,6 +150,9 @@ export default function App() {
         onNewChat={resetCurrentSession}
         isCollapsed={leftSidebarCollapsed}
         user={user}
+        deleteSession={deleteSession}
+        togglePin={togglePin}
+        clearAllSessions={clearAllSessions}
       />
 
       {/* MAIN CHAT CANVAS */}
