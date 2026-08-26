@@ -66,6 +66,22 @@ User question  (+ chosen reply language)
 
 ---
 
+## 🧩 Two things power Axom AI (read this first)
+
+These are **separate** — don't mix them up:
+
+1. **Semantic search — `bge-m3`** (always used). Finds the right answer in your knowledge base by
+   meaning. Runs locally via `sentence-transformers`; installed automatically by `pip install`.
+2. **Chat model — your choice of engine:**
+   - **Gemini (recommended, easiest)** → set `USE_LOCAL_LLM=False`. **No Ollama needed.** Just a
+     free Gemini API key. **This is what the live server uses** — best for quickly testing the project.
+   - **Ollama (offline)** → set `USE_LOCAL_LLM=True` and `ollama pull` a model. Runs the chat model
+     on your own machine, no internet. Slower/weaker on small models.
+
+> 👉 **Just want to try it?** Use **Gemini-only** (`USE_LOCAL_LLM=False`) and **skip the Ollama step** entirely.
+
+---
+
 ## ⚡ Quick Start (copy-paste)
 
 ```bash
@@ -91,12 +107,16 @@ copy .env.example .env           # Windows   (mac/linux: cp .env.example .env)
 python manage.py migrate
 python manage.py createsuperuser
 
-# 6. local model (optional — skip if USE_LOCAL_LLM=False)
+# 6. OPTIONAL — only for offline chat. To test quickly, set USE_LOCAL_LLM=False
+#    in .env and SKIP this step (Gemini handles the chat).
 ollama pull qwen2.5:0.5b
 
 # 7. run
 python manage.py runserver
 ```
+
+> ✅ **Easiest test setup:** in `.env` set `USE_LOCAL_LLM=False` + your `GEMINI_API_KEY` — then you
+> don't need Ollama at all. Semantic search still uses bge-m3 (installed automatically).
 
 Then open **http://127.0.0.1:8000/**. To load knowledge: go to **/admin-panel/**, upload a
 `.jsonl` file, then run `python manage.py backfill_embeddings` so semantic search works.
