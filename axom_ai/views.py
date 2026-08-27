@@ -198,6 +198,52 @@ DONT_KNOW_MSG = (
     "Main sirf apne knowledge base ke aadhaar par hi sahi jawab de sakta hoon."
 )
 
+# IndicTrans2 (AI4Bharat) translation microservice — runs in its own venv on the
+# server and gives specialised, natural Assamese. Used only for the general
+# (non knowledge-base) Assamese path, where an English answer is available to
+# translate. KB answers use their stored/verified Assamese instead.
+INDICTRANS_URL = os.getenv('INDICTRANS_URL', 'http://127.0.0.1:8765')
+USE_INDICTRANS = os.getenv('USE_INDICTRANS', 'True').lower() in ('true', '1', 't')
+
+
+def _indic_translate(text):
+    """English -> Assamese via the IndicTrans2 service. Returns None on any failure."""
+    if not USE_INDICTRANS or not text.strip():
+        return None
+    try:
+        r = http_session.post(f"{INDICTRANS_URL}/translate",
+                              json={'text': text}, timeout=60)
+        if r.status_code == 200:
+            arr = r.json().get('translations') or []
+            if arr and arr[0].strip():
+                return arr[0].strip()
+    except requests.RequestException:
+        pass
+    return None
+
+
+def _gemini_generate(api_key, system, prompt, models):
+    """One-shot (non-streaming) Gemini call; returns plain text or None."""
+    headers = {'Content-Type': 'application/json'}
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "systemInstruction": {"parts": [{"text": system}]},
+    }
+    for model_id in models:
+        try:
+            url = (f"https://generativelanguage.googleapis.com/v1beta/models/"
+                   f"{model_id}:generateContent?key={api_key}")
+            res = http_session.post(url, headers=headers, json=payload, timeout=15)
+            if res.status_code == 200:
+                cands = res.json().get('candidates', [])
+                if cands:
+                    parts = cands[0].get('content', {}).get('parts', [])
+                    if parts and parts[0].get('text', '').strip():
+                        return parts[0]['text'].strip()
+        except requests.RequestException:
+            continue
+    return None
+
 
 def call_local_llm(final_prompt, system_instruction, timeout=120):
     """
@@ -467,6 +513,31 @@ def chat_api_view(request):
         'gemini-3.5-flash',
         'gemini-3-flash-preview',
     ]
+
+    # 6-pre. Assamese WITHOUT a KB hit: get an English answer from Gemini, then
+    #        translate it to Assamese with IndicTrans2 (specialised, natural
+    #        Assamese). IndicTrans2 needs English input — Hinglish gives poor
+    #        output — so we ask Gemini in English here. Any failure (service down,
+    #        empty result) falls through to the normal Assamese flow below.
+    if (language == 'assamese' and not translate_source and not web_search
+            and USE_INDICTRANS):
+        en_system = (
+            f"Today's date is {today}. Always write your reply in clear, natural English. "
+            "You are Axom AI, a helpful, knowledgeable, and friendly assistant. Give a "
+            "clear, accurate, well-structured answer. IMPORTANT: Never invent specific "
+            "facts — names of people or officials, who currently holds a post, dates, or "
+            "statistics. If you are unsure, say you are not certain instead of guessing."
+        )
+        english_answer = _gemini_generate(
+            api_key, en_system, f"{hist_block}User Question: {prompt}", candidate_models)
+        if english_answer:
+            asm = _indic_translate(english_answer)
+            if asm:
+                _save_chat(request, client_id, prompt, asm)
+                return JsonResponse({
+                    'response': asm, 'from_database': False, 'source_docs': [],
+                    'web_search': False, 'sources': [], 'engine': 'indictrans2',
+                })
 
     # 6a. STREAM the general/RAG answer from Gemini so the first words reach the
     #     user immediately (feels fast). web_search stays non-streaming below —

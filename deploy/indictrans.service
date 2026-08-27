@@ -1,0 +1,13 @@
+[Unit]
+Description=IndicTrans2 English->Assamese translation service
+After=network.target
+
+[Service]
+User=admin
+WorkingDirectory=/home/admin/indictrans_service
+ExecStart=/home/admin/indictrans_service/venv/bin/gunicorn -w 1 -b 127.0.0.1:8765 --timeout 180 translate_service:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
