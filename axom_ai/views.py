@@ -79,6 +79,44 @@ def _save_chat(request, client_id, user_text, assistant_text, title=None):
         pass
 
 
+def _log_unanswered(prompt, language):
+    """Record a question the knowledge base couldn't answer (dedup by text)."""
+    try:
+        from knowledge.models import UnansweredQuery
+        q = (prompt or '').strip()
+        if len(q) < 5:
+            return
+        from django.db.models import F
+        obj, created = UnansweredQuery.objects.get_or_create(
+            question=q, defaults={'language': language},
+        )
+        if not created:
+            UnansweredQuery.objects.filter(pk=obj.pk).update(count=F('count') + 1, resolved=False)
+    except Exception:
+        pass
+
+
+def feedback_view(request):
+    """Store a 👍 / 👎 on an answer."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST is allowed'}, status=405)
+    try:
+        from knowledge.models import Feedback
+        data = json.loads(request.body.decode('utf-8'))
+        rating = data.get('rating')
+        if rating not in ('up', 'down'):
+            return JsonResponse({'error': 'rating must be up/down'}, status=400)
+        Feedback.objects.create(
+            question=str(data.get('question', ''))[:2000],
+            answer=str(data.get('answer', ''))[:4000],
+            rating=rating,
+            language=str(data.get('language', 'hinglish'))[:16],
+        )
+        return JsonResponse({'ok': True})
+    except Exception:
+        return JsonResponse({'ok': False}, status=400)
+
+
 def chat_history_view(request):
     """Return this browser-session's saved conversations (newest first)."""
     from knowledge.models import ChatSession
@@ -287,6 +325,10 @@ def chat_api_view(request):
 
     custom_context = translate_source or ""
     source_docs = []
+
+    # Log questions the knowledge base couldn't answer — a gap to fill later.
+    if (not web_search) and (not kb_answer):
+        _log_unanswered(prompt, language)
 
     # 3. Strict gate (only when there is NO KB answer and strict mode is enabled).
     if (not web_search) and (not kb_answer) and STRICT_KB_MODE:

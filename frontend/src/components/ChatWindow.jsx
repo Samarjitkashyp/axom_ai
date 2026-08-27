@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle, FileText } from 'lucide-react';
+import { Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle, FileText, Mic, Volume2, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { formatMarkdown } from '../utils/format';
 import { getCsrfToken } from '../utils/security';
 
@@ -26,9 +26,68 @@ export default function ChatWindow({
   const [errorMsg, setErrorMsg] = useState(null);
   const [language, setLanguage] = useState(() => localStorage.getItem('axom_ai_lang') || 'hinglish');
 
+  const [isListening, setIsListening] = useState(false);
+  const [feedbackGiven, setFeedbackGiven] = useState({});
+  const [speakingIndex, setSpeakingIndex] = useState(null);
+  const recognitionRef = useRef(null);
+
   const changeLanguage = (lang) => {
     setLanguage(lang);
     try { localStorage.setItem('axom_ai_lang', lang); } catch (e) { /* ignore */ }
+  };
+
+  const langCode = () =>
+    (language === 'english' ? 'en-IN' : language === 'assamese' ? 'as-IN' : 'hi-IN');
+
+  // Voice input via the browser Web Speech API.
+  const startVoiceInput = () => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      alert('Aapke browser me voice input support nahi hai. Chrome try karein.');
+      return;
+    }
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+    const rec = new SR();
+    rec.lang = langCode();
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    rec.onresult = (e) => {
+      const text = e.results[0][0].transcript;
+      setInputText((prev) => (prev ? prev + ' ' : '') + text);
+    };
+    rec.onend = () => setIsListening(false);
+    rec.onerror = () => setIsListening(false);
+    recognitionRef.current = rec;
+    setIsListening(true);
+    rec.start();
+  };
+
+  // Read an answer aloud (browser TTS). Assamese voice depends on the device.
+  const speak = (text, index) => {
+    if (!window.speechSynthesis) return;
+    if (speakingIndex === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[#*`>_]/g, ''));
+    u.lang = langCode();
+    u.onend = () => setSpeakingIndex(null);
+    setSpeakingIndex(index);
+    window.speechSynthesis.speak(u);
+  };
+
+  const sendFeedback = (question, answer, rating, index) => {
+    setFeedbackGiven((prev) => ({ ...prev, [index]: rating }));
+    fetch('/api/feedback/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() || '' },
+      body: JSON.stringify({ question, answer, rating, language }),
+    }).catch(() => {});
   };
 
   const abortControllerRef = useRef(null);
@@ -301,26 +360,62 @@ export default function ChatWindow({
                             </span>
                           )}
                         </div>
-                        <button
-                          className="btn-copy-msg"
-                          onClick={() => handleCopy(msg.text, index)}
-                          style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontFamily: 'inherit', transition: 'color 0.2s' }}
-                          title="Copy to clipboard"
-                        >
-                          {copiedMessageIndex === index ? (
-                            <>
-                              <Check size={12} style={{ color: '#4ade80' }} />
-                              <span style={{ color: '#4ade80' }}>Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy size={12} />
-                              <span>Copy</span>
-                            </>
-                          )}
-                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <button
+                            className="btn-copy-msg"
+                            onClick={() => speak(msg.text, index)}
+                            style={{ background: 'transparent', border: 'none', color: speakingIndex === index ? 'var(--accent-pink)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem' }}
+                            title="Read aloud"
+                          >
+                            <Volume2 size={13} />
+                          </button>
+                          <button
+                            className="btn-copy-msg"
+                            onClick={() => handleCopy(msg.text, index)}
+                            style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontFamily: 'inherit', transition: 'color 0.2s' }}
+                            title="Copy to clipboard"
+                          >
+                            {copiedMessageIndex === index ? (
+                              <>
+                                <Check size={12} style={{ color: '#4ade80' }} />
+                                <span style={{ color: '#4ade80' }}>Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={12} />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
                       <div className="msg-text-content" dangerouslySetInnerHTML={{ __html: formatMarkdown(msg.text) }} />
+
+                      {/* Feedback (👍 / 👎) — helps improve the knowledge base */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
+                        {feedbackGiven[index] ? (
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                            {feedbackGiven[index] === 'up' ? '👍 Thanks!' : '👎 Thanks — we\'ll improve this.'}
+                          </span>
+                        ) : (
+                          <>
+                            <button
+                              title="Helpful"
+                              onClick={() => sendFeedback(currentSession.messages[index - 1]?.text || '', msg.text, 'up', index)}
+                              style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-muted)', cursor: 'pointer', borderRadius: '7px', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+                            >
+                              <ThumbsUp size={13} />
+                            </button>
+                            <button
+                              title="Not helpful"
+                              onClick={() => sendFeedback(currentSession.messages[index - 1]?.text || '', msg.text, 'down', index)}
+                              style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-muted)', cursor: 'pointer', borderRadius: '7px', padding: '4px 8px', display: 'flex', alignItems: 'center' }}
+                            >
+                              <ThumbsDown size={13} />
+                            </button>
+                          </>
+                        )}
+                      </div>
 
                       {/* Render sources and references */}
                       {msg.web_search && msg.sources && msg.sources.length > 0 && (
@@ -436,6 +531,13 @@ export default function ChatWindow({
               </div>
             </div>
             <div className="controls-right">
+              <button
+                className={`btn-mic ${isListening ? 'listening' : ''}`}
+                onClick={startVoiceInput}
+                title={isListening ? 'Listening… tap to stop' : 'Voice input'}
+              >
+                <Mic size={15} />
+              </button>
               <button
                 className="btn-send-message"
                 onClick={handleSend}

@@ -2293,3 +2293,29 @@ kbd {
 @media (max-width: 768px) {
     .lang-btn { padding: 5px 8px; font-size: 0.7rem; }
 }
+
+/* Voice input mic button */
+.btn-mic {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--bg-pill);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-mic:hover { color: var(--text-primary); border-color: var(--accent-violet); }
+.btn-mic.listening {
+    background: var(--gradient-primary);
+    color: #fff;
+    border-color: transparent;
+    animation: micPulse 1.2s infinite;
+}
+@keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(168, 85, 247, 0); }
+}

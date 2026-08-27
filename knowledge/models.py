@@ -67,3 +67,35 @@ class ChatMessage(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+
+class UnansweredQuery(models.Model):
+    """A question the knowledge base could not answer — a gap to fill so the
+    bot (especially in Assamese) keeps improving."""
+    question = models.TextField()
+    language = models.CharField(max_length=16, default='hinglish')
+    count = models.IntegerField(default=1)
+    resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"[{self.count}x] {self.question[:60]}"
+
+
+class Feedback(models.Model):
+    """👍 / 👎 on an answer — surfaces bad/weak answers to fix in the KB."""
+    question = models.TextField()
+    answer = models.TextField(blank=True)
+    rating = models.CharField(max_length=8)  # 'up' | 'down'
+    language = models.CharField(max_length=16, default='hinglish')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.rating}: {self.question[:50]}"
