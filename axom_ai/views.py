@@ -362,11 +362,29 @@ def chat_api_view(request):
 
     if translate_source:
         # Translate the exact KB answer into the chosen language — keep facts identical.
-        final_prompt = (
-            f"Rewrite the following information in {target_lang}. Keep every fact exactly "
-            f"the same. Do not add, remove, or change any information. Output only the "
-            f"rewritten text:\n\n{translate_source}"
-        )
+        if language == 'assamese':
+            # Assamese-tuned prompt: aim for natural, native, fluent Assamese —
+            # not a stiff word-by-word transliteration. This meaningfully improves
+            # readability without any extra model or dependency.
+            final_prompt = (
+                "You are a native Assamese (অসমীয়া) speaker and professional translator. "
+                "Translate the information below into natural, fluent, everyday Assamese "
+                "using correct Assamese script and grammar. Write the way an educated "
+                "Assamese person would actually speak or write — NOT a literal, "
+                "word-for-word translation, and NOT Bengali. Use proper Assamese "
+                "vocabulary (e.g. use Assamese-specific words and verb forms, the "
+                "Assamese 'ৰ' not Bengali 'র'). Keep every fact, name, number, and place "
+                "exactly the same — do not add, remove, or change any information. "
+                "Keep proper nouns (like Dispur, Guwahati, Kaziranga) readable. "
+                "Output only the Assamese text, nothing else:\n\n"
+                f"{translate_source}"
+            )
+        else:
+            final_prompt = (
+                f"Rewrite the following information in {target_lang}. Keep every fact exactly "
+                f"the same. Do not add, remove, or change any information. Output only the "
+                f"rewritten text:\n\n{translate_source}"
+            )
     else:
         # system_instruction is sent separately (Gemini systemInstruction / Ollama system).
         final_prompt = f"{hist_block}User Question: {prompt}"
