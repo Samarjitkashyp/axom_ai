@@ -245,6 +245,36 @@ def _gemini_generate(api_key, system, prompt, models):
     return None
 
 
+# Groq — OpenAI-compatible API, very fast, generous free tier. Used as the
+# automatic fallback when Gemini fails (e.g. its free daily quota is exhausted),
+# so users still get a real answer instead of an error.
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+GROQ_MODEL = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
+GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
+
+
+def _groq_generate(system, prompt, timeout=30):
+    """One-shot Groq chat completion; returns plain text or None on any failure."""
+    if not GROQ_API_KEY:
+        return None
+    try:
+        r = http_session.post(
+            GROQ_URL,
+            headers={'Authorization': f'Bearer {GROQ_API_KEY}',
+                     'Content-Type': 'application/json'},
+            json={'model': GROQ_MODEL, 'messages': [
+                {'role': 'system', 'content': system},
+                {'role': 'user', 'content': prompt}]},
+            timeout=timeout)
+        if r.status_code == 200:
+            txt = r.json()['choices'][0]['message']['content']
+            if txt and txt.strip():
+                return txt.strip()
+    except (requests.RequestException, KeyError, IndexError, ValueError):
+        pass
+    return None
+
+
 def call_local_llm(final_prompt, system_instruction, timeout=120):
     """
     Query the local Ollama model. Returns the generated text on success,
@@ -530,6 +560,9 @@ def chat_api_view(request):
         )
         english_answer = _gemini_generate(
             api_key, en_system, f"{hist_block}User Question: {prompt}", candidate_models)
+        if not english_answer:
+            # Gemini down (quota) — get the English answer from Groq instead.
+            english_answer = _groq_generate(en_system, f"{hist_block}User Question: {prompt}")
         if english_answer:
             asm = _indic_translate(english_answer)
             if asm:
@@ -670,6 +703,22 @@ def chat_api_view(request):
         except Exception as err:
             last_error = str(err)
             continue
+
+    # Groq fallback: Gemini failed (commonly its free daily quota is exhausted).
+    # Groq is fast and has a generous free tier, so the user still gets a real
+    # answer — including the translated/rewritten text for the KB-translate path.
+    if GROQ_API_KEY and not web_search:
+        groq_text = _groq_generate(system_instruction, final_prompt)
+        if groq_text:
+            _save_chat(request, client_id, prompt, groq_text)
+            return JsonResponse({
+                'response': groq_text,
+                'from_database': bool(custom_context),
+                'source_docs': source_docs,
+                'web_search': web_search,
+                'sources': [],
+                'engine': 'groq',
+            })
 
     # Fast Fallback: If API fails or is rate-limited, return database context if available!
     if custom_context:

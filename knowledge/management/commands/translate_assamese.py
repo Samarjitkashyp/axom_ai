@@ -52,8 +52,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         api_key = os.getenv('GEMINI_API_KEY')
-        if not api_key:
-            self.stdout.write(self.style.ERROR("GEMINI_API_KEY not set. Aborting."))
+        if not api_key and not os.getenv('GROQ_API_KEY'):
+            self.stdout.write(self.style.ERROR(
+                "Neither GEMINI_API_KEY nor GROQ_API_KEY is set. Aborting."))
             return
 
         pending_qs = QAPair.objects.exclude(answer_assamese__gt='').order_by('id')
@@ -95,6 +96,43 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("Re-run the command to retry the failed ones."))
 
     def _translate(self, session, api_key, text):
+        """Translate via Gemini; if it fails (e.g. quota), fall back to Groq."""
+        if api_key:
+            gem = self._translate_gemini(session, api_key, text)
+            if gem:
+                return gem
+        return self._translate_groq(session, text)
+
+    def _translate_groq(self, session, text):
+        """Translate via Groq (OpenAI-compatible) — generous free tier fallback."""
+        key = os.getenv('GROQ_API_KEY')
+        if not key:
+            return None
+        prompt = PROMPT_TEMPLATE.format(answer=text)
+        model = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
+        for attempt in range(3):
+            try:
+                r = session.post(
+                    'https://api.groq.com/openai/v1/chat/completions',
+                    headers={'Authorization': f'Bearer {key}',
+                             'Content-Type': 'application/json'},
+                    json={'model': model, 'messages': [
+                        {'role': 'user', 'content': prompt}]},
+                    timeout=40)
+                if r.status_code == 200:
+                    txt = r.json()['choices'][0]['message']['content']
+                    if txt and txt.strip():
+                        return txt.strip()
+                    return None
+                if r.status_code == 429 or r.status_code >= 500:
+                    time.sleep(2 * (attempt + 1))
+                    continue
+                return None
+            except (requests.RequestException, KeyError, IndexError, ValueError):
+                time.sleep(2 * (attempt + 1))
+        return None
+
+    def _translate_gemini(self, session, api_key, text):
         """Call Gemini; retry on rate-limit/5xx with backoff; try each candidate model."""
         prompt = PROMPT_TEMPLATE.format(answer=text)
         payload = {"contents": [{"parts": [{"text": prompt}]}]}
