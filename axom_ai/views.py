@@ -275,6 +275,52 @@ def _groq_generate(system, prompt, timeout=30):
     return None
 
 
+def _groq_stream_response(system, prompt, on_done, timeout=30):
+    """Start a STREAMING Groq completion. Returns a text-chunk generator if the
+    stream opens (HTTP 200), else None so the caller can fall back to Gemini.
+    `on_done(full_text)` is called once the stream finishes (to persist it)."""
+    if not GROQ_API_KEY:
+        return None
+    try:
+        r = http_session.post(
+            GROQ_URL,
+            headers={'Authorization': f'Bearer {GROQ_API_KEY}',
+                     'Content-Type': 'application/json'},
+            json={'model': GROQ_MODEL, 'stream': True, 'messages': [
+                {'role': 'system', 'content': system},
+                {'role': 'user', 'content': prompt}]},
+            stream=True, timeout=timeout)
+    except requests.RequestException:
+        return None
+    if r.status_code != 200:
+        r.close()
+        return None
+
+    def gen():
+        acc = []
+        try:
+            for raw in r.iter_lines():
+                if not raw:
+                    continue
+                line = raw.decode('utf-8', 'ignore')
+                if not line.startswith('data:'):
+                    continue
+                data = line[5:].strip()
+                if data == '[DONE]':
+                    break
+                try:
+                    delta = json.loads(data)['choices'][0]['delta'].get('content')
+                except (ValueError, KeyError, IndexError):
+                    continue
+                if delta:
+                    acc.append(delta)
+                    yield delta
+        finally:
+            r.close()
+            on_done(''.join(acc))
+    return gen()
+
+
 def call_local_llm(final_prompt, system_instruction, timeout=120):
     """
     Query the local Ollama model. Returns the generated text on success,
@@ -558,11 +604,11 @@ def chat_api_view(request):
             "facts — names of people or officials, who currently holds a post, dates, or "
             "statistics. If you are unsure, say you are not certain instead of guessing."
         )
-        english_answer = _gemini_generate(
-            api_key, en_system, f"{hist_block}User Question: {prompt}", candidate_models)
+        # Groq is primary; Gemini is the fallback if Groq is unavailable.
+        english_answer = _groq_generate(en_system, f"{hist_block}User Question: {prompt}")
         if not english_answer:
-            # Gemini down (quota) — get the English answer from Groq instead.
-            english_answer = _groq_generate(en_system, f"{hist_block}User Question: {prompt}")
+            english_answer = _gemini_generate(
+                api_key, en_system, f"{hist_block}User Question: {prompt}", candidate_models)
         if english_answer:
             asm = _indic_translate(english_answer)
             if asm:
@@ -571,6 +617,22 @@ def chat_api_view(request):
                     'response': asm, 'from_database': False, 'source_docs': [],
                     'web_search': False, 'sources': [], 'engine': 'indictrans2',
                 })
+
+    # 6-primary. GROQ is the primary engine — stream it token-by-token for a
+    #            super-fast first word and accurate answers. Gemini is the
+    #            fallback below (and still handles web_search grounding).
+    if GROQ_API_KEY and not web_search:
+        gstream = _groq_stream_response(
+            system_instruction, final_prompt,
+            lambda txt: _save_chat(request, client_id, prompt, txt))
+        if gstream is not None:
+            sresp = StreamingHttpResponse(gstream, content_type='text/plain; charset=utf-8')
+            sresp['X-Engine'] = 'groq'
+            sresp['X-From-Database'] = 'true' if custom_context else 'false'
+            sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
+            sresp['Cache-Control'] = 'no-cache'
+            sresp['X-Accel-Buffering'] = 'no'
+            return sresp
 
     # 6a. STREAM the general/RAG answer from Gemini so the first words reach the
     #     user immediately (feels fast). web_search stays non-streaming below —
