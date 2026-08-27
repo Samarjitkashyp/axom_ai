@@ -249,7 +249,7 @@ def _gemini_generate(api_key, system, prompt, models):
 # automatic fallback when Gemini fails (e.g. its free daily quota is exhausted),
 # so users still get a real answer instead of an error.
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-GROQ_MODEL = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
+GROQ_MODEL = os.getenv('GROQ_MODEL', 'openai/gpt-oss-120b')
 GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 

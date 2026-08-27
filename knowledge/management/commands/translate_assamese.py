@@ -109,7 +109,7 @@ class Command(BaseCommand):
         if not key:
             return None
         prompt = PROMPT_TEMPLATE.format(answer=text)
-        model = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
+        model = os.getenv('GROQ_MODEL', 'openai/gpt-oss-120b')
         for attempt in range(3):
             try:
                 r = session.post(
