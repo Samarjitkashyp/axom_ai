@@ -126,7 +126,7 @@ export default function SidebarRight({
         </div>
         <ul className="quick-tips-list">
           <li><span className="tip-dot">•</span> Use <kbd>Ctrl+K</kbd> to focus chat input</li>
-          <li><span className="tip-dot">•</span> Ask about Assam in English or Hinglish</li>
+          <li><span className="tip-dot">•</span> Ask in English, Hindi or Hinglish — replies come in Assamese</li>
           <li><span className="tip-dot">•</span> Pin or delete chats from the ⋮ menu</li>
           <li><span className="tip-dot">•</span> Manage archived chats in Settings</li>
         </ul>

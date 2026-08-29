@@ -24,17 +24,13 @@ export default function ChatWindow({
   const [streamingFromDb, setStreamingFromDb] = useState(false);
   const [copiedMessageIndex, setCopiedMessageIndex] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [language, setLanguage] = useState(() => localStorage.getItem('axom_ai_lang') || 'hinglish');
+  // Axom AI is Assamese-only: replies are always in Assamese regardless of input language.
+  const [language] = useState('assamese');
 
   const [isListening, setIsListening] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState({});
   const [speakingIndex, setSpeakingIndex] = useState(null);
   const recognitionRef = useRef(null);
-
-  const changeLanguage = (lang) => {
-    setLanguage(lang);
-    try { localStorage.setItem('axom_ai_lang', lang); } catch (e) { /* ignore */ }
-  };
 
   const langCode = () =>
     (language === 'english' ? 'en-IN' : language === 'assamese' ? 'as-IN' : 'hi-IN');
@@ -332,8 +328,8 @@ export default function ChatWindow({
                 </div>
                 <div className="orb-particles"></div>
               </div>
-              <h2 className="hero-tagline" style={{ fontSize: '0.98rem', maxWidth: '600px', lineHeight: 1.5, opacity: 0.85, margin: '20px auto 0' }}>
-                I can provide information on <span className="gradient-text">history-related incidents</span> that have occurred from the year 1900 onwards.
+              <h2 className="hero-tagline" style={{ fontSize: '0.98rem', maxWidth: '620px', lineHeight: 1.5, opacity: 0.85, margin: '20px auto 0' }}>
+                I'm your AI assistant for <span className="gradient-text">everything about Assam</span> — its history, culture, festivals, tourism, food and people. Ask me in English, Hindi or Hinglish, and I'll always reply in <span className="gradient-text">Assamese (অসমীয়া)</span>.
               </h2>
             </div>
           </div>
@@ -514,20 +510,10 @@ export default function ChatWindow({
           </div>
           <div className="input-controls-row">
             <div className="controls-left">
-              <div className="lang-selector" title="Reply language">
-                {[
-                  { key: 'english', label: 'EN' },
-                  { key: 'hinglish', label: 'Hinglish' },
-                  { key: 'assamese', label: 'অসমীয়া' },
-                ].map((l) => (
-                  <button
-                    key={l.key}
-                    className={`lang-btn ${language === l.key ? 'active' : ''}`}
-                    onClick={() => changeLanguage(l.key)}
-                  >
-                    {l.label}
-                  </button>
-                ))}
+              <div className="lang-selector" title="Replies are always in Assamese">
+                <span className="lang-btn active" style={{ cursor: 'default' }}>
+                  ⇄ Reply in অসমীয়া
+                </span>
               </div>
             </div>
             <div className="controls-right">

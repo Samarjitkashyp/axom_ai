@@ -378,7 +378,9 @@ def chat_api_view(request):
         prompt = data.get('prompt', '').strip()
         web_search = data.get('web_search', False)
         client_id = str(data.get('session_id', '') or '')
-        language = str(data.get('language', 'hinglish') or 'hinglish').lower()
+        # Axom AI is Assamese-only: every reply is in Assamese, whatever the
+        # user typed in (English/Hindi/Hinglish) and whatever the client sends.
+        language = 'assamese'
         history = data.get('history', [])
         if not isinstance(history, list):
             history = []
