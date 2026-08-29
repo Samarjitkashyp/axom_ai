@@ -78,13 +78,19 @@ def upload_document_api(request):
     else:
         file_type = 'text'
 
+    # Optional source attribution — shown with every answer from this document.
+    source_name = request.POST.get('source_name', '').strip()[:255]
+    source_url = request.POST.get('source_url', '').strip()[:500]
+
     try:
         doc = KnowledgeDocument.objects.create(
             title=file_name,
             file=uploaded_file,
             file_type=file_type,
             file_size=file_size,
-            status='Processing'
+            status='Processing',
+            source_name=source_name,
+            source_url=source_url,
         )
 
         extracted_text = extract_text_from_file(doc.file.path, file_type)

@@ -14,6 +14,8 @@ export default function AdminPanel({ onBackToChat }) {
   const [uploadProgress, setUploadProgress] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [sourceName, setSourceName] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
 
   const fileInputRef = useRef(null);
 
@@ -53,6 +55,8 @@ export default function AdminPanel({ onBackToChat }) {
 
     const formData = new FormData();
     formData.append('file', file);
+    if (sourceName.trim()) formData.append('source_name', sourceName.trim());
+    if (sourceUrl.trim()) formData.append('source_url', sourceUrl.trim());
 
     try {
       const res = await fetch('/api/upload/', {
@@ -195,6 +199,24 @@ export default function AdminPanel({ onBackToChat }) {
 
         {/* Upload Dropzone Section */}
         <div className="upload-section-card">
+          {/* Source attribution — shown with every answer from this document.
+              For JSONL you can instead set source per line and leave these blank. */}
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              value={sourceName}
+              onChange={(e) => setSourceName(e.target.value)}
+              placeholder="Source name (e.g. Assam Tourism Dept)"
+              style={{ flex: '1 1 200px', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+            />
+            <input
+              type="text"
+              value={sourceUrl}
+              onChange={(e) => setSourceUrl(e.target.value)}
+              placeholder="Source URL (e.g. https://assam.gov.in/...)"
+              style={{ flex: '1 1 200px', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+            />
+          </div>
           <div
             className={`dropzone ${isDragOver ? 'dragover' : ''}`}
             onDragOver={handleDragOver}

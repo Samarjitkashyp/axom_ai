@@ -188,6 +188,8 @@ export default function ChatWindow({
       // --- Streaming path (local Ollama or Gemini): tokens arrive live ---
       if (res.ok && res.headers.get('X-Engine') && res.body) {
         const fromDb = res.headers.get('X-From-Database') === 'true';
+        let kbSource = null;
+        try { const s = res.headers.get('X-Source'); if (s) kbSource = JSON.parse(s); } catch (e) { /* ignore */ }
         setStreamingSources([]);
         setStreamingModel('Axom AI');
         setStreamingFromDb(fromDb);
@@ -218,6 +220,7 @@ export default function ChatWindow({
           web_search: false,
           sources: [],
           from_database: fromDb,
+          source: kbSource,
         });
         setStreamingText(null);
         setStreamingSources([]);
@@ -251,6 +254,7 @@ export default function ChatWindow({
               web_search: data.web_search,
               sources: data.sources,
               from_database: data.from_database,
+              source: data.source || null,
             });
             setStreamingText(null);
             setStreamingSources([]);
@@ -434,6 +438,20 @@ export default function ChatWindow({
                               </a>
                             ))}
                           </div>
+                        </div>
+                      )}
+
+                      {/* Knowledge-base source attribution */}
+                      {msg.source && (msg.source.name || msg.source.url) && (
+                        <div className="kb-source" style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid var(--border-color)', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+                          <span>📄 Source:</span>
+                          {msg.source.url ? (
+                            <a href={msg.source.url} target="_blank" rel="noopener noreferrer" className="source-link" style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}>
+                              {msg.source.name || msg.source.url}
+                            </a>
+                          ) : (
+                            <span style={{ color: 'var(--text-secondary)' }}>{msg.source.name}</span>
+                          )}
                         </div>
                       )}
                     </div>

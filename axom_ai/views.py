@@ -416,15 +416,22 @@ def chat_api_view(request):
     )
 
     # 2. Find a knowledge-base answer (exact keyword match → semantic meaning match).
-    kb_answer, kb_assamese = None, ''
+    kb_answer, kb_assamese, kb_source = None, '', None
     if not web_search:
-        ia, ia_asm = find_instant_answer(prompt)
+        ia, ia_asm, ia_src = find_instant_answer(prompt)
         if ia:
-            kb_answer, kb_assamese = ia, ia_asm
+            kb_answer, kb_assamese, kb_source = ia, ia_asm, ia_src
         else:
-            sa, sa_asm, _score = semantic_find_answer(prompt)
+            sa, sa_asm, _score, sa_src = semantic_find_answer(prompt)
             if sa:
-                kb_answer, kb_assamese = sa, sa_asm
+                kb_answer, kb_assamese, kb_source = sa, sa_asm, sa_src
+
+    # A source is only worth returning if it actually names something.
+    def _clean_source(src):
+        if src and (str(src.get('name', '')).strip() or str(src.get('url', '')).strip()):
+            return {'name': str(src.get('name', '')).strip(), 'url': str(src.get('url', '')).strip()}
+        return None
+    kb_source = _clean_source(kb_source)
 
     # 2b. Language routing for a KB hit (Hybrid: verified record first, else translate).
     translate_source = None
@@ -435,6 +442,7 @@ def chat_api_view(request):
             return JsonResponse({
                 'response': kb_assamese, 'from_database': True, 'source_docs': [],
                 'web_search': False, 'sources': [], 'engine': 'db-assamese',
+                'source': kb_source,
             })
         if language == 'hinglish':
             # Stored data is already Hinglish → return verbatim (fast, no model).
@@ -442,6 +450,7 @@ def chat_api_view(request):
             return JsonResponse({
                 'response': kb_answer, 'from_database': True, 'source_docs': [],
                 'web_search': False, 'sources': [], 'engine': 'instant',
+                'source': kb_source,
             })
         # English, or Assamese without a stored record → translate the exact answer.
         translate_source = kb_answer
@@ -631,6 +640,7 @@ def chat_api_view(request):
             sresp['X-Engine'] = 'groq'
             sresp['X-From-Database'] = 'true' if custom_context else 'false'
             sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
+            sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
             sresp['Cache-Control'] = 'no-cache'
             sresp['X-Accel-Buffering'] = 'no'
             return sresp
@@ -683,6 +693,7 @@ def chat_api_view(request):
                 sresp['X-Engine'] = 'gemini'
                 sresp['X-From-Database'] = 'true' if custom_context else 'false'
                 sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
+                sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
                 sresp['Cache-Control'] = 'no-cache'
                 sresp['X-Accel-Buffering'] = 'no'
                 return sresp
@@ -758,7 +769,8 @@ def chat_api_view(request):
                         'source_docs': source_docs,
                         'web_search': web_search,
                         'sources': sources,
-                        'engine': 'gemini'
+                        'engine': 'gemini',
+                        'source': kb_source,
                     })
 
             if 'error' in res_data and 'message' in res_data['error']:
@@ -781,6 +793,7 @@ def chat_api_view(request):
                 'web_search': web_search,
                 'sources': [],
                 'engine': 'groq',
+                'source': kb_source,
             })
 
     # Fast Fallback: If API fails or is rate-limited, return database context if available!

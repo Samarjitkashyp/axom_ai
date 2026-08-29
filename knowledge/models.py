@@ -8,6 +8,9 @@ class KnowledgeDocument(models.Model):
     file_size = models.IntegerField(default=0) # size in bytes
     status = models.CharField(max_length=50, default='Processed')
     extracted_text = models.TextField(blank=True)
+    # Where this document came from — shown with answers for trust/attribution.
+    source_name = models.CharField(max_length=255, blank=True)   # e.g. "Assam Tourism Dept"
+    source_url = models.CharField(max_length=500, blank=True)    # e.g. https://assamtourism.gov.in/...
 
     def __str__(self):
         return f"{self.title} ({self.file_type})"
@@ -36,6 +39,10 @@ class QAPair(models.Model):
     # Semantic vector (JSON list of floats) from the Gemini embedding API — lets us
     # match a question by MEANING, not just shared keywords.
     embedding = models.TextField(blank=True)
+    # Source attribution (denormalised from the document, or per-line in JSONL) so
+    # each answer can show where the fact came from.
+    source_name = models.CharField(max_length=255, blank=True)
+    source_url = models.CharField(max_length=500, blank=True)
 
     def __str__(self):
         return f"Q&A: {self.question[:50]}"

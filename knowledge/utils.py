@@ -62,49 +62,52 @@ def _load_qa_matrix():
     """Load all QAPair embeddings into a normalized numpy matrix (cached)."""
     global _QA_CACHE
     total = QAPair.objects.exclude(embedding='').count()
-    if _QA_CACHE is not None and _QA_CACHE[4] == total:
+    if _QA_CACHE is not None and _QA_CACHE[5] == total:
         return _QA_CACHE
-    ids, answers, asms, vecs = [], [], [], []
-    for qa in QAPair.objects.exclude(embedding='').only('id', 'answer', 'answer_assamese', 'embedding').iterator():
+    ids, answers, asms, srcs, vecs = [], [], [], [], []
+    for qa in QAPair.objects.exclude(embedding='').only(
+            'id', 'answer', 'answer_assamese', 'embedding', 'source_name', 'source_url').iterator():
         try:
             vecs.append(json.loads(qa.embedding))
             ids.append(qa.id)
             answers.append(qa.answer)
             asms.append(qa.answer_assamese)
+            srcs.append({'name': qa.source_name, 'url': qa.source_url})
         except Exception:
             continue
     if not vecs:
-        _QA_CACHE = ([], [], [], None, 0)
+        _QA_CACHE = ([], [], [], [], None, 0)
         return _QA_CACHE
     mat = np.asarray(vecs, dtype=np.float32)
     norms = np.linalg.norm(mat, axis=1, keepdims=True)
     norms[norms == 0] = 1.0
-    _QA_CACHE = (ids, answers, asms, mat / norms, total)
+    _QA_CACHE = (ids, answers, asms, srcs, mat / norms, total)
     return _QA_CACHE
 
 
 def semantic_find_answer(query, threshold=None):
-    """Return (answer, answer_assamese, score) for the semantically closest stored
-    question, or (None, '', score) if nothing is confident enough. The answer is
-    verbatim from the knowledge base, so it stays factually consistent with the data."""
+    """Return (answer, answer_assamese, score, source) for the semantically closest
+    stored question, or (None, '', score, None) if nothing is confident enough.
+    `source` is {'name':..., 'url':...} (empty strings when the pair has no source).
+    The answer is verbatim from the knowledge base, so it stays factually consistent."""
     if threshold is None:
         threshold = SEMANTIC_THRESHOLD
-    ids, answers, asms, mat, total = _load_qa_matrix()
+    ids, answers, asms, srcs, mat, total = _load_qa_matrix()
     if mat is None:
-        return None, '', 0.0
+        return None, '', 0.0, None
     qv = _embed_texts([query])
     if not qv:
-        return None, '', 0.0
+        return None, '', 0.0, None
     q = np.asarray(qv[0], dtype=np.float32)
     n = np.linalg.norm(q)
     if n == 0:
-        return None, '', 0.0
+        return None, '', 0.0, None
     sims = mat @ (q / n)
     idx = int(np.argmax(sims))
     score = float(sims[idx])
     if score >= threshold:
-        return answers[idx], asms[idx], score
-    return None, '', score
+        return answers[idx], asms[idx], score, srcs[idx]
+    return None, '', score, None
 
 def extract_text_from_file(file_path, file_type):
     """
@@ -250,25 +253,88 @@ def create_knowledge_chunks(document_obj, chunk_size=800, overlap=100):
 
 def create_qa_pairs(document_obj):
     """
-    Parse 'Q: ...\nA: ...' blocks out of the document's extracted text (produced
-    for JSONL / Q&A files) and store them as QAPair rows for instant lookup.
-    Documents without Q&A structure simply produce no pairs.
+    Build QAPair rows from an uploaded document, then embed them so they are
+    immediately searchable.
+
+    JSONL/JSON files may give each line the richest control — every object can
+    carry: question, answer, answer_assamese (optional), source_name/source_url
+    (optional; falls back to the document's own source). Other file types fall
+    back to parsing 'Q: ...\\nA: ...' blocks from the extracted text and inherit
+    the document-level source.
     """
-    text = document_obj.extracted_text or ""
     document_obj.qa_pairs.all().delete()
+    doc_src_name = (document_obj.source_name or '').strip()
+    doc_src_url = (document_obj.source_url or '').strip()
 
     pairs = []
-    for block in text.split("\n\n"):
-        block = block.strip()
-        if block.startswith("Q:") and "\nA:" in block:
-            q_part, a_part = block.split("\nA:", 1)
-            question = q_part[2:].strip()
-            answer = a_part.strip()
-            if question and answer:
-                pairs.append(QAPair(document=document_obj, question=question, answer=answer))
 
-    if pairs:
-        QAPair.objects.bulk_create(pairs)
+    # 1. Try structured JSONL/JSON first — one JSON object per line (or a JSON array).
+    is_jsonish = (document_obj.file_type == 'jsonl'
+                  or str(document_obj.file.name).lower().endswith(('.jsonl', '.json')))
+    if is_jsonish:
+        try:
+            with open(document_obj.file.path, 'r', encoding='utf-8') as f:
+                raw = f.read()
+            records = []
+            stripped = raw.strip()
+            if stripped.startswith('['):          # a JSON array
+                records = json.loads(stripped)
+            else:                                  # JSONL — one object per line
+                for line in stripped.splitlines():
+                    line = line.strip()
+                    if line:
+                        records.append(json.loads(line))
+            for obj in records:
+                if not isinstance(obj, dict):
+                    continue
+                question = str(obj.get('question') or obj.get('instruction') or '').strip()
+                answer = str(obj.get('answer') or obj.get('output') or '').strip()
+                if not (question and answer):
+                    continue
+                pairs.append(QAPair(
+                    document=document_obj,
+                    question=question,
+                    answer=answer,
+                    answer_assamese=str(obj.get('answer_assamese') or '').strip(),
+                    source_name=str(obj.get('source_name') or doc_src_name).strip()[:255],
+                    source_url=str(obj.get('source_url') or doc_src_url).strip()[:500],
+                ))
+        except Exception:
+            pairs = []  # fall through to the plain-text parser below
+
+    # 2. Fallback: 'Q: ...\nA: ...' blocks from the extracted text.
+    if not pairs:
+        text = document_obj.extracted_text or ""
+        for block in text.split("\n\n"):
+            block = block.strip()
+            if block.startswith("Q:") and "\nA:" in block:
+                q_part, a_part = block.split("\nA:", 1)
+                question = q_part[2:].strip()
+                answer = a_part.strip()
+                if question and answer:
+                    pairs.append(QAPair(
+                        document=document_obj, question=question, answer=answer,
+                        source_name=doc_src_name[:255], source_url=doc_src_url[:500],
+                    ))
+
+    if not pairs:
+        return
+
+    QAPair.objects.bulk_create(pairs)
+
+    # 3. Embed the new pairs right away so semantic search can find them.
+    try:
+        fresh = list(document_obj.qa_pairs.filter(embedding='').only('id', 'question'))
+        vecs = _embed_texts([qa.question for qa in fresh])
+        if vecs and len(vecs) == len(fresh):
+            for qa, v in zip(fresh, vecs):
+                qa.embedding = json.dumps(v)
+            QAPair.objects.bulk_update(fresh, ['embedding'])
+    except Exception:
+        pass  # embeddings can be backfilled later via manage.py backfill_embeddings
+
+    global _QA_CACHE
+    _QA_CACHE = None  # force the search matrix to rebuild with the new pairs
 
 
 def _normalize(s):
@@ -309,7 +375,7 @@ def find_instant_answer(query, threshold=0.6):
     """
     q_tokens = _keywords(query)
     if not q_tokens:
-        return None, ''
+        return None, '', None
 
     qn = _normalize(query)
 
@@ -317,13 +383,15 @@ def find_instant_answer(query, threshold=0.6):
     q_filter = Q()
     for t in q_tokens:
         q_filter |= Q(question__icontains=t)
-    candidates = QAPair.objects.filter(q_filter).only('question', 'answer', 'answer_assamese')[:3000]
+    candidates = QAPair.objects.filter(q_filter).only(
+        'question', 'answer', 'answer_assamese', 'source_name', 'source_url')[:3000]
 
-    best_answer, best_asm = None, ''
+    best_answer, best_asm, best_src = None, '', None
     best_score = 0.0
     for qa in candidates:
         if _normalize(qa.question) == qn:
-            return qa.answer, qa.answer_assamese  # exact match — instant
+            # exact match — instant
+            return qa.answer, qa.answer_assamese, {'name': qa.source_name, 'url': qa.source_url}
 
         p_tokens = _keywords(qa.question)
         if not p_tokens:
@@ -340,10 +408,11 @@ def find_instant_answer(query, threshold=0.6):
             best_score = score
             best_answer = qa.answer
             best_asm = qa.answer_assamese
+            best_src = {'name': qa.source_name, 'url': qa.source_url}
 
     if best_score >= threshold:
-        return best_answer, best_asm
-    return None, ''
+        return best_answer, best_asm, best_src
+    return None, '', None
 
 
 def search_knowledge_base(query, top_k=3):
