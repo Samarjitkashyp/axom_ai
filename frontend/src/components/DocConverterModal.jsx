@@ -4,6 +4,7 @@ import {
   ChevronLeft, FileType2, Image as ImageIcon, Combine, Scissors, Trash2,
   FileOutput, RotateCw, Hash, Minimize2, Droplets, Lock, Unlock,
   Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, Copy, Check, Sparkles,
+  PenTool, Signature,
 } from 'lucide-react';
 import { getCsrfToken } from '../utils/security';
 
@@ -41,11 +42,15 @@ const TOOLS = [
   { id: 'chatpdf', name: 'Chat with PDF', cat: 'AI Tools', icon: MessagesSquare, ep: 'ai', op: 'chat', accept: '.pdf', multi: false, param: 'question', hint: 'PDF file' },
   { id: 'summarize', name: 'Summarize PDF', cat: 'AI Tools', icon: Sparkles, ep: 'ai', op: 'summarize', accept: '.pdf', multi: false, hint: 'PDF file' },
   { id: 'translatepdf', name: 'Translate PDF', cat: 'AI Tools', icon: Languages, ep: 'ai', op: 'translate', accept: '.pdf', multi: false, param: 'lang', hint: 'PDF file' },
+
+  // Interactive editor (opens a full-screen canvas editor)
+  { id: 'edit', name: 'Edit PDF', cat: 'Edit', icon: PenTool, editor: true },
+  { id: 'sign', name: 'Sign PDF', cat: 'Edit', icon: Signature, editor: true },
 ];
 
-const CATS = ['Convert', 'Office', 'Organize', 'Optimize', 'Security', 'OCR', 'AI Tools'];
+const CATS = ['Convert', 'Office', 'Organize', 'Optimize', 'Security', 'OCR', 'AI Tools', 'Edit'];
 
-export default function DocConverterModal({ isOpen, onClose }) {
+export default function DocConverterModal({ isOpen, onClose, onOpenEditor }) {
   const [tool, setTool] = useState(null);
   const [files, setFiles] = useState([]);
   const [paramText, setParamText] = useState('');
@@ -64,7 +69,10 @@ export default function DocConverterModal({ isOpen, onClose }) {
     setResult(null); setErrorMsg(null); setIsRunning(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
-  const pickTool = (t) => { reset(); setTool(t); if (t.param === 'lang') setAngle('assamese'); };
+  const pickTool = (t) => {
+    if (t.editor) { onClose?.(); onOpenEditor?.(); return; }
+    reset(); setTool(t); if (t.param === 'lang') setAngle('assamese');
+  };
   const backToGrid = () => { reset(); setTool(null); };
 
   const handleDrag = (e) => {
