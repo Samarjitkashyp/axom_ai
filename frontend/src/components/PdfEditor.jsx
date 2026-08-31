@@ -4,13 +4,22 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import {
   X, Type, Pen, Highlighter, PenTool, ImagePlus, Trash2, Download,
-  MousePointer2, UploadCloud, Loader2,
+  MousePointer2, UploadCloud, Loader2, Bold, Italic, Minus, Plus,
 } from 'lucide-react';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const DISPLAY_W = 760;                 // page render width in CSS px
-const COLORS = ['#111827', '#dc2626', '#2563eb', '#16a34a'];
+const COLORS = ['#111827', '#dc2626', '#2563eb', '#16a34a', '#f59e0b', '#ffffff'];
+const BG_COLORS = ['#fde047', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#111827'];
+
+const fmtBtn = (active) => ({
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+  width: '30px', height: '28px', borderRadius: '7px', cursor: 'pointer',
+  border: '1px solid var(--border-color)',
+  background: active ? 'var(--accent-purple, #8b5cf6)' : 'transparent',
+  color: active ? '#fff' : 'var(--text-secondary)',
+});
 
 // A tiny signature pad rendered in a popup.
 function SignaturePad({ onDone, onCancel }) {
@@ -68,6 +77,7 @@ export default function PdfEditor({ onClose }) {
   const imgInputRef = useRef(null);
   const drag = useRef(null);
   const stroke = useRef(null);
+  const resize = useRef(null);
 
   // ---- Load a PDF ----
   const loadPdf = useCallback(async (buf) => {
@@ -114,9 +124,12 @@ export default function PdfEditor({ onClose }) {
   // ---- Add elements ----
   const addText = (pageNum, x, y) => {
     const id = Date.now() + Math.random();
-    setElements((els) => [...els, { id, type: 'text', page: pageNum, x, y, text: 'Text', size: 18, color }]);
+    setElements((els) => [...els, { id, type: 'text', page: pageNum, x, y, text: 'Text', size: 18, color, bold: false, italic: false, bg: 'transparent' }]);
     setSelectedId(id); setTool('select');
   };
+
+  const selectedEl = elements.find((e) => e.id === selectedId) || null;
+  const updateSel = (props) => setElements((els) => els.map((e) => e.id === selectedId ? { ...e, ...props } : e));
   const addImage = (dataUrl, isSig) => {
     const first = pages[0]?.num || 1;
     const id = Date.now() + Math.random();
@@ -153,13 +166,22 @@ export default function PdfEditor({ onClose }) {
     if (tool !== 'select') return;
     drag.current = { id: el.id, sx: e.clientX, sy: e.clientY, ox: el.x, oy: el.y };
   };
+  const startResize = (e, el) => {
+    e.stopPropagation(); setSelectedId(el.id);
+    resize.current = { id: el.id, sx: e.clientX, ow: el.w, oh: el.h };
+  };
   useEffect(() => {
     const move = (e) => {
-      if (!drag.current) return;
-      const { id, sx, sy, ox, oy } = drag.current;
-      setElements((els) => els.map((el) => el.id === id ? { ...el, x: ox + (e.clientX - sx), y: oy + (e.clientY - sy) } : el));
+      if (drag.current) {
+        const { id, sx, sy, ox, oy } = drag.current;
+        setElements((els) => els.map((el) => el.id === id ? { ...el, x: ox + (e.clientX - sx), y: oy + (e.clientY - sy) } : el));
+      } else if (resize.current) {
+        const { id, sx, ow, oh } = resize.current;
+        const w = Math.max(30, ow + (e.clientX - sx));
+        setElements((els) => els.map((el) => el.id === id ? { ...el, w, h: Math.max(20, w * oh / ow) } : el));
+      }
     };
-    const up = () => { drag.current = null; };
+    const up = () => { drag.current = null; resize.current = null; };
     window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
     return () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
   }, []);
@@ -172,7 +194,13 @@ export default function PdfEditor({ onClose }) {
     setExporting(true);
     try {
       const doc = await PDFDocument.load(fileBytes.slice(0));
-      const font = await doc.embedFont(StandardFonts.Helvetica);
+      const fonts = {
+        n: await doc.embedFont(StandardFonts.Helvetica),
+        b: await doc.embedFont(StandardFonts.HelveticaBold),
+        i: await doc.embedFont(StandardFonts.HelveticaOblique),
+        bi: await doc.embedFont(StandardFonts.HelveticaBoldOblique),
+      };
+      const pickFont = (el) => el.bold && el.italic ? fonts.bi : el.bold ? fonts.b : el.italic ? fonts.i : fonts.n;
       const docPages = doc.getPages();
       for (const m of pages) {
         const page = docPages[m.num - 1];
@@ -190,11 +218,20 @@ export default function PdfEditor({ onClose }) {
         for (const el of elements.filter((e) => e.page === m.num)) {
           if (el.type === 'text') {
             const sizePt = el.size / S;
-            page.drawText(el.text || '', {
-              x: el.x / S,
-              y: m.hPts - (el.y / S) - sizePt,
-              size: sizePt, font, color: hexToRgb(el.color),
-            });
+            const f = pickFont(el);
+            const txt = el.text || '';
+            const xPt = el.x / S;
+            const baseY = m.hPts - (el.y / S) - sizePt;
+            // Background colour behind the text (like a highlight box).
+            if (el.bg && el.bg !== 'transparent') {
+              const wPt = f.widthOfTextAtSize(txt, sizePt);
+              page.drawRectangle({
+                x: xPt - 2, y: baseY - sizePt * 0.28,
+                width: wPt + 4, height: sizePt * 1.28,
+                color: hexToRgb(el.bg),
+              });
+            }
+            page.drawText(txt, { x: xPt, y: baseY, size: sizePt, font: f, color: hexToRgb(el.color) });
           } else if (el.type === 'image') {
             const png = await doc.embedPng(el.dataUrl);
             page.drawImage(png, { x: el.x / S, y: m.hPts - (el.y / S) - (el.h / S), width: el.w / S, height: el.h / S });
@@ -254,6 +291,33 @@ export default function PdfEditor({ onClose }) {
         <button onClick={onClose} title="Close" style={{ ...btnStyle('transparent', 'var(--text-secondary)'), border: '1px solid var(--border-color)' }}><X size={16} /></button>
       </div>
 
+      {/* Contextual text-formatting toolbar (Canva-style) */}
+      {selectedEl && selectedEl.type === 'text' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary, rgba(255,255,255,0.02))', flexWrap: 'wrap' }}>
+          <button onClick={() => updateSel({ bold: !selectedEl.bold })} title="Bold"
+            style={fmtBtn(selectedEl.bold)}><Bold size={14} /></button>
+          <button onClick={() => updateSel({ italic: !selectedEl.italic })} title="Italic"
+            style={fmtBtn(selectedEl.italic)}><Italic size={14} /></button>
+          <span style={{ width: '1px', height: '20px', background: 'var(--border-color)', margin: '0 2px' }} />
+          <button onClick={() => updateSel({ size: Math.max(8, selectedEl.size - 2) })} title="Smaller" style={fmtBtn(false)}><Minus size={14} /></button>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', minWidth: '26px', textAlign: 'center' }}>{selectedEl.size}</span>
+          <button onClick={() => updateSel({ size: Math.min(96, selectedEl.size + 2) })} title="Bigger" style={fmtBtn(false)}><Plus size={14} /></button>
+          <span style={{ width: '1px', height: '20px', background: 'var(--border-color)', margin: '0 2px' }} />
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Text</span>
+          {COLORS.map((c) => (
+            <button key={c} onClick={() => updateSel({ color: c })} title="Text colour"
+              style={{ width: 18, height: 18, borderRadius: '50%', background: c, border: selectedEl.color === c ? '2px solid #fff' : '2px solid transparent', cursor: 'pointer', boxShadow: '0 0 0 1px var(--border-color)' }} />
+          ))}
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: '6px' }}>Fill</span>
+          <button onClick={() => updateSel({ bg: 'transparent' })} title="No fill"
+            style={{ width: 18, height: 18, borderRadius: '50%', background: 'transparent', border: selectedEl.bg === 'transparent' ? '2px solid #fff' : '2px solid var(--border-color)', cursor: 'pointer', position: 'relative', color: '#ef4444', fontSize: '12px', lineHeight: '14px' }}>⃠</button>
+          {BG_COLORS.map((c) => (
+            <button key={c} onClick={() => updateSel({ bg: c })} title="Background colour"
+              style={{ width: 18, height: 18, borderRadius: '50%', background: c, border: selectedEl.bg === c ? '2px solid #fff' : '2px solid transparent', cursor: 'pointer', boxShadow: '0 0 0 1px var(--border-color)' }} />
+          ))}
+        </div>
+      )}
+
       <input ref={imgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
         onChange={async (e) => { const f = e.target.files?.[0]; if (f) { const r = new FileReader(); r.onload = () => addImage(r.result, false); r.readAsDataURL(f); } }} />
 
@@ -275,11 +339,17 @@ export default function PdfEditor({ onClose }) {
                 <input key={el.id} value={el.text}
                   onChange={(ev) => setElements((els) => els.map((x) => x.id === el.id ? { ...x, text: ev.target.value } : x))}
                   onMouseDown={(ev) => onElemMouseDown(ev, el)}
-                  style={{ position: 'absolute', left: el.x, top: el.y, fontSize: el.size, color: el.color, border: selectedId === el.id ? '1px dashed #8b5cf6' : '1px solid transparent', background: 'transparent', outline: 'none', fontFamily: 'Helvetica, Arial, sans-serif', minWidth: '40px', cursor: 'move', padding: 0 }} />
+                  style={{ position: 'absolute', left: el.x, top: el.y, fontSize: el.size, color: el.color, fontWeight: el.bold ? 700 : 400, fontStyle: el.italic ? 'italic' : 'normal', border: selectedId === el.id ? '1px dashed #8b5cf6' : '1px solid transparent', background: el.bg && el.bg !== 'transparent' ? el.bg : 'transparent', outline: 'none', fontFamily: 'Helvetica, Arial, sans-serif', minWidth: '40px', cursor: 'move', padding: '0 2px' }} />
               ) : (
-                <img key={el.id} src={el.dataUrl} alt="" draggable={false}
-                  onMouseDown={(ev) => onElemMouseDown(ev, el)}
-                  style={{ position: 'absolute', left: el.x, top: el.y, width: el.w, height: el.h, cursor: 'move', outline: selectedId === el.id ? '1px dashed #8b5cf6' : 'none' }} />
+                <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.w, height: el.h, outline: selectedId === el.id ? '1px dashed #8b5cf6' : 'none' }}>
+                  <img src={el.dataUrl} alt="" draggable={false}
+                    onMouseDown={(ev) => onElemMouseDown(ev, el)}
+                    style={{ width: '100%', height: '100%', cursor: 'move', display: 'block' }} />
+                  {selectedId === el.id && (
+                    <div onMouseDown={(ev) => startResize(ev, el)} title="Drag to resize"
+                      style={{ position: 'absolute', right: -7, bottom: -7, width: 14, height: 14, background: '#8b5cf6', borderRadius: '50%', cursor: 'nwse-resize', border: '2px solid #fff' }} />
+                  )}
+                </div>
               )
             ))}
           </div>
