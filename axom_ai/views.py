@@ -1051,3 +1051,127 @@ def download_converted_file_view(request, filename):
     resp = FileResponse(open(path, 'rb'), content_type=ctype)
     resp['Content-Disposition'] = f'attachment; filename="{clean}"'
     return resp
+
+
+def pdf_tool_api(request):
+    """
+    PDF operations (multipart POST), selected by `op`:
+      merge     : combine many PDFs ('files') into one
+      split     : each page -> its own PDF (returned as a .zip)
+      compress  : shrink a PDF
+      rotate    : rotate pages (param `angle`=90/180/270, optional `pages`)
+      delete    : remove pages (param `pages`, e.g. "2,4-6")
+      extract   : keep only some pages (param `pages`)
+      numbers   : stamp page numbers
+      watermark : add a text watermark (param `text`)
+      protect   : add a password (param `password`)
+      unlock    : remove a password (param `password`)
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
+
+    op = (request.POST.get('op', '') or '').lower().strip()
+    valid_ops = {'merge', 'split', 'compress', 'rotate', 'delete',
+                 'extract', 'numbers', 'watermark', 'protect', 'unlock'}
+    if op not in valid_ops:
+        return JsonResponse({'error': f'Unknown operation: {op}'}, status=400)
+
+    files = request.FILES.getlist('files') or (
+        [request.FILES['file']] if 'file' in request.FILES else [])
+    if not files:
+        return JsonResponse({'error': 'No PDF file provided.'}, status=400)
+
+    max_size = 40 * 1024 * 1024
+    for f in files:
+        if f.size > max_size:
+            return JsonResponse({'error': 'A file exceeds the 40MB limit.'}, status=400)
+        if not f.name.lower().endswith('.pdf'):
+            return JsonResponse({'error': 'PDF tools accept .pdf files only.'}, status=400)
+
+    import uuid
+    media_root = settings.MEDIA_ROOT
+    upload_dir = os.path.join(media_root, 'uploads')
+    out_dir = os.path.join(media_root, 'converted_files')
+    os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
+    uid = uuid.uuid4().hex[:8]
+
+    saved = []
+    for idx, f in enumerate(files):
+        stem = "".join(c for c in os.path.splitext(f.name)[0]
+                       if c.isalnum() or c in (' ', '_', '-')).strip() or 'file'
+        path = os.path.join(upload_dir, f"{stem}_{uid}_{idx}.pdf")
+        with open(path, 'wb+') as d:
+            for chunk in f.chunks():
+                d.write(chunk)
+        saved.append((path, stem))
+
+    first_path, stem = saved[0]
+    pages = request.POST.get('pages', '').strip()
+    from knowledge import pdf_tools as T
+
+    try:
+        if op == 'merge':
+            out = os.path.join(out_dir, f"merged_{uid}.pdf")
+            T.merge_pdfs([s[0] for s in saved], out)
+            out_name = "merged.pdf"
+        elif op == 'split':
+            parts = T.split_pdf(first_path, os.path.join(out_dir, f"{stem}_{uid}"))
+            out = os.path.join(out_dir, f"{stem}_{uid}_pages.zip")
+            T.zip_files(parts, out)
+            out_name = f"{stem}_pages.zip"
+        elif op == 'compress':
+            out = os.path.join(out_dir, f"{stem}_{uid}_compressed.pdf")
+            T.compress_pdf(first_path, out)
+            out_name = f"{stem}_compressed.pdf"
+        elif op == 'rotate':
+            angle = request.POST.get('angle', '90')
+            out = os.path.join(out_dir, f"{stem}_{uid}_rotated.pdf")
+            T.rotate_pdf(first_path, angle, out, pages or None)
+            out_name = f"{stem}_rotated.pdf"
+        elif op == 'delete':
+            out = os.path.join(out_dir, f"{stem}_{uid}.pdf")
+            T.delete_pages(first_path, pages, out)
+            out_name = f"{stem}.pdf"
+        elif op == 'extract':
+            out = os.path.join(out_dir, f"{stem}_{uid}_extracted.pdf")
+            T.extract_pages(first_path, pages, out)
+            out_name = f"{stem}_extracted.pdf"
+        elif op == 'numbers':
+            out = os.path.join(out_dir, f"{stem}_{uid}_numbered.pdf")
+            T.add_page_numbers(first_path, out)
+            out_name = f"{stem}_numbered.pdf"
+        elif op == 'watermark':
+            text = (request.POST.get('text', '') or 'CONFIDENTIAL').strip()[:60]
+            out = os.path.join(out_dir, f"{stem}_{uid}_watermarked.pdf")
+            T.watermark_pdf(first_path, text, out)
+            out_name = f"{stem}_watermarked.pdf"
+        elif op == 'protect':
+            pw = request.POST.get('password', '').strip()
+            if not pw:
+                return JsonResponse({'error': 'A password is required.'}, status=400)
+            out = os.path.join(out_dir, f"{stem}_{uid}_protected.pdf")
+            T.protect_pdf(first_path, pw, out)
+            out_name = f"{stem}_protected.pdf"
+        elif op == 'unlock':
+            pw = request.POST.get('password', '').strip()
+            out = os.path.join(out_dir, f"{stem}_{uid}_unlocked.pdf")
+            T.unlock_pdf(first_path, pw, out)
+            out_name = f"{stem}_unlocked.pdf"
+    except Exception as e:
+        return JsonResponse({'error': f'Operation failed: {str(e)}'}, status=400)
+
+    fname = os.path.basename(out)
+    size = os.path.getsize(out)
+    size_str = (f"{size / 1024:.1f} KB" if size < 1024 * 1024
+                else f"{size / (1024 * 1024):.2f} MB")
+    return JsonResponse({
+        'success': True,
+        'filename': fname,
+        'output_name': out_name,
+        'download_url': f"/api/download-converted-file/{fname}",
+        'file_size': size_str,
+        'message': f"Done: {out_name}",
+    })

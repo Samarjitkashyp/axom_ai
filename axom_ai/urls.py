@@ -32,6 +32,7 @@ urlpatterns = [
 
     # Unified file converter (PDF<->Word, image<->PDF)
     path('api/convert-file/', views.convert_file_api, name='convert_file_api'),
+    path('api/pdf-tool/', views.pdf_tool_api, name='pdf_tool_api'),
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
 ]

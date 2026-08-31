@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle,
   FileText, Mic, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
-  ExternalLink, Loader2, Sparkles, FileUp
+  ExternalLink, Loader2, Sparkles, FileUp, Wrench
 } from 'lucide-react';
 import { formatMarkdown } from '../utils/format';
 import { getCsrfToken } from '../utils/security';
@@ -455,33 +455,19 @@ export default function ChatWindow({
               </h2>
             </div>
 
-            {/* Hero Quick Tool Shortcuts */}
+            {/* Hero Quick Tool Shortcut */}
             <div className="hero-tools-grid">
               <button
                 className="hero-tool-card"
-                onClick={() => docFileInputRef.current?.click()}
-                title="Convert DOC/DOCX to PDF"
-              >
-                <div className="hero-tool-icon">
-                  <FileText size={18} />
-                </div>
-                <div className="hero-tool-text">
-                  <span className="hero-tool-title">Convert Doc to PDF</span>
-                  <span className="hero-tool-desc">Upload .docx / .doc & download PDF</span>
-                </div>
-              </button>
-
-              <button
-                className="hero-tool-card"
                 onClick={onOpenDocConverterModal}
-                title="Open Dedicated Converter Modal"
+                title="Open all converter & PDF tools"
               >
                 <div className="hero-tool-icon" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
                   <Sparkles size={18} />
                 </div>
                 <div className="hero-tool-text">
-                  <span className="hero-tool-title">Doc Converter Tool</span>
-                  <span className="hero-tool-desc">Drag & drop files with live progress</span>
+                  <span className="hero-tool-title">View All Converter Tools</span>
+                  <span className="hero-tool-desc">PDF ⇄ Word, images, merge, split, compress & more</span>
                 </div>
               </button>
             </div>
@@ -731,7 +717,7 @@ export default function ChatWindow({
               value={inputText}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Message Axom AI or attach a document..."
+              placeholder="Message Axom AI..."
               rows={1}
               disabled={isLoading || isConvertingDoc}
             />
@@ -743,26 +729,17 @@ export default function ChatWindow({
                   ⇄ Reply in অসমীয়া
                 </span>
               </div>
+              <button
+                type="button"
+                className="lang-btn"
+                onClick={onOpenDocConverterModal}
+                title="Open all converter & PDF tools"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', cursor: 'pointer', marginLeft: '8px' }}
+              >
+                <Wrench size={13} /> Tools
+              </button>
             </div>
             <div className="controls-right">
-              <button
-                type="button"
-                className="btn-attach-doc"
-                onClick={() => docFileInputRef.current?.click()}
-                disabled={isLoading || isConvertingDoc}
-                title="Convert DOC/DOCX to PDF"
-              >
-                <Paperclip size={15} />
-              </button>
-              <button
-                type="button"
-                className={`btn-mic ${isListening ? 'listening' : ''}`}
-                onClick={startVoiceInput}
-                disabled={isLoading || isConvertingDoc}
-                title={isListening ? 'Listening… tap to stop' : 'Voice input'}
-              >
-                <Mic size={15} />
-              </button>
               <button
                 type="button"
                 className="btn-send-message"

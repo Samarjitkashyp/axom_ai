@@ -1,106 +1,113 @@
 import React, { useState, useRef } from 'react';
-import { X, UploadCloud, FileText, CheckCircle, AlertCircle, Download, ExternalLink, Loader2, Sparkles } from 'lucide-react';
+import {
+  X, UploadCloud, FileText, CheckCircle, AlertCircle, Download, Loader2,
+  ChevronLeft, FileType2, Image as ImageIcon, Combine, Scissors, Trash2,
+  FileOutput, RotateCw, Hash, Minimize2, Droplets, Lock, Unlock,
+} from 'lucide-react';
 import { getCsrfToken } from '../utils/security';
 
-// Every conversion the unified /api/convert-file/ endpoint supports.
-const MODES = [
-  { key: 'word2pdf', label: 'Word → PDF', accept: '.docx,.doc,.txt,.rtf,.md', target: 'pdf', multi: false, hint: 'DOCX, DOC, TXT, RTF' },
-  { key: 'pdf2word', label: 'PDF → Word', accept: '.pdf', target: 'docx', multi: false, hint: 'PDF file' },
-  { key: 'img2pdf', label: 'Image → PDF', accept: '.png,.jpg,.jpeg,.webp', target: 'pdf', multi: true, hint: 'PNG, JPG (one or many)' },
-  { key: 'pdf2jpg', label: 'PDF → JPG', accept: '.pdf', target: 'jpg', multi: false, hint: 'PDF file' },
-  { key: 'pdf2png', label: 'PDF → PNG', accept: '.pdf', target: 'png', multi: false, hint: 'PDF file' },
+// Every tool. ep 'convert' -> /api/convert-file/ (target); ep 'pdf' -> /api/pdf-tool/ (op).
+// param: extra input a tool needs — 'pages' | 'angle' | 'text' | 'password'.
+const TOOLS = [
+  { id: 'word2pdf', name: 'Word → PDF', cat: 'Convert', icon: FileType2, ep: 'convert', target: 'pdf', accept: '.docx,.doc,.txt,.rtf,.md', multi: false, hint: 'DOCX, DOC, TXT, RTF' },
+  { id: 'pdf2word', name: 'PDF → Word', cat: 'Convert', icon: FileType2, ep: 'convert', target: 'docx', accept: '.pdf', multi: false, hint: 'PDF file' },
+  { id: 'img2pdf', name: 'Image → PDF', cat: 'Convert', icon: ImageIcon, ep: 'convert', target: 'pdf', accept: '.png,.jpg,.jpeg,.webp', multi: true, hint: 'PNG, JPG (one or many)' },
+  { id: 'pdf2jpg', name: 'PDF → JPG', cat: 'Convert', icon: ImageIcon, ep: 'convert', target: 'jpg', accept: '.pdf', multi: false, hint: 'PDF file' },
+  { id: 'pdf2png', name: 'PDF → PNG', cat: 'Convert', icon: ImageIcon, ep: 'convert', target: 'png', accept: '.pdf', multi: false, hint: 'PDF file' },
+
+  { id: 'merge', name: 'Merge PDF', cat: 'Organize', icon: Combine, ep: 'pdf', op: 'merge', accept: '.pdf', multi: true, hint: 'Two or more PDFs' },
+  { id: 'split', name: 'Split PDF', cat: 'Organize', icon: Scissors, ep: 'pdf', op: 'split', accept: '.pdf', multi: false, hint: 'PDF file' },
+  { id: 'delete', name: 'Delete Pages', cat: 'Organize', icon: Trash2, ep: 'pdf', op: 'delete', accept: '.pdf', multi: false, param: 'pages', hint: 'PDF file' },
+  { id: 'extract', name: 'Extract Pages', cat: 'Organize', icon: FileOutput, ep: 'pdf', op: 'extract', accept: '.pdf', multi: false, param: 'pages', hint: 'PDF file' },
+  { id: 'rotate', name: 'Rotate PDF', cat: 'Organize', icon: RotateCw, ep: 'pdf', op: 'rotate', accept: '.pdf', multi: false, param: 'angle', hint: 'PDF file' },
+  { id: 'numbers', name: 'Add Page Numbers', cat: 'Organize', icon: Hash, ep: 'pdf', op: 'numbers', accept: '.pdf', multi: false, hint: 'PDF file' },
+
+  { id: 'compress', name: 'Compress PDF', cat: 'Optimize', icon: Minimize2, ep: 'pdf', op: 'compress', accept: '.pdf', multi: false, hint: 'PDF file' },
+  { id: 'watermark', name: 'Watermark PDF', cat: 'Optimize', icon: Droplets, ep: 'pdf', op: 'watermark', accept: '.pdf', multi: false, param: 'text', hint: 'PDF file' },
+
+  { id: 'protect', name: 'Protect PDF', cat: 'Security', icon: Lock, ep: 'pdf', op: 'protect', accept: '.pdf', multi: false, param: 'password', hint: 'PDF file' },
+  { id: 'unlock', name: 'Unlock PDF', cat: 'Security', icon: Unlock, ep: 'pdf', op: 'unlock', accept: '.pdf', multi: false, param: 'password', hint: 'Password-protected PDF' },
 ];
 
-export default function DocConverterModal({ isOpen, onClose, onDocConvertedToChat }) {
+const CATS = ['Convert', 'Organize', 'Optimize', 'Security'];
+
+export default function DocConverterModal({ isOpen, onClose }) {
+  const [tool, setTool] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [paramText, setParamText] = useState('');
+  const [angle, setAngle] = useState('90');
   const [dragActive, setDragActive] = useState(false);
-  const [modeKey, setModeKey] = useState('word2pdf');
-  const [isConverting, setIsConverting] = useState(false);
-  const [conversionResult, setConversionResult] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const mode = MODES.find((m) => m.key === modeKey) || MODES[0];
+  const reset = () => {
+    setFiles([]); setParamText(''); setAngle('90');
+    setResult(null); setErrorMsg(null); setIsRunning(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+  const pickTool = (t) => { reset(); setTool(t); };
+  const backToGrid = () => { reset(); setTool(null); };
 
   const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true);
     else if (e.type === 'dragleave') setDragActive(false);
   };
-
-  const validateAndProcessFiles = (fileList) => {
-    setErrorMsg(null);
-    setConversionResult(null);
-    const files = Array.from(fileList || []);
-    if (!files.length) return;
-
-    const allowed = mode.accept.split(',');
-    for (const file of files) {
-      const ext = '.' + file.name.split('.').pop().toLowerCase();
-      if (!allowed.includes(ext)) {
-        setErrorMsg(`"${file.name}" is not valid for ${mode.label}. Allowed: ${mode.hint}.`);
-        return;
-      }
-      if (file.size > 25 * 1024 * 1024) {
-        setErrorMsg(`"${file.name}" exceeds the 25 MB limit.`);
-        return;
-      }
+  const chooseFiles = (fileList) => {
+    setErrorMsg(null); setResult(null);
+    const arr = Array.from(fileList || []);
+    if (!arr.length) return;
+    const allowed = tool.accept.split(',');
+    for (const f of arr) {
+      const ext = '.' + f.name.split('.').pop().toLowerCase();
+      if (!allowed.includes(ext)) { setErrorMsg(`"${f.name}" is not valid here. Allowed: ${tool.hint}.`); return; }
+      if (f.size > 40 * 1024 * 1024) { setErrorMsg(`"${f.name}" exceeds the 40 MB limit.`); return; }
     }
-    startConversion(mode.multi ? files : [files[0]]);
+    setFiles(tool.multi ? arr : [arr[0]]);
   };
-
   const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files?.length) validateAndProcessFiles(e.dataTransfer.files);
+    e.preventDefault(); e.stopPropagation(); setDragActive(false);
+    if (e.dataTransfer.files?.length) chooseFiles(e.dataTransfer.files);
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files?.length) validateAndProcessFiles(e.target.files);
-  };
+  const canRun = files.length > 0
+    && (tool.param !== 'pages' || paramText.trim())
+    && (tool.param !== 'password' || paramText.trim());
 
-  const startConversion = async (files) => {
-    setIsConverting(true);
-    setErrorMsg(null);
-    setConversionResult(null);
-
-    const formData = new FormData();
-    formData.append('target', mode.target);
-    if (mode.multi) files.forEach((f) => formData.append('files', f));
-    else formData.append('file', files[0]);
+  const runTool = async () => {
+    if (!canRun) return;
+    setIsRunning(true); setErrorMsg(null); setResult(null);
+    const fd = new FormData();
+    const url = tool.ep === 'convert' ? '/api/convert-file/' : '/api/pdf-tool/';
+    if (tool.ep === 'convert') fd.append('target', tool.target);
+    else fd.append('op', tool.op);
+    if (tool.multi) files.forEach((f) => fd.append('files', f));
+    else fd.append('file', files[0]);
+    if (tool.param === 'pages') fd.append('pages', paramText.trim());
+    if (tool.param === 'text') fd.append('text', paramText.trim() || 'CONFIDENTIAL');
+    if (tool.param === 'password') fd.append('password', paramText.trim());
+    if (tool.param === 'angle') fd.append('angle', angle);
 
     try {
-      const response = await fetch('/api/convert-file/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCsrfToken() || '' },
-        body: formData,
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Conversion failed.');
-      }
-      setConversionResult(data);
-      if (onDocConvertedToChat) onDocConvertedToChat(data);
+      const res = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() || '' }, body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Operation failed.');
+      setResult(data);
     } catch (err) {
-      setErrorMsg(err.message || 'An error occurred during conversion.');
+      setErrorMsg(err.message || 'Something went wrong.');
     } finally {
-      setIsConverting(false);
+      setIsRunning(false);
     }
   };
 
-  const resetModal = () => {
-    setConversionResult(null);
-    setErrorMsg(null);
-    setIsConverting(false);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const switchMode = (key) => {
-    setModeKey(key);
-    resetModal();
+  const paramLabel = {
+    pages: 'Pages (e.g. 2,4-6)',
+    text: 'Watermark text',
+    password: tool?.op === 'unlock' ? 'Current password' : 'New password',
   };
 
   return (
@@ -109,128 +116,139 @@ export default function DocConverterModal({ isOpen, onClose, onDocConvertedToCha
         {/* Header */}
         <div className="modal-header">
           <div className="modal-title-area">
+            {tool && (
+              <button className="modal-close-btn" onClick={backToGrid} title="Back to all tools" style={{ marginRight: '4px' }}>
+                <ChevronLeft size={18} />
+              </button>
+            )}
             <div className="modal-icon-badge">
-              <Sparkles size={18} />
+              {tool ? <tool.icon size={18} /> : <FileText size={18} />}
             </div>
             <div>
-              <h3 className="modal-title">File Converter</h3>
-              <p className="modal-subtitle">Convert between Word, PDF and images — fast and offline</p>
+              <h3 className="modal-title">{tool ? tool.name : 'All Converter & PDF Tools'}</h3>
+              <p className="modal-subtitle">
+                {tool ? `Supports ${tool.hint} (up to 40MB)` : 'Convert, organize, optimize and secure your files — fast & offline'}
+              </p>
             </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose} title="Close">
-            <X size={18} />
-          </button>
+          <button className="modal-close-btn" onClick={onClose} title="Close"><X size={18} /></button>
         </div>
 
-        {/* Mode selector */}
-        <div className="converter-mode-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '0 20px 4px' }}>
-          {MODES.map((m) => (
-            <button
-              key={m.key}
-              onClick={() => switchMode(m.key)}
-              disabled={isConverting}
-              className={`converter-mode-btn ${modeKey === m.key ? 'active' : ''}`}
-              style={{
-                fontSize: '0.78rem', fontWeight: 600, padding: '7px 12px', borderRadius: '8px', cursor: 'pointer',
-                border: '1px solid var(--border-color)',
-                background: modeKey === m.key ? 'var(--accent-purple, #8b5cf6)' : 'transparent',
-                color: modeKey === m.key ? '#fff' : 'var(--text-secondary)',
-              }}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Modal Body */}
         <div className="modal-body">
-          {!conversionResult && (
-            <div
-              className={`dropzone-card ${dragActive ? 'active' : ''} ${isConverting ? 'converting' : ''}`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-              onClick={() => !isConverting && fileInputRef.current?.click()}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                accept={mode.accept}
-                multiple={mode.multi}
-                onChange={handleFileChange}
-                disabled={isConverting}
-              />
-
-              {isConverting ? (
-                <div className="dropzone-converting">
-                  <Loader2 size={36} className="spin-icon" />
-                  <h4>Converting…</h4>
-                  <p>Producing a high-quality {mode.target.toUpperCase()} file</p>
-                  <div className="conversion-progress-bar">
-                    <div className="progress-fill"></div>
+          {/* ---- Tool grid ---- */}
+          {!tool && (
+            <div className="tools-grid-wrap" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '4px' }}>
+              {CATS.map((cat) => (
+                <div key={cat} style={{ marginBottom: '14px' }}>
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '4px 2px 8px' }}>{cat}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '8px' }}>
+                    {TOOLS.filter((t) => t.cat === cat).map((t) => (
+                      <button key={t.id} onClick={() => pickTool(t)} className="tool-grid-card"
+                        style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '11px 12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.02))', color: 'var(--text-primary)', cursor: 'pointer', textAlign: 'left' }}>
+                        <t.icon size={17} style={{ color: 'var(--accent-purple, #8b5cf6)', flexShrink: 0 }} />
+                        <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{t.name}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              ) : (
-                <div className="dropzone-idle">
-                  <div className="dropzone-icon">
-                    <UploadCloud size={32} />
+              ))}
+            </div>
+          )}
+
+          {/* ---- Single tool ---- */}
+          {tool && !result && (
+            <>
+              <div
+                className={`dropzone-card ${dragActive ? 'active' : ''} ${isRunning ? 'converting' : ''}`}
+                onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}
+                onClick={() => !isRunning && fileInputRef.current?.click()}
+              >
+                <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept={tool.accept} multiple={tool.multi}
+                  onChange={(e) => e.target.files?.length && chooseFiles(e.target.files)} disabled={isRunning} />
+                {isRunning ? (
+                  <div className="dropzone-converting">
+                    <Loader2 size={34} className="spin-icon" />
+                    <h4>Working…</h4>
+                    <p>Processing your file</p>
+                    <div className="conversion-progress-bar"><div className="progress-fill"></div></div>
                   </div>
-                  <h4>Choose a file or drag & drop here</h4>
-                  <p className="dropzone-sub">{mode.label} — supports {mode.hint} (up to 25MB)</p>
-                  <button type="button" className="btn-browse-file">Browse File{mode.multi ? 's' : ''}</button>
+                ) : files.length ? (
+                  <div className="dropzone-idle">
+                    <div className="dropzone-icon"><CheckCircle size={30} /></div>
+                    <h4>{files.length === 1 ? files[0].name : `${files.length} files selected`}</h4>
+                    <p className="dropzone-sub">Click to choose different file{tool.multi ? 's' : ''}</p>
+                  </div>
+                ) : (
+                  <div className="dropzone-idle">
+                    <div className="dropzone-icon"><UploadCloud size={30} /></div>
+                    <h4>Choose file{tool.multi ? 's' : ''} or drag & drop</h4>
+                    <p className="dropzone-sub">{tool.hint}</p>
+                    <button type="button" className="btn-browse-file">Browse</button>
+                  </div>
+                )}
+              </div>
+
+              {/* Params */}
+              {tool.param && files.length > 0 && !isRunning && (
+                <div style={{ marginTop: '12px' }}>
+                  {tool.param === 'angle' ? (
+                    <select value={angle} onChange={(e) => setAngle(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '9px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                      <option value="90">Rotate 90° (clockwise)</option>
+                      <option value="180">Rotate 180°</option>
+                      <option value="270">Rotate 270° (counter-clockwise)</option>
+                    </select>
+                  ) : (
+                    <input
+                      type={tool.param === 'password' ? 'text' : 'text'}
+                      value={paramText} onChange={(e) => setParamText(e.target.value)}
+                      placeholder={paramLabel[tool.param]}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '9px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', color: 'var(--text-primary)', fontSize: '0.85rem' }}
+                    />
+                  )}
                 </div>
               )}
-            </div>
+
+              {errorMsg && (
+                <div className="converter-error-box"><AlertCircle size={16} /><span>{errorMsg}</span></div>
+              )}
+
+              {files.length > 0 && !isRunning && (
+                <button className="btn-convert-another" onClick={runTool} disabled={!canRun}
+                  style={{ marginTop: '14px', width: '100%', opacity: canRun ? 1 : 0.5, background: 'var(--accent-purple, #8b5cf6)', color: '#fff', border: 'none', padding: '11px', borderRadius: '10px', fontWeight: 600, cursor: canRun ? 'pointer' : 'not-allowed' }}>
+                  Run {tool.name}
+                </button>
+              )}
+            </>
           )}
 
-          {/* Error Message */}
-          {errorMsg && (
-            <div className="converter-error-box">
-              <AlertCircle size={16} />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          {/* Success / Result View */}
-          {conversionResult && (
+          {/* ---- Result ---- */}
+          {tool && result && (
             <div className="converter-success-box">
               <div className="success-header">
                 <CheckCircle size={22} className="success-icon" />
                 <div>
-                  <h4 className="success-title">Conversion Complete!</h4>
-                  <p className="success-sub">{conversionResult.output_name}</p>
+                  <h4 className="success-title">Done!</h4>
+                  <p className="success-sub">{result.output_name}</p>
                 </div>
               </div>
-
               <div className="pdf-details-card">
                 <div className="pdf-card-left">
-                  <div className="pdf-badge-icon">
-                    <FileText size={24} />
-                  </div>
+                  <div className="pdf-badge-icon"><FileText size={24} /></div>
                   <div className="pdf-info">
-                    <span className="pdf-name">{conversionResult.output_name}</span>
-                    <span className="pdf-meta">{conversionResult.file_size}</span>
+                    <span className="pdf-name">{result.output_name}</span>
+                    <span className="pdf-meta">{result.file_size}</span>
                   </div>
                 </div>
               </div>
-
               <div className="success-actions">
-                <a
-                  href={conversionResult.download_url}
-                  download={conversionResult.output_name}
-                  className="btn-download-pdf"
-                >
-                  <Download size={16} />
-                  <span>Download</span>
+                <a href={result.download_url} download={result.output_name} className="btn-download-pdf">
+                  <Download size={16} /><span>Download</span>
                 </a>
               </div>
-
-              <div className="convert-another-wrapper">
-                <button className="btn-convert-another" onClick={resetModal}>
-                  Convert Another File
-                </button>
+              <div className="convert-another-wrapper" style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn-convert-another" onClick={reset}>Use this tool again</button>
+                <button className="btn-convert-another" onClick={backToGrid}>← All tools</button>
               </div>
             </div>
           )}
