@@ -998,10 +998,18 @@ def convert_file_api(request):
     from knowledge.doc_converter import convert_doc_to_pdf
     from knowledge import file_converters as fc
 
+    OFFICE_EXTS = ('.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls', '.odt',
+                   '.odp', '.ods', '.rtf', '.html', '.htm', '.epub', '.txt', '.md', '.csv')
     try:
-        if target == 'pdf' and src_ext in ('.docx', '.doc', '.txt', '.rtf', '.md', '.csv'):
+        if target == 'pdf' and src_ext in OFFICE_EXTS:
             out = os.path.join(out_dir, f"{stem}_{uid}.pdf")
-            convert_doc_to_pdf(saved[0][0], out)
+            if fc.office_available():
+                produced = fc.convert_office_to_pdf(saved[0][0], out_dir)
+                if os.path.abspath(produced) != os.path.abspath(out):
+                    os.replace(produced, out)
+            else:
+                # Local dev without LibreOffice — ReportLab handles docx/txt/rtf.
+                convert_doc_to_pdf(saved[0][0], out)
             out_name = f"{stem}.pdf"
         elif target == 'pdf' and src_ext in ('.png', '.jpg', '.jpeg', '.webp'):
             out = os.path.join(out_dir, f"{stem}_{uid}.pdf")
@@ -1074,7 +1082,7 @@ def pdf_tool_api(request):
 
     op = (request.POST.get('op', '') or '').lower().strip()
     valid_ops = {'merge', 'split', 'compress', 'rotate', 'delete',
-                 'extract', 'numbers', 'watermark', 'protect', 'unlock'}
+                 'extract', 'numbers', 'watermark', 'protect', 'unlock', 'ocr'}
     if op not in valid_ops:
         return JsonResponse({'error': f'Unknown operation: {op}'}, status=400)
 
@@ -1160,6 +1168,11 @@ def pdf_tool_api(request):
             out = os.path.join(out_dir, f"{stem}_{uid}_unlocked.pdf")
             T.unlock_pdf(first_path, pw, out)
             out_name = f"{stem}_unlocked.pdf"
+        elif op == 'ocr':
+            from knowledge import file_converters as fc
+            out = os.path.join(out_dir, f"{stem}_{uid}_searchable.pdf")
+            fc.ocr_pdf(first_path, out)
+            out_name = f"{stem}_searchable.pdf"
     except Exception as e:
         return JsonResponse({'error': f'Operation failed: {str(e)}'}, status=400)
 
@@ -1175,3 +1188,96 @@ def pdf_tool_api(request):
         'file_size': size_str,
         'message': f"Done: {out_name}",
     })
+
+
+def _extract_pdf_text(path, max_chars=16000):
+    """Pull text out of a PDF for the AI tools (capped so prompts stay fast)."""
+    import pymupdf
+    doc = pymupdf.open(path)
+    parts, total = [], 0
+    try:
+        for page in doc:
+            t = page.get_text()
+            parts.append(t)
+            total += len(t)
+            if total > max_chars:
+                break
+    finally:
+        doc.close()
+    return "\n".join(parts)[:max_chars].strip()
+
+
+def pdf_ai_api(request):
+    """
+    Groq-powered PDF tools (multipart POST), selected by `op`:
+      chat      : answer `question` using the PDF's text
+      summarize : summarise the PDF
+      translate : translate the PDF into `lang` (assamese|english|hindi)
+    Returns {'text': ...} — no file download.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
+    if not GROQ_API_KEY:
+        return JsonResponse({'error': 'AI service is not configured.'}, status=503)
+
+    op = (request.POST.get('op', '') or '').lower().strip()
+    if op not in ('chat', 'summarize', 'translate'):
+        return JsonResponse({'error': f'Unknown AI operation: {op}'}, status=400)
+
+    f = request.FILES.get('file')
+    if not f:
+        return JsonResponse({'error': 'No PDF file provided.'}, status=400)
+    if not f.name.lower().endswith('.pdf'):
+        return JsonResponse({'error': 'Please upload a .pdf file.'}, status=400)
+    if f.size > 40 * 1024 * 1024:
+        return JsonResponse({'error': 'File exceeds the 40MB limit.'}, status=400)
+
+    import uuid
+    upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+    os.makedirs(upload_dir, exist_ok=True)
+    path = os.path.join(upload_dir, f"ai_{uuid.uuid4().hex[:8]}.pdf")
+    with open(path, 'wb+') as d:
+        for chunk in f.chunks():
+            d.write(chunk)
+
+    text = _extract_pdf_text(path)
+    try:
+        os.remove(path)
+    except Exception:
+        pass
+    if not text:
+        return JsonResponse({
+            'error': 'No readable text found. This looks like a scanned PDF — use the OCR tool first.'
+        }, status=400)
+
+    if op == 'chat':
+        question = (request.POST.get('question', '') or '').strip()
+        if not question:
+            return JsonResponse({'error': 'Please type a question.'}, status=400)
+        system = ("You are Axom AI. Answer the user's question using ONLY the document below. "
+                  "Reply in natural, native Assamese (অসমীয়া). If the answer is not in the "
+                  "document, say so honestly in Assamese.")
+        prompt = f"Document:\n{text}\n\nQuestion: {question}"
+    elif op == 'summarize':
+        system = ("You are Axom AI. Summarise the document below in clear, natural Assamese "
+                  "(অসমীয়া) — a short intro then the key points as bullet points.")
+        prompt = f"Document:\n{text}"
+    else:  # translate
+        lang = (request.POST.get('lang', 'assamese') or 'assamese').lower()
+        label = {'assamese': 'Assamese (অসমীয়া script)', 'english': 'English',
+                 'hindi': 'Hindi (Devanagari)'}.get(lang, 'Assamese (অসমীয়া script)')
+        system = (f"You are a professional translator. Translate the document below into {label}. "
+                  "Keep the meaning faithful and the language natural. Output only the translation.")
+        prompt = f"Document:\n{text}"
+
+    answer = _groq_generate(system, prompt, timeout=60)
+    if not answer:
+        answer = _gemini_generate(os.getenv('GEMINI_API_KEY', ''), system, prompt,
+                                  ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'])
+    if not answer:
+        return JsonResponse({'error': 'The AI service is busy. Please try again in a moment.'},
+                            status=503)
+
+    return JsonResponse({'success': True, 'text': answer, 'op': op})

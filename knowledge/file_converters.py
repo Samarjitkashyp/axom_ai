@@ -85,3 +85,53 @@ def zip_files(file_paths, output_zip):
         for p in file_paths:
             zf.write(p, arcname=os.path.basename(p))
     return output_zip
+
+
+def office_available():
+    """True if LibreOffice (soffice) is installed (server only)."""
+    import shutil
+    return shutil.which('soffice') is not None or shutil.which('libreoffice') is not None
+
+
+def convert_office_to_pdf(input_path, out_dir):
+    """
+    Office/OpenDocument/HTML/EPUB -> PDF via headless LibreOffice.
+    Handles DOCX, DOC, PPTX, PPT, XLSX, XLS, ODT, ODP, ODS, RTF, HTML, EPUB, CSV.
+    Returns the produced PDF path.
+    """
+    import shutil
+    import subprocess
+    import uuid
+    soffice = shutil.which('soffice') or shutil.which('libreoffice')
+    if not soffice:
+        raise RuntimeError("LibreOffice is not installed on this machine.")
+
+    # A unique profile dir avoids clashes between concurrent conversions.
+    profile = f"/tmp/lo_profile_{uuid.uuid4().hex[:8]}"
+    cmd = [
+        soffice, '--headless', '--norestore',
+        f'-env:UserInstallation=file://{profile}',
+        '--convert-to', 'pdf', '--outdir', out_dir, input_path,
+    ]
+    subprocess.run(cmd, check=True, timeout=180, capture_output=True)
+
+    base = os.path.splitext(os.path.basename(input_path))[0]
+    out = os.path.join(out_dir, base + '.pdf')
+    if not os.path.exists(out):
+        raise RuntimeError("LibreOffice did not produce a PDF (unsupported or corrupt file).")
+    return out
+
+
+def ocr_pdf(input_path, out_pdf, langs='eng+asm+hin'):
+    """
+    Make a scanned PDF searchable (adds a text layer) via ocrmypdf + Tesseract.
+    Supports English, Assamese and Hindi. Returns the searchable PDF path.
+    """
+    import shutil
+    import subprocess
+    if not shutil.which('ocrmypdf'):
+        raise RuntimeError("ocrmypdf is not installed on this machine.")
+    cmd = ['ocrmypdf', '--force-ocr', '-l', langs,
+           '--optimize', '1', input_path, out_pdf]
+    subprocess.run(cmd, check=True, timeout=600, capture_output=True)
+    return out_pdf

@@ -3,6 +3,7 @@ import {
   X, UploadCloud, FileText, CheckCircle, AlertCircle, Download, Loader2,
   ChevronLeft, FileType2, Image as ImageIcon, Combine, Scissors, Trash2,
   FileOutput, RotateCw, Hash, Minimize2, Droplets, Lock, Unlock,
+  Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, Copy, Check, Sparkles,
 } from 'lucide-react';
 import { getCsrfToken } from '../utils/security';
 
@@ -27,9 +28,22 @@ const TOOLS = [
 
   { id: 'protect', name: 'Protect PDF', cat: 'Security', icon: Lock, ep: 'pdf', op: 'protect', accept: '.pdf', multi: false, param: 'password', hint: 'PDF file' },
   { id: 'unlock', name: 'Unlock PDF', cat: 'Security', icon: Unlock, ep: 'pdf', op: 'unlock', accept: '.pdf', multi: false, param: 'password', hint: 'Password-protected PDF' },
+
+  // Office -> PDF (LibreOffice on the server)
+  { id: 'ppt2pdf', name: 'PowerPoint → PDF', cat: 'Office', icon: Presentation, ep: 'convert', target: 'pdf', accept: '.pptx,.ppt,.odp', multi: false, hint: 'PPTX, PPT, ODP' },
+  { id: 'excel2pdf', name: 'Excel → PDF', cat: 'Office', icon: FileSpreadsheet, ep: 'convert', target: 'pdf', accept: '.xlsx,.xls,.ods,.csv', multi: false, hint: 'XLSX, XLS, ODS, CSV' },
+  { id: 'office2pdf', name: 'ODT / HTML / EPUB → PDF', cat: 'Office', icon: FileType2, ep: 'convert', target: 'pdf', accept: '.odt,.html,.htm,.epub,.rtf', multi: false, hint: 'ODT, HTML, EPUB, RTF' },
+
+  // OCR (Tesseract: English + Assamese + Hindi)
+  { id: 'ocr', name: 'OCR — Make Searchable', cat: 'OCR', icon: ScanText, ep: 'pdf', op: 'ocr', accept: '.pdf', multi: false, hint: 'Scanned PDF' },
+
+  // AI (Groq)
+  { id: 'chatpdf', name: 'Chat with PDF', cat: 'AI Tools', icon: MessagesSquare, ep: 'ai', op: 'chat', accept: '.pdf', multi: false, param: 'question', hint: 'PDF file' },
+  { id: 'summarize', name: 'Summarize PDF', cat: 'AI Tools', icon: Sparkles, ep: 'ai', op: 'summarize', accept: '.pdf', multi: false, hint: 'PDF file' },
+  { id: 'translatepdf', name: 'Translate PDF', cat: 'AI Tools', icon: Languages, ep: 'ai', op: 'translate', accept: '.pdf', multi: false, param: 'lang', hint: 'PDF file' },
 ];
 
-const CATS = ['Convert', 'Organize', 'Optimize', 'Security'];
+const CATS = ['Convert', 'Office', 'Organize', 'Optimize', 'Security', 'OCR', 'AI Tools'];
 
 export default function DocConverterModal({ isOpen, onClose }) {
   const [tool, setTool] = useState(null);
@@ -40,6 +54,7 @@ export default function DocConverterModal({ isOpen, onClose }) {
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
@@ -49,7 +64,7 @@ export default function DocConverterModal({ isOpen, onClose }) {
     setResult(null); setErrorMsg(null); setIsRunning(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
-  const pickTool = (t) => { reset(); setTool(t); };
+  const pickTool = (t) => { reset(); setTool(t); if (t.param === 'lang') setAngle('assamese'); };
   const backToGrid = () => { reset(); setTool(null); };
 
   const handleDrag = (e) => {
@@ -74,15 +89,15 @@ export default function DocConverterModal({ isOpen, onClose }) {
     if (e.dataTransfer.files?.length) chooseFiles(e.dataTransfer.files);
   };
 
-  const canRun = files.length > 0
-    && (tool.param !== 'pages' || paramText.trim())
-    && (tool.param !== 'password' || paramText.trim());
+  const requiresParamText = tool && ['pages', 'password', 'question'].includes(tool.param);
+  const canRun = files.length > 0 && (!requiresParamText || paramText.trim());
 
   const runTool = async () => {
     if (!canRun) return;
     setIsRunning(true); setErrorMsg(null); setResult(null);
     const fd = new FormData();
-    const url = tool.ep === 'convert' ? '/api/convert-file/' : '/api/pdf-tool/';
+    const url = tool.ep === 'convert' ? '/api/convert-file/'
+      : tool.ep === 'ai' ? '/api/pdf-ai/' : '/api/pdf-tool/';
     if (tool.ep === 'convert') fd.append('target', tool.target);
     else fd.append('op', tool.op);
     if (tool.multi) files.forEach((f) => fd.append('files', f));
@@ -90,7 +105,9 @@ export default function DocConverterModal({ isOpen, onClose }) {
     if (tool.param === 'pages') fd.append('pages', paramText.trim());
     if (tool.param === 'text') fd.append('text', paramText.trim() || 'CONFIDENTIAL');
     if (tool.param === 'password') fd.append('password', paramText.trim());
+    if (tool.param === 'question') fd.append('question', paramText.trim());
     if (tool.param === 'angle') fd.append('angle', angle);
+    if (tool.param === 'lang') fd.append('lang', angle); // reuse `angle` state as lang for translate
 
     try {
       const res = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() || '' }, body: fd });
@@ -108,6 +125,7 @@ export default function DocConverterModal({ isOpen, onClose }) {
     pages: 'Pages (e.g. 2,4-6)',
     text: 'Watermark text',
     password: tool?.op === 'unlock' ? 'Current password' : 'New password',
+    question: 'Ask a question about this PDF…',
   };
 
   return (
@@ -198,9 +216,16 @@ export default function DocConverterModal({ isOpen, onClose }) {
                       <option value="180">Rotate 180°</option>
                       <option value="270">Rotate 270° (counter-clockwise)</option>
                     </select>
+                  ) : tool.param === 'lang' ? (
+                    <select value={angle} onChange={(e) => setAngle(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: '9px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                      <option value="assamese">Translate to Assamese (অসমীয়া)</option>
+                      <option value="english">Translate to English</option>
+                      <option value="hindi">Translate to Hindi (हिन्दी)</option>
+                    </select>
                   ) : (
                     <input
-                      type={tool.param === 'password' ? 'text' : 'text'}
+                      type="text"
                       value={paramText} onChange={(e) => setParamText(e.target.value)}
                       placeholder={paramLabel[tool.param]}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: '9px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', color: 'var(--text-primary)', fontSize: '0.85rem' }}
@@ -222,8 +247,31 @@ export default function DocConverterModal({ isOpen, onClose }) {
             </>
           )}
 
-          {/* ---- Result ---- */}
-          {tool && result && (
+          {/* ---- Result (AI text) ---- */}
+          {tool && result && result.text && (
+            <div className="converter-success-box">
+              <div className="success-header">
+                <CheckCircle size={22} className="success-icon" />
+                <div>
+                  <h4 className="success-title">Done!</h4>
+                  <p className="success-sub">{tool.name}</p>
+                </div>
+              </div>
+              <div style={{ maxHeight: '46vh', overflowY: 'auto', padding: '12px 14px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', fontSize: '0.86rem', lineHeight: 1.6, whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
+                {result.text}
+              </div>
+              <div className="convert-another-wrapper" style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                <button className="btn-convert-another" onClick={() => { try { navigator.clipboard.writeText(result.text); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch (e) { /* ignore */ } }}>
+                  {copied ? <><Check size={14} /> Copied</> : <><Copy size={14} /> Copy</>}
+                </button>
+                <button className="btn-convert-another" onClick={reset}>Use again</button>
+                <button className="btn-convert-another" onClick={backToGrid}>← All tools</button>
+              </div>
+            </div>
+          )}
+
+          {/* ---- Result (file download) ---- */}
+          {tool && result && !result.text && (
             <div className="converter-success-box">
               <div className="success-header">
                 <CheckCircle size={22} className="success-icon" />
