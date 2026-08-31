@@ -24,6 +24,16 @@ urlpatterns = [
     path('api/documents/', knowledge_views.list_documents_api, name='list_documents'),
     path('api/upload/', knowledge_views.upload_document_api, name='upload_document'),
     path('api/delete-document/<int:doc_id>/', knowledge_views.delete_document_api, name='delete_document'),
+
+    # Document to PDF Converter APIs
+    path('api/convert-doc/', views.convert_doc_api, name='convert_doc_api'),
+    path('api/download-converted-pdf/<str:filename>', views.download_converted_pdf_view, name='download_converted_pdf_raw'),
+    path('api/download-converted-pdf/<str:filename>/', views.download_converted_pdf_view, name='download_converted_pdf'),
+
+    # Unified file converter (PDF<->Word, image<->PDF)
+    path('api/convert-file/', views.convert_file_api, name='convert_file_api'),
+    path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
+    path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
 ]
 
 if settings.DEBUG:

@@ -12,3 +12,10 @@ whitenoise>=6.6.0
 
 numpy>=1.24.0
 sentence-transformers>=3.0.0
+
+# --- Document / image conversion ---
+reportlab>=4.0.0                              # DOCX/TXT -> PDF (pure-Python render)
+docx2pdf>=0.1.8; sys_platform == "win32"      # native Word->PDF, Windows only (needs MS Word)
+pdf2docx>=0.5.6                               # PDF -> Word (.docx)
+img2pdf>=0.5.0                                # PNG/JPG -> PDF (lossless)
+PyMuPDF>=1.24.0                               # PDF -> PNG/JPG (page rendering)

@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle, FileText, Mic, Volume2, ThumbsUp, ThumbsDown } from 'lucide-react';
+import {
+  Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle,
+  FileText, Mic, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
+  ExternalLink, Loader2, Sparkles, FileUp
+} from 'lucide-react';
 import { formatMarkdown } from '../utils/format';
 import { getCsrfToken } from '../utils/security';
 
@@ -15,9 +19,13 @@ export default function ChatWindow({
   remainingWords,
   deductWords,
   onUpgrade,
+  onOpenDocConverterModal,
 }) {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isConvertingDoc, setIsConvertingDoc] = useState(false);
+  const [convertingFileName, setConvertingFileName] = useState('');
+  const [isDraggingDoc, setIsDraggingDoc] = useState(false);
   const [streamingText, setStreamingText] = useState(null);
   const [streamingSources, setStreamingSources] = useState([]);
   const [streamingModel, setStreamingModel] = useState('');
@@ -31,9 +39,90 @@ export default function ChatWindow({
   const [feedbackGiven, setFeedbackGiven] = useState({});
   const [speakingIndex, setSpeakingIndex] = useState(null);
   const recognitionRef = useRef(null);
+  const docFileInputRef = useRef(null);
 
   const langCode = () =>
     (language === 'english' ? 'en-IN' : language === 'assamese' ? 'as-IN' : 'hi-IN');
+
+  const handleDocUpload = async (file) => {
+    if (!file) return;
+    const allowed = ['.docx', '.doc', '.txt', '.rtf', '.md'];
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowed.includes(ext)) {
+      setErrorMsg(`Unsupported file type: ${ext}. Please upload a .docx, .doc, or .txt file.`);
+      return;
+    }
+    if (file.size > 25 * 1024 * 1024) {
+      setErrorMsg('File size exceeds the 25MB limit.');
+      return;
+    }
+
+    setErrorMsg(null);
+    setIsConvertingDoc(true);
+    setConvertingFileName(file.name);
+
+    let sessionId = currentSession?.id;
+    if (!sessionId) {
+      sessionId = onSendMessage(`📄 Convert Document: ${file.name}`);
+    } else {
+      onAddMessage(sessionId, 'user', `📄 Convert Document: ${file.name}`);
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/convert-doc/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCsrfToken() || '',
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to convert document.');
+      }
+
+      onAddMessage(
+        sessionId,
+        'assistant',
+        `আপোনাৰ নথিপত্ৰখন (**${data.original_name}**) সফলতাৰে PDF লৈ ৰূপান্তৰ কৰা হৈছে। তলৰ বুটামৰ পৰা আপুনি PDF ডাউনলোড বা প্ৰিভিউ কৰিব পাৰে:`,
+        'Doc to PDF Converter',
+        {
+          doc_conversion: data,
+        }
+      );
+    } catch (err) {
+      setErrorMsg(`Document conversion error: ${err.message}`);
+    } finally {
+      setIsConvertingDoc(false);
+      setConvertingFileName('');
+      if (docFileInputRef.current) docFileInputRef.current.value = '';
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDraggingDoc) setIsDraggingDoc(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingDoc(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingDoc(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleDocUpload(e.dataTransfer.files[0]);
+    }
+  };
 
   // Voice input via the browser Web Speech API.
   const startVoiceInput = () => {
@@ -291,7 +380,36 @@ export default function ChatWindow({
   };
 
   return (
-    <main className="main-content">
+    <main
+      className="main-content"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Hidden file input for document attachment */}
+      <input
+        type="file"
+        ref={docFileInputRef}
+        style={{ display: 'none' }}
+        accept=".docx,.doc,.txt,.rtf,.md"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleDocUpload(e.target.files[0]);
+          }
+        }}
+      />
+
+      {/* Drag & Drop Visual Backdrop Overlay */}
+      {isDraggingDoc && (
+        <div className="drag-doc-overlay">
+          <div className="drag-doc-content">
+            <FileUp size={48} className="bounce-icon" />
+            <h3>Drop your document here</h3>
+            <p>Convert .docx, .doc, or .txt to formatted PDF</p>
+          </div>
+        </div>
+      )}
+
       {/* Top Header Bar */}
       <header className="top-header">
         <div className="header-left">
@@ -336,6 +454,37 @@ export default function ChatWindow({
                 I'm your AI assistant for <span className="gradient-text">everything about Assam</span> — its history, culture, festivals, tourism, food and people. Ask me in English, Hindi or Hinglish, and I'll always reply in <span className="gradient-text">Assamese (অসমীয়া)</span>.
               </h2>
             </div>
+
+            {/* Hero Quick Tool Shortcuts */}
+            <div className="hero-tools-grid">
+              <button
+                className="hero-tool-card"
+                onClick={() => docFileInputRef.current?.click()}
+                title="Convert DOC/DOCX to PDF"
+              >
+                <div className="hero-tool-icon">
+                  <FileText size={18} />
+                </div>
+                <div className="hero-tool-text">
+                  <span className="hero-tool-title">Convert Doc to PDF</span>
+                  <span className="hero-tool-desc">Upload .docx / .doc & download PDF</span>
+                </div>
+              </button>
+
+              <button
+                className="hero-tool-card"
+                onClick={onOpenDocConverterModal}
+                title="Open Dedicated Converter Modal"
+              >
+                <div className="hero-tool-icon" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
+                  <Sparkles size={18} />
+                </div>
+                <div className="hero-tool-text">
+                  <span className="hero-tool-title">Doc Converter Tool</span>
+                  <span className="hero-tool-desc">Drag & drop files with live progress</span>
+                </div>
+              </button>
+            </div>
           </div>
         ) : (
           /* Chat Messages Feed */
@@ -357,6 +506,11 @@ export default function ChatWindow({
                           {msg.from_database && (
                             <span style={{ display: 'inline-block', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
                               📁 Database Match
+                            </span>
+                          )}
+                          {msg.doc_conversion && (
+                            <span style={{ display: 'inline-block', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', color: '#c084fc', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
+                              📄 PDF Converted
                             </span>
                           )}
                         </div>
@@ -390,6 +544,48 @@ export default function ChatWindow({
                         </div>
                       </div>
                       <div className="msg-text-content" dangerouslySetInnerHTML={{ __html: formatMarkdown(msg.text) }} />
+
+                      {/* Interactive Converted Document Result Card */}
+                      {msg.doc_conversion && (
+                        <div className="doc-pdf-result-card">
+                          <div className="doc-pdf-card-top">
+                            <div className="doc-pdf-icon-wrapper">
+                              <FileText size={24} />
+                            </div>
+                            <div className="doc-pdf-details">
+                              <div className="doc-pdf-filename">{msg.doc_conversion.pdf_name}</div>
+                              <div className="doc-pdf-meta">
+                                <span className="doc-pdf-pages">
+                                  {msg.doc_conversion.page_count} {msg.doc_conversion.page_count === 1 ? 'Page' : 'Pages'}
+                                </span>
+                                <span className="doc-pdf-dot">&bull;</span>
+                                <span className="doc-pdf-size">{msg.doc_conversion.file_size}</span>
+                                <span className="doc-pdf-badge">PDF Ready</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="doc-pdf-actions">
+                            <a
+                              href={msg.doc_conversion.direct_download_url || msg.doc_conversion.download_url}
+                              download={msg.doc_conversion.pdf_name}
+                              className="btn-download-pdf-card"
+                            >
+                              <Download size={14} />
+                              <span>Download PDF</span>
+                            </a>
+                            <a
+                              href={msg.doc_conversion.download_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-preview-pdf-card"
+                            >
+                              <ExternalLink size={14} />
+                              <span>Preview</span>
+                            </a>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Feedback (👍 / 👎) — helps improve the knowledge base */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
@@ -460,6 +656,20 @@ export default function ChatWindow({
               </div>
             ))}
 
+            {/* Converting Document Live Status Indicator */}
+            {isConvertingDoc && (
+              <div className="message-bubble assistant">
+                <div className="msg-avatar">✦</div>
+                <div className="msg-body">
+                  <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)', marginBottom: '6px' }}>Doc to PDF Converter</div>
+                  <div className="converting-doc-status">
+                    <Loader2 size={16} className="spin-icon" />
+                    <span>Converting <strong>{convertingFileName}</strong> to formatted PDF...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Typewriter streaming message */}
             {streamingText !== null && (
               <div className="message-bubble assistant">
@@ -481,7 +691,7 @@ export default function ChatWindow({
             )}
 
             {/* Loading Indicator */}
-            {isLoading && streamingText === null && (
+            {isLoading && streamingText === null && !isConvertingDoc && (
               <div className="message-bubble assistant">
                 <div className="msg-avatar">✦</div>
                 <div className="msg-body">
@@ -521,9 +731,9 @@ export default function ChatWindow({
               value={inputText}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Message Axom AI..."
+              placeholder="Message Axom AI or attach a document..."
               rows={1}
-              disabled={isLoading}
+              disabled={isLoading || isConvertingDoc}
             />
           </div>
           <div className="input-controls-row">
@@ -536,16 +746,28 @@ export default function ChatWindow({
             </div>
             <div className="controls-right">
               <button
+                type="button"
+                className="btn-attach-doc"
+                onClick={() => docFileInputRef.current?.click()}
+                disabled={isLoading || isConvertingDoc}
+                title="Convert DOC/DOCX to PDF"
+              >
+                <Paperclip size={15} />
+              </button>
+              <button
+                type="button"
                 className={`btn-mic ${isListening ? 'listening' : ''}`}
                 onClick={startVoiceInput}
+                disabled={isLoading || isConvertingDoc}
                 title={isListening ? 'Listening… tap to stop' : 'Voice input'}
               >
                 <Mic size={15} />
               </button>
               <button
+                type="button"
                 className="btn-send-message"
                 onClick={handleSend}
-                disabled={isLoading || !inputText.trim()}
+                disabled={isLoading || isConvertingDoc || !inputText.trim()}
                 title="Send Message"
               >
                 <Send size={14} />

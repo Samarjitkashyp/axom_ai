@@ -5,6 +5,7 @@ import ChatWindow from './components/ChatWindow';
 import AdminPanel from './components/AdminPanel';
 import SettingsPage from './components/SettingsPage';
 import LoginModal from './components/LoginModal';
+import DocConverterModal from './components/DocConverterModal';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
 
@@ -29,6 +30,9 @@ export default function App() {
   // Sidebar collapse states
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
+
+  // Document Converter Modal state
+  const [isDocModalOpen, setIsDocModalOpen] = useState(false);
 
   // Login Modal state
   const [loginModalState, setLoginModalState] = useState({
@@ -116,6 +120,21 @@ export default function App() {
     return newSessionId;
   };
 
+  const handleDocConvertedToChat = (data) => {
+    let sessionId = currentChatId;
+    if (!sessionId) {
+      sessionId = startNewSession(`📄 Convert Document: ${data.original_name}`);
+    } else {
+      addMessageToSession(sessionId, 'user', `📄 Convert Document: ${data.original_name}`);
+    }
+    addMessageToSession(
+      sessionId,
+      'assistant',
+      `আপোনাৰ নথিপত্ৰখন (**${data.original_name}**) সফলতাৰে PDF লৈ ৰূপান্তৰ কৰা হৈছে। আপুনি তলৰ বুটামৰ পৰা পোনপটীয়াকৈ PDF ডাউনলোড কৰিব পাৰে:`,
+      'Doc to PDF Converter',
+      { doc_conversion: data }
+    );
+  };
 
   const navigateToChat = () => {
     window.history.pushState(null, '', '/');
@@ -169,6 +188,7 @@ export default function App() {
         togglePin={togglePin}
         clearAllSessions={clearAllSessions}
         onOpenSettings={() => setCurrentView('settings')}
+        onOpenDocConverter={() => setIsDocModalOpen(true)}
       />
 
       {/* MAIN CHAT CANVAS */}
@@ -184,6 +204,7 @@ export default function App() {
         remainingWords={remainingWords}
         deductWords={deductWords}
         onUpgrade={() => triggerLoginModal("Upgrade to Pro", "Log in to unlock advanced models, plugins, and unlimited words access.")}
+        onOpenDocConverterModal={() => setIsDocModalOpen(true)}
       />
 
       {/* RIGHT SIDEBAR */}
@@ -193,6 +214,13 @@ export default function App() {
         maxWords={maxWords}
         onUpgrade={() => triggerLoginModal("Upgrade to Pro", "Log in to unlock advanced models, plugins, and unlimited words access.")}
         isCollapsed={rightSidebarCollapsed}
+      />
+
+      {/* DOCUMENT CONVERTER MODAL */}
+      <DocConverterModal
+        isOpen={isDocModalOpen}
+        onClose={() => setIsDocModalOpen(false)}
+        onDocConvertedToChat={handleDocConvertedToChat}
       />
 
       {/* BEAUTIFUL CREDENTIALS MODAL */}

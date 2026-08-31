@@ -6,6 +6,7 @@ import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.conf import settings
 from knowledge.utils import search_knowledge_base, find_instant_answer, semantic_find_answer
 
 # Global HTTP Session for connection pooling & ultra-fast API calls
@@ -829,3 +830,224 @@ def login_api_view(request):
         return JsonResponse({'success': True, 'username': user.username})
     else:
         return JsonResponse({'error': 'Invalid username or password'}, status=400)
+
+
+def convert_doc_api(request):
+    """
+    API endpoint to convert DOC, DOCX, TXT, and RTF documents to PDF.
+    Accepts multipart/form-data with 'file'.
+    Returns JSON with download link, file size, page count, and status.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse(
+            {'error': 'Too many requests. Please wait a moment.'},
+            status=429,
+        )
+
+    uploaded_file = request.FILES.get('file') or request.FILES.get('doc_file')
+    if not uploaded_file:
+        return JsonResponse({'error': 'No document file provided for conversion.'}, status=400)
+
+    # Validate file size (max 25MB)
+    max_size = 25 * 1024 * 1024
+    if uploaded_file.size > max_size:
+        return JsonResponse({'error': 'File size exceeds the 25MB limit.'}, status=400)
+
+    # Validate file extension
+    ext = os.path.splitext(uploaded_file.name)[1].lower()
+    allowed_exts = ['.docx', '.doc', '.txt', '.rtf', '.md', '.csv']
+    if ext not in allowed_exts:
+        return JsonResponse({
+            'error': f'Unsupported file type: {ext}. Supported types: .docx, .doc, .txt, .rtf'
+        }, status=400)
+
+    import uuid
+    from knowledge.doc_converter import convert_doc_to_pdf
+
+    # Setup directories in MEDIA_ROOT
+    media_root = settings.MEDIA_ROOT
+    upload_dir = os.path.join(media_root, 'uploads')
+    output_dir = os.path.join(media_root, 'converted_pdfs')
+    os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Unique file identifiers
+    unique_id = uuid.uuid4().hex[:8]
+    clean_stem = "".join(c for c in os.path.splitext(uploaded_file.name)[0] if c.isalnum() or c in (' ', '_', '-')).strip()
+    if not clean_stem:
+        clean_stem = "document"
+
+    input_filename = f"{clean_stem}_{unique_id}{ext}"
+    input_path = os.path.join(upload_dir, input_filename)
+    output_filename = f"{clean_stem}_{unique_id}.pdf"
+    output_path = os.path.join(output_dir, output_filename)
+
+    # Save uploaded file
+    try:
+        with open(input_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+    except Exception as e:
+        return JsonResponse({'error': f'Failed to save uploaded file: {str(e)}'}, status=500)
+
+    # Perform conversion
+    try:
+        out_pdf, page_count, file_size_str = convert_doc_to_pdf(input_path, output_path)
+    except Exception as e:
+        # Cleanup upload if conversion failed
+        try:
+            if os.path.exists(input_path):
+                os.remove(input_path)
+        except Exception:
+            pass
+        return JsonResponse({'error': f'Conversion failed: {str(e)}'}, status=500)
+
+    # Relative download URL
+    download_url = f"{settings.MEDIA_URL}converted_pdfs/{output_filename}"
+    direct_download_url = f"/api/download-converted-pdf/{output_filename}"
+
+    return JsonResponse({
+        'success': True,
+        'original_name': uploaded_file.name,
+        'pdf_name': f"{clean_stem}.pdf",
+        'filename': output_filename,
+        'download_url': download_url,
+        'direct_download_url': direct_download_url,
+        'page_count': page_count,
+        'file_size': file_size_str,
+        'message': f"'{uploaded_file.name}' was successfully converted to PDF!",
+    })
+
+
+def download_converted_pdf_view(request, filename):
+    """Serve converted PDF with Content-Disposition attachment for clean downloading."""
+    import mimetypes
+    from django.http import FileResponse, Http404
+
+    # Sanitize filename
+    clean_filename = os.path.basename(filename)
+    file_path = os.path.join(settings.MEDIA_ROOT, 'converted_pdfs', clean_filename)
+
+    if not os.path.exists(file_path):
+        raise Http404("Converted PDF file not found.")
+
+    response = FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+    # Use clean download name
+    download_name = clean_filename
+    if '_' in clean_filename:
+        # Remove unique id hash if desired, or keep clean
+        parts = clean_filename.rsplit('_', 1)
+        if len(parts) == 2 and parts[1].endswith('.pdf'):
+            download_name = f"{parts[0]}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{download_name}"'
+    return response
+
+
+def convert_file_api(request):
+    """
+    Unified file converter (multipart POST):
+      target=pdf   : docx/doc/txt/rtf/md/csv -> PDF, or png/jpg/webp -> PDF
+      target=docx  : pdf -> Word (.docx)
+      target=png   : pdf -> PNG image(s)  (zipped if multi-page)
+      target=jpg   : pdf -> JPG image(s)  (zipped if multi-page)
+    Send one file as 'file', or many images as 'files' (for images -> PDF).
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
+
+    target = (request.POST.get('target', '') or '').lower().strip()
+    if target not in ('pdf', 'docx', 'png', 'jpg'):
+        return JsonResponse({'error': 'Invalid target. Use pdf, docx, png or jpg.'}, status=400)
+
+    files = request.FILES.getlist('files') or (
+        [request.FILES['file']] if 'file' in request.FILES else [])
+    if not files:
+        return JsonResponse({'error': 'No file provided for conversion.'}, status=400)
+
+    max_size = 25 * 1024 * 1024
+    for f in files:
+        if f.size > max_size:
+            return JsonResponse({'error': 'A file exceeds the 25MB limit.'}, status=400)
+
+    import uuid
+    media_root = settings.MEDIA_ROOT
+    upload_dir = os.path.join(media_root, 'uploads')
+    out_dir = os.path.join(media_root, 'converted_files')
+    os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
+    uid = uuid.uuid4().hex[:8]
+
+    def _save(f):
+        ext = os.path.splitext(f.name)[1].lower()
+        stem = "".join(c for c in os.path.splitext(f.name)[0]
+                       if c.isalnum() or c in (' ', '_', '-')).strip() or 'file'
+        path = os.path.join(upload_dir, f"{stem}_{uid}{ext}")
+        with open(path, 'wb+') as d:
+            for chunk in f.chunks():
+                d.write(chunk)
+        return path, ext, stem
+
+    saved = [_save(f) for f in files]
+    src_ext, stem = saved[0][1], saved[0][2]
+
+    from knowledge.doc_converter import convert_doc_to_pdf
+    from knowledge import file_converters as fc
+
+    try:
+        if target == 'pdf' and src_ext in ('.docx', '.doc', '.txt', '.rtf', '.md', '.csv'):
+            out = os.path.join(out_dir, f"{stem}_{uid}.pdf")
+            convert_doc_to_pdf(saved[0][0], out)
+            out_name = f"{stem}.pdf"
+        elif target == 'pdf' and src_ext in ('.png', '.jpg', '.jpeg', '.webp'):
+            out = os.path.join(out_dir, f"{stem}_{uid}.pdf")
+            fc.convert_images_to_pdf([s[0] for s in saved], out)
+            out_name = f"{stem}.pdf"
+        elif target == 'docx' and src_ext == '.pdf':
+            out = os.path.join(out_dir, f"{stem}_{uid}.docx")
+            fc.convert_pdf_to_docx(saved[0][0], out)
+            out_name = f"{stem}.docx"
+        elif target in ('png', 'jpg') and src_ext == '.pdf':
+            imgs = fc.convert_pdf_to_images(saved[0][0], os.path.join(out_dir, f"{stem}_{uid}"), fmt=target)
+            if len(imgs) == 1:
+                out, out_name = imgs[0], f"{stem}.{target}"
+            else:
+                out = os.path.join(out_dir, f"{stem}_{uid}.zip")
+                fc.zip_files(imgs, out)
+                out_name = f"{stem}_images.zip"
+        else:
+            return JsonResponse(
+                {'error': f'Cannot convert "{src_ext}" to "{target}".'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': f'Conversion failed: {str(e)}'}, status=500)
+
+    fname = os.path.basename(out)
+    size = os.path.getsize(out)
+    size_str = (f"{size / 1024:.1f} KB" if size < 1024 * 1024
+                else f"{size / (1024 * 1024):.2f} MB")
+    return JsonResponse({
+        'success': True,
+        'filename': fname,
+        'output_name': out_name,
+        'download_url': f"/api/download-converted-file/{fname}",
+        'file_size': size_str,
+        'message': f"Converted to {out_name}",
+    })
+
+
+def download_converted_file_view(request, filename):
+    """Serve any converted file (pdf/docx/png/jpg/zip) as a download."""
+    import mimetypes
+    from django.http import FileResponse, Http404
+    clean = os.path.basename(filename)
+    path = os.path.join(settings.MEDIA_ROOT, 'converted_files', clean)
+    if not os.path.exists(path):
+        raise Http404("Converted file not found.")
+    ctype = mimetypes.guess_type(clean)[0] or 'application/octet-stream'
+    resp = FileResponse(open(path, 'rb'), content_type=ctype)
+    resp['Content-Disposition'] = f'attachment; filename="{clean}"'
+    return resp

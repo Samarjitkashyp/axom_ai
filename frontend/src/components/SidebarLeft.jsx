@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, MessageSquare, LogOut, ChevronDown, LayoutDashboard,
-  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon,
+  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText
 } from 'lucide-react';
 
 const RECENT_LIMIT = 15;
@@ -17,6 +17,7 @@ export default function SidebarLeft({
   togglePin,
   clearAllSessions,
   onOpenSettings,
+  onOpenDocConverter,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuFor, setMenuFor] = useState(null); // { id, top, left } — fixed-positioned
@@ -97,12 +98,21 @@ export default function SidebarLeft({
         </div>
       </div>
 
-      {/* New Chat Button */}
+      {/* New Chat & Tool Buttons */}
       <div className="new-chat-wrapper">
         <button className="btn-new-chat" onClick={onNewChat} id="btnNewChat">
           <Plus size={16} className="btn-icon" />
           <span className="btn-text">New Chat</span>
           <span className="shortcut-badge">Ctrl+K</span>
+        </button>
+        <button
+          className="btn-sidebar-tool"
+          onClick={onOpenDocConverter}
+          title="Convert DOC/DOCX to PDF"
+        >
+          <FileText size={15} className="btn-icon" style={{ color: '#c084fc' }} />
+          <span className="btn-text">Doc to PDF</span>
+          <span className="tool-badge">Tool</span>
         </button>
       </div>
 
