@@ -1,8 +1,10 @@
 # 🧠 Axom AI
 
-A self-hosted, multilingual AI chat assistant built with **Django + React**. It answers from
-your own knowledge base using **semantic search (BAAI/bge-m3)**, runs a **local LLM (Ollama)**
-offline with a **Google Gemini** fallback, and replies in **English, Hinglish, or Assamese**.
+A self-hosted AI assistant for **everything about Assam**, built with **Django + React**. It
+answers from your own knowledge base using **semantic search (BAAI/bge-m3)**, always **replies in
+Assamese (অসমীয়া)** whatever language you type in, and is powered by **Groq (primary)** with a
+**Google Gemini** fallback. It also bundles a full **Converter & PDF Tools** suite (PDF ⇄ Word,
+images, Office → PDF, OCR, compress, AI chat/summarize/translate) and an in-browser **PDF editor**.
 
 > 🌐 **Live demo:** http://3.6.237.64:8000 &nbsp;·&nbsp; deployed on AWS Lightsail with an automated CI/CD pipeline.
 
@@ -11,19 +13,41 @@ offline with a **Google Gemini** fallback, and replies in **English, Hinglish, o
 ## ✨ Features
 
 - 💬 **ChatGPT-style chat** — token-by-token streaming with a typing indicator
+- 🗣️ **Assamese-only replies** — type in English / Hindi / Hinglish, always get a natural
+  **Assamese (অসমীয়া)** answer (KB answers served verbatim; the rest via Groq → IndicTrans2/Groq)
 - 🎯 **Accurate, no hallucination** — answers come verbatim from your knowledge base; the model
   is told never to invent names/dates/facts and to say "not certain" instead
-- 🌏 **Multilingual replies** — pick **English / Hinglish / অসমীয়া (Assamese)** per message
+- ⚡ **Groq-first, streamed** — `openai/gpt-oss-120b` on Groq answers first (~0.7s), Gemini is the
+  fallback (and handles web-search grounding)
 - 🔎 **Semantic search (bge-m3)** — matches questions by *meaning*, across wording and language
-  ("When is Bihu?" ↔ "Rongali Bihu kya hai?")
-- ⚡ **Instant answers** — exact keyword matches return in milliseconds, no model call
-- 🧠 **Conversation memory** — follow-ups ("aur batao", "detail me") keep context (token-budget window)
-- 📚 **Knowledge base** — upload PDF, DOCX, Excel, CSV, TXT, or **JSONL** (Q&A) from the admin panel
+- 📚 **Knowledge base + source attribution** — upload PDF, DOCX, Excel, CSV, TXT, or **JSONL** (Q&A)
+  with `source_name` / `source_url`, shown under each answer
+- 🧰 **Converter & PDF Tools** — a full tools page (see below): PDF ⇄ Word, image ⇄ PDF,
+  Office → PDF, merge/split/extract, compress, watermark, protect/unlock, OCR, and AI tools
+- ✏️ **In-browser PDF editor** — add text (bold/italic/colour/size), draw, highlight, images,
+  and a drawn signature, then export — fully client-side (pdf.js + pdf-lib)
 - 🗂️ **Chat management** — pin / delete via a 3-dot menu, archive old chats, dedicated **Settings** page
 - 🔐 **Secure admin panel** — staff-only document management
 - 🛡️ **Production-ready** — per-IP rate limiting, health endpoint, storage limits + auto-cleanup
 - 📱 **Responsive + theming** — mobile layout, dark/light theme toggle
-- 🖥️ **Runs on modest hardware** — small local models work on CPU-only machines
+
+### 🧰 Converter & PDF Tools
+
+Open **Tools** from the chat. A full page with search + categories:
+
+| Category | Tools |
+|----------|-------|
+| **Convert** | Word→PDF, PDF→Word, Image→PDF, PDF→JPG, PDF→PNG |
+| **Office** | PowerPoint→PDF, Excel→PDF, ODT/HTML/EPUB→PDF *(LibreOffice)* |
+| **Organize** | Merge, Split, Extract pages |
+| **Optimize** | **Compress** *(Ghostscript + rasteriser fallback — shrinks any PDF)*, Watermark |
+| **Security** | Protect (password), Unlock |
+| **OCR** | Make scanned PDFs searchable *(Tesseract: Assamese + Hindi + English)* |
+| **AI Tools** | Chat with PDF, Summarize, Translate *(Groq)* |
+| **Edit** | PDF editor, Sign PDF |
+
+Conversions/PDF ops run server-side (`/api/convert-file/`, `/api/pdf-tool/`, `/api/pdf-ai/`); the
+editor and signature run entirely in the browser.
 
 ### How an answer is produced
 
@@ -50,9 +74,11 @@ User question  (+ chosen reply language)
 | Frontend | React 19 + Vite |
 | Database | PostgreSQL |
 | Semantic search | `BAAI/bge-m3` via sentence-transformers (multilingual embeddings) |
-| Local LLM | Ollama (`qwen2.5:0.5b` / `llama3.2:1b`, or your own fine-tuned model) |
-| Cloud LLM | Google Gemini API (streaming, translation, fallback) |
-| Doc parsing | pypdf, python-docx, openpyxl, Pillow |
+| Primary LLM | **Groq** `openai/gpt-oss-120b` (fast, streamed) |
+| Fallback LLM | Google Gemini API (+ web-search grounding); Ollama for offline chat |
+| Assamese | IndicTrans2 (AI4Bharat) service + Groq/Gemini; DB-baked verified answers |
+| Converter / PDF | pypdf, python-docx, **pdf2docx**, **img2pdf**, **PyMuPDF**, **ReportLab**; server: **LibreOffice**, **Ghostscript**, **ocrmypdf/Tesseract** |
+| PDF editor | **pdf.js** (render) + **pdf-lib** (export), client-side |
 | Serving | Gunicorn + WhiteNoise |
 
 ---

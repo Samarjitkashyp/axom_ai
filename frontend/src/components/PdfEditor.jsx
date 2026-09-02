@@ -25,8 +25,10 @@ const fmtBtn = (active) => ({
 function SignaturePad({ onDone, onCancel }) {
   const ref = useRef(null);
   const drawing = useRef(false);
+  const padW = typeof window !== 'undefined' ? Math.min(380, window.innerWidth - 56) : 340;
   useEffect(() => {
     const cv = ref.current;
+    if (!cv) return;
     const ctx = cv.getContext('2d');
     ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#111827';
     const pos = (e) => {
@@ -38,18 +40,18 @@ function SignaturePad({ onDone, onCancel }) {
     const move = (e) => { if (!drawing.current) return; const [x, y] = pos(e); ctx.lineTo(x, y); ctx.stroke(); e.preventDefault(); };
     const up = () => { drawing.current = false; };
     cv.addEventListener('mousedown', down); cv.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
-    cv.addEventListener('touchstart', down); cv.addEventListener('touchmove', move); window.addEventListener('touchend', up);
+    cv.addEventListener('touchstart', down, { passive: false }); cv.addEventListener('touchmove', move, { passive: false }); window.addEventListener('touchend', up);
     return () => {
       cv.removeEventListener('mousedown', down); cv.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up);
       cv.removeEventListener('touchstart', down); cv.removeEventListener('touchmove', move); window.removeEventListener('touchend', up);
     };
   }, []);
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onCancel}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: '14px', padding: '18px' }}>
-        <h4 style={{ margin: '0 0 10px', color: '#111827' }}>Draw your signature</h4>
-        <canvas ref={ref} width={380} height={150} style={{ border: '1px dashed #94a3b8', borderRadius: '8px', background: '#fff', touchAction: 'none' }} />
-        <div style={{ display: 'flex', gap: '8px', marginTop: '12px', justifyContent: 'flex-end' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} onClick={onCancel}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: '16px', padding: '18px', width: '100%', maxWidth: '420px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+        <h4 style={{ margin: '0 0 10px', color: '#111827', fontSize: '1rem', fontWeight: 700 }}>Draw your signature</h4>
+        <canvas ref={ref} width={padW} height={150} style={{ width: '100%', height: '150px', border: '1px dashed #94a3b8', borderRadius: '10px', background: '#fff', touchAction: 'none', display: 'block' }} />
+        <div style={{ display: 'flex', gap: '8px', marginTop: '14px', justifyContent: 'flex-end' }}>
           <button onClick={() => { const c = ref.current; c.getContext('2d').clearRect(0, 0, c.width, c.height); }} style={btnStyle('#e5e7eb', '#111827')}>Clear</button>
           <button onClick={onCancel} style={btnStyle('#e5e7eb', '#111827')}>Cancel</button>
           <button onClick={() => onDone(ref.current.toDataURL('image/png'))} style={btnStyle('#8b5cf6', '#fff')}>Add</button>
@@ -262,12 +264,12 @@ export default function PdfEditor({ onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'var(--bg-primary, #0b0b12)', zIndex: 60, display: 'flex', flexDirection: 'column' }}>
       {/* Top bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderBottom: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
-        <strong style={{ color: 'var(--text-primary)', marginRight: '8px' }}>PDF Editor</strong>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderBottom: '1px solid var(--border-color)', flexWrap: 'nowrap', overflowX: 'auto', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+        <strong style={{ color: 'var(--text-primary)', marginRight: '8px', flexShrink: 0 }}>PDF Editor</strong>
         {pages.length > 0 && TOOLS.map((t) => (
           <button key={t.k} title={t.label}
             onClick={() => { if (t.k === 'sign') { setShowSign(true); } else if (t.k === 'image') { imgInputRef.current?.click(); } else setTool(t.k); }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, border: '1px solid var(--border-color)', background: tool === t.k ? 'var(--accent-purple, #8b5cf6)' : 'transparent', color: tool === t.k ? '#fff' : 'var(--text-secondary)' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, border: '1px solid var(--border-color)', background: tool === t.k ? 'var(--accent-purple, #8b5cf6)' : 'transparent', color: tool === t.k ? '#fff' : 'var(--text-secondary)', flexShrink: 0 }}>
             <t.icon size={14} /> {t.label}
           </button>
         ))}

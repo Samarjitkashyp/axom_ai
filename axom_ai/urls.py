@@ -8,6 +8,12 @@ import knowledge.views as knowledge_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home_view, name='home'),
+    path('tools/', views.home_view, name='tools'),
+    path('tools', views.home_view, name='tools_no_slash'),
+    path('upgrade/', views.home_view, name='upgrade'),
+    path('upgrade', views.home_view, name='upgrade_no_slash'),
+    path('subscription/', views.home_view, name='subscription'),
+    path('subscription', views.home_view, name='subscription_no_slash'),
     path('api/chat/', views.chat_api_view, name='chat_api'),
     path('api/history/', views.chat_history_view, name='chat_history'),
     path('api/history/action/', views.chat_action_view, name='chat_action'),

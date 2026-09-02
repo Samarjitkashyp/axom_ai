@@ -20,6 +20,7 @@ export default function ChatWindow({
   deductWords,
   onUpgrade,
   onOpenDocConverterModal,
+  onOpenTools,
 }) {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -128,7 +129,7 @@ export default function ChatWindow({
   const startVoiceInput = () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-      alert('Aapke browser me voice input support nahi hai. Chrome try karein.');
+      alert('Voice input is not supported in this browser. Please try Google Chrome.');
       return;
     }
     if (isListening && recognitionRef.current) {
@@ -297,7 +298,7 @@ export default function ChatWindow({
         }
 
         if (full.trim().length === 0) {
-          setErrorMsg('Axom AI se koi response nahi mila.');
+          setErrorMsg('No response received from Axom AI. Please try again.');
           setStreamingText(null);
           setIsLoading(false);
           return;
@@ -444,11 +445,18 @@ export default function ChatWindow({
             {/* Glowing Center Orb & Visual Graphic */}
             <div className="orb-hero-visual">
               <div className="orb-container">
-                <div className="orb-glow-layer"></div>
-                <div className="orb-core">
-                  <div className="orb-swirl"></div>
+                <div className="orb-aurora-glow"></div>
+                <div className="orb-ring orb-ring-1"></div>
+                <div className="orb-ring orb-ring-2"></div>
+                <div className="orb-sphere">
+                  <div className="orb-fluid-blob"></div>
+                  <div className="orb-fluid-blob-2"></div>
+                  <div className="orb-specular-highlight"></div>
+                  <div className="orb-inner-sparkle"></div>
                 </div>
-                <div className="orb-particles"></div>
+                <div className="orb-orbit-particle p1"></div>
+                <div className="orb-orbit-particle p2"></div>
+                <div className="orb-orbit-particle p3"></div>
               </div>
               <h2 className="hero-tagline" style={{ fontSize: '0.98rem', maxWidth: '620px', lineHeight: 1.5, opacity: 0.85, margin: '20px auto 0' }}>
                 I'm your AI assistant for <span className="gradient-text">everything about Assam</span> — its history, culture, festivals, tourism, food and people. Ask me in English, Hindi or Hinglish, and I'll always reply in <span className="gradient-text">Assamese (অসমীয়া)</span>.
@@ -716,8 +724,9 @@ export default function ChatWindow({
               <button
                 type="button"
                 className="lang-btn"
-                onClick={onOpenDocConverterModal}
-                title="Open all converter & PDF tools"
+                onClick={onOpenTools || onOpenDocConverterModal}
+                title="Open all converter & PDF tools (/tools)"
+                id="btnChatTools"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', cursor: 'pointer', marginLeft: '8px' }}
               >
                 <Wrench size={13} /> Tools

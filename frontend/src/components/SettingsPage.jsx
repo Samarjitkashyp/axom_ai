@@ -62,14 +62,14 @@ export default function SettingsPage({
                 <div>
                   <h2 className="settings-h2">Archived Chats</h2>
                   <p className="settings-sub">
-                    Aapki 15 se purani conversations yahan archive hoti hain. Kholne ke liye click karo.
+                    Conversations older than your 15 most recent are automatically archived here. Click to open.
                   </p>
                 </div>
                 {archived.length > 0 && (
                   <button
                     className="btn-delete-all"
                     onClick={() => {
-                      if (window.confirm('Saari archived chats delete kar dein?')) {
+                      if (window.confirm('Are you sure you want to delete all archived chats?')) {
                         archived.forEach((s) => deleteSession(s.id));
                       }
                     }}
@@ -82,8 +82,8 @@ export default function SettingsPage({
               {archived.length === 0 ? (
                 <div className="settings-empty">
                   <Archive size={40} style={{ opacity: 0.4 }} />
-                  <p>Koi archived chat nahi hai.</p>
-                  <span>Jab 15 se zyada chats hongi, purani yahan aa jaayengi.</span>
+                  <p>No archived chats yet.</p>
+                  <span>When you have more than 15 conversations, older ones will appear here.</span>
                 </div>
               ) : (
                 <div className="archive-grid">
@@ -118,13 +118,13 @@ export default function SettingsPage({
           {active === 'appearance' && (
             <div>
               <h2 className="settings-h2">Appearance</h2>
-              <p className="settings-sub">Theme choose karo — aapke device pe save rahega.</p>
+              <p className="settings-sub">Choose your preferred theme — saved automatically to your device.</p>
               <div className="settings-row">
                 <div className="settings-row-left">
                   {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
                   <div>
                     <div className="settings-row-title">Theme</div>
-                    <div className="settings-row-desc">Abhi: {theme === 'dark' ? 'Dark' : 'Light'} mode</div>
+                    <div className="settings-row-desc">Current: {theme === 'dark' ? 'Dark' : 'Light'} mode</div>
                   </div>
                 </div>
                 <button className="settings-toggle-btn" onClick={onToggleTheme}>
@@ -137,10 +137,10 @@ export default function SettingsPage({
           {active === 'about' && (
             <div>
               <h2 className="settings-h2">About Axom AI</h2>
-              <p className="settings-sub">Aapka multilingual AI assistant.</p>
+              <p className="settings-sub">Your multilingual AI assistant for Assam.</p>
               <div className="settings-about-card">
                 <div className="settings-about-row"><span>Assistant</span><b>Axom AI</b></div>
-                <div className="settings-about-row"><span>Languages</span><b>English + Hinglish</b></div>
+                <div className="settings-about-row"><span>Languages</span><b>English, Assamese & Hindi</b></div>
                 <div className="settings-about-row"><span>Knowledge base</span><b>Semantic search (bge-m3)</b></div>
                 <div className="settings-about-row"><span>Chat history</span><b>Saved on server</b></div>
               </div>

@@ -4,10 +4,12 @@ import SidebarRight from './components/SidebarRight';
 import ChatWindow from './components/ChatWindow';
 import AdminPanel from './components/AdminPanel';
 import SettingsPage from './components/SettingsPage';
+import ToolsPage from './components/ToolsPage';
 import LoginModal from './components/LoginModal';
 import DocConverterModal from './components/DocConverterModal';
 import PdfEditor from './components/PdfEditor';
 import PdfCompressor from './components/PdfCompressor';
+import SubscriptionPage from './components/SubscriptionPage';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
 
@@ -19,9 +21,13 @@ export default function App() {
     isStaff: !!window.isStaff,
   };
 
-  // View state: 'chat' | 'admin'
+  // View state: 'chat' | 'admin' | 'settings' | 'tools' | 'upgrade'
   const [currentView, setCurrentView] = useState(() => {
-    return window.location.pathname.startsWith('/admin-panel') ? 'admin' : 'chat';
+    const path = window.location.pathname;
+    if (path.startsWith('/admin-panel')) return 'admin';
+    if (path.startsWith('/tools')) return 'tools';
+    if (path.startsWith('/upgrade') || path.startsWith('/subscription')) return 'upgrade';
+    return 'chat';
   });
 
   // Theme state
@@ -62,7 +68,16 @@ export default function App() {
   // Listen to popstate (back/forward browser buttons or custom dispatch)
   useEffect(() => {
     const handleLocationChange = () => {
-      setCurrentView(window.location.pathname.startsWith('/admin-panel') ? 'admin' : 'chat');
+      const path = window.location.pathname;
+      if (path.startsWith('/admin-panel')) {
+        setCurrentView('admin');
+      } else if (path.startsWith('/tools')) {
+        setCurrentView('tools');
+      } else if (path.startsWith('/upgrade') || path.startsWith('/subscription')) {
+        setCurrentView('upgrade');
+      } else {
+        setCurrentView('chat');
+      }
     };
     window.addEventListener('popstate', handleLocationChange);
     return () => window.removeEventListener('popstate', handleLocationChange);
@@ -145,6 +160,16 @@ export default function App() {
     setCurrentView('chat');
   };
 
+  const navigateToTools = () => {
+    window.history.pushState(null, '', '/tools');
+    setCurrentView('tools');
+  };
+
+  const navigateToUpgrade = () => {
+    window.history.pushState(null, '', '/upgrade');
+    setCurrentView('upgrade');
+  };
+
   // Render Admin View
   if (currentView === 'admin' && user.isStaff) {
     return (
@@ -163,6 +188,49 @@ export default function App() {
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />
+    );
+  }
+
+  // Render Tools View (/tools)
+  if (currentView === 'tools') {
+    return (
+      <>
+        <ToolsPage
+          onBackToChat={navigateToChat}
+          onOpenEditor={() => setIsEditorOpen(true)}
+          onOpenCompressor={() => setIsCompressorOpen(true)}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+        />
+        {/* FULL-SCREEN PDF EDITOR */}
+        {isEditorOpen && <PdfEditor onClose={() => setIsEditorOpen(false)} />}
+
+        {/* FULL-SCREEN PDF COMPRESSOR */}
+        {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
+      </>
+    );
+  }
+
+  // Render Subscription View (/upgrade)
+  if (currentView === 'upgrade') {
+    return (
+      <>
+        <SubscriptionPage
+          onBackToChat={navigateToChat}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+          user={user}
+          onOpenLogin={triggerLoginModal}
+        />
+        {loginModalState.isOpen && (
+          <LoginModal
+            isOpen={loginModalState.isOpen}
+            onClose={closeLoginModal}
+            title={loginModalState.title}
+            subtitle={loginModalState.subtitle}
+          />
+        )}
+      </>
     );
   }
 
@@ -193,6 +261,9 @@ export default function App() {
         clearAllSessions={clearAllSessions}
         onOpenSettings={() => setCurrentView('settings')}
         onOpenDocConverter={() => setIsDocModalOpen(true)}
+        onOpenTools={navigateToTools}
+        onOpenUpgrade={navigateToUpgrade}
+        onCloseSidebar={() => setLeftSidebarCollapsed(true)}
       />
 
       {/* MAIN CHAT CANVAS */}
@@ -207,8 +278,9 @@ export default function App() {
         onToggleTheme={handleToggleTheme}
         remainingWords={remainingWords}
         deductWords={deductWords}
-        onUpgrade={() => triggerLoginModal("Upgrade to Pro", "Log in to unlock advanced models, plugins, and unlimited words access.")}
+        onUpgrade={navigateToUpgrade}
         onOpenDocConverterModal={() => setIsDocModalOpen(true)}
+        onOpenTools={navigateToTools}
       />
 
       {/* RIGHT SIDEBAR */}
@@ -216,8 +288,9 @@ export default function App() {
         user={user}
         remainingWords={remainingWords}
         maxWords={maxWords}
-        onUpgrade={() => triggerLoginModal("Upgrade to Pro", "Log in to unlock advanced models, plugins, and unlimited words access.")}
+        onUpgrade={navigateToUpgrade}
         isCollapsed={rightSidebarCollapsed}
+        onClose={() => setRightSidebarCollapsed(true)}
       />
 
       {/* DOCUMENT CONVERTER MODAL */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, MessageSquare, LogOut, ChevronDown, LayoutDashboard,
-  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText
+  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText, X
 } from 'lucide-react';
 
 const RECENT_LIMIT = 15;
@@ -18,6 +18,9 @@ export default function SidebarLeft({
   clearAllSessions,
   onOpenSettings,
   onOpenDocConverter,
+  onOpenTools,
+  onOpenUpgrade,
+  onCloseSidebar,
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuFor, setMenuFor] = useState(null); // { id, top, left } — fixed-positioned
@@ -67,7 +70,10 @@ export default function SidebarLeft({
     <div
       key={session.id}
       className={`chat-history-item ${currentChatId === session.id ? 'active' : ''}`}
-      onClick={() => onSwitchSession(session.id)}
+      onClick={() => {
+        onSwitchSession(session.id);
+        if (window.innerWidth <= 850) onCloseSidebar?.();
+      }}
       style={{ position: 'relative' }}
     >
       {session.pinned ? <Pin size={13} className="chat-icon" /> : <MessageSquare size={14} className="chat-icon" />}
@@ -96,11 +102,26 @@ export default function SidebarLeft({
           </svg>
           <span className="brand-name">Axom AI</span>
         </div>
+        <button
+          className="sidebar-mobile-close-btn"
+          onClick={onCloseSidebar}
+          title="Close Sidebar"
+          aria-label="Close Sidebar"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* New Chat & Tool Buttons */}
-      <div className="new-chat-wrapper">
-        <button className="btn-new-chat" onClick={onNewChat} id="btnNewChat">
+      <div className="new-chat-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <button
+          className="btn-new-chat"
+          onClick={() => {
+            onNewChat();
+            if (window.innerWidth <= 850) onCloseSidebar?.();
+          }}
+          id="btnNewChat"
+        >
           <Plus size={16} className="btn-icon" />
           <span className="btn-text">New Chat</span>
           <span className="shortcut-badge">Ctrl+K</span>
@@ -120,14 +141,16 @@ export default function SidebarLeft({
           </button>
           {headerMenuOpen && (
             <div style={{ ...popStyle, top: '26px', minWidth: '190px' }} onClick={(e) => e.stopPropagation()}>
-              <button style={popItem} onClick={() => { onOpenSettings(); setHeaderMenuOpen(false); }}>
-                <SettingsIcon size={14} />
-                <span>Settings</span>
-              </button>
+              {user.isAuthenticated && (
+                <button style={popItem} onClick={() => { onOpenSettings(); setHeaderMenuOpen(false); }}>
+                  <SettingsIcon size={14} />
+                  <span>Settings</span>
+                </button>
+              )}
               <button
                 style={{ ...popItem, color: '#f87171' }}
                 onClick={() => {
-                  if (window.confirm('Saari conversations delete kar dein?')) clearAllSessions();
+                  if (window.confirm('Are you sure you want to clear all conversations?')) clearAllSessions();
                   setHeaderMenuOpen(false);
                 }}
               >
@@ -148,18 +171,27 @@ export default function SidebarLeft({
           )}
           {recent.map(renderItem)}
           {all.length === 0 && (
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', padding: '12px 8px' }}>
-              Koi chat nahi. "New Chat" se shuru karo.
+            <div className="empty-chats-box" style={{ color: 'var(--text-muted)', fontSize: '0.82rem', padding: '16px 8px', textAlign: 'center', lineHeight: 1.5 }}>
+              <div style={{ marginBottom: '4px', opacity: 0.6 }}>💬</div>
+              No conversations yet.<br />Start one with "New Chat".
             </div>
           )}
         </div>
 
-        {/* Settings (with archived chats inside) */}
-        <button className="settings-link" onClick={onOpenSettings}>
-          <SettingsIcon size={16} />
-          <span>Settings</span>
-          {archivedCount > 0 && <span className="archived-badge">{archivedCount} archived</span>}
-        </button>
+        {/* Settings (with archived chats inside) — only visible when logged in */}
+        {user.isAuthenticated && (
+          <button
+            className="settings-link"
+            onClick={() => {
+              onOpenSettings();
+              if (window.innerWidth <= 850) onCloseSidebar?.();
+            }}
+          >
+            <SettingsIcon size={16} />
+            <span>Settings</span>
+            {archivedCount > 0 && <span className="archived-badge">{archivedCount} archived</span>}
+          </button>
+        )}
       </div>
 
       {/* User Profile Card */}

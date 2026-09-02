@@ -1,12 +1,13 @@
 import React from 'react';
-import { Sparkles, HelpCircle } from 'lucide-react';
+import { Sparkles, HelpCircle, X } from 'lucide-react';
 
 export default function SidebarRight({
   user,
   remainingWords,
   maxWords,
   onUpgrade,
-  isCollapsed
+  isCollapsed,
+  onClose,
 }) {
   const pct = (remainingWords / maxWords) * 100;
   const remainingInt = Math.floor(remainingWords);
@@ -14,6 +15,18 @@ export default function SidebarRight({
 
   return (
     <aside className={`sidebar-right ${isCollapsed ? 'collapsed' : ''}`} id="sidebarRight">
+      {/* Mobile Close Bar */}
+      <div className="sidebar-right-mobile-header">
+        <span className="sidebar-mobile-title">Control Panel & Usage</span>
+        <button
+          className="sidebar-mobile-close-btn"
+          onClick={onClose}
+          title="Close Panel"
+          aria-label="Close Panel"
+        >
+          <X size={18} />
+        </button>
+      </div>
       {/* Pro Upgrade Promo Card */}
       {!user.isAuthenticated && (
         <div className="promo-card">
@@ -43,12 +56,6 @@ export default function SidebarRight({
       <div className="widget-card">
         <div className="widget-header">
           <span className="widget-title">Usage</span>
-          <button className="dropdown-filter-btn">
-            <span>This Month</span>
-            <svg style={{ width: '12px', height: '12px' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
         </div>
 
         <div className="usage-stats-box">

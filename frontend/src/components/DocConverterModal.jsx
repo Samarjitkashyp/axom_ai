@@ -164,27 +164,29 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
     <div className="doc-converter-overlay" onClick={onClose}>
       <div className="doc-converter-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="modal-header">
-          <div className="modal-title-area">
+        <div className="doc-converter-header">
+          <div className="doc-converter-title-area">
             {tool && (
-              <button className="modal-close-btn" onClick={backToGrid} title="Back to all tools" style={{ marginRight: '4px' }}>
+              <button className="doc-converter-back-btn" onClick={backToGrid} title="Back to all tools">
                 <ChevronLeft size={18} />
               </button>
             )}
-            <div className="modal-icon-badge">
+            <div className="doc-converter-icon-badge">
               {tool ? <tool.icon size={18} /> : <FileText size={18} />}
             </div>
-            <div>
-              <h3 className="modal-title">{tool ? tool.name : 'All Converter & PDF Tools'}</h3>
-              <p className="modal-subtitle">
-                {tool ? `Supports ${tool.hint} (up to 40MB)` : 'Convert, organize, optimize and secure your files — fast & offline'}
+            <div className="doc-converter-title-info">
+              <h3 className="doc-converter-title">{tool ? tool.name : 'All Converter & PDF Tools'}</h3>
+              <p className="doc-converter-subtitle">
+                {tool ? `Supports ${tool.hint} (up to 40MB)` : 'Convert, organize, optimize and secure your files'}
               </p>
             </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose} title="Close"><X size={18} /></button>
+          <button className="doc-converter-close-btn" onClick={onClose} title="Close" aria-label="Close modal">
+            <X size={18} />
+          </button>
         </div>
 
-        <div className="modal-body">
+        <div className="doc-converter-body">
           {/* ---- Tool grid ---- */}
           {!tool && (
             <div className="tools-grid-wrap" style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '4px' }}>
@@ -223,11 +225,16 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
                     <div className="conversion-progress-bar"><div className="progress-fill"></div></div>
                   </div>
                 ) : files.length ? (
-                  <div className="dropzone-idle">
-                    <div className="dropzone-icon"><CheckCircle size={30} /></div>
-                    <h4>{files.length === 1 ? files[0].name : `${files.length} files selected`}</h4>
-                    <p className="dropzone-sub">Click to choose different file{tool.multi ? 's' : ''}</p>
-                  </div>
+                    <div className="dropzone-idle">
+                      <div className="dropzone-icon"><CheckCircle size={30} /></div>
+                      <h4
+                        className="dropzone-filename"
+                        title={files.length === 1 ? files[0].name : `${files.length} files selected`}
+                      >
+                        {files.length === 1 ? files[0].name : `${files.length} files selected`}
+                      </h4>
+                      <p className="dropzone-sub">Click to choose different file{tool.multi ? 's' : ''}</p>
+                    </div>
                 ) : (
                   <div className="dropzone-idle">
                     <div className="dropzone-icon"><UploadCloud size={30} /></div>
