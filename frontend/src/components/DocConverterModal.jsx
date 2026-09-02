@@ -19,10 +19,7 @@ const TOOLS = [
 
   { id: 'merge', name: 'Merge PDF', cat: 'Organize', icon: Combine, ep: 'pdf', op: 'merge', accept: '.pdf', multi: true, hint: 'Two or more PDFs' },
   { id: 'split', name: 'Split PDF', cat: 'Organize', icon: Scissors, ep: 'pdf', op: 'split', accept: '.pdf', multi: false, hint: 'PDF file' },
-  { id: 'delete', name: 'Delete Pages', cat: 'Organize', icon: Trash2, ep: 'pdf', op: 'delete', accept: '.pdf', multi: false, param: 'pages', hint: 'PDF file' },
   { id: 'extract', name: 'Extract Pages', cat: 'Organize', icon: FileOutput, ep: 'pdf', op: 'extract', accept: '.pdf', multi: false, param: 'pages', hint: 'PDF file' },
-  { id: 'rotate', name: 'Rotate PDF', cat: 'Organize', icon: RotateCw, ep: 'pdf', op: 'rotate', accept: '.pdf', multi: false, param: 'angle', hint: 'PDF file' },
-  { id: 'numbers', name: 'Add Page Numbers', cat: 'Organize', icon: Hash, ep: 'pdf', op: 'numbers', accept: '.pdf', multi: false, hint: 'PDF file' },
 
   { id: 'compress', name: 'Compress PDF', cat: 'Optimize', icon: Minimize2, ep: 'pdf', op: 'compress', accept: '.pdf', multi: false, hint: 'PDF file' },
   { id: 'watermark', name: 'Watermark PDF', cat: 'Optimize', icon: Droplets, ep: 'pdf', op: 'watermark', accept: '.pdf', multi: false, param: 'text', hint: 'PDF file' },
@@ -135,6 +132,23 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor }) {
       setErrorMsg(err.message || 'Something went wrong.');
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  // Robust download: fetch the file as a blob and save it (works even when a
+  // plain <a download> is blocked or opens in a new tab).
+  const downloadFile = async (url, name) => {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error();
+      const blob = await r.blob();
+      const u = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = u; a.download = name || 'download';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(u), 4000);
+    } catch (e) {
+      window.open(url, '_blank');  // last-resort fallback
     }
   };
 
@@ -307,9 +321,9 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor }) {
                 </div>
               </div>
               <div className="success-actions">
-                <a href={result.download_url} download={result.output_name} className="btn-download-pdf">
+                <button type="button" onClick={() => downloadFile(result.download_url, result.output_name)} className="btn-download-pdf" style={{ border: 'none', cursor: 'pointer' }}>
                   <Download size={16} /><span>Download</span>
-                </a>
+                </button>
               </div>
               <div className="convert-another-wrapper" style={{ display: 'flex', gap: '8px' }}>
                 <button className="btn-convert-another" onClick={reset}>Use this tool again</button>
