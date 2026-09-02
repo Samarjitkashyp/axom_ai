@@ -210,6 +210,9 @@ export default function App() {
 
         {/* FULL-SCREEN PDF COMPRESSOR */}
         {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
+
+        {/* FULL-SCREEN WATERMARK REMOVER */}
+        {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
       </>
     );
   }
