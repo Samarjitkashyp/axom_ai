@@ -142,6 +142,14 @@ export default function WatermarkRemover({ onClose }) {
       const d = await r.json();
       if (!r.ok || !d.success) throw new Error(d.error || 'Removal failed');
       setResult(d);
+      // Show the cleaned document in the viewer so the user can see it worked.
+      try {
+        const cleaned = await (await fetch(d.download_url)).blob();
+        const buf = await cleaned.arrayBuffer();
+        setRegions({});
+        await loadPdf(buf);
+      } catch (e) { /* download still works from the top bar */ }
+      setScanMsg({ found: false, text: 'Watermark removed — the cleaned document is shown below. Click "Download" (top right) to save it.' });
     } catch (e) { setErrorMsg(e.message || 'Something went wrong.'); }
     finally { setProcessing(false); }
   };
@@ -163,7 +171,7 @@ export default function WatermarkRemover({ onClose }) {
           <span className="wm-badge"><Eraser size={18} /></span>
           <div><h3 className="wm-title">Remove Watermark</h3><p className="wm-sub">Scan, box any watermark, and erase it</p></div>
         </div>
-        {file && !result && (
+        {file && (
           <div className="wm-tools">
             <span className="wm-count">{boxCount} region{boxCount === 1 ? '' : 's'} selected</span>
             <button className="wm-modebtn" onClick={() => scan(file)} disabled={scanning || processing} title="Re-scan for watermarks">
@@ -174,6 +182,9 @@ export default function WatermarkRemover({ onClose }) {
             </button>
             <button className="wm-modebtn" onClick={() => runRemove('white')} disabled={processing} title="Cover the watermark with white">
               <Eraser size={14} /> White Erase
+            </button>
+            <button className="wm-download" onClick={download} disabled={!result} title={result ? 'Download the cleaned PDF' : 'Remove a watermark first to enable download'}>
+              <Download size={14} /> Download
             </button>
           </div>
         )}
@@ -202,15 +213,7 @@ export default function WatermarkRemover({ onClose }) {
           )}
           {errorMsg && <div className="wm-scanbar err"><AlertCircle size={15} /> {errorMsg}</div>}
 
-          {result ? (
-            <div className="wm-result">
-              <CheckCircle size={40} style={{ color: '#22c55e' }} />
-              <h3>Watermark removed!</h3>
-              <p>{result.output_name} · {result.file_size}</p>
-              <button className="wm-run" onClick={download}><Download size={16} /> Download</button>
-              <button className="wm-modebtn" onClick={() => { setResult(null); }}>Back to editing</button>
-            </div>
-          ) : (
+          {(
             <div className="wm-canvas-area">
               {pages.map((m) => (
                 <div key={m.num} id={'wm-page-' + m.num} className="wm-page" style={{ width: m.wPx, height: m.hPx }}

@@ -5370,3 +5370,7 @@ body.light-theme .tools-topbar {
 
 .wm-count { font-size: 0.78rem; color: var(--text-muted); margin-right: 4px; }
 .wm-result .wm-run { font-size: 0.95rem; padding: 12px 28px; }
+
+/* top-bar Download button (enabled only after removal) */
+.wm-download { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9px; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; background: #2563eb; color: #fff; }
+.wm-download:disabled { opacity: 0.4; cursor: not-allowed; background: var(--bg-input, #333); color: var(--text-muted); }
