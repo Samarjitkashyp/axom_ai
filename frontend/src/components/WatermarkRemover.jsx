@@ -77,7 +77,7 @@ export default function WatermarkRemover({ onClose }) {
       const d = await r.json();
       if (!r.ok || !d.success) throw new Error(d.error || 'Scan failed');
       if (d.found) {
-        setScanMsg({ found: true, text: 'Watermark detected: ' + d.reasons.join('; ') + '. Highlighted below — click Smart Remove (or draw/adjust boxes first).' });
+        setScanMsg({ found: true, text: 'Watermark detected: ' + d.reasons.join('; ') + '. Highlighted below — click "Erase (Keep Text)" (or draw/adjust boxes first).' });
         // detection keys pages 0-based; the editor keys them by 1-based page number
         const s1 = {};
         Object.entries(d.suspects || {}).forEach(([k, v]) => { s1[Number(k) + 1] = v; });
@@ -190,11 +190,11 @@ export default function WatermarkRemover({ onClose }) {
             <button className="wm-modebtn" onClick={() => scan(file)} disabled={scanning || processing} title="Re-scan for watermarks">
               {scanning ? <Loader2 size={14} className="spin-icon" /> : <ScanSearch size={14} />} Scan
             </button>
-            <button className="wm-run" onClick={() => runRemove('smart')} disabled={processing} title="Auto-detect (if needed) and remove — keeps the text underneath">
-              {processing ? <><Loader2 size={14} className="spin-icon" /> Removing…</> : <><Wand2 size={14} /> Smart Remove</>}
+            <button className="wm-run" onClick={() => runRemove('smart')} disabled={processing} title="Removes the watermark but keeps the text/content underneath">
+              {processing ? <><Loader2 size={14} className="spin-icon" /> Removing…</> : <><Wand2 size={14} /> Erase (Keep Text)</>}
             </button>
-            <button className="wm-modebtn" onClick={() => runRemove('white')} disabled={processing} title="Cover the watermark with white">
-              <Eraser size={14} /> White Erase
+            <button className="wm-modebtn" onClick={() => runRemove('white')} disabled={processing} title="Covers the whole selected area with a solid white box">
+              <Eraser size={14} /> White Cover
             </button>
             <button className="wm-download" onClick={download} disabled={!result} title={result ? 'Download the cleaned PDF' : 'Remove a watermark first to enable download'}>
               <Download size={14} /> Download
@@ -235,7 +235,7 @@ export default function WatermarkRemover({ onClose }) {
                   {(regions[m.num] || []).map((b, i) => (
                     <div key={i} className="wm-box" style={{ left: b[0] * m.wPx, top: b[1] * m.hPx, width: (b[2] - b[0]) * m.wPx, height: (b[3] - b[1]) * m.hPx }}>
                       <span className="wm-box-label">Watermark detected</span>
-                      <button className="wm-box-x" title="Unselect this area (does NOT remove the watermark — use Smart Remove for that)" onClick={(e) => { e.stopPropagation(); removeBox(m.num, i); }}>
+                      <button className="wm-box-x" title="Unselect this area (does NOT remove the watermark — use Erase (Keep Text) for that)" onClick={(e) => { e.stopPropagation(); removeBox(m.num, i); }}>
                         <X size={11} /> <span className="wm-box-x-text">Unselect</span>
                       </button>
                     </div>
@@ -245,7 +245,7 @@ export default function WatermarkRemover({ onClose }) {
                   )}
                 </div>
               ))}
-              <p className="wm-hint">Tip: click-drag a box over each watermark. Use <b>Smart remove</b> for watermarks over images/text, <b>White erase</b> for a plain white cover.</p>
+              <p className="wm-hint">Tip: click-drag a box over each watermark. Use <b>Erase (Keep Text)</b> to remove the watermark while keeping the text; use <b>White Cover</b> to blank the whole area with white.</p>
             </div>
           )}
         </>
