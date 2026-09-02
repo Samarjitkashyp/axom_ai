@@ -114,7 +114,6 @@ def remove_watermark_regions(path, out, regions, mode='inpaint'):
             doc.save(out, garbage=4, deflate=True)
             return out
 
-        # inpaint mode: rasterise -> mask -> cv2.inpaint -> rebuild
         import cv2
         import numpy as np
         result = pymupdf.open()
@@ -122,16 +121,26 @@ def remove_watermark_regions(path, out, regions, mode='inpaint'):
             pix = page.get_pixmap(dpi=150)
             arr = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
             rgb = arr[:, :, :3].copy()
-            mask = np.zeros((pix.height, pix.width), np.uint8)
             for b in boxes_for(i):
                 x0 = max(0, int(b[0] * pix.width)); y0 = max(0, int(b[1] * pix.height))
                 x1 = min(pix.width, int(b[2] * pix.width)); y1 = min(pix.height, int(b[3] * pix.height))
-                if x1 > x0 and y1 > y0:
-                    cv2.rectangle(mask, (x0, y0), (x1, y1), 255, -1)
-            if mask.any():
-                bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-                bgr = cv2.inpaint(bgr, mask, 6, cv2.INPAINT_TELEA)
-                rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                if x1 <= x0 or y1 <= y0:
+                    continue
+                sub = rgb[y0:y1, x0:x1]
+                gray = cv2.cvtColor(sub, cv2.COLOR_RGB2GRAY)
+                white_frac = float((gray > 232).mean())
+                if mode != 'inpaint' and white_frac > 0.30:
+                    # TEXT-PRESERVING (document): whiten the light watermark pixels
+                    # but keep the dark text underneath. Soft blend near the text edge.
+                    light = gray > 150            # watermark + light edges
+                    sub[light] = (255, 255, 255)
+                    rgb[y0:y1, x0:x1] = sub
+                else:
+                    # PHOTO/dense background: content-aware inpaint over the region
+                    m = np.zeros(gray.shape, np.uint8); m[:] = 255
+                    bgr = cv2.cvtColor(sub, cv2.COLOR_RGB2BGR)
+                    bgr = cv2.inpaint(bgr, m, 6, cv2.INPAINT_TELEA)
+                    rgb[y0:y1, x0:x1] = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
             ok, buf = cv2.imencode('.jpg', cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, 92])
             npage = result.new_page(width=page.rect.width, height=page.rect.height)
             npage.insert_image(npage.rect, stream=buf.tobytes())

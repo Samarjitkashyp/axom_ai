@@ -190,7 +190,7 @@ export default function WatermarkRemover({ onClose }) {
             <button className="wm-modebtn" onClick={() => scan(file)} disabled={scanning || processing} title="Re-scan for watermarks">
               {scanning ? <Loader2 size={14} className="spin-icon" /> : <ScanSearch size={14} />} Scan
             </button>
-            <button className="wm-run" onClick={() => runRemove('inpaint')} disabled={processing} title="Auto-detect (if needed) and remove — reconstructs the background">
+            <button className="wm-run" onClick={() => runRemove('smart')} disabled={processing} title="Auto-detect (if needed) and remove — keeps the text underneath">
               {processing ? <><Loader2 size={14} className="spin-icon" /> Removing…</> : <><Wand2 size={14} /> Smart Remove</>}
             </button>
             <button className="wm-modebtn" onClick={() => runRemove('white')} disabled={processing} title="Cover the watermark with white">
