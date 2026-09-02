@@ -35,16 +35,29 @@ export default function WatermarkRemover({ onClose }) {
         const vp = page.getViewport({ scale: DISPLAY_W / v1.width });
         meta.push({ num: i, wPx: vp.width, hPx: vp.height, _page: page, _vp: vp });
       }
-      setPages(meta);
-      setTimeout(async () => {
-        for (const m of meta) {
-          const cv = bgRefs.current[m.num];
-          if (cv) { cv.width = m.wPx; cv.height = m.hPx; await m._page.render({ canvasContext: cv.getContext('2d'), viewport: m._vp }).promise; }
-        }
-      }, 40);
+      setPages(meta);   // rendering happens in the effect below (reliable on reload)
     } catch (e) { setErrorMsg('Could not open this PDF.'); }
     finally { setLoading(false); }
   }, []);
+
+  // Render page canvases whenever the page set changes (initial load AND after
+  // a removal reloads the cleaned PDF) — more reliable than a one-off timeout.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      await new Promise((r) => requestAnimationFrame(r));
+      for (const m of pages) {
+        if (cancelled) return;
+        const cv = bgRefs.current[m.num];
+        if (cv && m._page) {
+          cv.width = m.wPx; cv.height = m.hPx;
+          cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+          try { await m._page.render({ canvasContext: cv.getContext('2d'), viewport: m._vp }).promise; } catch (e) { /* */ }
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [pages]);
 
   const pickFile = async (f) => {
     if (!f || !f.name.toLowerCase().endsWith('.pdf')) { setErrorMsg('Please choose a .pdf file.'); return; }
