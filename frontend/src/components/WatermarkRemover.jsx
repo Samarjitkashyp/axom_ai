@@ -65,7 +65,10 @@ export default function WatermarkRemover({ onClose }) {
       if (!r.ok || !d.success) throw new Error(d.error || 'Scan failed');
       if (d.found) {
         setScanMsg({ found: true, text: 'Possible watermark detected: ' + d.reasons.join('; ') + '. Highlighted below — adjust boxes if needed, then Remove.' });
-        if (d.suspects && Object.keys(d.suspects).length) setRegions(d.suspects);
+        // detection keys pages 0-based; the editor keys them by 1-based page number
+        const s1 = {};
+        Object.entries(d.suspects || {}).forEach(([k, v]) => { s1[Number(k) + 1] = v; });
+        setRegions(s1);
       } else {
         setScanMsg({ found: false, text: 'No watermark found in this PDF. If you can still see one, draw a box over it manually and remove.' });
       }
