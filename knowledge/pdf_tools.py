@@ -200,7 +200,7 @@ def watermark_pdf(path, text, out, opacity=0.15, size=48, color='#888888',
                 w, h = sw * scale, sh * scale
                 page.insert_image(pymupdf.Rect(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2),
                                   stream=png, overlay=True)
-        doc.save(out)
+        doc.save(out, garbage=4, deflate=True, deflate_images=True)
     finally:
         doc.close()
     return out
