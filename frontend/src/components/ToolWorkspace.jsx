@@ -144,20 +144,23 @@ export default function ToolWorkspace({ tool, onClose }) {
         <button className="tool-ws-close" onClick={onClose} title="Close"><X size={18} /></button>
       </div>
 
+      {/* Single always-mounted file input (so "Add more" works after files load) */}
+      <input ref={inputRef} type="file" accept={tool.accept} multiple={tool.multi} style={{ display: 'none' }}
+        onChange={(e) => { if (e.target.files?.length) chooseFiles(e.target.files); }} />
+
       {files.length === 0 ? (
         /* Upload */
         <div className="tool-ws-uploadwrap">
-          <label
+          <div
             className={`tool-ws-dropzone ${dragActive ? 'active' : ''}`}
+            onClick={() => inputRef.current?.click()}
             onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
           >
-            <input ref={inputRef} type="file" accept={tool.accept} multiple={tool.multi} style={{ display: 'none' }}
-              onChange={(e) => e.target.files?.length && chooseFiles(e.target.files)} />
             <div className="tool-ws-upicon" style={{ color: theme.color }}><UploadCloud size={40} /></div>
             <h3>Choose file{tool.multi ? 's' : ''} or drag &amp; drop</h3>
             <p>Accepts {tool.hint} · up to 40 MB</p>
             <span className="tool-ws-browse" style={{ background: theme.color }}>Browse File{tool.multi ? 's' : ''}</span>
-          </label>
+          </div>
         </div>
       ) : (
         /* Workspace: preview + options */
