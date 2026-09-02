@@ -141,6 +141,71 @@ def compress_pdf_gs(input_path, out_pdf, level='moderate'):
     return out_pdf
 
 
+def _compress_raster(input_path, out_pdf, level='moderate'):
+    """
+    Re-render each page as a JPEG at a target DPI/quality and rebuild the PDF.
+    Guarantees a real size drop for image/screenshot PDFs that Ghostscript can't
+    shrink (text on those pages becomes non-selectable, which is fine for scans).
+    """
+    import pymupdf
+    dpi = {'basic': 120, 'moderate': 100, 'strong': 72}.get(level, 100)
+    quality = {'basic': 75, 'moderate': 60, 'strong': 45}.get(level, 60)
+    src = pymupdf.open(input_path)
+    out = pymupdf.open()
+    try:
+        for page in src:
+            pix = page.get_pixmap(dpi=dpi)
+            jpg = pix.tobytes(output='jpg', jpg_quality=quality)
+            npage = out.new_page(width=page.rect.width, height=page.rect.height)
+            npage.insert_image(npage.rect, stream=jpg)
+        out.save(out_pdf, garbage=4, deflate=True)
+    finally:
+        src.close()
+        out.close()
+    return out_pdf
+
+
+def compress_pdf_best(input_path, out_pdf, level='moderate'):
+    """
+    Robustly compress ANY PDF: try Ghostscript first (keeps text). If it barely
+    helps (common for webpage-screenshot / single-big-image PDFs), fall back to
+    rasterisation. Returns whichever result is smallest (never larger than input).
+    """
+    import os
+    import shutil
+    orig = os.path.getsize(input_path)
+    best_path, best_size = None, orig
+    tmps = []
+
+    try:
+        g = out_pdf + '.gs'
+        compress_pdf_gs(input_path, g, level)
+        tmps.append(g)
+        if os.path.getsize(g) < best_size:
+            best_path, best_size = g, os.path.getsize(g)
+    except Exception:
+        pass
+
+    # Ghostscript saved < 15% -> try the rasteriser (handles stubborn PDFs).
+    if best_size > orig * 0.85:
+        try:
+            r = out_pdf + '.ras'
+            _compress_raster(input_path, r, level)
+            tmps.append(r)
+            if os.path.getsize(r) < best_size:
+                best_path, best_size = r, os.path.getsize(r)
+        except Exception:
+            pass
+
+    shutil.copy(best_path or input_path, out_pdf)
+    for t in tmps:
+        try:
+            os.remove(t)
+        except Exception:
+            pass
+    return out_pdf
+
+
 def ocr_pdf(input_path, out_pdf, langs='eng+asm+hin'):
     """
     Make a scanned PDF searchable (adds a text layer) via ocrmypdf + Tesseract.

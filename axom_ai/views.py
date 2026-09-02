@@ -1135,12 +1135,9 @@ def pdf_tool_api(request):
             out = os.path.join(out_dir, f"{stem}_{uid}_compressed.pdf")
             from knowledge import file_converters as fc
             try:
-                fc.compress_pdf_gs(first_path, out, level)
+                fc.compress_pdf_best(first_path, out, level)
             except Exception:
-                T.compress_pdf(first_path, out)  # fallback: PyMuPDF
-            # If compression made it bigger (rare, tiny files), keep the original.
-            if os.path.exists(out) and os.path.getsize(out) >= os.path.getsize(first_path):
-                T.compress_pdf(first_path, out)
+                T.compress_pdf(first_path, out)  # last-resort fallback
             out_name = f"{stem}_compressed.pdf"
         elif op == 'rotate':
             angle = request.POST.get('angle', '90')
