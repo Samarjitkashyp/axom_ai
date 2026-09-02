@@ -7,6 +7,7 @@ import SettingsPage from './components/SettingsPage';
 import LoginModal from './components/LoginModal';
 import DocConverterModal from './components/DocConverterModal';
 import PdfEditor from './components/PdfEditor';
+import PdfCompressor from './components/PdfCompressor';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
 
@@ -35,6 +36,7 @@ export default function App() {
   // Document Converter Modal state
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isCompressorOpen, setIsCompressorOpen] = useState(false);
 
   // Login Modal state
   const [loginModalState, setLoginModalState] = useState({
@@ -223,11 +225,15 @@ export default function App() {
         isOpen={isDocModalOpen}
         onClose={() => setIsDocModalOpen(false)}
         onOpenEditor={() => { setIsDocModalOpen(false); setIsEditorOpen(true); }}
+        onOpenCompressor={() => { setIsDocModalOpen(false); setIsCompressorOpen(true); }}
         onDocConvertedToChat={handleDocConvertedToChat}
       />
 
       {/* FULL-SCREEN PDF EDITOR */}
       {isEditorOpen && <PdfEditor onClose={() => setIsEditorOpen(false)} />}
+
+      {/* FULL-SCREEN PDF COMPRESSOR */}
+      {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
 
       {/* BEAUTIFUL CREDENTIALS MODAL */}
       <LoginModal

@@ -21,7 +21,7 @@ const TOOLS = [
   { id: 'split', name: 'Split PDF', cat: 'Organize', icon: Scissors, ep: 'pdf', op: 'split', accept: '.pdf', multi: false, hint: 'PDF file' },
   { id: 'extract', name: 'Extract Pages', cat: 'Organize', icon: FileOutput, ep: 'pdf', op: 'extract', accept: '.pdf', multi: false, param: 'pages', hint: 'PDF file' },
 
-  { id: 'compress', name: 'Compress PDF', cat: 'Optimize', icon: Minimize2, ep: 'pdf', op: 'compress', accept: '.pdf', multi: false, hint: 'PDF file' },
+  { id: 'compress', name: 'Compress PDF', cat: 'Optimize', icon: Minimize2, compressor: true },
   { id: 'watermark', name: 'Watermark PDF', cat: 'Optimize', icon: Droplets, ep: 'pdf', op: 'watermark', accept: '.pdf', multi: false, param: 'text', hint: 'PDF file' },
 
   { id: 'protect', name: 'Protect PDF', cat: 'Security', icon: Lock, ep: 'pdf', op: 'protect', accept: '.pdf', multi: false, param: 'password', hint: 'PDF file' },
@@ -47,7 +47,7 @@ const TOOLS = [
 
 const CATS = ['Convert', 'Office', 'Organize', 'Optimize', 'Security', 'OCR', 'AI Tools', 'Edit'];
 
-export default function DocConverterModal({ isOpen, onClose, onOpenEditor }) {
+export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpenCompressor }) {
   const [tool, setTool] = useState(null);
   const [files, setFiles] = useState([]);
   const [paramText, setParamText] = useState('');
@@ -77,6 +77,7 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor }) {
   };
   const pickTool = (t) => {
     if (t.editor) { onClose?.(); onOpenEditor?.(); return; }
+    if (t.compressor) { onClose?.(); onOpenCompressor?.(); return; }
     reset(); setTool(t); if (t.param === 'lang') setAngle('assamese');
   };
   const backToGrid = () => { reset(); setTool(null); };

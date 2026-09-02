@@ -1131,8 +1131,16 @@ def pdf_tool_api(request):
             T.zip_files(parts, out)
             out_name = f"{stem}_pages.zip"
         elif op == 'compress':
+            level = (request.POST.get('level', 'moderate') or 'moderate').lower()
             out = os.path.join(out_dir, f"{stem}_{uid}_compressed.pdf")
-            T.compress_pdf(first_path, out)
+            from knowledge import file_converters as fc
+            try:
+                fc.compress_pdf_gs(first_path, out, level)
+            except Exception:
+                T.compress_pdf(first_path, out)  # fallback: PyMuPDF
+            # If compression made it bigger (rare, tiny files), keep the original.
+            if os.path.exists(out) and os.path.getsize(out) >= os.path.getsize(first_path):
+                T.compress_pdf(first_path, out)
             out_name = f"{stem}_compressed.pdf"
         elif op == 'rotate':
             angle = request.POST.get('angle', '90')
@@ -1178,6 +1186,7 @@ def pdf_tool_api(request):
 
     fname = os.path.basename(out)
     size = os.path.getsize(out)
+    orig = os.path.getsize(first_path)
     size_str = (f"{size / 1024:.1f} KB" if size < 1024 * 1024
                 else f"{size / (1024 * 1024):.2f} MB")
     return JsonResponse({
@@ -1186,6 +1195,8 @@ def pdf_tool_api(request):
         'output_name': out_name,
         'download_url': f"/api/download-converted-file/{fname}",
         'file_size': size_str,
+        'original_bytes': orig,
+        'output_bytes': size,
         'message': f"Done: {out_name}",
     })
 

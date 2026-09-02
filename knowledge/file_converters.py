@@ -122,6 +122,25 @@ def convert_office_to_pdf(input_path, out_dir):
     return out
 
 
+def compress_pdf_gs(input_path, out_pdf, level='moderate'):
+    """
+    Real PDF compression via Ghostscript (downsamples/recompresses images).
+    level: 'basic' (light, 300dpi), 'moderate' (150dpi), 'strong' (72dpi, smallest).
+    """
+    import shutil
+    import subprocess
+    gs = shutil.which('gs')
+    if not gs:
+        raise RuntimeError("Ghostscript is not installed on this machine.")
+    preset = {'basic': '/printer', 'moderate': '/ebook', 'strong': '/screen'}.get(level, '/ebook')
+    cmd = [gs, '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.5',
+           f'-dPDFSETTINGS={preset}', '-dNOPAUSE', '-dQUIET', '-dBATCH',
+           '-dDetectDuplicateImages=true', '-dCompressFonts=true',
+           f'-sOutputFile={out_pdf}', input_path]
+    subprocess.run(cmd, check=True, timeout=300, capture_output=True)
+    return out_pdf
+
+
 def ocr_pdf(input_path, out_pdf, langs='eng+asm+hin'):
     """
     Make a scanned PDF searchable (adds a text layer) via ocrmypdf + Tesseract.
