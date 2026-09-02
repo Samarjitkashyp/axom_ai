@@ -198,12 +198,11 @@ export const ALL_TOOLS = [
     name: 'Remove Watermark',
     cat: 'Optimize',
     icon: Eraser,
-    ep: 'pdf',
-    op: 'wmremove',
+    wmeditor: true,
     accept: '.pdf',
     multi: false,
     hint: 'PDF file',
-    desc: 'Remove logo/stamp watermarks and annotations that repeat on every page (best-effort).',
+    desc: 'Open a visual editor: auto-scan for watermarks, box any watermark and erase it (content-aware).',
   },
 
   // Security

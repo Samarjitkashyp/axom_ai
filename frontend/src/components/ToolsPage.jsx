@@ -26,6 +26,7 @@ export default function ToolsPage({
   onBackToChat,
   onOpenEditor,
   onOpenCompressor,
+  onOpenWmRemover,
   theme,
   onToggleTheme,
 }) {
@@ -95,6 +96,10 @@ export default function ToolsPage({
     }
     if (t.compressor) {
       onOpenCompressor?.();
+      return;
+    }
+    if (t.wmeditor) {
+      onOpenWmRemover?.();
       return;
     }
     resetRunner();

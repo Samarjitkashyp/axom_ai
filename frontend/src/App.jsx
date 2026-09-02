@@ -9,6 +9,7 @@ import LoginModal from './components/LoginModal';
 import DocConverterModal from './components/DocConverterModal';
 import PdfEditor from './components/PdfEditor';
 import PdfCompressor from './components/PdfCompressor';
+import WatermarkRemover from './components/WatermarkRemover';
 import SubscriptionPage from './components/SubscriptionPage';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
@@ -43,6 +44,7 @@ export default function App() {
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
+  const [isWmOpen, setIsWmOpen] = useState(false);
 
   // Login Modal state
   const [loginModalState, setLoginModalState] = useState({
@@ -199,6 +201,7 @@ export default function App() {
           onBackToChat={navigateToChat}
           onOpenEditor={() => setIsEditorOpen(true)}
           onOpenCompressor={() => setIsCompressorOpen(true)}
+          onOpenWmRemover={() => setIsWmOpen(true)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
         />
@@ -307,6 +310,9 @@ export default function App() {
 
       {/* FULL-SCREEN PDF COMPRESSOR */}
       {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
+
+      {/* FULL-SCREEN WATERMARK REMOVER */}
+      {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
 
       {/* BEAUTIFUL CREDENTIALS MODAL */}
       <LoginModal

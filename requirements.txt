@@ -19,3 +19,4 @@ docx2pdf>=0.1.8; sys_platform == "win32"      # native Word->PDF, Windows only (
 pdf2docx>=0.5.6                               # PDF -> Word (.docx)
 img2pdf>=0.5.0                                # PNG/JPG -> PDF (lossless)
 PyMuPDF>=1.24.0                               # PDF -> PNG/JPG (page rendering)
+opencv-python-headless>=4.8.0                 # content-aware watermark inpainting

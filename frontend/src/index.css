@@ -5332,3 +5332,38 @@ body.light-theme .tools-topbar {
   cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; padding: 0;
 }
 .tool-ws-thumb-x:hover { background: #dc2626; }
+
+/* ============================================================
+   Watermark Remover (visual editor)
+   ============================================================ */
+.wm-overlay { position: fixed; inset: 0; z-index: 72; background: var(--bg-primary, #0b0b12); display: flex; flex-direction: column; }
+.wm-topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary, rgba(255,255,255,0.02)); flex-wrap: wrap; }
+.wm-title-area { display: flex; align-items: center; gap: 11px; }
+.wm-badge { width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #10b981; background: rgba(16,185,129,0.14); }
+.wm-title { margin: 0; font-size: 0.98rem; font-weight: 700; color: var(--text-primary); }
+.wm-sub { margin: 1px 0 0; font-size: 0.76rem; color: var(--text-muted); }
+.wm-tools { display: flex; align-items: center; gap: 7px; flex: 1; flex-wrap: wrap; }
+.wm-modebtn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 11px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); }
+.wm-modebtn.on { background: var(--accent-purple, #8b5cf6); color: #fff; border-color: transparent; }
+.wm-modebtn:disabled { opacity: 0.6; cursor: default; }
+.wm-run { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9px; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; background: #10b981; color: #fff; }
+.wm-run:disabled { opacity: 0.5; cursor: default; }
+.wm-close { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 9px; padding: 8px 10px; cursor: pointer; }
+.wm-uploadwrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.wm-dropzone { cursor: pointer; text-align: center; color: var(--text-secondary); border: 2px dashed var(--border-color); border-radius: 16px; padding: 56px 72px; max-width: 560px; }
+.wm-dropzone.active { border-color: #10b981; background: rgba(16,185,129,0.06); }
+.wm-dropzone h3 { margin: 12px 0 4px; color: var(--text-primary); }
+.wm-browse { display: inline-block; margin-top: 16px; padding: 9px 22px; border-radius: 10px; background: #10b981; color: #fff; font-weight: 600; font-size: 0.85rem; }
+.wm-scanbar { display: flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 0.82rem; border-bottom: 1px solid var(--border-color); }
+.wm-scanbar.ok { color: #22c55e; background: rgba(34,197,94,0.08); }
+.wm-scanbar.warn { color: #f59e0b; background: rgba(245,158,11,0.08); }
+.wm-scanbar.err { color: #f87171; background: rgba(248,113,113,0.08); }
+.wm-canvas-area { flex: 1; overflow: auto; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px; background: var(--bg-secondary, rgba(0,0,0,0.15)); }
+.wm-page { position: relative; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.4); cursor: crosshair; flex-shrink: 0; }
+.wm-box { position: absolute; border: 2px solid #ef4444; background: rgba(239,68,68,0.18); box-sizing: border-box; }
+.wm-box.drawing { border-style: dashed; background: rgba(239,68,68,0.12); pointer-events: none; }
+.wm-box-x { position: absolute; top: -10px; right: -10px; width: 20px; height: 20px; border-radius: 50%; background: #ef4444; color: #fff; border: 2px solid var(--bg-primary,#0b0b12); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+.wm-hint { font-size: 0.78rem; color: var(--text-muted); max-width: 620px; text-align: center; padding-bottom: 20px; }
+.wm-result { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-primary); }
+.wm-result h3 { margin: 4px 0 0; }
+.wm-result p { color: var(--text-muted); font-size: 0.84rem; margin: 0 0 8px; }

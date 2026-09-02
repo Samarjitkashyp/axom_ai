@@ -40,6 +40,8 @@ urlpatterns = [
     path('api/convert-file/', views.convert_file_api, name='convert_file_api'),
     path('api/pdf-tool/', views.pdf_tool_api, name='pdf_tool_api'),
     path('api/pdf-ai/', views.pdf_ai_api, name='pdf_ai_api'),
+    path('api/detect-watermark/', views.detect_watermark_api, name='detect_watermark_api'),
+    path('api/remove-watermark/', views.remove_watermark_api, name='remove_watermark_api'),
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
 ]

@@ -1300,3 +1300,82 @@ def pdf_ai_api(request):
                             status=503)
 
     return JsonResponse({'success': True, 'text': answer, 'op': op})
+
+
+def detect_watermark_api(request):
+    """Scan a PDF for watermark indicators. Returns JSON (no file)."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
+    f = request.FILES.get('file')
+    if not f or not f.name.lower().endswith('.pdf'):
+        return JsonResponse({'error': 'Please upload a .pdf file.'}, status=400)
+    if f.size > 40 * 1024 * 1024:
+        return JsonResponse({'error': 'File exceeds the 40MB limit.'}, status=400)
+
+    import uuid
+    upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+    os.makedirs(upload_dir, exist_ok=True)
+    path = os.path.join(upload_dir, f"wd_{uuid.uuid4().hex[:8]}.pdf")
+    with open(path, 'wb+') as d:
+        for chunk in f.chunks():
+            d.write(chunk)
+    try:
+        from knowledge.watermark_tools import detect_watermark
+        info = detect_watermark(path)
+    except Exception as e:
+        return JsonResponse({'error': f'Scan failed: {str(e)}'}, status=500)
+    finally:
+        try:
+            os.remove(path)
+        except Exception:
+            pass
+    return JsonResponse({'success': True, **info})
+
+
+def remove_watermark_api(request):
+    """Remove user-selected watermark regions. POST: file, regions (JSON), mode."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
+    f = request.FILES.get('file')
+    if not f or not f.name.lower().endswith('.pdf'):
+        return JsonResponse({'error': 'Please upload a .pdf file.'}, status=400)
+    if f.size > 40 * 1024 * 1024:
+        return JsonResponse({'error': 'File exceeds the 40MB limit.'}, status=400)
+
+    try:
+        regions = json.loads(request.POST.get('regions', '{}'))
+    except Exception:
+        regions = {}
+    if not regions:
+        return JsonResponse({'error': 'Select at least one watermark region to remove.'}, status=400)
+    mode = (request.POST.get('mode', 'inpaint') or 'inpaint').lower()
+
+    import uuid
+    upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+    out_dir = os.path.join(settings.MEDIA_ROOT, 'converted_files')
+    os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(out_dir, exist_ok=True)
+    uid = uuid.uuid4().hex[:8]
+    stem = "".join(c for c in os.path.splitext(f.name)[0] if c.isalnum() or c in (' ', '_', '-')).strip() or 'file'
+    in_path = os.path.join(upload_dir, f"{stem}_{uid}.pdf")
+    out = os.path.join(out_dir, f"{stem}_{uid}_nowm.pdf")
+    with open(in_path, 'wb+') as d:
+        for chunk in f.chunks():
+            d.write(chunk)
+    try:
+        from knowledge.watermark_tools import remove_watermark_regions
+        remove_watermark_regions(in_path, out, regions, mode)
+    except Exception as e:
+        return JsonResponse({'error': f'Removal failed: {str(e)}'}, status=500)
+
+    fname = os.path.basename(out)
+    size = os.path.getsize(out)
+    size_str = f"{size / 1024:.1f} KB" if size < 1024 * 1024 else f"{size / (1024 * 1024):.2f} MB"
+    return JsonResponse({
+        'success': True, 'filename': fname, 'output_name': f"{stem}_nowm.pdf",
+        'download_url': f"/api/download-converted-file/{fname}", 'file_size': size_str,
+    })
