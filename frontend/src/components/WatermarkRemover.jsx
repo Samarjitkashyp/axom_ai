@@ -64,7 +64,7 @@ export default function WatermarkRemover({ onClose }) {
       const d = await r.json();
       if (!r.ok || !d.success) throw new Error(d.error || 'Scan failed');
       if (d.found) {
-        setScanMsg({ found: true, text: 'Possible watermark detected: ' + d.reasons.join('; ') + '. Highlighted below — adjust boxes if needed, then Remove.' });
+        setScanMsg({ found: true, text: 'Watermark detected: ' + d.reasons.join('; ') + '. Highlighted below — click Smart Remove (or draw/adjust boxes first).' });
         // detection keys pages 0-based; the editor keys them by 1-based page number
         const s1 = {};
         Object.entries(d.suspects || {}).forEach(([k, v]) => { s1[Number(k) + 1] = v; });
@@ -108,20 +108,41 @@ export default function WatermarkRemover({ onClose }) {
   const removeBox = (num, idx) => setRegions((rs) => ({ ...rs, [num]: (rs[num] || []).filter((_, i) => i !== idx) }));
   const boxCount = Object.values(regions).reduce((a, b) => a + b.length, 0);
 
-  const runRemove = async () => {
-    if (!file || boxCount === 0) { setErrorMsg('Draw a box over the watermark first.'); return; }
+  const autoDetectRegions = async () => {
+    const fd = new FormData(); fd.append('file', file);
+    const r = await fetch('/api/detect-watermark/', { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() || '' }, body: fd });
+    const d = await r.json();
+    if (!r.ok || !d.success) return {};
+    const s1 = {};
+    Object.entries(d.suspects || {}).forEach(([k, v]) => { s1[Number(k) + 1] = v; });
+    return s1;
+  };
+
+  // One-click: auto-detect (if nothing boxed) then remove with the chosen mode.
+  const runRemove = async (chosenMode) => {
+    if (!file) return;
     setProcessing(true); setErrorMsg(null); setResult(null);
-    // regions keyed by 0-based page index for the server
-    const server = {};
-    Object.entries(regions).forEach(([num, boxes]) => { server[String(num - 1)] = boxes; });
-    const fd = new FormData();
-    fd.append('file', file); fd.append('mode', mode); fd.append('regions', JSON.stringify(server));
     try {
+      let regs = regions;
+      const count = (r) => Object.values(r).reduce((a, b) => a + b.length, 0);
+      if (count(regs) === 0) {
+        regs = await autoDetectRegions();
+        if (count(regs) === 0) {
+          setErrorMsg('No watermark detected automatically. Draw a box over the watermark, then try again.');
+          setProcessing(false);
+          return;
+        }
+        setRegions(regs);
+      }
+      const server = {};
+      Object.entries(regs).forEach(([num, boxes]) => { server[String(num - 1)] = boxes; });
+      const fd = new FormData();
+      fd.append('file', file); fd.append('mode', chosenMode); fd.append('regions', JSON.stringify(server));
       const r = await fetch('/api/remove-watermark/', { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() || '' }, body: fd });
       const d = await r.json();
       if (!r.ok || !d.success) throw new Error(d.error || 'Removal failed');
       setResult(d);
-    } catch (e) { setErrorMsg(e.message); }
+    } catch (e) { setErrorMsg(e.message || 'Something went wrong.'); }
     finally { setProcessing(false); }
   };
 
@@ -142,13 +163,17 @@ export default function WatermarkRemover({ onClose }) {
           <span className="wm-badge"><Eraser size={18} /></span>
           <div><h3 className="wm-title">Remove Watermark</h3><p className="wm-sub">Scan, box any watermark, and erase it</p></div>
         </div>
-        {file && (
+        {file && !result && (
           <div className="wm-tools">
-            <button className={`wm-modebtn ${mode === 'inpaint' ? 'on' : ''}`} onClick={() => setMode('inpaint')} title="Content-aware fill (reconstructs background)"><Wand2 size={14} /> Smart remove</button>
-            <button className={`wm-modebtn ${mode === 'white' ? 'on' : ''}`} onClick={() => setMode('white')} title="Cover with white"><Eraser size={14} /> White erase</button>
-            <button className="wm-modebtn" onClick={() => scan(file)} disabled={scanning}>{scanning ? <Loader2 size={14} className="spin-icon" /> : <ScanSearch size={14} />} Scan</button>
-            <button className="wm-run" onClick={runRemove} disabled={processing || boxCount === 0}>
-              {processing ? <><Loader2 size={14} className="spin-icon" /> Removing…</> : <>Remove ({boxCount})</>}
+            <span className="wm-count">{boxCount} region{boxCount === 1 ? '' : 's'} selected</span>
+            <button className="wm-modebtn" onClick={() => scan(file)} disabled={scanning || processing} title="Re-scan for watermarks">
+              {scanning ? <Loader2 size={14} className="spin-icon" /> : <ScanSearch size={14} />} Scan
+            </button>
+            <button className="wm-run" onClick={() => runRemove('inpaint')} disabled={processing} title="Auto-detect (if needed) and remove — reconstructs the background">
+              {processing ? <><Loader2 size={14} className="spin-icon" /> Removing…</> : <><Wand2 size={14} /> Smart Remove</>}
+            </button>
+            <button className="wm-modebtn" onClick={() => runRemove('white')} disabled={processing} title="Cover the watermark with white">
+              <Eraser size={14} /> White Erase
             </button>
           </div>
         )}

@@ -5367,3 +5367,6 @@ body.light-theme .tools-topbar {
 .wm-result { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-primary); }
 .wm-result h3 { margin: 4px 0 0; }
 .wm-result p { color: var(--text-muted); font-size: 0.84rem; margin: 0 0 8px; }
+
+.wm-count { font-size: 0.78rem; color: var(--text-muted); margin-right: 4px; }
+.wm-result .wm-run { font-size: 0.95rem; padding: 12px 28px; }
