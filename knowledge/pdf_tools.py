@@ -124,16 +124,124 @@ def add_page_numbers(path, out):
     return out
 
 
-def watermark_pdf(path, text, out):
+def _load_font(size):
+    from PIL import ImageFont
+    for p in ('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+              '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+              'C:/Windows/Fonts/arialbd.ttf', 'C:/Windows/Fonts/arial.ttf'):
+        try:
+            return ImageFont.truetype(p, size)
+        except Exception:
+            continue
+    return ImageFont.load_default()
+
+
+def watermark_pdf(path, text, out, opacity=0.15, size=48, color='#888888',
+                  rotation=45, position='diagonal'):
+    """
+    Canva-style watermark: builds a transparent PNG stamp of the text (colour,
+    opacity, font-size, rotation) and overlays it — centred, diagonal, or tiled
+    across every page.
+    """
+    import io
+    from PIL import Image, ImageDraw
+
+    try:
+        opacity = float(opacity)
+    except (TypeError, ValueError):
+        opacity = 0.15
+    try:
+        size = int(size)
+    except (TypeError, ValueError):
+        size = 48
+    c = (color or '#888888').lstrip('#')
+    if len(c) != 6:
+        c = '888888'
+    rgb = (int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16))
+    alpha = max(0, min(255, int(opacity * 255)))
+    text = (text or 'CONFIDENTIAL')
+
+    # 1. render the text to a transparent PNG stamp
+    font = _load_font(size)
+    tmp = Image.new('RGBA', (10, 10))
+    bbox = ImageDraw.Draw(tmp).textbbox((0, 0), text, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    pad = max(12, size // 3)
+    stamp = Image.new('RGBA', (tw + pad * 2, th + pad * 2), (0, 0, 0, 0))
+    ImageDraw.Draw(stamp).text((pad - bbox[0], pad - bbox[1]), text, font=font, fill=rgb + (alpha,))
+    if position in ('diagonal', 'tile') and rotation:
+        stamp = stamp.rotate(float(rotation), expand=True, resample=Image.BICUBIC)
+    buf = io.BytesIO(); stamp.save(buf, 'PNG'); png = buf.getvalue()
+    sw, sh = stamp.size
+
     doc = pymupdf.open(path)
     try:
         for page in doc:
-            r = page.rect
-            # Big, light, centred watermark across each page.
-            page.insert_textbox(
-                pymupdf.Rect(0, r.height / 2 - 40, r.width, r.height / 2 + 40),
-                text, fontsize=44, color=(0.8, 0.8, 0.8), align=1, overlay=True)
+            pr = page.rect
+            if position == 'tile':
+                step_x, step_y = sw * 1.15, sh * 1.5
+                y = 0
+                while y < pr.height:
+                    x = 0
+                    while x < pr.width:
+                        page.insert_image(pymupdf.Rect(x, y, x + sw, y + sh), stream=png, overlay=True)
+                        x += step_x
+                    y += step_y
+            else:
+                if position == 'top':
+                    cy = min(pr.height * 0.12, sh)
+                elif position == 'bottom':
+                    cy = pr.height - sh / 2 - 12
+                else:  # center / diagonal
+                    cy = pr.height / 2
+                cx = pr.width / 2
+                # scale down if the stamp is wider than the page
+                scale = min(1.0, (pr.width - 20) / sw)
+                w, h = sw * scale, sh * scale
+                page.insert_image(pymupdf.Rect(cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2),
+                                  stream=png, overlay=True)
         doc.save(out)
+    finally:
+        doc.close()
+    return out
+
+
+def remove_watermark(path, out):
+    """
+    Best-effort watermark removal: deletes annotations and images that repeat on
+    EVERY page (typical logo/stamp watermarks). Cannot remove text baked into the
+    page content without also removing real content.
+    """
+    doc = pymupdf.open(path)
+    try:
+        page_imgs = []
+        for page in doc:
+            try:
+                page_imgs.append({img[0] for img in page.get_images(full=True)})
+            except Exception:
+                page_imgs.append(set())
+        common = set.intersection(*page_imgs) if len(page_imgs) > 1 and all(page_imgs) else set()
+
+        for page in doc:
+            # 1. drop annotations (stamp/watermark annots)
+            try:
+                for annot in list(page.annots() or []):
+                    page.delete_annot(annot)
+            except Exception:
+                pass
+            # 2. redact repeating (watermark) images
+            for img in page.get_images(full=True):
+                if img[0] in common:
+                    try:
+                        for rect in page.get_image_rects(img[0]):
+                            page.add_redact_annot(rect)
+                    except Exception:
+                        pass
+            try:
+                page.apply_redactions()
+            except Exception:
+                pass
+        doc.save(out, garbage=4, deflate=True)
     finally:
         doc.close()
     return out

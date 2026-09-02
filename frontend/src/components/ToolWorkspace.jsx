@@ -27,8 +27,10 @@ export default function ToolWorkspace({ tool, onClose }) {
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [wm, setWm] = useState({ text: 'CONFIDENTIAL', position: 'diagonal', opacity: 0.15, size: 48, color: '#888888' });
   const inputRef = useRef(null);
   const theme = themeFor(tool.cat);
+  const WM_COLORS = ['#888888', '#dc2626', '#2563eb', '#16a34a', '#111827'];
 
   const makePreview = useCallback(async (f) => {
     const ext = f.name.split('.').pop().toLowerCase();
@@ -61,9 +63,18 @@ export default function ToolWorkspace({ tool, onClose }) {
       if (allowed[0] && !allowed.includes(ext)) { setErrorMsg(`"${f.name}" is not valid for this tool. Allowed: ${tool.hint}.`); return; }
       if (f.size > 40 * 1024 * 1024) { setErrorMsg(`"${f.name}" exceeds the 40 MB limit.`); return; }
     }
-    const chosen = tool.multi ? arr : [arr[0]];
-    setFiles(chosen);
-    setPreviews(await Promise.all(chosen.map(makePreview)));
+    // For multi-file tools (merge, image→PDF) APPEND to the existing list so
+    // "Add more" accumulates files instead of replacing them.
+    const merged = tool.multi ? [...files, ...arr] : [arr[0]];
+    setFiles(merged);
+    setPreviews(await Promise.all(merged.map(makePreview)));
+    if (inputRef.current) inputRef.current.value = ''; // allow re-picking the same file
+  };
+
+  const removeFile = (idx) => {
+    setFiles((fs) => fs.filter((_, i) => i !== idx));
+    setPreviews((ps) => ps.filter((_, i) => i !== idx));
+    setResult(null);
   };
 
   const handleDrag = (e) => {
@@ -89,6 +100,14 @@ export default function ToolWorkspace({ tool, onClose }) {
     if (tool.param === 'question') fd.append('question', paramText.trim());
     if (tool.param === 'angle') fd.append('angle', angle);
     if (tool.param === 'lang') fd.append('lang', angle);
+    if (tool.op === 'watermark') {
+      fd.append('text', (wm.text || 'CONFIDENTIAL'));
+      fd.append('position', wm.position);
+      fd.append('opacity', String(wm.opacity));
+      fd.append('size', String(wm.size));
+      fd.append('color', wm.color);
+      fd.append('rotation', ['center', 'top', 'bottom'].includes(wm.position) ? '0' : '45');
+    }
     try {
       const res = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() || '' }, body: fd });
       const data = await res.json();
@@ -149,8 +168,9 @@ export default function ToolWorkspace({ tool, onClose }) {
               <div className="tool-ws-thumbs">
                 {files.map((f, i) => (
                   <div key={i} className="tool-ws-thumb">
+                    <button className="tool-ws-thumb-x" title="Remove" onClick={() => removeFile(i)}><X size={13} /></button>
                     {previews[i] ? <img src={previews[i]} alt="" /> : <div className="tool-ws-fileicon"><FileText size={30} /></div>}
-                    <span title={f.name}>{f.name}</span>
+                    <span title={f.name}>{i + 1}. {f.name}</span>
                   </div>
                 ))}
               </div>
@@ -167,6 +187,37 @@ export default function ToolWorkspace({ tool, onClose }) {
             {!result ? (
               <>
                 <h3 className="tool-ws-panel-title">Options</h3>
+
+                {tool.op === 'watermark' && (
+                  <>
+                    <label className="tool-ws-field"><span>Watermark text</span>
+                      <input type="text" value={wm.text} onChange={(e) => setWm({ ...wm, text: e.target.value })} placeholder="CONFIDENTIAL" />
+                    </label>
+                    <label className="tool-ws-field"><span>Position</span>
+                      <select value={wm.position} onChange={(e) => setWm({ ...wm, position: e.target.value })}>
+                        <option value="diagonal">Diagonal (centre, 45°)</option>
+                        <option value="tile">Tiled (repeat across page)</option>
+                        <option value="center">Centre (horizontal)</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                      </select>
+                    </label>
+                    <label className="tool-ws-field"><span>Opacity — {Math.round(wm.opacity * 100)}%</span>
+                      <input type="range" min="5" max="80" value={Math.round(wm.opacity * 100)} onChange={(e) => setWm({ ...wm, opacity: e.target.value / 100 })} style={{ width: '100%' }} />
+                    </label>
+                    <label className="tool-ws-field"><span>Font size — {wm.size}px</span>
+                      <input type="range" min="18" max="120" value={wm.size} onChange={(e) => setWm({ ...wm, size: +e.target.value })} style={{ width: '100%' }} />
+                    </label>
+                    <div className="tool-ws-field"><span>Colour</span>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                        {WM_COLORS.map((c) => (
+                          <button key={c} onClick={() => setWm({ ...wm, color: c })} title={c}
+                            style={{ width: 24, height: 24, borderRadius: '50%', background: c, cursor: 'pointer', border: wm.color === c ? '2px solid var(--text-primary)' : '2px solid transparent', boxShadow: '0 0 0 1px var(--border-color)' }} />
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {tool.param === 'angle' && (
                   <label className="tool-ws-field"><span>Rotation angle</span>
@@ -194,7 +245,7 @@ export default function ToolWorkspace({ tool, onClose }) {
                 {tool.multi && (
                   <button className="tool-ws-addmore" onClick={() => inputRef.current?.click()}>+ Add more file{tool.op === 'merge' ? 's' : ''}</button>
                 )}
-                {!tool.param && !tool.multi && (
+                {!tool.param && !tool.multi && tool.op !== 'watermark' && (
                   <p className="tool-ws-note">No settings needed — just run the tool.</p>
                 )}
 

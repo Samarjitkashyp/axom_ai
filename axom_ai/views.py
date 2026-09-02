@@ -1082,7 +1082,7 @@ def pdf_tool_api(request):
 
     op = (request.POST.get('op', '') or '').lower().strip()
     valid_ops = {'merge', 'split', 'compress', 'rotate', 'delete',
-                 'extract', 'numbers', 'watermark', 'protect', 'unlock', 'ocr'}
+                 'extract', 'numbers', 'watermark', 'wmremove', 'protect', 'unlock', 'ocr'}
     if op not in valid_ops:
         return JsonResponse({'error': f'Unknown operation: {op}'}, status=400)
 
@@ -1157,10 +1157,21 @@ def pdf_tool_api(request):
             T.add_page_numbers(first_path, out)
             out_name = f"{stem}_numbered.pdf"
         elif op == 'watermark':
-            text = (request.POST.get('text', '') or 'CONFIDENTIAL').strip()[:60]
+            text = (request.POST.get('text', '') or 'CONFIDENTIAL').strip()[:80]
             out = os.path.join(out_dir, f"{stem}_{uid}_watermarked.pdf")
-            T.watermark_pdf(first_path, text, out)
+            T.watermark_pdf(
+                first_path, text, out,
+                opacity=request.POST.get('opacity', '0.15'),
+                size=request.POST.get('size', '48'),
+                color=request.POST.get('color', '#888888'),
+                rotation=request.POST.get('rotation', '45'),
+                position=(request.POST.get('position', 'diagonal') or 'diagonal').lower(),
+            )
             out_name = f"{stem}_watermarked.pdf"
+        elif op == 'wmremove':
+            out = os.path.join(out_dir, f"{stem}_{uid}_clean.pdf")
+            T.remove_watermark(first_path, out)
+            out_name = f"{stem}_clean.pdf"
         elif op == 'protect':
             pw = request.POST.get('password', '').strip()
             if not pw:

@@ -5323,3 +5323,12 @@ body.light-theme .tools-topbar {
   .tool-ws-preview { min-height: 40vh; }
   .tool-ws-dropzone { padding: 44px 28px; }
 }
+
+/* thumbnail remove button (multi-file tools) */
+.tool-ws-thumb { position: relative; }
+.tool-ws-thumb-x {
+  position: absolute; top: -6px; right: 4px; width: 20px; height: 20px;
+  border-radius: 50%; background: #ef4444; color: #fff; border: 2px solid var(--bg-primary, #0b0b12);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; padding: 0;
+}
+.tool-ws-thumb-x:hover { background: #dc2626; }
