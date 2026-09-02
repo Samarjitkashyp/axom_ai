@@ -234,7 +234,10 @@ export default function WatermarkRemover({ onClose }) {
                   <canvas ref={(el) => (bgRefs.current[m.num] = el)} style={{ position: 'absolute', inset: 0 }} />
                   {(regions[m.num] || []).map((b, i) => (
                     <div key={i} className="wm-box" style={{ left: b[0] * m.wPx, top: b[1] * m.hPx, width: (b[2] - b[0]) * m.wPx, height: (b[3] - b[1]) * m.hPx }}>
-                      <button className="wm-box-x" onClick={(e) => { e.stopPropagation(); removeBox(m.num, i); }}><Trash2 size={11} /></button>
+                      <span className="wm-box-label">Watermark detected</span>
+                      <button className="wm-box-x" title="Unselect this area (does NOT remove the watermark — use Smart Remove for that)" onClick={(e) => { e.stopPropagation(); removeBox(m.num, i); }}>
+                        <X size={11} /> <span className="wm-box-x-text">Unselect</span>
+                      </button>
                     </div>
                   ))}
                   {drawBox && drawBox.num === m.num && (
