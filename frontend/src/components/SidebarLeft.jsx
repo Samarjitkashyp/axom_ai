@@ -105,15 +105,6 @@ export default function SidebarLeft({
           <span className="btn-text">New Chat</span>
           <span className="shortcut-badge">Ctrl+K</span>
         </button>
-        <button
-          className="btn-sidebar-tool"
-          onClick={onOpenDocConverter}
-          title="Convert DOC/DOCX to PDF"
-        >
-          <FileText size={15} className="btn-icon" style={{ color: '#c084fc' }} />
-          <span className="btn-text">Doc to PDF</span>
-          <span className="tool-badge">Tool</span>
-        </button>
       </div>
 
       {/* Recent Chats Section */}

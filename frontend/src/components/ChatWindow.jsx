@@ -455,22 +455,6 @@ export default function ChatWindow({
               </h2>
             </div>
 
-            {/* Hero Quick Tool Shortcut */}
-            <div className="hero-tools-grid">
-              <button
-                className="hero-tool-card"
-                onClick={onOpenDocConverterModal}
-                title="Open all converter & PDF tools"
-              >
-                <div className="hero-tool-icon" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
-                  <Sparkles size={18} />
-                </div>
-                <div className="hero-tool-text">
-                  <span className="hero-tool-title">View All Converter Tools</span>
-                  <span className="hero-tool-desc">PDF ⇄ Word, images, merge, split, compress & more</span>
-                </div>
-              </button>
-            </div>
           </div>
         ) : (
           /* Chat Messages Feed */

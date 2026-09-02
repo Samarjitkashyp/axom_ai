@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   X, UploadCloud, FileText, CheckCircle, AlertCircle, Download, Loader2,
   ChevronLeft, FileType2, Image as ImageIcon, Combine, Scissors, Trash2,
@@ -61,6 +61,15 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor }) {
   const [errorMsg, setErrorMsg] = useState(null);
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Reset back to the tool grid whenever the modal closes, so reopening
+  // always starts fresh instead of re-showing the last-used tool.
+  useEffect(() => {
+    if (!isOpen) {
+      setTool(null); setFiles([]); setParamText(''); setAngle('90');
+      setResult(null); setErrorMsg(null); setIsRunning(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
