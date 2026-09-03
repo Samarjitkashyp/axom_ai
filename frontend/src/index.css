@@ -5279,6 +5279,25 @@ body.light-theme .tools-topbar {
   background: var(--bg-secondary, rgba(0,0,0,0.15));
 }
 .tool-ws-preview-img { max-width: 100%; max-height: 62vh; border-radius: 10px; box-shadow: 0 8px 34px rgba(0,0,0,0.45); background: #fff; }
+/* Word (.docx) rendered as a real "paper" page preview */
+.tool-ws-docpage {
+  width: 100%; max-width: 620px; max-height: 70vh; overflow-y: auto;
+  background: #fff; color: #1a1a1a; border-radius: 6px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.45); align-self: center;
+}
+.tool-ws-docpage-inner {
+  padding: 48px 54px; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+  font-size: 15px; line-height: 1.6; text-align: left;
+}
+.tool-ws-docpage-inner h1 { font-size: 1.7rem; margin: 0 0 12px; }
+.tool-ws-docpage-inner h2 { font-size: 1.35rem; margin: 20px 0 10px; }
+.tool-ws-docpage-inner h3 { font-size: 1.12rem; margin: 16px 0 8px; }
+.tool-ws-docpage-inner p { margin: 0 0 10px; }
+.tool-ws-docpage-inner ul, .tool-ws-docpage-inner ol { margin: 0 0 10px 22px; }
+.tool-ws-docpage-inner table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+.tool-ws-docpage-inner td, .tool-ws-docpage-inner th { border: 1px solid #cfcfcf; padding: 6px 9px; }
+.tool-ws-docpage-inner img { max-width: 100%; height: auto; }
+.tool-ws-docpage-inner a { color: #2563eb; }
 .tool-ws-fileicon-lg { display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--text-muted); }
 .tool-ws-fileicon-lg span { font-size: 0.82rem; max-width: 260px; word-break: break-all; text-align: center; }
 .tool-ws-fileinfo { font-size: 0.8rem; color: var(--text-muted); text-align: center; }

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import mammoth from 'mammoth/mammoth.browser';
 import {
   X, UploadCloud, Loader2, Download, CheckCircle, AlertCircle, Copy, Check, FileText,
 } from 'lucide-react';
@@ -35,7 +36,8 @@ export default function ToolWorkspace({ tool, onClose }) {
   const makePreview = useCallback(async (f) => {
     const ext = f.name.split('.').pop().toLowerCase();
     if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
-      return await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(f); });
+      const url = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(f); });
+      return { kind: 'image', data: url };
     }
     if (ext === 'pdf') {
       try {
@@ -47,10 +49,18 @@ export default function ToolWorkspace({ tool, onClose }) {
         const vp = page.getViewport({ scale });
         const cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
         await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
-        return cv.toDataURL('image/png');
-      } catch (e) { return null; }
+        return { kind: 'image', data: cv.toDataURL('image/png') };
+      } catch (e) { return { kind: null }; }
     }
-    return null; // office/other -> generic icon
+    if (ext === 'docx') {
+      // Render the actual Word content as an HTML "page" preview (client-side).
+      try {
+        const buf = await f.arrayBuffer();
+        const { value } = await mammoth.convertToHtml({ arrayBuffer: buf });
+        return { kind: 'html', data: value || '<p style="color:#888">(This document has no readable text.)</p>' };
+      } catch (e) { return { kind: null }; }
+    }
+    return { kind: null }; // .doc / office / other -> generic icon
   }, []);
 
   const chooseFiles = async (fileList) => {
@@ -172,13 +182,17 @@ export default function ToolWorkspace({ tool, onClose }) {
                 {files.map((f, i) => (
                   <div key={i} className="tool-ws-thumb">
                     <button className="tool-ws-thumb-x" title="Remove" onClick={() => removeFile(i)}><X size={13} /></button>
-                    {previews[i] ? <img src={previews[i]} alt="" /> : <div className="tool-ws-fileicon"><FileText size={30} /></div>}
+                    {previews[i]?.kind === 'image' ? <img src={previews[i].data} alt="" /> : <div className="tool-ws-fileicon"><FileText size={30} /></div>}
                     <span title={f.name}>{i + 1}. {f.name}</span>
                   </div>
                 ))}
               </div>
-            ) : previews[0] ? (
-              <img className="tool-ws-preview-img" src={previews[0]} alt="preview" />
+            ) : previews[0]?.kind === 'image' ? (
+              <img className="tool-ws-preview-img" src={previews[0].data} alt="preview" />
+            ) : previews[0]?.kind === 'html' ? (
+              <div className="tool-ws-docpage">
+                <div className="tool-ws-docpage-inner" dangerouslySetInnerHTML={{ __html: previews[0].data }} />
+              </div>
             ) : (
               <div className="tool-ws-fileicon-lg"><FileText size={54} /><span>{files[0].name}</span></div>
             )}
@@ -255,7 +269,7 @@ export default function ToolWorkspace({ tool, onClose }) {
                 {errorMsg && <div className="tool-ws-error"><AlertCircle size={15} /> {errorMsg}</div>}
 
                 <button className="tool-ws-run" style={{ background: theme.color, opacity: canRun && !isRunning ? 1 : 0.55 }} onClick={run} disabled={!canRun || isRunning}>
-                  {isRunning ? <><Loader2 size={16} className="spin-icon" /> Processing…</> : <>Run {tool.name}</>}
+                  {isRunning ? <><Loader2 size={16} className="spin-icon" /> Processing…</> : <>{tool.ep === 'convert' ? `Convert ${tool.name.replace(/→/g, 'to')}` : `Run ${tool.name}`}</>}
                 </button>
                 <button className="tool-ws-secondary" onClick={reset}>Choose another file</button>
                 {isRunning && <p className="tool-ws-note" style={{ marginTop: '10px' }}>Large / Office / OCR files can take a few seconds — hang tight.</p>}
