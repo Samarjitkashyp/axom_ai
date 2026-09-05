@@ -13,9 +13,12 @@ images, Office → PDF, OCR, compress, AI chat/summarize/translate) and an in-br
 ## ✨ Features
 
 - 💬 **ChatGPT-style chat** — token-by-token streaming with a typing indicator
-- 🗣️ **Assamese-only replies** — type in English / Hindi / Hinglish, always get a natural
-  **Assamese (অসমীয়া)** answer (KB answers served verbatim; the rest via Groq → IndicTrans2/Groq)
-- 🎯 **Accurate, no hallucination** — answers come verbatim from your knowledge base; the model
+- 🗣️ **Assamese-only replies** — type in English / Hindi / Hinglish / Roman Assamese, always get a
+  natural **Assamese (অসমীয়া)** answer (KB answers served verbatim; Wikipedia answers synthesized
+  by Groq into conversational Assamese; the rest via Groq → IndicTrans2/Groq)
+- 📖 **Wikipedia RAG** — 25K Assamese Wikipedia articles (112K chunks) with BGE-M3 embeddings,
+  synthesized into natural conversational answers (not raw dumps)
+- 🎯 **Accurate, no hallucination** — answers come from your knowledge base; the model
   is told never to invent names/dates/facts and to say "not certain" instead
 - ⚡ **Groq-first, streamed** — `openai/gpt-oss-120b` on Groq answers first (~0.7s), Gemini is the
   fallback (and handles web-search grounding)
@@ -52,16 +55,17 @@ editor and signature run entirely in the browser.
 ### How an answer is produced
 
 ```
-User question  (+ chosen reply language)
+User question  (any language — English / Hindi / Hinglish / Roman Assamese)
    │
    ├─ 1. INSTANT       → exact keyword match to a stored Q&A?    → verbatim (0 ms)
    │
-   ├─ 2. SEMANTIC      → closest meaning match (bge-m3 ≥ threshold)? → verbatim from the data
-   │        └─ language routing: verified Assamese record → used directly;
-   │           Hinglish → verbatim; English/Assamese → translated (facts kept exact)
+   ├─ 2. SEMANTIC      → closest meaning match (bge-m3 ≥ 0.72)?
+   │        ├─ Wikipedia hit  → Groq synthesizes a natural Assamese answer from the chunk
+   │        ├─ KB Assamese    → verified record returned directly (fast, no model)
+   │        └─ other          → translated (facts kept exact)
    │
-   └─ 3. MODEL         → nothing in the KB → local Ollama (offline) or Gemini,
-            answering in the chosen language and refusing to invent specific facts
+   └─ 3. MODEL         → nothing in the KB → Groq (primary) / Gemini (fallback),
+            answering in Assamese and refusing to invent specific facts
 ```
 
 ---
@@ -73,7 +77,8 @@ User question  (+ chosen reply language)
 | Backend | Django 5.2 (Python) |
 | Frontend | React 19 + Vite |
 | Database | PostgreSQL |
-| Semantic search | `BAAI/bge-m3` via sentence-transformers (multilingual embeddings) |
+| Semantic search | `BAAI/bge-m3` via sentence-transformers (multilingual, 1024-dim) |
+| Knowledge base | 114K+ QAPairs — 2.2K hand-curated + 112K Assamese Wikipedia chunks |
 | Primary LLM | **Groq** `openai/gpt-oss-120b` (fast, streamed) |
 | Fallback LLM | Google Gemini API (+ web-search grounding); Ollama for offline chat |
 | Assamese | IndicTrans2 (AI4Bharat) service + Groq/Gemini; DB-baked verified answers |
@@ -249,6 +254,14 @@ After uploading data, generate embeddings so semantic search works:
 python manage.py backfill_embeddings   # dedupes, trims paraphrases, embeds with bge-m3
 ```
 
+### Wikipedia import (pre-loaded on the live server)
+The Assamese Wikipedia dump (25K articles, 112K chunks) is already imported on the live server.
+To re-import or import on a new instance:
+```bash
+python manage.py import_assamese_wiki          # download + parse + chunk + insert
+python manage.py embed_wiki_titles             # fast: embed each title once, share across chunks
+```
+
 ---
 
 ## ⚙️ Configuration (`.env`)
@@ -320,7 +333,7 @@ Uses SSH secrets (`LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`). Test
 axom_ai/
 ├── axom_ai/            # Django project — chat API, language routing, streaming, views
 ├── knowledge/          # KB app — models, ingestion, semantic search, chat history
-│   └── management/     # backfill_embeddings, cleanup_old_chats commands
+│   └── management/     # backfill_embeddings, import_assamese_wiki, embed_wiki_titles
 ├── frontend/           # React + Vite source (build → static/dist)
 ├── static/             # CSS/JS + built frontend bundle
 ├── templates/          # Django templates (index, admin login)
@@ -337,9 +350,11 @@ axom_ai/
 ## 🩺 Troubleshooting
 
 - **Semantic search returns nothing** → run `python manage.py backfill_embeddings` after uploading data.
-- **First semantic reply is slow (~15s)** → bge-m3 is loading into RAM; it stays warm afterwards (pre-warmed on startup).
+- **First reply is slow** → bge-m3 model + 114K-entry QA matrix are pre-warmed on startup in a
+  background thread; the first query after a restart may still be slow if warmup hasn't finished.
 - **Answers come from Gemini, not local** → Ollama isn't running (`ollama serve`), or `USE_LOCAL_LLM=False`.
 - **Out-of-memory with bge-m3** → use **1 Gunicorn worker**, or a smaller embedding model / more RAM.
+  The QA matrix for 114K entries needs ~450 MB RAM.
 - **Admin panel shows chat instead of dashboard** → log in as a **staff** user at `/admin-panel/login/`.
 
 ---

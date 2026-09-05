@@ -380,10 +380,13 @@ def find_instant_answer(query, threshold=0.6):
     qn = _normalize(query)
 
     # DB-side pre-filter: only pull questions that share a keyword (fast at scale).
+    # Exclude Wikipedia chunks — they have long question fields that slow ILIKE
+    # scans and rarely match keyword search meaningfully (semantic search handles them).
     q_filter = Q()
     for t in q_tokens:
         q_filter |= Q(question__icontains=t)
-    candidates = QAPair.objects.filter(q_filter).only(
+    candidates = QAPair.objects.filter(q_filter).exclude(
+        source_name__startswith='Wikipedia:').only(
         'question', 'answer', 'answer_assamese', 'source_name', 'source_url')[:3000]
 
     best_answer, best_asm, best_src = None, '', None

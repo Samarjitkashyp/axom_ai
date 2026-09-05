@@ -24,8 +24,9 @@ class KnowledgeConfig(AppConfig):
             try:
                 from knowledge.models import QAPair
                 if QAPair.objects.exclude(embedding='').exists():
-                    from knowledge.utils import _get_model
+                    from knowledge.utils import _get_model, _load_qa_matrix
                     _get_model()
+                    _load_qa_matrix()
             except Exception:
                 pass
 

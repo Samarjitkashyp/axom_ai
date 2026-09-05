@@ -407,11 +407,16 @@ def chat_api_view(request):
         f"Today's date is {today}. You are Axom AI — a friendly, knowledgeable assistant focused on "
         "Assam (its history, culture, festivals, tourism, food, geography and people). "
         "ALWAYS reply in natural, native, everyday Assamese using correct Assamese script (অসমীয়া) and "
-        "grammar — the way an educated Assamese person actually speaks. Do NOT write English words in "
-        "Assamese script: greet with নমস্কাৰ (never হ্যালো/হাই), say ধন্যবাদ (never থেংক ইউ), and use the "
-        "Assamese ৰ, not the Bengali র. "
+        "grammar — the way an educated Assamese person actually speaks. "
+        "Users may write in Roman Assamese (e.g. 'Bihu kunuba hoi?'), Hindi, Hinglish, or English — "
+        "understand all of these, but ALWAYS reply in Assamese script. "
+        "Do NOT write English words in Assamese script: greet with নমস্কাৰ (never হ্যালো/হাই), "
+        "say ধন্যবাদ (never থেংক ইউ). "
+        "Use proper Assamese, NOT Bengali: use ৰ (not র), কৰ (not কর), হয় (not হয়). "
+        "Never use Bengali vocabulary or grammar — use a simpler Assamese word instead. "
+        "When knowledge-base context is provided, synthesize it into a clear, natural conversational "
+        "answer — do not copy-paste or dump raw text. "
         "Give clear, accurate, well-structured answers; use simple Markdown where it helps readability. "
-        "When internal database context is provided, prefer it and base your answer on it. "
         "IMPORTANT: Never invent specific facts — names of people or officials, who currently holds a "
         "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
     )
@@ -436,8 +441,11 @@ def chat_api_view(request):
 
     # 2b. Language routing for a KB hit (Hybrid: verified record first, else translate).
     translate_source = None
+    is_wiki = kb_source and str(kb_source.get('name', '')).startswith('Wikipedia:')
     if kb_answer:
-        if language == 'assamese' and kb_assamese.strip():
+        if is_wiki:
+            pass  # Wikipedia → synthesize a natural response via LLM below
+        elif language == 'assamese' and kb_assamese.strip():
             # Verified Assamese record → return it directly (accurate, no model).
             _save_chat(request, client_id, prompt, kb_assamese)
             return JsonResponse({
@@ -445,7 +453,7 @@ def chat_api_view(request):
                 'web_search': False, 'sources': [], 'engine': 'db-assamese',
                 'source': kb_source,
             })
-        if language == 'hinglish':
+        elif language == 'hinglish':
             # Stored data is already Hinglish → return verbatim (fast, no model).
             _save_chat(request, client_id, prompt, kb_answer)
             return JsonResponse({
@@ -453,10 +461,11 @@ def chat_api_view(request):
                 'web_search': False, 'sources': [], 'engine': 'instant',
                 'source': kb_source,
             })
-        # English, or Assamese without a stored record → translate the exact answer.
-        translate_source = kb_answer
+        else:
+            # English, or Assamese without a stored record → translate the exact answer.
+            translate_source = kb_answer
 
-    custom_context = translate_source or ""
+    custom_context = translate_source or (kb_answer if is_wiki else "")
     source_docs = []
 
     # Log questions the knowledge base couldn't answer — a gap to fill later.
@@ -518,6 +527,16 @@ def chat_api_view(request):
                 f"the same. Do not add, remove, or change any information. Output only the "
                 f"rewritten text:\n\n{translate_source}"
             )
+    elif is_wiki and kb_answer:
+        wiki_context = kb_assamese or kb_answer
+        final_prompt = (
+            f"Relevant Wikipedia content (use this to answer):\n\n"
+            f"{wiki_context}\n\n"
+            f"{hist_block}User Question: {prompt}\n\n"
+            f"Answer the question using the Wikipedia content above. Keep your answer "
+            f"natural, conversational, and focused on what the user asked — do not "
+            f"dump the entire passage. Reply in natural Assamese (অসমীয়া)."
+        )
     else:
         # system_instruction is sent separately (Gemini systemInstruction / Ollama system).
         final_prompt = f"{hist_block}User Question: {prompt}"
@@ -607,7 +626,7 @@ def chat_api_view(request):
     #        output — so we ask Gemini in English here. Any failure (service down,
     #        empty result) falls through to the normal Assamese flow below.
     if (language == 'assamese' and not translate_source and not web_search
-            and USE_INDICTRANS):
+            and USE_INDICTRANS and not (is_wiki and kb_answer)):
         en_system = (
             f"Today's date is {today}. Always write your reply in clear, natural English. "
             "You are Axom AI, a helpful, knowledgeable, and friendly assistant. Give a "
