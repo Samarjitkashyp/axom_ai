@@ -27,6 +27,7 @@ export default function ToolsPage({
   onOpenEditor,
   onOpenCompressor,
   onOpenWmRemover,
+  onOpenImageGen,
   theme,
   onToggleTheme,
 }) {
@@ -100,6 +101,10 @@ export default function ToolsPage({
     }
     if (t.wmeditor) {
       onOpenWmRemover?.();
+      return;
+    }
+    if (t.imagegen) {
+      onOpenImageGen?.();
       return;
     }
     resetRunner();

@@ -17,6 +17,7 @@ import {
   Sparkles,
   PenTool,
   Signature,
+  ImagePlus,
 } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
@@ -285,6 +286,15 @@ export const ALL_TOOLS = [
     param: 'lang',
     hint: 'PDF file',
     desc: 'Translate PDF text into Assamese, Hindi, English, and more with AI.',
+  },
+  {
+    id: 'imagegen',
+    name: 'Generate Image',
+    cat: 'AI Tools',
+    icon: ImagePlus,
+    imagegen: true,
+    hint: 'Prompt → image',
+    desc: 'Turn a text prompt into a high-quality image using FLUX (HuggingFace).',
   },
 
   // Interactive Canvas Editor

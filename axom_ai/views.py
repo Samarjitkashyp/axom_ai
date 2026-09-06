@@ -1398,3 +1398,139 @@ def remove_watermark_api(request):
         'success': True, 'filename': fname, 'output_name': f"{stem}_nowm.pdf",
         'download_url': f"/api/download-converted-file/{fname}", 'file_size': size_str,
     })
+
+
+# ---------------------------------------------------------------------------
+# Image generation via HuggingFace Inference Providers (FLUX.1 schnell / dev).
+# The heavy model runs on HF's GPUs — this box (8 GB RAM) only proxies the call.
+# ---------------------------------------------------------------------------
+# Model whitelist: short id from the client -> full HF model id.
+_IMGGEN_MODELS = {
+    'schnell': 'black-forest-labs/FLUX.1-schnell',   # ~7s, Apache-2.0
+    'dev':     'black-forest-labs/FLUX.1-dev',       # ~7s, higher quality
+}
+# Stricter per-IP limit than chat: each call costs HF credits.
+_IMGGEN_RATE_LIMIT = int(os.getenv('IMGGEN_RATE_LIMIT', '6'))
+_IMGGEN_RATE_WINDOW = int(os.getenv('IMGGEN_RATE_WINDOW', '60'))
+_IMGGEN_HITS = {}
+# HF Inference timeout (schnell ~7s, dev up to ~15s; keep some slack).
+_IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
+
+
+def _imggen_rate_limited(ip):
+    now = time.time()
+    hits = [t for t in _IMGGEN_HITS.get(ip, []) if now - t < _IMGGEN_RATE_WINDOW]
+    if len(hits) >= _IMGGEN_RATE_LIMIT:
+        _IMGGEN_HITS[ip] = hits
+        return True
+    hits.append(now)
+    _IMGGEN_HITS[ip] = hits
+    return False
+
+
+def generate_image_api(request):
+    """POST JSON: {prompt, model?, width?, height?, negative_prompt?, seed?}.
+    Returns {success, image: 'data:image/png;base64,...', model, size, ms}.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    ip = _client_ip(request)
+    if _imggen_rate_limited(ip):
+        return JsonResponse({
+            'error': f'Too many image requests. Please wait ~{_IMGGEN_RATE_WINDOW}s.',
+        }, status=429)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+
+    prompt = (payload.get('prompt') or '').strip()
+    if not prompt:
+        return JsonResponse({'error': 'Prompt is required.'}, status=400)
+    if len(prompt) > 1000:
+        return JsonResponse({'error': 'Prompt exceeds 1000 characters.'}, status=400)
+
+    model_key = (payload.get('model') or 'schnell').strip().lower()
+    if model_key not in _IMGGEN_MODELS:
+        return JsonResponse({
+            'error': f'Unknown model. Choose one of: {", ".join(_IMGGEN_MODELS)}.',
+        }, status=400)
+    model_id = _IMGGEN_MODELS[model_key]
+
+    # Clamp geometry so a malicious client can't ask for a 10k x 10k image.
+    def _clamp_dim(v, default=1024):
+        try:
+            n = int(v)
+        except Exception:
+            return default
+        return max(256, min(1536, (n // 8) * 8))  # HF requires multiple of 8
+
+    width = _clamp_dim(payload.get('width'), 1024)
+    height = _clamp_dim(payload.get('height'), 1024)
+    negative = (payload.get('negative_prompt') or '').strip()[:500] or None
+    seed = payload.get('seed')
+    try:
+        seed = int(seed) if seed not in (None, '') else None
+    except Exception:
+        seed = None
+
+    hf_token = os.getenv('HF_TOKEN', '').strip()
+    if not hf_token:
+        return JsonResponse({
+            'error': 'Server is not configured for image generation (HF_TOKEN missing).',
+        }, status=503)
+
+    try:
+        from huggingface_hub import InferenceClient
+    except Exception:
+        return JsonResponse({
+            'error': 'huggingface_hub is not installed on the server.',
+        }, status=500)
+
+    t0 = time.time()
+    try:
+        client = InferenceClient(token=hf_token, timeout=_IMGGEN_TIMEOUT)
+        kwargs = {'model': model_id, 'width': width, 'height': height}
+        if negative:
+            kwargs['negative_prompt'] = negative
+        if seed is not None:
+            kwargs['seed'] = seed
+        pil_img = client.text_to_image(prompt, **kwargs)
+    except Exception as e:
+        # Common cases: 402 credits exhausted, 401 bad token, 429 provider limit.
+        msg = str(e)
+        low = msg.lower()
+        if 'quota' in low or '402' in low or 'exceeded' in low:
+            code = 402
+            friendly = 'HuggingFace monthly image credits exhausted for this token.'
+        elif '401' in low or 'authenticat' in low or 'unauthor' in low:
+            code = 401
+            friendly = 'HuggingFace token is invalid or lacks Inference Providers access.'
+        elif '429' in low:
+            code = 429
+            friendly = 'Provider rate-limited the request. Please retry in a moment.'
+        elif 'timeout' in low or 'timed out' in low:
+            code = 504
+            friendly = 'Image generation timed out. Please try again.'
+        else:
+            code = 502
+            friendly = f'Image generation failed: {msg[:200]}'
+        return JsonResponse({'error': friendly}, status=code)
+
+    # Serialize PIL image -> base64 PNG data URL (small enough to hand to the
+    # browser inline; no server-side file write).
+    import io, base64
+    buf = io.BytesIO()
+    pil_img.save(buf, format='PNG', optimize=True)
+    b64 = base64.b64encode(buf.getvalue()).decode('ascii')
+    return JsonResponse({
+        'success': True,
+        'image': f'data:image/png;base64,{b64}',
+        'model': model_key,
+        'model_id': model_id,
+        'width': pil_img.size[0],
+        'height': pil_img.size[1],
+        'ms': int((time.time() - t0) * 1000),
+    })
