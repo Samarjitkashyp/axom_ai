@@ -20,6 +20,16 @@ class KnowledgeConfig(AppConfig):
         if os.getenv('AXOM_WARMUP', 'True').lower() not in ('true', '1', 't'):
             return
 
+        # Fully import knowledge.utils in the main thread BEFORE gunicorn's
+        # preload forks worker processes. Otherwise the warmup thread below may
+        # still be mid-import at fork time, leaving each worker with a
+        # "partially initialized" knowledge.utils in sys.modules that raises
+        # a bogus circular-import ImportError on the first request.
+        try:
+            import knowledge.utils  # noqa: F401
+        except Exception:
+            pass
+
         def _warm():
             try:
                 from knowledge.models import QAPair

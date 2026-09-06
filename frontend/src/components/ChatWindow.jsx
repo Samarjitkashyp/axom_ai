@@ -333,10 +333,13 @@ export default function ChatWindow({
         setStreamingFromDb(!!data.from_database);
 
         const responseText = data.response;
+        // Faster typewriter (~1.4 KB/s) so long replies stop feeling slow —
+        // still visibly incremental for the "AI is writing" feel, but ~3x
+        // quicker than the old 2 chars / 6 ms.
         const intervalId = setInterval(() => {
           if (i < responseText.length) {
-            setStreamingText(responseText.substring(0, i + 2));
-            i += 2;
+            setStreamingText(responseText.substring(0, i + 6));
+            i += 6;
           } else {
             clearInterval(intervalId);
             // Save final message to state
@@ -350,7 +353,7 @@ export default function ChatWindow({
             setStreamingSources([]);
             setIsLoading(false);
           }
-        }, 6);
+        }, 4);
       } else {
         const err = data.error || 'Failed to get response from Axom AI.';
         setErrorMsg(err);

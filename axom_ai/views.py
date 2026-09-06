@@ -31,6 +31,46 @@ def _client_ip(request):
     return fwd.split(',')[0].strip() if fwd else request.META.get('REMOTE_ADDR', '?')
 
 
+# ---------------------------------------------------------------------------
+# Greeting fast-path: matched in chat_api_view before any KB / LLM call so a
+# plain "hi" never triggers the 114k-embedding semantic search or a Gemini
+# request. Keep this small and pure-Python — it runs on every message.
+# ---------------------------------------------------------------------------
+_GREETING_WORDS = {
+    # English / shorthand
+    'hi', 'hii', 'hiii', 'hey', 'heyy', 'hello', 'helo', 'hlo', 'hlw', 'hlwo',
+    'yo', 'sup', 'howdy', 'hola', 'gm', 'gn', 'ty', 'thanks', 'thnx', 'thx',
+    'good', 'morning', 'evening', 'night', 'afternoon',
+    # Hindi / Hinglish
+    'namaste', 'namaskar', 'namaskaar', 'pranam', 'salam', 'salaam',
+    # Assamese
+    'নমস্কাৰ', 'নমষ্কাৰ', 'হেৰো', 'ছালাম',
+    # single-word small-talk seeds
+    'kaise', 'kese', 'kya', 'haal', 'ho', 'kemon', 'khobor', 'kbr',
+    'test', 'testing',
+}
+_GREETING_REPLIES = [
+    "নমস্কাৰ! আজি আপোনাক কেনেকৈ সহায় কৰিব পাৰো?",
+    "নমস্কাৰ! অসম সম্পৰ্কীয় কি জানিব বিচাৰে?",
+    "নমস্কাৰ! মই আপোনাক কেনেকৈ সহায় কৰিব পাৰিম?",
+    "নমস্কাৰ! কি বিষয়ে জানিব বিচাৰিছে?",
+]
+
+
+def _is_greeting(text):
+    """True when `text` is a bare greeting / small-talk phrase (no real query)."""
+    if not text or len(text) > 40:
+        return False
+    import re as _re
+    stripped = _re.sub(r"[^\w\sঀ-৿]", " ", text.strip().lower())
+    words = [w for w in stripped.split() if w]
+    if not words or len(words) > 4:
+        return False
+    # Every token must be a greeting/small-talk token — otherwise it's a real
+    # question that happens to be short (e.g. "who is dispur cm").
+    return all(w in _GREETING_WORDS for w in words)
+
+
 def _is_rate_limited(ip):
     now = time.time()
     hits = [t for t in _RATE_HITS.get(ip, []) if now - t < RATE_WINDOW]
@@ -195,8 +235,9 @@ OLLAMA_KEEP_ALIVE = os.getenv('OLLAMA_KEEP_ALIVE', '30m')           # keep model
 # Set STRICT_KB_MODE=False in .env to allow free general-purpose answers instead.
 STRICT_KB_MODE = os.getenv('STRICT_KB_MODE', 'False').lower() in ('true', '1', 't')
 DONT_KNOW_MSG = (
-    "Iske baare me mere paas abhi pakki (verified) jaankari nahi hai. "
-    "Main sirf apne knowledge base ke aadhaar par hi sahi jawab de sakta hoon."
+    "ক্ষমা কৰিব, এই বিষয়ে মোৰ ওচৰত এতিয়া নিশ্চিত (verified) তথ্য নাই। "
+    "মই কেৱল মোৰ নিজা তথ্যভাণ্ডাৰৰ (knowledge base) ওপৰত ভিত্তি কৰি সঠিক উত্তৰ দিব পাৰো। "
+    "অসম সম্পৰ্কীয় আন কিবা প্ৰশ্ন হ'লে সুধিব পাৰে।"
 )
 
 # IndicTrans2 (AI4Bharat) translation microservice — runs in its own venv on the
@@ -393,6 +434,21 @@ def chat_api_view(request):
 
     import re
 
+    # -----------------------------------------------------------------------
+    # Fast path: a bare greeting ("hi", "hlw", "namaskar", "নমস্কাৰ" …) skips
+    # the 114k-row semantic search AND any LLM call — returns a native
+    # Assamese greeting instantly. Also side-steps STRICT_KB_MODE, which
+    # would otherwise reply "don't know" for a friendly hello.
+    # -----------------------------------------------------------------------
+    if _is_greeting(prompt):
+        import random
+        reply = random.choice(_GREETING_REPLIES)
+        _save_chat(request, client_id, prompt, reply)
+        return JsonResponse({
+            'response': reply, 'from_database': False, 'source_docs': [],
+            'web_search': False, 'sources': [], 'engine': 'greeting',
+        })
+
     # Language the user picked for the reply.
     LANG_LABEL = {
         'english': 'English',
@@ -415,8 +471,12 @@ def chat_api_view(request):
         "Use proper Assamese, NOT Bengali: use ৰ (not র), কৰ (not কর), হয় (not হয়). "
         "Never use Bengali vocabulary or grammar — use a simpler Assamese word instead. "
         "When knowledge-base context is provided, synthesize it into a clear, natural conversational "
-        "answer — do not copy-paste or dump raw text. "
-        "Give clear, accurate, well-structured answers; use simple Markdown where it helps readability. "
+        "answer — do not copy-paste or dump raw text. Prefer that context and base your answer on it. "
+        "STRICT OUTPUT FORMAT — write plain Assamese prose ONLY. NEVER use Markdown, tables, pipes (|), "
+        "dashes as bullets (-, •, *), HTML tags (<br>, <b>, <i>), headings (#), blockquotes (>), or any "
+        "special formatting characters. Use ordinary sentences and paragraphs separated by blank lines. "
+        "When a list is genuinely needed, write items as normal Assamese sentences with commas or "
+        "৷ (Assamese full stop), not as bullet points. "
         "IMPORTANT: Never invent specific facts — names of people or officials, who currently holds a "
         "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
     )
@@ -518,6 +578,10 @@ def chat_api_view(request):
                 "Assamese 'ৰ' not Bengali 'র'). Keep every fact, name, number, and place "
                 "exactly the same — do not add, remove, or change any information. "
                 "Keep proper nouns (like Dispur, Guwahati, Kaziranga) readable. "
+                "OUTPUT FORMAT: plain Assamese prose only. NO Markdown, NO tables, NO "
+                "pipes (|), NO dashes/bullets (-, •, *), NO HTML tags (<br>, <b>), NO "
+                "headings (#) and NO blockquotes (>). Write ordinary sentences and "
+                "paragraphs separated by blank lines. "
                 "Output only the Assamese text, nothing else:\n\n"
                 f"{translate_source}"
             )
