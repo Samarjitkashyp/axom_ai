@@ -5,7 +5,7 @@ import { getCsrfToken } from '../utils/security';
 // Server picks the engine (Pollinations FLUX free primary; Gemini optional if
 // billing is enabled). The dropdown is kept as a single info card.
 const MODELS = [
-  { k: 'gemini', name: 'FLUX (via Pollinations)', desc: 'Free · ~5-15 s · no signup, no credits' },
+  { k: 'gemini', name: 'FLUX schnell', desc: 'Free · ~3-8 s · Cloudflare Workers AI (Pollinations fallback)' },
 ];
 
 const SIZES = [
@@ -296,7 +296,7 @@ function renderControls({
       <div style={S.hint}>
         Tip: press <kbd style={S.kbd}>Ctrl</kbd>+<kbd style={S.kbd}>Enter</kbd> to generate.
         <br />
-        <b>Free tier: 2 images per user per day.</b> Powered by Pollinations (FLUX).
+        <b>Free tier: 2 images per user per day.</b> Powered by Cloudflare Workers AI (FLUX).
       </div>
     </>
   );
@@ -327,9 +327,11 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
           <span>
             {result.engine === 'gemini'
               ? 'Google Gemini'
-              : result.engine === 'pollinations'
-                ? 'Pollinations · FLUX'
-                : result.model_id || 'AI image'}
+              : result.engine === 'cloudflare'
+                ? 'Cloudflare · FLUX'
+                : result.engine === 'pollinations'
+                  ? 'Pollinations · FLUX'
+                  : result.model_id || 'AI image'}
           </span>
         </div>
         {typeof result.remaining_today === 'number' && (

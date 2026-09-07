@@ -1493,8 +1493,57 @@ _IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
 _GEMINI_IMAGE_MODEL = os.getenv('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image')
 _USE_GEMINI_IMAGE = os.getenv('USE_GEMINI_IMAGE', 'False').lower() in ('true', '1', 't')
 
+# Cloudflare Workers AI — free tier gives ~10,000 neurons / day (roughly
+# 100+ FLUX schnell images). Requires a Cloudflare account, an API token
+# with "Workers AI: Read" permission, and the account ID. Enabled if both
+# env vars are set.
+_CF_API_TOKEN = os.getenv('CF_API_TOKEN', '').strip()
+_CF_ACCOUNT_ID = os.getenv('CF_ACCOUNT_ID', '').strip()
+_CF_IMAGE_MODEL = os.getenv('CF_IMAGE_MODEL', '@cf/black-forest-labs/flux-1-schnell')
+
+
+def _cloudflare_generate_image(prompt, width, height, timeout=60):
+    """Generate an image via Cloudflare Workers AI (FLUX schnell). Returns
+    (PIL.Image, model_id) on success, or (None, error_string) on failure."""
+    if not _CF_API_TOKEN or not _CF_ACCOUNT_ID:
+        return None, 'Cloudflare not configured (CF_API_TOKEN / CF_ACCOUNT_ID missing)'
+    try:
+        from PIL import Image as _PILImage
+        import io as _io
+        import base64 as _b64
+    except Exception as e:
+        return None, f'Pillow not available: {e}'
+
+    url = (f'https://api.cloudflare.com/client/v4/accounts/{_CF_ACCOUNT_ID}'
+           f'/ai/run/{_CF_IMAGE_MODEL}')
+    # flux-1-schnell accepts prompt + steps (max 8, higher = better + slower).
+    # Cloudflare returns the image as base64-encoded JPEG in result.image.
+    body = {'prompt': prompt[:2000], 'steps': 4}
+    try:
+        r = http_session.post(
+            url,
+            headers={'Authorization': f'Bearer {_CF_API_TOKEN}',
+                     'Content-Type': 'application/json'},
+            json=body, timeout=timeout,
+        )
+        if r.status_code != 200:
+            return None, f'Cloudflare HTTP {r.status_code}: {r.text[:150]}'
+        data = r.json()
+        if not data.get('success'):
+            errs = data.get('errors') or 'unknown'
+            return None, f'Cloudflare error: {str(errs)[:150]}'
+        img_b64 = (data.get('result') or {}).get('image', '')
+        if not img_b64:
+            return None, 'Cloudflare returned no image data'
+        raw = _b64.b64decode(img_b64)
+        img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
+        return img, f'cloudflare/{_CF_IMAGE_MODEL}'
+    except Exception as e:
+        return None, str(e)[:300]
+
+
 # Pollinations.ai — completely free, no API key, no signup. A GET on a URL
-# returns PNG bytes. Perfect for the launch tier while billing is not enabled.
+# returns PNG bytes. Kept as fallback below Cloudflare.
 _POLLINATIONS_URL = 'https://image.pollinations.ai/prompt/'
 _POLLINATIONS_MODEL = os.getenv('POLLINATIONS_MODEL', 'flux')
 
@@ -1673,8 +1722,11 @@ def generate_image_api(request):
     pil_img = None
     tried_errors = []
 
-    # 1) If a paid Gemini project is available (USE_GEMINI_IMAGE=True and key
-    # set), try Gemini first — quality is very good.
+    # Waterfall: try each engine in order; first one that succeeds wins.
+    # 1) Gemini (only if paid billing is enabled) — highest quality.
+    # 2) Cloudflare Workers AI FLUX — free 10k neurons/day, most reliable free.
+    # 3) Pollinations.ai — no-key fallback, always available.
+
     if _USE_GEMINI_IMAGE and os.getenv('GEMINI_API_KEY', '').strip():
         gm_img, gm_info = _gemini_generate_image(prompt, width, height,
                                                  timeout=_IMGGEN_TIMEOUT)
@@ -1685,7 +1737,16 @@ def generate_image_api(request):
         else:
             tried_errors.append(f'Gemini: {gm_info}')
 
-    # 2) Pollinations.ai — always available (no key), the guaranteed free path.
+    if pil_img is None and _CF_API_TOKEN and _CF_ACCOUNT_ID:
+        cf_img, cf_info = _cloudflare_generate_image(prompt, width, height,
+                                                     timeout=_IMGGEN_TIMEOUT)
+        if cf_img is not None:
+            pil_img = cf_img
+            engine = 'cloudflare'
+            engine_model = cf_info
+        else:
+            tried_errors.append(f'Cloudflare: {cf_info}')
+
     if pil_img is None:
         pl_img, pl_info = _pollinations_generate_image(prompt, width, height,
                                                        timeout=_IMGGEN_TIMEOUT)
