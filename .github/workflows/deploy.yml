@@ -95,7 +95,14 @@ jobs:
           script: |
             set -e
             cd ~/axom_ai
-            git pull origin main
+            # Fetch first, then force-align to origin/main. Any local drift
+            # (edits or untracked files that clash with new tracked files)
+            # is stashed as a safety backup instead of aborting the deploy.
+            git fetch origin main
+            if ! git diff --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+              git stash push -u -m "auto-stash before deploy $(date -u +%Y%m%dT%H%M%SZ)" || true
+            fi
+            git reset --hard origin/main
             source venv/bin/activate
             pip install -r requirements.txt
             python manage.py migrate --noinput
