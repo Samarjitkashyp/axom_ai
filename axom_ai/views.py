@@ -1550,23 +1550,42 @@ def _cloudflare_generate_image(prompt, width, height, timeout=60):
 # before handing it to the image engine. Groq is fast enough (~200-400 ms)
 # and free-tier generous enough for this to be free per image.
 
-# Fast-skip: pure-ASCII + at least a few English words -> almost certainly
-# already an English prompt, no translation needed (saves the round-trip).
+# Fast-skip decision: only skip translation when we're confident the prompt
+# is real English. Any non-ASCII character (Devanagari, Assamese, etc.) or
+# any common Roman-Indic/Hinglish marker forces a translation pass — even if
+# an English word like "illustration" also appears in the mix.
 _ASCII_ONLY = re.compile(r'^[\x00-\x7F]*$')
 _LIKELY_ENGLISH_WORDS = re.compile(
     r'\b(the|a|an|with|and|of|on|in|to|at|for|by|from|as|is|are|was|were|'
     r'photo|photograph|image|picture|painting|illustration|portrait|landscape|'
-    r'style|realistic|cartoon|anime|render|scene|background|foreground|'
-    r'sunset|sunrise|forest|mountain|city|street|room|table|cat|dog|man|woman|'
-    r'girl|boy|child|tree|flower|sky|cloud|light|dark|red|blue|green|yellow|'
-    r'orange|black|white|pink|purple|gold|silver)\b', re.IGNORECASE)
+    r'style|realistic|cartoon|anime|render|scene|background|foreground)\b',
+    re.IGNORECASE)
+# Common tokens found in Hinglish / Roman-Hindi / Roman-Assamese. Presence
+# of any of these is a strong signal that the prompt needs translation.
+_HINGLISH_MARKERS = re.compile(
+    r'\b('
+    # Hindi auxiliaries / postpositions
+    r'hai|hain|tha|thi|the|raha|rahi|rahe|hoga|hogi|hoge|kar|karna|karo|kiya|'
+    r'ka|ki|ke|ko|se|mein|mai|par|aur|nahi|nahin|kyu|kyun|kya|kaisa|kaise|'
+    r'wala|wali|wale|kuch|sab|sabse|bahut|thoda|thodi|chhota|chhoti|bada|badi|'
+    # Common Hindi/Assamese nouns/verbs (romanized)
+    r'billi|kutta|kitab|ghar|pani|roti|bacha|bachi|larka|larki|admi|aurat|'
+    r'phool|patta|surya|chand|tara|nadi|pahad|jungle|khet|gaon|shahar|'
+    # Assamese romanized markers
+    r'kori|kora|kore|xote|xopun|axe|nai|nohoi|hoi|ase|xotu|xori'
+    r')\b', re.IGNORECASE)
 
 
 def _looks_like_english(prompt):
+    # Any non-ASCII char → non-English (Devanagari/Bengali/Assamese scripts).
     if not _ASCII_ONLY.match(prompt):
-        return False       # contains any non-ASCII (Devanagari, Assamese, etc.)
-    # Roman-Hindi / Roman-Assamese are ASCII too, so also require some real
-    # English content words. If none found, assume it needs translation.
+        return False
+    # Roman-Hindi / Roman-Assamese markers → force translation, even if
+    # English words also appear (a Hinglish prompt often mixes both).
+    if _HINGLISH_MARKERS.search(prompt):
+        return False
+    # Otherwise: skip translation only when a real English word is present
+    # (avoids a Groq call for prompts like "cat on book, watercolor style").
     return bool(_LIKELY_ENGLISH_WORDS.search(prompt))
 
 
