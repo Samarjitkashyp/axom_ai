@@ -450,6 +450,107 @@ def chat_api_view(request):
             'web_search': False, 'sources': [], 'engine': 'greeting',
         })
 
+    # -----------------------------------------------------------------------
+    # WEB SEARCH FAST PATH — Tavily search + Groq/Gemma synthesis in Assamese.
+    # Runs BEFORE the KB tier so a user who toggled 🌐 explicitly gets fresh
+    # web results. Per-device daily cap enforced first (English message when
+    # exceeded); grounded English snippets are synthesised into Assamese by
+    # Groq (Gemini/Cloudflare Gemma as fallbacks).
+    # -----------------------------------------------------------------------
+    if web_search:
+        ws_ip = _client_ip(request)
+        ws_used = _websearch_daily_count(ws_ip)
+        if ws_used >= _WEBSEARCH_DAILY_LIMIT:
+            return JsonResponse({
+                'error': (
+                    f"You can only do {_WEBSEARCH_DAILY_LIMIT} web searches "
+                    f"per day in Axom AI. You have used all of today's quota "
+                    f"from this device. Please come back tomorrow."
+                ),
+                'websearch_limit': _WEBSEARCH_DAILY_LIMIT,
+                'used_today': ws_used,
+            }, status=429)
+
+        hits, err = _tavily_search(prompt, max_results=5)
+        if hits is None:
+            return JsonResponse({
+                'error': (
+                    'Web search is not available right now. '
+                    f'({err or "unknown error"})'
+                ),
+            }, status=503)
+        if not hits:
+            return JsonResponse({
+                'error': 'No web results found for that query. Try rephrasing.',
+            }, status=404)
+
+        # Build a compact grounded context for the LLM to synthesise from.
+        context_lines = []
+        for i, h in enumerate(hits, 1):
+            snippet = (h.get('content') or '')[:600].strip()
+            context_lines.append(
+                f"[{i}] {h['title']}\n{snippet}\nURL: {h['url']}"
+            )
+        context = '\n\n'.join(context_lines)
+
+        ws_system = (
+            "You are Axom AI. Use ONLY the web search results below to answer "
+            "the user's question. Reply in natural, native Assamese using "
+            "correct Assamese script (অসমীয়া) — never in English or Bengali. "
+            "Cite the sources inline as [1], [2] where relevant. Never invent "
+            "facts that are not in the results. If the results don't contain "
+            "the answer, say so honestly in Assamese. Output plain prose only "
+            "— no Markdown, no bullets, no HTML."
+        )
+        ws_prompt = (
+            f"Web search results:\n\n{context}\n\n"
+            f"User question: {prompt}\n\n"
+            f"Answer in Assamese (অসমীয়া script):"
+        )
+
+        answer = _groq_generate(ws_system, ws_prompt, timeout=45)
+        if not answer:
+            gk = os.getenv('GEMINI_API_KEY', '').strip()
+            if gk:
+                answer = _gemini_generate(
+                    gk, ws_system, ws_prompt,
+                    ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'],
+                )
+        if not answer:
+            return JsonResponse({
+                'error': 'AI service is busy. Please try again in a moment.',
+            }, status=503)
+
+        # Assamese safety layer — if the synthesiser drifted to English, ask
+        # Groq to rewrite it in Assamese script while keeping facts+URLs.
+        indic_chars = sum(1 for ch in answer if 'ঀ' <= ch <= '৿')
+        if indic_chars < max(20, int(len(answer) * 0.15)):
+            asm = _groq_generate(
+                "Rewrite the following text in clear, natural, everyday "
+                "Assamese (অসমীয়া script). Preserve every fact, name, date, "
+                "number and URL exactly. Keep the [1] [2] citation markers. "
+                "Plain prose only — no Markdown.",
+                answer, timeout=30,
+            )
+            if asm and asm.strip():
+                answer = asm.strip()
+
+        _websearch_daily_incr(ws_ip)
+        _save_chat(request, client_id, prompt, answer)
+        return JsonResponse({
+            'response': answer,
+            'from_database': False,
+            'source_docs': [],
+            'web_search': True,
+            'sources': [
+                {'title': h['title'], 'uri': h['url']} for h in hits
+            ],
+            'engine': 'tavily+groq',
+            'websearch_limit': _WEBSEARCH_DAILY_LIMIT,
+            'used_today': ws_used + 1,
+            'remaining_today': max(0, _WEBSEARCH_DAILY_LIMIT - (ws_used + 1)),
+        })
+
     # Language the user picked for the reply.
     LANG_LABEL = {
         'english': 'English',
@@ -1512,6 +1613,69 @@ _IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
 # returns a clear English message and does not spend a Gemini call.
 _IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '5'))
 _IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
+
+# Per-device daily cap for web-search chat queries. Separate bucket from
+# image generation so a user hitting the image cap can still web-search.
+_WEBSEARCH_DAILY_LIMIT = int(os.getenv('WEBSEARCH_DAILY_LIMIT', '10'))
+_WEBSEARCH_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
+
+# Tavily — AI-optimised free web search. Free tier: 1000 queries / month.
+# When TAVILY_API_KEY is empty the web-search feature returns a friendly
+# "not yet configured" message so the toggle stays visibly optional.
+_TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', '').strip()
+_TAVILY_URL = 'https://api.tavily.com/search'
+
+
+def _websearch_daily_count(ip):
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _WEBSEARCH_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        return 0
+    return int(entry.get('count', 0))
+
+
+def _websearch_daily_incr(ip):
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _WEBSEARCH_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        entry = {'date': today, 'count': 0}
+    entry['count'] = int(entry.get('count', 0)) + 1
+    _WEBSEARCH_DAILY_HITS[ip] = entry
+
+
+def _tavily_search(query, max_results=5, timeout=15):
+    """Query Tavily search. Returns (list_of_hits, error_string).
+    Each hit is {'title': ..., 'url': ..., 'content': ...}."""
+    if not _TAVILY_API_KEY:
+        return None, 'TAVILY_API_KEY not configured'
+    try:
+        r = http_session.post(
+            _TAVILY_URL,
+            json={
+                'api_key': _TAVILY_API_KEY,
+                'query': query[:400],
+                'search_depth': 'basic',
+                'max_results': max_results,
+                'include_answer': False,
+            },
+            timeout=timeout,
+        )
+        if r.status_code != 200:
+            return None, f'Tavily HTTP {r.status_code}: {r.text[:120]}'
+        data = r.json()
+        hits = data.get('results') or []
+        cleaned = []
+        for h in hits[:max_results]:
+            url = h.get('url')
+            title = h.get('title') or url
+            content = h.get('content') or ''
+            if url:
+                cleaned.append({'title': title, 'url': url, 'content': content})
+        return cleaned, None
+    except Exception as e:
+        return None, str(e)[:200]
 
 # Gemini image model. NOTE: Google requires billing to be enabled on the
 # project to use ANY *-image model — free tier returns 429 for all of them.
