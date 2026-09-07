@@ -2,9 +2,10 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { X, Loader2, Download, ImagePlus, ChevronDown, Sparkles, AlertCircle } from 'lucide-react';
 import { getCsrfToken } from '../utils/security';
 
+// Only Gemini now — FLUX is retired. The dropdown is gone from the UI; we
+// still send a model key so old cached clients don't 400.
 const MODELS = [
-  { k: 'schnell', name: 'Fast (FLUX.1 schnell)', desc: 'Apache-2.0 · ~7 s · balanced quality' },
-  { k: 'dev',     name: 'Better (FLUX.1 dev)',   desc: 'Higher fidelity · ~7-15 s · non-commercial' },
+  { k: 'gemini', name: 'Google Gemini · Nano Banana', desc: 'Google Gemini 2.5 Flash Image · ~5-10 s' },
 ];
 
 const SIZES = [
@@ -32,7 +33,7 @@ function useIsMobile() {
 
 export default function ImageGenerator({ onClose }) {
   const [prompt, setPrompt] = useState('');
-  const [modelKey, setModelKey] = useState('schnell');
+  const [modelKey, setModelKey] = useState('gemini');
   const [sizeKey, setSizeKey] = useState('sq');
   const [negative, setNegative] = useState('');
   const [seed, setSeed] = useState('');
@@ -293,7 +294,9 @@ function renderControls({
         )}
       </button>
       <div style={S.hint}>
-        Tip: press <kbd style={S.kbd}>Ctrl</kbd>+<kbd style={S.kbd}>Enter</kbd> to generate. Model runs on HF GPUs — nothing loads on this server.
+        Tip: press <kbd style={S.kbd}>Ctrl</kbd>+<kbd style={S.kbd}>Enter</kbd> to generate.
+        <br />
+        <b>Free tier: 2 images per user per day.</b> Powered by Google Gemini.
       </div>
     </>
   );
@@ -306,7 +309,7 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
         <Loader2 size={isMobile ? 34 : 42} className="spin-icon" />
         <div style={S.placeholderTitle}>Painting your image… ({elapsed}s)</div>
         <div style={S.placeholderSub}>
-          {modelKey === 'schnell' ? 'Usually 5–10 seconds.' : 'FLUX.1 dev takes ~10–15 seconds.'}
+          Usually 5–10 seconds.
         </div>
       </div>
     );
@@ -321,26 +324,20 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
           <span>·</span>
           <span>{(result.ms / 1000).toFixed(1)} s</span>
           <span>·</span>
-          <span>
-            {result.engine === 'gemini'
-              ? 'Google Gemini (fallback)'
-              : (MODELS.find((m) => m.k === result.model)?.name || result.model)}
-          </span>
+          <span>Google Gemini</span>
         </div>
-        {result.fallback_used && (
+        {typeof result.remaining_today === 'number' && (
           <div
             style={{
               fontSize: 11,
-              opacity: 0.7,
-              marginTop: 4,
+              opacity: 0.75,
+              marginTop: 6,
               textAlign: 'center',
-              padding: '4px 8px',
-              background: 'rgba(59, 130, 246, 0.08)',
-              border: '1px solid rgba(59, 130, 246, 0.25)',
-              borderRadius: 6,
             }}
           >
-            FLUX unavailable ({result.fallback_reason}) — used Gemini instead.
+            {result.remaining_today > 0
+              ? `${result.remaining_today} of ${result.daily_limit} free images left for today.`
+              : `You have used all ${result.daily_limit} free images for today.`}
           </div>
         )}
         <div style={S.resultActions}>

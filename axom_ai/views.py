@@ -1468,21 +1468,47 @@ def remove_watermark_api(request):
 # Image generation via HuggingFace Inference Providers (FLUX.1 schnell / dev).
 # The heavy model runs on HF's GPUs — this box (8 GB RAM) only proxies the call.
 # ---------------------------------------------------------------------------
-# Model whitelist: short id from the client -> full HF model id.
+# Model whitelist — Gemini is now the sole engine. The `model` field on the
+# request is accepted but ignored (kept only so old frontends don't 400).
 _IMGGEN_MODELS = {
-    'schnell': 'black-forest-labs/FLUX.1-schnell',   # ~7s, Apache-2.0
-    'dev':     'black-forest-labs/FLUX.1-dev',       # ~7s, higher quality
+    'schnell': 'gemini-2.5-flash-image-preview',
+    'dev':     'gemini-2.5-flash-image-preview',
+    'gemini':  'gemini-2.5-flash-image-preview',
 }
-# Stricter per-IP limit than chat: each call costs HF credits.
 _IMGGEN_RATE_LIMIT = int(os.getenv('IMGGEN_RATE_LIMIT', '6'))
 _IMGGEN_RATE_WINDOW = int(os.getenv('IMGGEN_RATE_WINDOW', '60'))
 _IMGGEN_HITS = {}
-# HF Inference timeout (schnell ~7s, dev up to ~15s; keep some slack).
 _IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
 
-# Gemini image model (Nano Banana). Free tier is generous enough to serve as a
-# real fallback when the HF FLUX credit is exhausted for the month.
+# Per-user daily cap. Free-tier product limit — each visitor (by IP) can only
+# generate this many images per calendar day (UTC). Once exceeded, the API
+# returns a clear English message and does not spend a Gemini call.
+_IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '2'))
+_IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
+
+# Gemini image model (Nano Banana). Uses the existing GEMINI_API_KEY.
 _GEMINI_IMAGE_MODEL = os.getenv('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image-preview')
+
+
+def _imggen_daily_count(ip):
+    """How many images this IP has generated today (UTC calendar day)."""
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _IMGGEN_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        return 0
+    return int(entry.get('count', 0))
+
+
+def _imggen_daily_incr(ip):
+    """Record one successful generation against the IP's daily bucket."""
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _IMGGEN_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        entry = {'date': today, 'count': 0}
+    entry['count'] = int(entry.get('count', 0)) + 1
+    _IMGGEN_DAILY_HITS[ip] = entry
 
 
 def _gemini_generate_image(prompt, width, height, timeout=60):
@@ -1553,11 +1579,29 @@ def _imggen_rate_limited(ip):
 def generate_image_api(request):
     """POST JSON: {prompt, model?, width?, height?, negative_prompt?, seed?}.
     Returns {success, image: 'data:image/png;base64,...', model, size, ms}.
+
+    Engine: Google Gemini (gemini-2.5-flash-image-preview). Each visitor (by
+    IP) may generate _IMGGEN_DAILY_LIMIT images per UTC calendar day.
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
     ip = _client_ip(request)
+
+    # 1) Per-day cap — user-facing message in English.
+    used_today = _imggen_daily_count(ip)
+    if used_today >= _IMGGEN_DAILY_LIMIT:
+        return JsonResponse({
+            'error': (
+                f"You have used all {_IMGGEN_DAILY_LIMIT} free images for "
+                f"today. Please come back tomorrow."
+            ),
+            'daily_limit': _IMGGEN_DAILY_LIMIT,
+            'used_today': used_today,
+        }, status=429)
+
+    # 2) Per-minute burst guard (very rare with a 2/day cap, but keeps a
+    # single burst from firing multiple in-flight requests).
     if _imggen_rate_limited(ip):
         return JsonResponse({
             'error': f'Too many image requests. Please wait ~{_IMGGEN_RATE_WINDOW}s.',
@@ -1574,99 +1618,36 @@ def generate_image_api(request):
     if len(prompt) > 1000:
         return JsonResponse({'error': 'Prompt exceeds 1000 characters.'}, status=400)
 
-    model_key = (payload.get('model') or 'schnell').strip().lower()
-    if model_key not in _IMGGEN_MODELS:
-        return JsonResponse({
-            'error': f'Unknown model. Choose one of: {", ".join(_IMGGEN_MODELS)}.',
-        }, status=400)
-    model_id = _IMGGEN_MODELS[model_key]
-
-    # Clamp geometry so a malicious client can't ask for a 10k x 10k image.
+    # Clamp geometry defensively (Gemini picks its own size; we still forward
+    # a hint about orientation).
     def _clamp_dim(v, default=1024):
         try:
             n = int(v)
         except Exception:
             return default
-        return max(256, min(1536, (n // 8) * 8))  # HF requires multiple of 8
+        return max(256, min(1536, (n // 8) * 8))
 
     width = _clamp_dim(payload.get('width'), 1024)
     height = _clamp_dim(payload.get('height'), 1024)
-    negative = (payload.get('negative_prompt') or '').strip()[:500] or None
-    seed = payload.get('seed')
-    try:
-        seed = int(seed) if seed not in (None, '') else None
-    except Exception:
-        seed = None
 
-    hf_token = os.getenv('HF_TOKEN', '').strip()
-    gemini_available = bool(os.getenv('GEMINI_API_KEY', '').strip())
-    if not hf_token and not gemini_available:
+    if not os.getenv('GEMINI_API_KEY', '').strip():
         return JsonResponse({
             'error': 'Server is not configured for image generation '
-                     '(neither HF_TOKEN nor GEMINI_API_KEY set).',
+                     '(GEMINI_API_KEY missing).',
         }, status=503)
 
     t0 = time.time()
-    pil_img = None
-    engine = None
-    engine_model = None
-    hf_error = None       # short reason, only surfaced if BOTH engines fail
-
-    # ---- 1. HuggingFace FLUX (primary) --------------------------------------
-    if hf_token:
-        try:
-            from huggingface_hub import InferenceClient
-            hf_client = InferenceClient(token=hf_token, timeout=_IMGGEN_TIMEOUT)
-            kwargs = {'model': model_id, 'width': width, 'height': height}
-            if negative:
-                kwargs['negative_prompt'] = negative
-            if seed is not None:
-                kwargs['seed'] = seed
-            pil_img = hf_client.text_to_image(prompt, **kwargs)
-            engine = 'huggingface'
-            engine_model = model_id
-        except Exception as e:
-            msg = str(e)
-            low = msg.lower()
-            # Classify — only "quota exhausted" / "auth" / rate-limit type
-            # errors are worth failing over to Gemini for; a genuine 5xx from
-            # HF is likely transient and Gemini is worth a try too.
-            if 'quota' in low or '402' in low or 'exceeded' in low:
-                hf_error = 'HuggingFace monthly image credits exhausted.'
-            elif '401' in low or 'authenticat' in low or 'unauthor' in low:
-                hf_error = 'HuggingFace token is invalid or lacks Inference access.'
-            elif '429' in low:
-                hf_error = 'HuggingFace rate-limited the request.'
-            elif 'timeout' in low or 'timed out' in low:
-                hf_error = 'HuggingFace timed out.'
-            else:
-                hf_error = f'HuggingFace failed: {msg[:160]}'
-
-    # ---- 2. Google Gemini (automatic fallback) ------------------------------
-    if pil_img is None and gemini_available:
-        gm_img, gm_info = _gemini_generate_image(prompt, width, height,
-                                                 timeout=_IMGGEN_TIMEOUT)
-        if gm_img is not None:
-            pil_img = gm_img
-            engine = 'gemini'
-            engine_model = gm_info
-        else:
-            # Both engines failed — return a compound message.
-            combined = hf_error or 'Primary engine unavailable.'
-            return JsonResponse({
-                'error': f'{combined} Fallback also failed: {gm_info}',
-                'engine_tried': ['huggingface', 'gemini'] if hf_token else ['gemini'],
-            }, status=502)
-
+    pil_img, gm_info = _gemini_generate_image(prompt, width, height,
+                                              timeout=_IMGGEN_TIMEOUT)
     if pil_img is None:
-        # No HF token to try and no Gemini key either — shouldn't reach here
-        # given the earlier guard, but be defensive.
         return JsonResponse({
-            'error': hf_error or 'Image generation unavailable.',
-        }, status=503)
+            'error': f'Image generation failed: {gm_info}',
+        }, status=502)
 
-    # Serialize PIL image -> base64 PNG data URL (small enough to hand to the
-    # browser inline; no server-side file write).
+    # Success — record against the daily bucket.
+    _imggen_daily_incr(ip)
+    used_after = _imggen_daily_count(ip)
+
     import io, base64
     buf = io.BytesIO()
     pil_img.save(buf, format='PNG', optimize=True)
@@ -1674,14 +1655,15 @@ def generate_image_api(request):
     return JsonResponse({
         'success': True,
         'image': f'data:image/png;base64,{b64}',
-        'model': model_key,
-        'model_id': engine_model,
-        'engine': engine,               # 'huggingface' or 'gemini'
-        'fallback_used': engine == 'gemini' and bool(hf_error),
-        'fallback_reason': hf_error if engine == 'gemini' else None,
+        'model': 'gemini',
+        'model_id': gm_info,
+        'engine': 'gemini',
         'width': pil_img.size[0],
         'height': pil_img.size[1],
         'ms': int((time.time() - t0) * 1000),
+        'daily_limit': _IMGGEN_DAILY_LIMIT,
+        'used_today': used_after,
+        'remaining_today': max(0, _IMGGEN_DAILY_LIMIT - used_after),
     })
 
 
