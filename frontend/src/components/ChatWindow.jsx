@@ -23,6 +23,7 @@ export default function ChatWindow({
   onOpenTools,
 }) {
   const [inputText, setInputText] = useState('');
+  const [webSearch, setWebSearch] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isConvertingDoc, setIsConvertingDoc] = useState(false);
   const [convertingFileName, setConvertingFileName] = useState('');
@@ -266,7 +267,7 @@ export default function ChatWindow({
         signal: abortControllerRef.current.signal,
         body: JSON.stringify({
           prompt: text,
-          web_search: false,
+          web_search: webSearch,
           session_id: sessionId,
           language,
           history: (currentSession?.messages || [])
@@ -733,6 +734,33 @@ export default function ChatWindow({
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', cursor: 'pointer', marginLeft: '8px' }}
               >
                 <Wrench size={13} /> Tools
+              </button>
+              <button
+                type="button"
+                className="lang-btn"
+                onClick={() => setWebSearch((v) => !v)}
+                title={webSearch
+                  ? 'Web search ON — Axom AI will search the internet and cite sources.'
+                  : 'Turn on web search — get up-to-date answers with sources, translated into Assamese.'}
+                aria-pressed={webSearch}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  cursor: 'pointer',
+                  marginLeft: '8px',
+                  borderColor: webSearch
+                    ? 'var(--accent-cyan, #06b6d4)'
+                    : undefined,
+                  color: webSearch
+                    ? 'var(--accent-cyan, #06b6d4)'
+                    : undefined,
+                  background: webSearch
+                    ? 'rgba(6, 182, 212, 0.10)'
+                    : undefined,
+                }}
+              >
+                <Globe size={13} /> Web {webSearch ? 'ON' : ''}
               </button>
             </div>
             <div className="controls-right">

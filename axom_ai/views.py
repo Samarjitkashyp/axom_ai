@@ -847,6 +847,32 @@ def chat_api_view(request):
                                 seen_uris.add(uri_clean)
                                 sources.append({'title': uri_clean, 'uri': uri_clean})
 
+                    # Safety: on web-search answers Gemini sometimes drifts
+                    # out of Assamese because its grounding chunks are in
+                    # English. If Assamese was requested but the reply has
+                    # almost no Assamese/Bengali script characters, ask Groq
+                    # to rewrite it faithfully in Assamese while keeping every
+                    # fact (and source list) intact.
+                    if web_search and language == 'assamese':
+                        # Count characters in the Assamese/Bengali script range.
+                        indic_chars = sum(
+                            1 for ch in response_text
+                            if 'ঀ' <= ch <= '৿'
+                        )
+                        if indic_chars < max(20, len(response_text) * 0.15):
+                            rewrite_sys = (
+                                "Rewrite the following text in clear, natural, "
+                                "everyday Assamese (অসমীয়া) using the correct "
+                                "Assamese script. Preserve every fact, name, "
+                                "date and number exactly. Keep any URLs "
+                                "unchanged. Output plain prose only — no "
+                                "Markdown, no bullets, no HTML."
+                            )
+                            asm = _groq_generate(rewrite_sys, response_text,
+                                                 timeout=30)
+                            if asm and asm.strip():
+                                response_text = asm.strip()
+
                     _save_chat(request, client_id, prompt, response_text)
                     return JsonResponse({
                         'response': response_text,
