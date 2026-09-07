@@ -1500,11 +1500,18 @@ _USE_GEMINI_IMAGE = os.getenv('USE_GEMINI_IMAGE', 'False').lower() in ('true', '
 # env vars are set.
 _CF_API_TOKEN = os.getenv('CF_API_TOKEN', '').strip()
 _CF_ACCOUNT_ID = os.getenv('CF_ACCOUNT_ID', '').strip()
-_CF_IMAGE_MODEL = os.getenv('CF_IMAGE_MODEL', '@cf/black-forest-labs/flux-1-schnell')
+# Two quality tiers routed to two Cloudflare models:
+#   normal  = FLUX 1 schnell   → fast, ~3-8 s per image, low neuron cost
+#   extreme = Leonardo Lucid Origin → premium quality, ~5-10 s, higher cost
+# (Qwen Image 3.0 Pro is announced but not yet runnable on Workers AI free
+# tier — we'll swap this constant when Cloudflare enables it.)
+_CF_MODEL_NORMAL = os.getenv('CF_MODEL_NORMAL', '@cf/black-forest-labs/flux-1-schnell')
+_CF_MODEL_EXTREME = os.getenv('CF_MODEL_EXTREME', '@cf/leonardo/lucid-origin')
 
 
-def _cloudflare_generate_image(prompt, width, height, timeout=60):
-    """Generate an image via Cloudflare Workers AI (FLUX schnell). Returns
+def _cloudflare_generate_image(prompt, width, height, quality='normal', timeout=60):
+    """Generate an image via Cloudflare Workers AI. `quality` picks the model
+    (normal → FLUX schnell, extreme → Leonardo Lucid Origin). Returns
     (PIL.Image, model_id) on success, or (None, error_string) on failure."""
     if not _CF_API_TOKEN or not _CF_ACCOUNT_ID:
         return None, 'Cloudflare not configured (CF_API_TOKEN / CF_ACCOUNT_ID missing)'
@@ -1515,11 +1522,16 @@ def _cloudflare_generate_image(prompt, width, height, timeout=60):
     except Exception as e:
         return None, f'Pillow not available: {e}'
 
+    model = _CF_MODEL_EXTREME if quality == 'extreme' else _CF_MODEL_NORMAL
     url = (f'https://api.cloudflare.com/client/v4/accounts/{_CF_ACCOUNT_ID}'
-           f'/ai/run/{_CF_IMAGE_MODEL}')
-    # flux-1-schnell accepts prompt + steps (max 8, higher = better + slower).
-    # Cloudflare returns the image as base64-encoded JPEG in result.image.
-    body = {'prompt': prompt[:2000], 'steps': 4}
+           f'/ai/run/{model}')
+    # Both models accept {prompt, steps}. FLUX schnell caps at 8 steps (4 is
+    # its sweet spot); Lucid Origin defaults to a higher step count and takes
+    # care of quality internally, so we just pass the prompt for that one.
+    if quality == 'extreme':
+        body = {'prompt': prompt[:2000]}
+    else:
+        body = {'prompt': prompt[:2000], 'steps': 4}
     try:
         r = http_session.post(
             url,
@@ -1538,7 +1550,7 @@ def _cloudflare_generate_image(prompt, width, height, timeout=60):
             return None, 'Cloudflare returned no image data'
         raw = _b64.b64decode(img_b64)
         img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
-        return img, f'cloudflare/{_CF_IMAGE_MODEL}'
+        return img, f'cloudflare/{model}'
     except Exception as e:
         return None, str(e)[:300]
 
@@ -1751,13 +1763,13 @@ def generate_image_api(request):
 
     ip = _client_ip(request)
 
-    # 1) Per-day cap — user-facing message in English.
+    # 1) Per-device (per-IP) daily cap — user-facing message in English.
     used_today = _imggen_daily_count(ip)
     if used_today >= _IMGGEN_DAILY_LIMIT:
         return JsonResponse({
             'error': (
                 f"You have used all {_IMGGEN_DAILY_LIMIT} free images for "
-                f"today. Please come back tomorrow."
+                f"today from this device. Please come back tomorrow."
             ),
             'daily_limit': _IMGGEN_DAILY_LIMIT,
             'used_today': used_today,
@@ -1797,6 +1809,9 @@ def generate_image_api(request):
 
     width = _clamp_dim(payload.get('width'), 1024)
     height = _clamp_dim(payload.get('height'), 1024)
+    quality = (payload.get('quality') or 'normal').strip().lower()
+    if quality not in ('normal', 'extreme'):
+        quality = 'normal'
 
     t0 = time.time()
     engine = None
@@ -1820,14 +1835,14 @@ def generate_image_api(request):
             tried_errors.append(f'Gemini: {gm_info}')
 
     if pil_img is None and _CF_API_TOKEN and _CF_ACCOUNT_ID:
-        cf_img, cf_info = _cloudflare_generate_image(prompt, width, height,
-                                                     timeout=_IMGGEN_TIMEOUT)
+        cf_img, cf_info = _cloudflare_generate_image(
+            prompt, width, height, quality=quality, timeout=_IMGGEN_TIMEOUT)
         if cf_img is not None:
             pil_img = cf_img
             engine = 'cloudflare'
             engine_model = cf_info
         else:
-            tried_errors.append(f'Cloudflare: {cf_info}')
+            tried_errors.append(f'Cloudflare ({quality}): {cf_info}')
 
     if pil_img is None:
         pl_img, pl_info = _pollinations_generate_image(prompt, width, height,
@@ -1867,6 +1882,7 @@ def generate_image_api(request):
         'original_prompt': original_prompt,
         'used_prompt': prompt,
         'translated': was_translated,
+        'quality': quality,
     })
 
 

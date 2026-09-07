@@ -2,10 +2,10 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { X, Loader2, Download, ImagePlus, ChevronDown, Sparkles, AlertCircle } from 'lucide-react';
 import { getCsrfToken } from '../utils/security';
 
-// Server picks the engine (Pollinations FLUX free primary; Gemini optional if
-// billing is enabled). The dropdown is kept as a single info card.
+// Two quality tiers — both counted against the same per-device daily cap.
 const MODELS = [
-  { k: 'gemini', name: 'FLUX schnell', desc: 'Free · ~3-8 s · Cloudflare Workers AI (Pollinations fallback)' },
+  { k: 'normal',  name: 'Normal',           desc: 'Fast · ~3-8 s · FLUX schnell on Cloudflare' },
+  { k: 'extreme', name: 'Extreme Quality',  desc: 'Higher fidelity · ~5-12 s · Leonardo Lucid Origin' },
 ];
 
 const SIZES = [
@@ -33,7 +33,7 @@ function useIsMobile() {
 
 export default function ImageGenerator({ onClose }) {
   const [prompt, setPrompt] = useState('');
-  const [modelKey, setModelKey] = useState('gemini');
+  const [modelKey, setModelKey] = useState('normal');
   const [sizeKey, setSizeKey] = useState('sq');
   const [negative, setNegative] = useState('');
   const [seed, setSeed] = useState('');
@@ -83,6 +83,7 @@ export default function ImageGenerator({ onClose }) {
       const body = {
         prompt: prompt.trim(),
         model: modelKey,
+        quality: modelKey,          // 'normal' or 'extreme' — server routes to the right Cloudflare model
         width: size.w,
         height: size.h,
       };
@@ -296,7 +297,7 @@ function renderControls({
       <div style={S.hint}>
         Tip: press <kbd style={S.kbd}>Ctrl</kbd>+<kbd style={S.kbd}>Enter</kbd> to generate.
         <br />
-        <b>Free tier: 5 images per user per day.</b> Powered by Cloudflare Workers AI (FLUX).
+        <b>Free tier: 5 images per device per day.</b> Powered by Cloudflare Workers AI.
         <br />
         Prompt in English, Hindi, Assamese or Hinglish — we'll translate for you.
       </div>
@@ -311,7 +312,7 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
         <Loader2 size={isMobile ? 34 : 42} className="spin-icon" />
         <div style={S.placeholderTitle}>Painting your image… ({elapsed}s)</div>
         <div style={S.placeholderSub}>
-          Usually 5–10 seconds.
+          {modelKey === 'extreme' ? 'Extreme quality — usually 5-12 seconds.' : 'Usually 3-8 seconds.'}
         </div>
       </div>
     );
@@ -330,7 +331,9 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
             {result.engine === 'gemini'
               ? 'Google Gemini'
               : result.engine === 'cloudflare'
-                ? 'Cloudflare · FLUX'
+                ? (result.quality === 'extreme'
+                    ? 'Cloudflare · Extreme (Lucid Origin)'
+                    : 'Cloudflare · FLUX schnell')
                 : result.engine === 'pollinations'
                   ? 'Pollinations · FLUX'
                   : result.model_id || 'AI image'}
