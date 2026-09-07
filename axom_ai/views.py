@@ -1608,6 +1608,10 @@ def generate_image_api(request):
 _SUMMARIZE_MAX_CHARS = 60_000          # per-request text cap (safety)
 _SUMMARIZE_CHUNK_CHARS = 12_000        # split threshold for map-reduce
 _SUMMARIZE_MAX_FILE_MB = 40
+# Product cap for the launch tier — keeps latency + cost predictable while
+# the summarizer is free. Frontend enforces the same number so users see it
+# up-front for pasted text; server enforces it for uploaded files.
+_SUMMARIZE_MAX_WORDS = 450
 
 _SUMMARY_LENGTH_HINTS = {
     'short':    ('a very short summary — 3 to 4 sentences', '~80 words'),
@@ -1814,6 +1818,22 @@ def summarize_api(request):
         language = 'assamese'
     if len(text) > _SUMMARIZE_MAX_CHARS:
         text = text[:_SUMMARIZE_MAX_CHARS]
+
+    # Enforce the 450-word launch-tier cap. The frontend also blocks this for
+    # pasted text; the server catch is for uploaded files where the user can't
+    # see the word count in advance, and for any client that bypasses the UI.
+    word_count = len(text.split())
+    if word_count > _SUMMARIZE_MAX_WORDS:
+        return JsonResponse({
+            'error': (
+                f'This document has about {word_count} words, but Axom AI can '
+                f'currently summarise up to {_SUMMARIZE_MAX_WORDS} words at a '
+                f'time. Please trim the text or split the file into smaller '
+                f'sections.'
+            ),
+            'word_count': word_count,
+            'word_limit': _SUMMARIZE_MAX_WORDS,
+        }, status=413)
 
     t0 = time.time()
     summary = _summarize_text(text, length=length, language=language)

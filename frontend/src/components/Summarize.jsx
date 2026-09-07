@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   X,
   UploadCloud,
@@ -13,7 +13,14 @@ import {
 import { getCsrfToken } from '../utils/security';
 
 const MAX_MB = 40;
+const MAX_WORDS = 450;   // matches _SUMMARIZE_MAX_WORDS in views.py
 const ACCEPT = '.pdf,.docx,.txt';
+
+function countWords(s) {
+  if (!s) return 0;
+  // Split on any run of whitespace; ignore empties.
+  return s.trim().split(/\s+/).filter(Boolean).length;
+}
 const LENGTH_OPTIONS = [
   { id: 'short', label: 'Short', hint: '~80 words' },
   { id: 'medium', label: 'Medium', hint: '~200 words' },
@@ -86,7 +93,17 @@ export default function Summarize({ onClose }) {
     else if (e.type === 'dragleave') setDragActive(false);
   };
 
-  const canRun = mode === 'file' ? !!file : text.trim().length >= 40;
+  const pastedWords = useMemo(
+    () => (mode === 'text' ? countWords(text) : 0),
+    [mode, text],
+  );
+  const pastedOverLimit = mode === 'text' && pastedWords > MAX_WORDS;
+
+  const canRun =
+    !isRunning &&
+    (mode === 'file'
+      ? !!file
+      : text.trim().length >= 40 && !pastedOverLimit);
 
   const runSummarize = async () => {
     setError(null);
@@ -318,13 +335,25 @@ export default function Summarize({ onClose }) {
             />
             <div
               style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 fontSize: 11,
-                opacity: 0.55,
                 marginTop: 6,
-                textAlign: 'right',
               }}
             >
-              {text.length.toLocaleString()} chars
+              <span
+                style={{
+                  color: pastedOverLimit
+                    ? '#ef4444'
+                    : 'var(--text-muted, #64748b)',
+                  fontWeight: pastedOverLimit ? 600 : 400,
+                }}
+              >
+                {pastedWords.toLocaleString()} / {MAX_WORDS} words
+              </span>
+              <span style={{ opacity: 0.5 }}>
+                {text.length.toLocaleString()} chars
+              </span>
             </div>
           </div>
         )}
@@ -393,15 +422,79 @@ export default function Summarize({ onClose }) {
           </div>
         )}
 
+        {/* Word-limit notice — shown right above the Summarize button. */}
+        {pastedOverLimit ? (
+          <div
+            role="alert"
+            style={{
+              background: 'rgba(239, 68, 68, 0.10)',
+              border: '1px solid rgba(239, 68, 68, 0.40)',
+              borderRadius: 8,
+              padding: '12px 14px',
+              display: 'flex',
+              gap: 10,
+              alignItems: 'flex-start',
+              fontSize: 13,
+              lineHeight: 1.5,
+            }}
+          >
+            <AlertCircle
+              size={16}
+              style={{ color: '#ef4444', marginTop: 2, flexShrink: 0 }}
+            />
+            <div>
+              <div style={{ fontWeight: 600, marginBottom: 2 }}>
+                Text is over the {MAX_WORDS}-word limit
+              </div>
+              <div style={{ opacity: 0.85 }}>
+                You&rsquo;ve pasted <b>{pastedWords.toLocaleString()}</b> words.
+                Axom AI can currently summarise up to <b>{MAX_WORDS}</b> words
+                at a time. Please trim the text (remove
+                {' '}
+                <b>{(pastedWords - MAX_WORDS).toLocaleString()}</b> words)
+                or split it into smaller sections.
+              </div>
+            </div>
+          </div>
+        ) : mode === 'file' && file ? (
+          <div
+            style={{
+              background: 'rgba(59, 130, 246, 0.08)',
+              border: '1px solid rgba(59, 130, 246, 0.30)',
+              borderRadius: 8,
+              padding: '10px 14px',
+              display: 'flex',
+              gap: 10,
+              alignItems: 'flex-start',
+              fontSize: 12.5,
+              lineHeight: 1.5,
+              color: 'var(--text-secondary, #94a3b8)',
+            }}
+          >
+            <AlertCircle
+              size={14}
+              style={{ color: '#3b82f6', marginTop: 2, flexShrink: 0 }}
+            />
+            <div>
+              Axom AI currently supports summarising up to{' '}
+              <b style={{ color: 'var(--text-primary, #f8fafc)' }}>
+                {MAX_WORDS} words
+              </b>{' '}
+              per file. If your file is longer, we&rsquo;ll let you know so you
+              can trim or split it.
+            </div>
+          </div>
+        ) : null}
+
         {/* Run button */}
         <div>
           <button
-            disabled={!canRun || isRunning}
+            disabled={!canRun}
             onClick={runSummarize}
             style={{
               ...btn('primary'),
-              opacity: !canRun || isRunning ? 0.5 : 1,
-              cursor: !canRun || isRunning ? 'not-allowed' : 'pointer',
+              opacity: !canRun ? 0.5 : 1,
+              cursor: !canRun ? 'not-allowed' : 'pointer',
               padding: '12px 20px',
               fontSize: 14,
               fontWeight: 600,
