@@ -9,10 +9,17 @@ from django.db.models import Q
 from .models import KnowledgeDocument, KnowledgeChunk, QAPair
 
 # --------------------------------------------------------------------------
-# Semantic search — BAAI/bge-m3 (multilingual, runs locally, no rate limits).
-# The model is loaded lazily once and kept resident in the process.
+# Semantic search — sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+# (multilingual, 384-dim, ~120 MB, runs locally, no rate limits).
+# Small enough (~250 MB resident) to sit alongside Django on an 8 GB box while
+# still giving strong cross-lingual retrieval for Assamese / Hindi / English.
+# The model is loaded lazily once and kept resident in the process. Override
+# via the EMBED_MODEL env var (e.g. 'BAAI/bge-m3' for higher accuracy at ~2.5 GB).
 # --------------------------------------------------------------------------
-EMBED_MODEL = os.getenv('EMBED_MODEL', 'BAAI/bge-m3')
+EMBED_MODEL = os.getenv(
+    'EMBED_MODEL',
+    'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
+)
 SEMANTIC_THRESHOLD = float(os.getenv('SEMANTIC_THRESHOLD', '0.72'))
 _EMBED_MODEL_OBJ = None
 _QA_CACHE = None  # (ids, answers, normalized_matrix, count)
@@ -28,8 +35,9 @@ def _get_model():
 
 
 def _embed_texts(texts):
-    """Embed a list of texts locally with bge-m3. Returns a list of normalized
-    vectors, or None on failure (caller falls back to keyword search)."""
+    """Embed a list of texts locally with the configured sentence-transformer
+    model (MiniLM-L12-v2 by default). Returns a list of normalized vectors,
+    or None on failure (caller falls back to keyword search)."""
     if not texts:
         return None
     try:

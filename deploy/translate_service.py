@@ -2,8 +2,9 @@
 IndicTrans2 English -> Assamese translation microservice.
 
 Runs in its OWN virtualenv (transformers 4.x) so it does not conflict with the
-Django app's transformers 5.x / bge-m3 stack. Django calls it over localhost
-HTTP for Assamese answers that are not already served verbatim from the DB.
+Django app's transformers 5.x / sentence-transformers (MiniLM-L12-v2) stack.
+Django calls it over localhost HTTP for Assamese answers that are not already
+served verbatim from the DB.
 
 Endpoints:
     GET  /health              -> {"ok": true, "ready": bool}

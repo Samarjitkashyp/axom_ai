@@ -1,7 +1,8 @@
 # 🧠 Axom AI
 
 A self-hosted AI assistant for **everything about Assam**, built with **Django + React**. It
-answers from your own knowledge base using **semantic search (BAAI/bge-m3)**, always **replies in
+answers from your own knowledge base using **local multilingual semantic search
+(`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`)**, always **replies in
 Assamese (অসমীয়া)** whatever language you type in, and is powered by **Groq (primary)** with a
 **Google Gemini** fallback. It also bundles a full **Converter & PDF Tools** suite (PDF ⇄ Word,
 images, Office → PDF, OCR, compress, AI chat/summarize/translate) and an in-browser **PDF editor**.
@@ -16,13 +17,13 @@ images, Office → PDF, OCR, compress, AI chat/summarize/translate) and an in-br
 - 🗣️ **Assamese-only replies** — type in English / Hindi / Hinglish / Roman Assamese, always get a
   natural **Assamese (অসমীয়া)** answer (KB answers served verbatim; Wikipedia answers synthesized
   by Groq into conversational Assamese; the rest via Groq → IndicTrans2/Groq)
-- 📖 **Wikipedia RAG** — 25K Assamese Wikipedia articles (112K chunks) with BGE-M3 embeddings,
-  synthesized into natural conversational answers (not raw dumps)
+- 📖 **Wikipedia RAG** — 25K Assamese Wikipedia articles (112K chunks) with MiniLM
+  multilingual embeddings, synthesized into natural conversational answers (not raw dumps)
 - 🎯 **Accurate, no hallucination** — answers come from your knowledge base; the model
   is told never to invent names/dates/facts and to say "not certain" instead
 - ⚡ **Groq-first, streamed** — `openai/gpt-oss-120b` on Groq answers first (~0.7s), Gemini is the
   fallback (and handles web-search grounding)
-- 🔎 **Semantic search (bge-m3)** — matches questions by *meaning*, across wording and language
+- 🔎 **Semantic search (MiniLM-L12-v2)** — matches questions by *meaning*, across wording and language
 - 📚 **Knowledge base + source attribution** — upload PDF, DOCX, Excel, CSV, TXT, or **JSONL** (Q&A)
   with `source_name` / `source_url`, shown under each answer
 - 🧰 **Converter & PDF Tools** — a full tools page (see below): PDF ⇄ Word, image ⇄ PDF,
@@ -59,7 +60,7 @@ User question  (any language — English / Hindi / Hinglish / Roman Assamese)
    │
    ├─ 1. INSTANT       → exact keyword match to a stored Q&A?    → verbatim (0 ms)
    │
-   ├─ 2. SEMANTIC      → closest meaning match (bge-m3 ≥ 0.72)?
+   ├─ 2. SEMANTIC      → closest meaning match (MiniLM cosine ≥ 0.72)?
    │        ├─ Wikipedia hit  → Groq synthesizes a natural Assamese answer from the chunk
    │        ├─ KB Assamese    → verified record returned directly (fast, no model)
    │        └─ other          → translated (facts kept exact)
@@ -77,7 +78,7 @@ User question  (any language — English / Hindi / Hinglish / Roman Assamese)
 | Backend | Django 5.2 (Python) |
 | Frontend | React 19 + Vite |
 | Database | PostgreSQL |
-| Semantic search | `BAAI/bge-m3` via sentence-transformers (multilingual, 1024-dim) |
+| Semantic search | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` (multilingual, 384-dim, ~250 MB resident) |
 | Knowledge base | 114K+ QAPairs — 2.2K hand-curated + 112K Assamese Wikipedia chunks |
 | Primary LLM | **Groq** `openai/gpt-oss-120b` (fast, streamed) |
 | Fallback LLM | Google Gemini API (+ web-search grounding); Ollama for offline chat |
@@ -101,8 +102,10 @@ User question  (any language — English / Hindi / Hinglish / Roman Assamese)
 
 These are **separate** — don't mix them up:
 
-1. **Semantic search — `bge-m3`** (always used). Finds the right answer in your knowledge base by
-   meaning. Runs locally via `sentence-transformers`; installed automatically by `pip install`.
+1. **Semantic search — `MiniLM-L12-v2`** (always used). Finds the right answer in your knowledge
+   base by meaning. Runs locally via `sentence-transformers` (multilingual, 384-dim, ~250 MB
+   resident); installed automatically by `pip install`. Swap for `BAAI/bge-m3` via `EMBED_MODEL`
+   if you want higher accuracy and have the RAM.
 2. **Chat model — your choice of engine:**
    - **Gemini (recommended, easiest)** → set `USE_LOCAL_LLM=False`. **No Ollama needed.** Just a
      free Gemini API key. **This is what the live server uses** — best for quickly testing the project.
@@ -120,7 +123,7 @@ These are **separate** — don't mix them up:
 git clone https://github.com/Samarjitkashyp/axom_ai.git
 cd axom_ai
 
-# 2. python env + dependencies  (installs Django, bge-m3, etc.)
+# 2. python env + dependencies  (installs Django, sentence-transformers, etc.)
 python -m venv venv
 venv\Scripts\activate            # Windows   (mac/linux: source venv/bin/activate)
 pip install -r requirements.txt
@@ -147,13 +150,13 @@ python manage.py runserver
 ```
 
 > ✅ **Easiest test setup:** in `.env` set `USE_LOCAL_LLM=False` + your `GEMINI_API_KEY` — then you
-> don't need Ollama at all. Semantic search still uses bge-m3 (installed automatically).
+> don't need Ollama at all. Semantic search still uses MiniLM (installed automatically).
 
 Then open **http://127.0.0.1:8000/**. To load knowledge: go to **/admin-panel/**, upload a
 `.jsonl` file, then run `python manage.py backfill_embeddings` so semantic search works.
 
-> The first time semantic search runs, **bge-m3 (~2 GB)** downloads automatically and loads into
-> RAM (needs ~2–3 GB free). The first query is slow; after that it's fast.
+> The first time semantic search runs, **MiniLM-L12-v2 (~120 MB)** downloads automatically and
+> loads into RAM (needs ~300 MB free). Fast on the very first query.
 
 The detailed, explained version of every step is below.
 
@@ -177,8 +180,8 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 ```
-> This installs `sentence-transformers` (for bge-m3). The model (~2 GB) downloads automatically
-> the first time semantic search runs.
+> This installs `sentence-transformers`. The default embedding model (MiniLM-L12-v2, ~120 MB)
+> downloads automatically the first time semantic search runs.
 
 ### 3. PostgreSQL
 ```sql
@@ -251,7 +254,7 @@ used directly for Assamese replies instead of translation.
 ### Embeddings
 After uploading data, generate embeddings so semantic search works:
 ```bash
-python manage.py backfill_embeddings   # dedupes, trims paraphrases, embeds with bge-m3
+python manage.py backfill_embeddings   # dedupes, trims paraphrases, embeds with the configured model
 ```
 
 ### Wikipedia import (pre-loaded on the live server)
@@ -273,7 +276,11 @@ python manage.py embed_wiki_titles             # fast: embed each title once, sh
 | `GEMINI_API_KEY` | Gemini (streaming, translation, fallback) |
 | `USE_LOCAL_LLM` | `True` = local Ollama first; `False` = Gemini only |
 | `OLLAMA_MODEL` / `OLLAMA_*` | local model + performance knobs |
+| `EMBED_MODEL` | sentence-transformer model for semantic search (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; swap for `BAAI/bge-m3` for higher accuracy) |
 | `SEMANTIC_THRESHOLD` | min similarity to accept a KB match (default 0.72) |
+| `USE_INDICTRANS`, `INDICTRANS_URL` | route EN→AS translation through the local IndicTrans2 microservice instead of Gemini |
+| `GROQ_API_KEY`, `GROQ_MODEL` | Groq primary chat engine (default `openai/gpt-oss-120b`) |
+| `HF_TOKEN` | HuggingFace inference token for the "Generate Image" tool (FLUX) |
 | `STRICT_KB_MODE` | `True` = say "don't know" when not in KB; `False` = general answers |
 | `CHAT_RATE_LIMIT` / `CHAT_RATE_WINDOW` | per-IP rate limit |
 | `MEMORY_CHAR_BUDGET` | conversation context size |
@@ -299,8 +306,10 @@ Then set `OLLAMA_MODEL=axom-custom`.
 
 ## ☁️ Deployment (AWS Lightsail)
 
-Runs in **Gemini-only mode** by default on small instances; bge-m3 semantic search runs on
-2 GB+ RAM (with **1 Gunicorn worker** so the model loads once). Static files via **WhiteNoise**.
+Runs on an 8 GB / 2 vCPU AWS Lightsail box (Debian 12, `ap-south-1`) behind Cloudflare. The
+MiniLM embedding model (~250 MB resident) sits alongside Django in a **single Gunicorn worker**
+(4 threads) so the model loads once and stays warm. Static files via **WhiteNoise**. CI/CD via
+GitHub Actions → SSH deploy → `systemctl restart axom` (see `.github/workflows/deploy.yml`).
 
 One-shot deploy — see **[deploy/DEPLOY.md](deploy/DEPLOY.md)**:
 ```bash
@@ -350,11 +359,12 @@ axom_ai/
 ## 🩺 Troubleshooting
 
 - **Semantic search returns nothing** → run `python manage.py backfill_embeddings` after uploading data.
-- **First reply is slow** → bge-m3 model + 114K-entry QA matrix are pre-warmed on startup in a
-  background thread; the first query after a restart may still be slow if warmup hasn't finished.
+- **First reply is slow** → the embedding model + 114K-entry QA matrix are pre-warmed on startup
+  in a background thread; the first query after a restart may still be slow if warmup hasn't finished.
 - **Answers come from Gemini, not local** → Ollama isn't running (`ollama serve`), or `USE_LOCAL_LLM=False`.
-- **Out-of-memory with bge-m3** → use **1 Gunicorn worker**, or a smaller embedding model / more RAM.
-  The QA matrix for 114K entries needs ~450 MB RAM.
+- **Out-of-memory with the embedding model** → use **1 Gunicorn worker**, or stick with the
+  default MiniLM (~250 MB resident) instead of BGE-M3 (~2.5 GB). The QA matrix for 114K entries
+  needs ~450 MB RAM.
 - **Admin panel shows chat instead of dashboard** → log in as a **staff** user at `/admin-panel/login/`.
 
 ---
