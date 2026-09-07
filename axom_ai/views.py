@@ -1483,7 +1483,7 @@ _IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
 # Per-user daily cap. Free-tier product limit — each visitor (by IP) can only
 # generate this many images per calendar day (UTC). Once exceeded, the API
 # returns a clear English message and does not spend a Gemini call.
-_IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '2'))
+_IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '5'))
 _IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
 
 # Gemini image model. NOTE: Google requires billing to be enabled on the
@@ -1540,6 +1540,63 @@ def _cloudflare_generate_image(prompt, width, height, timeout=60):
         return img, f'cloudflare/{_CF_IMAGE_MODEL}'
     except Exception as e:
         return None, str(e)[:300]
+
+
+# -- Prompt normaliser -----------------------------------------------------
+# Image models (FLUX, SD, Imagen) are trained on English captions, so a
+# Hindi / Assamese / Hinglish prompt produces garbage. We ask Groq to
+# translate/rewrite the prompt into a clean English image-generation prompt
+# before handing it to the image engine. Groq is fast enough (~200-400 ms)
+# and free-tier generous enough for this to be free per image.
+
+# Fast-skip: pure-ASCII + at least a few English words -> almost certainly
+# already an English prompt, no translation needed (saves the round-trip).
+_ASCII_ONLY = re.compile(r'^[\x00-\x7F]*$')
+_LIKELY_ENGLISH_WORDS = re.compile(
+    r'\b(the|a|an|with|and|of|on|in|to|at|for|by|from|as|is|are|was|were|'
+    r'photo|photograph|image|picture|painting|illustration|portrait|landscape|'
+    r'style|realistic|cartoon|anime|render|scene|background|foreground|'
+    r'sunset|sunrise|forest|mountain|city|street|room|table|cat|dog|man|woman|'
+    r'girl|boy|child|tree|flower|sky|cloud|light|dark|red|blue|green|yellow|'
+    r'orange|black|white|pink|purple|gold|silver)\b', re.IGNORECASE)
+
+
+def _looks_like_english(prompt):
+    if not _ASCII_ONLY.match(prompt):
+        return False       # contains any non-ASCII (Devanagari, Assamese, etc.)
+    # Roman-Hindi / Roman-Assamese are ASCII too, so also require some real
+    # English content words. If none found, assume it needs translation.
+    return bool(_LIKELY_ENGLISH_WORDS.search(prompt))
+
+
+def _translate_prompt_for_image(prompt):
+    """Rewrite an arbitrary-language prompt into a clean English image-gen
+    prompt. Returns (english_prompt, was_translated:bool). Falls back to the
+    original prompt on any failure so we never block the image generation."""
+    if _looks_like_english(prompt):
+        return prompt, False
+    system = (
+        "You rewrite image-generation prompts into clear, natural ENGLISH. "
+        "The user may write in English, Hindi, Assamese, Hinglish, or Roman-"
+        "Hindi/Assamese. Translate the meaning faithfully, keep it concise "
+        "(under 60 words), and phrase it as a visual scene description "
+        "suitable for a text-to-image model. Output ONLY the English prompt, "
+        "no quotes, no preface, no explanation."
+    )
+    out = _groq_generate(system, prompt, timeout=15)
+    if not out:
+        # Gemini as fallback if Groq is down.
+        gk = os.getenv('GEMINI_API_KEY', '').strip()
+        if gk:
+            out = _gemini_generate(
+                gk, system, prompt,
+                ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'],
+            )
+    if not out:
+        return prompt, False   # both engines failed — send original as-is
+    # Strip surrounding quotes/newlines the model sometimes adds.
+    out = out.strip().strip('"').strip("'").strip()
+    return out or prompt, bool(out and out != prompt)
 
 
 # Pollinations.ai — completely free, no API key, no signup. A GET on a URL
@@ -1698,11 +1755,16 @@ def generate_image_api(request):
     except Exception:
         return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
 
-    prompt = (payload.get('prompt') or '').strip()
-    if not prompt:
+    original_prompt = (payload.get('prompt') or '').strip()
+    if not original_prompt:
         return JsonResponse({'error': 'Prompt is required.'}, status=400)
-    if len(prompt) > 1000:
+    if len(original_prompt) > 1000:
         return JsonResponse({'error': 'Prompt exceeds 1000 characters.'}, status=400)
+
+    # Normalise: any Hindi / Assamese / Hinglish / Roman-Indic prompt gets
+    # rewritten into an English image-gen prompt via Groq. English prompts
+    # pass through untouched.
+    prompt, was_translated = _translate_prompt_for_image(original_prompt)
 
     # Clamp geometry defensively (Gemini picks its own size; we still forward
     # a hint about orientation).
@@ -1782,6 +1844,9 @@ def generate_image_api(request):
         'daily_limit': _IMGGEN_DAILY_LIMIT,
         'used_today': used_after,
         'remaining_today': max(0, _IMGGEN_DAILY_LIMIT - used_after),
+        'original_prompt': original_prompt,
+        'used_prompt': prompt,
+        'translated': was_translated,
     })
 
 

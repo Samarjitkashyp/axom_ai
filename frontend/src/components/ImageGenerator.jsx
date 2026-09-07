@@ -296,7 +296,9 @@ function renderControls({
       <div style={S.hint}>
         Tip: press <kbd style={S.kbd}>Ctrl</kbd>+<kbd style={S.kbd}>Enter</kbd> to generate.
         <br />
-        <b>Free tier: 2 images per user per day.</b> Powered by Cloudflare Workers AI (FLUX).
+        <b>Free tier: 5 images per user per day.</b> Powered by Cloudflare Workers AI (FLUX).
+        <br />
+        Prompt in English, Hindi, Assamese or Hinglish — we'll translate for you.
       </div>
     </>
   );
@@ -346,6 +348,24 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
             {result.remaining_today > 0
               ? `${result.remaining_today} of ${result.daily_limit} free images left for today.`
               : `You have used all ${result.daily_limit} free images for today.`}
+          </div>
+        )}
+        {result.translated && result.used_prompt && (
+          <div
+            style={{
+              fontSize: 11,
+              opacity: 0.7,
+              marginTop: 8,
+              padding: '6px 10px',
+              background: 'rgba(59, 130, 246, 0.08)',
+              border: '1px solid rgba(59, 130, 246, 0.22)',
+              borderRadius: 6,
+              textAlign: 'center',
+              fontStyle: 'italic',
+            }}
+            title={result.original_prompt}
+          >
+            Prompted as: “{result.used_prompt}”
           </div>
         )}
         <div style={S.resultActions}>
