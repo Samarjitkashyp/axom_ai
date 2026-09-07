@@ -497,10 +497,11 @@ def chat_api_view(request):
             "You are Axom AI. Use ONLY the web search results below to answer "
             "the user's question. Reply in natural, native Assamese using "
             "correct Assamese script (অসমীয়া) — never in English or Bengali. "
-            "Cite the sources inline as [1], [2] where relevant. Never invent "
-            "facts that are not in the results. If the results don't contain "
-            "the answer, say so honestly in Assamese. Output plain prose only "
-            "— no Markdown, no bullets, no HTML."
+            "Write plain, flowing prose only — NO inline citation markers like "
+            "[1], [2], (1), (2), or (Source 1). The user will see the source "
+            "URLs separately below the answer. Never invent facts that are "
+            "not in the results. If the results don't contain the answer, say "
+            "so honestly in Assamese. No Markdown, no bullets, no HTML."
         )
         ws_prompt = (
             f"Web search results:\n\n{context}\n\n"
@@ -528,12 +529,24 @@ def chat_api_view(request):
             asm = _groq_generate(
                 "Rewrite the following text in clear, natural, everyday "
                 "Assamese (অসমীয়া script). Preserve every fact, name, date, "
-                "number and URL exactly. Keep the [1] [2] citation markers. "
-                "Plain prose only — no Markdown.",
+                "number and URL exactly. Do NOT add inline citation markers "
+                "like [1], [2], (1), (2). Plain prose only — no Markdown.",
                 answer, timeout=30,
             )
             if asm and asm.strip():
                 answer = asm.strip()
+
+        # Belt-and-suspenders: strip any inline citation markers the model
+        # slipped in despite the prompt — [1], [1,2], [1][2], (1), (Source 1),
+        # ¹²³ superscript digits, and stray "Source 1 :" / "(source 1)" tags.
+        answer = re.sub(r'\[\s*(?:source\s*)?\d+(?:\s*[,;]\s*\d+)*\s*\](?:\s*\[\s*\d+\s*\])*',
+                        '', answer, flags=re.IGNORECASE)
+        answer = re.sub(r'\(\s*(?:source|src|ref)\.?\s*\d+\s*\)', '', answer,
+                        flags=re.IGNORECASE)
+        answer = re.sub(r'[⁰¹²³⁴-⁹]+', '', answer)
+        # Tidy up any double spaces / stray "  ." left behind.
+        answer = re.sub(r'\s+([।.,;:!?])', r'\1', answer)
+        answer = re.sub(r'\s{2,}', ' ', answer).strip()
 
         _websearch_daily_incr(ws_ip)
         _save_chat(request, client_id, prompt, answer)
