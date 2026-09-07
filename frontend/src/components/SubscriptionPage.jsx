@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Check,
   ChevronLeft,
@@ -22,6 +22,32 @@ import {
   Clock,
   Award
 } from 'lucide-react';
+import { getCsrfToken } from '../utils/security';
+
+// Frontend plan id + billing cycle -> backend plan key (must match payments/models.py PLAN_CATALOG)
+const BACKEND_PLAN_KEY = {
+  starter:  { monthly: 'starter_monthly',  yearly: 'starter_yearly'  },
+  pro:      { monthly: 'pro_monthly',      yearly: 'pro_yearly'      },
+  business: { monthly: 'business_monthly', yearly: 'business_yearly' },
+};
+
+function loadRazorpayScript() {
+  return new Promise((resolve) => {
+    if (window.Razorpay) return resolve(true);
+    const s = document.createElement('script');
+    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.body.appendChild(s);
+  });
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch { return ''; }
+}
 
 export default function SubscriptionPage({
   onBackToChat,
@@ -32,8 +58,20 @@ export default function SubscriptionPage({
 }) {
   const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'yearly'
   const [checkoutPlan, setCheckoutPlan] = useState(null); // plan object when modal opens
-  const [checkoutStatus, setCheckoutStatus] = useState('idle'); // 'idle' | 'processing' | 'success'
+  const [checkoutStatus, setCheckoutStatus] = useState('idle'); // 'idle' | 'processing' | 'success' | 'error'
+  const [checkoutError, setCheckoutError] = useState('');
   const [faqOpenIndex, setFaqOpenIndex] = useState(null);
+  const [activePlan, setActivePlan] = useState(null); // { active, plan, plan_label, expires_at, days_left, status }
+
+  // Preload Razorpay Checkout script + fetch current plan status once
+  useEffect(() => {
+    loadRazorpayScript();
+    if (!user?.isAuthenticated) return;
+    fetch('/api/plan/status/', { credentials: 'same-origin' })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data) setActivePlan(data); })
+      .catch(() => {});
+  }, [user?.isAuthenticated]);
 
   const PLANS = [
     {
@@ -185,12 +223,91 @@ export default function SubscriptionPage({
     setCheckoutStatus('idle');
   };
 
-  const handleConfirmCheckout = () => {
+  const handleConfirmCheckout = useCallback(async () => {
+    if (!checkoutPlan) return;
+    if (!user?.isAuthenticated) {
+      onOpenLogin?.('Login to Continue', 'Sign in first to purchase a plan. Your account keeps your subscription safely.');
+      return;
+    }
+    const backendKey = BACKEND_PLAN_KEY[checkoutPlan.id]?.[billingCycle];
+    if (!backendKey) {
+      setCheckoutStatus('error');
+      setCheckoutError('Unknown plan');
+      return;
+    }
+
     setCheckoutStatus('processing');
-    setTimeout(() => {
-      setCheckoutStatus('success');
-    }, 1200);
-  };
+    setCheckoutError('');
+
+    // 1. Ensure Razorpay Checkout script is loaded
+    const ok = await loadRazorpayScript();
+    if (!ok || !window.Razorpay) {
+      setCheckoutStatus('error');
+      setCheckoutError('Could not load Razorpay. Check your internet connection.');
+      return;
+    }
+
+    // 2. Create order on our backend
+    let order;
+    try {
+      const resp = await fetch('/api/payment/create-order/', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() || '' },
+        body: JSON.stringify({ plan: backendKey }),
+      });
+      order = await resp.json();
+      if (!resp.ok) throw new Error(order.error || `HTTP ${resp.status}`);
+    } catch (e) {
+      setCheckoutStatus('error');
+      setCheckoutError(String(e.message || e));
+      return;
+    }
+
+    // 3. Open Razorpay Checkout modal
+    const rzp = new window.Razorpay({
+      key: order.key_id,
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.order_id,
+      name: 'Axom AI',
+      description: `${order.plan_label} · ${order.days} days access`,
+      prefill: { name: order.user_name, email: order.user_email },
+      theme: { color: checkoutPlan.color || '#c084fc' },
+      modal: {
+        ondismiss: () => {
+          if (checkoutStatus === 'processing') setCheckoutStatus('idle');
+        },
+      },
+      handler: async (response) => {
+        // 4. Verify signature on our backend
+        try {
+          const vr = await fetch('/api/payment/verify/', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() || '' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const vd = await vr.json();
+          if (!vr.ok || !vd.ok) throw new Error(vd.error || `HTTP ${vr.status}`);
+          setActivePlan(vd.plan);
+          setCheckoutStatus('success');
+        } catch (e) {
+          setCheckoutStatus('error');
+          setCheckoutError('Payment received but verification failed: ' + (e.message || e));
+        }
+      },
+    });
+    rzp.on?.('payment.failed', (resp) => {
+      setCheckoutStatus('error');
+      setCheckoutError(resp?.error?.description || 'Payment failed. Please try again.');
+    });
+    rzp.open();
+  }, [checkoutPlan, billingCycle, user, onOpenLogin, checkoutStatus]);
 
   return (
     <div className="subscription-page">
@@ -227,6 +344,34 @@ export default function SubscriptionPage({
 
       {/* MAIN CONTAINER */}
       <main className="sub-main-container">
+        {/* ACTIVE PLAN BANNER */}
+        {activePlan?.active && (
+          <div className="active-plan-banner" style={{
+            margin: '16px auto 0', maxWidth: 900, padding: '12px 18px', borderRadius: 12,
+            background: 'linear-gradient(135deg, rgba(34,197,94,0.15), rgba(59,130,246,0.10))',
+            border: '1px solid rgba(34,197,94,0.35)', color: 'var(--text-main, #e5e7eb)',
+            display: 'flex', alignItems: 'center', gap: 12, fontSize: 14,
+          }}>
+            <CheckCircle2 size={20} style={{ color: '#22c55e', flexShrink: 0 }} />
+            <div>
+              <strong>{activePlan.plan_label}</strong> is active — expires on{' '}
+              <strong>{formatDate(activePlan.expires_at)}</strong>{' '}
+              <span style={{ opacity: 0.7 }}>({activePlan.days_left} days left)</span>
+            </div>
+          </div>
+        )}
+        {activePlan && !activePlan.active && activePlan.plan && (
+          <div className="expired-plan-banner" style={{
+            margin: '16px auto 0', maxWidth: 900, padding: '12px 18px', borderRadius: 12,
+            background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(245,158,11,0.10))',
+            border: '1px solid rgba(239,68,68,0.35)', color: 'var(--text-main, #e5e7eb)',
+            fontSize: 14,
+          }}>
+            <strong>{activePlan.plan_label}</strong> expired on{' '}
+            <strong>{formatDate(activePlan.expires_at)}</strong>. Renew below to restore access.
+          </div>
+        )}
+
         {/* HERO SECTION */}
         <section className="sub-hero">
           <div className="tools-hero-badge">
@@ -537,10 +682,11 @@ export default function SubscriptionPage({
                     <div className="checkout-success-icon">
                       <CheckCircle2 size={54} />
                     </div>
-                    <h4>Subscription Confirmed!</h4>
+                    <h4>Payment Confirmed!</h4>
                     <p>
-                      Your account has been upgraded to <strong>{checkoutPlan.name}</strong>.
-                      Your new limit of <strong>{checkoutPlan.monthlyWords}</strong> and tools are now active.
+                      <strong>{checkoutPlan.name}</strong> is now active
+                      {activePlan?.expires_at && (<> till <strong>{formatDate(activePlan.expires_at)}</strong></>)}.
+                      Your new limit of <strong>{checkoutPlan.monthlyWords}</strong> and tools are unlocked.
                     </p>
                     <button className="btn-done-checkout" onClick={() => { setCheckoutPlan(null); onBackToChat(); }}>
                       Return to Chat
@@ -593,7 +739,7 @@ export default function SubscriptionPage({
                         disabled={checkoutStatus === 'processing'}
                       >
                         {checkoutStatus === 'processing' ? (
-                          <>Processing Secure Payment…</>
+                          <>Opening Razorpay…</>
                         ) : (
                           <>
                             <CreditCard size={18} />
@@ -601,8 +747,13 @@ export default function SubscriptionPage({
                           </>
                         )}
                       </button>
+                      {checkoutStatus === 'error' && checkoutError && (
+                        <p className="checkout-security-note" style={{ color: '#ef4444', marginTop: 8 }}>
+                          {checkoutError}
+                        </p>
+                      )}
                       <p className="checkout-security-note">
-                        <Lock size={12} /> 256-bit encrypted checkout · No hidden charges
+                        <Lock size={12} /> 256-bit encrypted · Powered by Razorpay
                       </p>
                     </div>
                   </>

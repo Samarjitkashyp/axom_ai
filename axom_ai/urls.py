@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
@@ -46,6 +46,9 @@ urlpatterns = [
     path('api/summarize/', views.summarize_api, name='summarize_api'),
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
+
+    # Razorpay payments
+    path('api/', include('payments.urls')),
 ]
 
 if settings.DEBUG:
