@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   X,
   UploadCloud,
@@ -37,6 +37,24 @@ export default function Summarize({ onClose }) {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef(null);
+
+  // Esc to close (physical keyboard) — matches other full-screen tools.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape' && !isRunning) onClose?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isRunning, onClose]);
+
+  // Lock body scroll while the overlay is open so nothing behind it scrolls.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   const chooseFile = (f) => {
     setError(null);
@@ -133,10 +151,12 @@ export default function Summarize({ onClose }) {
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 9999,
-        background: 'var(--bg-primary)',
-        color: 'var(--text-primary)',
+        zIndex: 60,
+        background: 'var(--bg-main, #0b0b14)',
+        color: 'var(--text-primary, #f8fafc)',
         overflow: 'auto',
+        // Belt-and-suspenders: opaque even if a token ever resolves wrong.
+        backgroundColor: 'var(--bg-main, #0b0b14)',
       }}
     >
       {/* Top bar */}
@@ -144,8 +164,8 @@ export default function Summarize({ onClose }) {
         style={{
           position: 'sticky',
           top: 0,
-          background: 'var(--bg-primary)',
-          borderBottom: '1px solid var(--border-color)',
+          background: 'var(--bg-main, #0b0b14)',
+          borderBottom: '1px solid var(--border-color, rgba(255,255,255,0.08))',
           padding: '12px 20px',
           display: 'flex',
           alignItems: 'center',
@@ -162,7 +182,7 @@ export default function Summarize({ onClose }) {
           Back
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
-          <Sparkles size={18} style={{ color: 'var(--accent-color, #ec4899)' }} />
+          <Sparkles size={18} style={{ color: 'var(--accent-pink, #ec4899)' }} />
           <div style={{ fontWeight: 600, fontSize: 15 }}>Summarize</div>
           <div style={{ fontSize: 12, opacity: 0.6 }}>
             · PDF / DOCX / TXT / pasted text
@@ -216,8 +236,8 @@ export default function Summarize({ onClose }) {
             style={{
               border: `2px dashed ${
                 dragActive
-                  ? 'var(--accent-color, #ec4899)'
-                  : 'var(--border-color)'
+                  ? 'var(--accent-pink, #ec4899)'
+                  : 'var(--border-color, rgba(255,255,255,0.08))'
               }`,
               borderRadius: 10,
               padding: '36px 20px',
@@ -225,7 +245,7 @@ export default function Summarize({ onClose }) {
               cursor: 'pointer',
               background: dragActive
                 ? 'rgba(236, 72, 153, 0.06)'
-                : 'var(--bg-secondary)',
+                : 'var(--bg-card, #131326)',
               transition: 'all 150ms ease',
             }}
           >
@@ -285,9 +305,9 @@ export default function Summarize({ onClose }) {
               style={{
                 width: '100%',
                 borderRadius: 10,
-                border: '1px solid var(--border-color)',
-                background: 'var(--bg-secondary)',
-                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color, rgba(255,255,255,0.08))',
+                background: 'var(--bg-card, #131326)',
+                color: 'var(--text-primary, #f8fafc)',
                 padding: 14,
                 fontFamily: 'inherit',
                 fontSize: 14,
@@ -403,9 +423,9 @@ export default function Summarize({ onClose }) {
         {result?.summary && (
           <div
             style={{
-              border: '1px solid var(--border-color)',
+              border: '1px solid var(--border-color, rgba(255,255,255,0.08))',
               borderRadius: 10,
-              background: 'var(--bg-secondary)',
+              background: 'var(--bg-card, #131326)',
               padding: 20,
             }}
           >
@@ -468,9 +488,9 @@ const pill = (active) => ({
   gap: 6,
   padding: '7px 12px',
   borderRadius: 999,
-  border: `1px solid ${active ? 'var(--accent-color, #ec4899)' : 'var(--border-color)'}`,
+  border: `1px solid ${active ? 'var(--accent-pink, #ec4899)' : 'var(--border-color, rgba(255,255,255,0.08))'}`,
   background: active ? 'rgba(236, 72, 153, 0.10)' : 'transparent',
-  color: active ? 'var(--accent-color, #ec4899)' : 'var(--text-primary)',
+  color: active ? 'var(--accent-pink, #ec4899)' : 'var(--text-primary, #f8fafc)',
   fontSize: 13,
   fontWeight: 500,
   cursor: 'pointer',
@@ -483,7 +503,7 @@ const btn = (variant) => {
       display: 'inline-flex',
       alignItems: 'center',
       gap: 8,
-      background: 'var(--accent-color, #ec4899)',
+      background: 'var(--accent-pink, #ec4899)',
       color: '#fff',
       border: 'none',
       borderRadius: 8,
@@ -498,8 +518,8 @@ const btn = (variant) => {
     alignItems: 'center',
     gap: 6,
     background: 'transparent',
-    color: 'var(--text-primary)',
-    border: '1px solid var(--border-color)',
+    color: 'var(--text-primary, #f8fafc)',
+    border: '1px solid var(--border-color, rgba(255,255,255,0.08))',
     borderRadius: 8,
     padding: '6px 10px',
     fontSize: 13,
