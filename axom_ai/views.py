@@ -1486,8 +1486,45 @@ _IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
 _IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '2'))
 _IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
 
-# Gemini image model (Nano Banana). Uses the existing GEMINI_API_KEY.
+# Gemini image model. NOTE: Google requires billing to be enabled on the
+# project to use ANY *-image model — free tier returns 429 for all of them.
+# Kept here so a paid project can flip a single env var to activate Gemini as
+# either primary or fallback.
 _GEMINI_IMAGE_MODEL = os.getenv('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image')
+_USE_GEMINI_IMAGE = os.getenv('USE_GEMINI_IMAGE', 'False').lower() in ('true', '1', 't')
+
+# Pollinations.ai — completely free, no API key, no signup. A GET on a URL
+# returns PNG bytes. Perfect for the launch tier while billing is not enabled.
+_POLLINATIONS_URL = 'https://image.pollinations.ai/prompt/'
+_POLLINATIONS_MODEL = os.getenv('POLLINATIONS_MODEL', 'flux')
+
+
+def _pollinations_generate_image(prompt, width, height, timeout=60):
+    """Generate an image via Pollinations.ai. No key needed. Returns
+    (PIL.Image, model_id) on success, or (None, error_string) on failure."""
+    try:
+        from PIL import Image as _PILImage
+        import io as _io
+        import urllib.parse as _up
+        import secrets as _secrets
+    except Exception as e:
+        return None, f'Pillow not available: {e}'
+
+    encoded = _up.quote(prompt[:500], safe='')
+    seed = _secrets.randbelow(1_000_000)  # a fresh seed so retries differ
+    url = (
+        f'{_POLLINATIONS_URL}{encoded}'
+        f'?width={int(width)}&height={int(height)}'
+        f'&model={_POLLINATIONS_MODEL}&nologo=true&seed={seed}'
+    )
+    try:
+        r = http_session.get(url, timeout=timeout)
+        if r.status_code != 200:
+            return None, f'Pollinations HTTP {r.status_code}'
+        img = _PILImage.open(_io.BytesIO(r.content)).convert('RGB')
+        return img, f'pollinations/{_POLLINATIONS_MODEL}'
+    except Exception as e:
+        return None, str(e)[:300]
 
 
 def _imggen_daily_count(ip):
@@ -1630,18 +1667,38 @@ def generate_image_api(request):
     width = _clamp_dim(payload.get('width'), 1024)
     height = _clamp_dim(payload.get('height'), 1024)
 
-    if not os.getenv('GEMINI_API_KEY', '').strip():
-        return JsonResponse({
-            'error': 'Server is not configured for image generation '
-                     '(GEMINI_API_KEY missing).',
-        }, status=503)
-
     t0 = time.time()
-    pil_img, gm_info = _gemini_generate_image(prompt, width, height,
-                                              timeout=_IMGGEN_TIMEOUT)
+    engine = None
+    engine_model = None
+    pil_img = None
+    tried_errors = []
+
+    # 1) If a paid Gemini project is available (USE_GEMINI_IMAGE=True and key
+    # set), try Gemini first — quality is very good.
+    if _USE_GEMINI_IMAGE and os.getenv('GEMINI_API_KEY', '').strip():
+        gm_img, gm_info = _gemini_generate_image(prompt, width, height,
+                                                 timeout=_IMGGEN_TIMEOUT)
+        if gm_img is not None:
+            pil_img = gm_img
+            engine = 'gemini'
+            engine_model = gm_info
+        else:
+            tried_errors.append(f'Gemini: {gm_info}')
+
+    # 2) Pollinations.ai — always available (no key), the guaranteed free path.
+    if pil_img is None:
+        pl_img, pl_info = _pollinations_generate_image(prompt, width, height,
+                                                       timeout=_IMGGEN_TIMEOUT)
+        if pl_img is not None:
+            pil_img = pl_img
+            engine = 'pollinations'
+            engine_model = pl_info
+        else:
+            tried_errors.append(f'Pollinations: {pl_info}')
+
     if pil_img is None:
         return JsonResponse({
-            'error': f'Image generation failed: {gm_info}',
+            'error': 'Image generation failed. ' + ' | '.join(tried_errors),
         }, status=502)
 
     # Success — record against the daily bucket.
@@ -1655,9 +1712,9 @@ def generate_image_api(request):
     return JsonResponse({
         'success': True,
         'image': f'data:image/png;base64,{b64}',
-        'model': 'gemini',
-        'model_id': gm_info,
-        'engine': 'gemini',
+        'model': engine,
+        'model_id': engine_model,
+        'engine': engine,
         'width': pil_img.size[0],
         'height': pil_img.size[1],
         'ms': int((time.time() - t0) * 1000),

@@ -2,10 +2,10 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { X, Loader2, Download, ImagePlus, ChevronDown, Sparkles, AlertCircle } from 'lucide-react';
 import { getCsrfToken } from '../utils/security';
 
-// Only Gemini now — FLUX is retired. The dropdown is gone from the UI; we
-// still send a model key so old cached clients don't 400.
+// Server picks the engine (Pollinations FLUX free primary; Gemini optional if
+// billing is enabled). The dropdown is kept as a single info card.
 const MODELS = [
-  { k: 'gemini', name: 'Google Gemini · Nano Banana', desc: 'Google Gemini 2.5 Flash Image · ~5-10 s' },
+  { k: 'gemini', name: 'FLUX (via Pollinations)', desc: 'Free · ~5-15 s · no signup, no credits' },
 ];
 
 const SIZES = [
@@ -296,7 +296,7 @@ function renderControls({
       <div style={S.hint}>
         Tip: press <kbd style={S.kbd}>Ctrl</kbd>+<kbd style={S.kbd}>Enter</kbd> to generate.
         <br />
-        <b>Free tier: 2 images per user per day.</b> Powered by Google Gemini.
+        <b>Free tier: 2 images per user per day.</b> Powered by Pollinations (FLUX).
       </div>
     </>
   );
@@ -324,7 +324,13 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
           <span>·</span>
           <span>{(result.ms / 1000).toFixed(1)} s</span>
           <span>·</span>
-          <span>Google Gemini</span>
+          <span>
+            {result.engine === 'gemini'
+              ? 'Google Gemini'
+              : result.engine === 'pollinations'
+                ? 'Pollinations · FLUX'
+                : result.model_id || 'AI image'}
+          </span>
         </div>
         {typeof result.remaining_today === 'number' && (
           <div
