@@ -1471,9 +1471,9 @@ def remove_watermark_api(request):
 # Model whitelist — Gemini is now the sole engine. The `model` field on the
 # request is accepted but ignored (kept only so old frontends don't 400).
 _IMGGEN_MODELS = {
-    'schnell': 'gemini-2.5-flash-image-preview',
-    'dev':     'gemini-2.5-flash-image-preview',
-    'gemini':  'gemini-2.5-flash-image-preview',
+    'schnell': 'gemini-2.5-flash-image',
+    'dev':     'gemini-2.5-flash-image',
+    'gemini':  'gemini-2.5-flash-image',
 }
 _IMGGEN_RATE_LIMIT = int(os.getenv('IMGGEN_RATE_LIMIT', '6'))
 _IMGGEN_RATE_WINDOW = int(os.getenv('IMGGEN_RATE_WINDOW', '60'))
@@ -1487,7 +1487,7 @@ _IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '2'))
 _IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
 
 # Gemini image model (Nano Banana). Uses the existing GEMINI_API_KEY.
-_GEMINI_IMAGE_MODEL = os.getenv('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image-preview')
+_GEMINI_IMAGE_MODEL = os.getenv('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image')
 
 
 def _imggen_daily_count(ip):
