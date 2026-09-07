@@ -1598,3 +1598,237 @@ def generate_image_api(request):
         'height': pil_img.size[1],
         'ms': int((time.time() - t0) * 1000),
     })
+
+
+# =============================================================================
+# SUMMARIZE — universal summarizer for PDF / DOCX / TXT / pasted text.
+# Groq primary, Gemini fallback. Assamese output by default.
+# =============================================================================
+
+_SUMMARIZE_MAX_CHARS = 60_000          # per-request text cap (safety)
+_SUMMARIZE_CHUNK_CHARS = 12_000        # split threshold for map-reduce
+_SUMMARIZE_MAX_FILE_MB = 40
+
+_SUMMARY_LENGTH_HINTS = {
+    'short':    ('a very short summary — 3 to 4 sentences', '~80 words'),
+    'medium':   ('a clear summary — one intro paragraph plus 4 to 6 key points',
+                 '~200 words'),
+    'detailed': ('a detailed summary — an intro paragraph, all key points as short '
+                 'paragraphs, and a one-line takeaway at the end',
+                 '~450 words'),
+}
+
+_SUMMARY_LANG_LABEL = {
+    'assamese': 'natural, native Assamese (অসমীয়া script)',
+    'english':  'clear, natural English',
+    'hindi':    'clear, natural Hindi (Devanagari script)',
+}
+
+
+def _extract_docx_text(path, max_chars=_SUMMARIZE_MAX_CHARS):
+    """Pull text out of a .docx (paragraphs + tables), capped for prompt safety."""
+    from docx import Document
+    doc = Document(path)
+    parts, total = [], 0
+    for p in doc.paragraphs:
+        t = (p.text or '').strip()
+        if t:
+            parts.append(t)
+            total += len(t)
+            if total > max_chars:
+                break
+    if total < max_chars:
+        for tbl in doc.tables:
+            for row in tbl.rows:
+                line = ' | '.join(c.text.strip() for c in row.cells if c.text.strip())
+                if line:
+                    parts.append(line)
+                    total += len(line)
+                    if total > max_chars:
+                        break
+            if total > max_chars:
+                break
+    return '\n'.join(parts)[:max_chars].strip()
+
+
+def _extract_txt(path, max_chars=_SUMMARIZE_MAX_CHARS):
+    for enc in ('utf-8', 'utf-16', 'latin-1'):
+        try:
+            with open(path, 'r', encoding=enc) as fh:
+                return fh.read(max_chars).strip()
+        except (UnicodeDecodeError, OSError):
+            continue
+    return ''
+
+
+def _chunk_text(text, chunk_size=_SUMMARIZE_CHUNK_CHARS):
+    """Break long text on paragraph boundaries where possible."""
+    if len(text) <= chunk_size:
+        return [text]
+    chunks, buf, buf_len = [], [], 0
+    for para in text.split('\n'):
+        if buf_len + len(para) + 1 > chunk_size and buf:
+            chunks.append('\n'.join(buf))
+            buf, buf_len = [], 0
+        buf.append(para)
+        buf_len += len(para) + 1
+    if buf:
+        chunks.append('\n'.join(buf))
+    return chunks
+
+
+def _summarize_text(text, length='medium', language='assamese'):
+    """Groq-first, Gemini-fallback summarizer. Handles long docs via map-reduce."""
+    length_desc, target = _SUMMARY_LENGTH_HINTS.get(length, _SUMMARY_LENGTH_HINTS['medium'])
+    lang_label = _SUMMARY_LANG_LABEL.get(language, _SUMMARY_LANG_LABEL['assamese'])
+
+    def _one(system, prompt):
+        out = _groq_generate(system, prompt, timeout=60)
+        if out:
+            return out
+        gk = os.getenv('GEMINI_API_KEY', '').strip()
+        if gk:
+            return _gemini_generate(
+                gk, system, prompt,
+                ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'],
+            )
+        return None
+
+    chunks = _chunk_text(text)
+
+    # Short doc: one call and done.
+    if len(chunks) == 1:
+        system = (
+            f"You are Axom AI. Summarise the document below into {length_desc} "
+            f"({target}). Write in {lang_label}. Keep every fact faithful — never "
+            f"invent names, dates or numbers. Output plain prose only (no Markdown, "
+            f"no bullets with -/*, no HTML). If a list is needed, write items as "
+            f"ordinary sentences separated by commas."
+        )
+        prompt = f"Document:\n{chunks[0]}"
+        return _one(system, prompt)
+
+    # Long doc: map-reduce.
+    partials = []
+    for i, ch in enumerate(chunks, 1):
+        sys_ch = (
+            f"You are summarising a section ({i} of {len(chunks)}) of a longer "
+            f"document. Extract the key facts and figures in {lang_label}, in 5-8 "
+            f"short sentences. No headings, no bullets."
+        )
+        out = _one(sys_ch, f"Section:\n{ch}")
+        if out:
+            partials.append(out)
+    if not partials:
+        return None
+
+    combined = '\n\n'.join(partials)
+    sys_final = (
+        f"You are Axom AI. Below are section summaries of one document. Combine "
+        f"them into {length_desc} ({target}) in {lang_label}. Remove repetition, "
+        f"keep every fact faithful, and never invent details. Plain prose only."
+    )
+    return _one(sys_final, f"Section summaries:\n{combined}")
+
+
+def summarize_api(request):
+    """
+    Universal summarizer.
+
+    POST multipart:  file=<pdf|docx|txt>,  length=short|medium|detailed,  language=assamese|english|hindi
+    POST JSON:       {text, length, language}
+    Returns:         {success, summary, chars_in, chars_out, engine}
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    if _is_rate_limited(_client_ip(request)):
+        return JsonResponse({'error': 'Too many requests. Please wait a moment.'},
+                            status=429)
+    if not GROQ_API_KEY and not os.getenv('GEMINI_API_KEY'):
+        return JsonResponse({'error': 'AI service is not configured.'}, status=503)
+
+    length = 'medium'
+    language = 'assamese'
+    text = ''
+
+    content_type = (request.META.get('CONTENT_TYPE') or '').lower()
+    is_json = content_type.startswith('application/json')
+
+    if is_json:
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except Exception:
+            return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+        text = (payload.get('text') or '').strip()
+        length = (payload.get('length') or 'medium').lower()
+        language = (payload.get('language') or 'assamese').lower()
+        if not text:
+            return JsonResponse({'error': 'Please provide text to summarise.'}, status=400)
+    else:
+        length = (request.POST.get('length') or 'medium').lower()
+        language = (request.POST.get('language') or 'assamese').lower()
+        pasted = (request.POST.get('text') or '').strip()
+        f = request.FILES.get('file')
+
+        if pasted:
+            text = pasted
+        elif f:
+            if f.size > _SUMMARIZE_MAX_FILE_MB * 1024 * 1024:
+                return JsonResponse({
+                    'error': f'File exceeds the {_SUMMARIZE_MAX_FILE_MB} MB limit.',
+                }, status=400)
+            ext = os.path.splitext(f.name)[1].lower()
+            if ext not in ('.pdf', '.docx', '.txt'):
+                return JsonResponse({
+                    'error': 'Supported types: .pdf, .docx, .txt (or paste text).',
+                }, status=400)
+            import uuid as _uuid
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+            os.makedirs(upload_dir, exist_ok=True)
+            path = os.path.join(upload_dir, f"sum_{_uuid.uuid4().hex[:8]}{ext}")
+            with open(path, 'wb+') as d:
+                for chunk in f.chunks():
+                    d.write(chunk)
+            try:
+                if ext == '.pdf':
+                    text = _extract_pdf_text(path, max_chars=_SUMMARIZE_MAX_CHARS)
+                elif ext == '.docx':
+                    text = _extract_docx_text(path)
+                else:
+                    text = _extract_txt(path)
+            finally:
+                try:
+                    os.remove(path)
+                except Exception:
+                    pass
+            if not text:
+                return JsonResponse({
+                    'error': 'No readable text found. If this is a scanned PDF, run OCR first.',
+                }, status=400)
+        else:
+            return JsonResponse({'error': 'Attach a file or paste some text.'}, status=400)
+
+    if length not in _SUMMARY_LENGTH_HINTS:
+        length = 'medium'
+    if language not in _SUMMARY_LANG_LABEL:
+        language = 'assamese'
+    if len(text) > _SUMMARIZE_MAX_CHARS:
+        text = text[:_SUMMARIZE_MAX_CHARS]
+
+    t0 = time.time()
+    summary = _summarize_text(text, length=length, language=language)
+    if not summary:
+        return JsonResponse({
+            'error': 'The AI service is busy. Please try again in a moment.',
+        }, status=503)
+
+    return JsonResponse({
+        'success': True,
+        'summary': summary,
+        'chars_in': len(text),
+        'chars_out': len(summary),
+        'length': length,
+        'language': language,
+        'engine': 'groq+gemini',
+        'ms': int((time.time() - t0) * 1000),
+    })

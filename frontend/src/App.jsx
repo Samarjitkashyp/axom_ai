@@ -11,6 +11,7 @@ import PdfEditor from './components/PdfEditor';
 import PdfCompressor from './components/PdfCompressor';
 import WatermarkRemover from './components/WatermarkRemover';
 import ImageGenerator from './components/ImageGenerator';
+import Summarize from './components/Summarize';
 import SubscriptionPage from './components/SubscriptionPage';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
@@ -47,6 +48,7 @@ export default function App() {
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
   const [isWmOpen, setIsWmOpen] = useState(false);
   const [isImgGenOpen, setIsImgGenOpen] = useState(false);
+  const [isSummarizeOpen, setIsSummarizeOpen] = useState(false);
 
   // Login Modal state
   const [loginModalState, setLoginModalState] = useState({
@@ -205,6 +207,7 @@ export default function App() {
           onOpenCompressor={() => setIsCompressorOpen(true)}
           onOpenWmRemover={() => setIsWmOpen(true)}
           onOpenImageGen={() => setIsImgGenOpen(true)}
+          onOpenSummarizer={() => setIsSummarizeOpen(true)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
         />
@@ -219,6 +222,9 @@ export default function App() {
 
         {/* FULL-SCREEN IMAGE GENERATOR */}
         {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
+
+        {/* FULL-SCREEN SUMMARIZE */}
+        {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
       </>
     );
   }

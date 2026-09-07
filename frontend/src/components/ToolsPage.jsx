@@ -28,6 +28,7 @@ export default function ToolsPage({
   onOpenCompressor,
   onOpenWmRemover,
   onOpenImageGen,
+  onOpenSummarizer,
   theme,
   onToggleTheme,
 }) {
@@ -105,6 +106,10 @@ export default function ToolsPage({
     }
     if (t.imagegen) {
       onOpenImageGen?.();
+      return;
+    }
+    if (t.summarizer) {
+      onOpenSummarizer?.();
       return;
     }
     resetRunner();
