@@ -740,7 +740,7 @@ export default function ChatWindow({
                 className="lang-btn"
                 onClick={() => setWebSearch((v) => !v)}
                 title={webSearch
-                  ? 'Web search ON — Axom AI will search the internet and cite sources.'
+                  ? 'Web search ON — Axom AI will search the internet and cite sources. Limit: 5 searches per day.'
                   : 'Turn on web search — get up-to-date answers with sources, translated into Assamese.'}
                 aria-pressed={webSearch}
                 style={{
@@ -762,6 +762,22 @@ export default function ChatWindow({
               >
                 <Globe size={13} /> Web {webSearch ? 'ON' : ''}
               </button>
+              {webSearch && (
+                <span
+                  className="web-limit-hint"
+                  style={{
+                    marginLeft: '6px',
+                    fontSize: '10.5px',
+                    color: 'var(--text-muted, #64748b)',
+                    fontStyle: 'italic',
+                    alignSelf: 'center',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title="Free tier limit — resets every day"
+                >
+                  Only 5 searches per day
+                </span>
+              )}
             </div>
             <div className="controls-right">
               <button
