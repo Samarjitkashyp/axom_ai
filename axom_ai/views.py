@@ -1480,6 +1480,64 @@ _IMGGEN_HITS = {}
 # HF Inference timeout (schnell ~7s, dev up to ~15s; keep some slack).
 _IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
 
+# Gemini image model (Nano Banana). Free tier is generous enough to serve as a
+# real fallback when the HF FLUX credit is exhausted for the month.
+_GEMINI_IMAGE_MODEL = os.getenv('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image-preview')
+
+
+def _gemini_generate_image(prompt, width, height, timeout=60):
+    """Fallback image generator using Google Gemini's image model. Returns
+    (PIL.Image, model_id) on success, or (None, error_string) on failure.
+    Uses the same google-genai client already installed for chat."""
+    key = os.getenv('GEMINI_API_KEY', '').strip()
+    if not key:
+        return None, 'GEMINI_API_KEY missing'
+    try:
+        from google import genai
+        from google.genai import types as _gtypes
+        from PIL import Image as _PILImage
+        import io as _io
+    except Exception as e:
+        return None, f'google-genai / Pillow not available: {e}'
+
+    try:
+        client = genai.Client(api_key=key)
+        # Nudge the aspect ratio via the prompt (the API doesn't accept width/
+        # height directly; the model picks a suitable resolution).
+        ratio_hint = ''
+        if width and height:
+            if width > height * 1.2:
+                ratio_hint = ' (landscape orientation)'
+            elif height > width * 1.2:
+                ratio_hint = ' (portrait orientation)'
+            else:
+                ratio_hint = ' (square)'
+        resp = client.models.generate_content(
+            model=_GEMINI_IMAGE_MODEL,
+            contents=[prompt + ratio_hint],
+            config=_gtypes.GenerateContentConfig(
+                response_modalities=['IMAGE', 'TEXT'],
+            ),
+        )
+        # Find the image part in the response.
+        for cand in getattr(resp, 'candidates', []) or []:
+            content = getattr(cand, 'content', None)
+            if not content:
+                continue
+            for part in getattr(content, 'parts', []) or []:
+                inline = getattr(part, 'inline_data', None)
+                if inline and getattr(inline, 'data', None):
+                    raw = inline.data
+                    if isinstance(raw, str):
+                        # SDK sometimes returns already-base64; decode it.
+                        import base64 as _b64
+                        raw = _b64.b64decode(raw)
+                    img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
+                    return img, _GEMINI_IMAGE_MODEL
+        return None, 'Gemini returned no image (likely blocked by safety filter or empty response).'
+    except Exception as e:
+        return None, str(e)[:300]
+
 
 def _imggen_rate_limited(ip):
     now = time.time()
@@ -1541,47 +1599,71 @@ def generate_image_api(request):
         seed = None
 
     hf_token = os.getenv('HF_TOKEN', '').strip()
-    if not hf_token:
+    gemini_available = bool(os.getenv('GEMINI_API_KEY', '').strip())
+    if not hf_token and not gemini_available:
         return JsonResponse({
-            'error': 'Server is not configured for image generation (HF_TOKEN missing).',
+            'error': 'Server is not configured for image generation '
+                     '(neither HF_TOKEN nor GEMINI_API_KEY set).',
         }, status=503)
 
-    try:
-        from huggingface_hub import InferenceClient
-    except Exception:
-        return JsonResponse({
-            'error': 'huggingface_hub is not installed on the server.',
-        }, status=500)
-
     t0 = time.time()
-    try:
-        client = InferenceClient(token=hf_token, timeout=_IMGGEN_TIMEOUT)
-        kwargs = {'model': model_id, 'width': width, 'height': height}
-        if negative:
-            kwargs['negative_prompt'] = negative
-        if seed is not None:
-            kwargs['seed'] = seed
-        pil_img = client.text_to_image(prompt, **kwargs)
-    except Exception as e:
-        # Common cases: 402 credits exhausted, 401 bad token, 429 provider limit.
-        msg = str(e)
-        low = msg.lower()
-        if 'quota' in low or '402' in low or 'exceeded' in low:
-            code = 402
-            friendly = 'HuggingFace monthly image credits exhausted for this token.'
-        elif '401' in low or 'authenticat' in low or 'unauthor' in low:
-            code = 401
-            friendly = 'HuggingFace token is invalid or lacks Inference Providers access.'
-        elif '429' in low:
-            code = 429
-            friendly = 'Provider rate-limited the request. Please retry in a moment.'
-        elif 'timeout' in low or 'timed out' in low:
-            code = 504
-            friendly = 'Image generation timed out. Please try again.'
+    pil_img = None
+    engine = None
+    engine_model = None
+    hf_error = None       # short reason, only surfaced if BOTH engines fail
+
+    # ---- 1. HuggingFace FLUX (primary) --------------------------------------
+    if hf_token:
+        try:
+            from huggingface_hub import InferenceClient
+            hf_client = InferenceClient(token=hf_token, timeout=_IMGGEN_TIMEOUT)
+            kwargs = {'model': model_id, 'width': width, 'height': height}
+            if negative:
+                kwargs['negative_prompt'] = negative
+            if seed is not None:
+                kwargs['seed'] = seed
+            pil_img = hf_client.text_to_image(prompt, **kwargs)
+            engine = 'huggingface'
+            engine_model = model_id
+        except Exception as e:
+            msg = str(e)
+            low = msg.lower()
+            # Classify — only "quota exhausted" / "auth" / rate-limit type
+            # errors are worth failing over to Gemini for; a genuine 5xx from
+            # HF is likely transient and Gemini is worth a try too.
+            if 'quota' in low or '402' in low or 'exceeded' in low:
+                hf_error = 'HuggingFace monthly image credits exhausted.'
+            elif '401' in low or 'authenticat' in low or 'unauthor' in low:
+                hf_error = 'HuggingFace token is invalid or lacks Inference access.'
+            elif '429' in low:
+                hf_error = 'HuggingFace rate-limited the request.'
+            elif 'timeout' in low or 'timed out' in low:
+                hf_error = 'HuggingFace timed out.'
+            else:
+                hf_error = f'HuggingFace failed: {msg[:160]}'
+
+    # ---- 2. Google Gemini (automatic fallback) ------------------------------
+    if pil_img is None and gemini_available:
+        gm_img, gm_info = _gemini_generate_image(prompt, width, height,
+                                                 timeout=_IMGGEN_TIMEOUT)
+        if gm_img is not None:
+            pil_img = gm_img
+            engine = 'gemini'
+            engine_model = gm_info
         else:
-            code = 502
-            friendly = f'Image generation failed: {msg[:200]}'
-        return JsonResponse({'error': friendly}, status=code)
+            # Both engines failed — return a compound message.
+            combined = hf_error or 'Primary engine unavailable.'
+            return JsonResponse({
+                'error': f'{combined} Fallback also failed: {gm_info}',
+                'engine_tried': ['huggingface', 'gemini'] if hf_token else ['gemini'],
+            }, status=502)
+
+    if pil_img is None:
+        # No HF token to try and no Gemini key either — shouldn't reach here
+        # given the earlier guard, but be defensive.
+        return JsonResponse({
+            'error': hf_error or 'Image generation unavailable.',
+        }, status=503)
 
     # Serialize PIL image -> base64 PNG data URL (small enough to hand to the
     # browser inline; no server-side file write).
@@ -1593,7 +1675,10 @@ def generate_image_api(request):
         'success': True,
         'image': f'data:image/png;base64,{b64}',
         'model': model_key,
-        'model_id': model_id,
+        'model_id': engine_model,
+        'engine': engine,               # 'huggingface' or 'gemini'
+        'fallback_used': engine == 'gemini' and bool(hf_error),
+        'fallback_reason': hf_error if engine == 'gemini' else None,
         'width': pil_img.size[0],
         'height': pil_img.size[1],
         'ms': int((time.time() - t0) * 1000),

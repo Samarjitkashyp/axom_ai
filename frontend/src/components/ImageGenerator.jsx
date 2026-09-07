@@ -321,8 +321,28 @@ function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, d
           <span>·</span>
           <span>{(result.ms / 1000).toFixed(1)} s</span>
           <span>·</span>
-          <span>{MODELS.find((m) => m.k === result.model)?.name || result.model}</span>
+          <span>
+            {result.engine === 'gemini'
+              ? 'Google Gemini (fallback)'
+              : (MODELS.find((m) => m.k === result.model)?.name || result.model)}
+          </span>
         </div>
+        {result.fallback_used && (
+          <div
+            style={{
+              fontSize: 11,
+              opacity: 0.7,
+              marginTop: 4,
+              textAlign: 'center',
+              padding: '4px 8px',
+              background: 'rgba(59, 130, 246, 0.08)',
+              border: '1px solid rgba(59, 130, 246, 0.25)',
+              borderRadius: 6,
+            }}
+          >
+            FLUX unavailable ({result.fallback_reason}) — used Gemini instead.
+          </div>
+        )}
         <div style={S.resultActions}>
           <button onClick={downloadImg} style={S.downloadBtn}>
             <Download size={15} /> Download PNG
