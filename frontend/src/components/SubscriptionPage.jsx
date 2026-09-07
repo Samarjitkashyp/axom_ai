@@ -226,6 +226,10 @@ export default function SubscriptionPage({
   const handleConfirmCheckout = useCallback(async () => {
     if (!checkoutPlan) return;
     if (!user?.isAuthenticated) {
+      // Close our checkout overlay (z-1200) BEFORE showing the login modal (z-999)
+      // so it appears in front instead of behind.
+      setCheckoutPlan(null);
+      setCheckoutStatus('idle');
       onOpenLogin?.('Login to Continue', 'Sign in first to purchase a plan. Your account keeps your subscription safely.');
       return;
     }
