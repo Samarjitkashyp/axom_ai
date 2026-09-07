@@ -49,7 +49,7 @@ class Payment(models.Model):
     currency = models.CharField(max_length=8, default="INR")
 
     razorpay_order_id = models.CharField(max_length=64, unique=True)
-    razorpay_payment_id = models.CharField(max_length=64, blank=True, default="")
+    razorpay_payment_id = models.CharField(max_length=64, blank=True, default="", db_index=True)
     razorpay_signature = models.CharField(max_length=128, blank=True, default="")
 
     status = models.CharField(max_length=16, choices=STATUS, default="created")
@@ -58,6 +58,15 @@ class Payment(models.Model):
 
     class Meta:
         ordering = ("-created_at",)
+        constraints = [
+            # Enforce idempotency: any non-empty razorpay_payment_id is globally unique.
+            # (blank rows — orders that never completed — are exempt via the condition.)
+            models.UniqueConstraint(
+                fields=["razorpay_payment_id"],
+                condition=~models.Q(razorpay_payment_id=""),
+                name="uniq_razorpay_payment_id_when_set",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.user} · {self.plan} · {self.status} · ₹{self.amount/100:.2f}"

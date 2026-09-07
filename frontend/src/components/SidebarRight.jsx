@@ -3,6 +3,7 @@ import { Sparkles, HelpCircle, X } from 'lucide-react';
 
 export default function SidebarRight({
   user,
+  activePlan,
   remainingWords,
   maxWords,
   onUpgrade,
@@ -12,6 +13,10 @@ export default function SidebarRight({
   const pct = (remainingWords / maxWords) * 100;
   const remainingInt = Math.floor(remainingWords);
   const offset = 238.76 * (1 - pct / 100);
+  const hasActivePlan = !!(activePlan && activePlan.active);
+  const expiryDate = hasActivePlan && activePlan.expires_at
+    ? new Date(activePlan.expires_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '';
 
   return (
     <aside className={`sidebar-right ${isCollapsed ? 'collapsed' : ''}`} id="sidebarRight">
@@ -27,8 +32,30 @@ export default function SidebarRight({
           <X size={18} />
         </button>
       </div>
-      {/* Pro Upgrade Promo Card */}
-      {!user.isAuthenticated && (
+      {/* Active Plan Card (paid, logged in) */}
+      {hasActivePlan && (
+        <div className="promo-card" style={{
+          background: 'linear-gradient(135deg, rgba(34,197,94,0.18), rgba(59,130,246,0.10))',
+          border: '1px solid rgba(34,197,94,0.35)',
+        }}>
+          <div className="promo-header">
+            <div className="promo-gem-icon">
+              <Sparkles size={22} color="#22c55e" />
+            </div>
+            <div className="promo-title-area">
+              <h4 className="promo-title">{activePlan.plan_label || 'Active Plan'}</h4>
+              <p className="promo-subtitle">
+                Valid till <strong>{expiryDate}</strong>
+                {activePlan.days_left != null && <> · {activePlan.days_left} day{activePlan.days_left === 1 ? '' : 's'} left</>}
+              </p>
+            </div>
+          </div>
+          <button className="btn-upgrade" onClick={onUpgrade} title="Manage plan">Manage Plan</button>
+        </div>
+      )}
+
+      {/* Pro Upgrade Promo Card — shown for anon users and for logged-in users without an active plan */}
+      {!hasActivePlan && (
         <div className="promo-card">
           <div className="promo-header">
             <div className="promo-gem-icon">
@@ -45,10 +72,16 @@ export default function SidebarRight({
             </div>
             <div className="promo-title-area">
               <h4 className="promo-title">Axom AI Pro</h4>
-              <p className="promo-subtitle">Unlock advanced models, plugins, and more.</p>
+              <p className="promo-subtitle">
+                {activePlan && activePlan.plan
+                  ? `Your ${activePlan.plan_label} expired. Renew to restore access.`
+                  : 'Unlock advanced models, plugins, and more.'}
+              </p>
             </div>
           </div>
-          <button className="btn-upgrade" onClick={onUpgrade} id="btnUpgrade">Upgrade Now</button>
+          <button className="btn-upgrade" onClick={onUpgrade} id="btnUpgrade">
+            {activePlan && activePlan.plan ? 'Renew Plan' : 'Upgrade Now'}
+          </button>
         </div>
       )}
 

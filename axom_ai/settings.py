@@ -48,6 +48,9 @@ INSTALLED_APPS = [
 # --- Razorpay (payments) ---
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '')
+# Webhook secret configured in Razorpay Dashboard -> Settings -> Webhooks.
+# Server-to-server payment confirmation; HMAC-SHA256 of raw request body.
+RAZORPAY_WEBHOOK_SECRET = os.getenv('RAZORPAY_WEBHOOK_SECRET', '')
 
 
 MIDDLEWARE = [

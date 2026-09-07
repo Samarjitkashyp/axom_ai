@@ -1,15 +1,32 @@
+import hashlib
+import hmac
 import json
 import logging
+import time
 from datetime import timedelta
 
 import razorpay
 from django.conf import settings
+from django.core.cache import cache
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
 from .models import PLAN_CATALOG, Payment, UserPlan
+
+
+def _rate_limited(key: str, max_calls: int, per_seconds: int) -> bool:
+    """Simple sliding-window rate limit backed by Django's cache. Returns True if the
+    caller has exceeded the budget in the last `per_seconds`. Keeps timestamps in a list."""
+    now = time.time()
+    hits = [t for t in (cache.get(key) or []) if t > now - per_seconds]
+    if len(hits) >= max_calls:
+        cache.set(key, hits, timeout=per_seconds + 5)
+        return True
+    hits.append(now)
+    cache.set(key, hits, timeout=per_seconds + 5)
+    return False
 
 log = logging.getLogger(__name__)
 
@@ -41,12 +58,14 @@ def _plan_status_dict(user_plan: UserPlan | None):
     }
 
 
-@csrf_exempt
 @require_POST
 def create_order(request):
-    """Body: { "plan": "pro_monthly" } -> Razorpay order for that plan."""
+    """Body: { "plan": "pro_monthly" } -> Razorpay order for that plan.
+    CSRF-protected. Rate-limited: 5 orders / minute / user."""
     if not request.user.is_authenticated:
         return JsonResponse({"error": "login required"}, status=401)
+    if _rate_limited(f"pay:order:{request.user.id}", max_calls=5, per_seconds=60):
+        return JsonResponse({"error": "too many attempts — try again in a minute"}, status=429)
 
     try:
         body = json.loads(request.body or b"{}")
@@ -92,12 +111,14 @@ def create_order(request):
     })
 
 
-@csrf_exempt
 @require_POST
 def verify_payment(request):
-    """Body: { razorpay_order_id, razorpay_payment_id, razorpay_signature } -> activate UserPlan."""
+    """Body: { razorpay_order_id, razorpay_payment_id, razorpay_signature } -> activate UserPlan.
+    CSRF-protected. Rate-limited: 15 verifies / minute / user."""
     if not request.user.is_authenticated:
         return JsonResponse({"error": "login required"}, status=401)
+    if _rate_limited(f"pay:verify:{request.user.id}", max_calls=15, per_seconds=60):
+        return JsonResponse({"error": "too many verify attempts"}, status=429)
 
     try:
         body = json.loads(request.body or b"{}")
@@ -115,6 +136,11 @@ def verify_payment(request):
     except Payment.DoesNotExist:
         return JsonResponse({"error": "order not found"}, status=404)
 
+    # Idempotency: already processed? Return the current plan snapshot instead of re-extending.
+    if payment.status == "paid":
+        user_plan = UserPlan.objects.filter(user=request.user).first()
+        return JsonResponse({"ok": True, "already_processed": True, "plan": _plan_status_dict(user_plan)})
+
     try:
         client = _client()
         client.utility.verify_payment_signature({
@@ -130,15 +156,21 @@ def verify_payment(request):
         log.exception("signature verify crashed")
         return JsonResponse({"error": f"verify error: {e}"}, status=500)
 
+    payment.razorpay_payment_id = payment_id
+    payment.razorpay_signature = signature
+    user_plan = _activate_plan(request.user, payment)
+    return JsonResponse({"ok": True, "plan": _plan_status_dict(user_plan)})
+
+
+def _activate_plan(user, payment) -> UserPlan:
+    """Idempotent plan activation from a verified Payment. Extends same-plan-active,
+    otherwise resets duration from now. Marks Payment paid."""
     plan = PLAN_CATALOG[payment.plan]
     now = timezone.now()
-
     user_plan, _ = UserPlan.objects.get_or_create(
-        user=request.user,
+        user=user,
         defaults={"plan": payment.plan, "started_at": now, "expires_at": now + timedelta(days=plan["days"])},
     )
-    # If already exists (renewal / upgrade): extend from later of (now, current expiry) when same plan;
-    # otherwise reset from now.
     if user_plan.plan == payment.plan and user_plan.status == "active" and user_plan.expires_at > now:
         base = user_plan.expires_at
     else:
@@ -149,13 +181,10 @@ def verify_payment(request):
     user_plan.status = "active"
     user_plan.save()
 
-    payment.razorpay_payment_id = payment_id
-    payment.razorpay_signature = signature
     payment.status = "paid"
     payment.paid_at = now
     payment.save()
-
-    return JsonResponse({"ok": True, "plan": _plan_status_dict(user_plan)})
+    return user_plan
 
 
 @require_GET
@@ -165,3 +194,53 @@ def plan_status(request):
         return JsonResponse({"active": False, "anonymous": True})
     user_plan = UserPlan.objects.filter(user=request.user).first()
     return JsonResponse(_plan_status_dict(user_plan))
+
+
+@csrf_exempt  # webhooks are server-to-server; we authenticate via HMAC signature instead
+@require_POST
+def razorpay_webhook(request):
+    """Razorpay server-to-server callback. Configure in Razorpay Dashboard ->
+    Settings -> Webhooks with URL /api/payment/webhook/ and event `payment.captured`.
+    We authenticate the request via HMAC-SHA256 of raw body against RAZORPAY_WEBHOOK_SECRET."""
+    secret = getattr(settings, "RAZORPAY_WEBHOOK_SECRET", "") or ""
+    if not secret:
+        log.warning("webhook hit but RAZORPAY_WEBHOOK_SECRET not configured")
+        return JsonResponse({"error": "webhook not configured"}, status=503)
+
+    received_sig = request.headers.get("X-Razorpay-Signature", "")
+    raw = request.body  # bytes
+    expected_sig = hmac.new(secret.encode("utf-8"), raw, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(received_sig, expected_sig):
+        log.warning("webhook signature mismatch")
+        return JsonResponse({"error": "bad signature"}, status=400)
+
+    try:
+        payload = json.loads(raw or b"{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "invalid json"}, status=400)
+
+    event = payload.get("event", "")
+    if event != "payment.captured":
+        # We only act on capture. Ignore payment.authorized, refunded, etc for now.
+        return JsonResponse({"ok": True, "ignored": event})
+
+    pentity = (payload.get("payload", {}).get("payment", {}) or {}).get("entity", {}) or {}
+    order_id = pentity.get("order_id", "")
+    payment_id = pentity.get("id", "")
+    if not order_id or not payment_id:
+        return JsonResponse({"error": "missing ids in event"}, status=400)
+
+    try:
+        payment = Payment.objects.get(razorpay_order_id=order_id)
+    except Payment.DoesNotExist:
+        log.warning("webhook for unknown order %s", order_id)
+        return JsonResponse({"error": "order not found"}, status=404)
+
+    # Idempotent: already processed -> ack silently
+    if payment.status == "paid":
+        return JsonResponse({"ok": True, "already_processed": True})
+
+    payment.razorpay_payment_id = payment_id
+    payment.razorpay_signature = ""  # webhooks don't have client-side sig; HMAC on body already verified
+    _activate_plan(payment.user, payment)
+    return JsonResponse({"ok": True, "activated": payment.plan})

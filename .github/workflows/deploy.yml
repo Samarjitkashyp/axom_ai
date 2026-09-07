@@ -105,6 +105,15 @@ jobs:
             git reset --hard origin/main
             source venv/bin/activate
             pip install -r requirements.txt
+            # Rebuild frontend when relevant sources changed since last deploy.
+            # Skip when nothing under frontend/ or requirements.txt has changed
+            # to keep quick backend-only deploys fast.
+            if git diff --name-only HEAD@{1} HEAD 2>/dev/null | grep -qE '^frontend/'; then
+              echo "frontend changes detected — rebuilding bundle"
+              (cd frontend && npm ci --no-audit --no-fund && npm run build)
+            else
+              echo "no frontend changes since last deploy — skipping npm build"
+            fi
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
             sudo systemctl restart axom

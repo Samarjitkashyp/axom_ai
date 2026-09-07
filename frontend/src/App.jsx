@@ -48,6 +48,16 @@ export default function App() {
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
   const [isWmOpen, setIsWmOpen] = useState(false);
   const [isImgGenOpen, setIsImgGenOpen] = useState(false);
+
+  // Active paid plan (fetched once + refreshed when returning from /upgrade)
+  const [activePlan, setActivePlan] = useState(null);
+  useEffect(() => {
+    if (!user.isAuthenticated) { setActivePlan(null); return; }
+    fetch('/api/plan/status/', { credentials: 'same-origin' })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d) setActivePlan(d); })
+      .catch(() => {});
+  }, [user.isAuthenticated, currentView]);
   const [isSummarizeOpen, setIsSummarizeOpen] = useState(false);
 
   // Login Modal state
@@ -304,6 +314,7 @@ export default function App() {
       {/* RIGHT SIDEBAR */}
       <SidebarRight
         user={user}
+        activePlan={activePlan}
         remainingWords={remainingWords}
         maxWords={maxWords}
         onUpgrade={navigateToUpgrade}
