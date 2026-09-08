@@ -269,6 +269,29 @@ function Nav() {
     window.addEventListener('scroll', s);
     return () => window.removeEventListener('scroll', s);
   }, []);
+
+  // Lock body scroll while drawer is open — prevents overlap / scroll bleed
+  useEffect(() => {
+    if (open) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [open]);
+
+  // Close drawer first (350ms slide animation), then navigate to hash
+  const closeAndGo = (href) => (e) => {
+    e.preventDefault();
+    setOpen(false);
+    setTimeout(() => {
+      if (href.startsWith('#')) {
+        const el = document.querySelector(href);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.location.href = href;
+      }
+    }, 360);
+  };
   return (
     <nav className={"fixed top-0 inset-x-0 z-50 transition-all duration-300 " + (scrolled ? "bg-black/70 backdrop-blur-xl border-b border-white/5" : "")}>
       <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
@@ -351,7 +374,7 @@ function Nav() {
           ].map((it, i) => {
             const Ic = it.icon;
             return (
-              <a key={i} href={it.href} onClick={() => setOpen(false)} className="drawer-item">
+              <a key={i} href={it.href} onClick={closeAndGo(it.href)} className="drawer-item">
                 <Ic c="w-4 h-4 text-fuchsia-400"/>
                 {it.label}
               </a>
@@ -361,8 +384,8 @@ function Nav() {
 
         <div className="px-5 pt-5 pb-6 border-t border-white/5 mt-3">
           <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Get Started</div>
-          <a href={CHAT_URL} className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5">Open Chat →</a>
-          <a href={CHAT_URL} className="btn-ghost block text-center text-sm px-4 py-3 rounded-full">Sign in</a>
+          <a href={CHAT_URL} onClick={() => setOpen(false)} className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5">Open Chat →</a>
+          <a href={CHAT_URL} onClick={() => setOpen(false)} className="btn-ghost block text-center text-sm px-4 py-3 rounded-full">Sign in</a>
         </div>
 
         <div className="px-5 mt-auto absolute bottom-5 left-0 right-0">
@@ -824,7 +847,6 @@ function FinalCTA() {
 
 // ─────── FOOTER ───────
 function Footer() {
-  const [openCol, setOpenCol] = useState(-1);
   const cols = [
     { t:"Product",  l:[["AI Tools",CHAT_URL+"tools"],["Pricing","#pricing"],["What's New","#"],["Roadmap","#"]] },
     { t:"Solutions",l:[["For Students","#usecases"],["For Businesses","#usecases"],["For Educators","#usecases"],["For Developers","#usecases"]] },
@@ -832,22 +854,19 @@ function Footer() {
     { t:"Company",  l:[["About","#"],["Careers","#"],["Contact","mailto:samarjitkashyp@gmail.com"],["Press","#"]] },
   ];
   return (
-    <footer className="border-t border-white/5 pt-12 md:pt-16 pb-8 bg-black/50">
+    <footer className="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-black/50">
       <div className="max-w-7xl mx-auto px-5">
-        {/* Brand block */}
-        <div className="text-center md:text-left mb-8 md:mb-10">
-          <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center"><ISparkle c="w-4 h-4 text-white"/></div>
-            <div className="font-bold text-white">Axom AI</div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
+          <div className="col-span-2 md:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center"><ISparkle c="w-4 h-4 text-white"/></div>
+              <div className="font-bold text-white">Axom AI</div>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed mb-4">AI for a more inclusive future.<br/>Built in Assam, for the world.</p>
+            <div className="flex gap-2">
+              {['𝕏','in','▶','ig'].map((s,i)=>(<a key={i} href="#" className="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">{s}</a>))}
+            </div>
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed mb-4 max-w-xs mx-auto md:mx-0">AI for a more inclusive future.<br/>Built in Assam, for the world.</p>
-          <div className="flex justify-center md:justify-start gap-2">
-            {['𝕏','in','▶','ig'].map((s,i)=>(<a key={i} href="#" className="w-9 h-9 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-sm transition">{s}</a>))}
-          </div>
-        </div>
-
-        {/* Desktop 4-col grid */}
-        <div className="hidden md:grid md:grid-cols-4 gap-8 mb-10">
           {cols.map((col, i) => (
             <div key={i}>
               <div className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">{col.t}</div>
@@ -855,38 +874,16 @@ function Footer() {
             </div>
           ))}
         </div>
-
-        {/* Mobile collapsible accordions */}
-        <div className="md:hidden mb-8 border-t border-white/5">
-          {cols.map((col, i) => {
-            const on = openCol === i;
-            return (
-              <div key={i} className="border-b border-white/5">
-                <button onClick={() => setOpenCol(on ? -1 : i)} className="w-full flex items-center justify-between py-4 text-left">
-                  <span className="text-sm font-semibold text-white">{col.t}</span>
-                  <span className={"text-fuchsia-400 text-lg transition-transform " + (on ? "rotate-45" : "")}>+</span>
-                </button>
-                {on && (
-                  <ul className="pb-4 space-y-2 text-sm text-gray-400 pl-1">
-                    {col.l.map((it, j) => <li key={j}><a href={it[1]} className="block py-1 hover:text-fuchsia-400">{it[0]}</a></li>)}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Bottom bar */}
-        <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500 text-center md:text-left">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-            <span>© 2026 Axom AI</span>
+        <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span>© 2026 Axom AI. All rights reserved.</span>
             <a href="#" className="hover:text-fuchsia-400">Privacy</a>
             <a href="#" className="hover:text-fuchsia-400">Terms</a>
             <a href="#" className="hover:text-fuchsia-400">Refund</a>
           </div>
-          <div>Made with <span className="text-red-500">❤</span> in Assam 🇮🇳</div>
+          <div>Made with <span className="text-red-500">❤</span> in Assam, India 🇮🇳</div>
         </div>
-        <div className="mt-6 text-center font-serif italic text-gray-500 text-xs md:text-sm">From Assam · To A Smarter Tomorrow</div>
+        <div className="mt-6 text-center font-serif italic text-gray-500 text-sm">From Assam · To A Smarter Tomorrow</div>
       </div>
     </footer>
   );
