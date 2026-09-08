@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Axom AI — Assam's own AI assistant. Native Assamese chat, image generation, document intelligence, and web search — built for অসম.">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="icon" type="image/svg+xml" href="{% load static %}{% static 'dist/favicon.svg' %}">
+<title>Axom AI — Assam's Own AI Platform</title>
+
+<!-- React 18 UMD -->
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+
+<!-- Tailwind Play CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+          serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
+          assamese: ['"Noto Serif Bengali"', 'system-ui', 'sans-serif'],
+        },
+        colors: {
+          axom: {
+            bg: '#0a0a0f',
+            surface: '#111118',
+            border: '#1e1e2a',
+            accent: '#c084fc',
+            accent2: '#e879f9',
+          }
+        },
+        animation: {
+          'gradient': 'gradient 8s ease infinite',
+          'float': 'float 6s ease-in-out infinite',
+          'glow': 'glow 4s ease-in-out infinite',
+        },
+        keyframes: {
+          gradient: {
+            '0%, 100%': { backgroundPosition: '0% 50%' },
+            '50%': { backgroundPosition: '100% 50%' },
+          },
+          float: {
+            '0%, 100%': { transform: 'translateY(0px)' },
+            '50%': { transform: 'translateY(-10px)' },
+          },
+          glow: {
+            '0%, 100%': { opacity: 0.5 },
+            '50%': { opacity: 1 },
+          }
+        }
+      }
+    }
+  };
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #0a0a0f; color: #e5e7eb; -webkit-font-smoothing: antialiased; }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(192,132,252,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(192,132,252,0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .radial-fade {
+    mask-image: radial-gradient(circle at 50% 40%, #000 0%, #000 40%, transparent 75%);
+    -webkit-mask-image: radial-gradient(circle at 50% 40%, #000 0%, #000 40%, transparent 75%);
+  }
+  .gradient-text {
+    background: linear-gradient(120deg, #ffffff 0%, #c084fc 40%, #f472b6 60%, #ffffff 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient 8s ease infinite;
+  }
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .card-glow {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.3s;
+  }
+  .card-glow:hover {
+    border-color: rgba(192,132,252,0.3);
+    background: linear-gradient(135deg, rgba(192,132,252,0.05), rgba(255,255,255,0.01));
+    transform: translateY(-2px);
+  }
+  .card-glow::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(120deg, transparent, rgba(192,132,252,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .card-glow:hover::before { opacity: 1; }
+
+  .btn-primary {
+    background: linear-gradient(120deg, #c084fc 0%, #e879f9 50%, #c084fc 100%);
+    background-size: 200% 200%;
+    animation: gradient 6s ease infinite;
+    color: #0a0a0f;
+    font-weight: 600;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 10px 40px -10px rgba(192,132,252,0.5);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 50px -10px rgba(192,132,252,0.7);
+  }
+  .btn-ghost {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+
+  /* Marquee logo strip */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+  .marquee-inner {
+    display: flex;
+    gap: 3rem;
+    animation: scroll 30s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+
+  /* code blocks in demo */
+  .demo-window {
+    background: #0e0e15;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    box-shadow: 0 30px 80px -20px rgba(192,132,252,0.15), 0 0 100px -30px rgba(232,121,249,0.1);
+  }
+</style>
+</head>
+
+<body class="antialiased">
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+const CHAT_URL = "https://chat.aiaxom.co.in/";
+
+// ─────────────────────────── ICONS ──────────────────────────────
+const Icon = ({ path, className = "w-5 h-5" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    {path}
+  </svg>
+);
+const IconChat     = (p) => <Icon {...p} path={<><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>} />;
+const IconImage    = (p) => <Icon {...p} path={<><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>} />;
+const IconPdf      = (p) => <Icon {...p} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 12v6M10 15h4"/></>} />;
+const IconSearch   = (p) => <Icon {...p} path={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></>} />;
+const IconGlobe    = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></>} />;
+const IconBolt     = (p) => <Icon {...p} path={<><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></>} />;
+const IconShield   = (p) => <Icon {...p} path={<><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></>} />;
+const IconArrow    = (p) => <Icon {...p} path={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
+const IconCheck    = (p) => <Icon {...p} path={<><polyline points="20 6 9 17 4 12"/></>} />;
+const IconStar     = (p) => <Icon {...p} path={<><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></>} />;
+const IconMenu     = (p) => <Icon {...p} path={<><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></>} />;
+const IconClose    = (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />;
+
+// ─────────────────────────── NAV ──────────────────────────────
+function Nav() {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const links = [
+    { href: "#features",   label: "Features" },
+    { href: "#pricing",    label: "Pricing" },
+    { href: "#about",      label: "About" },
+    { href: "#faq",        label: "FAQ" },
+  ];
+
+  return (
+    <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? 'bg-axom-bg/80 backdrop-blur-lg border-b border-white/5' : ''}`}>
+      <div className="max-w-6xl mx-auto px-5 py-3.5 flex items-center justify-between">
+        <a href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center shadow-lg shadow-purple-500/30 group-hover:scale-105 transition">
+            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="currentColor"/></svg>
+          </div>
+          <div className="font-bold text-lg tracking-tight">Axom<span className="text-fuchsia-400"> AI</span></div>
+        </a>
+
+        <div className="hidden md:flex items-center gap-8">
+          {links.map(l => <a key={l.href} href={l.href} className="text-sm text-gray-400 hover:text-white transition">{l.label}</a>)}
+        </div>
+
+        <div className="hidden md:flex items-center gap-3">
+          <a href={CHAT_URL} className="text-sm text-gray-300 hover:text-white transition">Sign in</a>
+          <a href={CHAT_URL} className="btn-primary text-sm px-4 py-2 rounded-full inline-flex items-center gap-1.5">
+            Open Chat <IconArrow className="w-4 h-4" />
+          </a>
+        </div>
+
+        <button onClick={() => setOpen(!open)} className="md:hidden p-2 -mr-2 text-gray-300">
+          {open ? <IconClose className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
+        </button>
+      </div>
+      {open && (
+        <div className="md:hidden border-t border-white/5 bg-axom-bg/95 backdrop-blur-lg">
+          <div className="px-5 py-4 flex flex-col gap-3">
+            {links.map(l => <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm text-gray-300 py-1">{l.label}</a>)}
+            <a href={CHAT_URL} className="btn-primary text-sm px-4 py-2.5 rounded-full text-center mt-2">Open Chat</a>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+// ─────────────────────────── HERO ──────────────────────────────
+function Hero() {
+  return (
+    <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 grid-bg radial-fade opacity-60" />
+      <div className="glow-orb w-[600px] h-[600px] bg-purple-600/30 top-[-100px] left-1/2 -translate-x-1/2 animate-glow" />
+      <div className="glow-orb w-[400px] h-[400px] bg-fuchsia-500/20 top-[100px] right-[-100px]" />
+      <div className="glow-orb w-[400px] h-[400px] bg-blue-600/20 top-[300px] left-[-100px]" />
+
+      <div className="relative max-w-5xl mx-auto px-5 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300 mb-8 backdrop-blur">
+          <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse"></span>
+          Now with live web search + AI image generation
+        </div>
+
+        {/* Headline */}
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6">
+          <span className="gradient-text">Assam's Own</span>
+          <br />
+          <span className="text-white">AI Platform</span>
+        </h1>
+
+        {/* Assamese subhead */}
+        <p className="font-assamese text-2xl md:text-3xl text-fuchsia-300/90 mb-4">
+          অসমীয়াত কথা কওক · অসমীয়াতে উত্তৰ পাওক
+        </p>
+
+        <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+          The first AI assistant built natively for Assamese speakers.
+          Chat, generate images, summarize documents, search the web — all in your language,
+          powered by the fastest models on Earth.
+        </p>
+
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
+          <a href={CHAT_URL} className="btn-primary px-7 py-3.5 rounded-full text-base inline-flex items-center gap-2">
+            Start Chatting Free
+            <IconArrow className="w-5 h-5" />
+          </a>
+          <a href="#features" className="btn-ghost px-7 py-3.5 rounded-full text-base text-gray-200">
+            See what it can do
+          </a>
+        </div>
+
+        {/* Trust bar */}
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-gray-500">
+          <div className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-green-400" /> No credit card required</div>
+          <div className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-green-400" /> Free tier forever</div>
+          <div className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-green-400" /> Built in India</div>
+        </div>
+
+        {/* Product screenshot mockup */}
+        <div className="relative mt-16 md:mt-20 max-w-4xl mx-auto">
+          <div className="demo-window">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
+              <div className="flex gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500/70"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500/70"></span>
+              </div>
+              <div className="ml-4 text-[11px] text-gray-500 font-mono">chat.aiaxom.co.in</div>
+            </div>
+            <div className="p-6 md:p-10 text-left">
+              <div className="mb-4">
+                <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">You</div>
+                <div className="bg-white/5 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-200 max-w-md font-assamese">
+                  অসমৰ ৰাজধানী কি?
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-fuchsia-400 mb-1.5">Axom AI</div>
+                <div className="bg-gradient-to-br from-fuchsia-500/10 to-purple-600/10 border border-fuchsia-500/20 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-100 max-w-lg font-assamese leading-relaxed">
+                  অসমৰ ৰাজধানী দিছপুৰ। ই গুৱাহাটী চহৰৰ এক অংশ আৰু ১৯৭৩ চনৰ পৰা অসমৰ ৰাজধানী হিচাপে কাৰ্যনিৰ্বাহ কৰি আহিছে।
+                  <div className="mt-2 flex items-center gap-1 text-[10px] text-fuchsia-300/60">
+                    <IconBolt className="w-3 h-3" /> Powered by Groq · 0.8s response
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Decorative orbs behind */}
+          <div className="absolute -inset-6 -z-10 bg-gradient-to-r from-fuchsia-600/20 via-transparent to-purple-600/20 blur-3xl rounded-full"></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── LOGO STRIP ──────────────────────────────
+function LogoStrip() {
+  const logos = [
+    "Powered by Groq",
+    "Google Gemini",
+    "Cloudflare AI",
+    "Razorpay",
+    "Tavily",
+    "AWS Lightsail",
+    "IndicTrans2",
+  ];
+  return (
+    <section className="py-14 border-y border-white/5">
+      <div className="max-w-6xl mx-auto px-5">
+        <p className="text-center text-xs uppercase tracking-widest text-gray-500 mb-8">Built with the best</p>
+        <div className="marquee">
+          <div className="marquee-inner">
+            {[...logos, ...logos].map((l, i) => (
+              <div key={i} className="text-gray-400 text-sm font-medium whitespace-nowrap px-3">
+                {l}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── FEATURES ──────────────────────────────
+function Features() {
+  const features = [
+    { icon: IconChat,   title: "Assamese-First Chat",     desc: "Type in English, Hindi, Hinglish, or Assamese — always get natural অসমীয়া replies. Powered by Groq's fastest models at 0.7s response time.", accent: "from-fuchsia-500/20 to-purple-600/20" },
+    { icon: IconImage,  title: "AI Image Generation",     desc: "Turn your prompts into stunning visuals with FLUX. Automatic Assamese-to-English translation, 5 images/day on free tier.", accent: "from-pink-500/20 to-rose-600/20" },
+    { icon: IconSearch, title: "Live Web Search",         desc: "Get real-time answers from the internet, synthesized into Assamese. Cited sources, no hallucinations.", accent: "from-blue-500/20 to-cyan-600/20" },
+    { icon: IconPdf,    title: "Document Intelligence",   desc: "Upload PDF, DOCX, TXT — summarize in 3 lengths × 3 languages. OCR, convert, compress, edit in-browser.", accent: "from-emerald-500/20 to-teal-600/20" },
+    { icon: IconGlobe,  title: "Knowledge Base",          desc: "25,000 Assamese Wikipedia articles pre-loaded. Semantic search across 112,000 chunks — instant, accurate.", accent: "from-amber-500/20 to-orange-600/20" },
+    { icon: IconShield, title: "Private & Secure",        desc: "Your data stays yours. HTTPS end-to-end, CSRF-protected payments, GDPR-ready data export, delete anytime.", accent: "from-indigo-500/20 to-violet-600/20" },
+  ];
+
+  return (
+    <section id="features" className="py-24 md:py-32 relative">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="text-center mb-16">
+          <div className="inline-block text-xs uppercase tracking-widest text-fuchsia-400 mb-3">What's Inside</div>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            Everything you need. <br/>
+            <span className="gradient-text">All in one place.</span>
+          </h2>
+          <p className="text-gray-400 max-w-xl mx-auto">
+            Not just a chatbot. A complete AI workstation built for the way you work.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {features.map((f, i) => {
+            const Ico = f.icon;
+            return (
+              <div key={i} className="card-glow rounded-2xl p-6 backdrop-blur">
+                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${f.accent} border border-white/10 grid place-items-center mb-5`}>
+                  <Ico className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2 text-white">{f.title}</h3>
+                <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── STATS ──────────────────────────────
+function Stats() {
+  const stats = [
+    { v: "25K",   l: "Wikipedia articles" },
+    { v: "112K",  l: "Knowledge chunks" },
+    { v: "0.7s",  l: "First-token latency" },
+    { v: "24/7",  l: "Live monitoring" },
+  ];
+  return (
+    <section className="py-20 border-y border-white/5 bg-gradient-to-b from-transparent via-fuchsia-500/[0.02] to-transparent">
+      <div className="max-w-5xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        {stats.map((s, i) => (
+          <div key={i}>
+            <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">{s.v}</div>
+            <div className="text-xs uppercase tracking-widest text-gray-500">{s.l}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── PRICING ──────────────────────────────
+function Pricing() {
+  const [yearly, setYearly] = useState(false);
+
+  const tiers = [
+    {
+      name: "Free",
+      price: 0, yPrice: 0,
+      desc: "Get started, no credit card",
+      features: ["Unlimited chat", "5 images / day", "5 web searches / day", "Basic PDF tools", "Community support"],
+      cta: "Start Free", ctaHref: CHAT_URL,
+      highlight: false,
+    },
+    {
+      name: "Starter",
+      price: 99, yPrice: 79,
+      desc: "For everyday power users",
+      features: ["Everything in Free", "50,000 words / month", "15 images / day", "15 web searches / day", "Priority chat models", "Email support"],
+      cta: "Upgrade to Starter", ctaHref: CHAT_URL + "upgrade",
+      highlight: false,
+    },
+    {
+      name: "Pro",
+      price: 299, yPrice: 249,
+      desc: "For professionals & creators",
+      features: ["Everything in Starter", "250,000 words / month", "50 images / day", "Unlimited web searches", "Advanced PDF suite", "Priority support"],
+      cta: "Upgrade to Pro", ctaHref: CHAT_URL + "upgrade",
+      highlight: true,
+    },
+    {
+      name: "Business",
+      price: 799, yPrice: 649,
+      desc: "For teams & organizations",
+      features: ["Everything in Pro", "Unlimited words", "Unlimited images", "API access (coming soon)", "Team accounts (soon)", "Dedicated support"],
+      cta: "Upgrade to Business", ctaHref: CHAT_URL + "upgrade",
+      highlight: false,
+    },
+  ];
+
+  return (
+    <section id="pricing" className="py-24 md:py-32">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="text-center mb-14">
+          <div className="inline-block text-xs uppercase tracking-widest text-fuchsia-400 mb-3">Pricing</div>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            Simple, transparent pricing
+          </h2>
+          <p className="text-gray-400 max-w-xl mx-auto mb-8">
+            Start free. Upgrade when you need more. Cancel anytime.
+          </p>
+
+          {/* Yearly toggle */}
+          <div className="inline-flex items-center gap-3 p-1 bg-white/5 border border-white/10 rounded-full">
+            <button onClick={() => setYearly(false)} className={`px-4 py-1.5 rounded-full text-sm transition ${!yearly ? 'bg-white text-black font-medium' : 'text-gray-400'}`}>Monthly</button>
+            <button onClick={() => setYearly(true)} className={`px-4 py-1.5 rounded-full text-sm transition inline-flex items-center gap-2 ${yearly ? 'bg-white text-black font-medium' : 'text-gray-400'}`}>
+              Yearly <span className={`text-[10px] px-1.5 py-0.5 rounded ${yearly ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-fuchsia-500/20 text-fuchsia-300'}`}>-20%</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {tiers.map((t, i) => (
+            <div key={i} className={`relative rounded-2xl p-6 border ${t.highlight ? 'bg-gradient-to-b from-fuchsia-500/10 to-purple-600/5 border-fuchsia-500/40 shadow-2xl shadow-fuchsia-500/10' : 'bg-white/[0.02] border-white/8'}`}>
+              {t.highlight && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider">
+                  Most Popular
+                </div>
+              )}
+              <div className="mb-2 text-sm font-semibold text-white">{t.name}</div>
+              <p className="text-xs text-gray-500 mb-5 min-h-[16px]">{t.desc}</p>
+              <div className="mb-5">
+                <span className="text-4xl font-bold text-white">
+                  ₹{yearly ? t.yPrice : t.price}
+                </span>
+                <span className="text-sm text-gray-500 ml-1">/ mo</span>
+                {yearly && t.price > 0 && <div className="text-[11px] text-fuchsia-400 mt-1">Billed ₹{t.yPrice * 12} yearly</div>}
+              </div>
+              <a href={t.ctaHref} className={`block text-center px-4 py-2.5 rounded-full text-sm font-medium mb-6 ${t.highlight ? 'btn-primary' : 'btn-ghost text-white'}`}>
+                {t.cta}
+              </a>
+              <ul className="space-y-2.5 text-sm">
+                {t.features.map((f, j) => (
+                  <li key={j} className="flex items-start gap-2 text-gray-300">
+                    <IconCheck className="w-4 h-4 text-fuchsia-400 mt-0.5 flex-shrink-0" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center text-xs text-gray-500 mt-8">
+          All prices include GST. Secure payments powered by Razorpay (UPI, Cards, Netbanking).
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── TESTIMONIAL ──────────────────────────────
+function Testimonial() {
+  return (
+    <section id="about" className="py-24 relative overflow-hidden">
+      <div className="glow-orb w-[500px] h-[500px] bg-fuchsia-500/10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      <div className="relative max-w-4xl mx-auto px-5 text-center">
+        <div className="flex justify-center gap-1 mb-6">
+          {[...Array(5)].map((_, i) => <IconStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />)}
+        </div>
+        <blockquote className="text-2xl md:text-3xl font-serif italic text-white leading-snug mb-6">
+          "The first time an AI understood অসমীয়া the way it should — not as a translation,
+          but as a native voice. This is what we've been waiting for."
+        </blockquote>
+        <div className="text-sm text-gray-400">
+          A user from Guwahati · Early beta tester
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── FAQ ──────────────────────────────
+function FAQ() {
+  const [open, setOpen] = useState(0);
+  const faqs = [
+    { q: "Is Axom AI free to use?", a: "Yes. The Free tier gives you unlimited chat, 5 images/day, and 5 web searches/day — forever, no credit card required. Upgrade only when you need more." },
+    { q: "How is Axom AI different from ChatGPT or Gemini?", a: "Axom AI is built Assamese-first. Every response comes out naturally in অসমীয়া (unless you ask otherwise), and our knowledge base is loaded with 25,000+ Assamese Wikipedia articles for accurate, hallucination-free answers about Assam." },
+    { q: "Which AI models power Axom AI?", a: "We use Groq (openai/gpt-oss-120b) as primary for ~0.7s response time, with Google Gemini as fallback. Images are generated via Cloudflare Workers AI (FLUX) with Pollinations and Gemini Nano Banana as backups." },
+    { q: "How do payments work?", a: "Payments are processed by Razorpay — India's most trusted payment gateway. UPI, Cards, Netbanking, Wallets all supported. Cancel anytime from your account panel." },
+    { q: "Can I use Axom AI in English?", a: "Absolutely. Type in any language — English, Hindi, Hinglish, Roman Assamese — and get Assamese replies. Or ask for English/Hindi replies directly." },
+    { q: "Is my data private?", a: "Yes. Your chats are stored securely, never shared, never sold. HTTPS end-to-end, CSRF-protected payments, and you can export or delete all your data anytime from user.aiaxom.co.in." },
+  ];
+  return (
+    <section id="faq" className="py-24">
+      <div className="max-w-3xl mx-auto px-5">
+        <div className="text-center mb-14">
+          <div className="inline-block text-xs uppercase tracking-widest text-fuchsia-400 mb-3">Questions</div>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Frequently asked</h2>
+        </div>
+        <div className="space-y-2">
+          {faqs.map((f, i) => (
+            <div key={i} className="border border-white/8 rounded-xl overflow-hidden bg-white/[0.02]">
+              <button
+                onClick={() => setOpen(open === i ? -1 : i)}
+                className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-white/[0.02] transition"
+              >
+                <span className="font-medium text-white">{f.q}</span>
+                <span className={`text-fuchsia-400 transition-transform ${open === i ? 'rotate-45' : ''}`}>+</span>
+              </button>
+              {open === i && (
+                <div className="px-5 pb-5 pt-1 text-sm text-gray-400 leading-relaxed">{f.a}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── FINAL CTA ──────────────────────────────
+function FinalCTA() {
+  return (
+    <section className="py-24 md:py-32 relative overflow-hidden">
+      <div className="glow-orb w-[700px] h-[500px] bg-purple-600/25 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      <div className="relative max-w-4xl mx-auto px-5 text-center">
+        <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+          <span className="gradient-text">Ready to try Assam's own AI?</span>
+        </h2>
+        <p className="font-assamese text-xl md:text-2xl text-fuchsia-300/90 mb-8">
+          আজিয়েই আৰম্ভ কৰক · বিনামূলীয়া
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a href={CHAT_URL} className="btn-primary px-8 py-4 rounded-full text-lg inline-flex items-center gap-2">
+            Open Axom AI
+            <IconArrow className="w-5 h-5" />
+          </a>
+          <a href="#pricing" className="btn-ghost px-8 py-4 rounded-full text-lg text-gray-200">
+            View Pricing
+          </a>
+        </div>
+        <p className="text-xs text-gray-500 mt-6">Free forever · No credit card · Ready in 10 seconds</p>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────── FOOTER ──────────────────────────────
+function Footer() {
+  return (
+    <footer className="border-t border-white/5 py-14 px-5">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
+            </div>
+            <div className="font-bold text-white">Axom AI</div>
+          </div>
+          <p className="text-xs text-gray-500 leading-relaxed">
+            The first native Assamese AI platform.<br/>
+            Built with ❤️ in Assam, India.
+          </p>
+        </div>
+
+        <div>
+          <div className="text-xs uppercase tracking-widest text-gray-400 mb-3">Product</div>
+          <ul className="space-y-2 text-sm text-gray-500">
+            <li><a href={CHAT_URL} className="hover:text-white transition">Chat</a></li>
+            <li><a href={CHAT_URL + "tools"} className="hover:text-white transition">Tools</a></li>
+            <li><a href="#pricing" className="hover:text-white transition">Pricing</a></li>
+            <li><a href={CHAT_URL + "upgrade"} className="hover:text-white transition">Upgrade</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div className="text-xs uppercase tracking-widest text-gray-400 mb-3">Account</div>
+          <ul className="space-y-2 text-sm text-gray-500">
+            <li><a href="https://user.aiaxom.co.in/" className="hover:text-white transition">My Account</a></li>
+            <li><a href="https://user.aiaxom.co.in/payments/" className="hover:text-white transition">Payments</a></li>
+            <li><a href="https://user.aiaxom.co.in/support/" className="hover:text-white transition">Support</a></li>
+            <li><a href={CHAT_URL} className="hover:text-white transition">Sign in</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div className="text-xs uppercase tracking-widest text-gray-400 mb-3">Legal</div>
+          <ul className="space-y-2 text-sm text-gray-500">
+            <li><a href="/terms" className="hover:text-white transition">Terms of Service</a></li>
+            <li><a href="/privacy" className="hover:text-white transition">Privacy Policy</a></li>
+            <li><a href="/refund" className="hover:text-white transition">Refund Policy</a></li>
+            <li><a href="/contact" className="hover:text-white transition">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600 gap-3">
+        <div>© 2026 Axom AI. All rights reserved.</div>
+        <div className="flex items-center gap-4">
+          <a href="mailto:samarjitkashyp@gmail.com" className="hover:text-white transition">samarjitkashyp@gmail.com</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─────────────────────────── APP ──────────────────────────────
+function App() {
+  return (
+    <>
+      <Nav />
+      <Hero />
+      <LogoStrip />
+      <Features />
+      <Stats />
+      <Pricing />
+      <Testimonial />
+      <FAQ />
+      <FinalCTA />
+      <Footer />
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>

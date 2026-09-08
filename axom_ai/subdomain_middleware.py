@@ -22,19 +22,47 @@ from django.utils.deprecation import MiddlewareMixin
 
 ADMIN_HOSTS = {'admin.aiaxom.co.in', 'admin.aiaxom.local'}
 USER_HOSTS = {'user.aiaxom.co.in', 'user.aiaxom.local'}
+CHAT_HOSTS = {'chat.aiaxom.co.in', 'chat.aiaxom.local'}
+LANDING_HOSTS = {'aiaxom.co.in', 'www.aiaxom.co.in'}
+
+# App routes that must go to the chat app, never to the landing page.
+# When someone hits aiaxom.co.in/tools (etc.) redirect to chat subdomain.
+CHAT_APP_PREFIXES = (
+    '/tools', '/upgrade', '/subscription',
+    '/api/', '/admin-panel',
+)
 
 
 class SubdomainMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        host = request.get_host().split(':')[0].lower()
+        from django.http import HttpResponsePermanentRedirect
 
-        # Rewrite path so "/" on the subdomain maps to /axomai-admin/ (or -user/)
-        if host in ADMIN_HOSTS and not request.path_info.startswith('/axomai-admin'):
-            # Preserve nested paths: /users/ -> /axomai-admin/users/
-            request.path_info = '/axomai-admin' + request.path_info
+        host = request.get_host().split(':')[0].lower()
+        path = request.path_info
+
+        # admin.aiaxom.co.in  →  /axomai-admin/*
+        if host in ADMIN_HOSTS and not path.startswith('/axomai-admin'):
+            request.path_info = '/axomai-admin' + path
             request.path = request.path_info
-        elif host in USER_HOSTS and not request.path_info.startswith('/axomai-user'):
-            request.path_info = '/axomai-user' + request.path_info
+            return None
+
+        # user.aiaxom.co.in  →  /axomai-user/*
+        if host in USER_HOSTS and not path.startswith('/axomai-user'):
+            request.path_info = '/axomai-user' + path
             request.path = request.path_info
+            return None
+
+        # chat.aiaxom.co.in  →  existing app routes at /, no rewrite needed.
+        if host in CHAT_HOSTS:
+            return None
+
+        # Bare domain (aiaxom.co.in / www) — landing site only.
+        # App-flavoured paths get 301-redirected to the chat subdomain so
+        # old links (/tools, /upgrade, /api/...) keep working.
+        if host in LANDING_HOSTS:
+            for pref in CHAT_APP_PREFIXES:
+                if path == pref or path.startswith(pref + '/') or path.startswith(pref):
+                    qs = ('?' + request.META['QUERY_STRING']) if request.META.get('QUERY_STRING') else ''
+                    return HttpResponsePermanentRedirect(f'https://chat.aiaxom.co.in{path}{qs}')
 
         return None

@@ -399,6 +399,12 @@ def call_local_llm(final_prompt, system_instruction, timeout=120):
 
 @ensure_csrf_cookie
 def home_view(request):
+    # Bare domain (aiaxom.co.in / www.aiaxom.co.in) → premium landing page.
+    # Chat lives on chat.aiaxom.co.in (and localhost for dev).
+    host = request.get_host().split(':')[0].lower()
+    LANDING_HOSTS = {'aiaxom.co.in', 'www.aiaxom.co.in'}
+    if host in LANDING_HOSTS:
+        return render(request, 'landing.html')
     return render(request, 'index.html')
 
 @ensure_csrf_cookie
