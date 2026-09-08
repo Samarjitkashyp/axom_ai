@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" class="h-full bg-slate-50 text-slate-800">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign In — Axom AI User Account</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+</style>
+</head>
+<body class="h-full bg-slate-50 flex items-center justify-center p-4 relative">
+
+<div class="w-full max-w-md bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl relative z-10">
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white text-2xl shadow-lg shadow-indigo-600/25 mb-4">
+      <i class="fa-solid fa-brain"></i>
+    </div>
+    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Sign in to Axom AI</h1>
+    <p class="text-xs text-slate-500 mt-1.5">Manage your subscriptions, usage, and account settings</p>
+  </div>
+
+  {% if error %}
+  <div class="mb-6 bg-rose-50 border border-rose-200 text-rose-600 text-xs px-4 py-3 rounded-xl flex items-center space-x-2">
+    <i class="fa-solid fa-circle-exclamation shrink-0"></i>
+    <span>{{ error }}</span>
+  </div>
+  {% endif %}
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Username</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <i class="fa-solid fa-user text-sm"></i>
+        </div>
+        <input type="text" name="username" required autofocus placeholder="Your username" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Password</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <i class="fa-solid fa-lock text-sm"></i>
+        </div>
+        <input type="password" name="password" required placeholder="••••••••••••" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition">
+      </div>
+    </div>
+
+    <button type="submit" class="w-full mt-2 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm rounded-xl shadow-md shadow-indigo-600/20 transition duration-200 flex items-center justify-center space-x-2">
+      <span>Sign In to My Account</span>
+      <i class="fa-solid fa-arrow-right text-xs"></i>
+    </button>
+  </form>
+
+  <div class="mt-8 pt-6 border-t border-slate-100 text-center text-xs text-slate-500 space-y-2">
+    <div>
+      <a href="/" class="text-indigo-600 hover:text-indigo-700 font-semibold">
+        ← Back to Axom AI Assistant
+      </a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

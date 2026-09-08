@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invoice #{{ payment.razorpay_order_id }} — Axom AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+  @media print {
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body class="bg-slate-100 p-6 sm:p-12 text-slate-800">
+
+<div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 sm:p-12 shadow-md border border-slate-200">
+  
+  <div class="no-print flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
+    <a href="/axomai-user/payments/" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">← Back to Payments</a>
+    <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow">
+      🖨️ Print / Save as PDF
+    </button>
+  </div>
+
+  <!-- Header -->
+  <div class="flex justify-between items-start mb-8">
+    <div>
+      <div class="text-2xl font-black text-slate-900 tracking-tight">Axom<span class="text-indigo-600">AI</span></div>
+      <div class="text-xs text-slate-500 mt-1">First Bilingual Assamese & English AI Platform</div>
+      <div class="text-xs text-slate-500">https://aiaxom.co.in</div>
+    </div>
+    <div class="text-right">
+      <div class="text-xl font-black text-slate-900">INVOICE</div>
+      <div class="text-xs font-mono text-slate-500 mt-1">#{{ payment.razorpay_order_id }}</div>
+      <div class="text-xs text-slate-500 mt-0.5">Date: {{ date|date:"d M Y, H:i" }}</div>
+    </div>
+  </div>
+
+  <!-- Bill To -->
+  <div class="grid grid-cols-2 gap-8 mb-8 pb-8 border-b border-slate-100 text-xs">
+    <div>
+      <div class="font-bold text-slate-400 uppercase tracking-wider text-[10px] mb-1">Billed To</div>
+      <div class="font-bold text-slate-900 text-sm">{{ user.first_name }} {{ user.last_name }}</div>
+      <div class="text-slate-600">@{{ user.username }}</div>
+      <div class="text-slate-600">{{ user.email }}</div>
+    </div>
+    <div>
+      <div class="font-bold text-slate-400 uppercase tracking-wider text-[10px] mb-1">Payment Method</div>
+      <div class="font-semibold text-slate-800">Razorpay Gateway (Online)</div>
+      <div class="font-mono text-slate-500 text-[11px]">Payment ID: {{ payment.razorpay_payment_id|default:"Pending" }}</div>
+      <div class="mt-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">PAID & VERIFIED</span></div>
+    </div>
+  </div>
+
+  <!-- Line items -->
+  <table class="w-full text-left text-xs mb-8">
+    <thead class="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
+      <tr>
+        <th class="py-2.5">Item & Description</th>
+        <th class="py-2.5 text-right">Qty</th>
+        <th class="py-2.5 text-right">Price</th>
+        <th class="py-2.5 text-right">Total</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 text-slate-800 font-medium">
+      <tr>
+        <td class="py-4">
+          <div class="font-bold text-slate-900">{{ payment.plan }}</div>
+          <div class="text-slate-500 text-[11px]">Axom AI Premium Service Tier</div>
+        </td>
+        <td class="py-4 text-right">1</td>
+        <td class="py-4 text-right">₹{{ amount_rs|floatformat:2 }}</td>
+        <td class="py-4 text-right font-bold text-slate-900">₹{{ amount_rs|floatformat:2 }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Total Summary -->
+  <div class="flex justify-end mb-12">
+    <div class="w-64 space-y-2 text-xs">
+      <div class="flex justify-between text-slate-600">
+        <span>Subtotal:</span>
+        <span class="font-semibold">₹{{ amount_rs|floatformat:2 }}</span>
+      </div>
+      <div class="flex justify-between text-slate-600">
+        <span>GST / Taxes:</span>
+        <span class="font-semibold">₹0.00</span>
+      </div>
+      <div class="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-200">
+        <span>Total Paid:</span>
+        <span class="text-indigo-600 font-black">₹{{ amount_rs|floatformat:2 }} INR</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center text-[11px] text-slate-400 border-t border-slate-100 pt-6">
+    Thank you for supporting Axom AI! For queries, visit user.aiaxom.co.in or contact support.
+  </div>
+
+</div>
+
+</body>
+</html>

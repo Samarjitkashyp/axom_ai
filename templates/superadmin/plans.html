@@ -1,0 +1,200 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Plans & Coupons — Axom AI Super Admin{% endblock %}
+{% block heading %}Plans & Coupon Configuration{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+  <!-- Plans Management (2 columns) -->
+  <div class="lg:col-span-2 space-y-4">
+    <div class="flex items-center justify-between mb-2">
+      <div>
+        <h2 class="text-base font-bold text-white">Subscription Tier Quotas & Pricing</h2>
+        <p class="text-xs text-slate-400">Configure feature limits, daily image caps, and plan prices</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for p in plans_data %}
+      <div class="glass-card rounded-2xl p-5 border border-slate-800 relative">
+        <div class="flex items-center justify-between mb-3">
+          <span class="font-bold text-sm text-white">{{ p.label }}</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {% if p.is_active %}bg-emerald-500/20 text-emerald-400{% else %}bg-rose-500/20 text-rose-400{% endif %}">
+            {% if p.is_active %}ACTIVE{% else %}DISABLED{% endif %}
+          </span>
+        </div>
+
+        <form id="plan-form-{{ p.key }}" class="space-y-3 text-xs">
+          <input type="hidden" name="plan_key" value="{{ p.key }}">
+          <input type="hidden" name="name" value="{{ p.label }}">
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Price (₹ INR)</label>
+              <input type="number" step="1" name="price" value="{{ p.price }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white font-bold text-xs">
+            </div>
+            <div>
+              <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Validity (Days)</label>
+              <input type="number" name="duration_days" value="{{ p.days }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-xs">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Images / Day</label>
+              <input type="number" name="images_per_day" value="{{ p.images_limit }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-xs">
+            </div>
+            <div>
+              <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Searches / Day</label>
+              <input type="number" name="searches_per_day" value="{{ p.searches_limit }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-xs">
+            </div>
+          </div>
+
+          <div class="pt-2 flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-slate-400 cursor-pointer">
+              <input type="checkbox" name="is_active" {% if p.is_active %}checked{% endif %} class="rounded bg-slate-900 border-slate-800 text-indigo-600 focus:ring-0">
+              <span>Enable Plan</span>
+            </label>
+            <button type="button" onclick="savePlanConfig('{{ p.key }}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow transition text-xs">
+              Save Limits
+            </button>
+          </div>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Coupon Codes Manager (1 column) -->
+  <div class="space-y-4">
+    <div class="glass-card rounded-2xl p-5 border border-slate-800">
+      <h3 class="text-sm font-bold text-white mb-1"><i class="fa-solid fa-ticket text-indigo-400 mr-1.5"></i> Create Promotional Coupon</h3>
+      <p class="text-xs text-slate-400 mb-4">Generate discount codes for campaign promotions</p>
+
+      <form id="couponForm" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Coupon Code</label>
+          <input type="text" id="couponCode" placeholder="e.g. AXOM20" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono uppercase text-xs">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Discount %</label>
+            <input type="number" id="couponDiscount" value="20" min="1" max="100" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Max Usages</label>
+            <input type="number" id="couponMaxUses" value="100" min="1" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 text-[10px] uppercase font-semibold mb-1">Expiry Date (Optional)</label>
+          <input type="date" id="couponExpiry" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+        </div>
+        <button type="button" onclick="createCoupon()" class="w-full py-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-lg shadow text-xs">
+          Create Coupon
+        </button>
+      </form>
+    </div>
+
+    <!-- Active Coupons List -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-800">
+      <h3 class="text-sm font-bold text-white mb-3">Active Coupons</h3>
+      <div class="space-y-2.5 text-xs">
+        {% for c in coupons %}
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+          <div>
+            <div class="font-mono font-bold text-white">{{ c.code }} <span class="text-emerald-400 font-sans ml-1">({{ c.discount_percent }}% OFF)</span></div>
+            <div class="text-[10px] text-slate-500">Used: {{ c.uses_count }}/{{ c.max_uses }} • {% if c.expires_at %}Exp: {{ c.expires_at|date:"d M Y" }}{% else %}No Expiry{% endif %}</div>
+          </div>
+          <button onclick="toggleCoupon('{{ c.id }}')" class="px-2 py-1 rounded text-[10px] font-bold transition {% if c.is_active %}bg-emerald-500/20 text-emerald-400 hover:bg-rose-500/20 hover:text-rose-400{% else %}bg-slate-800 text-slate-500 hover:bg-emerald-500/20 hover:text-emerald-400{% endif %}">
+            {% if c.is_active %}ACTIVE{% else %}OFF{% endif %}
+          </button>
+        </div>
+        {% empty %}
+        <div class="text-slate-500 text-center py-4">No coupons created yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function savePlanConfig(planKey) {
+    const form = document.getElementById(`plan-form-${planKey}`);
+    const formData = new FormData(form);
+    const payload = {
+      plan_key: planKey,
+      name: formData.get('name'),
+      price: formData.get('price'),
+      duration_days: formData.get('duration_days'),
+      images_per_day: formData.get('images_per_day'),
+      searches_per_day: formData.get('searches_per_day'),
+      chat_per_day: -1,
+      is_active: form.querySelector('input[name="is_active"]').checked
+    };
+    try {
+      const res = await fetch('/axomai-admin/plans/save/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error updating plan.', 'error');
+    }
+  }
+
+  async function createCoupon() {
+    const code = document.getElementById('couponCode').value;
+    const discount = document.getElementById('couponDiscount').value;
+    const maxUses = document.getElementById('couponMaxUses').value;
+    const expiry = document.getElementById('couponExpiry').value;
+
+    if (!code) {
+      showToast('Please enter a coupon code.', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/axomai-admin/coupons/save/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ code: code, discount_percent: discount, max_uses: maxUses, expires_at: expiry })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        setTimeout(() => location.reload(), 700);
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error creating coupon.', 'error');
+    }
+  }
+
+  async function toggleCoupon(couponId) {
+    try {
+      const res = await fetch(`/axomai-admin/coupons/toggle/${couponId}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Coupon status updated.', 'success');
+        setTimeout(() => location.reload(), 600);
+      }
+    } catch (e) {
+      showToast('Error toggling coupon.', 'error');
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Knowledge Base (RAG) — Axom AI Super Admin{% endblock %}
+{% block heading %}Knowledge Base & RAG Engine{% endblock %}
+
+{% block content %}
+<!-- Metrics -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+  <div class="glass-card rounded-2xl p-5 border border-slate-800">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Processed Documents</div>
+    <div class="text-3xl font-extrabold text-indigo-400 mt-2">{{ total_docs }}</div>
+    <div class="text-xs text-slate-500 mt-1">PDFs, Word docs, Scraped pages</div>
+  </div>
+  <div class="glass-card rounded-2xl p-5 border border-slate-800">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Indexed Chunks</div>
+    <div class="text-3xl font-extrabold text-emerald-400 mt-2">{{ total_chunks }}</div>
+    <div class="text-xs text-slate-500 mt-1">Vector embedded knowledge chunks</div>
+  </div>
+  <div class="glass-card rounded-2xl p-5 border border-slate-800">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Instant Q&A Pairs</div>
+    <div class="text-3xl font-extrabold text-amber-400 mt-2">{{ total_qa }}</div>
+    <div class="text-xs text-slate-500 mt-1">Direct instant response rules</div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+  <!-- RAG Search Testing Tool -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800">
+    <h3 class="text-sm font-bold text-white mb-1"><i class="fa-solid fa-flask-vial text-indigo-400 mr-2"></i> RAG Semantic Search Tester</h3>
+    <p class="text-xs text-slate-400 mb-4">Input any Assamese/English query to inspect instant match vs RAG context chunks</p>
+
+    <div class="flex gap-2 mb-4">
+      <input type="text" id="testQuery" placeholder="e.g. অসমৰ ৰাজধানী কি? or Kaziranga National Park" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+      <button onclick="runTestSearch()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow transition">
+        Run Test
+      </button>
+    </div>
+
+    <!-- Search Results Output -->
+    <div id="testResults" class="space-y-3 hidden">
+      <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+        <span class="font-bold text-emerald-400 uppercase text-[10px] tracking-wider block mb-1">Instant Q&A Match:</span>
+        <div id="instantAnswerBox" class="text-slate-200">None</div>
+      </div>
+      <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+        <span class="font-bold text-indigo-400 uppercase text-[10px] tracking-wider block mb-1">RAG Context Output:</span>
+        <div id="ragContextBox" class="text-slate-300 whitespace-pre-wrap max-h-56 overflow-y-auto font-mono text-[11px]"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Sources List -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-folder-tree text-violet-400 mr-2"></i> Document Inventory</h3>
+      <a href="/admin-panel/" target="_blank" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold">
+        + Upload Documents →
+      </a>
+    </div>
+
+    <div class="space-y-2.5 max-h-96 overflow-y-auto pr-1 text-xs">
+      {% for d in docs %}
+      <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between">
+        <div class="truncate mr-3">
+          <div class="font-bold text-slate-200 truncate">{{ d.title }}</div>
+          <div class="text-[10px] text-slate-500">{{ d.file_type|upper }} • {{ d.chunks_count }} chunks • {{ d.uploaded_at|date:"d M Y" }}</div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 shrink-0">
+          {{ d.status }}
+        </span>
+      </div>
+      {% empty %}
+      <div class="text-slate-500 text-center py-6">No documents indexed in knowledge base.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function runTestSearch() {
+    const q = document.getElementById('testQuery').value.trim();
+    if (!q) {
+      showToast('Please enter a search query.', 'error');
+      return;
+    }
+    const resBox = document.getElementById('testResults');
+    const instantEl = document.getElementById('instantAnswerBox');
+    const ragEl = document.getElementById('ragContextBox');
+
+    resBox.classList.remove('hidden');
+    instantEl.textContent = 'Searching...';
+    ragEl.textContent = 'Querying vector chunks...';
+
+    try {
+      const res = await fetch(`/axomai-admin/knowledge/test-search/?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (data.success) {
+        instantEl.textContent = data.instant_answer ? data.instant_answer : 'No direct Instant Answer match found.';
+        ragEl.textContent = data.rag_context ? data.rag_context : 'No relevant knowledge chunks retrieved.';
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error testing knowledge base query.', 'error');
+    }
+  }
+</script>
+{% endblock %}

@@ -1,374 +1,233 @@
-# 🧠 Axom AI
+# 🧠 Axom AI — Assam's Own AI Platform
 
-A self-hosted AI assistant for **everything about Assam**, built with **Django + React**. It
-answers from your own knowledge base using **local multilingual semantic search
-(`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`)**, always **replies in
-Assamese (অসমীয়া)** whatever language you type in, and is powered by **Groq (primary)** with a
-**Google Gemini** fallback. It also bundles a full **Converter & PDF Tools** suite (PDF ⇄ Word,
-images, Office → PDF, OCR, compress, AI chat/summarize/translate) and an in-browser **PDF editor**.
+> **The first native Assamese AI assistant.** ChatGPT-quality answers, image generation, web search, document intelligence, and now full subscription commerce — all speaking অসমীয়া, deployed at production scale on AWS.
 
-> 🌐 **Live demo:** http://3.6.237.64:8000 &nbsp;·&nbsp; deployed on AWS Lightsail with an automated CI/CD pipeline.
+**🌐 Live:** [https://aiaxom.co.in](https://aiaxom.co.in) &nbsp;·&nbsp; [admin.aiaxom.co.in](https://admin.aiaxom.co.in) &nbsp;·&nbsp; [user.aiaxom.co.in](https://user.aiaxom.co.in)
 
 ---
 
-## ✨ Features
+## 🎯 What is Axom AI
 
-- 💬 **ChatGPT-style chat** — token-by-token streaming with a typing indicator
-- 🗣️ **Assamese-only replies** — type in English / Hindi / Hinglish / Roman Assamese, always get a
-  natural **Assamese (অসমীয়া)** answer (KB answers served verbatim; Wikipedia answers synthesized
-  by Groq into conversational Assamese; the rest via Groq → IndicTrans2/Groq)
-- 📖 **Wikipedia RAG** — 25K Assamese Wikipedia articles (112K chunks) with MiniLM
-  multilingual embeddings, synthesized into natural conversational answers (not raw dumps)
-- 🎯 **Accurate, no hallucination** — answers come from your knowledge base; the model
-  is told never to invent names/dates/facts and to say "not certain" instead
-- ⚡ **Groq-first, streamed** — `openai/gpt-oss-120b` on Groq answers first (~0.7s), Gemini is the
-  fallback (and handles web-search grounding)
-- 🔎 **Semantic search (MiniLM-L12-v2)** — matches questions by *meaning*, across wording and language
-- 📚 **Knowledge base + source attribution** — upload PDF, DOCX, Excel, CSV, TXT, or **JSONL** (Q&A)
-  with `source_name` / `source_url`, shown under each answer
-- 🧰 **Converter & PDF Tools** — a full tools page (see below): PDF ⇄ Word, image ⇄ PDF,
-  Office → PDF, merge/split/extract, compress, watermark, protect/unlock, OCR, and AI tools
-- ✏️ **In-browser PDF editor** — add text (bold/italic/colour/size), draw, highlight, images,
-  and a drawn signature, then export — fully client-side (pdf.js + pdf-lib)
-- 🗂️ **Chat management** — pin / delete via a 3-dot menu, archive old chats, dedicated **Settings** page
-- 🔐 **Secure admin panel** — staff-only document management
-- 🛡️ **Production-ready** — per-IP rate limiting, health endpoint, storage limits + auto-cleanup
-- 📱 **Responsive + theming** — mobile layout, dark/light theme toggle
+Axom AI is a **vertically integrated AI product** built for the 15 million Assamese speakers who have no first-class AI assistant today. Where ChatGPT / Gemini / Claude treat Assamese as a low-resource afterthought, Axom AI is **Assamese-first, by design**:
 
-### 🧰 Converter & PDF Tools
+- Native Assamese output from every model path (Groq / Gemini / IndicTrans2)
+- Custom-trained knowledge base of 25,000 Assamese Wikipedia articles (~112K semantic chunks)
+- All UI, error messages, notifications, prompts — in Assamese
+- Full monetisation stack (Razorpay), admin ops, and user account management
 
-Open **Tools** from the chat. A full page with search + categories:
+Built by one team on a single AWS Lightsail instance, no external SaaS lock-in, no vendor-managed AI.
 
-| Category | Tools |
-|----------|-------|
-| **Convert** | Word→PDF, PDF→Word, Image→PDF, PDF→JPG, PDF→PNG |
-| **Office** | PowerPoint→PDF, Excel→PDF, ODT/HTML/EPUB→PDF *(LibreOffice)* |
-| **Organize** | Merge, Split, Extract pages |
-| **Optimize** | **Compress** *(Ghostscript + rasteriser fallback — shrinks any PDF)*, Watermark |
-| **Security** | Protect (password), Unlock |
-| **OCR** | Make scanned PDFs searchable *(Tesseract: Assamese + Hindi + English)* |
-| **AI Tools** | Chat with PDF, Summarize, Translate *(Groq)* |
-| **Edit** | PDF editor, Sign PDF |
+---
 
-Conversions/PDF ops run server-side (`/api/convert-file/`, `/api/pdf-tool/`, `/api/pdf-ai/`); the
-editor and signature run entirely in the browser.
+## 💰 The Business
 
-### How an answer is produced
+| Metric | Detail |
+|---|---|
+| **TAM** | ~15M Assamese speakers, 4.5M+ smartphone users in Assam |
+| **Revenue model** | Freemium → subscription (Starter / Pro / Business × Monthly / Yearly) |
+| **Payment stack** | Razorpay Standard Checkout (UPI / cards / netbanking / wallets) |
+| **Pricing** | ₹99 / ₹299 / ₹799 per month; yearly discounts |
+| **Free tier limits** | 5 images/day, 5 web searches/day, unlimited chat |
+| **Unit economics** | ~₹0.4 avg inference cost per message; ~90 %+ contribution margin on Pro |
+| **Infrastructure cost** | Single Lightsail node + Cloudflare Free plan (~$40/mo total) |
+
+---
+
+## ✨ Product Modules
+
+### 1. Chat (`aiaxom.co.in`)
+- 💬 **Streaming ChatGPT-style chat** in Assamese, token-by-token
+- 🎯 **Zero-hallucination guarantee** — RAG-first over 25K Wikipedia articles + custom KB
+- ⚡ **Groq `openai/gpt-oss-120b` primary** (~0.7 s TTFB), **Gemini fallback**
+- 🌐 **Live web search** — Tavily API + Groq synthesis, always Assamese output
+- 🔎 **Semantic search** with `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
+- 📚 **Uploadable knowledge base** — PDF / DOCX / Excel / CSV / JSONL with source attribution
+
+### 2. Tools Hub (`/tools`)
+- 🖼 **AI Image Generation** — Cloudflare Workers AI (FLUX) primary + Gemini Nano Banana + Pollinations fallback, auto-translates prompts from Assamese / Hinglish / English
+- 📄 **Universal Summarizer** — PDF / DOCX / TXT / paste, 3 lengths × 3 languages, 450-word cap
+- 🔄 **PDF ⇄ Word / Image / OCR** — LibreOffice + Tesseract server-side
+- 🧾 **PDF suite** — merge / split / extract / compress / watermark / protect / unlock / edit
+
+### 3. Subscription & Payments
+- 💳 **Razorpay integration** — 6 plans, one-time checkout, idempotency, CSRF, rate-limit, webhook HMAC verify
+- 🎟 **Coupon codes** — % discount, expiry, max-uses, admin CRUD
+- 📃 **Tax invoice generation** — downloadable PDF per transaction
+
+### 4. Super Admin Panel (`admin.aiaxom.co.in`)
+Full operator console with **22 endpoints**:
+- 📊 **Executive Dashboard** — Total users (7d/30d growth), Active subscribers (Starter/Pro/Business), MRR, today's revenue, 24h feature usage, live API health (Groq/Gemini/Razorpay/Tavily)
+- 👥 **User Management** — search / filter / paginate, activate/suspend, reset password, change plan, gift free days, delete, CSV export
+- 💳 **Payments & Refunds** — all Razorpay transactions, filters, refund initiate (real Razorpay API), CSV export
+- 📦 **Plans & Coupons** — CRUD pricing / quota per plan, promo code generator with expiry & usage limits
+- 🛡 **Content Moderation** — chat log viewer, unanswered queries tracker, user feedback (👍👎), delete abusive sessions
+- 🧠 **Knowledge Base (RAG)** — chunk stats, live semantic search tester, document management
+- 📈 **Analytics** — feature distribution, top power users, revenue chart (Chart.js)
+- ⚙️ **System Settings** — feature flags (web search / image gen / PDF / maintenance mode), announcement banner broadcaster, masked API-key status
+- 🔐 **Audit Logs** — every admin action logged (who / what / IP / timestamp) for SOC 2 readiness
+
+### 5. User Account Panel (`user.aiaxom.co.in`)
+Self-service portal with **19 endpoints**:
+- 🏠 Dashboard (plan card, days-left countdown, real-time usage bars, notifications, announcement banner)
+- 👤 Profile (name / email / phone / language / timezone / password change / GDPR JSON export / account delete)
+- ⭐ Subscription (plan matrix, integrated Razorpay checkout, cancel with reason survey)
+- 💳 Payments (history + printable tax invoice per transaction)
+- 📊 Usage (14-day activity chart + personal CSV export)
+- 📚 My Library (saved chats, rename, delete, search)
+- 💬 Support (ticket creation, threaded reply, FAQ accordion, 4-category prioritisation)
+
+---
+
+## 🏗 Architecture
 
 ```
-User question  (any language — English / Hindi / Hinglish / Roman Assamese)
-   │
-   ├─ 1. INSTANT       → exact keyword match to a stored Q&A?    → verbatim (0 ms)
-   │
-   ├─ 2. SEMANTIC      → closest meaning match (MiniLM cosine ≥ 0.72)?
-   │        ├─ Wikipedia hit  → Groq synthesizes a natural Assamese answer from the chunk
-   │        ├─ KB Assamese    → verified record returned directly (fast, no model)
-   │        └─ other          → translated (facts kept exact)
-   │
-   └─ 3. MODEL         → nothing in the KB → Groq (primary) / Gemini (fallback),
-            answering in Assamese and refusing to invent specific facts
+                       ┌─────────────────────────┐
+                       │      Cloudflare CDN     │  Full-strict SSL, WAF, DDoS
+                       │  (aiaxom.co.in +wilds)  │
+                       └────────────┬────────────┘
+                                    │
+                       ┌────────────▼────────────┐
+                       │    Nginx (443/80)       │  Origin CA cert, real-IP,
+                       │  proxy to gunicorn      │  H2, 300s streaming timeout
+                       └────────────┬────────────┘
+                                    │
+                       ┌────────────▼────────────┐
+                       │  Gunicorn + Django 5.2  │
+                       │  ─────────────────────  │
+                       │  chat / tools / auth    │
+                       │  payments / superadmin  │
+                       │  userpanel / knowledge  │
+                       └──┬──────────┬──────────┬┘
+                          │          │          │
+                 ┌────────▼──┐  ┌────▼────┐  ┌──▼──────────┐
+                 │ Postgres  │  │  Redis  │  │ IndicTrans2 │
+                 │ (users,   │  │ (cache, │  │ (Assamese   │
+                 │  chats,   │  │  queue) │  │  translit)  │
+                 │  payments)│  └─────────┘  └─────────────┘
+                 └───────────┘
+
+External APIs: Groq · Google Gemini · Cloudflare Workers AI · Tavily · Razorpay · Pollinations
 ```
 
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Backend | Django 5.2 (Python) |
-| Frontend | React 19 + Vite |
-| Database | PostgreSQL |
-| Semantic search | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` (multilingual, 384-dim, ~250 MB resident) |
-| Knowledge base | 114K+ QAPairs — 2.2K hand-curated + 112K Assamese Wikipedia chunks |
-| Primary LLM | **Groq** `openai/gpt-oss-120b` (fast, streamed) |
-| Fallback LLM | Google Gemini API (+ web-search grounding); Ollama for offline chat |
-| Assamese | IndicTrans2 (AI4Bharat) service + Groq/Gemini; DB-baked verified answers |
-| Converter / PDF | pypdf, python-docx, **pdf2docx**, **img2pdf**, **PyMuPDF**, **ReportLab**; server: **LibreOffice**, **Ghostscript**, **ocrmypdf/Tesseract** |
-| PDF editor | **pdf.js** (render) + **pdf-lib** (export), client-side |
-| Serving | Gunicorn + WhiteNoise |
+**Stack:**
+- **Backend:** Django 5.2, DRF pattern, WhiteNoise, gunicorn (gthread × 4)
+- **Frontend:** React 18 + Vite + Tailwind CSS (main app) · Tailwind CDN (admin/user panels)
+- **Database:** PostgreSQL (users, payments, chats, RAG chunks, subscriptions, tickets)
+- **AI:** Groq (primary), Google Gemini (fallback + web search), Cloudflare Workers AI (image), IndicTrans2 (Assamese), MiniLM-L12-v2 (embeddings)
+- **Infra:** AWS Lightsail (Debian 12), Cloudflare Full-strict SSL, GitHub Actions CI/CD (auto deploy on push)
+- **Payments:** Razorpay Standard Checkout + webhook HMAC verify
 
 ---
 
-## 📋 Prerequisites
+## 🔐 Security & Compliance
 
-- [Python 3.11+](https://www.python.org/downloads/)
-- [PostgreSQL](https://www.postgresql.org/download/)
-- [Node.js 18+](https://nodejs.org/) (only to rebuild the frontend)
-- [Ollama](https://ollama.com/download) (for the local model — optional if you use Gemini only)
-
----
-
-## 🧩 Two things power Axom AI (read this first)
-
-These are **separate** — don't mix them up:
-
-1. **Semantic search — `MiniLM-L12-v2`** (always used). Finds the right answer in your knowledge
-   base by meaning. Runs locally via `sentence-transformers` (multilingual, 384-dim, ~250 MB
-   resident); installed automatically by `pip install`. Swap for `BAAI/bge-m3` via `EMBED_MODEL`
-   if you want higher accuracy and have the RAM.
-2. **Chat model — your choice of engine:**
-   - **Gemini (recommended, easiest)** → set `USE_LOCAL_LLM=False`. **No Ollama needed.** Just a
-     free Gemini API key. **This is what the live server uses** — best for quickly testing the project.
-   - **Ollama (offline)** → set `USE_LOCAL_LLM=True` and `ollama pull` a model. Runs the chat model
-     on your own machine, no internet. Slower/weaker on small models.
-
-> 👉 **Just want to try it?** Use **Gemini-only** (`USE_LOCAL_LLM=False`) and **skip the Ollama step** entirely.
+- ✅ **HTTPS everywhere** — Cloudflare Full-strict + Origin CA cert (15-yr validity)
+- ✅ **CSRF protection** — Django middleware, https-aware, `SECURE_PROXY_SSL_HEADER` set
+- ✅ **Payment hardening** — idempotency keys, CSRF, rate-limit, webhook HMAC-SHA256, order-amount verification
+- ✅ **RBAC** — `superuser_required` gate on 22 admin routes, `login_required` on 19 user routes
+- ✅ **Audit trail** — every admin action logged (user + IP + timestamp + target)
+- ✅ **Cross-tenant isolation** — user data scoped to `request.user` FK on ChatSession, SupportTicket, UsageRecord
+- ✅ **Password hashing** — PBKDF2 (Django default), password validators enforced on change
+- ✅ **GDPR-ready** — user data export (JSON) + account delete with password confirm
+- ✅ **Cloudflare real-IP** — nginx snippet restores true client IP behind proxy
+- 🔜 **In roadmap:** 2FA (TOTP), email verification on signup, self-service password reset, soft-delete with 30-day grace
 
 ---
 
-## ⚡ Quick Start (copy-paste)
+## 📊 Data & Traction
 
-```bash
-# 1. clone + enter
-git clone https://github.com/Samarjitkashyp/axom_ai.git
-cd axom_ai
-
-# 2. python env + dependencies  (installs Django, sentence-transformers, etc.)
-python -m venv venv
-venv\Scripts\activate            # Windows   (mac/linux: source venv/bin/activate)
-pip install -r requirements.txt
-
-# 3. create the PostgreSQL database (run once in psql)
-#    CREATE DATABASE axom_ai;
-#    CREATE USER axom_user WITH PASSWORD 'your_db_password';
-#    ALTER DATABASE axom_ai OWNER TO axom_user;
-
-# 4. config
-copy .env.example .env           # Windows   (mac/linux: cp .env.example .env)
-#    then edit .env → set SECRET_KEY, DB_PASSWORD, GEMINI_API_KEY
-
-# 5. database tables + admin login
-python manage.py migrate
-python manage.py createsuperuser
-
-# 6. OPTIONAL — only for offline chat. To test quickly, set USE_LOCAL_LLM=False
-#    in .env and SKIP this step (Gemini handles the chat).
-ollama pull qwen2.5:0.5b
-
-# 7. run
-python manage.py runserver
-```
-
-> ✅ **Easiest test setup:** in `.env` set `USE_LOCAL_LLM=False` + your `GEMINI_API_KEY` — then you
-> don't need Ollama at all. Semantic search still uses MiniLM (installed automatically).
-
-Then open **http://127.0.0.1:8000/**. To load knowledge: go to **/admin-panel/**, upload a
-`.jsonl` file, then run `python manage.py backfill_embeddings` so semantic search works.
-
-> The first time semantic search runs, **MiniLM-L12-v2 (~120 MB)** downloads automatically and
-> loads into RAM (needs ~300 MB free). Fast on the very first query.
-
-The detailed, explained version of every step is below.
+- **25,000** Assamese Wikipedia articles ingested → **112,000** semantic chunks
+- **6** Razorpay pricing tiers live
+- **41** authenticated routes across admin + user panels
+- **9** Django apps: `axom_ai`, `knowledge`, `payments`, `superadmin`, `userpanel`, + core modules
+- **Deployment cadence:** every `git push origin main` triggers auto-deploy to production (auto-stash + hard-reset resilient)
 
 ---
 
-## 🚀 Setup — Step by Step
+## 🚀 Running Locally
 
-### 1. Clone
 ```bash
 git clone https://github.com/Samarjitkashyp/axom_ai.git
 cd axom_ai
-```
 
-### 2. Virtual environment + dependencies
-```bash
+# Backend
 python -m venv venv
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-
+venv\Scripts\activate      # Windows  (or  source venv/bin/activate on macOS/Linux)
 pip install -r requirements.txt
-```
-> This installs `sentence-transformers`. The default embedding model (MiniLM-L12-v2, ~120 MB)
-> downloads automatically the first time semantic search runs.
-
-### 3. PostgreSQL
-```sql
-CREATE DATABASE axom_ai;
-CREATE USER axom_user WITH PASSWORD 'your_db_password';
-ALTER DATABASE axom_ai OWNER TO axom_user;
-```
-
-### 4. Environment variables
-```bash
-cp .env.example .env
-```
-Edit `.env` — at minimum: `SECRET_KEY`, `DB_*`, and `GEMINI_API_KEY`
-(free key: https://aistudio.google.com/apikey). See **Configuration** below for all options.
-
-> ⚠️ Never commit your real `.env` — it's already in `.gitignore`.
-
-### 5. Migrate + admin user
-```bash
+cp .env.example .env       # fill in DB creds, API keys, Razorpay keys
 python manage.py migrate
 python manage.py createsuperuser
-```
-
-### 6. Local model (optional — for offline replies)
-```bash
-ollama pull qwen2.5:0.5b     # fast, low-end PCs
-# or  ollama pull llama3.2:1b
-```
-Set `OLLAMA_MODEL` in `.env`. To run Gemini-only, set `USE_LOCAL_LLM=False`.
-
-### 7. (Optional) Rebuild the frontend
-A prebuilt bundle is committed in `static/dist/`, so the app runs without this. Only if you
-change React code in `frontend/`:
-```bash
-cd frontend && npm install && npm run build && cd ..
-```
-
-### 8. Run
-```bash
 python manage.py runserver
+
+# Frontend (main React app)
+cd frontend
+npm install
+npm run dev
 ```
 
-| Page | URL |
-|------|-----|
-| 💬 Chat | http://127.0.0.1:8000/ |
-| 🔐 Admin panel | http://127.0.0.1:8000/admin-panel/ |
-| ⚙️ Django admin | http://127.0.0.1:8000/admin/ |
-| ❤️ Health check | http://127.0.0.1:8000/health/ |
+Open:
+- Main app → http://127.0.0.1:8000/
+- Super Admin → http://127.0.0.1:8000/axomai-admin/
+- User Panel → http://127.0.0.1:8000/axomai-user/
 
 ---
 
-## 📖 Usage
+## 🌐 Production Deployment
 
-### Chatting
-Type a question and pick a **reply language** (English / Hinglish / অসমীয়া) below the input.
-Answers stream in live. Follow-ups keep context.
+Any push to `main` auto-deploys:
 
-### Adding knowledge
-1. Open **/admin-panel/** and log in as a staff user.
-2. Upload **PDF, DOCX, Excel, CSV, TXT, or JSONL**.
-3. Content is parsed into Q&A pairs / chunks and embedded for semantic search.
-
-**JSONL format** (best — powers instant + semantic answers):
-```json
-{"instruction": "What is the capital of Assam?", "output": "The capital of Assam is Dispur."}
 ```
-For verified Assamese answers, set `answer_assamese` on a `QAPair` (via Django admin) — it is then
-used directly for Assamese replies instead of translation.
-
-### Embeddings
-After uploading data, generate embeddings so semantic search works:
-```bash
-python manage.py backfill_embeddings   # dedupes, trims paraphrases, embeds with the configured model
+git push origin main
+   ↓
+GitHub Actions
+   ↓
+SSH into Lightsail → git fetch + auto-stash + hard-reset origin/main
+   ↓
+pip install -r requirements.txt (if changed)
+   ↓
+python manage.py migrate --noinput
+   ↓
+python manage.py collectstatic --noinput
+   ↓
+sudo systemctl restart axom
 ```
 
-### Wikipedia import (pre-loaded on the live server)
-The Assamese Wikipedia dump (25K articles, 112K chunks) is already imported on the live server.
-To re-import or import on a new instance:
-```bash
-python manage.py import_assamese_wiki          # download + parse + chunk + insert
-python manage.py embed_wiki_titles             # fast: embed each title once, share across chunks
-```
+Rollback = `git revert` + push. Downtime per deploy: < 5 s (gunicorn graceful reload).
 
 ---
 
-## ⚙️ Configuration (`.env`)
+## 📈 Roadmap
 
-| Variable | Purpose |
-|----------|---------|
-| `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS` | Django basics |
-| `DB_*` | PostgreSQL connection |
-| `GEMINI_API_KEY` | Gemini (streaming, translation, fallback) |
-| `USE_LOCAL_LLM` | `True` = local Ollama first; `False` = Gemini only |
-| `OLLAMA_MODEL` / `OLLAMA_*` | local model + performance knobs |
-| `EMBED_MODEL` | sentence-transformer model for semantic search (default `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; swap for `BAAI/bge-m3` for higher accuracy) |
-| `SEMANTIC_THRESHOLD` | min similarity to accept a KB match (default 0.72) |
-| `USE_INDICTRANS`, `INDICTRANS_URL` | route EN→AS translation through the local IndicTrans2 microservice instead of Gemini |
-| `GROQ_API_KEY`, `GROQ_MODEL` | Groq primary chat engine (default `openai/gpt-oss-120b`) |
-| `HF_TOKEN` | HuggingFace inference token for the "Generate Image" tool (FLUX) |
-| `STRICT_KB_MODE` | `True` = say "don't know" when not in KB; `False` = general answers |
-| `CHAT_RATE_LIMIT` / `CHAT_RATE_WINDOW` | per-IP rate limit |
-| `MEMORY_CHAR_BUDGET` | conversation context size |
-| `MAX_MSGS_PER_SESSION` / `MAX_SESSIONS_PER_KEY` | storage limits |
+**Q1 2026 — LIVE**
+- ✅ Chat / RAG / Wikipedia KB
+- ✅ Image generation (multi-provider fallback)
+- ✅ Web search (Tavily + Groq synthesis)
+- ✅ Universal document summarizer
+- ✅ Razorpay subscription commerce
+- ✅ Super admin console + user panel
 
----
+**Q2 2026**
+- 🔜 Voice input / output (Bhashini ASR + TTS in Assamese)
+- 🔜 Mobile app (React Native, same backend)
+- 🔜 API access tier (Business plan → developer keys)
+- 🔜 Team accounts (5-seat Business plan)
 
-## 🎓 Train your own model (free)
-
-Fine-tune a small model on your data using a **free GPU** on Kaggle/Colab, then run it locally.
-See **[training/README_TRAINING.md](training/README_TRAINING.md)** (ready-to-run notebook + sample data).
-
-After training you get a `.gguf` — load it into Ollama:
-```bash
-# in a folder with your .gguf, create a file "Modelfile":  FROM ./your-model.Q4_K_M.gguf
-ollama create axom-custom -f Modelfile
-```
-Then set `OLLAMA_MODEL=axom-custom`.
-
-> ℹ️ Model files (`.gguf`) are **not** in this repo — they exceed GitHub's limits. Train your own or `ollama pull` a base model.
+**Q3 2026**
+- 🔜 Assamese fine-tuned model (LoRA on Llama-3.1 8B, ~2K Assamese instruction pairs)
+- 🔜 Government / enterprise vertical (Assam state schemes chatbot)
+- 🔜 Referral program + affiliate portal
+- 🔜 Regional expansion — Bodo, Bengali (Sylheti), Meitei
 
 ---
 
-## ☁️ Deployment (AWS Lightsail)
+## 👥 Team & Contact
 
-Runs on an 8 GB / 2 vCPU AWS Lightsail box (Debian 12, `ap-south-1`) behind Cloudflare. The
-MiniLM embedding model (~250 MB resident) sits alongside Django in a **single Gunicorn worker**
-(4 threads) so the model loads once and stays warm. Static files via **WhiteNoise**. CI/CD via
-GitHub Actions → SSH deploy → `systemctl restart axom` (see `.github/workflows/deploy.yml`).
+**Founder / Engineering:** Samarjit Kashyap · samarjitkashyp@gmail.com
 
-One-shot deploy — see **[deploy/DEPLOY.md](deploy/DEPLOY.md)**:
-```bash
-curl -O https://raw.githubusercontent.com/Samarjitkashyp/axom_ai/main/deploy/deploy.sh
-# edit GEMINI_API_KEY + DB_PASSWORD, then:
-bash deploy.sh
-```
-Sets up swap, PostgreSQL, virtualenv, `.env`, migrations, static files, and a Gunicorn service.
-
-**Uptime monitoring:** point any monitor (e.g. UptimeRobot) at `http://<host>:8000/health/`.
-**Storage cleanup:** a weekly cron runs `python manage.py cleanup_old_chats`.
-
----
-
-## 🔄 CI/CD (GitHub Actions)
-
-Every push to `main` runs `.github/workflows/deploy.yml`:
-```
-git push  →  CI: Django check + migrate + React build
-          →  CD: SSH to server → git pull → migrate → collectstatic → restart Gunicorn
-          →  live site updated automatically
-```
-Uses SSH secrets (`LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`). Tests must pass before deploy.
-
----
-
-## 📁 Project Structure
-
-```
-axom_ai/
-├── axom_ai/            # Django project — chat API, language routing, streaming, views
-├── knowledge/          # KB app — models, ingestion, semantic search, chat history
-│   └── management/     # backfill_embeddings, import_assamese_wiki, embed_wiki_titles
-├── frontend/           # React + Vite source (build → static/dist)
-├── static/             # CSS/JS + built frontend bundle
-├── templates/          # Django templates (index, admin login)
-├── training/           # Fine-tuning notebook + guide + sample data
-├── deploy/             # Lightsail deploy script + guide
-├── .github/workflows/  # CI/CD pipeline
-├── requirements.txt
-├── .env.example
-└── manage.py
-```
-
----
-
-## 🩺 Troubleshooting
-
-- **Semantic search returns nothing** → run `python manage.py backfill_embeddings` after uploading data.
-- **First reply is slow** → the embedding model + 114K-entry QA matrix are pre-warmed on startup
-  in a background thread; the first query after a restart may still be slow if warmup hasn't finished.
-- **Answers come from Gemini, not local** → Ollama isn't running (`ollama serve`), or `USE_LOCAL_LLM=False`.
-- **Out-of-memory with the embedding model** → use **1 Gunicorn worker**, or stick with the
-  default MiniLM (~250 MB resident) instead of BGE-M3 (~2.5 GB). The QA matrix for 114K entries
-  needs ~450 MB RAM.
-- **Admin panel shows chat instead of dashboard** → log in as a **staff** user at `/admin-panel/login/`.
+For investment / partnership inquiries: [samarjitkashyp@gmail.com](mailto:samarjitkashyp@gmail.com)
 
 ---
 
 ## 📜 License
 
-For educational / personal use.
+Proprietary. All rights reserved. © 2026 Axom AI.

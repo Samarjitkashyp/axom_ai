@@ -1,0 +1,98 @@
+{% extends 'userpanel/base.html' %}
+{% block title %}Usage Statistics & Quotas — Axom AI{% endblock %}
+{% block heading %}Usage & Quota Consumption{% endblock %}
+
+{% block content %}
+<!-- Metrics -->
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-5 mb-6">
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Images Rendered</div>
+    <div class="text-2xl font-black text-purple-600 mt-2">{{ total_images }}</div>
+    <div class="text-[11px] text-slate-400 mt-1">Lifetime total</div>
+  </div>
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Web Searches</div>
+    <div class="text-2xl font-black text-emerald-600 mt-2">{{ total_searches }}</div>
+    <div class="text-[11px] text-slate-400 mt-1">Tavily live lookups</div>
+  </div>
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">PDF & AI Docs</div>
+    <div class="text-2xl font-black text-amber-600 mt-2">{{ total_pdf }}</div>
+    <div class="text-[11px] text-slate-400 mt-1">Conversions & OCR</div>
+  </div>
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Summarizations</div>
+    <div class="text-2xl font-black text-blue-600 mt-2">{{ total_summaries }}</div>
+    <div class="text-[11px] text-slate-400 mt-1">Long text summaries</div>
+  </div>
+</div>
+
+<!-- Usage Activity Chart -->
+<div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+      <h3 class="text-base font-bold text-slate-900">14-Day Activity Trends</h3>
+      <p class="text-xs text-slate-500 mt-0.5">Daily breakdown of your generated images and live web searches</p>
+    </div>
+    <a href="/axomai-user/usage/export/" class="inline-flex items-center space-x-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+      <i class="fa-solid fa-file-csv text-emerald-600"></i>
+      <span>Export Usage CSV</span>
+    </a>
+  </div>
+
+  <div class="h-64 w-full relative">
+    <canvas id="userUsageChart"></canvas>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const labels = {{ labels_json|safe }};
+    const imagesData = {{ images_json|safe }};
+    const searchesData = {{ searches_json|safe }};
+
+    const ctx = document.getElementById('userUsageChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Images Generated',
+            data: imagesData,
+            backgroundColor: '#a855f7',
+            borderRadius: 6,
+          },
+          {
+            label: 'Web Searches',
+            data: searchesData,
+            backgroundColor: '#10b981',
+            borderRadius: 6,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { font: { size: 11 }, color: '#64748b' }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 11 }, color: '#94a3b8' }
+          },
+          y: {
+            ticks: { stepSize: 1, font: { size: 11 }, color: '#94a3b8' }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

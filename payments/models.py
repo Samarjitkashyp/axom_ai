@@ -41,12 +41,13 @@ class UserPlan(models.Model):
 
 
 class Payment(models.Model):
-    STATUS = [("created", "created"), ("paid", "paid"), ("failed", "failed")]
+    STATUS = [("created", "created"), ("paid", "paid"), ("failed", "failed"), ("refunded", "refunded")]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments")
     plan = models.CharField(max_length=32, choices=PLAN_CHOICES)
     amount = models.IntegerField(help_text="amount in paise")
     currency = models.CharField(max_length=8, default="INR")
+    coupon_code = models.CharField(max_length=32, blank=True, default="")
 
     razorpay_order_id = models.CharField(max_length=64, unique=True)
     razorpay_payment_id = models.CharField(max_length=64, blank=True, default="", db_index=True)

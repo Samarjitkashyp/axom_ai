@@ -1,0 +1,194 @@
+{% extends 'userpanel/base.html' %}
+{% block title %}Dashboard — Axom AI User Account{% endblock %}
+{% block heading %}Welcome back, {{ request.user.first_name|default:request.user.username }} 👋{% endblock %}
+
+{% block content %}
+<!-- Global Announcement Banner -->
+{% if banner %}
+<div class="mb-6 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-200/60 flex items-center justify-between text-xs text-indigo-950">
+  <div class="flex items-center space-x-2.5">
+    <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px] shrink-0">
+      <i class="fa-solid fa-bullhorn"></i>
+    </span>
+    <span class="font-semibold">{{ banner }}</span>
+  </div>
+</div>
+{% endif %}
+
+<!-- Top Stat Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+  
+  <!-- Active Plan Card -->
+  <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 text-white rounded-2xl p-5 shadow-lg shadow-indigo-500/15 relative overflow-hidden flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] uppercase tracking-wider font-semibold opacity-80">Current Subscription</span>
+        <span class="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold uppercase">
+          {% if limits.is_active %}{{ limits.plan_name }}{% else %}FREE TIER{% endif %}
+        </span>
+      </div>
+      <div class="text-2xl font-black mt-2 tracking-tight">
+        {% if limits.is_active %}
+        {{ limits.plan_obj.get_plan_display|default:limits.plan_name }}
+        {% else %}
+        Axom AI Basic
+        {% endif %}
+      </div>
+      <div class="text-xs opacity-80 mt-1">
+        {% if limits.is_active %}
+        {{ days_left }} days remaining on your plan
+        {% else %}
+        Upgrade to unlock unlimited high-speed AI tools
+        {% endif %}
+      </div>
+    </div>
+    <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+      <a href="/axomai-user/subscription/" class="inline-flex items-center text-xs font-bold bg-white text-indigo-700 px-3 py-1.5 rounded-xl hover:bg-indigo-50 transition shadow-sm">
+        {% if limits.is_active %}Manage Plan →{% else %}Upgrade Now ⚡{% endif %}
+      </a>
+      {% if limits.is_active %}
+      <span class="text-[11px] opacity-75">Renews {{ limits.plan_obj.expires_at|date:"d M Y" }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Images Quota Today -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between text-slate-400">
+        <span class="text-xs uppercase font-bold tracking-wider">AI Images Today</span>
+        <i class="fa-solid fa-image text-purple-500 text-sm"></i>
+      </div>
+      <div class="text-2xl font-extrabold text-slate-900 mt-2">
+        {{ today_images }} <span class="text-xs font-normal text-slate-400">/ {% if limits.img_limit == -1 %}Unlimited{% else %}{{ limits.img_limit }}{% endif %}</span>
+      </div>
+    </div>
+    <div class="w-full mt-3">
+      <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-full bg-purple-500 rounded-full" style="width: {% if limits.img_limit == -1 %}20%{% else %}{% widthratio today_images limits.img_limit 100 %}0%{% endif %};"></div>
+      </div>
+      <div class="flex justify-between text-[11px] text-slate-400 mt-1.5">
+        <span>Resets at midnight</span>
+        <span>Daily Cap</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Web Searches Quota -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between text-slate-400">
+        <span class="text-xs uppercase font-bold tracking-wider">Web Searches Today</span>
+        <i class="fa-solid fa-compass text-emerald-500 text-sm"></i>
+      </div>
+      <div class="text-2xl font-extrabold text-slate-900 mt-2">
+        {{ today_searches }} <span class="text-xs font-normal text-slate-400">/ {% if limits.search_limit == -1 %}Unlimited{% else %}{{ limits.search_limit }}{% endif %}</span>
+      </div>
+    </div>
+    <div class="w-full mt-3">
+      <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-full bg-emerald-500 rounded-full" style="width: {% if limits.search_limit == -1 %}15%{% else %}{% widthratio today_searches limits.search_limit 100 %}0%{% endif %};"></div>
+      </div>
+      <div class="flex justify-between text-[11px] text-slate-400 mt-1.5">
+        <span>Live Tavily search</span>
+        <span>Daily Cap</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Quick Launch Hub -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+  <a href="/" class="bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-300 card-hover transition flex items-center space-x-4">
+    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+      <i class="fa-solid fa-comments"></i>
+    </div>
+    <div>
+      <div class="font-bold text-sm text-slate-900">Start AI Chat</div>
+      <div class="text-xs text-slate-500">Ask questions in Assamese & English</div>
+    </div>
+  </a>
+
+  <a href="/tools/" class="bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-300 card-hover transition flex items-center space-x-4">
+    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </div>
+    <div>
+      <div class="font-bold text-sm text-slate-900">AI Tool Suite</div>
+      <div class="text-xs text-slate-500">Image generator, PDF tool, summarizer</div>
+    </div>
+  </a>
+
+  <a href="/axomai-user/subscription/" class="bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-300 card-hover transition flex items-center space-x-4">
+    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+      <i class="fa-solid fa-crown"></i>
+    </div>
+    <div>
+      <div class="font-bold text-sm text-slate-900">Upgrade Plan</div>
+      <div class="text-xs text-slate-500">Explore Pro & Business advantages</div>
+    </div>
+  </a>
+</div>
+
+<!-- Recent Chats & Support Overview -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+  <!-- Recent Saved Chats -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-slate-900 flex items-center">
+        <i class="fa-solid fa-book-bookmark text-indigo-600 mr-2"></i> Recent Conversations
+      </h3>
+      <a href="/axomai-user/library/" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
+        View All →
+      </a>
+    </div>
+
+    <div class="space-y-2.5 text-xs">
+      {% for c in recent_chats %}
+      <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-slate-100/80 transition">
+        <div class="truncate mr-3">
+          <div class="font-bold text-slate-800 truncate">{{ c.title }}</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">Updated {{ c.updated_at|date:"d M Y, H:i" }}</div>
+        </div>
+        <a href="/?session={{ c.client_id }}" class="px-2.5 py-1 bg-white border border-slate-200 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold shrink-0 transition">
+          Open
+        </a>
+      </div>
+      {% empty %}
+      <div class="text-slate-400 text-center py-6">No recent chats saved in this browser.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Recent Tickets -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-slate-900 flex items-center">
+        <i class="fa-solid fa-headset text-blue-600 mr-2"></i> Support Tickets
+      </h3>
+      <a href="/axomai-user/support/" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
+        + New Ticket
+      </a>
+    </div>
+
+    <div class="space-y-2.5 text-xs">
+      {% for t in recent_tickets %}
+      <a href="/axomai-user/support/ticket/{{ t.id }}/" class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-slate-100/80 transition block">
+        <div class="truncate mr-3">
+          <div class="font-bold text-slate-800 truncate">{{ t.subject }}</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">{{ t.ticket_id }} • {{ t.created_at|date:"d M Y" }}</div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0 {% if t.status == 'open' %}bg-amber-100 text-amber-700{% elif t.status == 'resolved' %}bg-emerald-100 text-emerald-700{% else %}bg-slate-200 text-slate-700{% endif %}">
+          {{ t.status }}
+        </span>
+      </a>
+      {% empty %}
+      <div class="text-slate-400 text-center py-6">No open support inquiries. Need help? Open a ticket!</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends 'userpanel/base.html' %}
+{% block title %}Subscription & Plans — Axom AI{% endblock %}
+{% block heading %}Subscription & Plans{% endblock %}
+
+{% block extra_head %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Current Plan Summary Card -->
+<div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+  <div>
+    <div class="flex items-center space-x-2.5">
+      <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase {% if limits.is_active %}bg-emerald-100 text-emerald-800{% else %}bg-slate-100 text-slate-700{% endif %}">
+        {% if limits.is_active %}ACTIVE SUBSCRIPTION{% else %}FREE PLAN{% endif %}
+      </span>
+      {% if limits.is_active %}
+      <span class="text-xs text-slate-500">• Renews on {{ limits.plan_obj.expires_at|date:"d M Y" }}</span>
+      {% endif %}
+    </div>
+    <h2 class="text-2xl font-black text-slate-900 mt-2">
+      {% if limits.is_active %}{{ limits.plan_obj.get_plan_display|default:limits.plan_name }}{% else %}Axom AI Free Tier{% endif %}
+    </h2>
+    <p class="text-xs text-slate-500 mt-1 max-w-lg">
+      {% if limits.is_active %}
+      You have full access to high-priority Gemini models, higher daily image quotas, and live Tavily search.
+      {% else %}
+      You are on the free starter tier with basic search and limited image generation tokens.
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="flex items-center space-x-3 shrink-0">
+    {% if limits.is_active %}
+    <button onclick="promptCancelSubscription()" class="px-4 py-2.5 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-600 font-semibold text-xs rounded-xl transition">
+      Cancel Subscription
+    </button>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Plan Comparison Matrix -->
+<div class="mb-8">
+  <div class="text-center max-w-xl mx-auto mb-8">
+    <h3 class="text-xl font-black text-slate-900">Choose the perfect plan for your workflow</h3>
+    <p class="text-xs text-slate-500 mt-1">Upgrade or renew anytime with instant activation via UPI, Card, or Netbanking.</p>
+  </div>
+
+  <div class="max-w-md mx-auto mb-8 bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center space-x-2">
+    <div class="text-slate-400 pl-2"><i class="fa-solid fa-ticket text-indigo-500"></i></div>
+    <input type="text" id="promoCouponInput" placeholder="Have a discount coupon code? (e.g. AXOM20)" class="flex-1 text-xs text-slate-800 placeholder-slate-400 font-mono uppercase focus:outline-none">
+    <span class="text-[11px] text-slate-400 font-semibold pr-2">Auto-applied at checkout</span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% for p in plans_list %}
+    <div class="bg-white rounded-3xl p-6 border {% if p.is_current %}border-indigo-500 ring-2 ring-indigo-500/20 shadow-lg{% else %}border-slate-200/80 shadow-sm{% endif %} flex flex-col justify-between relative">
+      {% if p.is_current %}
+      <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wider shadow">
+        Current Plan
+      </div>
+      {% endif %}
+
+      <div>
+        <div class="text-sm font-bold text-slate-900">{{ p.label }}</div>
+        <div class="mt-4 flex items-baseline">
+          <span class="text-3xl font-black text-slate-900">₹{{ p.price|floatformat:0 }}</span>
+          <span class="text-xs text-slate-400 ml-1">/ {{ p.days }} days</span>
+        </div>
+
+        <ul class="mt-6 space-y-3 text-xs text-slate-600 border-t border-slate-100 pt-6">
+          <li class="flex items-center space-x-2.5">
+            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
+            <span><strong>{{ p.images_limit }}</strong> Images / day</span>
+          </li>
+          <li class="flex items-center space-x-2.5">
+            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
+            <span><strong>{{ p.searches_limit }}</strong> Web Searches / day</span>
+          </li>
+          <li class="flex items-center space-x-2.5">
+            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
+            <span>Fast AI responses (Gemini & Groq)</span>
+          </li>
+          <li class="flex items-center space-x-2.5">
+            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
+            <span>PDF Converter & AI Doc summaries</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-8 pt-4">
+        {% if p.is_current %}
+        <button disabled class="w-full py-3 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl cursor-default">
+          Current Active Plan
+        </button>
+        {% else %}
+        <button onclick="buyPlan('{{ p.key }}')" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center justify-center space-x-2">
+          <span>Upgrade to {{ p.label }}</span>
+          <i class="fa-solid fa-bolt text-amber-300 text-xs"></i>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function buyPlan(planKey) {
+    try {
+      showToast('Initializing payment gateway...', 'info');
+      const couponVal = (document.getElementById('promoCouponInput')?.value || '').trim();
+      const res = await fetch('/api/payments/create-order/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ plan: planKey, coupon: couponVal })
+      });
+      const data = await res.json();
+      if (!data.order_id) {
+        showToast(data.error || 'Could not initiate Razorpay order.', 'error');
+        return;
+      }
+
+      const options = {
+        key: '{{ razorpay_key }}' || data.key,
+        amount: data.amount,
+        currency: 'INR',
+        name: 'Axom AI',
+        description: 'Subscription Plan: ' + planKey,
+        order_id: data.order_id,
+        handler: async function (response) {
+          showToast('Verifying payment signature...', 'info');
+          const verifyRes = await fetch('/api/payments/verify-payment/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.status === 'ok') {
+            showToast('🎉 Payment successful! Plan activated.', 'success');
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            showToast('Payment verification failed: ' + verifyData.error, 'error');
+          }
+        },
+        theme: { color: '#4f46e5' }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (e) {
+      showToast('Error connecting to payments.', 'error');
+    }
+  }
+
+  async function promptCancelSubscription() {
+    const reason = prompt("We're sorry to see you go! Please share why you are cancelling (optional):");
+    if (reason === null) return;
+    try {
+      const res = await fetch('/axomai-user/subscription/cancel/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ reason: reason })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error cancelling subscription.', 'error');
+    }
+  }
+</script>
+{% endblock %}

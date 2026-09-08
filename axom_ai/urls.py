@@ -49,6 +49,12 @@ urlpatterns = [
 
     # Razorpay payments
     path('api/', include('payments.urls')),
+
+    # New: Super Admin panel  (admin.aiaxom.co.in  ->  /axomai-admin/ via middleware)
+    path('axomai-admin/', include('superadmin.urls')),
+
+    # New: User Account panel  (user.aiaxom.co.in  ->  /axomai-user/ via middleware)
+    path('axomai-user/', include('userpanel.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,142 @@
+{% extends 'userpanel/base.html' %}
+{% block title %}Help & Support — Axom AI{% endblock %}
+{% block heading %}Help & Support Center{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+
+  <!-- Tickets list & Creator (2 cols) -->
+  <div class="lg:col-span-2 space-y-6">
+
+    <!-- Create Ticket Card -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+      <h3 class="text-base font-bold text-slate-900 mb-1">Open a Support Ticket</h3>
+      <p class="text-xs text-slate-500 mb-5">Have an issue with payments, API access, or features? We respond within 24 hours.</p>
+
+      <form id="ticketForm" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1.5">Subject</label>
+          <input type="text" id="ticketSubject" required placeholder="Brief description of the issue" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Category</label>
+            <select id="ticketCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+              <option value="general">General Inquiry</option>
+              <option value="billing">Billing & Payments</option>
+              <option value="technical">Technical Bug / AI Output</option>
+              <option value="feature">Feature Request</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Priority</label>
+            <select id="ticketPriority" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1.5">Detailed Message</label>
+          <textarea id="ticketMessage" rows="4" required placeholder="Please describe what happened, order IDs if applicable, or steps to reproduce..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white"></textarea>
+        </div>
+
+        <button type="button" onclick="submitTicket()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow transition">
+          Submit Support Ticket
+        </button>
+      </form>
+    </div>
+
+    <!-- My Tickets History -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
+      <h3 class="text-base font-bold text-slate-900 mb-4">Your Support Tickets</h3>
+      <div class="space-y-3 text-xs">
+        {% for t in tickets %}
+        <a href="/axomai-user/support/ticket/{{ t.id }}/" class="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:bg-slate-100/80 transition flex items-center justify-between block">
+          <div class="truncate mr-4">
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-900">{{ t.subject }}</span>
+              <span class="text-slate-400 font-mono text-[10px]">#{{ t.ticket_id }}</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-1">Category: {{ t.get_category_display }} • Updated {{ t.updated_at|date:"d M Y, H:i" }}</div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase shrink-0 {% if t.status == 'open' %}bg-amber-100 text-amber-800{% elif t.status == 'resolved' %}bg-emerald-100 text-emerald-800{% else %}bg-slate-200 text-slate-700{% endif %}">
+            {{ t.status }}
+          </span>
+        </a>
+        {% empty %}
+        <div class="text-slate-400 text-center py-6">You have not submitted any support tickets.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAQs Accordion (1 col) -->
+  <div class="space-y-4">
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+      <h3 class="text-base font-bold text-slate-900 mb-4"><i class="fa-solid fa-circle-question text-indigo-600 mr-2"></i> Frequently Asked Questions</h3>
+      
+      <div class="space-y-3 text-xs text-slate-600">
+        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
+          <summary class="font-bold text-slate-800">How do I upgrade my daily quota limits?</summary>
+          <p class="mt-2 text-slate-500">Go to Subscription & Plans tab, choose Starter, Pro, or Business, and complete the instant Razorpay checkout.</p>
+        </details>
+
+        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
+          <summary class="font-bold text-slate-800">Can Axom AI generate images in Assamese?</summary>
+          <p class="mt-2 text-slate-500">Yes! Axom AI automatically translates Assamese visual prompts and renders high-definition AI images using FLUX and Pollinations.</p>
+        </details>
+
+        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
+          <summary class="font-bold text-slate-800">How do refunds work?</summary>
+          <p class="mt-2 text-slate-500">If you experienced a technical issue, open a ticket with your Order ID, and our support team will process a full refund to your original payment method.</p>
+        </details>
+
+        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
+          <summary class="font-bold text-slate-800">Where can I download my billing invoices?</summary>
+          <p class="mt-2 text-slate-500">Visit the Payments & Invoices tab to download printable PDF invoices for all your past purchases.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function submitTicket() {
+    const subject = document.getElementById('ticketSubject').value.trim();
+    const category = document.getElementById('ticketCategory').value;
+    const priority = document.getElementById('ticketPriority').value;
+    const message = document.getElementById('ticketMessage').value.trim();
+
+    if (!subject || !message) {
+      showToast('Please fill in both subject and message.', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/axomai-user/support/create/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ subject: subject, category: category, priority: priority, message: message })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error submitting support ticket.', 'error');
+    }
+  }
+</script>
+{% endblock %}

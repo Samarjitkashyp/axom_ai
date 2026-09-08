@@ -1,0 +1,279 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Content Moderation & Logs — Axom AI Super Admin{% endblock %}
+{% block heading %}Content Moderation & Logs{% endblock %}
+
+{% block content %}
+<!-- Tabs Navigation -->
+<div class="flex border-b border-slate-800 space-x-6 mb-6 text-sm font-semibold">
+  <a href="?tab=chats" class="pb-3 border-b-2 transition {% if tab == 'chats' %}border-indigo-500 text-white{% else %}border-transparent text-slate-400 hover:text-slate-200{% endif %}">
+    <i class="fa-regular fa-comments mr-2"></i> Chat Session Logs
+  </a>
+  <a href="?tab=tickets" class="pb-3 border-b-2 transition {% if tab == 'tickets' %}border-indigo-500 text-white{% else %}border-transparent text-slate-400 hover:text-slate-200{% endif %}">
+    <i class="fa-solid fa-headset mr-2"></i> Support Tickets ({{ tickets.count }})
+  </a>
+  <a href="?tab=unanswered" class="pb-3 border-b-2 transition {% if tab == 'unanswered' %}border-indigo-500 text-white{% else %}border-transparent text-slate-400 hover:text-slate-200{% endif %}">
+    <i class="fa-solid fa-circle-question mr-2"></i> Unanswered Queries ({{ unanswered.count }})
+  </a>
+  <a href="?tab=feedback" class="pb-3 border-b-2 transition {% if tab == 'feedback' %}border-indigo-500 text-white{% else %}border-transparent text-slate-400 hover:text-slate-200{% endif %}">
+    <i class="fa-solid fa-thumbs-up mr-2"></i> User Feedback
+  </a>
+</div>
+
+{% if tab == 'chats' %}
+<!-- Chat Logs Viewer -->
+<div class="glass-card rounded-2xl p-4 border border-slate-800 mb-6">
+  <form method="get" class="flex items-center gap-3">
+    <input type="hidden" name="tab" value="chats">
+    <div class="relative flex-1">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+      </div>
+      <input type="text" name="q" value="{{ q }}" placeholder="Search chat conversations or message keywords..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+    </div>
+    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow transition">
+      Search
+    </button>
+  </form>
+</div>
+
+<div class="space-y-4">
+  {% for s in chats %}
+  <div class="glass-card rounded-2xl p-5 border border-slate-800">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-3 text-xs">
+      <div class="flex items-center space-x-2">
+        <span class="font-bold text-white text-sm">{{ s.title }}</span>
+        <span class="text-slate-500 font-mono text-[10px]">#{{ s.client_id }}</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-400">
+        <span>{{ s.updated_at|date:"d M Y, H:i" }}</span>
+        <button onclick="deleteChat('{{ s.id }}')" class="text-rose-400 hover:text-rose-300 transition" title="Delete Session">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Messages preview -->
+    <div class="space-y-2 max-h-48 overflow-y-auto pr-2 text-xs">
+      {% for m in s.messages.all|slice:":10" %}
+      <div class="p-2 rounded-lg {% if m.role == 'user' %}bg-slate-900 border border-slate-800 text-slate-200{% else %}bg-indigo-950/40 border border-indigo-900/40 text-indigo-200{% endif %}">
+        <span class="font-bold text-[10px] uppercase tracking-wider block mb-0.5 {% if m.role == 'user' %}text-indigo-400{% else %}text-emerald-400{% endif %}">
+          {{ m.role }}
+        </span>
+        <div class="text-xs break-words">{{ m.text }}</div>
+      </div>
+      {% empty %}
+      <div class="text-slate-500 text-xs italic">No messages stored in this session.</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% empty %}
+  <div class="glass-card rounded-2xl p-8 border border-slate-800 text-center text-slate-500 text-xs">
+    No chat logs match your criteria.
+  </div>
+  {% endfor %}
+</div>
+
+{% elif tab == 'tickets' %}
+<!-- Support Tickets Management -->
+<div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+  <table class="w-full text-left text-xs">
+    <thead class="bg-slate-900 text-slate-400 uppercase text-[11px]">
+      <tr>
+        <th class="py-3.5 px-4">Ticket ID</th>
+        <th class="py-3.5 px-4">User</th>
+        <th class="py-3.5 px-4">Subject & Category</th>
+        <th class="py-3.5 px-4">Status</th>
+        <th class="py-3.5 px-4">Date</th>
+        <th class="py-3.5 px-4 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-800/60 text-slate-300">
+      {% for t in tickets %}
+      <tr class="hover:bg-slate-900/40 transition">
+        <td class="py-3 px-4 font-mono font-bold text-indigo-400">{{ t.ticket_id }}</td>
+        <td class="py-3 px-4 font-semibold text-white">@{{ t.user.username }}</td>
+        <td class="py-3 px-4">
+          <div class="font-bold text-slate-200">{{ t.subject }}</div>
+          <div class="text-[10px] text-slate-500 uppercase">{{ t.get_category_display }}</div>
+        </td>
+        <td class="py-3 px-4">
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {% if t.status == 'open' %}bg-amber-500/20 text-amber-400{% elif t.status == 'resolved' %}bg-emerald-500/20 text-emerald-400{% else %}bg-slate-800 text-slate-400{% endif %}">
+            {{ t.status }}
+          </span>
+        </td>
+        <td class="py-3 px-4 text-slate-400">{{ t.created_at|date:"d M Y, H:i" }}</td>
+        <td class="py-3 px-4 text-right">
+          <button onclick="openReplyModal('{{ t.id }}', '{{ t.ticket_id }}', '{{ t.subject|escapejs }}')" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold text-xs transition">
+            <i class="fa-solid fa-reply mr-1"></i> Reply / Resolve
+          </button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="py-8 text-center text-slate-500">No support tickets found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Admin Ticket Reply Modal -->
+<div id="adminTicketModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="glass-card rounded-3xl p-6 border border-slate-800 w-full max-w-lg shadow-2xl relative text-xs">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+      <div>
+        <h3 class="text-base font-bold text-white">Reply to Support Ticket</h3>
+        <p class="text-xs text-indigo-400 font-mono" id="modalTicketTitle">#TIK-001</p>
+      </div>
+      <button onclick="closeReplyModal()" class="text-slate-500 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <input type="hidden" id="modalTicketId">
+
+    <div class="space-y-4">
+      <div>
+        <label class="block font-bold text-slate-300 mb-1">Status Update</label>
+        <select id="modalTicketStatus" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs">
+          <option value="in_progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block font-bold text-slate-300 mb-1">Response Message to User</label>
+        <textarea id="modalTicketReplyMsg" rows="4" placeholder="Type official response to customer..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-white text-xs"></textarea>
+      </div>
+
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
+        <button onclick="closeReplyModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl">Cancel</button>
+        <button onclick="submitAdminTicketReply()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow">Send Reply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% elif tab == 'unanswered' %}
+<!-- Unanswered Queries Table -->
+<div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+  <table class="w-full text-left text-xs">
+    <thead class="bg-slate-900 text-slate-400 uppercase text-[11px]">
+      <tr>
+        <th class="py-3.5 px-4">Query / Question</th>
+        <th class="py-3.5 px-4">Language</th>
+        <th class="py-3.5 px-4">Occurrences</th>
+        <th class="py-3.5 px-4">Last Seen</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-800/60 text-slate-300">
+      {% for u in unanswered %}
+      <tr class="hover:bg-slate-900/40 transition">
+        <td class="py-3 px-4 font-semibold text-white">{{ u.question }}</td>
+        <td class="py-3 px-4 font-mono text-indigo-400">{{ u.language }}</td>
+        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold">{{ u.count }}x</span></td>
+        <td class="py-3 px-4 text-slate-400">{{ u.updated_at|date:"d M Y, H:i" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="py-8 text-center text-slate-500">No unanswered queries detected.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% elif tab == 'feedback' %}
+<!-- User Feedbacks -->
+<div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+  <table class="w-full text-left text-xs">
+    <thead class="bg-slate-900 text-slate-400 uppercase text-[11px]">
+      <tr>
+        <th class="py-3.5 px-4">Rating</th>
+        <th class="py-3.5 px-4">Question</th>
+        <th class="py-3.5 px-4">Answer Provided</th>
+        <th class="py-3.5 px-4">Date</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-800/60 text-slate-300">
+      {% for f in feedbacks %}
+      <tr class="hover:bg-slate-900/40 transition">
+        <td class="py-3 px-4">
+          {% if f.rating == 'up' %}
+          <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">👍 Helpful</span>
+          {% else %}
+          <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 font-bold">👎 Disliked</span>
+          {% endif %}
+        </td>
+        <td class="py-3 px-4 font-semibold text-white">{{ f.question }}</td>
+        <td class="py-3 px-4 text-slate-400 max-w-md truncate">{{ f.answer }}</td>
+        <td class="py-3 px-4 text-slate-400">{{ f.created_at|date:"d M Y" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="py-8 text-center text-slate-500">No user feedback submitted yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function deleteChat(sessionId) {
+    if (!confirm('Are you sure you want to delete this chat session?')) return;
+    try {
+      const res = await fetch(`/axomai-admin/moderation/delete-chat/${sessionId}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken }
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error deleting chat.', 'error');
+    }
+  }
+
+  function openReplyModal(id, ticketId, subject) {
+    document.getElementById('modalTicketId').value = id;
+    document.getElementById('modalTicketTitle').textContent = `#${ticketId}: ${subject}`;
+    document.getElementById('modalTicketReplyMsg').value = '';
+    document.getElementById('adminTicketModal').classList.remove('hidden');
+  }
+
+  function closeReplyModal() {
+    document.getElementById('adminTicketModal').classList.add('hidden');
+  }
+
+  async function submitAdminTicketReply() {
+    const id = document.getElementById('modalTicketId').value;
+    const msg = document.getElementById('modalTicketReplyMsg').value.trim();
+    const status = document.getElementById('modalTicketStatus').value;
+
+    if (!msg) {
+      showToast('Please type a reply message.', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/axomai-admin/moderation/reply-ticket/${id}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ message: msg, status: status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        closeReplyModal();
+        setTimeout(() => location.reload(), 700);
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error sending reply.', 'error');
+    }
+  }
+</script>
+{% endblock %}

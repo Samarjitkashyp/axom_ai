@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'knowledge',
     'payments',
+    'superadmin',
+    'userpanel',
 ]
 
 # --- Razorpay (payments) ---
@@ -57,6 +59,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # WhiteNoise serves static files directly from the app (no nginx needed).
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    # Route admin.aiaxom.co.in and user.aiaxom.co.in to their sub-apps.
+    'axom_ai.subdomain_middleware.SubdomainMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

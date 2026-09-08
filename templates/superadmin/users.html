@@ -1,0 +1,297 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Users Management — Axom AI Super Admin{% endblock %}
+{% block heading %}Users Management{% endblock %}
+
+{% block content %}
+<!-- Top Controls Bar -->
+<div class="glass-card rounded-2xl p-5 border border-slate-800 mb-6">
+  <form method="get" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex-1 flex flex-wrap items-center gap-3">
+      <!-- Search Input -->
+      <div class="relative flex-1 min-w-[240px]">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+          <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </div>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search username, email, name..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+      </div>
+
+      <!-- Plan Filter -->
+      <select name="plan" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+        <option value="">All Subscription Tiers</option>
+        <option value="free" {% if plan_filter == 'free' %}selected{% endif %}>Free Plan</option>
+        {% for p in plans_list %}
+        <option value="{{ p }}" {% if plan_filter == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+      </select>
+
+      <!-- Status Filter -->
+      <select name="status" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+        <option value="">All Account Statuses</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active Only</option>
+        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Deactivated Only</option>
+        <option value="staff" {% if status_filter == 'staff' %}selected{% endif %}>Staff / Admins</option>
+      </select>
+
+      <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow transition">
+        Filter
+      </button>
+      {% if q or plan_filter or status_filter %}
+      <a href="/axomai-admin/users/" class="text-xs text-slate-400 hover:text-white px-2 py-2">Clear</a>
+      {% endif %}
+    </div>
+
+    <!-- Actions: Export CSV -->
+    <div class="flex items-center space-x-3">
+      <span class="text-xs text-slate-400">Total: <strong class="text-white">{{ total_count }}</strong></span>
+      <a href="/axomai-admin/users/export/" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold rounded-xl flex items-center space-x-2 transition">
+        <i class="fa-solid fa-file-csv text-emerald-400"></i>
+        <span>Export CSV</span>
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Users Table -->
+<div class="glass-card rounded-2xl border border-slate-800 overflow-hidden mb-6">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-xs">
+      <thead class="bg-slate-900/90 border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
+        <tr>
+          <th class="py-3.5 px-4">User</th>
+          <th class="py-3.5 px-4">Email</th>
+          <th class="py-3.5 px-4">Current Plan</th>
+          <th class="py-3.5 px-4">Status</th>
+          <th class="py-3.5 px-4">Joined</th>
+          <th class="py-3.5 px-4 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800/60 text-slate-300">
+        {% for u in users %}
+        <tr class="hover:bg-slate-900/40 transition">
+          <td class="py-3 px-4 font-medium text-white flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-600/30 flex items-center justify-center font-bold text-xs uppercase shrink-0">
+              {{ u.username|slice:":2" }}
+            </div>
+            <div>
+              <div class="font-bold">{{ u.username }}</div>
+              {% if u.first_name or u.last_name %}
+              <div class="text-[11px] text-slate-400">{{ u.first_name }} {{ u.last_name }}</div>
+              {% endif %}
+            </div>
+          </td>
+          <td class="py-3 px-4 text-slate-400">{{ u.email|default:"—" }}</td>
+          <td class="py-3 px-4">
+            {% if u.plan and u.plan.is_active %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <i class="fa-solid fa-gem mr-1 text-[9px]"></i> {{ u.plan.plan }}
+            </span>
+            <div class="text-[10px] text-slate-500 mt-0.5">Expires: {{ u.plan.expires_at|date:"d M Y" }}</div>
+            {% else %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-800 text-slate-400">
+              Free Tier
+            </span>
+            {% endif %}
+          </td>
+          <td class="py-3 px-4">
+            {% if u.is_active %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span> Active
+            </span>
+            {% else %}
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/20 text-rose-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span> Suspended
+            </span>
+            {% endif %}
+          </td>
+          <td class="py-3 px-4 text-slate-400">{{ u.date_joined|date:"d M Y" }}</td>
+          <td class="py-3 px-4 text-right space-x-1">
+            <button onclick="openUserModal('{{ u.id }}', '{{ u.username }}', '{{ u.is_active }}', '{{ u.plan.plan|default:"free" }}')" class="p-1.5 bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white rounded-lg transition" title="Manage User">
+              <i class="fa-solid fa-gear text-xs"></i>
+            </button>
+            <button onclick="toggleUserStatus('{{ u.id }}', '{{ u.username }}')" class="p-1.5 bg-slate-800 hover:bg-amber-600 text-slate-300 hover:text-white rounded-lg transition" title="Toggle Active / Suspended">
+              <i class="fa-solid fa-power-off text-xs"></i>
+            </button>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="py-8 text-center text-slate-500">No users found matching your search.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if users.has_other_pages %}
+  <div class="px-5 py-3.5 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+    <div>Showing page {{ users.number }} of {{ users.paginator.num_pages }}</div>
+    <div class="flex items-center space-x-1.5">
+      {% if users.has_previous %}
+      <a href="?page={{ users.previous_page_number }}&q={{ q }}&plan={{ plan_filter }}&status={{ status_filter }}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Prev</a>
+      {% endif %}
+      {% if users.has_next %}
+      <a href="?page={{ users.next_page_number }}&q={{ q }}&plan={{ plan_filter }}&status={{ status_filter }}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Next</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Manage User Modal -->
+<div id="userActionModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="glass-card rounded-3xl p-6 border border-slate-800 w-full max-w-lg shadow-2xl relative">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
+      <div>
+        <h3 class="text-base font-bold text-white">Manage User Account</h3>
+        <p class="text-xs text-indigo-400 font-mono" id="modalUsername">user</p>
+      </div>
+      <button onclick="closeUserModal()" class="text-slate-500 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <input type="hidden" id="modalUserId">
+
+    <div class="space-y-5 text-xs">
+      
+      <!-- Upgrade / Downgrade Plan -->
+      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+        <label class="block font-bold text-white mb-2"><i class="fa-solid fa-crown text-amber-400 mr-1.5"></i> Change Plan / Subscription</label>
+        <div class="flex items-center space-x-2">
+          <select id="modalPlanSelect" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+            <option value="free">Free Tier</option>
+            {% for p in plans_list %}
+            <option value="{{ p }}">{{ p }}</option>
+            {% endfor %}
+          </select>
+          <input type="number" id="modalPlanDays" value="30" placeholder="Days" class="w-20 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-white text-xs">
+          <button onclick="saveUserPlan()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg">Apply</button>
+        </div>
+      </div>
+
+      <!-- Gift Free Days -->
+      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+        <label class="block font-bold text-white mb-2"><i class="fa-solid fa-gift text-pink-400 mr-1.5"></i> Gift Free Premium Days</label>
+        <div class="flex items-center space-x-2">
+          <input type="number" id="giftDaysCount" value="7" class="w-28 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+          <button onclick="giftFreeDays()" class="px-3.5 py-2 bg-pink-600 hover:bg-pink-500 text-white font-semibold rounded-lg flex items-center space-x-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Gift Days</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Reset Password -->
+      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+        <label class="block font-bold text-white mb-2"><i class="fa-solid fa-key text-emerald-400 mr-1.5"></i> Reset Password</label>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="modalNewPassword" placeholder="Enter new password (min 6 chars)" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+          <button onclick="resetUserPassword()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg">Set</button>
+        </div>
+      </div>
+
+      <!-- Danger Actions -->
+      <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+        <button onclick="deleteUserAccount()" class="text-rose-400 hover:text-rose-300 font-semibold text-xs flex items-center space-x-1">
+          <i class="fa-solid fa-trash-can"></i> <span>Delete User Permanently</span>
+        </button>
+        <button onclick="closeUserModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function openUserModal(userId, username, isActive, currentPlan) {
+    document.getElementById('modalUserId').value = userId;
+    document.getElementById('modalUsername').textContent = '@' + username;
+    document.getElementById('modalPlanSelect').value = currentPlan;
+    document.getElementById('modalNewPassword').value = '';
+    document.getElementById('userActionModal').classList.remove('hidden');
+  }
+
+  function closeUserModal() {
+    document.getElementById('userActionModal').classList.add('hidden');
+  }
+
+  async function callUserApi(payload) {
+    const res = await fetch('/axomai-admin/users/action/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  async function toggleUserStatus(userId, username) {
+    if (!confirm(`Are you sure you want to toggle status for @${username}?`)) return;
+    const res = await callUserApi({ action: 'toggle_status', user_id: userId });
+    if (res.success) {
+      showToast(res.message, 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      showToast(res.error, 'error');
+    }
+  }
+
+  async function saveUserPlan() {
+    const userId = document.getElementById('modalUserId').value;
+    const planKey = document.getElementById('modalPlanSelect').value;
+    const days = document.getElementById('modalPlanDays').value;
+    const res = await callUserApi({ action: 'change_plan', user_id: userId, plan_key: planKey, duration_days: days });
+    if (res.success) {
+      showToast(res.message, 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      showToast(res.error, 'error');
+    }
+  }
+
+  async function giftFreeDays() {
+    const userId = document.getElementById('modalUserId').value;
+    const days = document.getElementById('giftDaysCount').value;
+    const res = await callUserApi({ action: 'gift_days', user_id: userId, days: days });
+    if (res.success) {
+      showToast(res.message, 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      showToast(res.error, 'error');
+    }
+  }
+
+  async function resetUserPassword() {
+    const userId = document.getElementById('modalUserId').value;
+    const pass = document.getElementById('modalNewPassword').value;
+    if (!pass || pass.length < 6) {
+      showToast('Password must be at least 6 characters.', 'error');
+      return;
+    }
+    const res = await callUserApi({ action: 'reset_password', user_id: userId, new_password: pass });
+    if (res.success) {
+      showToast(res.message, 'success');
+      document.getElementById('modalNewPassword').value = '';
+    } else {
+      showToast(res.error, 'error');
+    }
+  }
+
+  async function deleteUserAccount() {
+    const userId = document.getElementById('modalUserId').value;
+    const username = document.getElementById('modalUsername').textContent;
+    if (!confirm(`⚠️ DANGER: Are you sure you want to permanently delete user ${username}? All user chats, tickets, and plans will be deleted.`)) return;
+    const res = await callUserApi({ action: 'delete', user_id: userId });
+    if (res.success) {
+      showToast(res.message, 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      showToast(res.error, 'error');
+    }
+  }
+</script>
+{% endblock %}

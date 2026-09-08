@@ -1,0 +1,327 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Dashboard — Axom AI Super Admin{% endblock %}
+{% block heading %}Executive Dashboard{% endblock %}
+
+{% block content %}
+<!-- Top Metrics Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+  
+  <!-- Total Users -->
+  <div class="glass-card rounded-2xl p-5 border border-slate-800 transition glass-card-hover relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Users</span>
+      <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-sm">
+        <i class="fa-solid fa-users"></i>
+      </div>
+    </div>
+    <div class="text-3xl font-extrabold text-white mt-3">{{ total_users }}</div>
+    <div class="flex items-center space-x-2 mt-2 text-xs">
+      <span class="text-emerald-400 font-medium flex items-center">
+        <i class="fa-solid fa-arrow-trend-up mr-1"></i> +{{ users_7d }} (7d)
+      </span>
+      <span class="text-slate-500">•</span>
+      <span class="text-slate-400">+{{ users_30d }} (30d)</span>
+    </div>
+  </div>
+
+  <!-- Active Subscribers -->
+  <div class="glass-card rounded-2xl p-5 border border-slate-800 transition glass-card-hover relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Paid Subs</span>
+      <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+        <i class="fa-solid fa-crown"></i>
+      </div>
+    </div>
+    <div class="text-3xl font-extrabold text-white mt-3">{{ active_subscribers_count }}</div>
+    <div class="flex items-center space-x-2 mt-2 text-[11px] text-slate-400">
+      <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-medium">S: {{ starter_count }}</span>
+      <span class="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-medium">P: {{ pro_count }}</span>
+      <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">B: {{ biz_count }}</span>
+    </div>
+  </div>
+
+  <!-- MRR & Total Revenue -->
+  <div class="glass-card rounded-2xl p-5 border border-slate-800 transition glass-card-hover relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">MRR / Revenue</span>
+      <div class="w-8 h-8 rounded-lg bg-violet-500/10 text-violet-400 flex items-center justify-center text-sm">
+        <i class="fa-solid fa-indian-rupee-sign"></i>
+      </div>
+    </div>
+    <div class="text-3xl font-extrabold text-white mt-3">₹{{ mrr_rs|floatformat:2 }}</div>
+    <div class="flex items-center space-x-2 mt-2 text-xs text-slate-400">
+      <span class="text-emerald-400 font-medium">Total: ₹{{ total_revenue_rs|floatformat:2 }}</span>
+      <span class="text-slate-500">•</span>
+      <span>Razorpay</span>
+    </div>
+  </div>
+
+  <!-- Today's Activity -->
+  <div class="glass-card rounded-2xl p-5 border border-slate-800 transition glass-card-hover relative overflow-hidden">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Today's Inflow</span>
+      <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+    </div>
+    <div class="text-3xl font-extrabold text-white mt-3">+{{ signups_today }}</div>
+    <div class="flex items-center space-x-2 mt-2 text-xs text-slate-400">
+      <span>Signups today</span>
+      <span class="text-slate-500">•</span>
+      <span class="text-emerald-400">₹{{ today_revenue_rs|floatformat:0 }} collected</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- API Health Cards & 24h Live Usage -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+  <!-- API Health Status Card -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
+        <i class="fa-solid fa-heart-pulse text-rose-400 mr-2"></i> API Ecosystem Health
+      </h3>
+      <button onclick="checkApiHealth()" id="btn-refresh-health" class="text-xs text-indigo-400 hover:text-indigo-300 transition">
+        <i class="fa-solid fa-arrows-rotate mr-1"></i> Check Now
+      </button>
+    </div>
+    <div class="space-y-3 text-xs" id="health-container">
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+        <span class="font-medium text-slate-300 flex items-center"><i class="fa-solid fa-brain text-indigo-400 mr-2"></i> Gemini 2.0 AI</span>
+        <span id="status-gemini" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Checking...</span>
+      </div>
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+        <span class="font-medium text-slate-300 flex items-center"><i class="fa-solid fa-microchip text-violet-400 mr-2"></i> Groq LLaMA Engine</span>
+        <span id="status-groq" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Checking...</span>
+      </div>
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+        <span class="font-medium text-slate-300 flex items-center"><i class="fa-solid fa-credit-card text-blue-400 mr-2"></i> Razorpay Gateway</span>
+        <span id="status-razorpay" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Checking...</span>
+      </div>
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+        <span class="font-medium text-slate-300 flex items-center"><i class="fa-solid fa-globe text-cyan-400 mr-2"></i> Tavily Web Search</span>
+        <span id="status-tavily" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">Checking...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live 24h Utilization -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800">
+    <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center">
+      <i class="fa-solid fa-fire text-amber-400 mr-2"></i> 24h Feature Utilization
+    </h3>
+    <div class="space-y-4 text-xs">
+      <div>
+        <div class="flex justify-between text-slate-300 mb-1">
+          <span class="font-medium"><i class="fa-regular fa-comment-dots text-indigo-400 mr-1.5"></i> Chat Exchanges</span>
+          <span class="font-bold text-white">{{ chat_msgs_24h }} msgs <span class="text-slate-500 font-normal">({{ chat_msgs_total }} total)</span></span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" style="width: 85%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-slate-300 mb-1">
+          <span class="font-medium"><i class="fa-solid fa-image text-purple-400 mr-1.5"></i> Images Generated</span>
+          <span class="font-bold text-white">{{ img_gen_24h }} renders</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 60%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-slate-300 mb-1">
+          <span class="font-medium"><i class="fa-solid fa-compass text-emerald-400 mr-1.5"></i> Web Searches</span>
+          <span class="font-bold text-white">{{ searches_24h }} queries</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full" style="width: 45%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-slate-300 mb-1">
+          <span class="font-medium"><i class="fa-solid fa-file-lines text-amber-400 mr-1.5"></i> PDF AI & Conversions</span>
+          <span class="font-bold text-white">{{ pdf_docs_24h }} ops</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" style="width: 30%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Support & Audits Summary -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center">
+          <i class="fa-solid fa-headset text-blue-400 mr-2"></i> User Tickets
+        </h3>
+        <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-semibold">{{ open_tickets }} open</span>
+      </div>
+      <div class="space-y-2 text-xs">
+        {% for t in recent_tickets %}
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 flex items-center justify-between">
+          <div class="truncate mr-2">
+            <span class="font-bold text-slate-300">{{ t.ticket_id }}</span>
+            <span class="text-slate-400 truncate ml-1">{{ t.subject }}</span>
+          </div>
+          <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold {% if t.status == 'open' %}bg-rose-500/20 text-rose-400{% else %}bg-amber-500/20 text-amber-400{% endif %}">
+            {{ t.status }}
+          </span>
+        </div>
+        {% empty %}
+        <div class="text-slate-500 text-center py-4">No open tickets. All clear!</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="pt-4 mt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+      <a href="/axomai-admin/settings/" class="text-slate-400 hover:text-white transition flex items-center">
+        <i class="fa-solid fa-shield mr-1.5 text-indigo-400"></i> View Audit Logs
+      </a>
+      <a href="/axomai-admin/users/" class="text-indigo-400 hover:text-indigo-300 font-semibold transition">
+        Manage Users →
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- 30-Day Growth & Revenue Chart -->
+<div class="glass-card rounded-2xl p-6 border border-slate-800 mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+      <h3 class="text-base font-bold text-white">30-Day Revenue & Growth Performance</h3>
+      <p class="text-xs text-slate-400 mt-0.5">Real-time breakdown of daily subscriptions and user acquisition</p>
+    </div>
+    <div class="flex items-center space-x-2">
+      <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span>
+      <span class="text-xs text-slate-300 mr-3">Revenue (₹)</span>
+      <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+      <span class="text-xs text-slate-300">Signups</span>
+    </div>
+  </div>
+  <div class="h-72 w-full relative">
+    <canvas id="revenueChart"></canvas>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // API Health Check
+  async function checkApiHealth() {
+    const btn = document.getElementById('btn-refresh-health');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Checking...';
+    try {
+      const res = await fetch('/axomai-admin/api/health/');
+      const data = await res.json();
+      if (data.success && data.health) {
+        for (const [key, val] of Object.entries(data.health)) {
+          const el = document.getElementById(`status-${key}`);
+          if (el) {
+            if (val.status === 'healthy' || val.status === 'configured') {
+              el.className = 'px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold text-[11px]';
+              el.textContent = `${val.status.toUpperCase()} (${val.latency_ms}ms)`;
+            } else if (val.status === 'degraded') {
+              el.className = 'px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-semibold text-[11px]';
+              el.textContent = 'DEGRADED';
+            } else if (val.status === 'unconfigured') {
+              el.className = 'px-2 py-0.5 rounded-full bg-slate-700 text-slate-400 font-semibold text-[11px]';
+              el.textContent = 'NOT CONFIGURED';
+            } else {
+              el.className = 'px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 font-semibold text-[11px]';
+              el.textContent = 'OFFLINE';
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      btn.innerHTML = '<i class="fa-solid fa-arrows-rotate mr-1"></i> Check Now';
+    }
+  }
+
+  // Load Charts
+  async function loadChart() {
+    try {
+      const res = await fetch('/axomai-admin/api/chart-data/?days=30');
+      const data = await res.json();
+      if (data.success) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.labels,
+            datasets: [
+              {
+                label: 'Revenue (₹)',
+                data: data.revenue,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.12)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                yAxisID: 'y'
+              },
+              {
+                label: 'New Signups',
+                data: data.signups,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                borderWidth: 2,
+                borderDash: [4, 4],
+                fill: false,
+                tension: 0.3,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#64748b', font: { size: 11 } }
+              },
+              y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#64748b', font: { size: 11 }, callback: v => '₹' + v }
+              },
+              y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                grid: { drawOnChartArea: false },
+                ticks: { color: '#10b981', font: { size: 11 }, stepSize: 1 }
+              }
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    checkApiHealth();
+    loadChart();
+  });
+</script>
+{% endblock %}

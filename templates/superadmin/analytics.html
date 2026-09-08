@@ -1,0 +1,104 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Analytics & Reports — Axom AI Super Admin{% endblock %}
+{% block heading %}Analytics & Usage Reports{% endblock %}
+
+{% block content %}
+<!-- Top Highlights -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+  <div class="glass-card rounded-2xl p-5 border border-slate-800">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Registered Accounts</div>
+    <div class="text-3xl font-extrabold text-white mt-2">{{ total_users }}</div>
+    <div class="text-xs text-indigo-400 mt-1">Platform user base</div>
+  </div>
+  <div class="glass-card rounded-2xl p-5 border border-slate-800">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Chat Conversations</div>
+    <div class="text-3xl font-extrabold text-white mt-2">{{ total_chats }}</div>
+    <div class="text-xs text-emerald-400 mt-1">{{ total_messages }} total user & assistant messages</div>
+  </div>
+  <div class="glass-card rounded-2xl p-5 border border-slate-800">
+    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Avg Messages / Session</div>
+    <div class="text-3xl font-extrabold text-violet-400 mt-2">
+      {% if total_chats %}{% widthratio total_messages total_chats 1 %}{% else %}0{% endif %}
+    </div>
+    <div class="text-xs text-slate-500 mt-1">Session depth & engagement</div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+  <!-- Feature Distribution Donut Chart -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800">
+    <h3 class="text-base font-bold text-white mb-1">Feature Breakdown</h3>
+    <p class="text-xs text-slate-400 mb-4">Relative demand across core AI modalities</p>
+    <div class="h-64 relative flex items-center justify-center">
+      <canvas id="featureChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Top Active Users by Usage -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800">
+    <h3 class="text-base font-bold text-white mb-1">Top Active Power Users</h3>
+    <p class="text-xs text-slate-400 mb-4">Users driving highest interaction volume</p>
+
+    <div class="space-y-3 text-xs">
+      {% for u in top_users %}
+      <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-600/30 flex items-center justify-center font-bold text-xs uppercase">
+            {{ u.username|slice:":2" }}
+          </div>
+          <div>
+            <div class="font-bold text-white">{{ u.username }}</div>
+            <div class="text-[10px] text-slate-500">Joined: {{ u.date_joined|date:"d M Y" }}</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-400 font-bold text-xs">
+            {{ u.usage_count }} interactions
+          </span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-slate-500 text-center py-8">No usage records logged yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('featureChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Chat Conversations', 'Image Generation', 'Web Searches', 'PDF / Doc AI', 'Summaries'],
+        datasets: [{
+          data: [
+            {{ usage_breakdown.chat|default:10 }},
+            {{ usage_breakdown.image|default:5 }},
+            {{ usage_breakdown.search|default:5 }},
+            {{ usage_breakdown.pdf|default:3 }},
+            {{ usage_breakdown.summarize|default:2 }}
+          ],
+          backgroundColor: ['#6366f1', '#a855f7', '#10b981', '#f59e0b', '#3b82f6'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#94a3b8', font: { size: 11 }, boxWidth: 12 }
+          }
+        },
+        cutout: '70%'
+      }
+    });
+  });
+</script>
+{% endblock %}

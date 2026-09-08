@@ -1,0 +1,181 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}System Settings & Audit — Axom AI Super Admin{% endblock %}
+{% block heading %}System Settings & Audit Logs{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+  <!-- Feature Flags & Announcements (2 cols) -->
+  <div class="lg:col-span-2 space-y-6">
+
+    <!-- Feature Flags Card -->
+    <div class="glass-card rounded-2xl p-6 border border-slate-800">
+      <h3 class="text-base font-bold text-white mb-1"><i class="fa-solid fa-toggle-on text-indigo-400 mr-2"></i> Global Feature Flags</h3>
+      <p class="text-xs text-slate-400 mb-5">Enable or disable specific AI capabilities globally</p>
+
+      <form id="settingsForm" class="space-y-4 text-xs">
+        
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div>
+            <div class="font-bold text-white">Live Web Search via Tavily</div>
+            <div class="text-slate-400 text-[11px]">Allows real-time web browsing and information retrieval</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="flagWebSearch" {% if settings.web_search_enabled %}checked{% endif %} class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div>
+            <div class="font-bold text-white">AI Image Generation (Pollinations / FLUX)</div>
+            <div class="text-slate-400 text-[11px]">Enable generating text-to-image artworks</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="flagImageGen" {% if settings.image_gen_enabled %}checked{% endif %} class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div>
+            <div class="font-bold text-white">PDF Converter & Document AI</div>
+            <div class="text-slate-400 text-[11px]">Document to PDF conversion, watermarking, and OCR tools</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="flagPdfAi" {% if settings.pdf_ai_enabled %}checked{% endif %} class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/80 border border-rose-900/30">
+          <div>
+            <div class="font-bold text-rose-400">Maintenance Mode</div>
+            <div class="text-slate-400 text-[11px]">Show maintenance alert and restrict user actions temporarily</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="flagMaintenance" {% if settings.maintenance_mode %}checked{% endif %} class="sr-only peer">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+          </label>
+        </div>
+
+        <!-- Global Announcement Banner -->
+        <div class="pt-2">
+          <label class="block font-bold text-white mb-1.5">Global Announcement Banner (Broadcast to all users)</label>
+          <input type="text" id="announcementBanner" value="{{ settings.announcement_banner }}" placeholder="e.g. 🎉 Special Offer: 20% off on Pro Plans with code AXOM20!" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white text-xs placeholder-slate-600 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <button type="button" onclick="saveSystemSettings()" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl shadow text-xs transition">
+          Save System Configuration
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- API Secrets Status (1 col) -->
+  <div class="space-y-4">
+    <div class="glass-card rounded-2xl p-6 border border-slate-800">
+      <h3 class="text-base font-bold text-white mb-1"><i class="fa-solid fa-key text-amber-400 mr-2"></i> Environment API Keys</h3>
+      <p class="text-xs text-slate-400 mb-4">Read-only server configuration from .env</p>
+
+      <div class="space-y-2.5 text-xs">
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+          <span class="font-medium text-slate-300">Gemini 2.0 API</span>
+          <span class="font-mono text-[11px] text-indigo-400">{{ api_status.gemini }}</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+          <span class="font-medium text-slate-300">Groq API</span>
+          <span class="font-mono text-[11px] text-violet-400">{{ api_status.groq }}</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+          <span class="font-medium text-slate-300">Razorpay Key ID</span>
+          <span class="font-mono text-[11px] text-blue-400">{{ api_status.razorpay }}</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+          <span class="font-medium text-slate-300">Tavily Search API</span>
+          <span class="font-mono text-[11px] text-emerald-400">{{ api_status.tavily }}</span>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+          <span class="font-medium text-slate-300">Cloudflare API</span>
+          <span class="font-mono text-[11px] text-amber-400">{{ api_status.cloudflare }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Admin Audit Logs -->
+<div class="glass-card rounded-2xl border border-slate-800 overflow-hidden mb-6">
+  <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+    <div>
+      <h3 class="text-base font-bold text-white"><i class="fa-solid fa-list-check text-indigo-400 mr-2"></i> Security Audit Logs</h3>
+      <p class="text-xs text-slate-400 mt-0.5">Chronological record of superadmin actions & sensitive operations</p>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-xs">
+      <thead class="bg-slate-900 text-slate-400 uppercase text-[11px]">
+        <tr>
+          <th class="py-3 px-4">Timestamp</th>
+          <th class="py-3 px-4">Admin</th>
+          <th class="py-3 px-4">Action</th>
+          <th class="py-3 px-4">Target</th>
+          <th class="py-3 px-4">Details</th>
+          <th class="py-3 px-4">IP Address</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800/60 text-slate-300">
+        {% for log in audit_logs %}
+        <tr class="hover:bg-slate-900/40 transition">
+          <td class="py-3 px-4 text-slate-400 font-mono text-[11px]">{{ log.created_at|date:"Y-m-d H:i:s" }}</td>
+          <td class="py-3 px-4 font-bold text-white">{{ log.admin_user.username|default:"System" }}</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300">
+              {{ log.action }}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-slate-300 font-medium">{{ log.target }}</td>
+          <td class="py-3 px-4 text-slate-400 max-w-xs truncate">{{ log.details }}</td>
+          <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">{{ log.ip_address|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="py-8 text-center text-slate-500">No audit logs recorded yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function saveSystemSettings() {
+    const payload = {
+      web_search_enabled: document.getElementById('flagWebSearch').checked,
+      image_gen_enabled: document.getElementById('flagImageGen').checked,
+      pdf_ai_enabled: document.getElementById('flagPdfAi').checked,
+      maintenance_mode: document.getElementById('flagMaintenance').checked,
+      announcement_banner: document.getElementById('announcementBanner').value.trim()
+    };
+    try {
+      const res = await fetch('/axomai-admin/settings/save/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        setTimeout(() => location.reload(), 700);
+      } else {
+        showToast(data.error, 'error');
+      }
+    } catch (e) {
+      showToast('Error saving settings.', 'error');
+    }
+  }
+</script>
+{% endblock %}

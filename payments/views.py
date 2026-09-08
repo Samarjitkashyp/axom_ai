@@ -73,17 +73,36 @@ def create_order(request):
         return JsonResponse({"error": "invalid json"}, status=400)
 
     plan_id = (body.get("plan") or "").strip()
+    coupon_code = (body.get("coupon") or "").strip().upper()
     plan = PLAN_CATALOG.get(plan_id)
     if not plan:
         return JsonResponse({"error": f"unknown plan '{plan_id}'"}, status=400)
 
+    final_amount = plan["amount"]
+    applied_coupon_str = ""
+    if coupon_code:
+        try:
+            from superadmin.models import CouponCode
+            c = CouponCode.objects.filter(code=coupon_code).first()
+            if c and c.is_valid():
+                discount = int(final_amount * (c.discount_percent / 100.0))
+                final_amount = max(100, final_amount - discount)
+                applied_coupon_str = c.code
+        except Exception:
+            pass
+
     try:
         client = _client()
         order = client.order.create({
-            "amount": plan["amount"],
+            "amount": final_amount,
             "currency": "INR",
             "payment_capture": 1,
-            "notes": {"plan": plan_id, "user_id": str(request.user.id), "username": request.user.username},
+            "notes": {
+                "plan": plan_id,
+                "user_id": str(request.user.id),
+                "username": request.user.username,
+                "coupon": applied_coupon_str
+            },
         })
     except Exception as e:
         log.exception("razorpay order.create failed")
@@ -92,20 +111,22 @@ def create_order(request):
     Payment.objects.create(
         user=request.user,
         plan=plan_id,
-        amount=plan["amount"],
+        amount=final_amount,
         currency="INR",
+        coupon_code=applied_coupon_str,
         razorpay_order_id=order["id"],
         status="created",
     )
 
     return JsonResponse({
         "order_id": order["id"],
-        "amount": plan["amount"],
+        "amount": final_amount,
         "currency": "INR",
         "key_id": settings.RAZORPAY_KEY_ID,
         "plan": plan_id,
         "plan_label": plan["label"],
         "days": plan["days"],
+        "coupon_applied": applied_coupon_str,
         "user_name": request.user.get_full_name() or request.user.username,
         "user_email": request.user.email or "",
     })
@@ -184,6 +205,17 @@ def _activate_plan(user, payment) -> UserPlan:
     payment.status = "paid"
     payment.paid_at = now
     payment.save()
+
+    if getattr(payment, 'coupon_code', None):
+        try:
+            from superadmin.models import CouponCode
+            c = CouponCode.objects.filter(code=payment.coupon_code).first()
+            if c:
+                c.uses_count += 1
+                c.save(update_fields=['uses_count'])
+        except Exception:
+            pass
+
     return user_plan
 
 

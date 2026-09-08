@@ -96,10 +96,14 @@ def _save_chat(request, client_id, user_text, assistant_text, title=None):
         key = request.session.session_key
         if not key or not client_id:
             return
-        sess, _ = ChatSession.objects.get_or_create(
+        user = request.user if (hasattr(request, 'user') and request.user.is_authenticated) else None
+        sess, created = ChatSession.objects.get_or_create(
             session_key=key, client_id=client_id,
-            defaults={'title': ((title or user_text) or 'New Chat')[:60]},
+            defaults={'title': ((title or user_text) or 'New Chat')[:60], 'user': user},
         )
+        if user and not sess.user:
+            sess.user = user
+            sess.save(update_fields=['user'])
         ChatMessage.objects.create(session=sess, role='user', text=user_text)
         if assistant_text:
             ChatMessage.objects.create(session=sess, role='assistant', text=assistant_text)

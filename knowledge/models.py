@@ -48,9 +48,12 @@ class QAPair(models.Model):
         return f"Q&A: {self.question[:50]}"
 
 
+from django.conf import settings
+
 class ChatSession(models.Model):
     """A saved chat conversation, keyed by the browser's Django session (works for
     anonymous users) plus the frontend-generated client id."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='chat_sessions')
     session_key = models.CharField(max_length=64, db_index=True)
     client_id = models.CharField(max_length=64, db_index=True)
     title = models.CharField(max_length=200, default='New Chat')
