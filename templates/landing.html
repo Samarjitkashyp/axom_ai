@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Axom AI — Assam's own AI assistant. Native Assamese chat, image generation, document intelligence, and web search — built for অসম.">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="description" content="Axom AI — Assam's own AI platform. Chat, create, analyze, automate and build with world-class AI tools rooted in Assam.">
+<meta name="theme-color" content="#0a1a12">
 <link rel="icon" type="image/svg+xml" href="{% load static %}{% static 'dist/favicon.svg' %}">
-<title>Axom AI — Assam's Own AI Platform</title>
+<title>Axom AI — The Power of AI for Everyone</title>
 
 <!-- React 18 UMD -->
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
@@ -17,7 +17,6 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
-    darkMode: 'class',
     theme: {
       extend: {
         fontFamily: {
@@ -27,11 +26,16 @@
         },
         colors: {
           axom: {
-            bg: '#0a0a0f',
-            surface: '#111118',
-            border: '#1e1e2a',
+            dark: '#0a1a12',
+            darker: '#050e0a',
+            surface: '#0f1f16',
+            border: '#1c2a22',
+            emerald: '#10b981',
+            emeraldHover: '#059669',
             accent: '#c084fc',
             accent2: '#e879f9',
+            gold: '#f59e0b',
+            cream: '#fefdf8',
           }
         },
         animation: {
@@ -40,18 +44,9 @@
           'glow': 'glow 4s ease-in-out infinite',
         },
         keyframes: {
-          gradient: {
-            '0%, 100%': { backgroundPosition: '0% 50%' },
-            '50%': { backgroundPosition: '100% 50%' },
-          },
-          float: {
-            '0%, 100%': { transform: 'translateY(0px)' },
-            '50%': { transform: 'translateY(-10px)' },
-          },
-          glow: {
-            '0%, 100%': { opacity: 0.5 },
-            '50%': { opacity: 1 },
-          }
+          gradient: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
+          float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+          glow: { '0%, 100%': { opacity: 0.4 }, '50%': { opacity: 0.8 } },
         }
       }
     }
@@ -64,102 +59,98 @@
 
 <style>
   html { scroll-behavior: smooth; }
-  body { background: #0a0a0f; color: #e5e7eb; -webkit-font-smoothing: antialiased; }
+  body { background: #fefdf8; color: #1f2937; -webkit-font-smoothing: antialiased; }
 
-  .grid-bg {
-    background-image:
-      linear-gradient(rgba(192,132,252,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(192,132,252,0.05) 1px, transparent 1px);
-    background-size: 44px 44px;
-  }
-  .radial-fade {
-    mask-image: radial-gradient(circle at 50% 40%, #000 0%, #000 40%, transparent 75%);
-    -webkit-mask-image: radial-gradient(circle at 50% 40%, #000 0%, #000 40%, transparent 75%);
+  /* Hero mountain landscape */
+  .hero-bg {
+    background:
+      linear-gradient(180deg, rgba(5,14,10,0.55) 0%, rgba(5,14,10,0.75) 40%, rgba(5,14,10,0.95) 100%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'><defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23163628'/><stop offset='0.6' stop-color='%230a1f14'/><stop offset='1' stop-color='%23050e0a'/></linearGradient><linearGradient id='mt1' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23244a37'/><stop offset='1' stop-color='%23122a1e'/></linearGradient><linearGradient id='mt2' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%231b3a2b'/><stop offset='1' stop-color='%230a1a12'/></linearGradient><linearGradient id='mt3' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%2311281c'/><stop offset='1' stop-color='%23050e0a'/></linearGradient><radialGradient id='sun' cx='0.8' cy='0.3' r='0.4'><stop offset='0' stop-color='%23fbbf24' stop-opacity='0.35'/><stop offset='1' stop-color='%23fbbf24' stop-opacity='0'/></radialGradient></defs><rect width='1600' height='900' fill='url(%23sky)'/><rect width='1600' height='900' fill='url(%23sun)'/><path d='M0 620 L200 490 L340 560 L490 430 L640 520 L780 400 L920 480 L1100 380 L1280 470 L1450 400 L1600 470 L1600 900 L0 900 Z' fill='url(%23mt1)'/><path d='M0 680 L180 580 L360 630 L520 520 L700 600 L880 500 L1080 590 L1260 500 L1440 580 L1600 530 L1600 900 L0 900 Z' fill='url(%23mt2)' opacity='0.9'/><path d='M0 760 L220 690 L400 730 L580 650 L780 710 L1000 640 L1200 700 L1400 640 L1600 700 L1600 900 L0 900 Z' fill='url(%23mt3)'/><g opacity='0.4'><ellipse cx='300' cy='170' rx='90' ry='8' fill='%23ffffff'/><ellipse cx='500' cy='210' rx='120' ry='6' fill='%23ffffff'/><ellipse cx='900' cy='150' rx='100' ry='7' fill='%23ffffff'/><ellipse cx='1200' cy='190' rx='80' ry='5' fill='%23ffffff'/></g></svg>");
+    background-size: cover;
+    background-position: center;
   }
   .gradient-text {
-    background: linear-gradient(120deg, #ffffff 0%, #c084fc 40%, #f472b6 60%, #ffffff 100%);
+    background: linear-gradient(120deg, #a7f3d0 0%, #6ee7b7 30%, #34d399 60%, #10b981 100%);
     background-size: 200% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
+    -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: gradient 8s ease infinite;
-  }
-  .glow-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.5;
-    pointer-events: none;
-  }
-  .card-glow {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005));
-    border: 1px solid rgba(255,255,255,0.06);
-    transition: all 0.3s;
-  }
-  .card-glow:hover {
-    border-color: rgba(192,132,252,0.3);
-    background: linear-gradient(135deg, rgba(192,132,252,0.05), rgba(255,255,255,0.01));
-    transform: translateY(-2px);
-  }
-  .card-glow::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    background: linear-gradient(120deg, transparent, rgba(192,132,252,0.15), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-    border-radius: inherit;
-  }
-  .card-glow:hover::before { opacity: 1; }
-
-  .btn-primary {
-    background: linear-gradient(120deg, #c084fc 0%, #e879f9 50%, #c084fc 100%);
-    background-size: 200% 200%;
     animation: gradient 6s ease infinite;
-    color: #0a0a0f;
+  }
+  .gradient-text-purple {
+    background: linear-gradient(120deg, #a78bfa, #c084fc, #e879f9);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .btn-emerald {
+    background: #10b981;
+    color: white;
     font-weight: 600;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 10px 40px -10px rgba(192,132,252,0.5);
+    transition: all 0.15s;
+    box-shadow: 0 10px 30px -5px rgba(16,185,129,0.4);
   }
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 14px 50px -10px rgba(192,132,252,0.7);
-  }
-  .btn-ghost {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
+  .btn-emerald:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 14px 40px -5px rgba(16,185,129,0.55); }
+
+  .btn-ghost-light {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
     transition: all 0.15s;
   }
-  .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+  .btn-ghost-light:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.25); }
 
-  /* Marquee logo strip */
-  .marquee {
-    display: flex;
+  .btn-outline-dark {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #111827;
+    transition: all 0.15s;
+  }
+  .btn-outline-dark:hover { border-color: #9ca3af; background: #f9fafb; }
+
+  .tool-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
     overflow: hidden;
-    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
   }
-  .marquee-inner {
-    display: flex;
-    gap: 3rem;
-    animation: scroll 30s linear infinite;
-    flex-shrink: 0;
+  .tool-card:hover {
+    border-color: #10b981;
+    box-shadow: 0 20px 40px -15px rgba(16,185,129,0.15);
+    transform: translateY(-2px);
   }
-  @keyframes scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-100%); }
+  .tool-card:hover .arrow-btn { background: #10b981; color: white; transform: translateX(4px); }
+  .arrow-btn {
+    background: #f3f4f6;
+    color: #6b7280;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    transition: all 0.2s;
   }
 
-  /* code blocks in demo */
-  .demo-window {
-    background: #0e0e15;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    box-shadow: 0 30px 80px -20px rgba(192,132,252,0.15), 0 0 100px -30px rgba(232,121,249,0.1);
+  .use-tab-active { background: #10b981; color: white; }
+  .use-tab-inactive { background: white; color: #6b7280; border: 1px solid #e5e7eb; }
+  .use-tab-inactive:hover { border-color: #10b981; color: #10b981; }
+
+  .price-card { background: white; border: 1px solid #e5e7eb; border-radius: 20px; padding: 28px; transition: all 0.25s; }
+  .price-card:hover { border-color: #10b981; box-shadow: 0 20px 40px -15px rgba(16,185,129,0.15); }
+  .price-card-featured { background: linear-gradient(180deg, #f0fdf4 0%, white 40%); border-color: #10b981; box-shadow: 0 20px 60px -20px rgba(16,185,129,0.25); }
+
+  .marquee { display: flex; overflow: hidden; mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
+  .marquee-inner { display: flex; gap: 4rem; animation: scroll 30s linear infinite; flex-shrink: 0; }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+
+  .laptop-frame {
+    background: linear-gradient(180deg, #1a2e22 0%, #0a1a12 100%);
+    border-radius: 12px 12px 24px 24px;
+    padding: 8px;
+    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5), 0 0 60px -10px rgba(16,185,129,0.15);
+    position: relative;
   }
+  .laptop-screen { background: #0f1f16; border-radius: 8px; overflow: hidden; }
 </style>
 </head>
 
@@ -168,76 +159,94 @@
 <div id="root"></div>
 
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect } = React;
 
 const CHAT_URL = "https://chat.aiaxom.co.in/";
 
-// ─────────────────────────── ICONS ──────────────────────────────
+// ─────────────────── ICONS ─────────────────────
 const Icon = ({ path, className = "w-5 h-5" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    {path}
-  </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{path}</svg>
 );
-const IconChat     = (p) => <Icon {...p} path={<><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>} />;
-const IconImage    = (p) => <Icon {...p} path={<><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>} />;
-const IconPdf      = (p) => <Icon {...p} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 12v6M10 15h4"/></>} />;
-const IconSearch   = (p) => <Icon {...p} path={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></>} />;
-const IconGlobe    = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></>} />;
-const IconBolt     = (p) => <Icon {...p} path={<><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></>} />;
-const IconShield   = (p) => <Icon {...p} path={<><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></>} />;
-const IconArrow    = (p) => <Icon {...p} path={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
-const IconCheck    = (p) => <Icon {...p} path={<><polyline points="20 6 9 17 4 12"/></>} />;
-const IconStar     = (p) => <Icon {...p} path={<><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></>} />;
-const IconMenu     = (p) => <Icon {...p} path={<><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></>} />;
-const IconClose    = (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />;
+const IChat    = (p) => <Icon {...p} path={<><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>} />;
+const IWrite   = (p) => <Icon {...p} path={<><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></>} />;
+const IImage   = (p) => <Icon {...p} path={<><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>} />;
+const IDoc     = (p) => <Icon {...p} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></>} />;
+const ICode    = (p) => <Icon {...p} path={<><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></>} />;
+const ISearch  = (p) => <Icon {...p} path={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></>} />;
+const IPdf     = (p) => <Icon {...p} path={<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></>} />;
+const IChart   = (p) => <Icon {...p} path={<><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></>} />;
+const IGrid    = (p) => <Icon {...p} path={<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>} />;
+const IPlus    = (p) => <Icon {...p} path={<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>} />;
+const IArrow   = (p) => <Icon {...p} path={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
+const ICheck   = (p) => <Icon {...p} path={<><polyline points="20 6 9 17 4 12"/></>} />;
+const IPlay    = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></>} />;
+const IShield  = (p) => <Icon {...p} path={<><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></>} />;
+const IAccess  = (p) => <Icon {...p} path={<><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="7" r="4"/></>} />;
+const ITrend   = (p) => <Icon {...p} path={<><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></>} />;
+const IHeart   = (p) => <Icon {...p} path={<><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></>} />;
+const IStar    = (p) => <Icon {...p} path={<><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></>} />;
+const IStudent = (p) => <Icon {...p} path={<><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></>} />;
+const IBriefcase = (p) => <Icon {...p} path={<><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></>} />;
+const IBuilding = (p) => <Icon {...p} path={<><rect x="4" y="2" width="16" height="20"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M8 10h.01M8 14h.01M16 10h.01M16 14h.01"/></>} />;
+const IPalette = (p) => <Icon {...p} path={<><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></>} />;
+const ICompass = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>} />;
+const IUsers   = (p) => <Icon {...p} path={<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>} />;
+const IMail    = (p) => <Icon {...p} path={<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>} />;
+const IMenu    = (p) => <Icon {...p} path={<><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></>} />;
+const IX       = (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />;
+const IGlobe   = (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></>} />;
+const ILock    = (p) => <Icon {...p} path={<><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>} />;
 
-// ─────────────────────────── NAV ──────────────────────────────
+// ─────────────────── NAV ─────────────────────
 function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    const s = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', s);
+    return () => window.removeEventListener('scroll', s);
   }, []);
-
   const links = [
-    { href: "#features",   label: "Features" },
-    { href: "#pricing",    label: "Pricing" },
-    { href: "#about",      label: "About" },
-    { href: "#faq",        label: "FAQ" },
+    { href: "#tools",   label: "AI Tools" },
+    { href: "#usecases", label: "Use Cases" },
+    { href: "#pricing", label: "Pricing" },
+    { href: "#faq",     label: "FAQ" },
   ];
-
   return (
-    <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? 'bg-axom-bg/80 backdrop-blur-lg border-b border-white/5' : ''}`}>
-      <div className="max-w-6xl mx-auto px-5 py-3.5 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center shadow-lg shadow-purple-500/30 group-hover:scale-105 transition">
-            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="currentColor"/></svg>
+    <nav className={`fixed top-0 inset-x-0 z-50 transition-all ${scrolled ? 'bg-white/90 backdrop-blur-lg border-b border-gray-200' : 'bg-transparent'}`}>
+      <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+        <a href="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 grid place-items-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
           </div>
-          <div className="font-bold text-lg tracking-tight">Axom<span className="text-fuchsia-400"> AI</span></div>
+          <div className={`font-bold text-lg tracking-tight ${scrolled ? 'text-gray-900' : 'text-white'}`}>Axom <span className="text-emerald-500">AI</span></div>
         </a>
 
-        <div className="hidden md:flex items-center gap-8">
-          {links.map(l => <a key={l.href} href={l.href} className="text-sm text-gray-400 hover:text-white transition">{l.label}</a>)}
+        <div className="hidden lg:flex items-center gap-7">
+          {links.map(l => (
+            <a key={l.href} href={l.href} className={`text-sm font-medium transition ${scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-gray-200 hover:text-white'}`}>{l.label}</a>
+          ))}
         </div>
 
-        <div className="hidden md:flex items-center gap-3">
-          <a href={CHAT_URL} className="text-sm text-gray-300 hover:text-white transition">Sign in</a>
-          <a href={CHAT_URL} className="btn-primary text-sm px-4 py-2 rounded-full inline-flex items-center gap-1.5">
-            Open Chat <IconArrow className="w-4 h-4" />
+        <div className="hidden lg:flex items-center gap-3">
+          <a href={CHAT_URL} className={`px-4 py-2 rounded-full text-sm font-medium transition ${scrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white hover:bg-white/10'}`}>Sign in</a>
+          <a href={CHAT_URL} className="btn-emerald text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5">
+            Get Started <IArrow className="w-4 h-4" />
           </a>
+          <button className={`ml-1 px-3 py-2 rounded-full border text-xs font-medium transition ${scrolled ? 'border-gray-300 text-gray-700' : 'border-white/20 text-white'}`}>
+            <IGlobe className="w-4 h-4 inline mr-1" /> EN
+          </button>
         </div>
 
-        <button onClick={() => setOpen(!open)} className="md:hidden p-2 -mr-2 text-gray-300">
-          {open ? <IconClose className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
+        <button onClick={() => setOpen(!open)} className={`lg:hidden p-2 ${scrolled ? 'text-gray-900' : 'text-white'}`}>
+          {open ? <IX /> : <IMenu />}
         </button>
       </div>
       {open && (
-        <div className="md:hidden border-t border-white/5 bg-axom-bg/95 backdrop-blur-lg">
+        <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
           <div className="px-5 py-4 flex flex-col gap-3">
-            {links.map(l => <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm text-gray-300 py-1">{l.label}</a>)}
-            <a href={CHAT_URL} className="btn-primary text-sm px-4 py-2.5 rounded-full text-center mt-2">Open Chat</a>
+            {links.map(l => <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm text-gray-700 py-1">{l.label}</a>)}
+            <a href={CHAT_URL} className="btn-emerald text-sm px-4 py-2.5 rounded-full text-center mt-2">Get Started</a>
           </div>
         </div>
       )}
@@ -245,118 +254,97 @@ function Nav() {
   );
 }
 
-// ─────────────────────────── HERO ──────────────────────────────
+// ─────────────────── HERO ─────────────────────
 function Hero() {
   return (
-    <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 grid-bg radial-fade opacity-60" />
-      <div className="glow-orb w-[600px] h-[600px] bg-purple-600/30 top-[-100px] left-1/2 -translate-x-1/2 animate-glow" />
-      <div className="glow-orb w-[400px] h-[400px] bg-fuchsia-500/20 top-[100px] right-[-100px]" />
-      <div className="glow-orb w-[400px] h-[400px] bg-blue-600/20 top-[300px] left-[-100px]" />
-
-      <div className="relative max-w-5xl mx-auto px-5 text-center">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300 mb-8 backdrop-blur">
-          <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse"></span>
-          Now with live web search + AI image generation
+    <section className="relative hero-bg pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden">
+      <div className="relative max-w-7xl mx-auto px-5 grid lg:grid-cols-2 gap-12 items-center">
+        {/* LEFT */}
+        <div className="text-white">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-[11px] font-semibold text-emerald-300 mb-6 uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Made in Assam · For a Brighter Tomorrow
+          </div>
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6">
+            The Power of AI<br />
+            for <span className="gradient-text">Everyone</span>
+          </h1>
+          <p className="font-assamese text-lg md:text-xl text-emerald-100/80 mb-4">
+            অসমীয়াত কথা কওক · অসমীয়াতে উত্তৰ পাওক
+          </p>
+          <p className="text-base md:text-lg text-gray-300 mb-9 max-w-xl leading-relaxed">
+            Chat, create, analyze, automate and build — all in one place. Axom AI brings world-class AI tools to students, creators, businesses and communities, with a vision rooted in Assam and built for the world.
+          </p>
+          <div className="flex flex-wrap gap-3 mb-8">
+            <a href={CHAT_URL} className="btn-emerald px-7 py-3.5 rounded-full text-base inline-flex items-center gap-2">
+              Start for Free <IArrow className="w-5 h-5" />
+            </a>
+            <a href="#tools" className="btn-ghost-light px-7 py-3.5 rounded-full text-base inline-flex items-center gap-2">
+              <IPlay className="w-5 h-5" /> Watch Demo
+            </a>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-400">
+            <div className="flex items-center gap-1.5"><ICheck className="w-3.5 h-3.5 text-emerald-400"/> No credit card required</div>
+            <div className="flex items-center gap-1.5"><ICheck className="w-3.5 h-3.5 text-emerald-400"/> Fast & secure</div>
+            <div className="flex items-center gap-1.5"><ICheck className="w-3.5 h-3.5 text-emerald-400"/> Accessible for everyone</div>
+          </div>
         </div>
 
-        {/* Headline */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] mb-6">
-          <span className="gradient-text">Assam's Own</span>
-          <br />
-          <span className="text-white">AI Platform</span>
-        </h1>
-
-        {/* Assamese subhead */}
-        <p className="font-assamese text-2xl md:text-3xl text-fuchsia-300/90 mb-4">
-          অসমীয়াত কথা কওক · অসমীয়াতে উত্তৰ পাওক
-        </p>
-
-        <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          The first AI assistant built natively for Assamese speakers.
-          Chat, generate images, summarize documents, search the web — all in your language,
-          powered by the fastest models on Earth.
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
-          <a href={CHAT_URL} className="btn-primary px-7 py-3.5 rounded-full text-base inline-flex items-center gap-2">
-            Start Chatting Free
-            <IconArrow className="w-5 h-5" />
-          </a>
-          <a href="#features" className="btn-ghost px-7 py-3.5 rounded-full text-base text-gray-200">
-            See what it can do
-          </a>
-        </div>
-
-        {/* Trust bar */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-gray-500">
-          <div className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-green-400" /> No credit card required</div>
-          <div className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-green-400" /> Free tier forever</div>
-          <div className="flex items-center gap-1.5"><IconCheck className="w-3.5 h-3.5 text-green-400" /> Built in India</div>
-        </div>
-
-        {/* Product screenshot mockup */}
-        <div className="relative mt-16 md:mt-20 max-w-4xl mx-auto">
-          <div className="demo-window">
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
-              <div className="flex gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500/70"></span>
-                <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70"></span>
-                <span className="w-2.5 h-2.5 rounded-full bg-green-500/70"></span>
-              </div>
-              <div className="ml-4 text-[11px] text-gray-500 font-mono">chat.aiaxom.co.in</div>
-            </div>
-            <div className="p-6 md:p-10 text-left">
-              <div className="mb-4">
-                <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-1.5">You</div>
-                <div className="bg-white/5 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-200 max-w-md font-assamese">
-                  অসমৰ ৰাজধানী কি?
+        {/* RIGHT — laptop mockup */}
+        <div className="relative lg:pl-4">
+          <div className="laptop-frame">
+            <div className="laptop-screen h-[380px] md:h-[440px] relative">
+              {/* Fake app UI */}
+              <div className="flex h-full text-white text-[11px]">
+                {/* sidebar */}
+                <div className="w-36 bg-black/30 p-3 border-r border-white/5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-5 h-5 rounded-md bg-emerald-500 grid place-items-center">
+                      <span className="text-white text-[10px] font-bold">A</span>
+                    </div>
+                    <div className="font-semibold text-white text-xs">Axom AI</div>
+                  </div>
+                  <div className="mb-2 text-[10px] text-emerald-400 font-medium">+ New Chat</div>
+                  {['Home','AI Tools','Library','Projects','Explore','Templates'].map((x,i)=>(
+                    <div key={i} className={`py-1.5 px-2 rounded text-[10px] mb-0.5 ${i===0?'bg-white/8 text-white':'text-gray-400'}`}>{x}</div>
+                  ))}
                 </div>
-              </div>
-              <div>
-                <div className="text-[10px] uppercase tracking-widest text-fuchsia-400 mb-1.5">Axom AI</div>
-                <div className="bg-gradient-to-br from-fuchsia-500/10 to-purple-600/10 border border-fuchsia-500/20 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-100 max-w-lg font-assamese leading-relaxed">
-                  অসমৰ ৰাজধানী দিছপুৰ। ই গুৱাহাটী চহৰৰ এক অংশ আৰু ১৯৭৩ চনৰ পৰা অসমৰ ৰাজধানী হিচাপে কাৰ্যনিৰ্বাহ কৰি আহিছে।
-                  <div className="mt-2 flex items-center gap-1 text-[10px] text-fuchsia-300/60">
-                    <IconBolt className="w-3 h-3" /> Powered by Groq · 0.8s response
+                {/* main */}
+                <div className="flex-1 p-5 overflow-hidden">
+                  <div className="text-[10px] text-gray-400 mb-1">Good morning,</div>
+                  <div className="text-lg font-semibold mb-4">Let's turn your ideas into reality.</div>
+                  <div className="bg-white/5 rounded-lg p-2.5 mb-4 flex items-center gap-2 border border-white/10">
+                    <span className="text-gray-500 text-xs">Ask anything...</span>
+                    <div className="ml-auto flex gap-1.5 text-[9px]">
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">🌐 Web</span>
+                      <span className="px-2 py-0.5 rounded bg-white/5">📎 Attach</span>
+                      <span className="px-2 py-0.5 rounded bg-white/5">🛠 Tools</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      {i:'🎨', l:'Create Image', b:'bg-emerald-500/15 border-emerald-400/30'},
+                      {i:'✍️', l:'Write Content', b:'bg-white/5 border-white/10'},
+                      {i:'📄', l:'Analyze PDF', b:'bg-white/5 border-white/10'},
+                      {i:'💻', l:'Generate Code', b:'bg-white/5 border-white/10'},
+                      {i:'📊', l:'Plan & Research', b:'bg-white/5 border-white/10'},
+                      {i:'📈', l:'Data Analyze', b:'bg-white/5 border-white/10'},
+                    ].map((c,i)=>(
+                      <div key={i} className={`border rounded-lg p-2 text-center text-[9px] ${c.b}`}>
+                        <div className="text-lg mb-0.5">{c.i}</div>
+                        {c.l}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-[9px] italic text-gray-500 text-center">
+                    "AI for a more inclusive, innovative and prosperous tomorrow."
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/* Decorative orbs behind */}
-          <div className="absolute -inset-6 -z-10 bg-gradient-to-r from-fuchsia-600/20 via-transparent to-purple-600/20 blur-3xl rounded-full"></div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────── LOGO STRIP ──────────────────────────────
-function LogoStrip() {
-  const logos = [
-    "Powered by Groq",
-    "Google Gemini",
-    "Cloudflare AI",
-    "Razorpay",
-    "Tavily",
-    "AWS Lightsail",
-    "IndicTrans2",
-  ];
-  return (
-    <section className="py-14 border-y border-white/5">
-      <div className="max-w-6xl mx-auto px-5">
-        <p className="text-center text-xs uppercase tracking-widest text-gray-500 mb-8">Built with the best</p>
-        <div className="marquee">
-          <div className="marquee-inner">
-            {[...logos, ...logos].map((l, i) => (
-              <div key={i} className="text-gray-400 text-sm font-medium whitespace-nowrap px-3">
-                {l}
-              </div>
-            ))}
+          <div className="absolute -bottom-4 -right-2 text-right font-serif italic text-emerald-200/60 text-sm hidden md:block">
+            From Assam<br/><span className="text-emerald-300">to the World</span>
           </div>
         </div>
       </div>
@@ -364,41 +352,197 @@ function LogoStrip() {
   );
 }
 
-// ─────────────────────────── FEATURES ──────────────────────────────
-function Features() {
-  const features = [
-    { icon: IconChat,   title: "Assamese-First Chat",     desc: "Type in English, Hindi, Hinglish, or Assamese — always get natural অসমীয়া replies. Powered by Groq's fastest models at 0.7s response time.", accent: "from-fuchsia-500/20 to-purple-600/20" },
-    { icon: IconImage,  title: "AI Image Generation",     desc: "Turn your prompts into stunning visuals with FLUX. Automatic Assamese-to-English translation, 5 images/day on free tier.", accent: "from-pink-500/20 to-rose-600/20" },
-    { icon: IconSearch, title: "Live Web Search",         desc: "Get real-time answers from the internet, synthesized into Assamese. Cited sources, no hallucinations.", accent: "from-blue-500/20 to-cyan-600/20" },
-    { icon: IconPdf,    title: "Document Intelligence",   desc: "Upload PDF, DOCX, TXT — summarize in 3 lengths × 3 languages. OCR, convert, compress, edit in-browser.", accent: "from-emerald-500/20 to-teal-600/20" },
-    { icon: IconGlobe,  title: "Knowledge Base",          desc: "25,000 Assamese Wikipedia articles pre-loaded. Semantic search across 112,000 chunks — instant, accurate.", accent: "from-amber-500/20 to-orange-600/20" },
-    { icon: IconShield, title: "Private & Secure",        desc: "Your data stays yours. HTTPS end-to-end, CSRF-protected payments, GDPR-ready data export, delete anytime.", accent: "from-indigo-500/20 to-violet-600/20" },
+// ─────────────────── TRUSTED STRIP ─────────────────────
+function Trusted() {
+  const items = [
+    { i: IStudent,   l: "Students" },
+    { i: IUsers,     l: "Educators" },
+    { i: ITrend,     l: "Startups" },
+    { i: IBuilding,  l: "Businesses" },
+    { i: ICode,      l: "Developers" },
+    { i: ISearch,    l: "Researchers" },
+  ];
+  return (
+    <section className="bg-white border-y border-gray-100 py-8">
+      <div className="max-w-7xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+          <div className="text-[11px] uppercase tracking-widest text-gray-500 font-semibold">Trusted by learners, creators and businesses</div>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            {items.map((x, i) => {
+              const I = x.i;
+              return (
+                <div key={i} className="flex items-center gap-1.5 text-sm text-gray-600">
+                  <I className="w-4 h-4 text-emerald-500" /> {x.l}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex -space-x-2">
+            {['bg-emerald-500','bg-purple-500','bg-amber-500','bg-blue-500'].map((c,i)=>(
+              <div key={i} className={`w-8 h-8 rounded-full border-2 border-white ${c} grid place-items-center text-white text-xs font-bold`}>{'AKPS'[i]}</div>
+            ))}
+          </div>
+          <div>
+            <div className="font-bold text-gray-900 text-sm">10,000+</div>
+            <div className="text-[11px] text-gray-500">People using Axom AI</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────── TOOLS BENTO ─────────────────────
+function Tools() {
+  const tools = [
+    { i: IChat,    t: "AI Chat",           d: "Get instant answers and solutions.",         c: "bg-emerald-50", ic: "text-emerald-600" },
+    { i: IWrite,   t: "AI Writer",         d: "Create high-quality content in seconds.",    c: "bg-purple-50",  ic: "text-purple-600" },
+    { i: IImage,   t: "Image Generator",   d: "Turn ideas into stunning visuals.",          c: "bg-pink-50",    ic: "text-pink-600" },
+    { i: IDoc,     t: "Document Analyzer", d: "Understand PDFs, DOCs and more.",            c: "bg-blue-50",    ic: "text-blue-600" },
+    { i: ICode,    t: "Code Assistant",    d: "Write, debug and explain code.",             c: "bg-indigo-50",  ic: "text-indigo-600" },
+    { i: ISearch,  t: "Research Assistant",d: "Get real-time insights from the web.",       c: "bg-amber-50",   ic: "text-amber-600" },
+    { i: IPdf,     t: "PDF Tools",         d: "Convert, merge, summarize and extract.",     c: "bg-red-50",     ic: "text-red-600" },
+    { i: IChart,   t: "Data Analyzer",     d: "Analyze data and create reports.",           c: "bg-cyan-50",    ic: "text-cyan-600" },
+    { i: IGrid,    t: "AI Templates",      d: "Ready-to-use prompts for every need.",       c: "bg-fuchsia-50", ic: "text-fuchsia-600" },
+    { i: IPlus,    t: "More Tools",        d: "Explore all tools designed for you.",        c: "bg-gray-50",    ic: "text-gray-600" },
   ];
 
   return (
-    <section id="features" className="py-24 md:py-32 relative">
-      <div className="max-w-6xl mx-auto px-5">
-        <div className="text-center mb-16">
-          <div className="inline-block text-xs uppercase tracking-widest text-fuchsia-400 mb-3">What's Inside</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Everything you need. <br/>
-            <span className="gradient-text">All in one place.</span>
-          </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">
-            Not just a chatbot. A complete AI workstation built for the way you work.
-          </p>
+    <section id="tools" className="bg-white py-20 md:py-28">
+      <div className="max-w-7xl mx-auto px-5">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12 gap-4">
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-emerald-600 font-bold mb-2">Explore</div>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 mb-2">A Complete AI Toolkit for Modern Needs</h2>
+            <p className="text-gray-500 max-w-xl">Everything you need to be more productive, creative and informed — in one powerful platform.</p>
+          </div>
+          <a href={CHAT_URL + "tools"} className="text-emerald-600 font-semibold text-sm inline-flex items-center gap-1 hover:gap-2 transition-all">View all tools <IArrow className="w-4 h-4"/></a>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map((f, i) => {
-            const Ico = f.icon;
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {tools.map((t, i) => {
+            const I = t.i;
             return (
-              <div key={i} className="card-glow rounded-2xl p-6 backdrop-blur">
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${f.accent} border border-white/10 grid place-items-center mb-5`}>
-                  <Ico className="w-5 h-5 text-white" />
+              <a href={CHAT_URL + "tools"} key={i} className="tool-card block">
+                <div className="flex justify-between items-start mb-4">
+                  <div className={`w-11 h-11 rounded-xl ${t.c} grid place-items-center`}>
+                    <I className={`w-5 h-5 ${t.ic}`} />
+                  </div>
+                  <div className="arrow-btn"><IArrow className="w-3.5 h-3.5"/></div>
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-white">{f.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
+                <div className="font-semibold text-sm text-gray-900 mb-1">{t.t}</div>
+                <div className="text-[11px] text-gray-500 leading-relaxed">{t.d}</div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────── INSPIRED BY ASSAM ─────────────────────
+function InspiredByAssam() {
+  const feats = [
+    { i: IAccess, t: "Accessible",       d: "Powerful AI for everyone, anywhere." },
+    { i: IShield, t: "Secure & Private", d: "Your data stays yours." },
+    { i: ITrend,  t: "Always Improving", d: "New features added regularly." },
+    { i: IHeart,  t: "Community Driven", d: "Built with and for our community." },
+  ];
+  return (
+    <section className="bg-gray-50 py-16 md:py-20">
+      <div className="max-w-7xl mx-auto px-5">
+        <div className="rounded-3xl bg-white border border-gray-200 overflow-hidden shadow-sm">
+          <div className="grid lg:grid-cols-[300px_1fr_240px]">
+            {/* Assam image */}
+            <div className="relative min-h-[220px] hero-bg lg:rounded-l-3xl" style={{backgroundPosition:'center'}}>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-black/40"></div>
+              <div className="relative p-6 h-full flex flex-col justify-end text-white">
+                <div className="text-[11px] uppercase tracking-widest text-emerald-300 mb-1">Inspired by</div>
+                <div className="text-3xl font-serif italic">Assam</div>
+                <div className="text-xs text-gray-200 mt-2">Built for a Bigger Tomorrow</div>
+              </div>
+            </div>
+
+            {/* 4 features */}
+            <div className="grid sm:grid-cols-2 gap-6 p-8">
+              {feats.map((f, i) => {
+                const I = f.i;
+                return (
+                  <div key={i}>
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 grid place-items-center mb-3">
+                      <I className="w-5 h-5 text-emerald-600"/>
+                    </div>
+                    <div className="font-semibold text-gray-900 text-sm mb-1">{f.t}</div>
+                    <div className="text-xs text-gray-500 leading-relaxed">{f.d}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Right callout */}
+            <div className="bg-gray-50 border-l border-gray-200 p-6 text-center flex flex-col justify-center">
+              <div className="space-y-1.5 text-xs text-gray-600">
+                <div>People</div>
+                <div>Ideas</div>
+                <div>Technology</div>
+                <div className="pt-2 font-semibold text-gray-900">A Brighter<br/>Tomorrow</div>
+              </div>
+              <div className="mt-4 text-2xl">🦏</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────── USE CASES ─────────────────────
+function UseCases() {
+  const [tab, setTab] = useState('Students');
+  const tabs = ['Students','Professionals','Businesses','Creators','Researchers','Developers'];
+  const cases = {
+    Students: [
+      { i: IStudent, c:'bg-emerald-50', ic:'text-emerald-600', t:"For Students", d:"Learn, research and complete assignments faster." },
+      { i: IBriefcase, c:'bg-blue-50', ic:'text-blue-600',    t:"For Professionals", d:"Write, analyze and be more productive." },
+      { i: IBuilding, c:'bg-amber-50', ic:'text-amber-600',   t:"For Businesses", d:"Automate tasks and drive growth." },
+      { i: IPalette, c:'bg-pink-50', ic:'text-pink-600',      t:"For Creators", d:"Turn ideas into impactful content." },
+      { i: ISearch, c:'bg-purple-50', ic:'text-purple-600',   t:"For Researchers", d:"Analyze, summarize and discover insights." },
+    ]
+  };
+  const list = cases.Students;
+  return (
+    <section id="usecases" className="bg-white py-20 md:py-28">
+      <div className="max-w-7xl mx-auto px-5">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-emerald-600 font-bold mb-2">Use Cases</div>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900">Built for Real People, Real Impact</h2>
+          </div>
+          <div className="flex flex-wrap gap-1 p-1 bg-gray-100 rounded-full">
+            {tabs.map(t => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition ${tab===t ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {list.map((c, i) => {
+            const I = c.i;
+            return (
+              <div key={i} className="tool-card">
+                <div className={`w-10 h-10 rounded-xl ${c.c} grid place-items-center mb-4`}>
+                  <I className={`w-5 h-5 ${c.ic}`}/>
+                </div>
+                <div className="font-semibold text-sm text-gray-900 mb-1">{c.t}</div>
+                <div className="text-[11px] text-gray-500 leading-relaxed">{c.d}</div>
               </div>
             );
           })}
@@ -408,285 +552,272 @@ function Features() {
   );
 }
 
-// ─────────────────────────── STATS ──────────────────────────────
-function Stats() {
-  const stats = [
-    { v: "25K",   l: "Wikipedia articles" },
-    { v: "112K",  l: "Knowledge chunks" },
-    { v: "0.7s",  l: "First-token latency" },
-    { v: "24/7",  l: "Live monitoring" },
+// ─────────────────── TESTIMONIALS ─────────────────────
+function Testimonials() {
+  const items = [
+    { q:"Axom AI is a game-changer. Simple, powerful for students like me.", n:"Ritu Sharma", r:"Student, Assam", c:"bg-emerald-500" },
+    { q:"It saves hours of work. The tools are incredible and easy to use.", n:"Arman Ali",   r:"Founder, Guwahati", c:"bg-purple-500" },
+    { q:"Finally, an AI platform that understands our needs. Proud to see an Assamese initiative on the global stage.", n:"Priyanka Das", r:"Educator", c:"bg-amber-500" },
   ];
   return (
-    <section className="py-20 border-y border-white/5 bg-gradient-to-b from-transparent via-fuchsia-500/[0.02] to-transparent">
-      <div className="max-w-5xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-        {stats.map((s, i) => (
-          <div key={i}>
-            <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">{s.v}</div>
-            <div className="text-xs uppercase tracking-widest text-gray-500">{s.l}</div>
+    <section className="relative hero-bg py-20 md:py-24">
+      <div className="relative max-w-7xl mx-auto px-5">
+        <div className="grid lg:grid-cols-[280px_1fr] gap-10 items-start text-white">
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-emerald-300 font-bold mb-2">Testimonials</div>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">Loved by Users Across the Globe</h2>
           </div>
-        ))}
+          <div className="grid md:grid-cols-3 gap-4">
+            {items.map((it, i) => (
+              <div key={i} className="bg-white/8 border border-white/10 backdrop-blur rounded-2xl p-5">
+                <div className="flex gap-0.5 mb-3">
+                  {[...Array(5)].map((_, j) => <IStar key={j} className="w-3.5 h-3.5 text-yellow-400 fill-current"/>)}
+                </div>
+                <p className="text-sm text-gray-100 leading-relaxed mb-5 italic">"{it.q}"</p>
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-8 h-8 rounded-full ${it.c} grid place-items-center text-white text-xs font-bold`}>{it.n.split(' ').map(x=>x[0]).slice(0,2).join('')}</div>
+                  <div>
+                    <div className="text-xs font-semibold text-white">{it.n}</div>
+                    <div className="text-[10px] text-gray-400">{it.r}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-// ─────────────────────────── PRICING ──────────────────────────────
+// ─────────────────── PRICING ─────────────────────
 function Pricing() {
   const [yearly, setYearly] = useState(false);
-
   const tiers = [
-    {
-      name: "Free",
-      price: 0, yPrice: 0,
-      desc: "Get started, no credit card",
-      features: ["Unlimited chat", "5 images / day", "5 web searches / day", "Basic PDF tools", "Community support"],
-      cta: "Start Free", ctaHref: CHAT_URL,
-      highlight: false,
-    },
-    {
-      name: "Starter",
-      price: 99, yPrice: 79,
-      desc: "For everyday power users",
-      features: ["Everything in Free", "50,000 words / month", "15 images / day", "15 web searches / day", "Priority chat models", "Email support"],
-      cta: "Upgrade to Starter", ctaHref: CHAT_URL + "upgrade",
-      highlight: false,
-    },
-    {
-      name: "Pro",
-      price: 299, yPrice: 249,
-      desc: "For professionals & creators",
-      features: ["Everything in Starter", "250,000 words / month", "50 images / day", "Unlimited web searches", "Advanced PDF suite", "Priority support"],
-      cta: "Upgrade to Pro", ctaHref: CHAT_URL + "upgrade",
-      highlight: true,
-    },
-    {
-      name: "Business",
-      price: 799, yPrice: 649,
-      desc: "For teams & organizations",
-      features: ["Everything in Pro", "Unlimited words", "Unlimited images", "API access (coming soon)", "Team accounts (soon)", "Dedicated support"],
-      cta: "Upgrade to Business", ctaHref: CHAT_URL + "upgrade",
-      highlight: false,
-    },
+    { name:"Free",     price:0,   yprice:0,   desc:"Get started with essential tools.",         cta:"Get Started",  href:CHAT_URL, i:IChat,     c:"text-emerald-600", cbg:"bg-emerald-50",  feats:["Unlimited AI chat","5 images / day","5 web searches / day","Basic PDF tools","Community support"] },
+    { name:"Pro",      price:499, yprice:299, desc:"For power users and creators.",             cta:"Get Pro",      href:CHAT_URL+"upgrade", i:ICompass,   c:"text-purple-600",  cbg:"bg-purple-50",   feats:["Everything in Free","250,000 words / month","50 images / day","Unlimited web searches","Advanced PDF suite","Priority support"], featured:true },
+    { name:"Business", price:1499,yprice:899, desc:"For teams and organizations.",              cta:"Get Business", href:CHAT_URL+"upgrade", i:IUsers,     c:"text-amber-600",   cbg:"bg-amber-50",    feats:["Everything in Pro","Unlimited words","Unlimited images","API access (soon)","Team accounts (soon)","Dedicated support"] },
+    { name:"Enterprise", price:null, yprice:null, desc:"Custom solutions for large teams.",     cta:"Contact Sales",href:"mailto:samarjitkashyp@gmail.com", i:IBuilding, c:"text-blue-600", cbg:"bg-blue-50", feats:["Custom quotas","SLA & uptime","On-premise option","Custom integrations","Priority engineering","Dedicated CSM"] },
   ];
-
   return (
-    <section id="pricing" className="py-24 md:py-32">
-      <div className="max-w-6xl mx-auto px-5">
-        <div className="text-center mb-14">
-          <div className="inline-block text-xs uppercase tracking-widest text-fuchsia-400 mb-3">Pricing</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Simple, transparent pricing
-          </h2>
-          <p className="text-gray-400 max-w-xl mx-auto mb-8">
-            Start free. Upgrade when you need more. Cancel anytime.
-          </p>
-
-          {/* Yearly toggle */}
-          <div className="inline-flex items-center gap-3 p-1 bg-white/5 border border-white/10 rounded-full">
-            <button onClick={() => setYearly(false)} className={`px-4 py-1.5 rounded-full text-sm transition ${!yearly ? 'bg-white text-black font-medium' : 'text-gray-400'}`}>Monthly</button>
-            <button onClick={() => setYearly(true)} className={`px-4 py-1.5 rounded-full text-sm transition inline-flex items-center gap-2 ${yearly ? 'bg-white text-black font-medium' : 'text-gray-400'}`}>
-              Yearly <span className={`text-[10px] px-1.5 py-0.5 rounded ${yearly ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-fuchsia-500/20 text-fuchsia-300'}`}>-20%</span>
-            </button>
+    <section id="pricing" className="bg-white py-20 md:py-28">
+      <div className="max-w-7xl mx-auto px-5">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-emerald-600 font-bold mb-2">Pricing</div>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 mb-2">Simple, Transparent Pricing</h2>
+            <p className="text-gray-500">Choose a plan that fits your needs. Upgrade or cancel anytime.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="inline-flex items-center gap-1 p-1 bg-gray-100 rounded-full">
+              <button onClick={()=>setYearly(false)} className={`px-4 py-1.5 rounded-full text-xs font-medium transition ${!yearly?'bg-emerald-500 text-white shadow':'text-gray-500'}`}>Monthly</button>
+              <button onClick={()=>setYearly(true)} className={`px-4 py-1.5 rounded-full text-xs font-medium transition inline-flex items-center gap-1.5 ${yearly?'bg-emerald-500 text-white shadow':'text-gray-500'}`}>
+                Yearly <span className={`text-[9px] px-1.5 py-0.5 rounded ${yearly?'bg-white text-emerald-600':'bg-emerald-100 text-emerald-700'}`}>Save 40%</span>
+              </button>
+            </div>
+            <a href="#faq" className="text-emerald-600 font-semibold text-sm hidden md:inline-flex items-center gap-1 hover:gap-2 transition-all">View all plans <IArrow className="w-4 h-4"/></a>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {tiers.map((t, i) => (
-            <div key={i} className={`relative rounded-2xl p-6 border ${t.highlight ? 'bg-gradient-to-b from-fuchsia-500/10 to-purple-600/5 border-fuchsia-500/40 shadow-2xl shadow-fuchsia-500/10' : 'bg-white/[0.02] border-white/8'}`}>
-              {t.highlight && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider">
-                  Most Popular
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {tiers.map((t, i) => {
+            const I = t.i;
+            return (
+              <div key={i} className={t.featured ? "price-card price-card-featured relative" : "price-card"}>
+                {t.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider">Most Popular</div>}
+                <div className={`w-11 h-11 rounded-xl ${t.cbg} grid place-items-center mb-4`}>
+                  <I className={`w-5 h-5 ${t.c}`}/>
                 </div>
-              )}
-              <div className="mb-2 text-sm font-semibold text-white">{t.name}</div>
-              <p className="text-xs text-gray-500 mb-5 min-h-[16px]">{t.desc}</p>
-              <div className="mb-5">
-                <span className="text-4xl font-bold text-white">
-                  ₹{yearly ? t.yPrice : t.price}
-                </span>
-                <span className="text-sm text-gray-500 ml-1">/ mo</span>
-                {yearly && t.price > 0 && <div className="text-[11px] text-fuchsia-400 mt-1">Billed ₹{t.yPrice * 12} yearly</div>}
+                <div className="font-bold text-gray-900 text-lg mb-1">{t.name}</div>
+                <p className="text-xs text-gray-500 mb-5 min-h-[32px]">{t.desc}</p>
+                <div className="mb-5 min-h-[52px]">
+                  {t.price === null ? (
+                    <div className="text-3xl font-bold text-gray-900">Let's Talk</div>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-bold text-gray-900">₹{yearly ? t.yprice : t.price}</span>
+                      <span className="text-sm text-gray-500 ml-1">/ month</span>
+                    </>
+                  )}
+                </div>
+                <a href={t.href} className={`block text-center px-4 py-2.5 rounded-full text-sm font-semibold mb-6 transition ${t.featured?'btn-emerald':'btn-outline-dark'}`}>{t.cta}</a>
+                <ul className="space-y-2.5 text-xs">
+                  {t.feats.map((f, j) => (
+                    <li key={j} className="flex items-start gap-2 text-gray-700">
+                      <ICheck className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"/>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <a href={t.ctaHref} className={`block text-center px-4 py-2.5 rounded-full text-sm font-medium mb-6 ${t.highlight ? 'btn-primary' : 'btn-ghost text-white'}`}>
-                {t.cta}
-              </a>
-              <ul className="space-y-2.5 text-sm">
-                {t.features.map((f, j) => (
-                  <li key={j} className="flex items-start gap-2 text-gray-300">
-                    <IconCheck className="w-4 h-4 text-fuchsia-400 mt-0.5 flex-shrink-0" />
-                    <span>{f}</span>
-                  </li>
-                ))}
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────── INSIGHTS + NEWSLETTER ─────────────────────
+function Insights() {
+  const posts = [
+    { t:"How to Use AI Tools for Better Productivity", cat:"AI Guides", d:"Sep 5, 2026", r:"5 min read", c:"from-emerald-400 to-teal-500" },
+    { t:"Top AI Tools for Students in 2026",           cat:"Tips",     d:"Aug 28, 2026", r:"7 min read", c:"from-purple-400 to-fuchsia-500" },
+    { t:"How Assam Can Lead in AI Innovation",         cat:"Assam & AI", d:"Aug 15, 2026", r:"6 min read", c:"from-amber-400 to-orange-500" },
+  ];
+  return (
+    <section className="bg-gray-50 py-20">
+      <div className="max-w-7xl mx-auto px-5">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
+          <div>
+            <div className="text-[11px] uppercase tracking-widest text-emerald-600 font-bold mb-2">Insights</div>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">Learn, Explore and Stay Updated</h2>
+          </div>
+          <a href="#" className="text-emerald-600 font-semibold text-sm inline-flex items-center gap-1 hover:gap-2 transition-all">View all articles <IArrow className="w-4 h-4"/></a>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {posts.map((p, i) => (
+            <a key={i} href="#" className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition group">
+              <div className={`h-32 bg-gradient-to-br ${p.c}`}></div>
+              <div className="p-4">
+                <div className="text-[10px] uppercase tracking-widest text-emerald-600 font-bold mb-1.5">{p.cat}</div>
+                <div className="font-semibold text-sm text-gray-900 mb-2 group-hover:text-emerald-600 transition">{p.t}</div>
+                <div className="text-[11px] text-gray-500">{p.d} · {p.r}</div>
+              </div>
+            </a>
+          ))}
+          {/* Newsletter card */}
+          <div className="rounded-2xl p-6 hero-bg text-white flex flex-col">
+            <IMail className="w-6 h-6 text-emerald-300 mb-3" />
+            <div className="font-bold text-lg mb-1">Stay in the Loop</div>
+            <div className="text-xs text-gray-300 mb-4">Get the latest updates, new tools and resources.</div>
+            <form className="flex gap-2 mt-auto" onSubmit={(e)=>{e.preventDefault(); alert('Thanks — we\\'ll be in touch!');}}>
+              <input type="email" required placeholder="Enter your email address" className="flex-1 bg-white/10 border border-white/20 rounded-full px-3 py-2 text-xs placeholder:text-gray-400 focus:outline-none focus:border-emerald-400" />
+              <button className="w-9 h-9 rounded-full bg-emerald-500 hover:bg-emerald-600 grid place-items-center shrink-0"><IArrow className="w-4 h-4"/></button>
+            </form>
+            <div className="text-[10px] text-gray-400 mt-2">No spam. Unsubscribe anytime.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────── FAQ ─────────────────────
+function FAQ() {
+  const [open, setOpen] = useState(0);
+  const faqs = [
+    { q:"Is Axom AI free to use?", a:"Yes. The Free tier gives you unlimited chat, 5 images/day, and 5 web searches/day — forever, no credit card required." },
+    { q:"How is Axom AI different from ChatGPT or Gemini?", a:"Axom AI is built Assamese-first. Every response comes out naturally in অসমীয়া, and our knowledge base is loaded with 25,000+ Assamese Wikipedia articles for accurate, hallucination-free answers about Assam." },
+    { q:"Which AI models power Axom AI?", a:"Groq (openai/gpt-oss-120b) as primary for ~0.7s response time, with Google Gemini as fallback. Images via Cloudflare Workers AI (FLUX) with Pollinations and Gemini Nano Banana as backups." },
+    { q:"How do payments work?", a:"Processed by Razorpay — India's most trusted payment gateway. UPI, Cards, Netbanking, Wallets all supported. Cancel anytime from your account panel." },
+    { q:"Can I use Axom AI in English?", a:"Absolutely. Type in any language and get Assamese replies. Or ask for English/Hindi replies directly." },
+    { q:"Is my data private?", a:"Yes. HTTPS end-to-end, CSRF-protected payments, and you can export or delete all your data anytime from user.aiaxom.co.in." },
+  ];
+  return (
+    <section id="faq" className="bg-white py-20">
+      <div className="max-w-3xl mx-auto px-5">
+        <div className="text-center mb-10">
+          <div className="text-[11px] uppercase tracking-widest text-emerald-600 font-bold mb-2">Questions</div>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">Frequently Asked</h2>
+        </div>
+        <div className="space-y-2">
+          {faqs.map((f, i) => (
+            <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+              <button onClick={() => setOpen(open===i?-1:i)} className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-gray-100 transition">
+                <span className="font-medium text-gray-900 text-sm">{f.q}</span>
+                <span className={`text-emerald-600 transition-transform text-lg ${open===i?'rotate-45':''}`}>+</span>
+              </button>
+              {open === i && (
+                <div className="px-5 pb-5 pt-1 text-sm text-gray-600 leading-relaxed">{f.a}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────── FINAL CTA ─────────────────────
+function FinalCTA() {
+  return (
+    <section className="hero-bg py-20 md:py-24 relative overflow-hidden">
+      <div className="relative max-w-3xl mx-auto text-center px-5 text-white">
+        <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Ready to try <span className="gradient-text">Assam's own AI?</span></h2>
+        <p className="font-assamese text-xl text-emerald-200/80 mb-8">আজিয়েই আৰম্ভ কৰক · বিনামূলীয়া</p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a href={CHAT_URL} className="btn-emerald px-8 py-4 rounded-full text-base inline-flex items-center gap-2">Open Axom AI <IArrow className="w-5 h-5"/></a>
+          <a href="#pricing" className="btn-ghost-light px-8 py-4 rounded-full text-base">View Pricing</a>
+        </div>
+        <p className="text-xs text-gray-400 mt-6">Free forever · No credit card · Ready in 10 seconds</p>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────── FOOTER ─────────────────────
+function Footer() {
+  return (
+    <footer className="bg-white border-t border-gray-200 pt-14 pb-8">
+      <div className="max-w-7xl mx-auto px-5">
+        <div className="grid md:grid-cols-5 gap-8 mb-10">
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 grid place-items-center shadow"><svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div>
+              <div className="font-bold text-gray-900">Axom AI</div>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed mb-4">AI for a More Inclusive Future.<br/>Built in Assam, for the world.</p>
+            <div className="flex gap-2">
+              {['𝕏','in','▶','ig'].map((s,i)=>(
+                <a key={i} href="#" className="w-8 h-8 rounded-full bg-gray-100 hover:bg-emerald-50 hover:text-emerald-600 grid place-items-center text-gray-500 text-xs transition">{s}</a>
+              ))}
+            </div>
+          </div>
+
+          {[
+            { t:"Product",  l:[["AI Tools",CHAT_URL+"tools"],["Templates","#"],["Pricing","#pricing"],["What's New","#"],["Roadmap","#"]] },
+            { t:"Solutions",l:[["For Students","#usecases"],["For Businesses","#usecases"],["For Educators","#usecases"],["For Developers","#usecases"],["For Researchers","#usecases"]] },
+            { t:"Resources",l:[["Blog","#"],["Help Center","https://user.aiaxom.co.in/support/"],["Tutorials","#"],["Community","#"],["API Docs","#"]] },
+            { t:"Company",  l:[["About Us","#"],["Our Mission","#"],["Careers","#"],["Press","#"],["Contact Us","mailto:samarjitkashyp@gmail.com"]] },
+          ].map((col, i) => (
+            <div key={i}>
+              <div className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">{col.t}</div>
+              <ul className="space-y-2 text-sm text-gray-600">
+                {col.l.map((it, j) => <li key={j}><a href={it[1]} className="hover:text-emerald-600 transition">{it[0]}</a></li>)}
               </ul>
             </div>
           ))}
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-8">
-          All prices include GST. Secure payments powered by Razorpay (UPI, Cards, Netbanking).
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────── TESTIMONIAL ──────────────────────────────
-function Testimonial() {
-  return (
-    <section id="about" className="py-24 relative overflow-hidden">
-      <div className="glow-orb w-[500px] h-[500px] bg-fuchsia-500/10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-      <div className="relative max-w-4xl mx-auto px-5 text-center">
-        <div className="flex justify-center gap-1 mb-6">
-          {[...Array(5)].map((_, i) => <IconStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />)}
-        </div>
-        <blockquote className="text-2xl md:text-3xl font-serif italic text-white leading-snug mb-6">
-          "The first time an AI understood অসমীয়া the way it should — not as a translation,
-          but as a native voice. This is what we've been waiting for."
-        </blockquote>
-        <div className="text-sm text-gray-400">
-          A user from Guwahati · Early beta tester
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────── FAQ ──────────────────────────────
-function FAQ() {
-  const [open, setOpen] = useState(0);
-  const faqs = [
-    { q: "Is Axom AI free to use?", a: "Yes. The Free tier gives you unlimited chat, 5 images/day, and 5 web searches/day — forever, no credit card required. Upgrade only when you need more." },
-    { q: "How is Axom AI different from ChatGPT or Gemini?", a: "Axom AI is built Assamese-first. Every response comes out naturally in অসমীয়া (unless you ask otherwise), and our knowledge base is loaded with 25,000+ Assamese Wikipedia articles for accurate, hallucination-free answers about Assam." },
-    { q: "Which AI models power Axom AI?", a: "We use Groq (openai/gpt-oss-120b) as primary for ~0.7s response time, with Google Gemini as fallback. Images are generated via Cloudflare Workers AI (FLUX) with Pollinations and Gemini Nano Banana as backups." },
-    { q: "How do payments work?", a: "Payments are processed by Razorpay — India's most trusted payment gateway. UPI, Cards, Netbanking, Wallets all supported. Cancel anytime from your account panel." },
-    { q: "Can I use Axom AI in English?", a: "Absolutely. Type in any language — English, Hindi, Hinglish, Roman Assamese — and get Assamese replies. Or ask for English/Hindi replies directly." },
-    { q: "Is my data private?", a: "Yes. Your chats are stored securely, never shared, never sold. HTTPS end-to-end, CSRF-protected payments, and you can export or delete all your data anytime from user.aiaxom.co.in." },
-  ];
-  return (
-    <section id="faq" className="py-24">
-      <div className="max-w-3xl mx-auto px-5">
-        <div className="text-center mb-14">
-          <div className="inline-block text-xs uppercase tracking-widest text-fuchsia-400 mb-3">Questions</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Frequently asked</h2>
-        </div>
-        <div className="space-y-2">
-          {faqs.map((f, i) => (
-            <div key={i} className="border border-white/8 rounded-xl overflow-hidden bg-white/[0.02]">
-              <button
-                onClick={() => setOpen(open === i ? -1 : i)}
-                className="w-full text-left px-5 py-4 flex items-center justify-between hover:bg-white/[0.02] transition"
-              >
-                <span className="font-medium text-white">{f.q}</span>
-                <span className={`text-fuchsia-400 transition-transform ${open === i ? 'rotate-45' : ''}`}>+</span>
-              </button>
-              {open === i && (
-                <div className="px-5 pb-5 pt-1 text-sm text-gray-400 leading-relaxed">{f.a}</div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────── FINAL CTA ──────────────────────────────
-function FinalCTA() {
-  return (
-    <section className="py-24 md:py-32 relative overflow-hidden">
-      <div className="glow-orb w-[700px] h-[500px] bg-purple-600/25 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-      <div className="relative max-w-4xl mx-auto px-5 text-center">
-        <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-          <span className="gradient-text">Ready to try Assam's own AI?</span>
-        </h2>
-        <p className="font-assamese text-xl md:text-2xl text-fuchsia-300/90 mb-8">
-          আজিয়েই আৰম্ভ কৰক · বিনামূলীয়া
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href={CHAT_URL} className="btn-primary px-8 py-4 rounded-full text-lg inline-flex items-center gap-2">
-            Open Axom AI
-            <IconArrow className="w-5 h-5" />
-          </a>
-          <a href="#pricing" className="btn-ghost px-8 py-4 rounded-full text-lg text-gray-200">
-            View Pricing
-          </a>
-        </div>
-        <p className="text-xs text-gray-500 mt-6">Free forever · No credit card · Ready in 10 seconds</p>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────── FOOTER ──────────────────────────────
-function Footer() {
-  return (
-    <footer className="border-t border-white/5 py-14 px-5">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
-        <div className="md:col-span-1">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center">
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
-            </div>
-            <div className="font-bold text-white">Axom AI</div>
+        <div className="border-t border-gray-200 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span>© 2026 Axom AI. All rights reserved.</span>
+            <a href="#" className="hover:text-emerald-600">Privacy Policy</a>
+            <a href="#" className="hover:text-emerald-600">Terms of Service</a>
+            <a href="#" className="hover:text-emerald-600">Cookie Policy</a>
           </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            The first native Assamese AI platform.<br/>
-            Built with ❤️ in Assam, India.
-          </p>
+          <div className="text-gray-500">Made with <span className="text-red-500">❤</span> in Assam, India 🇮🇳</div>
         </div>
-
-        <div>
-          <div className="text-xs uppercase tracking-widest text-gray-400 mb-3">Product</div>
-          <ul className="space-y-2 text-sm text-gray-500">
-            <li><a href={CHAT_URL} className="hover:text-white transition">Chat</a></li>
-            <li><a href={CHAT_URL + "tools"} className="hover:text-white transition">Tools</a></li>
-            <li><a href="#pricing" className="hover:text-white transition">Pricing</a></li>
-            <li><a href={CHAT_URL + "upgrade"} className="hover:text-white transition">Upgrade</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <div className="text-xs uppercase tracking-widest text-gray-400 mb-3">Account</div>
-          <ul className="space-y-2 text-sm text-gray-500">
-            <li><a href="https://user.aiaxom.co.in/" className="hover:text-white transition">My Account</a></li>
-            <li><a href="https://user.aiaxom.co.in/payments/" className="hover:text-white transition">Payments</a></li>
-            <li><a href="https://user.aiaxom.co.in/support/" className="hover:text-white transition">Support</a></li>
-            <li><a href={CHAT_URL} className="hover:text-white transition">Sign in</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <div className="text-xs uppercase tracking-widest text-gray-400 mb-3">Legal</div>
-          <ul className="space-y-2 text-sm text-gray-500">
-            <li><a href="/terms" className="hover:text-white transition">Terms of Service</a></li>
-            <li><a href="/privacy" className="hover:text-white transition">Privacy Policy</a></li>
-            <li><a href="/refund" className="hover:text-white transition">Refund Policy</a></li>
-            <li><a href="/contact" className="hover:text-white transition">Contact</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto mt-10 pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600 gap-3">
-        <div>© 2026 Axom AI. All rights reserved.</div>
-        <div className="flex items-center gap-4">
-          <a href="mailto:samarjitkashyp@gmail.com" className="hover:text-white transition">samarjitkashyp@gmail.com</a>
-        </div>
+        <div className="mt-4 text-center font-serif italic text-gray-400 text-sm">From Assam · To A Smarter Tomorrow</div>
       </div>
     </footer>
   );
 }
 
-// ─────────────────────────── APP ──────────────────────────────
+// ─────────────────── APP ─────────────────────
 function App() {
   return (
     <>
       <Nav />
       <Hero />
-      <LogoStrip />
-      <Features />
-      <Stats />
+      <Trusted />
+      <Tools />
+      <InspiredByAssam />
+      <UseCases />
+      <Testimonials />
       <Pricing />
-      <Testimonial />
+      <Insights />
       <FAQ />
       <FinalCTA />
       <Footer />
