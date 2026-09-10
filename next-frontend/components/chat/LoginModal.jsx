@@ -245,7 +245,17 @@ export default function LoginModal({
 
   return (
     <div className="modal-overlay" id="loginModal">
-      <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px', width: '92%' }}>
+      <div
+        className="modal-card"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: '420px',
+          width: '94%',
+          maxHeight: 'calc(100dvh - 28px)',
+          overflowY: 'auto',
+          margin: 'auto'
+        }}
+      >
         <button className="modal-close-btn" onClick={onClose} title="Close">
           <X size={18} />
         </button>

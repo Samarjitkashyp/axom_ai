@@ -4749,15 +4749,20 @@ body.light-theme .tools-topbar {
 
     /* 3. Login Modal */
     .modal-overlay {
-        padding: 12px;
+        padding: 16px 10px;
         align-items: center;
         z-index: 1100;
+        overflow-y: auto;
     }
     .modal-card {
         width: 94vw;
-        max-width: 380px;
-        padding: 24px 18px;
-        border-radius: 18px;
+        max-width: 390px;
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+        margin: auto;
+        padding: 20px 16px;
+        border-radius: 20px;
+        -webkit-overflow-scrolling: touch;
     }
     .modal-title {
         font-size: 1.15rem;
