@@ -1343,9 +1343,19 @@ def login_api_view(request):
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
-        return JsonResponse({'success': True, 'username': user.username})
+        return JsonResponse({
+            'success': True,
+            'username': user.username,
+            'is_staff': bool(user.is_staff),
+        })
     else:
         return JsonResponse({'error': 'Invalid username or password'}, status=400)
+
+
+def logout_api_view(request):
+    from django.contrib.auth import logout
+    logout(request)
+    return JsonResponse({'success': True, 'message': 'Logged out successfully'})
 
 
 def convert_doc_api(request):
@@ -2136,6 +2146,8 @@ def user_status_api(request):
 
     return JsonResponse({
         'is_authenticated': is_auth,
+        'username': getattr(user, 'username', '') if is_auth else '',
+        'is_staff': bool(getattr(user, 'is_staff', False)) if is_auth else False,
         'is_premium': is_premium,
         'plan_name': plan_name,
         'daily_limit': daily_limit,
