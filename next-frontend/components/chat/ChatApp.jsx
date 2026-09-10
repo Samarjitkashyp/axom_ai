@@ -400,6 +400,7 @@ export default function ChatApp() {
         onOpenDocConverter={() => setIsDocModalOpen(true)}
         onOpenTools={navigateToTools}
         onOpenUpgrade={navigateToUpgrade}
+        onTriggerLogin={() => triggerLoginModal("Sign In to Axom AI", "Sign in or create your account (1 per device).")}
         onCloseSidebar={() => setLeftSidebarCollapsed(true)}
         onLogout={handleLogout}
       />

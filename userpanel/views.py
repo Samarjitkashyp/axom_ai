@@ -66,6 +66,99 @@ def login_view(request):
     return render(request, 'userpanel/login.html', {'error': error})
 
 
+def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect('/axomai-user/')
+
+    from axom_ai.security import (
+        get_client_ip,
+        get_device_id,
+        check_device_registration_allowed,
+        record_device_registration,
+    )
+    import re
+
+    ip = get_client_ip(request)
+    device_id = get_device_id(request)
+    error = None
+    device_blocked = False
+
+    # Pre-check device / IP restriction
+    allowed, err_msg = check_device_registration_allowed(ip=ip, device_id=device_id)
+    if not allowed:
+        device_blocked = True
+        error = err_msg
+
+    if request.method == 'POST':
+        if device_blocked:
+            return render(request, 'userpanel/signup.html', {
+                'error': error,
+                'device_blocked': True,
+            })
+
+        u = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip().lower()
+        p1 = request.POST.get('password', '')
+        p2 = request.POST.get('confirm_password', '')
+
+        # Rate limit signup attempts per IP
+        if _rate_limited(f"user_signup_rate:{ip}", max_calls=5, per_seconds=3600):
+            return render(request, 'userpanel/signup.html', {
+                'error': 'Too many registration attempts. Please wait an hour or sign in.',
+                'device_blocked': False,
+            })
+
+        if not u or len(u) < 3:
+            error = 'Username must be at least 3 characters.'
+        elif not re.match(r'^[a-zA-Z0-9_.-]+$', u):
+            error = 'Username can only contain letters, numbers, dots, and underscores.'
+        elif len(p1) < 6:
+            error = 'Password must be at least 6 characters long.'
+        elif p1 != p2:
+            error = 'Passwords do not match.'
+        elif User.objects.filter(username__iexact=u).exists():
+            error = 'This username is already taken. Please choose another.'
+        elif email and User.objects.filter(email__iexact=email).exists():
+            error = 'An account with this email address already exists.'
+        else:
+            try:
+                user = User.objects.create_user(
+                    username=u,
+                    email=email if email else f"{u}@user.aiaxom.co.in",
+                    password=p1,
+                )
+                UserProfile.objects.get_or_create(user=user)
+                record_device_registration(
+                    user=user,
+                    ip=ip,
+                    device_id=device_id,
+                    user_agent=request.META.get('HTTP_USER_AGENT', ''),
+                )
+                login(request, user)
+
+                # Link existing chats
+                if request.session.session_key:
+                    ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
+
+                response = redirect('/axomai-user/')
+                response.set_cookie(
+                    'axom_device_uid',
+                    device_id,
+                    max_age=315360000,
+                    httponly=False,
+                    samesite='Lax',
+                )
+                return response
+            except Exception as e:
+                error = f'An unexpected error occurred: {e}'
+
+    return render(request, 'userpanel/signup.html', {
+        'error': error,
+        'device_blocked': device_blocked,
+    })
+
+
+
 def logout_view(request):
     logout(request)
     return redirect('/axomai-user/login/')

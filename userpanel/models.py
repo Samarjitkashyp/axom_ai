@@ -115,3 +115,18 @@ class InAppNotification(models.Model):
 
     def __str__(self):
         return f"Notif for {self.user.username}: {self.title}"
+
+
+class DeviceRegistration(models.Model):
+    ip_address = models.GenericIPAddressField(db_index=True)
+    device_id = models.CharField(max_length=128, db_index=True, blank=True, default="")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="device_registrations")
+    user_agent = models.CharField(max_length=500, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.username} registered from IP {self.ip_address} (device: {self.device_id[:8]})"
+

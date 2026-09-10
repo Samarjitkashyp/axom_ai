@@ -22,6 +22,7 @@ export default function SidebarLeft({
   onOpenDocConverter,
   onOpenTools,
   onOpenUpgrade,
+  onTriggerLogin,
   onCloseSidebar,
   onLogout,
 }) {
@@ -276,7 +277,11 @@ export default function SidebarLeft({
           <button
             type="button"
             onClick={() => {
-              onOpenUpgrade();
+              if (onTriggerLogin) {
+                onTriggerLogin();
+              } else {
+                onOpenUpgrade();
+              }
               if (window.innerWidth <= 850) onCloseSidebar?.();
             }}
             style={{
@@ -287,7 +292,7 @@ export default function SidebarLeft({
               transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(192, 132, 252, 0.3)'
             }}
           >
-            <span>Sign In / Upgrade</span>
+            <span>Sign In / Register</span>
           </button>
         </div>
       )}

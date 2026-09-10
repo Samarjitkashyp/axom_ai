@@ -27,9 +27,19 @@ MAX_MSGS_PER_SESSION = int(os.getenv('MAX_MSGS_PER_SESSION', '100'))  # messages
 MAX_SESSIONS_PER_KEY = int(os.getenv('MAX_SESSIONS_PER_KEY', '50'))   # non-pinned chats kept
 
 
+from axom_ai.security import (
+    get_client_ip,
+    get_device_id,
+    get_websearch_daily_count,
+    increment_websearch_daily_count,
+    is_websearch_burst_limited,
+    check_device_registration_allowed,
+    record_device_registration,
+    WEBSEARCH_DAILY_LIMIT,
+)
+
 def _client_ip(request):
-    fwd = request.META.get('HTTP_X_FORWARDED_FOR')
-    return fwd.split(',')[0].strip() if fwd else request.META.get('REMOTE_ADDR', '?')
+    return get_client_ip(request)
 
 
 # ---------------------------------------------------------------------------
@@ -39,44 +49,22 @@ GOOGLE_SEARCH_API_KEY = os.getenv('GOOGLE_SEARCH_API_KEY', '').strip()
 GOOGLE_SEARCH_CX = os.getenv('GOOGLE_SEARCH_CX', '').strip()
 TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', '').strip()
 
-_WEBSEARCH_DAILY_LIMIT = int(os.getenv('WEBSEARCH_DAILY_LIMIT', '5'))   # Free tier daily limit per IP
-_WEBSEARCH_BURST_LIMIT = int(os.getenv('WEBSEARCH_BURST_LIMIT', '2'))   # Max searches per 30s
-_WEBSEARCH_BURST_WINDOW = 30  # seconds
-
-_WEBSEARCH_DAILY_HITS = {}  # {ip: {'date': 'YYYY-MM-DD', 'count': N}}
-_WEBSEARCH_BURST_HITS = {}  # {ip: [timestamp, ...]}
+_WEBSEARCH_DAILY_LIMIT = WEBSEARCH_DAILY_LIMIT  # Hard cap: Strictly 5 per day per IP
 _WEBSEARCH_CACHE = {}       # {md5(query): {'timestamp': t, 'results': [...]}}
 _WEBSEARCH_CACHE_TTL = 7200 # 2 hours cache to conserve quota and deliver instant answers
 
 
 def _websearch_daily_count(ip):
-    from datetime import datetime, timezone
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    entry = _WEBSEARCH_DAILY_HITS.get(ip)
-    if not entry or entry.get('date') != today:
-        return 0
-    return int(entry.get('count', 0))
+    return get_websearch_daily_count(ip)
 
 
 def _websearch_daily_incr(ip):
-    from datetime import datetime, timezone
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    entry = _WEBSEARCH_DAILY_HITS.get(ip)
-    if not entry or entry.get('date') != today:
-        entry = {'date': today, 'count': 0}
-    entry['count'] = int(entry.get('count', 0)) + 1
-    _WEBSEARCH_DAILY_HITS[ip] = entry
+    return increment_websearch_daily_count(ip)
 
 
 def _websearch_burst_limited(ip):
-    now = time.time()
-    hits = [t for t in _WEBSEARCH_BURST_HITS.get(ip, []) if now - t < _WEBSEARCH_BURST_WINDOW]
-    if len(hits) >= _WEBSEARCH_BURST_LIMIT:
-        _WEBSEARCH_BURST_HITS[ip] = hits
-        return True
-    hits.append(now)
-    _WEBSEARCH_BURST_HITS[ip] = hits
-    return False
+    return is_websearch_burst_limited(ip)
+
 
 
 def _perform_web_search(raw_query, max_results=5):
@@ -902,15 +890,14 @@ def chat_api_view(request):
                 ),
             }, status=429)
 
-        # 2. Plan-based daily quota limit
-        is_premium, plan_name, _ = _check_user_premium_status(request)
-        daily_cap = 50 if is_premium else _WEBSEARCH_DAILY_LIMIT
+        # 2. Strict daily quota limit (Max 5 web searches per day per IP/device)
+        daily_cap = _WEBSEARCH_DAILY_LIMIT  # Strictly 5 searches per day per IP
         ws_used = _websearch_daily_count(ws_ip)
         if ws_used >= daily_cap:
             return JsonResponse({
                 'error': (
-                    f"You can only do {daily_cap} web searches per day in Axom AI. "
-                    f"You have used all of today's quota from this device. Please come back tomorrow."
+                    f"দৈনিক ৱেব সন্ধানৰ সীমা সমাপ্ত হ'ল ({daily_cap}/{daily_cap})। "
+                    f"You have reached the maximum daily limit of {daily_cap} web searches per day for this device/IP. Please try again tomorrow."
                 ),
                 'websearch_limit': daily_cap,
                 'used_today': ws_used,
@@ -1511,6 +1498,95 @@ def logout_api_view(request):
     from django.contrib.auth import logout
     logout(request)
     return JsonResponse({'success': True, 'message': 'Logged out successfully'})
+
+
+def register_api_view(request):
+    """
+    User Registration API with strict device and IP security.
+    Constraint: Only 1 account is permitted per device / IP address.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    ip = get_client_ip(request)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        username = str(data.get('username', '')).strip()
+        email = str(data.get('email', '')).strip().lower()
+        password = str(data.get('password', '')).strip()
+        confirm_password = str(data.get('confirm_password', '')).strip()
+        device_id = get_device_id(request, fallback_body=data)
+    except Exception:
+        return JsonResponse({'error': 'Invalid request payload.'}, status=400)
+
+    # 1. Multi-account restriction check per device and IP
+    allowed, err_msg = check_device_registration_allowed(ip=ip, device_id=device_id)
+    if not allowed:
+        return JsonResponse({
+            'error': err_msg,
+            'code': 'DEVICE_REGISTRATION_RESTRICTED',
+        }, status=403)
+
+    # 2. Input Validation
+    if not username or len(username) < 3:
+        return JsonResponse({'error': 'Username must be at least 3 characters long.'}, status=400)
+    if not re.match(r'^[a-zA-Z0-9_.-]+$', username):
+        return JsonResponse({'error': 'Username can only contain letters, numbers, dots, and underscores.'}, status=400)
+    if len(password) < 6:
+        return JsonResponse({'error': 'Password must be at least 6 characters long.'}, status=400)
+    if confirm_password and password != confirm_password:
+        return JsonResponse({'error': 'Passwords do not match.'}, status=400)
+
+    from django.contrib.auth.models import User
+    from django.contrib.auth import login
+
+    if User.objects.filter(username__iexact=username).exists():
+        return JsonResponse({'error': 'This username is already taken. Please choose another.'}, status=400)
+
+    if email and User.objects.filter(email__iexact=email).exists():
+        return JsonResponse({'error': 'An account with this email address already exists.'}, status=400)
+
+    # 3. Create User and UserProfile
+    try:
+        user = User.objects.create_user(
+            username=username,
+            email=email if email else f"{username}@user.aiaxom.co.in",
+            password=password,
+        )
+        from userpanel.models import UserProfile
+        UserProfile.objects.get_or_create(user=user)
+
+        # 4. Enforce & record device registration to block future signups from this device/IP
+        record_device_registration(
+            user=user,
+            ip=ip,
+            device_id=device_id,
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        )
+
+        # 5. Log in user immediately
+        login(request, user)
+
+        # 6. Build response with persistent device cookie
+        resp = JsonResponse({
+            'success': True,
+            'username': user.username,
+            'is_staff': bool(user.is_staff),
+            'message': 'Account created successfully!',
+        })
+        resp.set_cookie(
+            'axom_device_uid',
+            device_id,
+            max_age=315360000,  # 10 years
+            httponly=False,
+            samesite='Lax',
+        )
+        return resp
+    except Exception as e:
+        logger.exception("Error creating user account: %s", e)
+        return JsonResponse({'error': 'An unexpected error occurred while creating your account. Please try again.'}, status=500)
+
 
 
 def convert_doc_api(request):

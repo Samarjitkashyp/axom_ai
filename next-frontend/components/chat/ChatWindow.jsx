@@ -39,6 +39,7 @@ export default function ChatWindow({
   const [streamingFromDb, setStreamingFromDb] = useState(false);
   const [copiedMessageIndex, setCopiedMessageIndex] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [remainingSearches, setRemainingSearches] = useState(null);
   // Axom AI is Assamese-only: replies are always in Assamese regardless of input language.
   const [language] = useState('assamese');
 
@@ -356,6 +357,9 @@ export default function ChatWindow({
       setIsWebSearching(false);
 
       if (res.ok && data.response) {
+        if (typeof data.remaining_today === 'number') {
+          setRemainingSearches(data.remaining_today);
+        }
         const aiWords = data.response.split(/\s+/).filter(w => w.length > 0).length;
         deductWords(aiWords);
 
@@ -389,6 +393,9 @@ export default function ChatWindow({
           }
         }, 4);
       } else {
+        if (data.remaining_today === 0 || res.status === 429) {
+          setRemainingSearches(0);
+        }
         const err = data.error || 'Failed to get response from Axom AI.';
         setErrorMsg(err);
         setIsLoading(false);
@@ -954,9 +961,9 @@ export default function ChatWindow({
               {webSearch && (
                 <span
                   className="web-limit-hint"
-                  title="Free tier limit — resets every day"
+                  title="Strict IP-based limit: max 5 searches per day"
                 >
-                  Only 5 searches per day
+                  {remainingSearches !== null ? `${remainingSearches}/5 searches left today` : 'Limit: 5 searches/day (IP-based)'}
                 </span>
               )}
             </div>
