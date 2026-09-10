@@ -26,6 +26,9 @@ export default function ChatWindow({
 }) {
   const [inputText, setInputText] = useState('');
   const [webSearch, setWebSearch] = useState(false);
+  const [isWebSearching, setIsWebSearching] = useState(false);
+  const [currentSearchQuery, setCurrentSearchQuery] = useState('');
+  const [searchPhase, setSearchPhase] = useState(0); // 0 = Searching the web, 1 = Reading sources, 2 = Synthesizing
   const [isLoading, setIsLoading] = useState(false);
   const [isConvertingDoc, setIsConvertingDoc] = useState(false);
   const [convertingFileName, setConvertingFileName] = useState('');
@@ -38,6 +41,20 @@ export default function ChatWindow({
   const [errorMsg, setErrorMsg] = useState(null);
   // Axom AI is Assamese-only: replies are always in Assamese regardless of input language.
   const [language] = useState('assamese');
+
+  // Progressive ChatGPT-style search status step timer
+  useEffect(() => {
+    if (!isWebSearching || !isLoading) {
+      setSearchPhase(0);
+      return;
+    }
+    const t1 = setTimeout(() => setSearchPhase(1), 1200);
+    const t2 = setTimeout(() => setSearchPhase(2), 2600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [isWebSearching, isLoading]);
 
   const [isListening, setIsListening] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState({});
@@ -255,6 +272,15 @@ export default function ChatWindow({
       onAddMessage(sessionId, 'user', text);
     }
 
+    if (webSearch) {
+      setIsWebSearching(true);
+      setCurrentSearchQuery(text);
+      setSearchPhase(0);
+    } else {
+      setIsWebSearching(false);
+      setCurrentSearchQuery('');
+      setSearchPhase(0);
+    }
     setIsLoading(true);
 
     // Cancel any previous requests
@@ -327,6 +353,7 @@ export default function ChatWindow({
 
       // --- Non-streaming path (Gemini / web search): full JSON, then typewriter ---
       const data = await res.json();
+      setIsWebSearching(false);
 
       if (res.ok && data.response) {
         const aiWords = data.response.split(/\s+/).filter(w => w.length > 0).length;
@@ -367,6 +394,7 @@ export default function ChatWindow({
         setIsLoading(false);
       }
     } catch (err) {
+      setIsWebSearching(false);
       if (err.name !== 'AbortError') {
         setErrorMsg(err.message || 'Connection error.');
         setIsLoading(false);
@@ -598,6 +626,39 @@ export default function ChatWindow({
                           </button>
                         </div>
                       </div>
+
+                      {/* ChatGPT-style "Searched N sites" badge */}
+                      {msg.web_search && msg.sources && msg.sources.length > 0 && (
+                        <div className="searched-sites-header">
+                          <div className="searched-sites-badge">
+                            <Globe size={13} className="badge-globe-icon" />
+                            <span>Searched {msg.sources.length} sites</span>
+                          </div>
+                          <div className="searched-domain-tags">
+                            {msg.sources.slice(0, 4).map((src, sIdx) => {
+                              let host = '';
+                              try {
+                                host = new URL(src.uri).hostname.replace(/^www\./, '');
+                              } catch (e) {
+                                host = src.title || 'Source';
+                              }
+                              return (
+                                <a
+                                  key={sIdx}
+                                  href={src.uri}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="searched-domain-pill"
+                                  title={src.title || src.uri}
+                                >
+                                  {host}
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="msg-text-content" dangerouslySetInnerHTML={{ __html: formatMarkdown(msg.text) }} />
 
                       {/* Interactive Converted Document Result Card */}
@@ -740,6 +801,37 @@ export default function ChatWindow({
                       )}
                     </div>
                   </div>
+                  {/* ChatGPT-style "Searched N sites" badge in streaming preview */}
+                  {streamingSources && streamingSources.length > 0 && (
+                    <div className="searched-sites-header">
+                      <div className="searched-sites-badge">
+                        <Globe size={13} className="badge-globe-icon" />
+                        <span>Searched {streamingSources.length} sites</span>
+                      </div>
+                      <div className="searched-domain-tags">
+                        {streamingSources.slice(0, 4).map((src, sIdx) => {
+                          let host = '';
+                          try {
+                            host = new URL(src.uri).hostname.replace(/^www\./, '');
+                          } catch (e) {
+                            host = src.title || 'Source';
+                          }
+                          return (
+                            <a
+                              key={sIdx}
+                              href={src.uri}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="searched-domain-pill"
+                              title={src.title || src.uri}
+                            >
+                              {host}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                   <div className="msg-text-content" dangerouslySetInnerHTML={{ __html: formatMarkdown(streamingText) }} />
                 </div>
               </div>
@@ -751,11 +843,44 @@ export default function ChatWindow({
                 <div className="msg-avatar">✦</div>
                 <div className="msg-body">
                   <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)', marginBottom: '6px' }}>Axom AI</div>
-                  <div className="typing-dots" aria-label="Axom AI is typing">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
+                  {isWebSearching ? (
+                    <div className="chatgpt-search-widget">
+                      <div className="search-widget-header">
+                        <div className="search-globe-wrapper">
+                          <Globe size={15} className="search-globe-icon" />
+                          <span className="search-ping-ring"></span>
+                        </div>
+                        <div className="search-status-text">
+                          <span className="search-step-label">
+                            {searchPhase === 0 && 'Searching the web...'}
+                            {searchPhase === 1 && 'Browsing & reading sources...'}
+                            {searchPhase >= 2 && 'Synthesizing grounded answer...'}
+                          </span>
+                          {currentSearchQuery && (
+                            <span className="search-query-chip" title={currentSearchQuery}>
+                              "{currentSearchQuery.length > 45 ? currentSearchQuery.slice(0, 45) + '...' : currentSearchQuery}"
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="search-shimmer-track">
+                        <div className="search-shimmer-bar"></div>
+                      </div>
+
+                      <div className="search-skeleton-preview">
+                        <div className="search-skeleton-line line-1"></div>
+                        <div className="search-skeleton-line line-2"></div>
+                        <div className="search-skeleton-line line-3"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="typing-dots" aria-label="Axom AI is typing">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
