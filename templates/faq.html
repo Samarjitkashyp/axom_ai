@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{ config.meta_description|default:'Frequently Asked Questions about Axom AI models, features, pricing, and Assamese intelligence.' }}">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="icon" type="image/svg+xml" href="{% load static %}{% static 'dist/favicon.svg' %}">
+<title>{{ config.meta_title|default:'FAQs & Help Center — Axom AI' }}</title>
+
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Inter"', 'system-ui', 'sans-serif'],
+          serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
+          assamese: ['"Noto Serif Bengali"', 'system-ui', 'sans-serif'],
+        },
+      }
+    }
+  };
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+  html { scroll-behavior: smooth; overflow-x: hidden; }
+  body {
+    background: #06060b;
+    color: #e5e7eb;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #0a0a10; }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #c084fc, #e879f9);
+    border-radius: 6px;
+    border: 2px solid #0a0a10;
+  }
+  * { scrollbar-width: thin; scrollbar-color: #c084fc #0a0a10; }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(192,132,252,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(192,132,252,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .gradient-text {
+    background: linear-gradient(120deg, #ffffff 0%, #c084fc 40%, #f472b6 60%, #ffffff 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient 8s ease infinite;
+  }
+  @keyframes gradient { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+  .btn-primary {
+    background: linear-gradient(120deg, #c084fc, #e879f9, #c084fc);
+    background-size: 200% 200%;
+    animation: gradient 6s ease infinite;
+    color: #0a0a0f;
+    font-weight: 600;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 10px 40px -10px rgba(192,132,252,0.5);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 50px -10px rgba(192,132,252,0.75); }
+
+  .btn-ghost {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #e5e7eb;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(192,132,252,0.4); color: #fff; }
+
+  .glow-orb { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; }
+</style>
+</head>
+
+<body class="antialiased selection:bg-fuchsia-500 selection:text-white min-h-screen flex flex-col">
+
+<script id="faq-data-json" type="application/json">
+{
+  "config": {
+    "badge": "{{ config.badge|default:'Help Center & FAQs'|escapejs }}",
+    "title_prefix": "{{ config.title_prefix|default:'Frequently Asked'|escapejs }}",
+    "title_highlight": "{{ config.title_highlight|default:'Questions'|escapejs }}",
+    "subheading": "{{ config.subheading|default:'Everything you need to know about Axom AI, our Assamese language intelligence, tools, subscriptions and data privacy.'|escapejs }}",
+    "search_placeholder": "{{ config.search_placeholder|default:'Search questions (e.g., pricing, Assamese AI, file limits)...'|escapejs }}",
+    "support_box_title": "{{ config.support_box_title|default:'Still have questions?'|escapejs }}",
+    "support_box_desc": "{{ config.support_box_desc|default:'Can\'t find the answer you\'re looking for? Our support team and community are here to help.'|escapejs }}",
+    "support_button_text": "{{ config.support_button_text|default:'Contact Support'|escapejs }}",
+    "support_button_url": "{{ config.support_button_url|default:'https://user.aiaxom.co.in/support/'|escapejs }}",
+    "chat_button_text": "{{ config.chat_button_text|default:'Ask Axom AI'|escapejs }}",
+    "chat_button_url": "{{ config.chat_button_url|default:'https://chat.aiaxom.co.in'|escapejs }}"
+  },
+  "faqs": [
+    {% for f in faqs %}
+    {
+      "id": {{ f.id }},
+      "question": "{{ f.question|escapejs }}",
+      "answer": "{{ f.answer|escapejs }}",
+      "category": "{{ f.category|escapejs }}",
+      "category_label": "{{ f.get_category_display|escapejs }}",
+      "order": {{ f.order|default:0 }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
+<div id="root"></div>
+
+{% verbatim %}
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo } = React;
+
+let pageData = { config: {}, faqs: [] };
+try {
+  const el = document.getElementById('faq-data-json');
+  if (el) pageData = JSON.parse(el.textContent);
+} catch (e) {
+  pageData = { config: {}, faqs: [] };
+}
+
+const CHAT_URL = "https://chat.aiaxom.co.in/";
+const config = pageData.config || {};
+const allFaqs = pageData.faqs || [];
+
+const I = ({ p, c = "w-5 h-5" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={c}>{p}</svg>
+);
+const ISparkle = ({c}) => <I c={c} p={<><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></>} />;
+const IArrow   = ({c}) => <I c={c} p={<><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></>} />;
+const ISearch  = ({c}) => <I c={c} p={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>} />;
+
+function Navbar() {
+  return (
+    <header className="fixed top-0 inset-x-0 z-50 bg-black/70 backdrop-blur-xl border-b border-white/5">
+      <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+        <a href="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center shadow-lg shadow-fuchsia-500/40">
+            <ISparkle c="w-4 h-4 text-white"/>
+          </div>
+          <div className="font-bold text-lg tracking-tight text-white">Axom<span className="text-fuchsia-400"> AI</span></div>
+        </a>
+
+        <div className="hidden md:flex items-center gap-2 text-sm">
+          <a href="/" className="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Home</a>
+          <a href="/about/" className="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">About</a>
+          <a href="/#tools" className="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">AI Tools</a>
+          <a href="/#pricing" className="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Pricing</a>
+          <a href="/blog/" className="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Blog & Insights</a>
+          <a href="/faq/" className="px-3.5 py-2 rounded-full text-fuchsia-400 font-semibold bg-fuchsia-500/10 border border-fuchsia-500/20">FAQs</a>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <a href={CHAT_URL} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-full inline-flex items-center gap-1.5">
+            <span>Open Chat</span> <IArrow c="w-3.5 h-3.5"/>
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function FAQApp() {
+  const [selectedCat, setSelectedCat] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [openIndex, setOpenIndex] = useState(0);
+
+  // Global safety handler for all links
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      const link = e.target.closest('a');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href || href === '#' || href === 'javascript:void(0);') {
+        e.preventDefault();
+        return;
+      }
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, []);
+
+  const categories = [
+    { key: 'all', label: 'All Questions' },
+    { key: 'general', label: 'General' },
+    { key: 'features', label: 'Features & AI Models' },
+    { key: 'pricing', label: 'Pricing & Payments' },
+    { key: 'privacy', label: 'Data & Privacy' },
+  ];
+
+  const filteredFaqs = useMemo(() => {
+    return allFaqs.filter(item => {
+      const matchesCat = (selectedCat === 'all') || (item.category === selectedCat);
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch = !q ||
+        item.question.toLowerCase().includes(q) ||
+        item.answer.toLowerCase().includes(q) ||
+        (item.category_label && item.category_label.toLowerCase().includes(q));
+      return matchesCat && matchesSearch;
+    });
+  }, [selectedCat, searchQuery]);
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+
+      <main className="flex-1 pt-28 pb-20 relative">
+        <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none"></div>
+        <div className="glow-orb w-[500px] h-[500px] bg-fuchsia-600/10 top-20 left-1/2 -translate-x-1/2"></div>
+        <div className="glow-orb w-[300px] h-[300px] bg-purple-600/10 top-96 right-10"></div>
+
+        <div className="relative max-w-5xl mx-auto px-5">
+          <!-- Hero Title & Badge -->
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-400/30 text-[11px] font-semibold text-fuchsia-300 mb-6 uppercase tracking-wider backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse"></span>
+              {config.badge || "Help Center & FAQs"}
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-4">
+              {config.title_prefix || "Frequently Asked"}{" "}
+              <span className="gradient-text">{config.title_highlight || "Questions"}</span>
+            </h1>
+
+            <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              {config.subheading || "Everything you need to know about Axom AI, our Assamese language intelligence, tools, subscriptions and data privacy."}
+            </p>
+
+            <!-- Real-time Search Input -->
+            <div className="mt-8 max-w-xl mx-auto relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                <ISearch c="w-4 h-4 text-fuchsia-400" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={config.search_placeholder || "Search questions (e.g., pricing, Assamese AI, file limits)..."}
+                className="w-full pl-11 pr-10 py-3.5 bg-white/[0.04] hover:bg-white/[0.06] focus:bg-slate-900/90 border border-white/10 focus:border-fuchsia-500/60 rounded-2xl text-sm text-white placeholder-gray-500 focus:outline-none backdrop-blur-md transition shadow-xl"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-white"
+                >
+                  <i className="fa-solid fa-circle-xmark text-sm"></i>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+            {categories.map((cat) => {
+              const isActive = selectedCat === cat.key;
+              const count = cat.key === 'all'
+                ? allFaqs.length
+                : allFaqs.filter(f => f.category === cat.key).length;
+
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setSelectedCat(cat.key)}
+                  className={"px-4 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 " + (
+                    isActive
+                      ? "bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-lg shadow-fuchsia-600/30 scale-105"
+                      : "bg-white/[0.03] hover:bg-white/[0.08] text-gray-400 hover:text-white border border-white/5"
+                  )}
+                >
+                  <span>{cat.label}</span>
+                  <span className={"text-[10px] px-1.5 py-0.2 rounded-full " + (isActive ? "bg-black/30 text-white" : "bg-white/10 text-gray-400")}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <!-- FAQ Accordion List -->
+          <div className="space-y-3">
+            {filteredFaqs.length > 0 ? (
+              filteredFaqs.map((faq, idx) => {
+                const isOpen = openIndex === idx;
+                return (
+                  <div
+                    key={faq.id || idx}
+                    className={"border rounded-2xl overflow-hidden backdrop-blur-sm transition-all duration-200 " + (
+                      isOpen
+                        ? "border-fuchsia-500/40 bg-white/[0.04] shadow-lg shadow-fuchsia-950/30"
+                        : "border-white/8 bg-white/[0.02] hover:border-white/15"
+                    )}
+                  >
+                    <button
+                      onClick={() => setOpenIndex(isOpen ? -1 : idx)}
+                      className="w-full text-left px-6 py-5 flex items-start justify-between gap-4"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20">
+                            {faq.category_label || faq.category}
+                          </span>
+                        </div>
+                        <h3 className="text-base font-semibold text-white leading-snug">
+                          {faq.question}
+                        </h3>
+                      </div>
+                      <div className={"w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-fuchsia-400 text-sm font-bold shrink-0 transition-transform duration-200 " + (isOpen ? "rotate-45 bg-fuchsia-500/20 border-fuchsia-500/40" : "")}>
+                        +
+                      </div>
+                    </button>
+
+                    {isOpen && (
+                      <div className="px-6 pb-6 pt-1 text-sm text-gray-300 leading-relaxed border-t border-white/5">
+                        {faq.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-12 text-center border border-white/5 rounded-2xl bg-white/[0.01]">
+                <i className="fa-solid fa-magnifying-glass text-3xl text-gray-600 mb-3 block"></i>
+                <div className="text-base font-semibold text-white mb-1">No matching questions found</div>
+                <p className="text-xs text-gray-400 mb-4">Try searching with different keywords or switch categories.</p>
+                <button
+                  onClick={() => { setSearchQuery(''); setSelectedCat('all'); }}
+                  className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          <!-- Still have questions? Support CTA Box -->
+          <div className="mt-16 p-8 sm:p-10 rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-950/40 via-purple-950/20 to-black/60 backdrop-blur-xl relative overflow-hidden shadow-2xl">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-400/30 text-[10px] font-bold text-fuchsia-300 uppercase tracking-widest mb-3">
+                  <ISparkle c="w-3 h-3 text-fuchsia-400"/>
+                  <span>Live Assistance</span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  {config.support_box_title || "Still have questions?"}
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-300 max-w-lg leading-relaxed">
+                  {config.support_box_desc || "Can't find the answer you're looking for? Our support team and community are here to help."}
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <a
+                  href={config.chat_button_url || CHAT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary text-xs sm:text-sm px-6 py-3 rounded-full inline-flex items-center gap-2"
+                >
+                  <ISparkle c="w-4 h-4"/>
+                  <span>{config.chat_button_text || "Ask Axom AI"}</span>
+                </a>
+                <a
+                  href={config.support_button_url || "https://user.aiaxom.co.in/support/"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-ghost text-xs sm:text-sm px-6 py-3 rounded-full inline-flex items-center gap-2"
+                >
+                  <span>{config.support_button_text || "Contact Support"}</span>
+                  <IArrow c="w-4 h-4"/>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer className="border-t border-white/5 pt-12 pb-8 bg-black/50 mt-auto">
+        <div className="max-w-7xl mx-auto px-5 text-center text-xs text-gray-500 space-y-4">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-gray-400">
+            <a href="/" className="hover:text-fuchsia-400 transition">Home</a>
+            <a href="/about/" className="hover:text-fuchsia-400 transition">About</a>
+            <a href="/#tools" className="hover:text-fuchsia-400 transition">AI Tools</a>
+            <a href="/#pricing" className="hover:text-fuchsia-400 transition">Pricing</a>
+            <a href="/blog/" className="hover:text-fuchsia-400 transition">Blog</a>
+            <a href="/faq/" className="text-fuchsia-400 font-semibold">FAQs</a>
+            <a href="https://user.aiaxom.co.in/support/" target="_blank" rel="noopener noreferrer" className="hover:text-fuchsia-400 transition">Support</a>
+          </div>
+          <div>© 2026 Axom AI. All rights reserved. • Made with <span className="text-red-500">❤</span> in Assam, India 🇮🇳</div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<FAQApp />);
+</script>
+{% endverbatim %}
+
+</body>
+</html>

@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ article.title }} — Axom AI</title>
+<meta name="description" content="{{ article.excerpt|default:article.title }}">
+<meta name="theme-color" content="#06060b">
+{% load static %}
+<link rel="icon" type="image/svg+xml" href="{% static 'dist/favicon.svg' %}">
+
+<!-- Fonts & Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Inter"', 'system-ui', 'sans-serif'],
+          serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
+          assamese: ['"Noto Serif Bengali"', 'system-ui', 'sans-serif'],
+        },
+      }
+    }
+  };
+</script>
+
+<style>
+  html { scroll-behavior: smooth; overflow-x: hidden; }
+  body {
+    background: #06060b;
+    color: #e5e7eb;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #c084fc 0%, #e879f9 50%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #c084fc 0%, #e879f9 50%, #f472b6 100%);
+    color: #06060b;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px -2px rgba(192, 132, 252, 0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px -2px rgba(192, 132, 252, 0.6);
+  }
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    transition: all 0.25s ease;
+  }
+  .card:hover {
+    border-color: rgba(192, 132, 252, 0.35);
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-2px);
+  }
+  .hero-assam-bg {
+    background-image: linear-gradient(180deg, rgba(6,6,11,0.75) 0%, rgba(6,6,11,0.98) 100%), url("{% static 'dist/hero/assam.avif' %}");
+    background-size: cover;
+    background-position: center top;
+  }
+  /* Slide-in mobile drawer matching landing */
+  .drawer-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 101;
+    width: min(85vw, 340px);
+    background: linear-gradient(180deg, #0e0d1a 0%, #06060b 100%);
+    border-left: 1px solid rgba(192,132,252,0.2);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: -30px 0 60px -20px rgba(192,132,252,0.15);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px; color: #e5e7eb; font-size: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: all 0.15s;
+  }
+  .drawer-item:hover, .drawer-item:active {
+    background: rgba(192,132,252,0.08);
+    color: #f5d0fe;
+    padding-left: 26px;
+  }
+  /* Article Rich Body Content Styling */
+  .blog-rich-content {
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: #cbd5e1;
+  }
+  .blog-rich-content h1, .blog-rich-content h2, .blog-rich-content h3, .blog-rich-content h4 {
+    color: #ffffff;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+  }
+  .blog-rich-content h1 { font-size: 2rem; }
+  .blog-rich-content h2 { font-size: 1.6rem; color: #f5d0fe; }
+  .blog-rich-content h3 { font-size: 1.3rem; color: #e9d5ff; }
+  .blog-rich-content p {
+    margin-bottom: 1.5rem;
+  }
+  .blog-rich-content a {
+    color: #c084fc;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .blog-rich-content a:hover {
+    color: #f472b6;
+  }
+  .blog-rich-content strong, .blog-rich-content b {
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .blog-rich-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 16px;
+    margin: 2rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  }
+  .blog-rich-content blockquote {
+    border-left: 4px solid #c084fc;
+    background: linear-gradient(90deg, rgba(192, 132, 252, 0.12) 0%, rgba(192, 132, 252, 0.02) 100%);
+    padding: 1.25rem 1.75rem;
+    border-radius: 0 16px 16px 0;
+    font-style: italic;
+    color: #f5d0fe;
+    margin: 1.75rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .blog-rich-content code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.2rem 0.45rem;
+    border-radius: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
+    color: #f472b6;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .blog-rich-content pre {
+    background: #060810;
+    padding: 1.25rem 1.5rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-x: auto;
+    color: #38bdf8;
+    margin: 1.5rem 0;
+  }
+  .blog-rich-content pre code {
+    background: transparent;
+    padding: 0;
+    border: none;
+    color: inherit;
+  }
+  .blog-rich-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.75rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .blog-rich-content th, .blog-rich-content td {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .blog-rich-content th {
+    background: rgba(192, 132, 252, 0.15);
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .blog-rich-content tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .blog-rich-content ul, .blog-rich-content ol {
+    padding-left: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .blog-rich-content ul { list-style-type: disc; }
+  .blog-rich-content ol { list-style-type: decimal; }
+  .blog-rich-content li {
+    margin-bottom: 0.5rem;
+    color: #cbd5e1;
+  }
+  .blog-rich-content hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin: 2.5rem 0;
+  }
+  .blog-rich-content .highlight-box,
+  .blog-rich-content .quick-answer {
+    margin: 2rem 0;
+    padding: 1.5rem 1.75rem;
+    background: linear-gradient(135deg, rgba(192, 132, 252, 0.1) 0%, rgba(147, 51, 234, 0.05) 100%);
+    border-left: 4px solid #c084fc;
+    border-radius: 14px;
+    border-top: 1px solid rgba(192, 132, 252, 0.15);
+    border-right: 1px solid rgba(192, 132, 252, 0.15);
+    border-bottom: 1px solid rgba(192, 132, 252, 0.15);
+  }
+  .blog-rich-content .highlight-box p,
+  .blog-rich-content .quick-answer p {
+    margin: 0;
+    color: #e2e8f0;
+  }
+  .blog-rich-content .tool-card,
+  .blog-rich-content .innovation-card,
+  .blog-rich-content .feature-card {
+    margin: 2rem 0;
+    padding: 2rem;
+    border: 1px solid rgba(192, 132, 252, 0.25);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(9, 13, 22, 0.85) 100%);
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), 0 0 25px rgba(168, 85, 247, 0.08);
+    transition: all 0.25s ease;
+  }
+  .blog-rich-content .tool-card:hover,
+  .blog-rich-content .innovation-card:hover,
+  .blog-rich-content .feature-card:hover {
+    border-color: rgba(192, 132, 252, 0.5);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 35px rgba(168, 85, 247, 0.18);
+  }
+  .blog-rich-content .tool-card h3,
+  .blog-rich-content .innovation-card h3,
+  .blog-rich-content .feature-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    font-size: 1.4rem;
+    color: #ffffff;
+  }
+  .blog-rich-content .tool-label,
+  .blog-rich-content .feature-label {
+    display: inline-block;
+    margin-bottom: 0.9rem;
+    padding: 4px 12px;
+    background: rgba(192, 132, 252, 0.18);
+    color: #f5d0fe;
+    border: 1px solid rgba(192, 132, 252, 0.35);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .blog-rich-content .update-list {
+    margin: 2rem 0;
+    padding: 0;
+    list-style: none;
+  }
+  .blog-rich-content .update-list li {
+    position: relative;
+    margin-bottom: 1.25rem;
+    padding: 1.25rem 1.5rem 1.25rem 3.75rem;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(9, 13, 22, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    color: #cbd5e1;
+  }
+  .blog-rich-content .update-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 1.25rem;
+    top: 1.25rem;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #a855f7;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .blog-rich-content .dark-ui-section {
+    margin: 3rem 0;
+    padding: 2.25rem;
+    background: #060913;
+    color: #ffffff;
+    border: 1px solid rgba(192, 132, 252, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 85, 247, 0.1);
+  }
+  .blog-rich-content .dark-ui-section h2 {
+    margin-top: 0;
+    color: #ffffff;
+  }
+  .blog-rich-content .dark-ui-section p {
+    color: #94a3b8;
+  }
+  .blog-rich-content .dark-ui-preview {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+  }
+  .blog-rich-content .dark-ui-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .blog-rich-content .dark-ui-preview-row:last-child {
+    margin-bottom: 0;
+  }
+  .blog-rich-content .dark-ui-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #c084fc;
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
+  }
+  .blog-rich-content .dark-ui-line {
+    height: 8px;
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+  }
+  .blog-rich-content .card-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 1rem;
+    background: rgba(192, 132, 252, 0.18);
+    color: #f5d0fe;
+    border: 1px solid rgba(192, 132, 252, 0.35);
+    border-radius: 50%;
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+  .blog-rich-content .action-box {
+    margin: 2.5rem 0;
+    padding: 2rem 2.25rem;
+    background: linear-gradient(135deg, rgba(20, 25, 45, 0.8) 0%, rgba(10, 15, 30, 0.9) 100%);
+    border: 1px solid rgba(192, 132, 252, 0.25);
+    border-radius: 18px;
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+  }
+  .blog-rich-content .action-box h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #f5d0fe;
+    font-size: 1.25rem;
+  }
+  .blog-rich-content .action-box h3:first-of-type {
+    margin-top: 0;
+  }
+  .blog-rich-content .action-box p {
+    margin-bottom: 0;
+    color: #cbd5e1;
+  }
+  .blog-rich-content .workflow,
+  .blog-rich-content .workflow-box {
+    margin: 2rem 0;
+    padding: 1.5rem 2rem;
+    background: #090d16;
+    border: 1px solid rgba(192, 132, 252, 0.3);
+    border-radius: 16px;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.2);
+  }
+  .blog-rich-content .workflow span,
+  .blog-rich-content .workflow-box span {
+    color: #f472b6;
+    margin: 0 8px;
+    font-weight: 800;
+  }
+  .blog-rich-content .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 2rem 0;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .blog-rich-content .comparison-table,
+  .blog-rich-content .ai-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    font-size: 0.95rem;
+  }
+  .blog-rich-content .comparison-table th,
+  .blog-rich-content .ai-table th {
+    padding: 14px 18px;
+    background: #0f172a;
+    color: #ffffff;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .blog-rich-content .comparison-table td,
+  .blog-rich-content .ai-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: top;
+    color: #cbd5e1;
+  }
+  .blog-rich-content .comparison-table tr:nth-child(even) td,
+  .blog-rich-content .ai-table tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .blog-rich-content .faq-section {
+    margin-top: 3.5rem;
+    padding-top: 1rem;
+  }
+  .blog-rich-content .faq-item {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .blog-rich-content .faq-item:first-of-type {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .blog-rich-content .faq-item h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    color: #f5d0fe;
+  }
+  .blog-rich-content .faq-item p {
+    margin: 0;
+    color: #94a3b8;
+    line-height: 1.7;
+  }
+  .blog-rich-content .final-thoughts,
+  .blog-rich-content .final-box {
+    margin-top: 3.5rem;
+    margin-bottom: 2.5rem;
+    padding: 2rem 2.25rem;
+    background: linear-gradient(135deg, rgba(30, 16, 50, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid rgba(217, 70, 239, 0.3);
+    color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px -15px rgba(192, 38, 211, 0.25);
+  }
+  .blog-rich-content .final-thoughts h2,
+  .blog-rich-content .final-box h2 {
+    margin-top: 0;
+    color: #ffffff;
+  }
+  .blog-rich-content .final-thoughts p,
+  .blog-rich-content .final-box p {
+    color: #e2e8f0;
+    margin-bottom: 1rem;
+  }
+  .blog-rich-content .final-thoughts p:last-child,
+  .blog-rich-content .final-box p:last-child {
+    margin-bottom: 0;
+  }
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- ==================== HEADER (Same as aiaxom.co.in) ==================== -->
+  <nav id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-black/70 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center shadow-lg shadow-fuchsia-500/40">
+          <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
+        </div>
+        <div class="font-bold text-lg tracking-tight text-white">Axom<span class="text-fuchsia-400"> AI</span></div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <div class="hidden lg:flex items-center gap-1 text-sm">
+        <a href="/about/" class="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">About</a>
+        <a href="/#tools" class="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">AI Tools</a>
+        <a href="/#usecases" class="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Use Cases</a>
+        <a href="/#pricing" class="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Pricing</a>
+        <a href="/blog/" class="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Blog & Insights</a>
+        <a href="/#faq" class="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">FAQ</a>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="hidden lg:flex items-center gap-3">
+        <a href="https://chat.aiaxom.co.in" class="text-sm text-gray-300 hover:text-white transition px-3">Sign in</a>
+        <a href="https://chat.aiaxom.co.in" class="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5">
+          Open Chat <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <button onclick="toggleDrawer()" aria-label="Open menu"
+        class="lg:hidden w-10 h-10 rounded-full bg-white/10 border border-white/15 grid place-items-center text-white hover:bg-white/15 transition">
+        <i class="fa-solid fa-bars text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Slide-in Drawer -->
+    <div id="drawer-overlay" class="drawer-overlay lg:hidden" onclick="toggleDrawer()"></div>
+    <aside id="drawer" class="drawer lg:hidden" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-white/5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center">
+            <i class="fa-solid fa-sparkles text-xs text-white"></i>
+          </div>
+          <div class="font-bold text-white">Axom<span class="text-fuchsia-400"> AI</span></div>
+        </div>
+        <button onclick="toggleDrawer()" aria-label="Close menu" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 grid place-items-center text-gray-300">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div class="py-2">
+        <a href="/about/" onclick="toggleDrawer()" class="drawer-item"><i class="fa-solid fa-sparkles text-fuchsia-400 w-5"></i> About Axom AI</a>
+        <a href="/#tools" onclick="toggleDrawer()" class="drawer-item"><i class="fa-solid fa-table-cells text-fuchsia-400 w-5"></i> AI Tools</a>
+        <a href="/#usecases" onclick="toggleDrawer()" class="drawer-item"><i class="fa-solid fa-users text-fuchsia-400 w-5"></i> Use Cases</a>
+        <a href="/#pricing" onclick="toggleDrawer()" class="drawer-item"><i class="fa-solid fa-crown text-fuchsia-400 w-5"></i> Pricing</a>
+        <a href="/blog/" onclick="toggleDrawer()" class="drawer-item text-fuchsia-300 font-semibold"><i class="fa-solid fa-newspaper text-fuchsia-400 w-5"></i> Blog & Insights</a>
+        <a href="/#faq" onclick="toggleDrawer()" class="drawer-item"><i class="fa-solid fa-circle-question text-fuchsia-400 w-5"></i> FAQ</a>
+      </div>
+
+      <div class="px-5 pt-5 pb-6 border-t border-white/5 mt-3">
+        <div class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Get Started</div>
+        <a href="https://chat.aiaxom.co.in" class="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5">Open Chat →</a>
+        <a href="https://chat.aiaxom.co.in" class="btn-ghost block text-center text-sm px-4 py-3 rounded-full">Sign in</a>
+      </div>
+
+      <div class="px-5 mt-auto absolute bottom-5 left-0 right-0">
+        <p class="font-assamese text-xs text-fuchsia-300/60 text-center">অসম ৰ ঘৰ · AI ৰ সুবিধা</p>
+      </div>
+    </aside>
+  </nav>
+
+  <!-- ==================== MAIN BODY ==================== -->
+  <main class="flex-1 pt-20">
+
+    <!-- Article Hero Header (Full-width clean layout, no right-side image) -->
+    <section class="relative hero-assam-bg pt-14 pb-20 border-b border-white/10 overflow-hidden">
+      <div class="max-w-5xl mx-auto px-5 relative z-10 text-left">
+        
+        <!-- Breadcrumb Navigation -->
+        <nav class="flex items-center gap-2 text-xs text-gray-400 mb-6 flex-wrap">
+          <a href="/" class="hover:text-fuchsia-400 transition">Home</a>
+          <i class="fa-solid fa-chevron-right text-[10px] text-gray-600"></i>
+          <a href="/blog/" class="hover:text-fuchsia-400 transition">Blog</a>
+          <i class="fa-solid fa-chevron-right text-[10px] text-gray-600"></i>
+          <span class="text-fuchsia-400 font-medium">{{ article.get_category_display }}</span>
+          <i class="fa-solid fa-chevron-right text-[10px] text-gray-600"></i>
+          <span class="text-gray-400 truncate max-w-sm">{{ article.title }}</span>
+        </nav>
+
+        <!-- Category Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider mb-5 shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse"></span>
+          {{ article.get_category_display|default:'Guides' }}
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.12] mb-5">
+          {{ article.title }}
+        </h1>
+
+        <!-- Excerpt / Subheading -->
+        {% if article.excerpt %}
+        <p class="text-base sm:text-lg text-gray-300 leading-relaxed max-w-3xl mb-8">
+          {{ article.excerpt }}
+        </p>
+        {% endif %}
+
+        <!-- Author & Metadata Row -->
+        <div class="flex flex-wrap items-center gap-4 sm:gap-6 pt-4 border-t border-white/10 text-xs sm:text-sm text-gray-300">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-fuchsia-600 to-purple-600 ring-2 ring-white/10 grid place-items-center text-white font-bold text-xs shadow-md">
+              {{ article.author_name|slice:":2"|upper|default:'AI' }}
+            </div>
+            <div class="font-semibold text-white">By {{ article.author_name|default:'Axom AI Team' }}</div>
+          </div>
+
+          <div class="flex items-center gap-2 text-gray-400">
+            <i class="fa-regular fa-calendar text-fuchsia-400"></i>
+            <span>{{ article.published_at|date:"M d, Y" }}</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-gray-400">
+            <i class="fa-regular fa-clock text-fuchsia-400"></i>
+            <span>{{ article.read_time|default:'8 min read' }}</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Main Content & Sidebar Layout -->
+    <section class="py-16 relative">
+      <div class="max-w-7xl mx-auto px-5">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+          <!-- Left / Article Body Column (8 Cols) -->
+          <article class="lg:col-span-8 space-y-8">
+            
+            <!-- Cover / Featured Banner Card -->
+            <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative h-72 sm:h-96"
+              style="background: linear-gradient(135deg, {{ article.gradient_from|default:'#a855f7' }}, {{ article.gradient_to|default:'#ec4899' }});">
+              {% if article.cover_image_url %}
+                <img src="{{ article.cover_image_url }}" alt="{{ article.title }}" class="w-full h-full object-cover absolute inset-0">
+              {% else %}
+                <div class="absolute inset-0 opacity-25" style="background-image: radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 20px 20px;"></div>
+              {% endif %}
+              <div class="absolute bottom-6 left-6 right-6 p-6 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-between z-10">
+                <div>
+                  <span class="text-[10px] uppercase tracking-widest text-fuchsia-300 font-bold">Featured Story</span>
+                  <div class="text-white font-bold text-lg sm:text-xl">{{ article.title }}</div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white/10 grid place-items-center text-white shrink-0">
+                  <i class="fa-solid fa-newspaper text-sm"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Article Body Text -->
+            <div class="space-y-6 text-gray-200 text-base sm:text-lg leading-relaxed">
+              {% if article.content %}
+                <div class="blog-rich-content">
+                  {{ article.content|safe }}
+                </div>
+              {% else %}
+                <p class="text-lg text-gray-300 leading-relaxed">
+                  Artificial Intelligence is no longer a futuristic concept. It's a practical tool you can use today to work smarter, not harder. Whether you're a student, a professional, a business owner, or a creator in Assam, AI can help you save time, automate repetitive tasks, and unlock new opportunities.
+                </p>
+
+                <h2 class="text-2xl font-bold text-white pt-4">1. Understand Your Needs</h2>
+                <p>
+                  Start by identifying the tasks that take up most of your time. It could be writing, research, data analysis, design, or customer support. Once you know your needs, you can choose the right AI tools from Axom AI.
+                </p>
+
+                <h2 class="text-2xl font-bold text-white pt-4">2. Explore the Right AI Tools</h2>
+                <p>
+                  Axom AI brings multiple powerful tools in one place — from chat and document intelligence to image generation and more. Instead of juggling different platforms, you get everything you need in a single, affordable solution.
+                </p>
+
+                <!-- Styled Quote Block -->
+                <div class="my-6 p-6 rounded-2xl bg-gradient-to-r from-fuchsia-950/40 via-purple-900/20 to-transparent border-l-4 border-fuchsia-500 border border-white/5 flex items-start gap-4">
+                  <i class="fa-solid fa-quote-left text-2xl text-fuchsia-400 shrink-0 mt-1"></i>
+                  <p class="text-lg font-medium text-fuchsia-200 italic leading-relaxed">
+                    "The right tool doesn't replace you. It gives you superpowers."
+                  </p>
+                </div>
+
+                <h2 class="text-2xl font-bold text-white pt-4">3. Apply AI in Daily Work</h2>
+                <p>
+                  Use AI to draft emails, summarize documents, create presentations, generate ideas, or even learn new skills. Small steps can lead to big productivity gains.
+                </p>
+
+                <h2 class="text-2xl font-bold text-white pt-4">4. Keep Learning and Experimenting</h2>
+                <p>
+                  AI is evolving fast. Try new features, explore different use cases, and stay updated through our blog. The more you experiment, the more value you'll get.
+                </p>
+
+                <!-- Callout Box: Final Thoughts -->
+                <div class="p-6 rounded-2xl bg-gradient-to-r from-fuchsia-500/10 to-purple-500/10 border border-fuchsia-500/20 flex items-start gap-4 my-8">
+                  <div class="w-10 h-10 rounded-xl bg-fuchsia-500/20 grid place-items-center text-fuchsia-400 shrink-0 text-lg">
+                    <i class="fa-solid fa-sparkles"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white mb-1">Final Thoughts</h3>
+                    <p class="text-sm text-gray-300 leading-relaxed">
+                      AI is here to make your life easier and your work more impactful. With Axom AI, you can harness the power of AI — rooted in Assam, built for the world.
+                    </p>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Share This Article Row -->
+            <div class="pt-8 pb-4 border-t border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <span class="text-sm font-bold text-white">Share this article</span>
+              
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <!-- X / Twitter -->
+                <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ article.title|urlencode }}" target="_blank"
+                  class="w-9 h-9 rounded-full bg-slate-900 border border-white/10 hover:border-fuchsia-400 hover:text-fuchsia-400 text-gray-300 grid place-items-center transition text-sm">
+                  <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <!-- LinkedIn -->
+                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri|urlencode }}" target="_blank"
+                  class="w-9 h-9 rounded-full bg-slate-900 border border-white/10 hover:border-blue-400 hover:text-blue-400 text-gray-300 grid place-items-center transition text-sm">
+                  <i class="fa-brands fa-linkedin-in"></i>
+                </a>
+                <!-- Facebook -->
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank"
+                  class="w-9 h-9 rounded-full bg-slate-900 border border-white/10 hover:border-blue-500 hover:text-blue-500 text-gray-300 grid place-items-center transition text-sm">
+                  <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <!-- WhatsApp -->
+                <a href="https://api.whatsapp.com/send?text={{ article.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank"
+                  class="w-9 h-9 rounded-full bg-slate-900 border border-white/10 hover:border-emerald-400 hover:text-emerald-400 text-gray-300 grid place-items-center transition text-sm">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                <!-- Copy Link Button -->
+                <button onclick="copyArticleLink()"
+                  class="w-9 h-9 rounded-full bg-slate-900 border border-white/10 hover:border-purple-400 hover:text-purple-400 text-gray-300 grid place-items-center transition text-sm" title="Copy Link">
+                  <i class="fa-solid fa-link"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Author Bio Card -->
+            <div class="card p-6 sm:p-8 rounded-2xl flex flex-col sm:flex-row items-center sm:items-start gap-5">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-fuchsia-600 via-purple-600 to-indigo-600 grid place-items-center text-white font-extrabold text-2xl shadow-xl shadow-fuchsia-600/25 shrink-0">
+                A
+              </div>
+              <div class="flex-1 text-center sm:text-left space-y-1.5">
+                <div class="font-bold text-white text-lg">{{ article.author_name|default:'Axom AI Team' }}</div>
+                <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                  Building AI for a brighter Assam. Sharing guides, insights and stories to help you make the most of AI in your work and life.
+                </p>
+                <div class="pt-2">
+                  <a href="/#insights" class="inline-flex items-center gap-1.5 text-xs font-semibold text-fuchsia-400 hover:text-fuchsia-300 transition">
+                    View all articles <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </article>
+
+          <!-- Right / Sidebar Column (4 Cols) -->
+          <aside class="lg:col-span-4 space-y-8">
+            
+            <!-- 1. Search Box -->
+            <div class="card p-4 rounded-2xl">
+              <div class="relative">
+                <input type="text" id="sidebar_search" placeholder="Search articles..."
+                  class="w-full pl-10 pr-4 py-2.5 bg-slate-900/80 border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-fuchsia-500 transition">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
+                  <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Categories Widget -->
+            <div class="card p-6 rounded-2xl space-y-4">
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-fuchsia-400"></i> Categories
+              </h3>
+              
+              <div class="space-y-1.5">
+                <a href="/#insights" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition">
+                  <span>All Articles</span>
+                  <span class="text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-gray-400">{{ total_articles_count }}</span>
+                </a>
+
+                {% for cat in categories_list %}
+                <a href="/#insights" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition {% if article.category == cat.val %}bg-gradient-to-r from-fuchsia-600/30 to-purple-600/30 text-white border border-fuchsia-500/40 shadow-sm font-semibold{% else %}text-gray-300 hover:text-white hover:bg-white/5{% endif %}">
+                  <span>{{ cat.label }}</span>
+                  <span class="text-[11px] px-2 py-0.5 rounded-full {% if article.category == cat.val %}bg-fuchsia-500/30 text-fuchsia-200 font-bold{% else %}bg-white/5 text-gray-400{% endif %}">
+                    {{ cat.count }}
+                  </span>
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- 3. Recent Articles Widget -->
+            <div class="card p-6 rounded-2xl space-y-4">
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-fuchsia-400"></i> Recent Articles
+              </h3>
+
+              <div class="space-y-4">
+                {% for r in recent_articles %}
+                <a href="/blog/{{ r.slug }}/" class="flex items-center gap-3 group">
+                  <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-white/10 relative"
+                    style="background: linear-gradient(135deg, {{ r.gradient_from|default:'#a855f7' }}, {{ r.gradient_to|default:'#ec4899' }});">
+                    <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 8px 8px;"></div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <h4 class="text-xs font-semibold text-white group-hover:text-fuchsia-400 transition leading-snug line-clamp-2">
+                      {{ r.title }}
+                    </h4>
+                    <span class="text-[11px] text-gray-500 mt-1 block">{{ r.published_at|date:"M d, Y" }}</span>
+                  </div>
+                </a>
+                {% empty %}
+                <p class="text-xs text-gray-500">No other recent articles.</p>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- 4. Newsletter Subscription Box -->
+            <div class="rounded-2xl p-6 bg-gradient-to-b from-purple-950/60 to-slate-950 border border-fuchsia-500/30 shadow-2xl space-y-4 relative overflow-hidden">
+              <div class="w-10 h-10 rounded-xl bg-fuchsia-500/20 grid place-items-center text-fuchsia-400 text-base">
+                <i class="fa-solid fa-envelope"></i>
+              </div>
+
+              <div>
+                <h3 class="text-base font-bold text-white">Stay Updated with Axom AI</h3>
+                <p class="text-xs text-gray-400 mt-1 leading-relaxed">
+                  Get the latest guides, product updates and AI insights straight to your inbox.
+                </p>
+              </div>
+
+              <form onsubmit="event.preventDefault(); alert('Thank you for subscribing!');" class="space-y-2.5">
+                <input type="email" required placeholder="Enter your email"
+                  class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-white/15 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-fuchsia-500 transition">
+                <button type="submit" class="w-full btn-primary py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                  Subscribe <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </form>
+
+              <div class="text-[10px] text-gray-500 text-center">
+                No spam. Unsubscribe anytime.
+              </div>
+            </div>
+
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== RELATED ARTICLES (Exact same card design as aiaxom.co.in) ==================== -->
+    <section class="py-20 md:py-24 relative border-t border-white/5 bg-[#06060b]/60">
+      <div class="max-w-7xl mx-auto px-5">
+        
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
+          <div>
+            <div class="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">Related Stories</div>
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2">
+              Related <span class="gradient-text">Articles</span>
+            </h2>
+            <p class="text-gray-400 text-sm max-w-lg">More guides, tips and stories from the Axom AI team and community.</p>
+          </div>
+          <a href="/#insights" class="text-fuchsia-400 font-semibold text-sm inline-flex items-center gap-1 hover:gap-2 transition-all">
+            View all articles <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
+        </div>
+
+        <!-- 4-Column Card Grid (Matching aiaxom.co.in) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {% for rel in related_articles %}
+          <a href="/blog/{{ rel.slug }}/" class="card group overflow-hidden flex flex-col rounded-2xl border border-white/8 hover:border-white/15 bg-white/[0.02]">
+            <div class="h-40 relative overflow-hidden shrink-0"
+              style="background: linear-gradient(135deg, {{ rel.gradient_from|default:'#a855f7' }}, {{ rel.gradient_to|default:'#ec4899' }});">
+              {% if rel.cover_image_url %}
+                <img src="{{ rel.cover_image_url }}" alt="{{ rel.title }}" class="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+              {% else %}
+                <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px); background-size: 16px 16px;"></div>
+              {% endif %}
+              <div class="absolute bottom-3 left-4 text-[10px] uppercase tracking-widest text-white/90 font-bold bg-black/40 backdrop-blur px-2 py-1 rounded z-10">
+                {{ rel.get_category_display|default:rel.category }}
+              </div>
+            </div>
+            
+            <div class="p-5 flex flex-col flex-1">
+              <div class="text-[11px] text-gray-500 font-medium mb-2">
+                {{ rel.read_time|default:'4 min read' }} · {{ rel.published_at|date:'M d, Y' }}
+              </div>
+              <h3 class="text-base font-semibold text-white mb-2 group-hover:text-fuchsia-400 transition leading-snug">
+                {{ rel.title }}
+              </h3>
+              <p class="text-xs text-gray-400 leading-relaxed mb-4 flex-1">
+                {{ rel.excerpt|default:'Practical AI workflows and guides to help you work faster and smarter.' }}
+              </p>
+              <div class="text-xs font-semibold text-fuchsia-400 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                Read article <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </div>
+            </div>
+          </a>
+          {% empty %}
+          <p class="text-xs text-gray-500 col-span-4">No related articles found.</p>
+          {% endfor %}
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER (Exact same as aiaxom.co.in) ==================== -->
+  <footer class="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-black/50">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
+        
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-2 mb-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center">
+              <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
+            </div>
+            <div class="font-bold text-white">Axom AI</div>
+          </div>
+          <p class="text-xs text-gray-500 leading-relaxed mb-4">AI for a more inclusive future.<br/>Built in Assam, for the world.</p>
+          <div class="flex gap-2">
+            <a href="#" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">𝕏</a>
+            <a href="#" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">in</a>
+            <a href="#" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">▶</a>
+            <a href="#" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">ig</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">Product</div>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li><a href="https://chat.aiaxom.co.in/tools" class="hover:text-fuchsia-400 transition">AI Tools</a></li>
+            <li><a href="/#pricing" class="hover:text-fuchsia-400 transition">Pricing</a></li>
+            <li><a href="/#insights" class="hover:text-fuchsia-400 transition">What's New</a></li>
+            <li><a href="/#roadmap" class="hover:text-fuchsia-400 transition">Roadmap</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">Solutions</div>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li><a href="/#usecases" class="hover:text-fuchsia-400 transition">For Students</a></li>
+            <li><a href="/#usecases" class="hover:text-fuchsia-400 transition">For Businesses</a></li>
+            <li><a href="/#usecases" class="hover:text-fuchsia-400 transition">For Educators</a></li>
+            <li><a href="/#usecases" class="hover:text-fuchsia-400 transition">For Developers</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">Resources</div>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li><a href="/#insights" class="hover:text-fuchsia-400 transition">Blog</a></li>
+            <li><a href="https://user.aiaxom.co.in/support/" class="hover:text-fuchsia-400 transition">Help Center</a></li>
+            <li><a href="/#community" class="hover:text-fuchsia-400 transition">Community</a></li>
+            <li><a href="/#api" class="hover:text-fuchsia-400 transition">API Docs</a></li>
+          </ul>
+        </div>
+
+          <div>
+          <div class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">Company</div>
+          <ul class="space-y-2 text-sm text-gray-500">
+            <li><a href="/about/" class="hover:text-fuchsia-400 transition">About</a></li>
+            <li><a href="/#careers" class="hover:text-fuchsia-400 transition">Careers</a></li>
+            <li><a href="mailto:samarjitkashyp@gmail.com" class="hover:text-fuchsia-400 transition">Contact</a></li>
+            <li><a href="/#press" class="hover:text-fuchsia-400 transition">Press</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span>© 2026 Axom AI. All rights reserved.</span>
+          <a href="#" class="hover:text-fuchsia-400">Privacy</a>
+          <a href="#" class="hover:text-fuchsia-400">Terms</a>
+          <a href="#" class="hover:text-fuchsia-400">Refund</a>
+        </div>
+        <div>Made with <span class="text-red-500">❤</span> in Assam, India 🇮🇳</div>
+      </div>
+      <div class="mt-6 text-center font-serif italic text-gray-500 text-sm">From Assam · To A Smarter Tomorrow</div>
+    </div>
+  </footer>
+
+  <!-- Copy Link Toast Helper -->
+  <div id="copy_toast" class="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-slate-900 border border-fuchsia-500/40 text-xs font-semibold text-white shadow-2xl shadow-fuchsia-500/20 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-fuchsia-400"></i>
+    <span>Article link copied to clipboard!</span>
+  </div>
+
+  <script>
+    function toggleDrawer() {
+      const drawer = document.getElementById('drawer');
+      const overlay = document.getElementById('drawer-overlay');
+      const isOpen = drawer.classList.contains('open');
+      if (isOpen) {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      } else {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function copyArticleLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const toast = document.getElementById('copy_toast');
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-20', 'opacity-0');
+        }, 2200);
+      });
+    }
+  </script>
+
+</body>
+</html>

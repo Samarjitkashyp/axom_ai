@@ -37,6 +37,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
   html { scroll-behavior: smooth; overflow-x: hidden; }
@@ -206,9 +207,35 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
   .glow-orb { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; }
 
-  .marquee { display: flex; overflow: hidden; mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); }
-  .marquee-inner { display: flex; gap: 3rem; animation: scroll 30s linear infinite; flex-shrink: 0; }
-  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+  .marquee { display: flex; overflow: hidden; mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); }
+  .marquee-inner { display: flex; align-items: center; gap: 1rem; animation: scroll 32s linear infinite; flex-shrink: 0; }
+  @media (min-width: 768px) {
+    .marquee-inner { gap: 3rem; animation-duration: 36s; }
+  }
+  .marquee:hover .marquee-inner { animation-play-state: paused; }
+  @keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  .testimonials-marquee {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    padding: 10px 0;
+  }
+  .testimonials-inner {
+    display: flex;
+    align-items: stretch;
+    gap: 1.5rem;
+    animation: scroll-testimonials 45s linear infinite;
+    flex-shrink: 0;
+  }
+  .testimonials-marquee:hover .testimonials-inner {
+    animation-play-state: paused;
+  }
+  @keyframes scroll-testimonials {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
 </style>
 </head>
 
@@ -217,11 +244,189 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K4N88ZBR"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<script id="cms-data-json" type="application/json">
+{
+  "hero": {
+    "badge_text": "{{ cms.hero.badge_text|default:'Made in Assam · For a Brighter Tomorrow'|escapejs }}",
+    "badge_link": "{{ cms.hero.badge_link|default:'#tools'|escapejs }}",
+    "main_heading_prefix": "{{ cms.hero.main_heading_prefix|default:'The Power of AI'|escapejs }}",
+    "main_heading_highlight": "{{ cms.hero.main_heading_highlight|default:'Everyone'|escapejs }}",
+    "subheading_assamese": "{{ cms.hero.subheading_assamese|default:'অসমীয়াত কথা কওক · অসমীয়াতে উত্তৰ পাওক'|escapejs }}",
+    "subheading_english": "{{ cms.hero.subheading_english|default:'Chat, create, analyze, automate and build — all in one place. Axom AI brings world-class AI tools to students, creators, businesses and communities, rooted in Assam and built for the world.'|escapejs }}",
+    "cta_primary_text": "{{ cms.hero.cta_primary_text|default:'Start for Free'|escapejs }}",
+    "cta_primary_url": "{{ cms.hero.cta_primary_url|default:'https://chat.aiaxom.co.in/'|escapejs }}",
+    "cta_secondary_text": "{{ cms.hero.cta_secondary_text|default:'Watch Demo'|escapejs }}",
+    "cta_secondary_url": "{{ cms.hero.cta_secondary_url|default:'#tools'|escapejs }}",
+    "trust_badge_1": "{{ cms.hero.trust_badge_1|default:'No credit card required'|escapejs }}",
+    "trust_badge_2": "{{ cms.hero.trust_badge_2|default:'Fast & secure'|escapejs }}",
+    "trust_badge_3": "{{ cms.hero.trust_badge_3|default:'Accessible for everyone'|escapejs }}",
+    "logo_strip_headline": "{{ cms.logo_strip_headline|default:'Built with the best'|escapejs }}",
+    "logo_strip_active": {{ cms.logo_strip_active|default:True|yesno:"true,false" }}
+  },
+  "explore": {
+    "badge": "{{ cms.explore.badge|default:'Explore'|escapejs }}",
+    "title_prefix": "{{ cms.explore.title_prefix|default:'A Complete AI Toolkit'|escapejs }}",
+    "title_highlight": "{{ cms.explore.title_highlight|default:'for Modern Needs'|escapejs }}",
+    "subheading": "{{ cms.explore.subheading|default:'Everything you need to be more productive, creative and informed — in one powerful platform.'|escapejs }}",
+    "active": {{ cms.explore.active|default:True|yesno:"true,false" }}
+  },
+  "logos": [
+    {% for l in cms.logos %}
+    {
+      "id": {{ l.id }},
+      "name": "{{ l.name|escapejs }}",
+      "logo_image_url": "{{ l.logo_image_url|default:''|escapejs }}",
+      "website_url": "{{ l.website_url|default:''|escapejs }}",
+      "order": {{ l.order|default:0 }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "features": [
+    {% for f in cms.features %}
+    {
+      "id": {{ f.id }},
+      "title": "{{ f.title|escapejs }}",
+      "tagline": "{{ f.tagline|default:''|escapejs }}",
+      "description": "{{ f.description|escapejs }}",
+      "badge": "{{ f.badge|default:''|escapejs }}",
+      "icon_class": "{{ f.icon_class|default:'fa-solid fa-wand-magic-sparkles'|escapejs }}",
+      "gradient_color": "{{ f.gradient_color|default:'from-purple-500 to-indigo-500'|escapejs }}",
+      "action_url": "{{ f.action_url|default:'https://chat.aiaxom.co.in/tools'|escapejs }}",
+      "order": {{ f.order|default:0 }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "usecases_header": {
+    "badge": "{{ cms.usecases_header.badge|default:'Use Cases'|escapejs }}",
+    "title_prefix": "{{ cms.usecases_header.title_prefix|default:'Built for'|escapejs }}",
+    "title_highlight": "{{ cms.usecases_header.title_highlight|default:'Real People, Real Impact'|escapejs }}",
+    "subheading": "{{ cms.usecases_header.subheading|default:'Whoever you are, wherever you\'re from — Axom AI adapts to your work.'|escapejs }}",
+    "active": {{ cms.usecases_header.active|default:True|yesno:"true,false" }}
+  },
+  "usecases": [
+    {% for u in cms.usecases %}
+    {
+      "id": {{ u.id }},
+      "tab_title": "{{ u.tab_title|escapejs }}",
+      "audience_key": "{{ u.audience_key|escapejs }}",
+      "icon_class": "{{ u.icon_class|escapejs }}",
+      "order": {{ u.order|default:0 }},
+      "cards": [
+        {% for c in u.cards %}
+        {
+          "title": "{{ c.title|escapejs }}",
+          "desc": "{{ c.desc|escapejs }}",
+          "icon": "{{ c.icon|escapejs }}",
+          "color": "{{ c.color|default:'text-fuchsia-400'|escapejs }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "insights_header": {
+    "badge": "{{ cms.insights_header.badge|default:'Insights'|escapejs }}",
+    "title_prefix": "{{ cms.insights_header.title_prefix|default:'Learn, Explore &'|escapejs }}",
+    "title_highlight": "{{ cms.insights_header.title_highlight|default:'Stay Updated'|escapejs }}",
+    "subheading": "{{ cms.insights_header.subheading|default:'Guides, tips and stories from the Axom AI team and community.'|escapejs }}",
+    "view_all_text": "{{ cms.insights_header.view_all_text|default:'View all articles'|escapejs }}",
+    "view_all_url": "{{ cms.insights_header.view_all_url|default:'#'|escapejs }}",
+    "active": {{ cms.insights_header.active|default:True|yesno:"true,false" }}
+  },
+  "articles": [
+    {% for art in cms.articles %}
+    {
+      "id": {{ art.id|default:0 }},
+      "cat": "{{ art.get_category_display|default:art.category|escapejs }}",
+      "time": "{{ art.read_time|escapejs }}{% if art.published_at %} · {{ art.published_at|date:'M d, Y'|escapejs }}{% endif %}",
+      "t": "{{ art.title|escapejs }}",
+      "ex": "{{ art.excerpt|escapejs }}",
+      "link": "{% if art.link %}{{ art.link|escapejs }}{% elif art.external_link and art.external_link != '#' %}{{ art.external_link|escapejs }}{% elif art.slug %}/blog/{{ art.slug|escapejs }}/{% else %}#{% endif %}",
+      "gradient_from": "{{ art.gradient_from|default:'#a855f7'|escapejs }}",
+      "gradient_to": "{{ art.gradient_to|default:'#ec4899'|escapejs }}",
+      "color": "from-[{{ art.gradient_from|default:'#a855f7' }}] to-[{{ art.gradient_to|default:'#ec4899' }}]"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "testimonials_header": {
+    "badge": "{{ cms.testimonials_header.badge|default:'Testimonials'|escapejs }}",
+    "title_prefix": "{{ cms.testimonials_header.title_prefix|default:'Loved by Users'|escapejs }}",
+    "title_highlight": "{{ cms.testimonials_header.title_highlight|default:'Across Assam'|escapejs }}",
+    "subheading": "{{ cms.testimonials_header.subheading|default:'Real stories from students, creators and founders using Axom AI daily.'|escapejs }}",
+    "active": {{ cms.testimonials_header.active|default:True|yesno:"true,false" }}
+  },
+  "testimonials": [
+    {% for t in cms.testimonials %}
+    {
+      "id": {{ t.id }},
+      "name": "{{ t.name|escapejs }}",
+      "role": "{{ t.role_designation|escapejs }}",
+      "avatar": "{{ t.avatar_initials|default:'AK'|escapejs }}",
+      "quote_assamese": "{{ t.quote_assamese|escapejs }}",
+      "quote_english": "{{ t.quote_english|default:''|escapejs }}",
+      "rating": {{ t.rating|default:5 }},
+      "order": {{ t.order|default:0 }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "pricing_header": {
+    "badge": "{{ cms.pricing_header.badge|default:'Pricing'|escapejs }}",
+    "title_prefix": "{{ cms.pricing_header.title_prefix|default:'Simple,'|escapejs }}",
+    "title_highlight": "{{ cms.pricing_header.title_highlight|default:'Transparent Pricing'|escapejs }}",
+    "subheading": "{{ cms.pricing_header.subheading|default:'Choose a plan that fits your needs. Upgrade or cancel anytime.'|escapejs }}",
+    "yearly_discount_badge": "{{ cms.pricing_header.yearly_discount_badge|default:'Save 20%'|escapejs }}",
+    "footer_note": "{{ cms.pricing_header.footer_note|default:'All prices in INR (includes GST). Secure Razorpay checkout — UPI · Cards · Netbanking · Wallets.'|escapejs }}",
+    "active": {{ cms.pricing_header.active|default:True|yesno:"true,false" }}
+  },
+  "pricing_plans": [
+    {% for p in cms.pricing_plans %}
+    {
+      "id": "{{ p.plan_slug|default:p.id|escapejs }}",
+      "name": "{{ p.name|escapejs }}",
+      "badge": "{{ p.badge|escapejs }}",
+      "icon_class": "{{ p.icon_class|default:'fa-solid fa-sparkles'|escapejs }}",
+      "color_class": "{{ p.color_class|default:'text-fuchsia-400'|escapejs }}",
+      "desc": "{{ p.desc|escapejs }}",
+      "monthlyPrice": {{ p.monthlyPrice|default:0 }},
+      "yearlyPrice": {{ p.yearlyPrice|default:0 }},
+      "monthlyWords": "{{ p.monthlyWords|default:''|escapejs }}",
+      "cta": "{{ p.cta|default:'Upgrade'|escapejs }}",
+      "href": "{{ p.href|default:'https://chat.aiaxom.co.in/upgrade'|escapejs }}",
+      "featured": {{ p.featured|yesno:"true,false" }},
+      "features": [
+        {% for f in p.features %}
+        "{{ f|escapejs }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ]
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ],
+  "faqs": [
+    {% for f in cms.faqs %}
+    {
+      "id": {{ f.id }},
+      "q": "{{ f.question|escapejs }}",
+      "a": "{{ f.answer|escapejs }}",
+      "category": "{{ f.category|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
 <div id="root"></div>
 
 {% verbatim %}
 <script type="text/babel" data-presets="react">
 const { useState, useEffect } = React;
+
+let cms = {};
+try {
+  const el = document.getElementById('cms-data-json');
+  if (el) cms = JSON.parse(el.textContent);
+} catch (e) {
+  cms = {};
+}
 
 const CHAT_URL = "https://chat.aiaxom.co.in/";
 const UPGRADE_URL = "https://chat.aiaxom.co.in/upgrade";
@@ -342,7 +547,7 @@ function Nav() {
             </div>
           </div>
 
-          {[["#usecases","Use Cases"],["#pricing","Pricing"],["#faq","FAQ"]].map((l,i) => (
+          {[["/about/","About"],["#usecases","Use Cases"],["#pricing","Pricing"],["/blog/","Blog & Insights"],["#faq","FAQ"]].map((l,i) => (
             <a key={i} href={l[0]} className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">{l[1]}</a>
           ))}
         </div>
@@ -378,9 +583,11 @@ function Nav() {
 
         <div className="py-2">
           {[
+            { icon: ISparkle,href: "/about/",   label: "About Axom AI" },
             { icon: IGrid,   href: "#tools",    label: "AI Tools" },
             { icon: IUsers,  href: "#usecases", label: "Use Cases" },
             { icon: ICrown,  href: "#pricing",  label: "Pricing" },
+            { icon: ISparkle,href: "/blog/",    label: "Blog & Insights" },
             { icon: ISparkle,href: "#faq",      label: "FAQ" },
           ].map((it, i) => {
             const Ic = it.icon;
@@ -409,6 +616,7 @@ function Nav() {
 
 // ─────── HERO ───────
 function Hero() {
+  const h = cms?.hero || {};
   return (
     <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
       <div className="hero-bg"></div>
@@ -417,33 +625,33 @@ function Hero() {
       <div className="relative max-w-6xl mx-auto px-5 text-center w-full">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-400/30 text-[11px] font-semibold text-fuchsia-300 mb-8 uppercase tracking-wider backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse"></span>
-          Made in Assam · For a Brighter Tomorrow
+          {h.badge_text || "Made in Assam · For a Brighter Tomorrow"}
         </div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.02] mb-6 text-white">
-          The Power of AI<br/>
-          for <span className="gradient-text">Everyone</span>
+          {h.main_heading_prefix || "The Power of AI"}<br/>
+          <span className="gradient-text">{h.main_heading_highlight || "Everyone"}</span>
         </h1>
 
-        <p className="font-assamese text-xl md:text-2xl text-fuchsia-200/90 mb-5">অসমীয়াত কথা কওক · অসমীয়াতে উত্তৰ পাওক</p>
+        <p className="font-assamese text-xl md:text-2xl text-fuchsia-200/90 mb-5">{h.subheading_assamese || "অসমীয়াত কথা কওক · অসমীয়াতে উত্তৰ পাওক"}</p>
 
         <p className="text-base md:text-lg text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Chat, create, analyze, automate and build — all in one place. Axom AI brings world-class AI tools to students, creators, businesses and communities, rooted in Assam and built for the world.
+          {h.subheading_english || "Chat, create, analyze, automate and build — all in one place. Axom AI brings world-class AI tools to students, creators, businesses and communities, rooted in Assam and built for the world."}
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
-          <a href={CHAT_URL} className="btn-primary px-8 py-4 rounded-full text-base inline-flex items-center gap-2">
-            Start for Free <IArrow c="w-5 h-5"/>
+          <a href={h.cta_primary_url || CHAT_URL} className="btn-primary px-8 py-4 rounded-full text-base inline-flex items-center gap-2">
+            {h.cta_primary_text || "Start for Free"} <IArrow c="w-5 h-5"/>
           </a>
-          <a href="#tools" className="btn-ghost px-8 py-4 rounded-full text-base inline-flex items-center gap-2">
-            <IPlay c="w-5 h-5"/> Watch Demo
+          <a href={h.cta_secondary_url || "#tools"} className="btn-ghost px-8 py-4 rounded-full text-base inline-flex items-center gap-2">
+            <IPlay c="w-5 h-5"/> {h.cta_secondary_text || "Watch Demo"}
           </a>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-gray-400">
-          <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> No credit card required</div>
-          <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> Fast & secure</div>
-          <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> Accessible for everyone</div>
+          <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> {h.trust_badge_1 || "No credit card required"}</div>
+          <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> {h.trust_badge_2 || "Fast & secure"}</div>
+          <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> {h.trust_badge_3 || "Accessible for everyone"}</div>
         </div>
 
         <div className="mt-14 flex justify-center">
@@ -456,16 +664,55 @@ function Hero() {
 
 // ─────── LOGO STRIP ───────
 function LogoStrip() {
-  const logos = ["Powered by Groq","Google Gemini","Cloudflare Workers AI","Razorpay","Tavily","IndicTrans2","AWS Lightsail"];
+  const hero = cms?.hero || {};
+  if (hero.logo_strip_active === false) return null;
+
+  const rawLogos = (cms?.logos && cms.logos.length > 0) ? cms.logos : [
+    { id: 1, name: "Powered by Groq", logo_image_url: "", website_url: "" },
+    { id: 2, name: "Google Gemini", logo_image_url: "", website_url: "" },
+    { id: 3, name: "Cloudflare Workers AI", logo_image_url: "", website_url: "" },
+    { id: 4, name: "Razorpay", logo_image_url: "", website_url: "" },
+    { id: 5, name: "Tavily", logo_image_url: "", website_url: "" },
+    { id: 6, name: "IndicTrans2", logo_image_url: "", website_url: "" },
+    { id: 7, name: "AWS Lightsail", logo_image_url: "", website_url: "" }
+  ];
+
+  // Repeat logos for smooth infinite loop
+  const displayLogos = [...rawLogos, ...rawLogos];
+
   return (
-    <section className="py-12 border-y border-white/5 bg-black/50">
-      <div className="max-w-7xl mx-auto px-5">
-        <p className="text-center text-[11px] uppercase tracking-widest text-gray-500 font-semibold mb-6">Built with the best</p>
+    <section className="py-10 md:py-14 border-y border-white/5 bg-black/40 backdrop-blur-sm relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 md:px-5">
+        <p className="text-center text-[11px] md:text-xs uppercase tracking-widest text-gray-500 font-semibold mb-6 md:mb-8">
+          {hero.logo_strip_headline || "Built with the best"}
+        </p>
         <div className="marquee">
           <div className="marquee-inner">
-            {[...logos, ...logos].map((l, i) => (
-              <div key={i} className="text-gray-400 text-sm font-medium whitespace-nowrap">{l}</div>
-            ))}
+            {displayLogos.map((l, i) => {
+              const hasImg = !!(l.logo_image_url && l.logo_image_url.trim());
+              const content = hasImg ? (
+                <div className="h-8 md:h-10 px-2 flex items-center justify-center">
+                  <img
+                    src={l.logo_image_url}
+                    alt={l.name}
+                    className="max-h-7 md:max-h-8 max-w-[120px] md:max-w-[160px] object-contain opacity-80 hover:opacity-100 transition brightness-125"
+                  />
+                </div>
+              ) : (
+                <div className="px-3.5 py-1.5 md:px-4 md:py-2 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-fuchsia-500/40 text-gray-200 hover:text-white transition font-medium text-xs md:text-sm tracking-wide shadow-sm flex items-center justify-center whitespace-nowrap">
+                  {l.name}
+                </div>
+              );
+
+              return (
+                <div
+                  key={i}
+                  className="w-[45vw] sm:w-[42vw] md:w-auto flex-shrink-0 flex items-center justify-center text-center"
+                >
+                  {content}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -475,6 +722,18 @@ function LogoStrip() {
 
 // ─────── EXPLORE (3 per row) ───────
 function Explore() {
+  const exp = cms?.explore || {};
+  if (exp.active === false) return null;
+
+  const rawFeatures = (cms?.features && cms.features.length > 0) ? cms.features : [
+    { title: "Assamese Intelligence", tagline: "Native Dialect Understanding", description: "Trained specifically on Assamese linguistic structures and cultural nuances for 99.4% translation and conversational accuracy.", badge: "Core Engine", icon_class: "fa-solid fa-brain", action_url: CHAT_URL + "tools" },
+    { title: "Knowledge Base & RAG 2.0", tagline: "25,000+ Wikipedia Articles", description: "Zero-hallucination answers powered by semantic vector search across 114,000 verified Assamese knowledge chunks.", badge: "RAG 2.0", icon_class: "fa-solid fa-database", action_url: CHAT_URL + "tools" },
+    { title: "Ultra-Fast Streaming", tagline: "Sub-Second Response Latency", description: "High-throughput inference with hybrid Groq and Gemini routing delivering instantaneous, token-by-token response streaming.", badge: "Fast", icon_class: "fa-solid fa-bolt", action_url: CHAT_URL + "tools" },
+    { title: "AI Creative Studio", tagline: "Image & Art Generation", description: "Generate stunning visuals and artworks from Assamese and English prompts with FLUX and multi-provider fallbacks.", badge: "Studio", icon_class: "fa-solid fa-palette", action_url: CHAT_URL + "tools" },
+    { title: "Document Intelligence", tagline: "PDF & Document Analysis", description: "Upload large PDFs, Word documents, and text files for instantaneous contextual summarization and extraction.", badge: "Tools", icon_class: "fa-solid fa-file-pdf", action_url: CHAT_URL + "tools" },
+    { title: "Enterprise Security", tagline: "Full Privacy & Encryption", description: "Cloudflare Full-strict SSL encryption, CSRF protection, and zero data leakage across tenant accounts.", badge: "Security", icon_class: "fa-solid fa-shield-halved", action_url: CHAT_URL + "tools" },
+  ];
+
   return (
     <section id="tools" className="py-24 md:py-32 relative">
       <div className="absolute inset-0 grid-bg opacity-30"></div>
@@ -483,25 +742,40 @@ function Explore() {
 
       <div className="relative max-w-7xl mx-auto px-5">
         <div className="text-center mb-14">
-          <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">Explore</div>
+          <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">
+            {exp.badge || "Explore"}
+          </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
-            A Complete AI Toolkit<br/>
-            <span className="gradient-text">for Modern Needs</span>
+            {exp.title_prefix || "A Complete AI Toolkit"}<br/>
+            <span className="gradient-text">{exp.title_highlight || "for Modern Needs"}</span>
           </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">Everything you need to be more productive, creative and informed — in one powerful platform.</p>
+          <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
+            {exp.subheading || "Everything you need to be more productive, creative and informed — in one powerful platform."}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {TOOLS.map((t, i) => {
-            const Ic = t.icon;
+          {rawFeatures.map((t, i) => {
             return (
-              <a href={CHAT_URL + "tools"} key={i} className="card p-7 block group">
+              <a href={t.action_url || (CHAT_URL + "tools")} key={i} className="card p-7 block group hover:border-fuchsia-500/30 transition-all duration-300">
                 <div className="flex items-start justify-between mb-5">
-                  <div className="mega-icon"><Ic c={"w-5 h-5 " + t.color}/></div>
-                  <IArrowRight c="w-5 h-5 text-gray-600 group-hover:text-fuchsia-400 transition"/>
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-purple-600/20 border border-fuchsia-500/30 flex items-center justify-center text-fuchsia-400 text-base shadow-md">
+                    <i className={t.icon_class || "fa-solid fa-wand-magic-sparkles"}></i>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {t.badge && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/25">
+                        {t.badge}
+                      </span>
+                    )}
+                    <IArrowRight c="w-5 h-5 text-gray-600 group-hover:text-fuchsia-400 group-hover:translate-x-0.5 transition-all"/>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-1.5">{t.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{t.desc}</p>
+                <h3 className="text-lg font-semibold text-white mb-1">{t.title}</h3>
+                {t.tagline && (
+                  <div className="text-xs text-fuchsia-400 font-medium mb-2">{t.tagline}</div>
+                )}
+                <p className="text-sm text-gray-400 leading-relaxed">{t.description || t.desc}</p>
               </a>
             );
           })}
@@ -513,77 +787,200 @@ function Explore() {
 
 // ─────── USE CASES ───────
 function UseCases() {
-  const [tab, setTab] = useState('Students');
-  const tabs = ['Students','Professionals','Businesses','Creators','Researchers','Developers'];
-  const cases = {
-    Students: [
-      { i: IStudent, t: "Assignment Helper", d: "Get instant explanations in Assamese, Hindi or English for any subject.", color: "text-fuchsia-400" },
-      { i: IDoc,     t: "Study Summaries",   d: "Turn 100-page PDFs into concise notes in 3 lengths and 3 languages.", color: "text-purple-400" },
-      { i: IWrite,   t: "Essay & Report",    d: "Draft essays and research reports with source citations.", color: "text-pink-400" },
-    ],
-    Professionals: [
-      { i: IBriefcase, t: "Email Drafting",  d: "Reply to Assamese and English emails in seconds with the right tone.", color: "text-blue-400" },
-      { i: IPdf,       t: "PDF Workflow",    d: "Merge, split, sign, OCR and compress documents — all in browser.", color: "text-red-400" },
-      { i: IChart,     t: "Data Insights",   d: "Turn Excel and CSV into instant charts and summaries.", color: "text-cyan-400" },
-    ],
-    Businesses: [
-      { i: IBuilding,  t: "Customer Support", d: "AI drafts replies to WhatsApp and email in your brand voice.", color: "text-amber-400" },
-      { i: IUsers,     t: "Team Collaboration", d: "Shared knowledge base, team accounts and role management.", color: "text-emerald-400" },
-      { i: IChart,     t: "Sales Reports",   d: "Generate weekly performance reports and dashboards on demand.", color: "text-cyan-400" },
-    ],
-    Creators: [
-      { i: IPalette,   t: "Image Generation", d: "Turn Assamese or English prompts into stunning FLUX visuals.", color: "text-pink-400" },
-      { i: IWrite,     t: "Content Ideation", d: "Scripts, captions and hooks in Assamese for reels and posts.", color: "text-purple-400" },
-      { i: ITranslate, t: "Multilingual Reach", d: "Translate your content to reach English, Hindi and Bengali audiences.", color: "text-emerald-400" },
-    ],
-    Researchers: [
-      { i: ISearch,    t: "Live Web Research", d: "Real-time web search with Assamese-synthesized findings and sources.", color: "text-amber-400" },
-      { i: IDoc,       t: "Paper Summaries",   d: "Digest research papers in your language, keep the citations.", color: "text-blue-400" },
-      { i: IGrid,      t: "Knowledge Base",    d: "Upload your corpus (JSONL/PDF) and search semantically.", color: "text-fuchsia-400" },
-    ],
-    Developers: [
-      { i: ICode,      t: "Code Assistant",   d: "Write, debug and explain in Python, JS, Go — with Assamese comments.", color: "text-indigo-400" },
-      { i: IZap,       t: "API Access",       d: "Business tier unlocks REST API for embedding Axom in your apps.", color: "text-amber-400" },
-      { i: IGrid,      t: "Prompt Templates", d: "Ready-made prompts for common developer tasks.", color: "text-fuchsia-400" },
-    ],
-  };
-  const list = cases[tab];
+  const ucHeader = cms?.usecases_header || {};
+  if (ucHeader.active === false) return null;
+
+  const rawUseCases = (cms?.usecases && cms.usecases.length > 0) ? cms.usecases : [
+    {
+      tab_title: 'Students',
+      icon_class: 'fa-solid fa-graduation-cap',
+      cards: [
+        { title: "Assignment Helper", desc: "Get instant explanations in Assamese, Hindi or English for any subject.", icon: "fa-solid fa-graduation-cap", color: "text-fuchsia-400" },
+        { title: "Study Summaries", desc: "Turn 100-page PDFs into concise notes in 3 lengths and 3 languages.", icon: "fa-solid fa-file-pdf", color: "text-purple-400" },
+        { title: "Essay & Report", desc: "Draft essays and research reports with source citations.", icon: "fa-solid fa-pen-nib", color: "text-pink-400" },
+      ]
+    },
+    {
+      tab_title: 'Professionals',
+      icon_class: 'fa-solid fa-briefcase',
+      cards: [
+        { title: "Email Drafting", desc: "Reply to Assamese and English emails in seconds with the right tone.", icon: "fa-solid fa-briefcase", color: "text-blue-400" },
+        { title: "PDF Workflow", desc: "Merge, split, sign, OCR and compress documents — all in browser.", icon: "fa-solid fa-file-pdf", color: "text-red-400" },
+        { title: "Data Insights", desc: "Turn Excel and CSV into instant charts and summaries.", icon: "fa-solid fa-chart-simple", color: "text-cyan-400" },
+      ]
+    },
+    {
+      tab_title: 'Businesses',
+      icon_class: 'fa-solid fa-building',
+      cards: [
+        { title: "Customer Support", desc: "AI drafts replies to WhatsApp and email in your brand voice.", icon: "fa-solid fa-building", color: "text-amber-400" },
+        { title: "Team Collaboration", desc: "Shared knowledge base, team accounts and role management.", icon: "fa-solid fa-users", color: "text-emerald-400" },
+        { title: "Sales Reports", desc: "Generate weekly performance reports and dashboards on demand.", icon: "fa-solid fa-chart-simple", color: "text-cyan-400" },
+      ]
+    },
+    {
+      tab_title: 'Creators',
+      icon_class: 'fa-solid fa-palette',
+      cards: [
+        { title: "Image Generation", desc: "Turn Assamese or English prompts into stunning FLUX visuals.", icon: "fa-solid fa-palette", color: "text-pink-400" },
+        { title: "Content Ideation", desc: "Scripts, captions and hooks in Assamese for reels and posts.", icon: "fa-solid fa-pen-nib", color: "text-purple-400" },
+        { title: "Multilingual Reach", desc: "Translate your content to reach English, Hindi and Bengali audiences.", icon: "fa-solid fa-language", color: "text-emerald-400" },
+      ]
+    },
+    {
+      tab_title: 'Researchers',
+      icon_class: 'fa-solid fa-magnifying-glass',
+      cards: [
+        { title: "Live Web Research", desc: "Real-time web search with Assamese-synthesized findings and sources.", icon: "fa-solid fa-globe", color: "text-amber-400" },
+        { title: "Paper Summaries", desc: "Digest research papers in your language, keep the citations.", icon: "fa-solid fa-file-pdf", color: "text-blue-400" },
+        { title: "Knowledge Base", desc: "Upload your corpus (JSONL/PDF) and search semantically.", icon: "fa-solid fa-database", color: "text-fuchsia-400" },
+      ]
+    },
+    {
+      tab_title: 'Developers',
+      icon_class: 'fa-solid fa-code',
+      cards: [
+        { title: "Code Assistant", desc: "Write, debug and explain in Python, JS, Go — with Assamese comments.", icon: "fa-solid fa-code", color: "text-indigo-400" },
+        { title: "API Access", desc: "Business tier unlocks REST API for embedding Axom in your apps.", icon: "fa-solid fa-bolt", color: "text-amber-400" },
+        { title: "Prompt Templates", desc: "Ready-made prompts for common developer tasks.", icon: "fa-solid fa-cubes", color: "text-fuchsia-400" },
+      ]
+    }
+  ];
+
+  const [activeTabIdx, setActiveTabIdx] = useState(0);
+  const activeUseCase = rawUseCases[activeTabIdx] || rawUseCases[0] || { cards: [] };
+
   return (
     <section id="usecases" className="py-24 md:py-32 relative bg-black/40">
       <div className="glow-orb w-[500px] h-[300px] bg-fuchsia-500/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
       <div className="relative max-w-7xl mx-auto px-5">
         <div className="text-center mb-10">
-          <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">Use Cases</div>
+          <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">
+            {ucHeader.badge || "Use Cases"}
+          </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
-            Built for <span className="gradient-text">Real People</span>, Real Impact
+            {ucHeader.title_prefix || "Built for"} <span className="gradient-text">{ucHeader.title_highlight || "Real People, Real Impact"}</span>
           </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">Whoever you are, wherever you're from — Axom AI adapts to your work.</p>
+          <p className="text-gray-400 max-w-xl mx-auto">
+            {ucHeader.subheading || "Whoever you are, wherever you're from — Axom AI adapts to your work."}
+          </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {tabs.map(t => (
+          {rawUseCases.map((u, idx) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={"px-5 py-2 rounded-full text-sm font-medium transition " + (
-                tab === t
+              key={idx}
+              onClick={() => setActiveTabIdx(idx)}
+              className={"px-5 py-2 rounded-full text-sm font-medium transition inline-flex items-center gap-2 " + (
+                activeTabIdx === idx
                   ? "bg-fuchsia-500 text-white shadow-lg shadow-fuchsia-500/30"
                   : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
               )}
             >
-              {t}
+              {u.icon_class && <i className={u.icon_class + " text-xs"}></i>}
+              {u.tab_title}
             </button>
           ))}
         </div>
 
         <div className="grid md:grid-cols-3 gap-5">
-          {list.map((c, i) => {
-            const Ic = c.i;
+          {(activeUseCase.cards || []).map((c, i) => (
+            <div key={i} className="card p-7">
+              <div className="mega-icon mb-5">
+                <i className={(c.icon || "fa-solid fa-sparkles") + " text-lg " + (c.color || "text-fuchsia-400")}></i>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">{c.title || c.t}</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">{c.desc || c.d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────── TESTIMONIALS on Assam bg ───────
+function Testimonials() {
+  const tHeader = cms?.testimonials_header || {};
+  if (tHeader.active === false) return null;
+
+  const rawTestimonials = (cms?.testimonials && cms.testimonials.length > 0) ? cms.testimonials : [
+    { quote_assamese: "অসমীয়া ভাষাত ইমান সঠিক উত্তৰ আৰু ব্যাকৰণ মই আন কোনো AI ত পোৱা নাই। পঢ়া-শুনাত মোক বহুত সহায় কৰিছে।", quote_english: "I haven't seen such accurate Assamese answers in any other AI. It helped me immensely with my studies.", name: "Pranjal Sarma", role: "Student, Cotton University", avatar: "PS", rating: 5 },
+    { quote_assamese: "স্থানীয় ব্যৱসায়ৰ বাবে অসমীয়া বিজ্ঞাপন আৰু কণ্টেণ্ট লিখিবলৈ Axom AI অতুলনীয়।", quote_english: "For writing Assamese ads and content for local businesses, Axom AI is unmatched.", name: "Gitashree Barua", role: "Digital Marketer, Jorhat", avatar: "GB", rating: 5 },
+    { quote_assamese: "অসমৰ ইতিহাস আৰু সাহিত্য সম্পৰ্কীয় প্ৰশ্নসমূহৰ তথ্যভিত্তিক উত্তৰ সঁচাকৈয়ে প্ৰশংসনীয়।", quote_english: "The factual answers regarding Assam's history and literature are truly commendable.", name: "Dr. Bhaskar Jyoti Das", role: "Researcher, Dibrugarh", avatar: "BD", rating: 5 },
+  ];
+
+  // Repeat items for seamless infinite horizontal loop
+  const displayTestimonials = [...rawTestimonials, ...rawTestimonials, ...rawTestimonials];
+
+  const colors = [
+    "from-fuchsia-500 to-purple-600",
+    "from-pink-500 to-rose-600",
+    "from-amber-500 to-orange-600",
+    "from-indigo-500 to-blue-600",
+    "from-emerald-500 to-teal-600",
+    "from-cyan-500 to-sky-600"
+  ];
+
+  return (
+    <section id="testimonials" className="relative py-24 md:py-32 assam-bg overflow-hidden">
+      <div className="relative max-w-7xl mx-auto px-5 mb-12 md:mb-16">
+        <div className="text-center text-white">
+          <div className="text-[11px] uppercase tracking-widest text-fuchsia-300 font-bold mb-3">
+            {tHeader.badge || "Testimonials"}
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+            {tHeader.title_prefix || "Loved by Users"} <span className="gradient-text">{tHeader.title_highlight || "Across Assam"}</span>
+          </h2>
+          {tHeader.subheading && (
+            <p className="text-gray-300 max-w-xl mx-auto mt-3 text-sm">
+              {tHeader.subheading}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Horizontal Continuous Loop Carousel (~3.5 visible cards) */}
+      <div className="testimonials-marquee">
+        <div className="testimonials-inner">
+          {displayTestimonials.map((it, i) => {
+            const avatarColor = colors[i % colors.length];
+            const starCount = it.rating || 5;
+            const initials = it.avatar || it.name.split(' ').map(x => x[0]).slice(0, 2).join('').toUpperCase();
             return (
-              <div key={i} className="card p-7">
-                <div className="mega-icon mb-5"><Ic c={"w-5 h-5 " + c.color}/></div>
-                <h3 className="text-lg font-semibold text-white mb-2">{c.t}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{c.d}</p>
+              <div
+                key={i}
+                className="w-[82vw] sm:w-[360px] md:w-[380px] lg:w-[370px] shrink-0 card p-6 md:p-7 backdrop-blur-md flex flex-col justify-between border border-white/10 hover:border-fuchsia-500/40 transition-all duration-300 shadow-xl"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex gap-1 text-amber-400">
+                      {[...Array(starCount)].map((_, j) => (
+                        <IStar key={j} c="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/5">
+                      Verified Review
+                    </span>
+                  </div>
+                  <p className="text-sm md:text-[15px] text-gray-100 leading-relaxed mb-3 font-assamese font-normal">
+                    "{it.quote_assamese || it.q}"
+                  </p>
+                  {it.quote_english && (
+                    <p className="text-xs text-gray-400 leading-relaxed mb-6 italic">
+                      "{it.quote_english}"
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-3.5 pt-4 border-t border-white/10">
+                  <div className={"w-11 h-11 rounded-full bg-gradient-to-br " + avatarColor + " grid place-items-center text-white text-sm font-bold shadow-lg shrink-0 ring-2 ring-white/10"}>
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-white truncate">{it.name || it.n}</div>
+                    <div className="text-xs text-fuchsia-300/80 truncate">{it.role || it.r}</div>
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -593,48 +990,15 @@ function UseCases() {
   );
 }
 
-// ─────── TESTIMONIALS on Assam bg ───────
-function Testimonials() {
-  const items = [
-    { q: "Axom AI is a game-changer. Simple, powerful, and finally in my language.", n: "Ritu Sharma", r: "Student, Guwahati", color: "from-fuchsia-500 to-purple-600" },
-    { q: "It saves hours of work every week. The Assamese output feels natural — not translated.", n: "Arman Ali", r: "Founder, Jorhat", color: "from-pink-500 to-rose-600" },
-    { q: "Finally, an AI platform that understands our language and needs. Proud Assamese initiative.", n: "Priyanka Das", r: "Educator, Dibrugarh", color: "from-amber-500 to-orange-600" },
-  ];
-  return (
-    <section className="relative py-24 md:py-28 assam-bg">
-      <div className="relative max-w-7xl mx-auto px-5">
-        <div className="text-center mb-14 text-white">
-          <div className="text-[11px] uppercase tracking-widest text-fuchsia-300 font-bold mb-3">Testimonials</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Loved by Users <span className="gradient-text">Across Assam</span></h2>
-        </div>
-        <div className="grid md:grid-cols-3 gap-5">
-          {items.map((it, i) => (
-            <div key={i} className="card p-6 backdrop-blur">
-              <div className="flex gap-0.5 mb-3">
-                {[...Array(5)].map((_, j) => <IStar key={j} c="w-3.5 h-3.5 text-yellow-400 fill-current"/>)}
-              </div>
-              <p className="text-sm text-gray-200 leading-relaxed mb-6 italic">"{it.q}"</p>
-              <div className="flex items-center gap-3">
-                <div className={"w-10 h-10 rounded-full bg-gradient-to-br " + it.color + " grid place-items-center text-white text-sm font-bold shadow-lg"}>{it.n.split(' ').map(x => x[0]).slice(0,2).join('')}</div>
-                <div>
-                  <div className="text-sm font-semibold text-white">{it.n}</div>
-                  <div className="text-xs text-gray-400">{it.r}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─────── PRICING (matches /upgrade) ───────
 function Pricing() {
   const [yearly, setYearly] = useState(false);
-  const plans = [
+  const pHeader = cms?.pricing_header || {};
+  if (pHeader.active === false) return null;
+
+  const defaultPlans = [
     {
-      id: 'free', name: 'Free', badge: 'Starter AI', icon: ISparkle, color: 'text-gray-400',
+      id: 'free', name: 'Free', badge: 'Starter AI', icon_class: 'fa-solid fa-sparkles', color_class: 'text-gray-400',
       desc: 'Ideal for casual queries, students & basic Assamese chat.',
       monthlyPrice: 0, yearlyPrice: 0, monthlyWords: '5,000 words',
       cta: 'Get Started Free', href: CHAT_URL, featured: false,
@@ -648,7 +1012,7 @@ function Pricing() {
       ],
     },
     {
-      id: 'starter', name: 'Starter', badge: 'Individual', icon: IZap, color: 'text-sky-400',
+      id: 'starter', name: 'Starter', badge: 'Individual', icon_class: 'fa-solid fa-bolt', color_class: 'text-sky-400',
       desc: 'Perfect for researchers, creators and daily regular users.',
       monthlyPrice: 199, yearlyPrice: 159, monthlyWords: '50,000 words',
       cta: 'Upgrade to Starter', href: UPGRADE_URL, featured: false,
@@ -664,7 +1028,7 @@ function Pricing() {
       ],
     },
     {
-      id: 'pro', name: 'Pro', badge: '⭐ Most Popular', icon: ICrown, color: 'text-fuchsia-400',
+      id: 'pro', name: 'Pro', badge: '⭐ Most Popular', icon_class: 'fa-solid fa-crown', color_class: 'text-fuchsia-400',
       desc: 'Unleash full power: advanced models, OCR & 20+ file tools.',
       monthlyPrice: 499, yearlyPrice: 399, monthlyWords: '250,000 words',
       cta: 'Upgrade to Pro', href: UPGRADE_URL, featured: true,
@@ -681,7 +1045,7 @@ function Pricing() {
       ],
     },
     {
-      id: 'business', name: 'Business', badge: 'Team & API', icon: IBuilding, color: 'text-amber-400',
+      id: 'business', name: 'Business', badge: 'Team & API', icon_class: 'fa-solid fa-building', color_class: 'text-amber-400',
       desc: 'For offices, institutions & teams needing high volume & API.',
       monthlyPrice: 1499, yearlyPrice: 1199, monthlyWords: '1,000,000 words',
       cta: 'Upgrade to Business', href: UPGRADE_URL, featured: false,
@@ -697,36 +1061,48 @@ function Pricing() {
       ],
     },
   ];
+
+  const plans = (cms?.pricing_plans && cms.pricing_plans.length > 0) ? cms.pricing_plans : defaultPlans;
+
   return (
     <section id="pricing" className="py-24 md:py-32 relative">
       <div className="glow-orb w-[600px] h-[400px] bg-fuchsia-500/10 top-1/4 left-1/2 -translate-x-1/2"></div>
       <div className="relative max-w-7xl mx-auto px-5">
         <div className="text-center mb-12">
-          <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">Pricing</div>
+          <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">
+            {pHeader.badge || "Pricing"}
+          </div>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
-            Simple, <span className="gradient-text">Transparent</span> Pricing
+            {pHeader.title_prefix || "Simple,"} <span className="gradient-text">{pHeader.title_highlight || "Transparent Pricing"}</span>
           </h2>
-          <p className="text-gray-400 max-w-xl mx-auto mb-8">Choose a plan that fits your needs. Upgrade or cancel anytime.</p>
+          <p className="text-gray-400 max-w-xl mx-auto mb-8">
+            {pHeader.subheading || "Choose a plan that fits your needs. Upgrade or cancel anytime."}
+          </p>
           <div className="inline-flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-full">
             <button onClick={()=>setYearly(false)} className={"px-5 py-1.5 rounded-full text-sm font-medium transition " + (!yearly ? "bg-white text-black" : "text-gray-400")}>Monthly</button>
             <button onClick={()=>setYearly(true)} className={"px-5 py-1.5 rounded-full text-sm font-medium transition inline-flex items-center gap-2 " + (yearly ? "bg-white text-black" : "text-gray-400")}>
-              Yearly <span className={"text-[10px] px-2 py-0.5 rounded-full " + (yearly ? "bg-fuchsia-100 text-fuchsia-700" : "bg-fuchsia-500/20 text-fuchsia-300")}>Save 20%</span>
+              Yearly <span className={"text-[10px] px-2 py-0.5 rounded-full " + (yearly ? "bg-fuchsia-100 text-fuchsia-700" : "bg-fuchsia-500/20 text-fuchsia-300")}>{pHeader.yearly_discount_badge || "Save 20%"}</span>
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {plans.map((p, i) => {
-            const Ic = p.icon;
+            const iconClass = p.icon_class || 'fa-solid fa-sparkles';
+            const colorClass = p.color_class || 'text-fuchsia-400';
+            const mPrice = Number(p.monthlyPrice) || 0;
+            const yPrice = Number(p.yearlyPrice) || 0;
+            const currentPrice = yearly ? yPrice : mPrice;
+
             return (
               <div key={i} className={"relative rounded-2xl p-7 border transition " + (p.featured ? "bg-gradient-to-b from-fuchsia-500/12 to-transparent border-fuchsia-500/40 shadow-2xl shadow-fuchsia-500/15" : "bg-white/[0.02] border-white/8 hover:border-white/15")}>
                 {p.featured && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                    ⭐ Most Popular
+                    {p.badge || "⭐ Most Popular"}
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-2">
-                  <Ic c={"w-5 h-5 " + p.color}/>
+                  <i className={iconClass + " text-base " + colorClass}></i>
                   <div className="text-xs font-semibold text-gray-400">{p.badge}</div>
                 </div>
                 <div className="text-xl font-bold text-white mb-1">{p.name}</div>
@@ -734,17 +1110,17 @@ function Pricing() {
 
                 <div className="mb-5">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-white">₹{yearly ? p.yearlyPrice : p.monthlyPrice}</span>
+                    <span className="text-4xl font-bold text-white">₹{currentPrice}</span>
                     <span className="text-sm text-gray-500">/ mo</span>
                   </div>
-                  <div className="text-xs text-fuchsia-400 mt-1">{p.monthlyWords} / month</div>
-                  {yearly && p.monthlyPrice > 0 && <div className="text-[11px] text-gray-500 mt-0.5">Billed ₹{p.yearlyPrice * 12} yearly</div>}
+                  {p.monthlyWords && <div className="text-xs text-fuchsia-400 mt-1">{p.monthlyWords} / month</div>}
+                  {yearly && mPrice > 0 && <div className="text-[11px] text-gray-500 mt-0.5">Billed ₹{yPrice * 12} yearly</div>}
                 </div>
 
-                <a href={p.href} className={"block text-center px-4 py-3 rounded-full text-sm font-semibold mb-6 " + (p.featured ? "btn-primary" : "btn-ghost")}>{p.cta}</a>
+                <a href={p.href || (mPrice === 0 ? CHAT_URL : UPGRADE_URL)} className={"block text-center px-4 py-3 rounded-full text-sm font-semibold mb-6 " + (p.featured ? "btn-primary" : "btn-ghost")}>{p.cta || (mPrice === 0 ? "Get Started Free" : "Upgrade")}</a>
 
                 <ul className="space-y-2.5 text-xs">
-                  {p.features.map((f, j) => (
+                  {(p.features || []).map((f, j) => (
                     <li key={j} className="flex items-start gap-2 text-gray-300">
                       <ICheck c="w-4 h-4 text-fuchsia-400 mt-0.5 flex-shrink-0"/>
                       <span>{f}</span>
@@ -756,45 +1132,66 @@ function Pricing() {
           })}
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-8">All prices in INR (includes GST). Secure Razorpay checkout — UPI · Cards · Netbanking · Wallets.</p>
+        {pHeader.footer_note && (
+          <p className="text-center text-xs text-gray-500 mt-8">{pHeader.footer_note}</p>
+        )}
       </div>
     </section>
   );
 }
 
-// ─────── INSIGHTS (4 blog posts, no newsletter, restructured cards) ───────
+// ─────── INSIGHTS (Dynamic blog posts from CMS) ───────
 function Insights() {
-  const posts = [
+  const iHeader = cms?.insights_header || {};
+  if (iHeader.active === false) return null;
+
+  const defaultPosts = [
     { cat: "AI Guides",  time: "5 min read · Sep 5, 2026",  t: "How to Use AI Tools for Better Productivity", ex: "Practical AI workflows to save time.",     color: "from-fuchsia-500 to-purple-600" },
     { cat: "Tips",       time: "7 min read · Aug 28, 2026", t: "Top AI Tools for Students in 2026",           ex: "Study smarter with these AI helpers.",   color: "from-pink-500 to-rose-600" },
     { cat: "Assam & AI", time: "6 min read · Aug 15, 2026", t: "How Assam Can Lead in AI Innovation",         ex: "Regional AI is the next big wave.",       color: "from-amber-500 to-orange-600" },
     { cat: "Product",    time: "4 min read · Aug 2, 2026",  t: "What's New in Axom AI This Month",            ex: "New tools, faster models, better UX.",    color: "from-cyan-500 to-blue-600" },
   ];
+  const posts = (cms?.articles && cms.articles.length > 0) ? cms.articles : defaultPosts;
   return (
-    <section className="py-20 md:py-24 relative">
+    <section id="insights" className="py-20 md:py-24 relative">
       <div className="relative max-w-7xl mx-auto px-5">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
           <div>
-            <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">Insights</div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3">Learn, Explore &<br/><span className="gradient-text">Stay Updated</span></h2>
-            <p className="text-gray-400 max-w-lg">Guides, tips and stories from the Axom AI team and community.</p>
+            <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">
+              {iHeader.badge || "Insights"}
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3">
+              {iHeader.title_prefix || "Learn, Explore &"}<br/>
+              <span className="gradient-text">{iHeader.title_highlight || "Stay Updated"}</span>
+            </h2>
+            <p className="text-gray-400 max-w-lg">
+              {iHeader.subheading || "Guides, tips and stories from the Axom AI team and community."}
+            </p>
           </div>
-          <a href="#" className="text-fuchsia-400 font-semibold text-sm inline-flex items-center gap-1 hover:gap-2 transition-all">View all articles <IArrow c="w-4 h-4"/></a>
+          {iHeader.view_all_text && (
+            <a href={iHeader.view_all_url || "#"} className="text-fuchsia-400 font-semibold text-sm inline-flex items-center gap-1 hover:gap-2 transition-all">
+              {iHeader.view_all_text} <IArrow c="w-4 h-4"/>
+            </a>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {posts.map((p, i) => (
-            <a key={i} href="#" className="card group overflow-hidden flex flex-col">
-              <div className={"h-40 bg-gradient-to-br " + p.color + " relative overflow-hidden shrink-0"}>
-                <div className="absolute inset-0 grid-bg opacity-30"></div>
-                <div className="absolute bottom-3 left-4 text-[10px] uppercase tracking-widest text-white/90 font-bold bg-black/40 backdrop-blur px-2 py-1 rounded">{p.cat}</div>
+            <a key={i} href={p.link || "#"} className="card group overflow-hidden flex flex-col">
+              <div className={"h-40 bg-gradient-to-br " + (p.color || "from-fuchsia-500 to-purple-600") + " relative overflow-hidden shrink-0"}>
+                {p.cover_image_url ? (
+                  <img src={p.cover_image_url} alt={p.t || p.title} className="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-105" />
+                ) : (
+                  <div className="absolute inset-0 grid-bg opacity-30"></div>
+                )}
+                <div className="absolute bottom-3 left-4 text-[10px] uppercase tracking-widest text-white/90 font-bold bg-black/40 backdrop-blur px-2 py-1 rounded z-10">{p.cat}</div>
               </div>
               <div className="p-5 flex flex-col flex-1">
                 <div className="text-[11px] text-gray-500 font-medium mb-2">{p.time}</div>
                 <h3 className="text-base font-semibold text-white mb-2 group-hover:text-fuchsia-400 transition leading-snug">{p.t}</h3>
                 <p className="text-xs text-gray-400 leading-relaxed mb-4 flex-1">{p.ex}</p>
                 <div className="text-xs font-semibold text-fuchsia-400 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                  View more <IArrow c="w-3.5 h-3.5"/>
+                  Read article <IArrow c="w-3.5 h-3.5"/>
                 </div>
               </div>
             </a>
@@ -808,7 +1205,7 @@ function Insights() {
 // ─────── FAQ ───────
 function FAQ() {
   const [open, setOpen] = useState(0);
-  const faqs = [
+  const defaultFaqs = [
     { q: "How does the monthly word limit work?", a: "Each prompt and AI response counts towards your monthly quota. The counter resets on the 1st of every calendar month, and you can track your usage in real-time on your user dashboard." },
     { q: "Can I switch or cancel my plan anytime?", a: "Yes. Upgrade, downgrade, or cancel in a click. If you cancel, your paid benefits stay active until the end of the billing period." },
     { q: "What payment methods are supported?", a: "All major Indian methods via Razorpay: UPI (GPay, PhonePe, Paytm), Credit/Debit (Visa, MasterCard, RuPay), Netbanking, and Wallets. GST invoices are provided automatically." },
@@ -816,23 +1213,35 @@ function FAQ() {
     { q: "Is my data safe?", a: "Yes — HTTPS end-to-end, CSRF-protected payments, all files encrypted at rest. You can export or delete all your data anytime from user.aiaxom.co.in." },
     { q: "How is Axom AI different from ChatGPT or Gemini?", a: "Axom AI is Assamese-first: every reply is naturally in অসমীয়া (unless you ask otherwise), backed by a curated knowledge base of 25,000+ Assamese Wikipedia articles for accurate, non-hallucinated answers." },
   ];
+  const rawFaqs = (cms?.faqs && cms.faqs.length > 0) ? cms.faqs : defaultFaqs;
+
   return (
     <section id="faq" className="py-24">
       <div className="max-w-3xl mx-auto px-5">
         <div className="text-center mb-10">
           <div className="text-[11px] uppercase tracking-widest text-fuchsia-400 font-bold mb-3">Questions</div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white">Frequently Asked</h2>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3">Frequently Asked</h2>
+          <p className="text-sm text-gray-400">
+            Have more questions? Check our dedicated <a href="/faq/" className="text-fuchsia-400 hover:text-fuchsia-300 font-semibold underline underline-offset-4 transition">Full FAQ Page →</a>
+          </p>
         </div>
         <div className="space-y-2">
-          {faqs.map((f, i) => (
+          {rawFaqs.map((f, i) => (
             <div key={i} className="border border-white/8 rounded-xl overflow-hidden bg-white/[0.02] transition hover:border-white/15">
               <button onClick={() => setOpen(open === i ? -1 : i)} className="w-full text-left px-6 py-5 flex items-center justify-between">
-                <span className="font-medium text-white text-sm">{f.q}</span>
+                <span className="font-medium text-white text-sm">{f.q || f.question}</span>
                 <span className={"text-fuchsia-400 text-xl transition-transform " + (open === i ? "rotate-45" : "")}>+</span>
               </button>
-              {open === i && <div className="px-6 pb-5 pt-1 text-sm text-gray-400 leading-relaxed">{f.a}</div>}
+              {open === i && <div className="px-6 pb-5 pt-1 text-sm text-gray-400 leading-relaxed">{f.a || f.answer}</div>}
             </div>
           ))}
+        </div>
+        <div className="mt-8 text-center">
+          <a href="/faq/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-500/40 text-xs font-semibold text-gray-300 hover:text-white transition">
+            <ISparkle c="w-3.5 h-3.5 text-fuchsia-400"/>
+            <span>Explore All Questions & Help Center</span>
+            <IArrow c="w-3.5 h-3.5 text-fuchsia-400"/>
+          </a>
         </div>
       </div>
     </section>
@@ -859,11 +1268,24 @@ function FinalCTA() {
 // ─────── FOOTER ───────
 function Footer() {
   const cols = [
-    { t:"Product",  l:[["AI Tools",CHAT_URL+"tools"],["Pricing","#pricing"],["What's New","#"],["Roadmap","#"]] },
-    { t:"Solutions",l:[["For Students","#usecases"],["For Businesses","#usecases"],["For Educators","#usecases"],["For Developers","#usecases"]] },
-    { t:"Resources",l:[["Blog","#"],["Help Center","https://user.aiaxom.co.in/support/"],["Community","#"],["API Docs","#"]] },
-    { t:"Company",  l:[["About","#"],["Careers","#"],["Contact","mailto:samarjitkashyp@gmail.com"],["Press","#"]] },
+    { t:"Product",  l:[["AI Tools", CHAT_URL + "tools"], ["Pricing", "#pricing"], ["What's New", "#"], ["Roadmap", "#"]] },
+    { t:"Solutions",l:[["For Students", "#usecases"], ["For Businesses", "#usecases"], ["For Educators", "#usecases"], ["For Developers", "#usecases"]] },
+    { t:"Resources",l:[["Blog", "/blog/"], ["Help Center", "https://user.aiaxom.co.in/support/"], ["Community", "#"], ["API Docs", "#"]] },
+    { t:"Company",  l:[["About", "/about/"], ["Careers", "#"], ["Contact", "mailto:samarjitkashyp@gmail.com"], ["Press", "#"]] },
   ];
+
+  const handleLink = (e, url) => {
+    if (!url || url === '#' || url === 'javascript:void(0);') {
+      e.preventDefault();
+      return;
+    }
+    if (url.startsWith('#')) {
+      e.preventDefault();
+      const el = document.querySelector(url);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-black/50">
       <div className="max-w-7xl mx-auto px-5">
@@ -875,22 +1297,41 @@ function Footer() {
             </div>
             <p className="text-xs text-gray-500 leading-relaxed mb-4">AI for a more inclusive future.<br/>Built in Assam, for the world.</p>
             <div className="flex gap-2">
-              {['𝕏','in','▶','ig'].map((s,i)=>(<a key={i} href="#" className="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">{s}</a>))}
+              {['𝕏','in','▶','ig'].map((s,i)=>(
+                <a key={i} href="#" onClick={(e) => e.preventDefault()} className="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">{s}</a>
+              ))}
             </div>
           </div>
           {cols.map((col, i) => (
             <div key={i}>
               <div className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">{col.t}</div>
-              <ul className="space-y-2 text-sm text-gray-500">{col.l.map((it, j) => <li key={j}><a href={it[1]} className="hover:text-fuchsia-400 transition">{it[0]}</a></li>)}</ul>
+              <ul className="space-y-2 text-sm text-gray-500">
+                {col.l.map((it, j) => {
+                  const isExternal = it[1].startsWith('http') || it[1].startsWith('mailto:');
+                  return (
+                    <li key={j}>
+                      <a
+                        href={it[1]}
+                        target={isExternal ? "_blank" : undefined}
+                        rel={isExternal ? "noopener noreferrer" : undefined}
+                        onClick={(e) => handleLink(e, it[1])}
+                        className="hover:text-fuchsia-400 transition"
+                      >
+                        {it[0]}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           ))}
         </div>
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>© 2026 Axom AI. All rights reserved.</span>
-            <a href="#" className="hover:text-fuchsia-400">Privacy</a>
-            <a href="#" className="hover:text-fuchsia-400">Terms</a>
-            <a href="#" className="hover:text-fuchsia-400">Refund</a>
+            <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-fuchsia-400">Privacy</a>
+            <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-fuchsia-400">Terms</a>
+            <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-fuchsia-400">Refund</a>
           </div>
           <div>Made with <span className="text-red-500">❤</span> in Assam, India 🇮🇳</div>
         </div>
@@ -902,6 +1343,28 @@ function Footer() {
 
 // ─────── APP ───────
 function App() {
+  useEffect(() => {
+    // Global safety handler for all links across landing page
+    const handleGlobalClick = (e) => {
+      const link = e.target.closest('a');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href || href === '#' || href === 'javascript:void(0);') {
+        e.preventDefault();
+        return;
+      }
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, []);
+
   return (
     <>
       <Nav />

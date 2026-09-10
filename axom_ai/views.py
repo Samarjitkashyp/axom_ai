@@ -6,7 +6,7 @@ from datetime import datetime
 import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.conf import settings
 from knowledge.utils import search_knowledge_base, find_instant_answer, semantic_find_answer
 
@@ -404,8 +404,286 @@ def home_view(request):
     host = request.get_host().split(':')[0].lower()
     LANDING_HOSTS = {'aiaxom.co.in', 'www.aiaxom.co.in'}
     if host in LANDING_HOSTS:
-        return render(request, 'landing.html')
+        ctx = {}
+        try:
+            from contentcms.views import get_landing_content_payload
+            ctx['cms'] = get_landing_content_payload()
+        except Exception:
+            ctx['cms'] = {}
+        return render(request, 'landing.html', ctx)
     return render(request, 'index.html')
+
+
+@ensure_csrf_cookie
+def blog_detail_view(request, slug):
+    from contentcms.models import InsightArticle, SiteSEOSetting
+    from contentcms.views import get_landing_content_payload
+    from django.shortcuts import get_object_or_404
+    from django.db.models import Count
+
+    # Find article by slug or ID
+    article = InsightArticle.objects.filter(slug=slug, is_published=True).first()
+    if not article and slug.isdigit():
+        article = InsightArticle.objects.filter(id=int(slug), is_published=True).first()
+    if not article:
+        article = get_object_or_404(InsightArticle, slug=slug)
+
+    # Categories with counts
+    all_articles = InsightArticle.objects.filter(is_published=True)
+    total_count = all_articles.count()
+    
+    # Calculate category counts
+    cat_counts_raw = all_articles.values('category').annotate(count=Count('id'))
+    cat_counts_map = {item['category']: item['count'] for item in cat_counts_raw}
+    
+    categories_list = []
+    for val, label in InsightArticle.CATEGORY_CHOICES:
+        categories_list.append({
+            'val': val,
+            'label': label,
+            'count': cat_counts_map.get(val, 0)
+        })
+
+    # Recent articles (excluding current)
+    recent_articles = all_articles.exclude(id=article.id).order_by('-published_at')[:4]
+
+    # Related articles (same category or recent)
+    related_articles = all_articles.filter(category=article.category).exclude(id=article.id)[:4]
+    if len(related_articles) < 4:
+        extra = all_articles.exclude(id=article.id).exclude(id__in=[r.id for r in related_articles])[:(4 - len(related_articles))]
+        related_articles = list(related_articles) + list(extra)
+
+    cms = get_landing_content_payload()
+    seo = SiteSEOSetting.objects.first()
+
+    ctx = {
+        'article': article,
+        'recent_articles': recent_articles,
+        'related_articles': related_articles,
+        'categories_list': categories_list,
+        'total_articles_count': total_count,
+        'cms': cms,
+        'seo': seo,
+    }
+    return render(request, 'blog_detail.html', ctx)
+
+
+@ensure_csrf_cookie
+def blog_list_view(request):
+    import json
+    from contentcms.models import InsightArticle, SiteSEOSetting
+    from contentcms.views import get_landing_content_payload
+    from django.db.models import Count, Q
+    from django.http import JsonResponse
+
+    q = request.GET.get('q', '').strip()
+    cat = request.GET.get('category', '').strip()
+
+    all_published = InsightArticle.objects.filter(is_published=True).order_by('-published_at', '-id')
+    total_count = all_published.count()
+
+    cat_counts_raw = all_published.values('category').annotate(count=Count('id'))
+    cat_counts_map = {item['category']: item['count'] for item in cat_counts_raw}
+
+    categories_list = []
+    active_category_label = ""
+    for val, label in InsightArticle.CATEGORY_CHOICES:
+        if cat == val:
+            active_category_label = label
+        categories_list.append({
+            'val': val,
+            'label': label,
+            'count': cat_counts_map.get(val, 0)
+        })
+
+    # Prepare structured articles payload for React
+    articles_data = []
+    category_labels_dict = dict(InsightArticle.CATEGORY_CHOICES)
+    for art in all_published:
+        cat_label = category_labels_dict.get(art.category, art.get_category_display() or art.category)
+        link = art.external_link.strip() if art.external_link and art.external_link.strip().startswith('http') else f"/blog/{art.slug}/"
+        articles_data.append({
+            'id': art.id,
+            'title': art.title,
+            'slug': art.slug,
+            'category': art.category,
+            'category_label': cat_label,
+            'excerpt': art.excerpt,
+            'content_snippet': (art.content[:400] if art.content else ''),
+            'read_time': art.read_time,
+            'cover_image_url': art.cover_image_url or '',
+            'gradient_from': art.gradient_from or '#a855f7',
+            'gradient_to': art.gradient_to or '#ec4899',
+            'author_name': art.author_name or 'Axom AI Team',
+            'published_at': art.published_at.strftime('%b %d, %Y') if art.published_at else '',
+            'link': link,
+            'is_featured': getattr(art, 'is_featured', False),
+        })
+
+    # If requested as AJAX/JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.GET.get('format') == 'json':
+        return JsonResponse({
+            'articles': articles_data,
+            'categories': categories_list,
+            'total_count': total_count,
+        })
+
+    cms = get_landing_content_payload()
+    seo = SiteSEOSetting.objects.first()
+
+    ctx = {
+        'articles_json': json.dumps(articles_data),
+        'categories_json': json.dumps(categories_list),
+        'total_count': total_count,
+        'active_category': cat,
+        'active_category_label': active_category_label,
+        'search_query': q,
+        'cms': cms,
+        'seo': seo,
+    }
+    return render(request, 'blog_list.html', ctx)
+
+
+def blog_list_redirect(request):
+    return redirect('blog_list')
+
+
+@ensure_csrf_cookie
+def faq_page_view(request):
+    """Dedicated Public FAQ Page (https://aiaxom.co.in/faq)."""
+    from contentcms.models import FAQPageConfig, LandingFAQ, SiteSEOSetting
+    from contentcms.views import _ensure_default_faqs
+    _ensure_default_faqs()
+    config = FAQPageConfig.objects.first()
+    if not config:
+        config = FAQPageConfig.objects.create()
+    faqs = LandingFAQ.objects.filter(is_active=True).order_by('order', 'id')
+    seo = SiteSEOSetting.objects.first()
+    return render(request, 'faq.html', {
+        'config': config,
+        'faqs': faqs,
+        'seo': seo,
+    })
+
+
+@ensure_csrf_cookie
+def about_page_view(request):
+    """Dedicated Public About Page (https://aiaxom.co.in/about/)."""
+    from contentcms.models import SiteSEOSetting
+    seo = SiteSEOSetting.objects.first()
+    return render(request, 'about.html', {
+        'seo': seo,
+    })
+
+
+def robots_txt_view(request):
+    """Serve SEO & AI-crawler optimized robots.txt directly from Django."""
+    from django.http import HttpResponse
+    content = """User-agent: *
+Allow: /
+Disallow: /admin-panel/
+Disallow: /axomai-admin/
+Disallow: /axomai-user/
+Disallow: /axomai-content/
+Disallow: /api/
+
+# Explicitly allow top AI search bots & LLM crawlers for GEO
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+Sitemap: https://aiaxom.co.in/sitemap.xml
+Host: https://aiaxom.co.in
+"""
+    return HttpResponse(content.strip(), content_type="text/plain; charset=utf-8")
+
+
+def sitemap_xml_view(request):
+    """Serve dynamic XML sitemap including Homepage, About, FAQ, Blog and Articles."""
+    from django.http import HttpResponse
+    from django.utils import timezone
+    from contentcms.models import InsightArticle
+    now_str = timezone.now().strftime('%Y-%m-%d')
+    
+    xml = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        '  <url>',
+        '    <loc>https://aiaxom.co.in/</loc>',
+        f'    <lastmod>{now_str}</lastmod>',
+        '    <changefreq>daily</changefreq>',
+        '    <priority>1.0</priority>',
+        '  </url>',
+        '  <url>',
+        '    <loc>https://aiaxom.co.in/about/</loc>',
+        f'    <lastmod>{now_str}</lastmod>',
+        '    <changefreq>weekly</changefreq>',
+        '    <priority>0.95</priority>',
+        '  </url>',
+        '  <url>',
+        '    <loc>https://aiaxom.co.in/faq/</loc>',
+        f'    <lastmod>{now_str}</lastmod>',
+        '    <changefreq>weekly</changefreq>',
+        '    <priority>0.90</priority>',
+        '  </url>',
+        '  <url>',
+        '    <loc>https://aiaxom.co.in/blog/</loc>',
+        f'    <lastmod>{now_str}</lastmod>',
+        '    <changefreq>daily</changefreq>',
+        '    <priority>0.90</priority>',
+        '  </url>',
+    ]
+    
+    try:
+        articles = InsightArticle.objects.filter(is_published=True).order_by('-published_at')
+        for art in articles:
+            pub_date = art.published_at.strftime('%Y-%m-%d') if art.published_at else now_str
+            xml.extend([
+                '  <url>',
+                f'    <loc>https://aiaxom.co.in/blog/{art.slug}/</loc>',
+                f'    <lastmod>{pub_date}</lastmod>',
+                '    <changefreq>monthly</changefreq>',
+                '    <priority>0.80</priority>',
+                '  </url>',
+            ])
+    except Exception:
+        pass
+
+    xml.append('</urlset>')
+    return HttpResponse('\n'.join(xml), content_type="application/xml; charset=utf-8")
+
 
 @ensure_csrf_cookie
 def admin_panel_view(request):
@@ -1616,116 +1894,27 @@ def remove_watermark_api(request):
 
 
 # ---------------------------------------------------------------------------
-# Image generation via HuggingFace Inference Providers (FLUX.1 schnell / dev).
-# The heavy model runs on HF's GPUs — this box (8 GB RAM) only proxies the call.
+# Image generation via Cloudflare Workers AI + Pollinations.ai fallback.
 # ---------------------------------------------------------------------------
-# Model whitelist — Gemini is now the sole engine. The `model` field on the
-# request is accepted but ignored (kept only so old frontends don't 400).
-_IMGGEN_MODELS = {
-    'schnell': 'gemini-2.5-flash-image',
-    'dev':     'gemini-2.5-flash-image',
-    'gemini':  'gemini-2.5-flash-image',
-}
+_CF_API_TOKEN = os.getenv('CF_API_TOKEN', '').strip()
+_CF_ACCOUNT_ID = os.getenv('CF_ACCOUNT_ID', '').strip()
+
+# Model constants for Cloudflare Workers AI
+_CF_MODEL_FLUX_SCHNELL = '@cf/black-forest-labs/flux-1-schnell'
+_CF_MODEL_SDXL_LIGHTNING = '@cf/bytedance/stable-diffusion-xl-lightning'
+_CF_MODEL_SDXL_BASE = '@cf/stabilityai/stable-diffusion-xl-base-1.0'
+
 _IMGGEN_RATE_LIMIT = int(os.getenv('IMGGEN_RATE_LIMIT', '6'))
 _IMGGEN_RATE_WINDOW = int(os.getenv('IMGGEN_RATE_WINDOW', '60'))
 _IMGGEN_HITS = {}
 _IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
-
-# Per-user daily cap. Free-tier product limit — each visitor (by IP) can only
-# generate this many images per calendar day (UTC). Once exceeded, the API
-# returns a clear English message and does not spend a Gemini call.
 _IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '5'))
 _IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
 
-# Per-device daily cap for web-search chat queries. Separate bucket from
-# image generation so a user hitting the image cap can still web-search.
-_WEBSEARCH_DAILY_LIMIT = int(os.getenv('WEBSEARCH_DAILY_LIMIT', '10'))
-_WEBSEARCH_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
 
-# Tavily — AI-optimised free web search. Free tier: 1000 queries / month.
-# When TAVILY_API_KEY is empty the web-search feature returns a friendly
-# "not yet configured" message so the toggle stays visibly optional.
-_TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', '').strip()
-_TAVILY_URL = 'https://api.tavily.com/search'
-
-
-def _websearch_daily_count(ip):
-    from datetime import datetime, timezone
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    entry = _WEBSEARCH_DAILY_HITS.get(ip)
-    if not entry or entry.get('date') != today:
-        return 0
-    return int(entry.get('count', 0))
-
-
-def _websearch_daily_incr(ip):
-    from datetime import datetime, timezone
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    entry = _WEBSEARCH_DAILY_HITS.get(ip)
-    if not entry or entry.get('date') != today:
-        entry = {'date': today, 'count': 0}
-    entry['count'] = int(entry.get('count', 0)) + 1
-    _WEBSEARCH_DAILY_HITS[ip] = entry
-
-
-def _tavily_search(query, max_results=5, timeout=15):
-    """Query Tavily search. Returns (list_of_hits, error_string).
-    Each hit is {'title': ..., 'url': ..., 'content': ...}."""
-    if not _TAVILY_API_KEY:
-        return None, 'TAVILY_API_KEY not configured'
-    try:
-        r = http_session.post(
-            _TAVILY_URL,
-            json={
-                'api_key': _TAVILY_API_KEY,
-                'query': query[:400],
-                'search_depth': 'basic',
-                'max_results': max_results,
-                'include_answer': False,
-            },
-            timeout=timeout,
-        )
-        if r.status_code != 200:
-            return None, f'Tavily HTTP {r.status_code}: {r.text[:120]}'
-        data = r.json()
-        hits = data.get('results') or []
-        cleaned = []
-        for h in hits[:max_results]:
-            url = h.get('url')
-            title = h.get('title') or url
-            content = h.get('content') or ''
-            if url:
-                cleaned.append({'title': title, 'url': url, 'content': content})
-        return cleaned, None
-    except Exception as e:
-        return None, str(e)[:200]
-
-# Gemini image model. NOTE: Google requires billing to be enabled on the
-# project to use ANY *-image model — free tier returns 429 for all of them.
-# Kept here so a paid project can flip a single env var to activate Gemini as
-# either primary or fallback.
-_GEMINI_IMAGE_MODEL = os.getenv('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image')
-_USE_GEMINI_IMAGE = os.getenv('USE_GEMINI_IMAGE', 'False').lower() in ('true', '1', 't')
-
-# Cloudflare Workers AI — free tier gives ~10,000 neurons / day (roughly
-# 100+ FLUX schnell images). Requires a Cloudflare account, an API token
-# with "Workers AI: Read" permission, and the account ID. Enabled if both
-# env vars are set.
-_CF_API_TOKEN = os.getenv('CF_API_TOKEN', '').strip()
-_CF_ACCOUNT_ID = os.getenv('CF_ACCOUNT_ID', '').strip()
-# Two quality tiers routed to two Cloudflare models:
-#   normal  = FLUX 1 schnell   → fast, ~3-8 s per image, low neuron cost
-#   extreme = Leonardo Lucid Origin → premium quality, ~5-10 s, higher cost
-# (Qwen Image 3.0 Pro is announced but not yet runnable on Workers AI free
-# tier — we'll swap this constant when Cloudflare enables it.)
-_CF_MODEL_NORMAL = os.getenv('CF_MODEL_NORMAL', '@cf/black-forest-labs/flux-1-schnell')
-_CF_MODEL_EXTREME = os.getenv('CF_MODEL_EXTREME', '@cf/leonardo/lucid-origin')
-
-
-def _cloudflare_generate_image(prompt, width, height, quality='normal', timeout=60):
-    """Generate an image via Cloudflare Workers AI. `quality` picks the model
-    (normal → FLUX schnell, extreme → Leonardo Lucid Origin). Returns
-    (PIL.Image, model_id) on success, or (None, error_string) on failure."""
+def _cloudflare_generate_image(prompt, width, height, model=None, timeout=60):
+    """Generate an image via Cloudflare Workers AI with the specified model.
+    Returns (PIL.Image, model_id) on success, or (None, error_string) on failure."""
     if not _CF_API_TOKEN or not _CF_ACCOUNT_ID:
         return None, 'Cloudflare not configured (CF_API_TOKEN / CF_ACCOUNT_ID missing)'
     try:
@@ -1735,16 +1924,17 @@ def _cloudflare_generate_image(prompt, width, height, quality='normal', timeout=
     except Exception as e:
         return None, f'Pillow not available: {e}'
 
-    model = _CF_MODEL_EXTREME if quality == 'extreme' else _CF_MODEL_NORMAL
-    url = (f'https://api.cloudflare.com/client/v4/accounts/{_CF_ACCOUNT_ID}'
-           f'/ai/run/{model}')
-    # Both models accept {prompt, steps}. FLUX schnell caps at 8 steps (4 is
-    # its sweet spot); Lucid Origin defaults to a higher step count and takes
-    # care of quality internally, so we just pass the prompt for that one.
-    if quality == 'extreme':
-        body = {'prompt': prompt[:2000]}
+    target_model = model or _CF_MODEL_FLUX_SCHNELL
+    url = f'https://api.cloudflare.com/client/v4/accounts/{_CF_ACCOUNT_ID}/ai/run/{target_model}'
+
+    # Fast models (FLUX schnell, SDXL Lightning) use 4-8 steps; Base 1.0 uses 20 steps
+    if 'base-1.0' in target_model:
+        body = {'prompt': prompt[:2000], 'num_steps': 20}
+    elif 'lightning' in target_model:
+        body = {'prompt': prompt[:2000], 'num_steps': 4}
     else:
         body = {'prompt': prompt[:2000], 'steps': 4}
+
     try:
         r = http_session.post(
             url,
@@ -1763,61 +1953,76 @@ def _cloudflare_generate_image(prompt, width, height, quality='normal', timeout=
             return None, 'Cloudflare returned no image data'
         raw = _b64.b64decode(img_b64)
         img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
-        return img, f'cloudflare/{model}'
+        return img, f'cloudflare/{target_model}'
+    except Exception as e:
+        return None, str(e)[:300]
+
+
+# Pollinations.ai fallback (100% free, no key needed)
+_POLLINATIONS_URL = 'https://image.pollinations.ai/prompt/'
+
+
+def _pollinations_generate_image(prompt, width, height, model='flux', timeout=60):
+    """Generate an image via Pollinations.ai with the requested model."""
+    try:
+        from PIL import Image as _PILImage
+        import io as _io
+        import urllib.parse as _up
+        import secrets as _secrets
+    except Exception as e:
+        return None, f'Pillow not available: {e}'
+
+    encoded = _up.quote(prompt[:500], safe='')
+    seed = _secrets.randbelow(1_000_000)
+    url = (
+        f'{_POLLINATIONS_URL}{encoded}'
+        f'?width={int(width)}&height={int(height)}'
+        f'&model={model}&nologo=true&seed={seed}'
+    )
+    try:
+        r = http_session.get(url, timeout=timeout)
+        if r.status_code != 200:
+            return None, f'Pollinations HTTP {r.status_code}'
+        img = _PILImage.open(_io.BytesIO(r.content)).convert('RGB')
+        return img, f'pollinations/{model}'
     except Exception as e:
         return None, str(e)[:300]
 
 
 # -- Prompt normaliser -----------------------------------------------------
-# Image models (FLUX, SD, Imagen) are trained on English captions, so a
-# Hindi / Assamese / Hinglish prompt produces garbage. We ask Groq to
-# translate/rewrite the prompt into a clean English image-generation prompt
-# before handing it to the image engine. Groq is fast enough (~200-400 ms)
-# and free-tier generous enough for this to be free per image.
-
-# Fast-skip decision: only skip translation when we're confident the prompt
-# is real English. Any non-ASCII character (Devanagari, Assamese, etc.) or
-# any common Roman-Indic/Hinglish marker forces a translation pass — even if
-# an English word like "illustration" also appears in the mix.
 _ASCII_ONLY = re.compile(r'^[\x00-\x7F]*$')
 _LIKELY_ENGLISH_WORDS = re.compile(
     r'\b(the|a|an|with|and|of|on|in|to|at|for|by|from|as|is|are|was|were|'
     r'photo|photograph|image|picture|painting|illustration|portrait|landscape|'
     r'style|realistic|cartoon|anime|render|scene|background|foreground)\b',
     re.IGNORECASE)
-# Common tokens found in Hinglish / Roman-Hindi / Roman-Assamese. Presence
-# of any of these is a strong signal that the prompt needs translation.
 _HINGLISH_MARKERS = re.compile(
     r'\b('
-    # Hindi auxiliaries / postpositions
     r'hai|hain|tha|thi|the|raha|rahi|rahe|hoga|hogi|hoge|kar|karna|karo|kiya|'
     r'ka|ki|ke|ko|se|mein|mai|par|aur|nahi|nahin|kyu|kyun|kya|kaisa|kaise|'
     r'wala|wali|wale|kuch|sab|sabse|bahut|thoda|thodi|chhota|chhoti|bada|badi|'
-    # Common Hindi/Assamese nouns/verbs (romanized)
     r'billi|kutta|kitab|ghar|pani|roti|bacha|bachi|larka|larki|admi|aurat|'
     r'phool|patta|surya|chand|tara|nadi|pahad|jungle|khet|gaon|shahar|'
-    # Assamese romanized markers
     r'kori|kora|kore|xote|xopun|axe|nai|nohoi|hoi|ase|xotu|xori'
     r')\b', re.IGNORECASE)
 
 
 def _looks_like_english(prompt):
-    # Any non-ASCII char → non-English (Devanagari/Bengali/Assamese scripts).
+    if not prompt:
+        return False
     if not _ASCII_ONLY.match(prompt):
         return False
-    # Roman-Hindi / Roman-Assamese markers → force translation, even if
-    # English words also appear (a Hinglish prompt often mixes both).
     if _HINGLISH_MARKERS.search(prompt):
         return False
-    # Otherwise: skip translation only when a real English word is present
-    # (avoids a Groq call for prompts like "cat on book, watercolor style").
     return bool(_LIKELY_ENGLISH_WORDS.search(prompt))
 
 
 def _translate_prompt_for_image(prompt):
     """Rewrite an arbitrary-language prompt into a clean English image-gen
-    prompt. Returns (english_prompt, was_translated:bool). Falls back to the
-    original prompt on any failure so we never block the image generation."""
+    prompt. Returns (english_prompt, was_translated:bool)."""
+    if not prompt or not prompt.strip():
+        return '', False
+    prompt = prompt.strip()
     if _looks_like_english(prompt):
         return prompt, False
     system = (
@@ -1830,7 +2035,6 @@ def _translate_prompt_for_image(prompt):
     )
     out = _groq_generate(system, prompt, timeout=15)
     if not out:
-        # Gemini as fallback if Groq is down.
         gk = os.getenv('GEMINI_API_KEY', '').strip()
         if gk:
             out = _gemini_generate(
@@ -1838,44 +2042,9 @@ def _translate_prompt_for_image(prompt):
                 ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'],
             )
     if not out:
-        return prompt, False   # both engines failed — send original as-is
-    # Strip surrounding quotes/newlines the model sometimes adds.
+        return prompt, False
     out = out.strip().strip('"').strip("'").strip()
     return out or prompt, bool(out and out != prompt)
-
-
-# Pollinations.ai — completely free, no API key, no signup. A GET on a URL
-# returns PNG bytes. Kept as fallback below Cloudflare.
-_POLLINATIONS_URL = 'https://image.pollinations.ai/prompt/'
-_POLLINATIONS_MODEL = os.getenv('POLLINATIONS_MODEL', 'flux')
-
-
-def _pollinations_generate_image(prompt, width, height, timeout=60):
-    """Generate an image via Pollinations.ai. No key needed. Returns
-    (PIL.Image, model_id) on success, or (None, error_string) on failure."""
-    try:
-        from PIL import Image as _PILImage
-        import io as _io
-        import urllib.parse as _up
-        import secrets as _secrets
-    except Exception as e:
-        return None, f'Pillow not available: {e}'
-
-    encoded = _up.quote(prompt[:500], safe='')
-    seed = _secrets.randbelow(1_000_000)  # a fresh seed so retries differ
-    url = (
-        f'{_POLLINATIONS_URL}{encoded}'
-        f'?width={int(width)}&height={int(height)}'
-        f'&model={_POLLINATIONS_MODEL}&nologo=true&seed={seed}'
-    )
-    try:
-        r = http_session.get(url, timeout=timeout)
-        if r.status_code != 200:
-            return None, f'Pollinations HTTP {r.status_code}'
-        img = _PILImage.open(_io.BytesIO(r.content)).convert('RGB')
-        return img, f'pollinations/{_POLLINATIONS_MODEL}'
-    except Exception as e:
-        return None, str(e)[:300]
 
 
 def _imggen_daily_count(ip):
@@ -1899,60 +2068,6 @@ def _imggen_daily_incr(ip):
     _IMGGEN_DAILY_HITS[ip] = entry
 
 
-def _gemini_generate_image(prompt, width, height, timeout=60):
-    """Fallback image generator using Google Gemini's image model. Returns
-    (PIL.Image, model_id) on success, or (None, error_string) on failure.
-    Uses the same google-genai client already installed for chat."""
-    key = os.getenv('GEMINI_API_KEY', '').strip()
-    if not key:
-        return None, 'GEMINI_API_KEY missing'
-    try:
-        from google import genai
-        from google.genai import types as _gtypes
-        from PIL import Image as _PILImage
-        import io as _io
-    except Exception as e:
-        return None, f'google-genai / Pillow not available: {e}'
-
-    try:
-        client = genai.Client(api_key=key)
-        # Nudge the aspect ratio via the prompt (the API doesn't accept width/
-        # height directly; the model picks a suitable resolution).
-        ratio_hint = ''
-        if width and height:
-            if width > height * 1.2:
-                ratio_hint = ' (landscape orientation)'
-            elif height > width * 1.2:
-                ratio_hint = ' (portrait orientation)'
-            else:
-                ratio_hint = ' (square)'
-        resp = client.models.generate_content(
-            model=_GEMINI_IMAGE_MODEL,
-            contents=[prompt + ratio_hint],
-            config=_gtypes.GenerateContentConfig(
-                response_modalities=['IMAGE', 'TEXT'],
-            ),
-        )
-        # Find the image part in the response.
-        for cand in getattr(resp, 'candidates', []) or []:
-            content = getattr(cand, 'content', None)
-            if not content:
-                continue
-            for part in getattr(content, 'parts', []) or []:
-                inline = getattr(part, 'inline_data', None)
-                if inline and getattr(inline, 'data', None):
-                    raw = inline.data
-                    if isinstance(raw, str):
-                        # SDK sometimes returns already-base64; decode it.
-                        import base64 as _b64
-                        raw = _b64.b64decode(raw)
-                    img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
-                    return img, _GEMINI_IMAGE_MODEL
-        return None, 'Gemini returned no image (likely blocked by safety filter or empty response).'
-    except Exception as e:
-        return None, str(e)[:300]
-
-
 def _imggen_rate_limited(ip):
     now = time.time()
     hits = [t for t in _IMGGEN_HITS.get(ip, []) if now - t < _IMGGEN_RATE_WINDOW]
@@ -1964,35 +2079,106 @@ def _imggen_rate_limited(ip):
     return False
 
 
-def generate_image_api(request):
-    """POST JSON: {prompt, model?, width?, height?, negative_prompt?, seed?}.
-    Returns {success, image: 'data:image/png;base64,...', model, size, ms}.
+def _check_user_premium_status(request):
+    """Helper to check if request user has an active paid subscription plan."""
+    user = getattr(request, 'user', None)
+    if not user or not getattr(user, 'is_authenticated', False):
+        return False, 'free', None
+    if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
+        return True, 'pro', None
+    plan_obj = getattr(user, 'plan', None) if hasattr(user, 'plan') else None
+    if plan_obj and plan_obj.is_active():
+        return True, plan_obj.plan, plan_obj
+    return False, 'free', None
 
-    Engine: Google Gemini (gemini-2.5-flash-image-preview). Each visitor (by
-    IP) may generate _IMGGEN_DAILY_LIMIT images per UTC calendar day.
+
+@csrf_exempt
+def user_status_api(request):
+    """Returns current user plan, daily quota usage, and model routing configuration."""
+    ip = _client_ip(request)
+    is_premium, plan_name, _ = _check_user_premium_status(request)
+    used_today = _imggen_daily_count(ip)
+    user = getattr(request, 'user', None)
+    is_auth = bool(user and getattr(user, 'is_authenticated', False))
+
+    if is_premium:
+        daily_limit = 100 if 'pro' in plan_name else (50 if 'starter' in plan_name else 500)
+        models_config = {
+            'normal': {
+                'id': 'SDXL Turbo',
+                'name': 'Normal (SDXL Turbo)',
+                'desc': 'Fast Generation · ~2-4 s · SDXL Turbo',
+            },
+            'extreme': {
+                'id': 'SDXL 1.0',
+                'name': 'Extreme Quality (SDXL 1.0)',
+                'desc': 'Master Fidelity · ~8-12 s · SDXL 1.0 Base',
+            },
+        }
+    else:
+        daily_limit = _IMGGEN_DAILY_LIMIT
+        models_config = {
+            'normal': {
+                'id': 'FLUX.1 Schnell',
+                'name': 'Normal (FLUX.1 Schnell)',
+                'desc': 'Fast · ~3-8 s · FLUX.1 Schnell on Cloudflare',
+            },
+            'extreme': {
+                'id': 'SDXL Turbo',
+                'name': 'Extreme Quality (SDXL Turbo)',
+                'desc': 'High Speed & Clarity · ~2-5 s · SDXL Turbo',
+            },
+        }
+
+    return JsonResponse({
+        'is_authenticated': is_auth,
+        'is_premium': is_premium,
+        'plan_name': plan_name,
+        'daily_limit': daily_limit,
+        'used_today': used_today,
+        'remaining_today': max(0, daily_limit - used_today),
+        'models': models_config,
+    })
+
+
+@csrf_exempt
+def generate_image_api(request):
+    """
+    POST JSON: {prompt, quality?: 'normal'|'extreme', width?, height?, negative_prompt?, seed?}.
+    
+    Plan-Based Model Architecture:
+      - Free Plan (IP-based limit: 5 images/day):
+          * Normal: FLUX.1 Schnell (Cloudflare @cf/black-forest-labs/flux-1-schnell, fallback: Pollinations flux)
+          * Extreme: SDXL Turbo (Cloudflare @cf/bytedance/stable-diffusion-xl-lightning, fallback: Pollinations turbo)
+      - Premium Plan:
+          * Normal: SDXL Turbo (Fast)
+          * Extreme: SDXL 1.0 (Cloudflare @cf/stabilityai/stable-diffusion-xl-base-1.0, fallback: Pollinations sdxl)
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
     ip = _client_ip(request)
+    is_premium, plan_name, _ = _check_user_premium_status(request)
 
-    # 1) Per-device (per-IP) daily cap — user-facing message in English.
+    # 1) Quota verification:
+    # Free users are capped at 5 images/day per IP. Premium users have elevated quotas.
     used_today = _imggen_daily_count(ip)
-    if used_today >= _IMGGEN_DAILY_LIMIT:
+    daily_cap = 100 if is_premium else _IMGGEN_DAILY_LIMIT
+    if not is_premium and used_today >= _IMGGEN_DAILY_LIMIT:
         return JsonResponse({
             'error': (
-                f"You have used all {_IMGGEN_DAILY_LIMIT} free images for "
-                f"today from this device. Please come back tomorrow."
+                f"You have used all {_IMGGEN_DAILY_LIMIT} free images for today from this device. "
+                f"Please upgrade to Premium for high-speed generation with SDXL 1.0!"
             ),
             'daily_limit': _IMGGEN_DAILY_LIMIT,
             'used_today': used_today,
+            'is_premium': False,
         }, status=429)
 
-    # 2) Per-minute burst guard (very rare with a 2/day cap, but keeps a
-    # single burst from firing multiple in-flight requests).
+    # 2) Rate-limit burst protection (max 6 requests / 60s)
     if _imggen_rate_limited(ip):
         return JsonResponse({
-            'error': f'Too many image requests. Please wait ~{_IMGGEN_RATE_WINDOW}s.',
+            'error': f'Too many requests. Please wait ~{_IMGGEN_RATE_WINDOW}s before generating again.',
         }, status=429)
 
     try:
@@ -2006,13 +2192,10 @@ def generate_image_api(request):
     if len(original_prompt) > 1000:
         return JsonResponse({'error': 'Prompt exceeds 1000 characters.'}, status=400)
 
-    # Normalise: any Hindi / Assamese / Hinglish / Roman-Indic prompt gets
-    # rewritten into an English image-gen prompt via Groq. English prompts
-    # pass through untouched.
+    # Translate prompt to clean visual English via Groq if non-English
     prompt, was_translated = _translate_prompt_for_image(original_prompt)
 
-    # Clamp geometry defensively (Gemini picks its own size; we still forward
-    # a hint about orientation).
+    # Clamp geometry defensively (256 - 1536px, multiples of 8)
     def _clamp_dim(v, default=1024):
         try:
             n = int(v)
@@ -2026,53 +2209,64 @@ def generate_image_api(request):
     if quality not in ('normal', 'extreme'):
         quality = 'normal'
 
+    # 3) Determine exact AI Model routing based on User Tier & Quality selection:
+    if not is_premium:
+        # FREE PLAN:
+        # Normal -> FLUX.1 Schnell | Extreme -> SDXL Turbo
+        if quality == 'extreme':
+            cf_model = _CF_MODEL_SDXL_LIGHTNING
+            poll_model = 'turbo'
+            display_model_name = 'SDXL Turbo'
+        else:
+            cf_model = _CF_MODEL_FLUX_SCHNELL
+            poll_model = 'flux'
+            display_model_name = 'FLUX.1 Schnell'
+    else:
+        # PREMIUM PLAN:
+        # Normal -> SDXL Turbo | Extreme -> SDXL 1.0 Base
+        if quality == 'extreme':
+            cf_model = _CF_MODEL_SDXL_BASE
+            poll_model = 'sdxl'
+            display_model_name = 'SDXL 1.0 (Master Ultra Quality)'
+        else:
+            cf_model = _CF_MODEL_SDXL_LIGHTNING
+            poll_model = 'turbo'
+            display_model_name = 'SDXL Turbo'
+
     t0 = time.time()
     engine = None
     engine_model = None
     pil_img = None
     tried_errors = []
 
-    # Waterfall: try each engine in order; first one that succeeds wins.
-    # 1) Gemini (only if paid billing is enabled) — highest quality.
-    # 2) Cloudflare Workers AI FLUX — free 10k neurons/day, most reliable free.
-    # 3) Pollinations.ai — no-key fallback, always available.
-
-    if _USE_GEMINI_IMAGE and os.getenv('GEMINI_API_KEY', '').strip():
-        gm_img, gm_info = _gemini_generate_image(prompt, width, height,
-                                                 timeout=_IMGGEN_TIMEOUT)
-        if gm_img is not None:
-            pil_img = gm_img
-            engine = 'gemini'
-            engine_model = gm_info
-        else:
-            tried_errors.append(f'Gemini: {gm_info}')
-
-    if pil_img is None and _CF_API_TOKEN and _CF_ACCOUNT_ID:
+    # Primary: Cloudflare Workers AI
+    if _CF_API_TOKEN and _CF_ACCOUNT_ID:
         cf_img, cf_info = _cloudflare_generate_image(
-            prompt, width, height, quality=quality, timeout=_IMGGEN_TIMEOUT)
+            prompt, width, height, model=cf_model, timeout=_IMGGEN_TIMEOUT)
         if cf_img is not None:
             pil_img = cf_img
             engine = 'cloudflare'
-            engine_model = cf_info
+            engine_model = display_model_name
         else:
-            tried_errors.append(f'Cloudflare ({quality}): {cf_info}')
+            tried_errors.append(f'Cloudflare ({cf_model}): {cf_info}')
 
+    # Secondary: Pollinations.ai with matching model fallback
     if pil_img is None:
-        pl_img, pl_info = _pollinations_generate_image(prompt, width, height,
-                                                       timeout=_IMGGEN_TIMEOUT)
+        pl_img, pl_info = _pollinations_generate_image(
+            prompt, width, height, model=poll_model, timeout=_IMGGEN_TIMEOUT)
         if pl_img is not None:
             pil_img = pl_img
             engine = 'pollinations'
-            engine_model = pl_info
+            engine_model = f'{display_model_name} (Pollinations)'
         else:
-            tried_errors.append(f'Pollinations: {pl_info}')
+            tried_errors.append(f'Pollinations ({poll_model}): {pl_info}')
 
     if pil_img is None:
         return JsonResponse({
             'error': 'Image generation failed. ' + ' | '.join(tried_errors),
         }, status=502)
 
-    # Success — record against the daily bucket.
+    # Success: record against daily bucket
     _imggen_daily_incr(ip)
     used_after = _imggen_daily_count(ip)
 
@@ -2351,3 +2545,512 @@ def summarize_api(request):
         'engine': 'groq+gemini',
         'ms': int((time.time() - t0) * 1000),
     })
+
+
+# =============================================================================
+# AI IMAGE FINDER (Pexels Stock & Creative Photos API)
+# =============================================================================
+
+PEXELS_API_KEY = os.getenv('PEXELS_API_KEY', 'tFXBOrGoNROyvUYDwsRdoRKkc5u8K0vGLhWzNTVCU9Xqqd9pQxqRGbEn').strip()
+PEXELS_BASE_URL = 'https://api.pexels.com/v1'
+
+
+def search_stock_images_api(request):
+    """
+    Search and browse high-resolution stock & AI photos using Pexels API.
+    GET params:
+      query: search keyword (e.g. 'nature', 'assam', 'office')
+      page: page number (int, default 1)
+      per_page: items per page (int, default 24, max 50)
+      orientation: landscape | portrait | square (optional)
+      size: large | medium | small (optional)
+      color: color name or hex (optional)
+    """
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Only GET method allowed.'}, status=405)
+
+    if not PEXELS_API_KEY:
+        return JsonResponse({'error': 'Pexels API key is not configured.'}, status=503)
+
+    query = (request.GET.get('query') or '').strip()
+    try:
+        page = max(1, int(request.GET.get('page', 1)))
+    except (ValueError, TypeError):
+        page = 1
+
+    try:
+        per_page = min(50, max(1, int(request.GET.get('per_page', 24))))
+    except (ValueError, TypeError):
+        per_page = 24
+
+    orientation = (request.GET.get('orientation') or '').strip().lower()
+    size = (request.GET.get('size') or '').strip().lower()
+    color = (request.GET.get('color') or '').strip().lower()
+
+    headers = {
+        'Authorization': PEXELS_API_KEY,
+        'User-Agent': 'AxomAI/1.0',
+    }
+
+    params = {
+        'page': page,
+        'per_page': per_page,
+    }
+    if orientation in ('landscape', 'portrait', 'square'):
+        params['orientation'] = orientation
+    if size in ('large', 'medium', 'small'):
+        params['size'] = size
+    if color and color != 'all':
+        params['color'] = color
+
+    try:
+        if query or orientation or color or size:
+            # Pexels search endpoint requires a query parameter to apply filters
+            search_query = query if query else (f"{color} aesthetic" if color else 'trending wallpaper')
+            params['query'] = search_query
+            url = f"{PEXELS_BASE_URL}/search"
+        else:
+            url = f"{PEXELS_BASE_URL}/curated"
+
+        resp = http_session.get(url, headers=headers, params=params, timeout=15)
+        if resp.status_code != 200:
+            return JsonResponse({
+                'error': f'Pexels API returned status {resp.status_code}: {resp.text[:200]}'
+            }, status=resp.status_code)
+
+        data = resp.json()
+        photos = []
+        for p in data.get('photos', []):
+            w = p.get('width', 0)
+            h = p.get('height', 0)
+            # Strict post-filter check for orientation accuracy
+            if orientation == 'landscape' and w and h and w <= h:
+                continue
+            if orientation == 'portrait' and w and h and h <= w:
+                continue
+            if orientation == 'square' and w and h:
+                ratio = w / h
+                if ratio < 0.8 or ratio > 1.25:
+                    continue
+
+            photos.append({
+                'id': p.get('id'),
+                'width': w,
+                'height': h,
+                'url': p.get('url'),
+                'photographer': p.get('photographer') or 'Anonymous Photographer',
+                'photographer_url': p.get('photographer_url') or '',
+                'avg_color': p.get('avg_color') or '#1e1e2d',
+                'alt': p.get('alt') or query or 'High Quality Photo',
+                'src': p.get('src', {}),
+            })
+
+        return JsonResponse({
+            'success': True,
+            'total_results': data.get('total_results', len(photos)),
+            'page': data.get('page', page),
+            'per_page': data.get('per_page', per_page),
+            'next_page': data.get('next_page'),
+            'prev_page': data.get('prev_page'),
+            'photos': photos,
+            'query': query,
+            'orientation': orientation,
+            'color': color,
+        })
+
+    except requests.exceptions.Timeout:
+        return JsonResponse({'error': 'Image search request timed out. Please try again.'}, status=504)
+    except Exception as e:
+        return JsonResponse({'error': f'Failed to fetch images: {str(e)}'}, status=500)
+
+
+def download_stock_image_api(request):
+    """
+    Proxy download endpoint so user can save images directly with an attachment header.
+    GET params:
+      url: image URL
+      name: desired filename (optional)
+    """
+    img_url = (request.GET.get('url') or '').strip()
+    if not img_url or not (img_url.startswith('https://images.pexels.com/') or img_url.startswith('http')):
+        return JsonResponse({'error': 'Valid image URL is required.'}, status=400)
+
+    filename = (request.GET.get('name') or 'axom-image.jpg').strip()
+    if not filename.endswith(('.jpg', '.jpeg', '.png', '.webp')):
+        filename += '.jpg'
+
+    try:
+        resp = http_session.get(img_url, stream=True, timeout=25)
+        if resp.status_code != 200:
+            return JsonResponse({'error': 'Could not download image.'}, status=502)
+
+        content_type = resp.headers.get('Content-Type', 'image/jpeg')
+        response = StreamingHttpResponse(resp.iter_content(chunk_size=8192), content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# =============================================================================
+# AI VIDEO FINDER (Pexels Stock & 4K/HD Motion Videos API)
+# =============================================================================
+
+def search_stock_videos_api(request):
+    """
+    Search and browse high-resolution 4K and HD stock videos using Pexels Video API.
+    GET params:
+      query: search keyword (e.g. 'nature', 'assam', 'aerial drone', 'technology')
+      page: page number (int, default 1)
+      per_page: items per page (int, default 18, max 50)
+      orientation: landscape | portrait | square (optional)
+      size: large (4K) | medium (Full HD) | small (HD) (optional)
+    """
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Only GET method allowed.'}, status=405)
+
+    if not PEXELS_API_KEY:
+        return JsonResponse({'error': 'Pexels API key is not configured.'}, status=503)
+
+    query = (request.GET.get('query') or '').strip()
+    try:
+        page = max(1, int(request.GET.get('page', 1)))
+    except (ValueError, TypeError):
+        page = 1
+
+    try:
+        per_page = min(50, max(1, int(request.GET.get('per_page', 18))))
+    except (ValueError, TypeError):
+        per_page = 18
+
+    orientation = (request.GET.get('orientation') or '').strip().lower()
+    size = (request.GET.get('size') or '').strip().lower()
+
+    headers = {
+        'Authorization': PEXELS_API_KEY,
+        'User-Agent': 'AxomAI/1.0',
+    }
+
+    params = {
+        'page': page,
+        'per_page': per_page,
+    }
+    if orientation in ('landscape', 'portrait', 'square'):
+        params['orientation'] = orientation
+    if size in ('large', 'medium', 'small'):
+        params['size'] = size
+
+    try:
+        if query or orientation or size:
+            search_query = query if query else 'trending footage'
+            params['query'] = search_query
+            url = f"{PEXELS_BASE_URL}/videos/search"
+        else:
+            url = f"{PEXELS_BASE_URL}/videos/popular"
+
+        resp = http_session.get(url, headers=headers, params=params, timeout=15)
+        if resp.status_code != 200:
+            return JsonResponse({
+                'error': f'Pexels Video API returned status {resp.status_code}: {resp.text[:200]}'
+            }, status=resp.status_code)
+
+        data = resp.json()
+        videos = []
+        for v in data.get('videos', []):
+            w = v.get('width', 0)
+            h = v.get('height', 0)
+
+            # Strict orientation check
+            if orientation == 'landscape' and w and h and w <= h:
+                continue
+            if orientation == 'portrait' and w and h and h <= w:
+                continue
+            if orientation == 'square' and w and h:
+                ratio = w / h
+                if ratio < 0.8 or ratio > 1.25:
+                    continue
+
+            # Parse and organize video files
+            raw_files = v.get('video_files', [])
+            # Filter mp4 files only
+            mp4_files = [f for f in raw_files if f.get('file_type', '').startswith('video/mp4')]
+            if not mp4_files:
+                mp4_files = raw_files
+
+            # Sort by resolution (width * height descending)
+            sorted_files = sorted(
+                mp4_files,
+                key=lambda f: (f.get('width') or 0) * (f.get('height') or 0),
+                reverse=True
+            )
+
+            # Assign human quality labels
+            formatted_files = []
+            for f in sorted_files:
+                fw = f.get('width') or 0
+                fh = f.get('height') or 0
+                if fw >= 3800 or fh >= 2100:
+                    quality_label = '4K UHD'
+                elif fw >= 1900 or fh >= 1050:
+                    quality_label = '1080p FHD'
+                elif fw >= 1200 or fh >= 700:
+                    quality_label = '720p HD'
+                else:
+                    quality_label = f'{fh}p SD' if fh else 'SD'
+
+                formatted_files.append({
+                    'id': f.get('id'),
+                    'quality': f.get('quality'),
+                    'label': quality_label,
+                    'file_type': f.get('file_type'),
+                    'width': fw,
+                    'height': fh,
+                    'fps': f.get('fps'),
+                    'link': f.get('link'),
+                })
+
+            # Pick optimal preview file: a lightweight SD / 540p / 720p file for instant hover playback
+            preview_file = None
+            for f in reversed(formatted_files):
+                fh = f.get('height') or 0
+                if 300 <= fh <= 720:
+                    preview_file = f
+                    break
+            if not preview_file and formatted_files:
+                preview_file = formatted_files[-1]
+
+            videos.append({
+                'id': v.get('id'),
+                'width': w,
+                'height': h,
+                'url': v.get('url'),
+                'image': v.get('image'),
+                'duration': v.get('duration') or 0,
+                'user': {
+                    'id': v.get('user', {}).get('id'),
+                    'name': v.get('user', {}).get('name') or 'Pexels Videographer',
+                    'url': v.get('user', {}).get('url') or '',
+                },
+                'video_files': formatted_files,
+                'preview_url': preview_file.get('link') if preview_file else (formatted_files[0]['link'] if formatted_files else ''),
+                'highest_quality': formatted_files[0]['label'] if formatted_files else 'HD',
+            })
+
+        return JsonResponse({
+            'success': True,
+            'total_results': data.get('total_results', len(videos)),
+            'page': data.get('page', page),
+            'per_page': data.get('per_page', per_page),
+            'next_page': data.get('next_page'),
+            'prev_page': data.get('prev_page'),
+            'videos': videos,
+            'query': query,
+            'orientation': orientation,
+            'size': size,
+        })
+
+    except requests.exceptions.Timeout:
+        return JsonResponse({'error': 'Video search request timed out. Please try again.'}, status=504)
+    except Exception as e:
+        return JsonResponse({'error': f'Failed to fetch videos: {str(e)}'}, status=500)
+
+
+def download_stock_video_api(request):
+    """
+    Proxy download endpoint so user can save stock videos directly with an attachment header.
+    GET params:
+      url: direct video URL (from videos.pexels.com or player.vimeo.com)
+      name: desired filename (optional)
+    """
+    vid_url = (request.GET.get('url') or '').strip()
+    if not vid_url or not vid_url.startswith(('https://videos.pexels.com/', 'https://images.pexels.com/', 'https://player.vimeo.com/', 'https://')):
+        return JsonResponse({'error': 'Valid video URL is required.'}, status=400)
+
+    filename = (request.GET.get('name') or 'axom-video.mp4').strip()
+    if not filename.endswith(('.mp4', '.mov', '.webm')):
+        filename += '.mp4'
+
+    try:
+        resp = http_session.get(vid_url, stream=True, timeout=60)
+        if resp.status_code != 200:
+            return JsonResponse({'error': 'Could not stream video download.'}, status=502)
+
+        content_type = resp.headers.get('Content-Type', 'video/mp4')
+        response = StreamingHttpResponse(resp.iter_content(chunk_size=65536), content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# =============================================================================
+# AI DIAGRAM GENERATOR (Mermaid.js / PlantUML / C4 Architecture)
+# =============================================================================
+
+_DIAGGEN_DAILY_LIMIT = int(os.getenv('DIAGGEN_DAILY_LIMIT', '10'))  # free tier cap
+_DIAGGEN_RATE_LIMIT = int(os.getenv('DIAGGEN_RATE_LIMIT', '15'))   # max burst reqs
+_DIAGGEN_RATE_WINDOW = int(os.getenv('DIAGGEN_RATE_WINDOW', '60'))  # seconds
+_DIAGGEN_DAILY_HITS = {}  # {ip: {'date': 'YYYY-MM-DD', 'count': N}}
+_DIAGGEN_HITS = {}        # {ip: [timestamp, ...]}
+
+
+def _diaggen_daily_count(ip):
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _DIAGGEN_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        return 0
+    return int(entry.get('count', 0))
+
+
+def _diaggen_daily_incr(ip):
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _DIAGGEN_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        entry = {'date': today, 'count': 0}
+    entry['count'] = int(entry.get('count', 0)) + 1
+    _DIAGGEN_DAILY_HITS[ip] = entry
+
+
+def _diaggen_rate_limited(ip):
+    now = time.time()
+    hits = [t for t in _DIAGGEN_HITS.get(ip, []) if now - t < _DIAGGEN_RATE_WINDOW]
+    if len(hits) >= _DIAGGEN_RATE_LIMIT:
+        _DIAGGEN_HITS[ip] = hits
+        return True
+    hits.append(now)
+    _DIAGGEN_HITS[ip] = hits
+    return False
+
+
+@csrf_exempt
+def generate_diagram_api(request):
+    """
+    Synthesize valid Mermaid.js / PlantUML diagram code from natural language prompts.
+    POST JSON: { prompt, diagram_type?: 'flowchart'|'sequence'|'er'|'class'|'state'|'mindmap'|'c4', theme?: string, edit_code?: string }
+    Returns: { success, code, diagram_type, title, explanation, engine, used_today, remaining_today }
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method allowed.'}, status=405)
+
+    ip = _client_ip(request)
+    is_premium, plan_name, _ = _check_user_premium_status(request)
+
+    used_today = _diaggen_daily_count(ip)
+    daily_cap = 100 if is_premium else _DIAGGEN_DAILY_LIMIT
+
+    if not is_premium and used_today >= _DIAGGEN_DAILY_LIMIT:
+        return JsonResponse({
+            'error': f'You have reached the free limit of {_DIAGGEN_DAILY_LIMIT} diagrams per day. Please upgrade to Pro for unlimited diagrams!',
+            'daily_limit': _DIAGGEN_DAILY_LIMIT,
+            'used_today': used_today,
+            'is_premium': False,
+        }, status=429)
+
+    if _diaggen_rate_limited(ip):
+        return JsonResponse({'error': 'Too many requests. Please wait a moment before generating again.'}, status=429)
+
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+
+    prompt = (payload.get('prompt') or '').strip()
+    if not prompt:
+        return JsonResponse({'error': 'Prompt is required.'}, status=400)
+    if len(prompt) > 2000:
+        return JsonResponse({'error': 'Prompt exceeds 2000 characters limit.'}, status=400)
+
+    diagram_type = (payload.get('diagram_type') or 'flowchart').strip().lower()
+    edit_code = (payload.get('edit_code') or '').strip()
+
+    # System instruction for Mermaid code generation with strict syntax constraints
+    system_prompt = (
+        "You are an expert software architect and visual diagram engineer for Axom AI.\n"
+        "Generate 100% syntactically correct, beautiful, modern MERMAID.JS diagram code based on the user's prompt.\n\n"
+        "STRICT MERMAID SYNTAX RULES:\n"
+        "1. Output ONLY valid Mermaid code inside ```mermaid ... ``` or raw code without conversational preface.\n"
+        "2. Shape Syntax Rules (ALWAYS double quote all label text inside brackets/braces):\n"
+        "   - Standard box: NodeID[\"Label Here\"]\n"
+        "   - Decision/Condition: NodeID{\"Decision Question?\"}  (CRITICAL: NEVER combine braces with brackets like {[...]})\n"
+        "   - Rounded box: NodeID(\"Label Here\")\n"
+        "   - Stadium/Pill: NodeID([\"Label Here\"])\n"
+        "   - Database: NodeID[(\"Database Table\")]\n"
+        "   - Subroutine: NodeID[[\"Subroutine Name\"]]\n"
+        "3. ALWAYS enclose node labels and edge texts in double quotes if they contain spaces, hyphens, colons, parentheses or punctuation (e.g. A[\"Cart Review\"] -->|Yes| B{\"Is Logged In?\"}).\n"
+        "4. For Flowcharts use: `flowchart TD` or `flowchart LR`\n"
+        "5. For Architecture diagrams use: `flowchart TD` or `flowchart LR` with well-defined subgraphs (e.g. `subgraph Client[\"Client App\"] ... end` and `subgraph Cloud[\"AWS Cloud Infra\"] ... end`).\n"
+        "6. For Sequence diagrams use: `sequenceDiagram`\n"
+        "   - Add `autonumber` on line 2\n"
+        "   - Use `actor User` / `participant Gateway`\n"
+        "   - Messages: `User->>Gateway: Request` / `Gateway-->>User: Response` (NEVER use flowchart arrows like '-->' or '==>')\n"
+        "7. For Database ER diagrams use: `erDiagram`\n"
+        "   - Entities: `USER { string id PK, string email }`\n"
+        "   - Relationships: `USER ||--o{ ORDER : places`\n"
+        "8. For State diagrams use: `stateDiagram-v2`\n"
+        "   - `[*] --> State1`\n"
+        "   - `State1 --> State2: Transition`\n"
+        "9. For Class diagrams use: `classDiagram`\n"
+        "10. For Mindmaps use: `mindmap` (Start with `mindmap` on line 1, root node `root((Central Topic))` on line 2, and use 2-space indentation for tree branches).\n"
+        "11. For Gantt charts use: `gantt`\n"
+    )
+
+    user_query = f"Diagram Type: {diagram_type}\nUser Prompt: {prompt}"
+    if edit_code:
+        user_query += f"\n\nExisting Mermaid Code to update/modify:\n{edit_code}"
+
+    t0 = time.time()
+    code_out = _groq_generate(system_prompt, user_query, timeout=25)
+    if not code_out:
+        gk = os.getenv('GEMINI_API_KEY', '').strip()
+        if gk:
+            code_out = _gemini_generate(gk, system_prompt, user_query, ['gemini-2.5-flash', 'gemini-1.5-flash'])
+
+    if not code_out:
+        return JsonResponse({'error': 'Diagram generation failed. The AI engine is currently busy.'}, status=503)
+
+    # Clean up output code: remove markdown codeblocks if present
+    clean_code = code_out.strip()
+    if '```mermaid' in clean_code:
+        clean_code = clean_code.split('```mermaid', 1)[1].split('```', 1)[0].strip()
+    elif '```' in clean_code:
+        clean_code = clean_code.split('```', 1)[1].split('```', 1)[0].strip()
+
+    # Post-process & sanitize common LLM syntax slips in Mermaid:
+    # 1. Normalize unicode characters (non-breaking hyphens, en-dashes, em-dashes, non-breaking spaces)
+    clean_code = clean_code.replace('\u2011', '-').replace('\u2013', '-').replace('\u2014', '-').replace('\xa0', ' ')
+    # 2. Fix invalid decision shape {["Label"]} or {[Label]} -> {"Label"}
+    clean_code = re.sub(r'\{\s*\[\s*"([^"]*)"\s*\]\s*\}', r'{"\1"}', clean_code)
+    clean_code = re.sub(r'\{\s*\[\s*\'([^\']*)\'\s*\]\s*\}', r'{"\1"}', clean_code)
+    clean_code = re.sub(r'\{\s*\[([^\]]+)\]\s*\}', r'{"\1"}', clean_code)
+    # 3. Fix invalid square brackets inside stadium (["..."]) or (["..."])
+    clean_code = re.sub(r'\(\s*\[\s*\"([^\"]*)\"\s*\]\s*\)', r'(["\1"])', clean_code)
+    # 4. Wrap unquoted parentheses in node boxes: e.g. Node[Payment (UPI/Cards)] -> Node["Payment (UPI/Cards)"]
+    clean_code = re.sub(r'(\b[A-Za-z0-9_]+)\[([^"\]\n\r]*\([^"\]\n\r]*\)[^"\]\n\r]*)\]', r'\1["\2"]', clean_code)
+    # 5. Wrap unquoted parentheses in decision nodes: Node{Is Valid (Check)?} -> Node{"Is Valid (Check)?"}
+    clean_code = re.sub(r'(\b[A-Za-z0-9_]+)\{([^"\}\n\r]*\([^"\}\n\r]*\)[^"\}\n\r]*)\}', r'\1{"\2"}', clean_code)
+    # 6. Wrap unquoted parentheses in round nodes: Node(Start (Run)) -> Node("Start (Run)")
+    clean_code = re.sub(r'(\b[A-Za-z0-9_]+)\(([^"\)\n\r]*\([^"\)\n\r]*\)[^"\)\n\r]*)\)', r'\1("\2")', clean_code)
+    # 7. Normalize architecture-beta to flowchart TD if emitted
+    if diagram_type == 'architecture' and clean_code.strip().startswith(('architecture-beta', 'architecture')):
+        clean_code = re.sub(r'^(architecture-beta|architecture)[^\n]*\n', 'flowchart TD\n', clean_code.strip())
+
+    # Increment daily usage
+    _diaggen_daily_incr(ip)
+    used_after = _diaggen_daily_count(ip)
+
+    return JsonResponse({
+        'success': True,
+        'code': clean_code,
+        'diagram_type': diagram_type,
+        'prompt': prompt,
+        'engine': 'Groq LLaMA 3.3',
+        'ms': int((time.time() - t0) * 1000),
+        'daily_limit': daily_cap,
+        'used_today': used_after,
+        'remaining_today': max(0, daily_cap - used_after),
+        'is_premium': is_premium,
+    })
+
+

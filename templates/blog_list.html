@@ -1,0 +1,927 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-IN" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Primary SEO -->
+  <title>Axom AI Blog & Insights — AI Guides, Updates & Research in Assam</title>
+  <meta name="description" content="Explore comprehensive guides, tutorials, model updates, and research on artificial intelligence, Assamese NLP, and regional digital innovation on the official Axom AI Blog.">
+  <meta name="keywords" content="Axom AI Blog, AI in Assam, Assamese AI, AI tools Assam, AI guides, AI research Assam, Axom AI updates, Northeast India AI">
+  <meta name="author" content="Axom AI">
+  <meta name="robots" content="index, follow">
+
+  <link rel="canonical" href="https://aiaxom.co.in/blog/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Axom AI Blog & Insights — AI in Assam & Beyond">
+  <meta property="og:description" content="Discover guides, tutorials, and regional AI insights from the Axom AI team and community.">
+  <meta property="og:url" content="https://aiaxom.co.in/blog/">
+  <meta property="og:site_name" content="Axom AI">
+  <meta property="og:image" content="https://aiaxom.co.in/static/dist/hero/assam.avif">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Axom AI Blog & Insights">
+  <meta name="twitter:description" content="Explore artificial intelligence guides, research, and updates built in Assam.">
+  <meta name="twitter:image" content="https://aiaxom.co.in/static/dist/hero/assam.avif">
+
+  <!-- React 18 & Babel Standalone -->
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fdf4ff',
+              100: '#fae8ff',
+              200: '#f5d0fe',
+              300: '#f0abfc',
+              400: '#e879f9',
+              500: '#d946ef',
+              600: '#c026d3',
+              700: '#a21caf',
+              800: '#86198f',
+              900: '#701a75',
+            }
+          },
+          fontFamily: {
+            sans: ['"Inter"', 'system-ui', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'ui-serif', 'Georgia', 'serif'],
+            assamese: ['"Noto Serif Bengali"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #06060b;
+    }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+    body {
+      background: var(--bg-dark);
+      color: #e5e7eb;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    /* Custom scrollbar matching primary colors */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #0a0a10; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #c084fc, #e879f9);
+      border-radius: 6px;
+      border: 2px solid #0a0a10;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #a855f7, #d946ef);
+    }
+    * { scrollbar-width: thin; scrollbar-color: #c084fc #0a0a10; }
+
+    /* Hero Background */
+    .hero-assam-bg {
+      background: radial-gradient(circle at 50% 0%, rgba(192, 38, 211, 0.22) 0%, rgba(99, 102, 241, 0.12) 35%, rgba(6, 6, 11, 0) 75%),
+                  linear-gradient(180deg, #06060b 0%, #0a0c16 100%);
+    }
+
+    /* Gradient Animated Text */
+    .gradient-text {
+      background: linear-gradient(120deg, #ffffff 0%, #c084fc 40%, #f472b6 60%, #ffffff 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient 8s ease infinite;
+    }
+    @keyframes gradient {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(120deg, #c084fc, #e879f9, #c084fc);
+      background-size: 200% 200%;
+      animation: gradient 6s ease infinite;
+      color: #06060b;
+      font-weight: 700;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 20px rgba(192, 132, 252, 0.35);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 28px rgba(192, 132, 252, 0.55);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Cards */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(192, 132, 252, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 45px -15px rgba(168, 85, 247, 0.28);
+    }
+    .featured-card {
+      background: linear-gradient(135deg, rgba(20, 27, 48, 0.9) 0%, rgba(10, 15, 30, 0.95) 100%);
+      border: 1px solid rgba(192, 132, 252, 0.3);
+      box-shadow: 0 20px 50px -15px rgba(168, 85, 247, 0.25);
+    }
+    .featured-card:hover {
+      border-color: rgba(192, 132, 252, 0.55);
+      box-shadow: 0 25px 65px -15px rgba(168, 85, 247, 0.4);
+    }
+
+    /* Mega Menu (same as home) */
+    .nav-item:hover .mega-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    .mega-menu {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      pointer-events: none;
+      z-index: 60;
+    }
+    .mega-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      transition: all 0.15s;
+    }
+    .mega-item:hover {
+      background: rgba(192, 132, 252, 0.08);
+    }
+    .mega-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(192, 132, 252, 0.15), rgba(236, 72, 153, 0.1));
+      border: 1px solid rgba(192, 132, 252, 0.2);
+    }
+
+    /* Drawer */
+    .drawer-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 101;
+      width: min(85vw, 340px);
+      background: linear-gradient(180deg, #0e0d1a 0%, #06060b 100%);
+      border-left: 1px solid rgba(192, 132, 252, 0.2);
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+      box-shadow: -30px 0 60px -20px rgba(192, 132, 252, 0.15);
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 20px; color: #e5e7eb; font-size: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      transition: all 0.15s;
+    }
+    .drawer-item:hover, .drawer-item:active {
+      background: rgba(192, 132, 252, 0.08);
+      color: #f5d0fe;
+      padding-left: 26px;
+    }
+
+    /* Category Pill */
+    .cat-btn {
+      transition: all 0.2s ease;
+    }
+    .cat-btn.active {
+      background: linear-gradient(135deg, rgba(217, 70, 239, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+      border-color: rgba(217, 70, 239, 0.6);
+      color: #f5d0fe;
+      font-weight: 700;
+      box-shadow: 0 0 15px rgba(217, 70, 239, 0.25);
+    }
+  </style>
+
+  <!-- Server Data Injection -->
+  <script id="blog-data-json" type="application/json">
+  {
+    "articles": {{ articles_json|safe }},
+    "categories": {{ categories_json|safe }},
+    "totalCount": {{ total_count }},
+    "initialCategory": "{{ active_category|default:''|escapejs }}",
+    "initialQuery": "{{ search_query|default:''|escapejs }}"
+  }
+  </script>
+</head>
+
+<body>
+
+  <div id="root"></div>
+
+  {% verbatim %}
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useMemo } = React;
+
+    // Parse Data from Server Script Tag
+    let initialData = { articles: [], categories: [], totalCount: 0, initialCategory: '', initialQuery: '' };
+    try {
+      const el = document.getElementById('blog-data-json');
+      if (el) initialData = JSON.parse(el.textContent);
+    } catch (e) {
+      console.error("Error parsing blog JSON data", e);
+    }
+
+    const CHAT_URL = "https://chat.aiaxom.co.in/";
+
+    // ─────── SVG ICONS ───────
+    const I = ({ p, c = "w-5 h-5" }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={c}>{p}</svg>
+    );
+    const ISparkle = ({c}) => <I c={c} p={<><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></>} />;
+    const IArrow = ({c}) => <I c={c} p={<><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>} />;
+    const IMenu = ({c}) => <I c={c} p={<><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></>} />;
+    const IX = ({c}) => <I c={c} p={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />;
+    const IGrid = ({c}) => <I c={c} p={<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>} />;
+    const IUsers = ({c}) => <I c={c} p={<><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>} />;
+    const ICrown = ({c}) => <I c={c} p={<><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/></>} />;
+
+    // Mega menu tools
+    const TOOLS = [
+      { icon: ISparkle, title: "AI Chat",           desc: "ChatGPT-style Assamese chat",          color: "text-fuchsia-400" },
+      { icon: ISparkle, title: "AI Writer",         desc: "Emails, posts, essays",                color: "text-purple-400" },
+      { icon: ISparkle, title: "Image Generator",   desc: "FLUX + Pollinations + Gemini",         color: "text-pink-400" },
+      { icon: ISparkle, title: "Document Analyzer", desc: "Summarize PDFs & DOCX",                color: "text-blue-400" },
+      { icon: ISparkle, title: "Code Assistant",    desc: "Write, debug, explain code",           color: "text-indigo-400" },
+      { icon: ISparkle, title: "Web Search",        desc: "Real-time answers via Tavily",         color: "text-amber-400" },
+      { icon: ISparkle, title: "PDF Tools",         desc: "Merge / split / OCR / edit",           color: "text-red-400" },
+      { icon: ISparkle, title: "Data Analyzer",     desc: "Excel & CSV insights",                 color: "text-cyan-400" },
+      { icon: ISparkle, title: "Translator",        desc: "IndicTrans2 Assamese",                 color: "text-emerald-400" },
+    ];
+
+    // ─────── HEADER NAVBAR (Identical to homepage) ───────
+    function Nav() {
+      const [open, setOpen] = useState(false);
+      const [scrolled, setScrolled] = useState(false);
+
+      useEffect(() => {
+        const s = () => setScrolled(window.scrollY > 30);
+        window.addEventListener('scroll', s);
+        return () => window.removeEventListener('scroll', s);
+      }, []);
+
+      useEffect(() => {
+        if (open) {
+          const prev = document.body.style.overflow;
+          document.body.style.overflow = 'hidden';
+          return () => { document.body.style.overflow = prev; };
+        }
+      }, [open]);
+
+      const closeAndGo = (href) => (e) => {
+        setOpen(false);
+      };
+
+      return (
+        <nav className={"fixed top-0 inset-x-0 z-50 transition-all duration-300 " + (scrolled ? "bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-2xl" : "bg-black/60 backdrop-blur-md border-b border-white/5")}>
+          <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+            
+            {/* Logo */}
+            <a href="/" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center shadow-lg shadow-fuchsia-500/40 group-hover:scale-105 transition-transform">
+                <ISparkle c="w-4 h-4 text-white"/>
+              </div>
+              <div className="font-bold text-lg tracking-tight text-white">Axom<span className="text-fuchsia-400"> AI</span></div>
+            </a>
+
+            {/* Desktop Links */}
+            <div className="hidden lg:flex items-center gap-1 text-sm">
+              {/* AI TOOLS MEGA MENU */}
+              <div className="nav-item relative">
+                <a href="/#tools" className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition inline-flex items-center gap-1.5">
+                  AI Tools
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </a>
+                <div className="mega-menu w-[640px] p-3 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-fuchsia-500/10 mt-2">
+                  <div className="text-[10px] uppercase tracking-widest text-fuchsia-400 font-bold px-3 pt-2 pb-1">Explore Tools</div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {TOOLS.map((t, i) => {
+                      const Ic = t.icon;
+                      return (
+                        <a key={i} href={CHAT_URL + "tools"} className="mega-item">
+                          <div className="mega-icon"><Ic c={"w-4 h-4 " + t.color}/></div>
+                          <div>
+                            <div className="text-sm font-semibold text-white">{t.title}</div>
+                            <div className="text-xs text-gray-400">{t.desc}</div>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                  <div className="border-t border-white/5 mt-2 pt-2 px-3">
+                    <a href={CHAT_URL + "tools"} className="text-xs text-fuchsia-400 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all">See all tools <IArrow c="w-3 h-3"/></a>
+                  </div>
+                </div>
+              </div>
+
+              <a href="/about/" className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">About</a>
+              <a href="/#usecases" className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Use Cases</a>
+              <a href="/#pricing" className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Pricing</a>
+              <a href="/blog/" className="px-4 py-2 rounded-full text-white bg-fuchsia-500/20 border border-fuchsia-500/35 font-semibold transition">Blog & Insights</a>
+              <a href="/#faq" className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">FAQ</a>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="hidden lg:flex items-center gap-3">
+              <a href={CHAT_URL} className="text-sm text-gray-300 hover:text-white transition px-3">Sign in</a>
+              <a href={CHAT_URL} className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5">
+                Open Chat <IArrow c="w-4 h-4"/>
+              </a>
+            </div>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setOpen(!open)}
+              aria-label="Open menu"
+              className="lg:hidden w-10 h-10 rounded-full bg-white/10 border border-white/15 grid place-items-center text-white hover:bg-white/15 transition"
+            >
+              <IMenu c="w-5 h-5"/>
+            </button>
+          </div>
+
+          {/* Mobile Drawer */}
+          <div className={"drawer-overlay lg:hidden " + (open ? "open" : "")} onClick={() => setOpen(false)}></div>
+          <aside className={"drawer lg:hidden " + (open ? "open" : "")} role="dialog" aria-modal="true">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center">
+                  <ISparkle c="w-4 h-4 text-white"/>
+                </div>
+                <div className="font-bold text-white">Axom<span className="text-fuchsia-400"> AI</span></div>
+              </div>
+              <button onClick={() => setOpen(false)} aria-label="Close menu" className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 grid place-items-center text-gray-300"><IX c="w-4 h-4"/></button>
+            </div>
+
+            <div className="py-2">
+              {[
+                { icon: ISparkle,href: "/about/",    label: "About Axom AI" },
+                { icon: IGrid,   href: "/#tools",    label: "AI Tools" },
+                { icon: IUsers,  href: "/#usecases", label: "Use Cases" },
+                { icon: ICrown,  href: "/#pricing",  label: "Pricing" },
+                { icon: ISparkle,href: "/blog/",     label: "Blog & Insights" },
+                { icon: ISparkle,href: "/#faq",      label: "FAQ" },
+              ].map((it, i) => {
+                const Ic = it.icon;
+                return (
+                  <a key={i} href={it.href} onClick={closeAndGo(it.href)} className="drawer-item">
+                    <Ic c="w-4 h-4 text-fuchsia-400"/>
+                    {it.label}
+                  </a>
+                );
+              })}
+            </div>
+
+            <div className="px-5 pt-5 pb-6 border-t border-white/5 mt-3">
+              <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Get Started</div>
+              <a href={CHAT_URL} onClick={() => setOpen(false)} className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5">Open Chat →</a>
+              <a href={CHAT_URL} onClick={() => setOpen(false)} className="btn-ghost block text-center text-sm px-4 py-3 rounded-full">Sign in</a>
+            </div>
+
+            <div className="px-5 mt-auto absolute bottom-5 left-0 right-0">
+              <p className="font-assamese text-xs text-fuchsia-300/60 text-center">অসম ৰ ঘৰ · AI ৰ সুবিধা</p>
+            </div>
+          </aside>
+        </nav>
+      );
+    }
+
+    // ─────── FOOTER (Identical to homepage) ───────
+    function Footer() {
+      const cols = [
+        { t:"Product",  l:[["AI Tools", CHAT_URL + "tools"], ["Pricing", "/#pricing"], ["What's New", "/blog/"], ["Roadmap", "#"]] },
+        { t:"Solutions",l:[["For Students", "/#usecases"], ["For Businesses", "/#usecases"], ["For Educators", "/#usecases"], ["For Developers", "/#usecases"]] },
+        { t:"Resources",l:[["Blog", "/blog/"], ["Help Center", "https://user.aiaxom.co.in/support/"], ["Community", "#"], ["API Docs", "#"]] },
+        { t:"Company",  l:[["About", "/about/"], ["Careers", "#"], ["Contact", "mailto:samarjitkashyp@gmail.com"], ["Press", "#"]] },
+      ];
+
+      const handleLink = (e, url) => {
+        if (!url || url === '#' || url === 'javascript:void(0);') {
+          e.preventDefault();
+          return;
+        }
+      };
+
+      return (
+        <footer className="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-black/60 mt-20">
+          <div className="max-w-7xl mx-auto px-5">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
+              <div className="col-span-2 md:col-span-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center">
+                    <ISparkle c="w-4 h-4 text-white"/>
+                  </div>
+                  <div className="font-bold text-white text-lg">Axom<span className="text-fuchsia-400"> AI</span></div>
+                </div>
+                <p className="text-xs text-gray-400 leading-relaxed mb-4">AI for a more inclusive future.<br/>Built in Assam, for the world.</p>
+                <div className="flex gap-2">
+                  {['𝕏','in','▶','ig'].map((s,i)=>(
+                    <a key={i} href="#" onClick={(e) => e.preventDefault()} className="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">{s}</a>
+                  ))}
+                </div>
+              </div>
+
+              {cols.map((col, i) => (
+                <div key={i}>
+                  <div className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3">{col.t}</div>
+                  <ul className="space-y-2 text-sm text-gray-500">
+                    {col.l.map((it, j) => {
+                      const isExternal = it[1].startsWith('http') || it[1].startsWith('mailto:');
+                      return (
+                        <li key={j}>
+                          <a
+                            href={it[1]}
+                            target={isExternal ? "_blank" : undefined}
+                            rel={isExternal ? "noopener noreferrer" : undefined}
+                            onClick={(e) => handleLink(e, it[1])}
+                            className="hover:text-fuchsia-400 transition"
+                          >
+                            {it[0]}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span>© 2026 Axom AI. All rights reserved.</span>
+                <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-fuchsia-400">Privacy</a>
+                <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-fuchsia-400">Terms</a>
+                <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-fuchsia-400">Refund</a>
+              </div>
+              <div>Made with <span className="text-red-500">❤</span> in Assam, India 🇮🇳</div>
+            </div>
+            <div className="mt-6 text-center font-serif italic text-gray-500 text-sm">From Assam · To A Smarter Tomorrow</div>
+          </div>
+        </footer>
+      );
+    }
+
+    // ─────── MAIN BLOG LISTING COMPONENT (REACT + AJAX SEARCH & FILTER) ───────
+    function BlogApp() {
+      const [articles, setArticles] = useState(initialData.articles || []);
+      const [categories, setCategories] = useState(initialData.categories || []);
+      const [searchQuery, setSearchQuery] = useState(initialData.initialQuery || '');
+      const [selectedCategory, setSelectedCategory] = useState(initialData.initialCategory || '');
+      const [isSearching, setIsSearching] = useState(false);
+
+      // Synchronize URL parameters without full page reload
+      const syncUrl = (cat, query) => {
+        const params = new URLSearchParams();
+        if (cat) params.set('category', cat);
+        if (query) params.set('q', query);
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+      };
+
+      // Handle category selection
+      const handleCategoryChange = (catVal) => {
+        setSelectedCategory(catVal);
+        syncUrl(catVal, searchQuery);
+      };
+
+      // Handle search input change
+      const handleSearchChange = (e) => {
+        const val = e.target.value;
+        setSearchQuery(val);
+        setIsSearching(true);
+        syncUrl(selectedCategory, val);
+        setTimeout(() => setIsSearching(false), 200);
+      };
+
+      // Reset all filters
+      const resetFilters = () => {
+        setSearchQuery('');
+        setSelectedCategory('');
+        syncUrl('', '');
+      };
+
+      // Instant client-side filtering
+      const filteredArticles = useMemo(() => {
+        let list = articles;
+
+        // 1. Category Filter
+        if (selectedCategory) {
+          list = list.filter(a => a.category === selectedCategory);
+        }
+
+        // 2. Search Query Filter (Title, Excerpt, Content, Author, Category Label)
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          list = list.filter(a => 
+            (a.title && a.title.toLowerCase().includes(q)) ||
+            (a.excerpt && a.excerpt.toLowerCase().includes(q)) ||
+            (a.content_snippet && a.content_snippet.toLowerCase().includes(q)) ||
+            (a.category_label && a.category_label.toLowerCase().includes(q)) ||
+            (a.author_name && a.author_name.toLowerCase().includes(q))
+          );
+        }
+
+        return list;
+      }, [articles, selectedCategory, searchQuery]);
+
+      // Featured Article (spotlight top article when viewing all without search)
+      const featuredArticle = useMemo(() => {
+        if (!searchQuery && !selectedCategory && filteredArticles.length > 0) {
+          return filteredArticles[0];
+        }
+        return null;
+      }, [filteredArticles, searchQuery, selectedCategory]);
+
+      // Grid articles (remaining articles or all matching articles)
+      const gridArticles = useMemo(() => {
+        if (featuredArticle) {
+          return filteredArticles.slice(1);
+        }
+        return filteredArticles;
+      }, [filteredArticles, featuredArticle]);
+
+      return (
+        <div className="min-h-screen flex flex-col justify-between">
+          <Nav />
+
+          <main className="flex-1 pt-20">
+
+            {/* HERO & SEARCH SECTION */}
+            <section className="relative hero-assam-bg pt-16 pb-20 border-b border-white/10 overflow-hidden">
+              <div className="max-w-7xl mx-auto px-5 relative z-10 text-center">
+                
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-fuchsia-400 animate-pulse"></span>
+                  Official Axom AI Blog &amp; Insights
+                </div>
+
+                {/* Main Heading */}
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.15] max-w-4xl mx-auto mb-6">
+                  Ideas, Technology &amp; Insights <br className="hidden sm:block"/>
+                  <span className="gradient-text">
+                    from Assam's AI Frontier
+                  </span>
+                </h1>
+
+                {/* Subtitle */}
+                <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
+                  Explore practical guides, new AI models, regional research, and digital strategies empowering students, freelancers, and businesses across Assam.
+                </p>
+
+                {/* PROPERLY STYLED AJAX SEARCH BAR */}
+                <div className="max-w-2xl mx-auto relative group">
+                  <div className="relative flex items-center">
+                    
+                    {/* Glowing Accent Ring on Search Bar */}
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-fuchsia-500 to-purple-600 rounded-full blur opacity-25 group-focus-within:opacity-75 transition duration-300 pointer-events-none"></div>
+
+                    <div className="relative w-full flex items-center rounded-full bg-slate-900/90 border border-white/15 group-focus-within:border-fuchsia-500/60 shadow-2xl transition-all">
+                      
+                      {/* Search Icon */}
+                      <div className="pl-5 pr-3 text-gray-400 text-sm">
+                        <i className={`fa-solid ${isSearching ? 'fa-spinner fa-spin text-fuchsia-400' : 'fa-magnifying-glass'}`}></i>
+                      </div>
+
+                      {/* Input */}
+                      <input 
+                        type="text" 
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder="Search topics, models, guides (e.g. Students, Productivity, Tools)..." 
+                        className="w-full py-4 pr-24 bg-transparent text-white placeholder-gray-400 text-sm sm:text-base focus:outline-none"
+                      />
+
+                      {/* Clear Button (Shown when text is typed) */}
+                      {searchQuery && (
+                        <button 
+                          onClick={() => { setSearchQuery(''); syncUrl(selectedCategory, ''); }}
+                          aria-label="Clear search"
+                          className="mr-2 w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white grid place-items-center text-xs transition"
+                        >
+                          <i className="fa-solid fa-xmark"></i>
+                        </button>
+                      )}
+
+                      {/* Live Counter Badge */}
+                      <div className="pr-3 hidden sm:flex items-center">
+                        <span className="px-3 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-[11px] font-semibold text-fuchsia-300 whitespace-nowrap">
+                          {filteredArticles.length} {filteredArticles.length === 1 ? 'post' : 'posts'}
+                        </span>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+            {/* AJAX CATEGORY FILTER TABS */}
+            <section className="sticky top-[72px] z-40 bg-[#06060b]/90 backdrop-blur-xl border-b border-white/10 py-3 transition-all">
+              <div className="max-w-7xl mx-auto px-5">
+                <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
+                  
+                  {/* All Articles Button */}
+                  <button 
+                    onClick={() => handleCategoryChange('')}
+                    className={"cat-btn shrink-0 px-4 py-2 rounded-full text-xs font-semibold border flex items-center gap-2 " + (!selectedCategory ? "active" : "border-white/10 bg-white/5 text-gray-300 hover:text-white hover:bg-white/10")}
+                  >
+                    <i className="fa-solid fa-layer-group text-[11px] opacity-70"></i>
+                    <span>All Articles</span>
+                    <span className={"px-1.5 py-0.5 rounded-full text-[10px] " + (!selectedCategory ? "bg-fuchsia-500/30 text-fuchsia-200" : "bg-white/10 text-gray-400")}>
+                      {articles.length}
+                    </span>
+                  </button>
+
+                  {/* Category Pills */}
+                  {categories.map((cat, i) => {
+                    const isActive = selectedCategory === cat.val;
+                    return (
+                      <button 
+                        key={i}
+                        onClick={() => handleCategoryChange(cat.val)}
+                        className={"cat-btn shrink-0 px-4 py-2 rounded-full text-xs font-semibold border flex items-center gap-2 " + (isActive ? "active" : "border-white/10 bg-white/5 text-gray-300 hover:text-white hover:bg-white/10")}
+                      >
+                        <span>{cat.label}</span>
+                        <span className={"px-1.5 py-0.5 rounded-full text-[10px] " + (isActive ? "bg-fuchsia-500/30 text-fuchsia-200" : "bg-white/10 text-gray-400")}>
+                          {cat.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+
+                </div>
+              </div>
+            </section>
+
+            {/* ARTICLES CONTAINER */}
+            <section className="max-w-7xl mx-auto px-5 py-12">
+
+              {/* Active Filter Notice */}
+              {(searchQuery || selectedCategory) && (
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-10 pb-4 border-b border-white/10 animate-fade-in">
+                  <div className="flex items-center gap-2.5 text-sm flex-wrap">
+                    <span className="text-gray-400">Filtering:</span>
+                    {searchQuery && (
+                      <span className="px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 font-semibold text-xs border border-fuchsia-500/40 inline-flex items-center gap-1.5">
+                        <i className="fa-solid fa-magnifying-glass text-[10px]"></i> "{searchQuery}"
+                      </span>
+                    )}
+                    {selectedCategory && (
+                      <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold text-xs border border-purple-500/40 inline-flex items-center gap-1.5">
+                        <i className="fa-solid fa-tag text-[10px]"></i> {categories.find(c => c.val === selectedCategory)?.label || selectedCategory}
+                      </span>
+                    )}
+                    <span className="text-gray-500 text-xs">({filteredArticles.length} matching)</span>
+                  </div>
+
+                  <button 
+                    onClick={resetFilters} 
+                    className="text-xs text-fuchsia-400 hover:text-fuchsia-300 hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <i className="fa-solid fa-rotate-left"></i> Reset filters
+                  </button>
+                </div>
+              )}
+
+              {/* FEATURED STORY SPOTLIGHT (When no search & all categories) */}
+              {featuredArticle && (
+                <div className="mb-14">
+                  <div className="text-xs font-bold uppercase tracking-widest text-fuchsia-400 mb-4 flex items-center gap-2">
+                    <i className="fa-solid fa-star text-amber-400"></i> Featured Insight
+                  </div>
+
+                  <a href={featuredArticle.link} className="group block">
+                    <div className="featured-card rounded-2xl p-6 sm:p-8 lg:p-10 transition-all duration-300 relative overflow-hidden">
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                        
+                        {/* Left Content */}
+                        <div className="lg:col-span-8 flex flex-col justify-center">
+                          <div className="flex items-center gap-3 mb-4 flex-wrap">
+                            <span className="px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-500/40 text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider">
+                              {featuredArticle.category_label}
+                            </span>
+                            <span className="text-xs text-gray-400 flex items-center gap-1.5">
+                              <i className="fa-regular fa-clock text-fuchsia-400"></i> {featuredArticle.read_time}
+                            </span>
+                            <span className="text-xs text-gray-400 flex items-center gap-1.5">
+                              <i className="fa-regular fa-calendar text-gray-500"></i> {featuredArticle.published_at}
+                            </span>
+                          </div>
+
+                          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white group-hover:text-fuchsia-300 transition-colors leading-tight mb-4">
+                            {featuredArticle.title}
+                          </h2>
+
+                          <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6 line-clamp-3">
+                            {featuredArticle.excerpt}
+                          </p>
+
+                          <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-fuchsia-600 to-purple-600 grid place-items-center text-white font-bold text-xs shadow-md">
+                                {featuredArticle.author_name.slice(0, 2).toUpperCase()}
+                              </div>
+                              <div className="text-xs font-semibold text-gray-200">By {featuredArticle.author_name}</div>
+                            </div>
+
+                            <div className="inline-flex items-center gap-2 text-sm font-bold text-fuchsia-400 group-hover:translate-x-1.5 transition-transform">
+                              <span>Read Full Article</span>
+                              <i className="fa-solid fa-arrow-right text-xs"></i>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right Graphic Banner */}
+                        <div className="lg:col-span-4 hidden lg:flex flex-col items-center justify-center p-8 rounded-xl bg-gradient-to-br from-fuchsia-500/15 via-purple-500/10 to-slate-900 border border-white/10 text-center relative overflow-hidden">
+                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-indigo-600 grid place-items-center text-2xl text-white shadow-xl shadow-fuchsia-500/40 mb-4 group-hover:scale-110 transition-transform">
+                            <ISparkle c="w-7 h-7 text-white"/>
+                          </div>
+                          <div className="text-white font-bold text-base mb-1">Axom AI Native Insights</div>
+                          <div className="text-xs text-gray-400">Curated regional tech, AI &amp; culture</div>
+                          <div className="mt-4 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-fuchsia-300 font-semibold">
+                            {featuredArticle.read_time}
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              )}
+
+              {/* ARTICLES GRID */}
+              {gridArticles.length > 0 ? (
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-6 flex items-center justify-between">
+                    <span>
+                      {searchQuery || selectedCategory ? `Found Articles (${filteredArticles.length})` : 'Latest Stories & Guides'}
+                    </span>
+                    <span className="text-gray-500 text-[11px] font-normal">Real-time updated</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    {gridArticles.map((art, i) => (
+                      <article key={art.id || i} className="glass-card rounded-2xl flex flex-col justify-between overflow-hidden group">
+                        
+                        {/* Top Card Body */}
+                        <div className="p-6 pb-4">
+                          <div className="flex items-center justify-between gap-2 mb-4">
+                            <span className="px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-bold uppercase tracking-wider">
+                              {art.category_label}
+                            </span>
+                            <span className="text-xs text-gray-400 flex items-center gap-1.5">
+                              <i className="fa-regular fa-clock text-fuchsia-400 text-[10px]"></i> {art.read_time}
+                            </span>
+                          </div>
+
+                          <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-fuchsia-300 transition-colors leading-snug mb-3">
+                            <a href={art.link} className="focus:outline-none">
+                              {art.title}
+                            </a>
+                          </h3>
+
+                          <p className="text-gray-400 text-xs sm:text-sm leading-relaxed line-clamp-3">
+                            {art.excerpt}
+                          </p>
+                        </div>
+
+                        {/* Bottom Card Meta */}
+                        <div className="px-6 py-4 border-t border-white/5 bg-slate-950/40 flex items-center justify-between mt-auto">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-fuchsia-600 to-purple-600 grid place-items-center text-white font-bold text-[10px] shadow-sm">
+                              {art.author_name.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="text-xs font-semibold text-gray-200 truncate max-w-[110px]">{art.author_name}</div>
+                              <div className="text-[10px] text-gray-500">{art.published_at}</div>
+                            </div>
+                          </div>
+
+                          <a href={art.link} className="inline-flex items-center gap-1.5 text-xs font-bold text-fuchsia-400 hover:text-fuchsia-300 group-hover:translate-x-1 transition-all">
+                            <span>Read</span>
+                            <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                          </a>
+                        </div>
+
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                /* EMPTY STATE (No matching search results) */
+                <div className="text-center py-20 px-5 max-w-md mx-auto">
+                  <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 grid place-items-center text-2xl text-fuchsia-400 mx-auto mb-5 shadow-xl">
+                    <i className="fa-solid fa-magnifying-glass"></i>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">No matching articles found</h3>
+                  <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+                    We couldn't find any articles matching your search query or selected category. Try searching with different keywords.
+                  </p>
+                  <button onClick={resetFilters} className="btn-primary inline-flex items-center gap-2 text-xs px-6 py-3 rounded-full">
+                    <i className="fa-solid fa-rotate-left"></i> Clear Filters &amp; View All
+                  </button>
+                </div>
+              )}
+
+              {/* COMMUNITY & NEWSLETTER BANNER */}
+              <div className="mt-20 rounded-3xl p-8 sm:p-12 bg-gradient-to-r from-purple-950/60 via-slate-900 to-fuchsia-950/60 border border-fuchsia-500/20 shadow-2xl relative overflow-hidden">
+                <div className="relative z-10 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-[10px] font-bold uppercase tracking-wider mb-4">
+                    <ISparkle c="w-3.5 h-3.5 text-fuchsia-300"/> Axom AI Community
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">
+                    Build, Learn &amp; Innovate with AI in Assam
+                  </h3>
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
+                    Join thousands of students, researchers, and builders using Assam's indigenous AI platform for smarter productivity, document intelligence, and content creation.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <a href={CHAT_URL} className="btn-primary text-xs sm:text-sm px-6 py-3 rounded-full inline-flex items-center gap-2">
+                      Start Chatting Free <IArrow c="w-3.5 h-3.5"/>
+                    </a>
+                    <a href="/#tools" className="btn-ghost text-xs sm:text-sm px-6 py-3 rounded-full inline-flex items-center gap-2">
+                      Explore 12+ AI Tools
+                    </a>
+                  </div>
+                </div>
+
+                <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-fuchsia-600/15 rounded-full blur-3xl pointer-events-none"></div>
+              </div>
+
+            </section>
+
+          </main>
+
+          <Footer />
+        </div>
+      );
+    }
+
+    // Render React App
+    ReactDOM.createRoot(document.getElementById('root')).render(<BlogApp />);
+  </script>
+  {% endverbatim %}
+
+</body>
+</html>
