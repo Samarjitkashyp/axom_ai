@@ -1471,6 +1471,7 @@ def chat_api_view(request):
     return JsonResponse({'error': f"API Error: {last_error}"}, status=400)
 
 
+@csrf_exempt
 def login_api_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST is allowed'}, status=405)
@@ -1500,6 +1501,7 @@ def logout_api_view(request):
     return JsonResponse({'success': True, 'message': 'Logged out successfully'})
 
 
+@csrf_exempt
 def register_api_view(request):
     """
     User Registration API with strict device and IP security.
