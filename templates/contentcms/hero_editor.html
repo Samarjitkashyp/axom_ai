@@ -1,0 +1,494 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}1. Hero & Tech Logos — Axom AI CMS{% endblock %}
+{% block page_title %}1. Hero Section & Tech Logos{% endblock %}
+{% block page_subtitle %}Controls Landing Page Top: Main Headline, Assamese Subtitle, Action Buttons & Partner Logo Carousel (aiaxom.co.in/#hero){% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-5xl">
+
+  <!-- Main Hero Section Content -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i>
+          Hero Section
+        </h2>
+        <p class="text-xs text-slate-400">Main headline, Assamese subheadline, and call-to-action buttons</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="hero_active" class="sr-only peer" {% if hero.is_active %}checked{% endif %}>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Active</span>
+      </label>
+    </div>
+
+    <!-- Badge Line -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hero Pill Badge Text</label>
+        <input type="text" id="hero_badge_text" value="{{ hero.badge_text }}"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Badge Click Link</label>
+        <input type="text" id="hero_badge_link" value="{{ hero.badge_link }}"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+    </div>
+
+    <!-- Main Headline -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Main Heading (Prefix)</label>
+        <input type="text" id="hero_heading_prefix" value="{{ hero.main_heading_prefix }}" placeholder="The Power of AI"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Main Heading (Gradient Highlight)</label>
+        <input type="text" id="hero_heading_highlight" value="{{ hero.main_heading_highlight }}" placeholder="Everyone"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+    </div>
+
+    <!-- Subheadings -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Subheading (Assamese Primary)</label>
+      <textarea id="hero_sub_as" rows="2"
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">{{ hero.subheading_assamese }}</textarea>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Subheading (English Secondary)</label>
+      <textarea id="hero_sub_en" rows="2"
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">{{ hero.subheading_english }}</textarea>
+    </div>
+
+    <!-- CTAs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="space-y-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+        <span class="text-xs font-bold text-fuchsia-400 uppercase tracking-wider">Primary Button (Gradient)</span>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Button Label</label>
+          <input type="text" id="hero_cta1_text" value="{{ hero.cta_primary_text }}"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Target URL</label>
+          <input type="text" id="hero_cta1_url" value="{{ hero.cta_primary_url }}"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+      </div>
+
+      <div class="space-y-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Secondary Button (Ghost/Dark)</span>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Button Label</label>
+          <input type="text" id="hero_cta2_text" value="{{ hero.cta_secondary_text }}"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Target URL</label>
+          <input type="text" id="hero_cta2_url" value="{{ hero.cta_secondary_url }}"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust Badges (Below Buttons) -->
+    <div class="space-y-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+      <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-fuchsia-400"></i>
+        Trust Points (Displayed Below Buttons)
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Badge 1</label>
+          <input type="text" id="hero_trust1" value="{{ hero.trust_badge_1|default:'No credit card required' }}"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Badge 2</label>
+          <input type="text" id="hero_trust2" value="{{ hero.trust_badge_2|default:'Fast & secure' }}"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Badge 3</label>
+          <input type="text" id="hero_trust3" value="{{ hero.trust_badge_3|default:'Accessible for everyone' }}"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+      </div>
+    </div>
+
+    <!-- Logo Slider Headline & Settings -->
+    <div class="space-y-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+      <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
+        <span class="flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-fuchsia-400"></i>
+          Logo Slider Title & Visibility
+        </span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="hero_logo_strip_active" class="sr-only peer" {% if hero.logo_strip_active %}checked{% endif %}>
+          <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+          <span class="ml-2 text-[11px] font-semibold text-slate-400">Show Slider</span>
+        </label>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Slider Headline / Tagline</label>
+        <input type="text" id="hero_logo_strip_headline" value="{{ hero.logo_strip_headline|default:'Built with the best' }}"
+          placeholder="Built with the best"
+          class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-purple-500">
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-end pt-4 border-t border-slate-800">
+      <button onclick="saveHero()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 text-white font-semibold rounded-xl text-sm shadow-xl shadow-fuchsia-600/25 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        Publish Hero Changes Live
+      </button>
+    </div>
+  </div>
+
+  <!-- Logo Slider Management Section -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-fuchsia-400"></i>
+          Partner & Tech Stack Logos
+        </h2>
+        <p class="text-xs text-slate-400">Manage logos scrolling in the marquee strip. Upload an image file, or leave empty to display as clean styled text.</p>
+      </div>
+      <button onclick="openLogoModal()" class="w-full sm:w-auto px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition">
+        <i class="fa-solid fa-plus"></i> Add New Logo
+      </button>
+    </div>
+
+    <!-- Logos Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300 min-w-[500px]">
+        <thead class="bg-slate-900/80 text-slate-400 font-semibold border-b border-slate-800">
+          <tr>
+            <th class="p-3 w-16">Order</th>
+            <th class="p-3">Preview</th>
+            <th class="p-3">Partner / Brand Name</th>
+            <th class="p-3">Type</th>
+            <th class="p-3">Status</th>
+            <th class="p-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/50">
+          {% for logo in logos %}
+          <tr class="hover:bg-slate-900/40 transition">
+            <td class="p-3 text-slate-400 font-mono">{{ logo.order }}</td>
+            <td class="p-3">
+              {% if logo.logo_image_url %}
+              <div class="h-9 w-28 bg-slate-950/80 border border-slate-800 rounded-lg p-1.5 flex items-center justify-center">
+                <img src="{{ logo.logo_image_url }}" alt="{{ logo.name }}" class="max-h-full max-w-full object-contain filter grayscale hover:grayscale-0 transition">
+              </div>
+              {% else %}
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-950/40 border border-purple-800/40 text-purple-300 font-medium text-[11px]">
+                <i class="fa-solid fa-font text-[10px]"></i> Text Only
+              </span>
+              {% endif %}
+            </td>
+            <td class="p-3 font-semibold text-white">
+              {{ logo.name }}
+            </td>
+            <td class="p-3">
+              {% if logo.logo_image_url %}
+              <span class="text-xs text-indigo-300 flex items-center gap-1"><i class="fa-solid fa-image text-[10px]"></i> Image Logo</span>
+              {% else %}
+              <span class="text-xs text-slate-400 flex items-center gap-1"><i class="fa-solid fa-font text-[10px]"></i> Text Pill</span>
+              {% endif %}
+            </td>
+            <td class="p-3">
+              {% if logo.is_active %}
+              <span class="px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-[10px]">Active</span>
+              {% else %}
+              <span class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px]">Disabled</span>
+              {% endif %}
+            </td>
+            <td class="p-3 text-right space-x-2">
+              <button type="button"
+                data-id="{{ logo.id }}"
+                data-name="{{ logo.name|escape }}"
+                data-image="{{ logo.logo_image_url|default:''|escape }}"
+                data-order="{{ logo.order }}"
+                data-active="{{ logo.is_active|yesno:'true,false' }}"
+                onclick="onEditLogoClick(this)"
+                class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+              <button type="button" onclick="deleteLogo({{ logo.id }}, '{{ logo.name|escapejs }}')"
+                class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/40 rounded-lg text-xs transition">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="p-6 text-center text-slate-500 text-xs">
+              No logos added yet. Click "Add New Logo" to add your first partner or tech stack logo.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal for Logo Add/Edit (File Upload) -->
+<div id="logoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="glass-card rounded-2xl border border-slate-700 max-w-md w-full p-6 space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="logoModalTitle" class="text-sm font-bold text-white">Add Partner / Tech Logo</h3>
+      <button onclick="closeLogoModal()" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <input type="hidden" id="modal_logo_id" value="">
+
+    <div class="space-y-4 text-xs">
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1.5">Partner / Brand Name <span class="text-rose-400">*</span></label>
+        <input type="text" id="modal_logo_name" placeholder="e.g. Google Gemini, Groq, Razorpay"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500">
+      </div>
+
+      <!-- Current / Selected Image Preview Box -->
+      <div id="modal_current_img_box" class="hidden p-3 rounded-xl bg-slate-900/90 border border-purple-500/30 space-y-2">
+        <span id="modal_preview_title" class="text-[11px] font-semibold text-purple-300">Logo Image Preview:</span>
+        <div class="h-12 bg-slate-950 border border-slate-800 rounded-xl p-2 flex items-center justify-center overflow-hidden">
+          <img id="modal_current_img_tag" src="" alt="Logo Preview" class="max-h-full max-w-full object-contain">
+        </div>
+        <label id="modal_remove_container" class="flex items-center gap-2 cursor-pointer pt-1">
+          <input type="checkbox" id="modal_remove_img" onchange="toggleRemoveImage(this)" class="rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-0">
+          <span class="text-rose-300 text-[11px]">Remove logo image (switch to text-only mode)</span>
+        </label>
+      </div>
+
+      <!-- File Upload Input -->
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1.5">Choose Logo File (PNG, SVG, JPG, WebP)</label>
+        <input type="file" id="modal_logo_file" accept="image/*,.svg" onchange="previewSelectedFile(this)"
+          class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer bg-slate-900 border border-slate-700 rounded-xl p-1.5">
+        <p class="text-[11px] text-slate-400 mt-1.5">
+          <i class="fa-solid fa-circle-info text-purple-400 mr-1"></i>
+          Agar image upload nahi karenge, toh brand ka naam styled text badge ke roop me dikhega.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 items-center pt-1">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Display Order</label>
+          <input type="number" id="modal_logo_order" value="0" min="0"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none">
+        </div>
+        <div class="pt-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="modal_logo_active" checked class="rounded bg-slate-900 border-slate-700 text-purple-600 focus:ring-0">
+            <span class="text-slate-300 font-medium">Active (Visible)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+      <button onclick="closeLogoModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
+      <button onclick="saveLogoItem()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl">Save Logo</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function saveHero() {
+  const payload = {
+    is_active: document.getElementById('hero_active').checked,
+    badge_text: document.getElementById('hero_badge_text').value,
+    badge_link: document.getElementById('hero_badge_link').value,
+    main_heading_prefix: document.getElementById('hero_heading_prefix').value,
+    main_heading_highlight: document.getElementById('hero_heading_highlight').value,
+    subheading_assamese: document.getElementById('hero_sub_as').value,
+    subheading_english: document.getElementById('hero_sub_en').value,
+    cta_primary_text: document.getElementById('hero_cta1_text').value,
+    cta_primary_url: document.getElementById('hero_cta1_url').value,
+    cta_secondary_text: document.getElementById('hero_cta2_text').value,
+    cta_secondary_url: document.getElementById('hero_cta2_url').value,
+    trust_badge_1: document.getElementById('hero_trust1').value,
+    trust_badge_2: document.getElementById('hero_trust2').value,
+    trust_badge_3: document.getElementById('hero_trust3').value,
+    logo_strip_headline: document.getElementById('hero_logo_strip_headline').value,
+    logo_strip_active: document.getElementById('hero_logo_strip_active').checked,
+  };
+
+  try {
+    const res = await fetch('/axomai-content/hero/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error || 'Failed to save hero', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while saving hero', 'error');
+  }
+}
+
+function openLogoModal() {
+  document.getElementById('logoModalTitle').innerText = 'Add Partner / Tech Logo';
+  document.getElementById('modal_logo_id').value = '';
+  document.getElementById('modal_logo_name').value = '';
+  document.getElementById('modal_logo_file').value = '';
+  document.getElementById('modal_current_img_box').classList.add('hidden');
+  document.getElementById('modal_current_img_tag').src = '';
+  document.getElementById('modal_remove_container').classList.add('hidden');
+  const removeBox = document.getElementById('modal_remove_img');
+  if (removeBox) removeBox.checked = false;
+  document.getElementById('modal_logo_order').value = '0';
+  document.getElementById('modal_logo_active').checked = true;
+  document.getElementById('logoModal').classList.remove('hidden');
+}
+
+function closeLogoModal() {
+  document.getElementById('logoModal').classList.add('hidden');
+}
+
+function onEditLogoClick(btn) {
+  const id = btn.getAttribute('data-id');
+  const name = btn.getAttribute('data-name') || '';
+  const imageUrl = btn.getAttribute('data-image') || '';
+  const order = parseInt(btn.getAttribute('data-order')) || 0;
+  const isActive = btn.getAttribute('data-active') === 'true';
+  editLogo(id, name, imageUrl, order, isActive);
+}
+
+function editLogo(id, nameVal, imageUrl, order, isActive) {
+  document.getElementById('logoModalTitle').innerText = 'Edit Partner / Tech Logo';
+  document.getElementById('modal_logo_id').value = id;
+  document.getElementById('modal_logo_name').value = nameVal || '';
+  document.getElementById('modal_logo_file').value = '';
+
+  const imgBox = document.getElementById('modal_current_img_box');
+  const imgTag = document.getElementById('modal_current_img_tag');
+  const titleSpan = document.getElementById('modal_preview_title');
+  const removeContainer = document.getElementById('modal_remove_container');
+  const removeBox = document.getElementById('modal_remove_img');
+  if (removeBox) removeBox.checked = false;
+
+  // Show preview ONLY if an image URL is actually present
+  if (imageUrl && imageUrl.trim().length > 0) {
+    imgTag.src = imageUrl;
+    imgTag.style.opacity = '1';
+    if (titleSpan) titleSpan.innerText = 'Current Uploaded Logo:';
+    imgBox.classList.remove('hidden');
+    if (removeContainer) removeContainer.classList.remove('hidden');
+  } else {
+    imgTag.src = '';
+    imgBox.classList.add('hidden');
+    if (removeContainer) removeContainer.classList.add('hidden');
+  }
+
+  document.getElementById('modal_logo_order').value = order;
+  document.getElementById('modal_logo_active').checked = !!isActive;
+  document.getElementById('logoModal').classList.remove('hidden');
+}
+
+function previewSelectedFile(input) {
+  const imgBox = document.getElementById('modal_current_img_box');
+  const imgTag = document.getElementById('modal_current_img_tag');
+  const titleSpan = document.getElementById('modal_preview_title');
+  const removeBox = document.getElementById('modal_remove_img');
+
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      imgTag.src = e.target.result;
+      imgBox.classList.remove('hidden');
+      if (titleSpan) titleSpan.innerText = `Selected File Preview (${file.name}):`;
+      if (removeBox) removeBox.checked = false;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function toggleRemoveImage(checkbox) {
+  const imgTag = document.getElementById('modal_current_img_tag');
+  if (checkbox.checked) {
+    imgTag.style.opacity = '0.2';
+  } else {
+    imgTag.style.opacity = '1';
+  }
+}
+
+async function saveLogoItem() {
+  const name = document.getElementById('modal_logo_name').value.trim();
+  if (!name) {
+    showToast('Please enter a partner / brand name', 'error');
+    return;
+  }
+
+  const formData = new FormData();
+  const logoId = document.getElementById('modal_logo_id').value;
+  if (logoId) formData.append('id', logoId);
+  formData.append('name', name);
+  formData.append('order', parseInt(document.getElementById('modal_logo_order').value) || 0);
+  formData.append('is_active', document.getElementById('modal_logo_active').checked);
+
+  const fileInput = document.getElementById('modal_logo_file');
+  if (fileInput.files && fileInput.files[0]) {
+    formData.append('logo_file', fileInput.files[0]);
+  }
+
+  const removeBox = document.getElementById('modal_remove_img');
+  if (removeBox && removeBox.checked) {
+    formData.append('remove_logo', 'true');
+  }
+
+  try {
+    const res = await fetch('/axomai-content/logos/save/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 450);
+    } else {
+      showToast(data.error || 'Failed to save logo', 'error');
+    }
+  } catch(e) {
+    showToast('Network error while saving logo', 'error');
+  }
+}
+
+async function deleteLogo(id, name) {
+  if (!confirm(`Are you sure you want to remove "${name}" from the logo slider?`)) return;
+  try {
+    const res = await fetch(`/axomai-content/logos/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to delete logo', 'error');
+    }
+  } catch(e) {
+    showToast('Network error while deleting logo', 'error');
+  }
+}
+</script>
+{% endblock %}

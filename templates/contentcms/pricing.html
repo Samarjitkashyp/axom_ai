@@ -1,0 +1,462 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}6. Pricing Plans & Subscriptions — Axom AI CMS{% endblock %}
+{% block page_title %}6. Pricing Plans & Subscriptions{% endblock %}
+{% block page_subtitle %}Controls Landing Page Section: Simple & Transparent Pricing Plans with Monthly/Yearly Toggles (aiaxom.co.in/#pricing){% endblock %}
+
+{% block content %}
+<div class="space-y-10 max-w-6xl">
+
+  <!-- Section 0: Pricing Header & Visibility Settings -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-fuchsia-400"></i>
+          Pricing Section Headline & Visibility
+        </h2>
+        <p class="text-xs text-slate-400">Configure main section title, yearly discount badge, and visibility on the landing page</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="pricing_sec_active" class="sr-only peer" {% if hero.pricing_section_active %}checked{% endif %}>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-fuchsia-600"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Visible on Landing Page</span>
+      </label>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Pill Badge</label>
+        <input type="text" id="pricing_badge" value="{{ hero.pricing_badge|default:'Pricing' }}" placeholder="Pricing"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Prefix)</label>
+        <input type="text" id="pricing_prefix" value="{{ hero.pricing_title_prefix|default:'Simple,' }}" placeholder="Simple,"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Highlight Gradient)</label>
+        <input type="text" id="pricing_highlight" value="{{ hero.pricing_title_highlight|default:'Transparent Pricing' }}" placeholder="Transparent Pricing"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subheading</label>
+        <input type="text" id="pricing_subheading" value="{{ hero.pricing_subheading|default:'Choose a plan that fits your needs. Upgrade or cancel anytime.' }}" placeholder="Choose a plan that fits your needs."
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Yearly Discount Tag Text</label>
+        <input type="text" id="pricing_discount" value="{{ hero.pricing_yearly_discount_badge|default:'Save 20%' }}" placeholder="Save 20%"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pricing Footer Note (GST & Gateway text)</label>
+      <input type="text" id="pricing_footer" value="{{ hero.pricing_footer_note|default:'All prices in INR (includes GST). Secure Razorpay checkout — UPI · Cards · Netbanking · Wallets.' }}"
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+    </div>
+
+    <div class="pt-2 flex flex-col sm:flex-row justify-end">
+      <button onclick="savePricingHeader()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Header Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 1: Pricing Plans Cards Grid -->
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-tags text-fuchsia-400"></i>
+          Subscription Plans & Tiers ({{ plans|length }})
+        </h2>
+        <p class="text-xs text-slate-400">Manage individual pricing tiers displayed in the 4-column grid</p>
+      </div>
+      <button onclick="openPricingPlanModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+        <i class="fa-solid fa-plus"></i>
+        Add New Pricing Plan
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for p in plans %}
+      <div class="glass-card rounded-2xl p-6 flex flex-col justify-between transition relative group {% if p.is_featured %}border-2 border-fuchsia-500/60 bg-gradient-to-b from-fuchsia-500/10 to-transparent shadow-xl shadow-fuchsia-500/10{% else %}border border-slate-800/80{% endif %}">
+        
+        {% if p.is_featured %}
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
+          ⭐ Featured / Popular
+        </div>
+        {% endif %}
+
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <i class="{{ p.icon_class|default:'fa-solid fa-sparkles' }} {{ p.color_class|default:'text-gray-400' }} text-base"></i>
+              <span class="text-xs font-semibold text-slate-400">{{ p.badge }}</span>
+            </div>
+            
+            <!-- Interactive ON/OFF Toggle -->
+            <div class="flex items-center gap-1.5" title="Toggle to Show or Hide this card on the frontend">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="toggle_plan_{{ p.id }}" class="sr-only peer" {% if p.is_active %}checked{% endif %} onchange="togglePricingPlan({{ p.id }}, this)">
+                <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-400 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+              <span id="badge_plan_{{ p.id }}" class="text-[10px] font-semibold px-2 py-0.5 rounded-full {% if p.is_active %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
+                {% if p.is_active %}Active (Visible){% else %}Inactive (Hidden){% endif %}
+              </span>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold text-white mb-1">{{ p.name }}</h3>
+          <p class="text-xs text-slate-400 mb-4 min-h-[36px] leading-relaxed">{{ p.description }}</p>
+
+          <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 mb-4 space-y-1">
+            <div class="flex items-baseline gap-1">
+              <span class="text-2xl font-extrabold text-white">₹{{ p.monthly_price }}</span>
+              <span class="text-xs text-slate-400">/ month</span>
+            </div>
+            <div class="text-[11px] text-fuchsia-400 font-medium">Yearly: ₹{{ p.yearly_price }}/mo (₹{{ p.yearly_price|add:p.yearly_price }} billed yr)</div>
+            <div class="text-[11px] text-slate-300 font-semibold pt-1 border-t border-slate-800/60 flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i> {{ p.monthly_words }}
+            </div>
+          </div>
+
+          <div class="space-y-2 mb-4">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Features Checklist:</div>
+            <ul class="space-y-1.5 text-xs text-slate-300">
+              {% for f in p.get_features %}
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-fuchsia-400 text-[10px] mt-1 shrink-0"></i>
+                <span class="leading-tight text-slate-300">{{ f }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs mt-2">
+          <span class="text-slate-500 text-[11px]">Order: <strong class="text-slate-300">{{ p.order }}</strong></span>
+          <div class="flex items-center gap-2">
+            <button onclick="editPricingPlan({{ p.id }}, '{{ p.name|escapejs }}', '{{ p.plan_slug|escapejs }}', '{{ p.badge|escapejs }}', '{{ p.icon_class|escapejs }}', '{{ p.color_class|escapejs }}', '{{ p.description|escapejs }}', {{ p.monthly_price }}, {{ p.yearly_price }}, '{{ p.monthly_words|escapejs }}', '{{ p.cta_text|escapejs }}', '{{ p.cta_url|escapejs }}', {{ p.is_featured|yesno:'true,false' }}, `{{ p.features_list|escapejs }}`, {{ p.order }}, {{ p.is_active|yesno:'true,false' }})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-pen text-fuchsia-400 text-[10px]"></i> Edit
+            </button>
+            <button onclick="deletePricingPlan({{ p.id }})" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/20 text-rose-300 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-trash text-[10px]"></i> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-4 glass-card rounded-2xl p-12 text-center border border-slate-800 space-y-3">
+        <div class="w-12 h-12 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center mx-auto text-xl">
+          <i class="fa-solid fa-tags"></i>
+        </div>
+        <div class="text-sm font-semibold text-white">No Pricing Plans Added Yet</div>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">Click "Add New Pricing Plan" above to create subscription tiers.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Pricing Plan Add/Edit Modal -->
+<div id="planModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4" onclick="if(event.target===this) closePlanModal()">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl relative overflow-hidden" onclick="event.stopPropagation()">
+    <!-- Modal Sticky Header -->
+    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between shrink-0 bg-slate-900/90 backdrop-blur">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center text-fuchsia-400">
+          <i class="fa-solid fa-tags text-base"></i>
+        </div>
+        <div>
+          <h3 id="planModalTitle" class="text-base font-bold text-white">Add Pricing Plan</h3>
+          <p class="text-xs text-slate-400">Configure subscription tier details & feature bullets</p>
+        </div>
+      </div>
+      <button onclick="closePlanModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body Scrollable -->
+    <div class="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+      <input type="hidden" id="modal_pid">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Plan Name *</label>
+          <input type="text" id="modal_pname" placeholder="Pro / Starter / Business" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Badge / Tagline</label>
+          <input type="text" id="modal_pbadge" placeholder="⭐ Most Popular / Individual" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">FontAwesome Icon Class</label>
+          <input type="text" id="modal_picon" placeholder="fa-solid fa-crown" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+          
+          <!-- Quick Icon Suggestions -->
+          <div class="mt-2 flex flex-wrap items-center gap-1.5">
+            <span class="text-[10px] text-slate-500 font-semibold mr-1">Quick Icons:</span>
+            <button type="button" onclick="selectPlanIcon('fa-solid fa-sparkles', 'text-gray-400')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-sparkles text-gray-400"></i> Free</button>
+            <button type="button" onclick="selectPlanIcon('fa-solid fa-bolt', 'text-sky-400')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-bolt text-sky-400"></i> Starter</button>
+            <button type="button" onclick="selectPlanIcon('fa-solid fa-crown', 'text-fuchsia-400')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-crown text-fuchsia-400"></i> Pro</button>
+            <button type="button" onclick="selectPlanIcon('fa-solid fa-building', 'text-amber-400')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-building text-amber-400"></i> Business</button>
+            <button type="button" onclick="selectPlanIcon('fa-solid fa-rocket', 'text-purple-400')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-rocket text-purple-400"></i> Rocket</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Color Class</label>
+          <input type="text" id="modal_pcolor" placeholder="text-fuchsia-400" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Short Description</label>
+        <input type="text" id="modal_pdesc" placeholder="Unleash full power: advanced models, OCR & 20+ file tools." class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Monthly Price (₹)</label>
+          <input type="number" id="modal_pmonthly" min="0" value="0" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Yearly Price (₹/mo)</label>
+          <input type="number" id="modal_pyearly" min="0" value="0" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Monthly Words Quota</label>
+          <input type="text" id="modal_pwords" placeholder="250,000 words" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">CTA Button Text</label>
+          <input type="text" id="modal_pcta_text" placeholder="Upgrade to Pro / Start for Free" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">CTA Action URL</label>
+          <input type="text" id="modal_pcta_url" placeholder="https://chat.aiaxom.co.in/upgrade" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-4 p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+        <label class="inline-flex items-center cursor-pointer gap-2">
+          <input type="checkbox" id="modal_pfeatured" class="w-4 h-4 rounded text-fuchsia-600 bg-slate-800 border-slate-700 focus:ring-fuchsia-500">
+          <span class="font-semibold text-slate-200 text-xs">Highlight as Featured Plan (⭐ Most Popular card)</span>
+        </label>
+
+        <label class="inline-flex items-center cursor-pointer gap-2">
+          <input type="checkbox" id="modal_pactive" class="w-4 h-4 rounded text-emerald-500 bg-slate-800 border-slate-700 focus:ring-emerald-500" checked>
+          <span class="font-semibold text-emerald-400 text-xs">Active / Visible on Frontend</span>
+        </label>
+        
+        <div class="flex items-center gap-2">
+          <label class="font-semibold text-slate-300 text-xs">Order:</label>
+          <input type="number" id="modal_porder" min="0" value="0" class="w-16 px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-white text-center text-xs">
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Features Checklist (One bullet per line) *</label>
+        <textarea id="modal_pfeatures" rows="6" placeholder="250,000 words per month&#10;Ultra-fast GPU Compute (Zero Queue)&#10;Claude 3.5 Sonnet & Llama 3.3 70B&#10;Unlimited 20+ PDF & Office Tools&#10;Smart OCR (Extract Assamese/English text)&#10;24/7 Priority Support" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500 leading-relaxed"></textarea>
+      </div>
+    </div>
+
+    <!-- Modal Sticky Footer -->
+    <div class="px-6 py-3.5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90 backdrop-blur shrink-0">
+      <button onclick="closePlanModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold transition text-xs">Cancel</button>
+      <button onclick="submitPricingPlan()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-md shadow-fuchsia-600/20 transition">Save Pricing Plan</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function savePricingHeader() {
+  const payload = {
+    pricing_badge: document.getElementById('pricing_badge').value,
+    pricing_title_prefix: document.getElementById('pricing_prefix').value,
+    pricing_title_highlight: document.getElementById('pricing_highlight').value,
+    pricing_subheading: document.getElementById('pricing_subheading').value,
+    pricing_yearly_discount_badge: document.getElementById('pricing_discount').value,
+    pricing_footer_note: document.getElementById('pricing_footer').value,
+    pricing_section_active: document.getElementById('pricing_sec_active').checked
+  };
+
+  try {
+    const res = await fetch('/axomai-content/pricing/header/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error || 'Failed to save header', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving pricing header', 'error');
+  }
+}
+
+function selectPlanIcon(icon, color) {
+  document.getElementById('modal_picon').value = icon;
+  if (color) document.getElementById('modal_pcolor').value = color;
+}
+
+function openPricingPlanModal() {
+  document.getElementById('planModalTitle').innerText = 'Add Pricing Plan';
+  document.getElementById('modal_pid').value = '';
+  document.getElementById('modal_pname').value = '';
+  document.getElementById('modal_pbadge').value = '';
+  document.getElementById('modal_picon').value = 'fa-solid fa-sparkles';
+  document.getElementById('modal_pcolor').value = 'text-fuchsia-400';
+  document.getElementById('modal_pdesc').value = '';
+  document.getElementById('modal_pmonthly').value = 0;
+  document.getElementById('modal_pyearly').value = 0;
+  document.getElementById('modal_pwords').value = '50,000 words';
+  document.getElementById('modal_pcta_text').value = 'Upgrade Plan';
+  document.getElementById('modal_pcta_url').value = 'https://chat.aiaxom.co.in/upgrade';
+  document.getElementById('modal_pfeatured').checked = false;
+  document.getElementById('modal_pactive').checked = true;
+  document.getElementById('modal_pfeatures').value = '';
+  document.getElementById('modal_porder').value = 0;
+  document.getElementById('planModal').classList.remove('hidden');
+}
+
+function editPricingPlan(id, name, slug, badge, icon, color, desc, monthly, yearly, words, cta_text, cta_url, featured, features, order, active) {
+  document.getElementById('planModalTitle').innerText = 'Edit Pricing Plan: ' + name;
+  document.getElementById('modal_pid').value = id;
+  document.getElementById('modal_pname').value = name;
+  document.getElementById('modal_pbadge').value = badge;
+  document.getElementById('modal_picon').value = icon || 'fa-solid fa-sparkles';
+  document.getElementById('modal_pcolor').value = color || 'text-fuchsia-400';
+  document.getElementById('modal_pdesc').value = desc;
+  document.getElementById('modal_pmonthly').value = monthly || 0;
+  document.getElementById('modal_pyearly').value = yearly || 0;
+  document.getElementById('modal_pwords').value = words;
+  document.getElementById('modal_pcta_text').value = cta_text;
+  document.getElementById('modal_pcta_url').value = cta_url;
+  document.getElementById('modal_pfeatured').checked = !!featured;
+  document.getElementById('modal_pactive').checked = active !== false;
+  document.getElementById('modal_pfeatures').value = features || '';
+  document.getElementById('modal_porder').value = order || 0;
+  document.getElementById('planModal').classList.remove('hidden');
+}
+
+function closePlanModal() {
+  document.getElementById('planModal').classList.add('hidden');
+}
+
+async function togglePricingPlan(id, el) {
+  try {
+    const res = await fetch(`/axomai-content/pricing/toggle/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Status updated successfully', 'success');
+      const badge = document.getElementById(`badge_plan_${id}`);
+      if (badge) {
+        if (data.is_active) {
+          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+          badge.innerText = 'Active (Visible)';
+        } else {
+          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+          badge.innerText = 'Inactive (Hidden)';
+        }
+      }
+      if (el) el.checked = data.is_active;
+    } else {
+      showToast(data.error || 'Failed to toggle status', 'error');
+      if (el) el.checked = !el.checked;
+    }
+  } catch (err) {
+    showToast('Error toggling pricing plan status', 'error');
+    if (el) el.checked = !el.checked;
+  }
+}
+
+async function submitPricingPlan() {
+  const name = document.getElementById('modal_pname').value.trim();
+  const features = document.getElementById('modal_pfeatures').value.trim();
+
+  if (!name) {
+    showToast('Plan name is required', 'error');
+    return;
+  }
+
+  const payload = {
+    id: document.getElementById('modal_pid').value || null,
+    name: name,
+    badge: document.getElementById('modal_pbadge').value.trim(),
+    icon_class: document.getElementById('modal_picon').value.trim(),
+    color_class: document.getElementById('modal_pcolor').value.trim(),
+    description: document.getElementById('modal_pdesc').value.trim(),
+    monthly_price: parseInt(document.getElementById('modal_pmonthly').value || 0),
+    yearly_price: parseInt(document.getElementById('modal_pyearly').value || 0),
+    monthly_words: document.getElementById('modal_pwords').value.trim(),
+    cta_text: document.getElementById('modal_pcta_text').value.trim(),
+    cta_url: document.getElementById('modal_pcta_url').value.trim(),
+    is_featured: document.getElementById('modal_pfeatured').checked,
+    is_active: document.getElementById('modal_pactive').checked,
+    features_list: features,
+    order: parseInt(document.getElementById('modal_porder').value || 0)
+  };
+
+  try {
+    const res = await fetch('/axomai-content/pricing/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to save plan', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving pricing plan', 'error');
+  }
+}
+
+async function deletePricingPlan(id) {
+  if (!confirm('Are you sure you want to delete this pricing plan?')) return;
+  try {
+    const res = await fetch(`/axomai-content/pricing/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to delete plan', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting plan', 'error');
+  }
+}
+</script>
+{% endblock %}

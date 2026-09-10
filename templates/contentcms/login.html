@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+<meta name="theme-color" content="#020617">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Axom AI Content CMS — Sign In</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { 
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .glass-card {
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  /* Prevent iOS zoom on input focus by ensuring at least 16px font size on mobile */
+  @media screen and (max-width: 768px) {
+    input {
+      font-size: 16px !important;
+    }
+  }
+</style>
+</head>
+<body class="min-h-screen min-h-[100dvh] flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 bg-slate-950 relative overflow-x-hidden selection:bg-fuchsia-500 selection:text-white">
+
+<!-- Ambient Background Glows -->
+<div class="fixed -top-32 -left-32 w-72 sm:w-96 h-72 sm:h-96 bg-fuchsia-600/25 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="fixed -bottom-32 -right-32 w-72 sm:w-96 h-72 sm:h-96 bg-purple-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+<!-- Top Branding Bar for Mobile -->
+<div class="w-full max-w-md pt-2 sm:pt-4 flex items-center justify-between z-10">
+  <a href="https://aiaxom.co.in" target="_blank" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition py-1 px-2.5 rounded-lg hover:bg-slate-900/60 border border-transparent hover:border-slate-800">
+    <i class="fa-solid fa-arrow-left text-[11px]"></i>
+    <span>aiaxom.co.in</span>
+  </a>
+  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">
+    <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400 animate-pulse"></span>
+    CMS 2.0
+  </span>
+</div>
+
+<!-- Main Login Form Box -->
+<div class="w-full max-w-md my-auto py-6 sm:py-8 relative z-10">
+  <!-- Header / Icon -->
+  <div class="text-center mb-6 sm:mb-8">
+    <div class="inline-flex w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-fuchsia-600 via-purple-600 to-indigo-600 items-center justify-center font-black text-white text-xl sm:text-2xl shadow-xl shadow-fuchsia-600/30 mb-3 sm:mb-4 border border-white/20">
+      <i class="fa-solid fa-pen-nib"></i>
+    </div>
+    <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
+      Content Management System
+    </h1>
+    <p class="text-xs sm:text-sm text-slate-400 mt-1.5 px-2">
+      Manage landing pages, blog stories &amp; settings for <span class="text-fuchsia-400 font-semibold">aiaxom.co.in</span>
+    </p>
+  </div>
+
+  <!-- Card -->
+  <div class="glass-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/60 border border-slate-800/80">
+    {% if error %}
+    <div class="mb-5 p-3.5 sm:p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm flex items-center gap-3 animate-shake">
+      <i class="fa-solid fa-circle-exclamation text-rose-400 text-base shrink-0"></i>
+      <div class="font-medium">{{ error }}</div>
+    </div>
+    {% endif %}
+
+    <form method="POST" class="space-y-4 sm:space-y-5">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+          Username
+        </label>
+        <div class="relative">
+          <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none"></i>
+          <input 
+            type="text" 
+            name="username" 
+            id="username"
+            required 
+            autofocus 
+            autocomplete="username"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            placeholder="Enter username"
+            class="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-slate-900/95 border border-slate-700/80 rounded-xl text-base sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition shadow-inner">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+          Password
+        </label>
+        <div class="relative">
+          <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm pointer-events-none"></i>
+          <input 
+            type="password" 
+            name="password" 
+            id="password"
+            required 
+            autocomplete="current-password"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            placeholder="Enter password"
+            class="w-full pl-11 pr-12 py-3 sm:py-3.5 bg-slate-900/95 border border-slate-700/80 rounded-xl text-base sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-500 focus:ring-2 focus:ring-fuchsia-500/20 transition shadow-inner">
+          <button 
+            type="button" 
+            onclick="togglePasswordVisibility()" 
+            aria-label="Toggle password visibility"
+            tabindex="-1"
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1.5 rounded-lg transition">
+            <i id="password-eye-icon" class="fa-solid fa-eye text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <button 
+        type="submit"
+        class="w-full py-3.5 px-4 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 active:scale-[0.98] text-white font-bold rounded-xl text-sm sm:text-base shadow-lg shadow-fuchsia-600/30 hover:shadow-fuchsia-600/50 transition-all duration-200 flex items-center justify-center gap-2 mt-2 cursor-pointer">
+        <span>Sign In to CMS</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </button>
+    </form>
+  </div>
+
+  <div class="text-center mt-6 text-xs text-slate-500">
+    Axom AI Platform © 2026 • Authorized Operators Only
+  </div>
+</div>
+
+<!-- Footer for Mobile Viewports -->
+<div class="w-full max-w-md pb-2 sm:pb-4 text-center z-10">
+  <div class="inline-flex items-center gap-2 text-[11px] text-slate-500">
+    <i class="fa-solid fa-shield-halved text-fuchsia-400 text-xs"></i>
+    <span>Secure 256-Bit SSL Admin Access</span>
+  </div>
+</div>
+
+<script>
+function togglePasswordVisibility() {
+  const pwd = document.getElementById('password');
+  const icon = document.getElementById('password-eye-icon');
+  if (!pwd || !icon) return;
+  if (pwd.type === 'password') {
+    pwd.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    pwd.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+}
+</script>
+
+</body>
+</html>

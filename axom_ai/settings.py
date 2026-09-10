@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'payments',
     'superadmin',
     'userpanel',
+    'contentcms',
 ]
 
 # --- Razorpay (payments) ---
@@ -168,5 +169,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Media files (Uploaded PDFs, Excel sheets, Images)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Clickjacking Protection: SAMEORIGIN allows same-origin iframes and debugging tools like Google Tag Assistant
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 

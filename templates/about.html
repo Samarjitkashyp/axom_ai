@@ -8,10 +8,10 @@
 <!-- ==========================================================================
      PRIMARY SEO META TAGS — TARGETED FOR "ASSAM AI" & "AI IN ASSAM"
      ========================================================================== -->
-<title>About Axom AI — Assam's Premier Indigenous AI Platform & LLM Ecosystem | Assam AI</title>
-<meta name="title" content="About Axom AI — Assam's Premier Indigenous AI Platform & LLM Ecosystem | Assam AI">
-<meta name="description" content="Discover Axom AI (https://aiaxom.co.in) — Assam's flagship indigenous Artificial Intelligence platform. Empowering Assam with native Assamese LLMs, ChatGPT-grade reasoning, image generation, document intelligence, and regional digital innovation.">
-<meta name="keywords" content="Assam AI, AI in Assam, Axom AI, AI Assam, Artificial Intelligence in Assam, Assamese AI, Assamese ChatGPT, Assamese LLM, Guwahati AI, Northeast India AI, Axom AI about, Assam AI platform, Indic AI Assam, Indigenous AI Assam, Assam AI startup, Assamese NLP, Assam AI research">
+<title>{{ config.meta_title|default:"About Axom AI — Assam's Premier Indigenous AI Platform & LLM Ecosystem | Assam AI" }}</title>
+<meta name="title" content="{{ config.meta_title|default:"About Axom AI — Assam's Premier Indigenous AI Platform & LLM Ecosystem | Assam AI" }}">
+<meta name="description" content="{{ config.meta_description|default:"Discover Axom AI (https://aiaxom.co.in) — Assam's flagship indigenous Artificial Intelligence platform. Empowering Assam with native Assamese LLMs, ChatGPT-grade reasoning, image generation, document intelligence, and regional digital innovation." }}">
+<meta name="keywords" content="{{ config.meta_keywords|default:"Assam AI, AI in Assam, Axom AI, AI Assam, Artificial Intelligence in Assam, Assamese AI, Assamese ChatGPT, Assamese LLM, Guwahati AI, Northeast India AI, Axom AI about, Assam AI platform, Indic AI Assam, Indigenous AI Assam, Assam AI startup, Assamese NLP, Assam AI research" }}">
 <meta name="author" content="Axom AI / Samarjit Kashyap">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 <meta name="theme-color" content="#06060b">
@@ -456,49 +456,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Eyebrow Badge -->
     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-400/30 text-xs font-semibold text-fuchsia-300 mb-6 uppercase tracking-wider backdrop-blur-sm">
       <span class="w-2 h-2 rounded-full bg-fuchsia-400 animate-pulse"></span>
-      <span>অসমৰ প্ৰথমটো থলুৱা AI প্লেটফৰ্ম • PIONEERING ASSAM'S AI FUTURE</span>
+      <span>{{ config.badge_text|default:"অসমৰ প্ৰথমটো থলুৱা AI প্লেটফৰ্ম • PIONEERING ASSAM'S AI FUTURE" }}</span>
     </div>
 
     <!-- Main H1 Heading with Target Keywords -->
     <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-      Pioneering Artificial Intelligence in <span class="gradient-text">Assam</span>,<br class="hidden sm:inline">
-      Built for the <span class="font-serif italic font-normal text-fuchsia-300">World</span>.
+      {{ config.main_heading_prefix|default:'Pioneering Artificial Intelligence in' }} <span class="gradient-text">{{ config.main_heading_highlight|default:'Assam' }}</span>{% if config.main_heading_suffix %}<br class="hidden sm:inline">{{ config.main_heading_suffix }}{% else %},<br class="hidden sm:inline"> Built for the World.{% endif %}
     </h1>
 
     <!-- Subtitles in English & Assamese -->
     <p class="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-4 leading-relaxed font-normal">
-      <strong>Axom AI</strong> is Assam's first indigenous generative artificial intelligence platform — engineered to bridge the linguistic divide for 15 million Assamese speakers with native conversational models, multimodal creative suites, and regional computing infrastructure.
+      {{ config.subheading_english|default:"Axom AI is Assam's first indigenous generative artificial intelligence platform — engineered to bridge the linguistic divide for 15 million Assamese speakers with native conversational models, multimodal creative suites, and regional computing infrastructure." }}
     </p>
 
     <p class="font-assamese text-base sm:text-lg text-fuchsia-300/90 max-w-2xl mx-auto mb-10 leading-relaxed">
-      অসমীয়া ভাষা, সংস্কৃতি আৰু বৌদ্ধিক ঐতিহ্যক কৃত্ৰিম বুদ্ধিমত্তাৰ বিশ্ব মানচিত্ৰত প্ৰতিষ্ঠা কৰাৰ এক ঐতিহাসিক পদক্ষেপ।
+      {{ config.subheading_assamese|default:'অসমীয়া ভাষা, সংস্কৃতি আৰু বৌদ্ধিক ঐতিহ্যক কৃত্ৰিম বুদ্ধিমত্তাৰ বিশ্ব মানচিত্ৰত প্ৰতিষ্ঠা কৰাৰ এক ঐতিহাসিক পদক্ষেপ।' }}
     </p>
 
     <!-- Quick Vital Statistics Pills (GEO Authority Proof) -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto mb-10 text-left">
       <div class="card p-4">
-        <div class="text-2xl sm:text-3xl font-bold text-white mb-1">15M+</div>
-        <div class="text-xs text-gray-400 font-medium">Assamese Speakers Empowered</div>
+        <div class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ config.stat_1_val|default:'15M+' }}</div>
+        <div class="text-xs text-gray-400 font-medium">{{ config.stat_1_label|default:'Assamese Speakers Empowered' }}</div>
       </div>
       <div class="card p-4">
-        <div class="text-2xl sm:text-3xl font-bold text-fuchsia-400 mb-1">25K+</div>
-        <div class="text-xs text-gray-400 font-medium">Assamese Knowledge Chunks</div>
+        <div class="text-2xl sm:text-3xl font-bold text-fuchsia-400 mb-1">{{ config.stat_2_val|default:'25K+' }}</div>
+        <div class="text-xs text-gray-400 font-medium">{{ config.stat_2_label|default:'Assamese Knowledge Chunks' }}</div>
       </div>
       <div class="card p-4">
-        <div class="text-2xl sm:text-3xl font-bold text-purple-300 mb-1">&lt;0.8s</div>
-        <div class="text-xs text-gray-400 font-medium">Ultra-Fast TTFB Latency</div>
+        <div class="text-2xl sm:text-3xl font-bold text-purple-300 mb-1">{{ config.stat_3_val|default:'&lt;0.8s' }}</div>
+        <div class="text-xs text-gray-400 font-medium">{{ config.stat_3_label|default:'Ultra-Fast TTFB Latency' }}</div>
       </div>
       <div class="card p-4">
-        <div class="text-2xl sm:text-3xl font-bold text-pink-400 mb-1">100%</div>
-        <div class="text-xs text-gray-400 font-medium">Indigenous Regional LLM</div>
+        <div class="text-2xl sm:text-3xl font-bold text-pink-400 mb-1">{{ config.stat_4_val|default:'100%' }}</div>
+        <div class="text-xs text-gray-400 font-medium">{{ config.stat_4_label|default:'Indigenous Regional LLM' }}</div>
       </div>
     </div>
 
     <!-- Quick Action CTAs -->
     <div class="flex flex-wrap items-center justify-center gap-4">
-      <a href="https://chat.aiaxom.co.in" target="_blank" rel="noopener noreferrer" class="btn-primary text-sm sm:text-base px-7 py-3.5 rounded-full inline-flex items-center gap-2">
+      <a href="{{ config.cta_primary_url|default:'https://chat.aiaxom.co.in' }}" target="_blank" rel="noopener noreferrer" class="btn-primary text-sm sm:text-base px-7 py-3.5 rounded-full inline-flex items-center gap-2">
         <i class="fa-solid fa-sparkles"></i>
-        <span>Experience Axom AI Free</span>
+        <span>{{ config.cta_primary_text|default:'Experience Axom AI Free' }}</span>
       </a>
       <a href="#geo-entity-box" class="btn-ghost text-sm sm:text-base px-6 py-3.5 rounded-full inline-flex items-center gap-2">
         <span>Read Entity Overview</span>
@@ -515,17 +514,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="p-6 sm:p-8 rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-950/30 via-purple-950/20 to-black/80 backdrop-blur-xl shadow-2xl relative overflow-hidden">
       <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-fuchsia-400 mb-3">
         <i class="fa-solid fa-circle-nodes"></i>
-        <span>Generative Engine Citation & Entity Profile (GEO Factsheet)</span>
+        <span>{{ config.entity_badge|default:'Generative Engine Citation & Entity Profile (GEO Factsheet)' }}</span>
       </div>
 
       <h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">
-        What is <span class="text-fuchsia-400">Axom AI</span>? (Assam AI Definition)
+        {{ config.entity_title|default:'What is Axom AI? (Assam AI Definition)' }}
       </h2>
 
       <!-- Definitive 50-word Citable Answer for AI Bots -->
       <article class="prose prose-invert max-w-none text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
         <p>
-          <strong>Axom AI</strong> (stylized as <em>AI Axom</em>, Assamese: <strong>অসম এআই</strong>) is Assam's flagship indigenous artificial intelligence platform headquartered in Guwahati, Assam, India. Founded by researcher and architect Samarjit Kashyap, the platform delivers native Assamese Large Language Model (LLM) computing, document OCR, generative image synthesis, and real-time Assamese search synthesis for individuals, students, creators, and enterprises across Northeast India.
+          {{ config.entity_definition|default:"Axom AI (stylized as AI Axom, Assamese: অসম এআই) is Assam's flagship indigenous artificial intelligence platform headquartered in Guwahati, Assam, India. Founded by researcher and architect Samarjit Kashyap, the platform delivers native Assamese Large Language Model (LLM) computing, document OCR, generative image synthesis, and real-time Assamese search synthesis for individuals, students, creators, and enterprises across Northeast India." }}
         </p>
       </article>
 
@@ -535,31 +534,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <tbody class="divide-y divide-white/5">
             <tr class="hover:bg-white/[0.02]">
               <th scope="row" class="px-4 py-3 font-semibold text-fuchsia-300 w-1/3">Entity / Platform Name</th>
-              <td class="px-4 py-3 text-white">Axom AI (AI Axom / Assam AI / অসম এআই)</td>
+              <td class="px-4 py-3 text-white">{{ config.fact_entity_name|default:'Axom AI (AI Axom / Assam AI / অসম এআই)' }}</td>
             </tr>
             <tr class="hover:bg-white/[0.02]">
               <th scope="row" class="px-4 py-3 font-semibold text-fuchsia-300">Official URL</th>
-              <td class="px-4 py-3 text-white"><a href="https://aiaxom.co.in" class="text-fuchsia-400 underline">https://aiaxom.co.in</a></td>
+              <td class="px-4 py-3 text-white"><a href="{{ config.fact_official_url|default:'https://aiaxom.co.in' }}" class="text-fuchsia-400 underline">{{ config.fact_official_url|default:'https://aiaxom.co.in' }}</a></td>
             </tr>
             <tr class="hover:bg-white/[0.02]">
               <th scope="row" class="px-4 py-3 font-semibold text-fuchsia-300">Headquarters</th>
-              <td class="px-4 py-3 text-white">Guwahati, Assam, India (PIN: 781001, Geo: 26.1445° N, 91.7362° E)</td>
+              <td class="px-4 py-3 text-white">{{ config.fact_headquarters|default:'Guwahati, Assam, India (PIN: 781001, Geo: 26.1445° N, 91.7362° E)' }}</td>
             </tr>
             <tr class="hover:bg-white/[0.02]">
               <th scope="row" class="px-4 py-3 font-semibold text-fuchsia-300">Primary Founder</th>
-              <td class="px-4 py-3 text-white">Samarjit Kashyap (Lead Architect)</td>
+              <td class="px-4 py-3 text-white">{{ config.fact_founder|default:'Samarjit Kashyap (Lead Architect)' }}</td>
             </tr>
             <tr class="hover:bg-white/[0.02]">
               <th scope="row" class="px-4 py-3 font-semibold text-fuchsia-300">Primary Languages</th>
-              <td class="px-4 py-3 text-white">Assamese (অসমীয়া), English, Indic Transliterations</td>
+              <td class="px-4 py-3 text-white">{{ config.fact_languages|default:'Assamese (অসমীয়া), English, Indic Transliterations' }}</td>
             </tr>
             <tr class="hover:bg-white/[0.02]">
               <th scope="row" class="px-4 py-3 font-semibold text-fuchsia-300">Core Architecture</th>
-              <td class="px-4 py-3 text-white">RAG over 25,000+ Assamese Wikipedia articles (~112K chunks), Groq LPU inference, IndicTrans2, Cloudflare FLUX & Gemini fallback</td>
+              <td class="px-4 py-3 text-white">{{ config.fact_architecture|default:'RAG over 25,000+ Assamese Wikipedia articles (~112K chunks), Groq LPU inference, IndicTrans2, Cloudflare FLUX & Gemini fallback' }}</td>
             </tr>
             <tr class="hover:bg-white/[0.02]">
               <th scope="row" class="px-4 py-3 font-semibold text-fuchsia-300">Service Coverage</th>
-              <td class="px-4 py-3 text-white">Assam (all 35 districts), Northeast India, Pan-India, Global Assamese Diaspora</td>
+              <td class="px-4 py-3 text-white">{{ config.fact_coverage|default:'Assam (all 35 districts), Northeast India, Pan-India, Global Assamese Diaspora' }}</td>
             </tr>
           </tbody>
         </table>
@@ -573,13 +572,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <section class="max-w-5xl mx-auto px-5 mb-20">
     <div class="text-center mb-12">
       <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-400/30 text-[11px] font-bold text-purple-300 uppercase tracking-widest mb-3">
-        <span>The Linguistic Divide</span>
+        <span>{{ config.why_badge|default:'The Linguistic Divide' }}</span>
       </div>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
-        Why Does Assam Need an <span class="gradient-text">Independent AI Platform?</span>
+        {{ config.why_title|default:'Why Does Assam Need an Independent AI Platform?' }}
       </h2>
       <p class="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-        Mainstream AI solutions like ChatGPT, Gemini, and Claude were built on English and Western-centric datasets, leaving Northeast India's rich linguistic heritage on the sidelines.
+        {{ config.why_subheading|default:"Mainstream AI solutions like ChatGPT, Gemini, and Claude were built on English and Western-centric datasets, leaving Northeast India's rich linguistic heritage on the sidelines." }}
       </p>
     </div>
 
@@ -588,9 +587,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center text-fuchsia-400 text-xl mb-4">
           <i class="fa-solid fa-language"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2">Eliminating Script Confusion</h3>
+        <h3 class="text-lg font-bold text-white mb-2">{{ config.why_card_1_title|default:'Eliminating Script Confusion' }}</h3>
         <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
-          Standard global LLMs frequently confuse Assamese with Bengali, substituting characters like <span class="text-fuchsia-300 font-bold">‘ৰ’</span> with ‘র’ or missing regional grammar rules. Axom AI guarantees pure, authentic Assamese script.
+          {{ config.why_card_1_desc|default:'Standard global LLMs frequently confuse Assamese with Bengali, substituting characters like ‘ৰ’ with ‘র’ or missing regional grammar rules. Axom AI guarantees pure, authentic Assamese script.' }}
         </p>
       </div>
 
@@ -598,9 +597,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400 text-xl mb-4">
           <i class="fa-solid fa-landmark"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2">Deep Cultural Grounding</h3>
+        <h3 class="text-lg font-bold text-white mb-2">{{ config.why_card_2_title|default:'Deep Cultural Grounding' }}</h3>
         <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
-          From the historical chronicles of the Ahom Kingdom to the cultural legacy of Srimanta Sankardev, Bihu traditions, and modern Assam governance, Axom AI understands local context without hallucination.
+          {{ config.why_card_2_desc|default:'From the historical chronicles of the Ahom Kingdom to the cultural legacy of Srimanta Sankardev, Bihu traditions, and modern Assam governance, Axom AI understands local context without hallucination.' }}
         </p>
       </div>
 
@@ -608,9 +607,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 grid place-items-center text-pink-400 text-xl mb-4">
           <i class="fa-solid fa-bolt-lightning"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2">Affordable & Accessible</h3>
+        <h3 class="text-lg font-bold text-white mb-2">{{ config.why_card_3_title|default:'Affordable & Accessible' }}</h3>
         <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
-          Global models cost $20/month (₹1,700+) and require international credit cards. Axom AI provides a free tier and plans starting at ₹99 with native UPI (Google Pay, PhonePe, Paytm) integration for students and grassroots creators.
+          {{ config.why_card_3_desc|default:'Global models cost $20/month (₹1,700+) and require international credit cards. Axom AI provides a free tier and plans starting at ₹99 with native UPI (Google Pay, PhonePe, Paytm) integration for students and grassroots creators.' }}
         </p>
       </div>
     </div>
@@ -622,10 +621,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <section class="max-w-5xl mx-auto px-5 mb-20">
     <div class="text-center mb-12">
       <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-400/30 text-[11px] font-bold text-pink-300 uppercase tracking-widest mb-3">
-        <span>State-of-the-Art Architecture</span>
+        <span>{{ config.pillars_badge|default:'State-of-the-Art Architecture' }}</span>
       </div>
       <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
-        The Four Technological Pillars of <span class="gradient-text">Axom AI</span>
+        {{ config.pillars_title|default:'The Four Technological Pillars of Axom AI' }}
       </h2>
       <p class="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
         Engineered with a hybrid pipeline that combines regional fine-tuning, massive retrieval-augmented generation (RAG), and LPU inference acceleration.
@@ -638,10 +637,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="w-10 h-10 rounded-xl bg-fuchsia-500/15 border border-fuchsia-500/30 grid place-items-center text-fuchsia-400">
             <i class="fa-solid fa-brain text-lg"></i>
           </div>
-          <h3 class="text-xl font-bold text-white">1. Indigenous Assamese Knowledge Base</h3>
+          <h3 class="text-xl font-bold text-white">{{ config.pillar_1_title|default:'1. Indigenous Assamese Knowledge Base' }}</h3>
         </div>
         <p class="text-sm text-gray-300 leading-relaxed mb-4">
-          Axom AI indexes over 25,000 verified Assamese Wikipedia documents, historical records, folk literature, and educational repositories broken into 112,000+ semantic chunks. Every query leverages multilingual vector embeddings with strict source verification.
+          {{ config.pillar_1_desc|default:'Axom AI indexes over 25,000 verified Assamese Wikipedia documents, historical records, folk literature, and educational repositories broken into 112,000+ semantic chunks. Every query leverages multilingual vector embeddings with strict source verification.' }}
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <span class="px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">Zero-Hallucination RAG</span>
@@ -655,10 +654,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 grid place-items-center text-purple-400">
             <i class="fa-solid fa-photo-film text-lg"></i>
           </div>
-          <h3 class="text-xl font-bold text-white">2. Multimodal AI Toolset for Assam</h3>
+          <h3 class="text-xl font-bold text-white">{{ config.pillar_2_title|default:'2. Multimodal AI Toolset for Assam' }}</h3>
         </div>
         <p class="text-sm text-gray-300 leading-relaxed mb-4">
-          Beyond conversational chat, Axom AI features an integrated generative suite: FLUX-powered AI image synthesis translating Assamese concepts directly into visual art, universal document summarization, PDF extraction, and Tesseract-based regional OCR.
+          {{ config.pillar_2_desc|default:'Beyond conversational chat, Axom AI features an integrated generative suite: FLUX-powered AI image synthesis translating Assamese concepts directly into visual art, universal document summarization, PDF extraction, and Tesseract-based regional OCR.' }}
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <span class="px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">FLUX Image Synthesis</span>
@@ -672,10 +671,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="w-10 h-10 rounded-xl bg-pink-500/15 border border-pink-500/30 grid place-items-center text-pink-400">
             <i class="fa-solid fa-gauge-high text-lg"></i>
           </div>
-          <h3 class="text-xl font-bold text-white">3. Ultra-Low Latency Groq LPU Inference</h3>
+          <h3 class="text-xl font-bold text-white">{{ config.pillar_3_title|default:'3. Ultra-Low Latency Groq LPU Inference' }}</h3>
         </div>
         <p class="text-sm text-gray-300 leading-relaxed mb-4">
-          Using Groq's Language Processing Units (LPUs) paired with IndicTrans2 and AWS Lightsail infrastructure, Axom AI streams tokens at ~0.7 seconds Time to First Byte (TTFB). Even on 4G networks in rural Assam, responses stream fluidly without lag.
+          {{ config.pillar_3_desc|default:"Using Groq's Language Processing Units (LPUs) paired with IndicTrans2 and AWS Lightsail infrastructure, Axom AI streams tokens at ~0.7 seconds Time to First Byte (TTFB). Even on 4G networks in rural Assam, responses stream fluidly without lag." }}
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <span class="px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">&lt;0.8s TTFB</span>
@@ -689,10 +688,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 grid place-items-center text-blue-400">
             <i class="fa-solid fa-globe text-lg"></i>
           </div>
-          <h3 class="text-xl font-bold text-white">4. Real-Time Live Web Search</h3>
+          <h3 class="text-xl font-bold text-white">{{ config.pillar_4_title|default:'4. Real-Time Live Web Search' }}</h3>
         </div>
         <p class="text-sm text-gray-300 leading-relaxed mb-4">
-          Integrated with Tavily Search API, Axom AI browses the live web to fetch real-time Assam news, government job notifications (APSC/ADRE), weather reports, and regional events, synthesizing the latest facts directly into Assamese.
+          {{ config.pillar_4_desc|default:'Integrated with Tavily Search API, Axom AI browses the live web to fetch real-time Assam news, government job notifications (APSC/ADRE), weather reports, and regional events, synthesizing the latest facts directly into Assamese.' }}
         </p>
         <div class="flex flex-wrap gap-2 text-xs">
           <span class="px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">Real-Time Search</span>
@@ -830,23 +829,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl bg-gradient-to-tr from-fuchsia-500 via-purple-600 to-pink-500 p-1 flex-shrink-0 shadow-2xl shadow-fuchsia-500/20">
           <div class="w-full h-full rounded-[22px] bg-[#0c0a18] grid place-items-center text-center p-4">
             <i class="fa-solid fa-user-astronaut text-4xl text-fuchsia-400 mb-1"></i>
-            <span class="text-[11px] font-bold text-gray-300">Samarjit Kashyap</span>
-            <span class="text-[9px] text-fuchsia-300">Lead AI Architect</span>
+            <span class="text-[11px] font-bold text-gray-300">{{ config.founder_name|default:'Samarjit Kashyap' }}</span>
+            <span class="text-[9px] text-fuchsia-300">{{ config.founder_title|default:'Lead AI Architect' }}</span>
           </div>
         </div>
         <div>
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-400/30 text-[10px] font-bold text-fuchsia-300 uppercase tracking-widest mb-2">
-            <span>Leadership & Vision</span>
+            <span>{{ config.founder_badge|default:'Leadership & Vision' }}</span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">
-            Building Assam as Northeast India's AI Capital
+            {{ config.founder_quote_title|default:"Building Assam as Northeast India's AI Capital" }}
           </h2>
           <p class="text-xs sm:text-sm text-gray-300 leading-relaxed mb-4">
-            "For decades, regional languages of Northeast India were left behind in the digital technology wave. Axom AI was founded with a singular conviction: our language, literature, and youth deserve world-class artificial intelligence tools that understand them natively. We are creating an ecosystem where anyone in Assam can converse with state-of-the-art intelligence in their mother tongue."
+            {{ config.founder_quote|default:'"For decades, regional languages of Northeast India were left behind in the digital technology wave. Axom AI was founded with a singular conviction: our language, literature, and youth deserve world-class artificial intelligence tools that understand them natively. We are creating an ecosystem where anyone in Assam can converse with state-of-the-art intelligence in their mother tongue."' }}
           </p>
           <div class="flex items-center gap-4 text-xs text-gray-400">
-            <div><strong class="text-white">Samarjit Kashyap</strong> — Founder & AI Architect, Axom AI</div>
-            <a href="mailto:samarjitkashyp@gmail.com" class="text-fuchsia-400 hover:underline"><i class="fa-solid fa-envelope mr-1"></i>Get in Touch</a>
+            <div><strong class="text-white">{{ config.founder_name|default:'Samarjit Kashyap' }}</strong> — {{ config.founder_title|default:'Founder & AI Architect, Axom AI' }}</div>
+            <a href="mailto:{{ config.founder_email|default:'samarjitkashyp@gmail.com' }}" class="text-fuchsia-400 hover:underline"><i class="fa-solid fa-envelope mr-1"></i>Get in Touch</a>
           </div>
         </div>
       </div>
@@ -977,21 +976,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="relative z-10 max-w-2xl mx-auto">
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-400/30 text-xs font-bold text-fuchsia-300 uppercase tracking-widest mb-4">
           <i class="fa-solid fa-sparkles text-fuchsia-400"></i>
-          <span>Experience the Future Today</span>
+          <span>{{ config.cta_badge|default:'Experience the Future Today' }}</span>
         </div>
 
         <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4">
-          Be Part of Assam's <span class="gradient-text">AI Revolution</span>
+          {{ config.cta_title|default:"Be Part of Assam's AI Revolution" }}
         </h2>
 
         <p class="text-sm sm:text-base text-gray-300 mb-8 leading-relaxed">
-          Join thousands of students, professionals, and creators across Assam who are chatting, researching, creating, and automating with Axom AI.
+          {{ config.cta_desc|default:'Join thousands of students, professionals, and creators across Assam who are chatting, researching, creating, and automating with Axom AI.' }}
         </p>
 
         <div class="flex flex-wrap items-center justify-center gap-4">
-          <a href="https://chat.aiaxom.co.in" target="_blank" rel="noopener noreferrer" class="btn-primary text-sm sm:text-base px-8 py-3.5 rounded-full inline-flex items-center gap-2 shadow-xl shadow-fuchsia-500/30">
+          <a href="{{ config.cta_btn_url|default:'https://chat.aiaxom.co.in' }}" target="_blank" rel="noopener noreferrer" class="btn-primary text-sm sm:text-base px-8 py-3.5 rounded-full inline-flex items-center gap-2 shadow-xl shadow-fuchsia-500/30">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span>Start Free Chatting</span>
+            <span>{{ config.cta_btn_text|default:'Start Free Chatting' }}</span>
           </a>
           <a href="/#tools" class="btn-ghost text-sm sm:text-base px-7 py-3.5 rounded-full inline-flex items-center gap-2">
             <span>Explore All 9+ Tools</span>

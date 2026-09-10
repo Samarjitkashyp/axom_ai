@@ -1,0 +1,413 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}2. Explore Section (AI Tools) — Axom AI CMS{% endblock %}
+{% block page_title %}2. Explore Section (AI Toolkit Grid){% endblock %}
+{% block page_subtitle %}Controls Landing Page Section: "Explore — A Complete AI Toolkit for Modern Needs" & 6 Feature Capability Cards (aiaxom.co.in/#tools){% endblock %}
+
+{% block content %}
+<div class="space-y-10 max-w-6xl">
+
+  <!-- Section 0: Explore Header & Visibility Settings -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-purple-400"></i>
+          Explore Section Title & Settings
+        </h2>
+        <p class="text-xs text-slate-400">Configure main headline, badge, and visibility of the Explore section on the landing page</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="exp_active" class="sr-only peer" {% if hero.explore_section_active %}checked{% endif %}>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Visible on Landing Page</span>
+      </label>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Pill Badge</label>
+        <input type="text" id="exp_badge" value="{{ hero.explore_badge|default:'Explore' }}" placeholder="Explore"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Prefix)</label>
+        <input type="text" id="exp_prefix" value="{{ hero.explore_title_prefix|default:'A Complete AI Toolkit' }}" placeholder="A Complete AI Toolkit"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Gradient Highlight)</label>
+        <input type="text" id="exp_highlight" value="{{ hero.explore_title_highlight|default:'for Modern Needs' }}" placeholder="for Modern Needs"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Subheading Description</label>
+      <textarea id="exp_subheading" rows="2" placeholder="Everything you need to be more productive, creative and informed — in one powerful platform."
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">{{ hero.explore_subheading|default:'Everything you need to be more productive, creative and informed — in one powerful platform.' }}</textarea>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-end pt-3 border-t border-slate-800">
+      <button onclick="saveExploreHeader()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-xl text-xs transition shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-check"></i> Save Explore Header
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 1: Explore Grid Features -->
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-cubes text-fuchsia-400"></i>
+          Explore Feature Cards
+        </h2>
+        <p class="text-xs text-slate-400">Interactive 3-column toolkit cards shown on the landing page</p>
+      </div>
+      <button onclick="openFeatureModal()" class="w-full sm:w-auto px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md shadow-purple-600/20">
+        <i class="fa-solid fa-plus"></i> Add New Feature Card
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {% for f in features %}
+      <div class="glass-card rounded-2xl border border-slate-800/80 p-5 flex flex-col justify-between glass-card-hover transition relative">
+        <div>
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr {{ f.gradient_color|default:'from-purple-500 to-indigo-500' }} flex items-center justify-center text-white text-lg shadow-lg">
+              <i class="{{ f.icon_class|default:'fa-solid fa-wand-magic-sparkles' }}"></i>
+            </div>
+            <div class="flex items-center gap-1.5">
+              {% if f.badge %}
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30">
+                {{ f.badge }}
+              </span>
+              {% endif %}
+              {% if f.is_active %}
+              <span class="w-2 h-2 rounded-full bg-emerald-400" title="Active"></span>
+              {% else %}
+              <span class="w-2 h-2 rounded-full bg-slate-600" title="Disabled"></span>
+              {% endif %}
+            </div>
+          </div>
+          <h3 class="text-base font-bold text-white">{{ f.title }}</h3>
+          {% if f.tagline %}
+          <div class="text-xs text-fuchsia-400 font-medium mt-0.5">{{ f.tagline }}</div>
+          {% endif %}
+          <p class="text-xs text-slate-400 mt-2.5 line-clamp-3 leading-relaxed">{{ f.description }}</p>
+        </div>
+
+        <div class="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-500 font-mono text-[11px]">Order: {{ f.order }}</span>
+          <div class="flex items-center gap-2">
+            <button type="button"
+              data-id="{{ f.id }}"
+              data-title="{{ f.title|escape }}"
+              data-tagline="{{ f.tagline|default:''|escape }}"
+              data-desc="{{ f.description|escape }}"
+              data-badge="{{ f.badge|default:''|escape }}"
+              data-icon="{{ f.icon_class|default:'fa-solid fa-wand-magic-sparkles'|escape }}"
+              data-gradient="{{ f.gradient_color|default:'from-purple-500 to-indigo-500'|escape }}"
+              data-url="{{ f.action_url|default:'https://chat.aiaxom.co.in/tools'|escape }}"
+              data-order="{{ f.order }}"
+              data-active="{{ f.is_active|yesno:'true,false' }}"
+              onclick="onEditFeatureClick(this)"
+              class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            <button type="button" onclick="deleteFeature({{ f.id }})"
+              class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/40 rounded-lg text-xs transition">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-3 glass-card rounded-2xl p-10 text-center text-slate-500 text-xs">
+        No custom feature cards added. Click "Add New Feature Card" above.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Feature Edit Modal -->
+<div id="featureModal" onclick="onModalBackdropClick(event)" class="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm hidden p-3 md:p-6 flex items-center justify-center">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto" onclick="event.stopPropagation()">
+    
+    <!-- Sticky Header -->
+    <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4 shrink-0 bg-slate-950/80">
+      <h3 id="modalTitle" class="text-base font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-cubes text-purple-400"></i>
+        <span>Add Feature Card</span>
+      </h3>
+      <button type="button" onclick="closeFeatureModal()" class="w-8 h-8 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition" title="Close (Esc)">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <input type="hidden" id="modal_fid">
+    
+    <!-- Scrollable Body -->
+    <div class="p-6 space-y-4 overflow-y-auto text-xs flex-1">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Card Title <span class="text-rose-400">*</span></label>
+          <input type="text" id="modal_ftitle" placeholder="e.g. AI Chat or PDF Tools" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Badge (Optional)</label>
+          <input type="text" id="modal_fbadge" placeholder="e.g. Core Engine, Fast" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Tagline / Short Summary</label>
+        <input type="text" id="modal_ftagline" placeholder="e.g. ChatGPT-style Assamese chat" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Description <span class="text-rose-400">*</span></label>
+        <textarea id="modal_fdesc" rows="3" placeholder="Explain what this tool/feature does..." class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Icon Class & Live Preview</label>
+          <div class="flex items-center gap-2">
+            <div id="iconPreviewBox" class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/40 text-purple-300 flex items-center justify-center text-lg shadow-md shrink-0">
+              <i id="iconPreviewIcon" class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <input type="text" id="modal_ficon" value="fa-solid fa-wand-magic-sparkles" oninput="onIconInputChange(this.value)" placeholder="fa-solid fa-brain" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Action URL</label>
+          <input type="text" id="modal_furl" value="https://chat.aiaxom.co.in/tools" placeholder="https://chat.aiaxom.co.in/tools" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+        </div>
+      </div>
+
+      <!-- Quick Icon Selector Chips -->
+      <div class="bg-slate-900/70 p-3.5 rounded-xl border border-slate-800/80">
+        <span class="block text-[11px] text-slate-300 mb-2 font-semibold flex items-center justify-between">
+          <span><i class="fa-solid fa-icons text-purple-400 mr-1"></i> Quick Icon Suggestions (Click to Select):</span>
+          <span class="text-[10px] text-purple-400 font-medium">Click to select</span>
+        </span>
+        <div id="iconChipsContainer" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pr-1">
+          <button type="button" data-icon="fa-solid fa-brain" onclick="selectIcon('fa-solid fa-brain')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-brain text-purple-400"></i> Brain / AI</button>
+          <button type="button" data-icon="fa-solid fa-comments" onclick="selectIcon('fa-solid fa-comments')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-comments text-cyan-400"></i> Chat</button>
+          <button type="button" data-icon="fa-solid fa-pen-nib" onclick="selectIcon('fa-solid fa-pen-nib')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-pen-nib text-fuchsia-400"></i> Writer</button>
+          <button type="button" data-icon="fa-solid fa-palette" onclick="selectIcon('fa-solid fa-palette')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-palette text-pink-400"></i> Studio / Art</button>
+          <button type="button" data-icon="fa-solid fa-file-pdf" onclick="selectIcon('fa-solid fa-file-pdf')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-file-pdf text-rose-400"></i> PDF Tools</button>
+          <button type="button" data-icon="fa-solid fa-code" onclick="selectIcon('fa-solid fa-code')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-code text-indigo-400"></i> Code Assistant</button>
+          <button type="button" data-icon="fa-solid fa-globe" onclick="selectIcon('fa-solid fa-globe')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-globe text-emerald-400"></i> Web Search</button>
+          <button type="button" data-icon="fa-solid fa-chart-simple" onclick="selectIcon('fa-solid fa-chart-simple')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-chart-simple text-blue-400"></i> Data / Chart</button>
+          <button type="button" data-icon="fa-solid fa-language" onclick="selectIcon('fa-solid fa-language')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-language text-amber-400"></i> Translator</button>
+          <button type="button" data-icon="fa-solid fa-bolt" onclick="selectIcon('fa-solid fa-bolt')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-bolt text-yellow-400"></i> Fast / Streaming</button>
+          <button type="button" data-icon="fa-solid fa-database" onclick="selectIcon('fa-solid fa-database')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-database text-violet-400"></i> RAG / Database</button>
+          <button type="button" data-icon="fa-solid fa-shield-halved" onclick="selectIcon('fa-solid fa-shield-halved')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-teal-400"></i> Security</button>
+          <button type="button" data-icon="fa-solid fa-microphone" onclick="selectIcon('fa-solid fa-microphone')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-microphone text-orange-400"></i> Voice / Audio</button>
+          <button type="button" data-icon="fa-solid fa-wand-magic-sparkles" onclick="selectIcon('fa-solid fa-wand-magic-sparkles')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-wand-magic-sparkles text-fuchsia-400"></i> Magic Sparkles</button>
+          <button type="button" data-icon="fa-solid fa-graduation-cap" onclick="selectIcon('fa-solid fa-graduation-cap')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-graduation-cap text-sky-400"></i> Education / Students</button>
+          <button type="button" data-icon="fa-solid fa-briefcase" onclick="selectIcon('fa-solid fa-briefcase')" class="icon-chip px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 hover:border-purple-500 hover:text-white transition flex items-center gap-1.5"><i class="fa-solid fa-briefcase text-amber-500"></i> Business</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 items-center">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Display Order</label>
+          <input type="number" id="modal_forder" value="0" min="0" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none">
+        </div>
+        <div class="pt-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="modal_factive" checked class="rounded bg-slate-900 border-slate-700 text-purple-600 focus:ring-0">
+            <span class="text-slate-300 font-medium">Active (Visible)</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-800 shrink-0 bg-slate-950/80">
+      <button type="button" onclick="closeFeatureModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Cancel</button>
+      <button type="button" onclick="submitFeature()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs shadow-md shadow-purple-600/20 transition flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Save Card</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function saveExploreHeader() {
+  const payload = {
+    explore_badge: document.getElementById('exp_badge').value,
+    explore_title_prefix: document.getElementById('exp_prefix').value,
+    explore_title_highlight: document.getElementById('exp_highlight').value,
+    explore_subheading: document.getElementById('exp_subheading').value,
+    explore_section_active: document.getElementById('exp_active').checked
+  };
+
+  try {
+    const res = await fetch('/axomai-content/explore/header/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error || 'Failed to save header', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while saving header', 'error');
+  }
+}
+
+function syncIconSelection(iconClass) {
+  const cleanIcon = (iconClass || 'fa-solid fa-wand-magic-sparkles').trim();
+  document.getElementById('modal_ficon').value = cleanIcon;
+  
+  // Update Live Preview Icon
+  const previewIcon = document.getElementById('iconPreviewIcon');
+  if (previewIcon) {
+    previewIcon.className = cleanIcon;
+  }
+  
+  // Update Active Chip Highlight
+  document.querySelectorAll('#iconChipsContainer .icon-chip').forEach(chip => {
+    if (chip.getAttribute('data-icon') === cleanIcon) {
+      chip.classList.add('bg-purple-600/30', 'border-purple-500', 'text-purple-200', 'ring-1', 'ring-purple-500');
+      chip.classList.remove('bg-slate-900', 'border-slate-700/80', 'text-slate-300');
+    } else {
+      chip.classList.remove('bg-purple-600/30', 'border-purple-500', 'text-purple-200', 'ring-1', 'ring-purple-500');
+      chip.classList.add('bg-slate-900', 'border-slate-700/80', 'text-slate-300');
+    }
+  });
+}
+
+function selectIcon(iconClass) {
+  syncIconSelection(iconClass);
+}
+
+function onIconInputChange(val) {
+  syncIconSelection(val);
+}
+
+function openFeatureModal() {
+  document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus text-purple-400"></i> <span>Add Feature Card</span>';
+  document.getElementById('modal_fid').value = '';
+  document.getElementById('modal_ftitle').value = '';
+  document.getElementById('modal_ftagline').value = '';
+  document.getElementById('modal_fdesc').value = '';
+  document.getElementById('modal_fbadge').value = '';
+  syncIconSelection('fa-solid fa-wand-magic-sparkles');
+  document.getElementById('modal_furl').value = 'https://chat.aiaxom.co.in/tools';
+  document.getElementById('modal_forder').value = '0';
+  document.getElementById('modal_factive').checked = true;
+  document.body.style.overflow = 'hidden';
+  document.getElementById('featureModal').classList.remove('hidden');
+}
+
+function onEditFeatureClick(btn) {
+  const id = btn.getAttribute('data-id');
+  const title = btn.getAttribute('data-title') || '';
+  const tagline = btn.getAttribute('data-tagline') || '';
+  const desc = btn.getAttribute('data-desc') || '';
+  const badge = btn.getAttribute('data-badge') || '';
+  const icon = btn.getAttribute('data-icon') || 'fa-solid fa-wand-magic-sparkles';
+  const url = btn.getAttribute('data-url') || 'https://chat.aiaxom.co.in/tools';
+  const order = parseInt(btn.getAttribute('data-order')) || 0;
+  const active = btn.getAttribute('data-active') === 'true';
+
+  document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square text-purple-400"></i> <span>Edit Feature Card</span>';
+  document.getElementById('modal_fid').value = id;
+  document.getElementById('modal_ftitle').value = title;
+  document.getElementById('modal_ftagline').value = tagline;
+  document.getElementById('modal_fdesc').value = desc;
+  document.getElementById('modal_fbadge').value = badge;
+  syncIconSelection(icon);
+  document.getElementById('modal_furl').value = url;
+  document.getElementById('modal_forder').value = order;
+  document.getElementById('modal_factive').checked = active;
+  document.body.style.overflow = 'hidden';
+  document.getElementById('featureModal').classList.remove('hidden');
+}
+
+function closeFeatureModal() {
+  document.body.style.overflow = '';
+  document.getElementById('featureModal').classList.add('hidden');
+}
+
+function onModalBackdropClick(e) {
+  if (e.target && e.target.id === 'featureModal') {
+    closeFeatureModal();
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeFeatureModal();
+  }
+});
+
+async function submitFeature() {
+  const title = document.getElementById('modal_ftitle').value.trim();
+  const desc = document.getElementById('modal_fdesc').value.trim();
+  if (!title) {
+    showToast('Please enter a title for this feature card', 'error');
+    return;
+  }
+
+  const payload = {
+    id: document.getElementById('modal_fid').value || null,
+    title: title,
+    tagline: document.getElementById('modal_ftagline').value.trim(),
+    description: desc,
+    badge: document.getElementById('modal_fbadge').value.trim(),
+    icon_class: document.getElementById('modal_ficon').value.trim() || 'fa-solid fa-wand-magic-sparkles',
+    action_url: document.getElementById('modal_furl').value.trim() || 'https://chat.aiaxom.co.in/tools',
+    order: parseInt(document.getElementById('modal_forder').value || 0),
+    is_active: document.getElementById('modal_factive').checked
+  };
+
+  try {
+    const res = await fetch('/axomai-content/explore/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 450);
+    } else {
+      showToast(data.error || 'Failed to save', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
+
+async function deleteFeature(id) {
+  if (!confirm('Are you sure you want to delete this feature card?')) return;
+  try {
+    const res = await fetch(`/axomai-content/explore/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 450);
+    } else {
+      showToast(data.error || 'Failed to delete feature', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting feature', 'error');
+  }
+}
+</script>
+{% endblock %}

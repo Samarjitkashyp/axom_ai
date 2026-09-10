@@ -28,6 +28,9 @@ export default function ToolsPage({
   onOpenCompressor,
   onOpenWmRemover,
   onOpenImageGen,
+  onOpenImageFinder,
+  onOpenVideoFinder,
+  onOpenDiagramGen,
   onOpenSummarizer,
   theme,
   onToggleTheme,
@@ -106,6 +109,18 @@ export default function ToolsPage({
     }
     if (t.imagegen) {
       onOpenImageGen?.();
+      return;
+    }
+    if (t.imagefinder) {
+      onOpenImageFinder?.();
+      return;
+    }
+    if (t.videofinder) {
+      onOpenVideoFinder?.();
+      return;
+    }
+    if (t.diagramgen) {
+      onOpenDiagramGen?.();
       return;
     }
     if (t.summarizer) {

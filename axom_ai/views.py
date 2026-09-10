@@ -569,10 +569,14 @@ def faq_page_view(request):
 @ensure_csrf_cookie
 def about_page_view(request):
     """Dedicated Public About Page (https://aiaxom.co.in/about/)."""
-    from contentcms.models import SiteSEOSetting
+    from contentcms.models import SiteSEOSetting, AboutPageConfig
     seo = SiteSEOSetting.objects.first()
+    config = AboutPageConfig.objects.first()
+    if not config:
+        config = AboutPageConfig.objects.create()
     return render(request, 'about.html', {
         'seo': seo,
+        'config': config,
     })
 
 

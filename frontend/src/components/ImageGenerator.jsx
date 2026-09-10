@@ -1,96 +1,204 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { X, Loader2, Download, ImagePlus, ChevronDown, Sparkles, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Sparkles,
+  X,
+  Download,
+  Copy,
+  Check,
+  Loader2,
+  ArrowUp,
+  Dices,
+  RotateCcw,
+  Maximize2,
+  SlidersHorizontal,
+  ChevronDown,
+  Layers,
+  Image as ImageIcon,
+  Flame,
+  Zap,
+  Info,
+} from 'lucide-react';
 import { getCsrfToken } from '../utils/security';
 
-// Two quality tiers — both counted against the same per-device daily cap.
-const MODELS = [
-  { k: 'normal',  name: 'Normal',           desc: 'Fast · ~3-8 s · FLUX schnell on Cloudflare' },
-  { k: 'extreme', name: 'Extreme Quality',  desc: 'Higher fidelity · ~5-12 s · Leonardo Lucid Origin' },
+const STARTER_PROMPTS = [
+  {
+    title: '🌿 Assam Tea Garden',
+    prompt: 'A breathtaking tea garden in Assam at golden hour sunrise, morning mist rolling over green hills, cinematic 8k',
+  },
+  {
+    title: '🦏 Kaziranga Rhino',
+    prompt: 'Majestic Indian One-horned Rhino standing in lush Kaziranga marshland at sunset, photorealistic 8k octane render',
+  },
+  {
+    title: '🏙️ Cyberpunk 3D City',
+    prompt: 'Futuristic cyberpunk city floating in neon clouds above a wide river at midnight, ultra detailed 3d render',
+  },
+  {
+    title: '🔮 3D Cute Character',
+    prompt: 'Cute baby panda wearing astronaut helmet sitting on a floating crystal moon rock, 3d pixar animation style',
+  },
 ];
 
-const SIZES = [
-  { k: 'sq',  label: 'Square 1024 × 1024', w: 1024, h: 1024 },
-  { k: 'ls',  label: 'Landscape 1024 × 768', w: 1024, h: 768 },
-  { k: 'pt',  label: 'Portrait 768 × 1024', w: 768, h: 1024 },
-  { k: 'wd',  label: 'Wide 1280 × 720',  w: 1280, h: 720 },
+const ASPECT_RATIOS = [
+  { id: 'sq', label: '1:1 Square', w: 1024, h: 1024, tag: '1:1' },
+  { id: 'ls', label: '16:9 Wide', w: 1280, h: 720, tag: '16:9' },
+  { id: 'pt', label: '9:16 Portrait', w: 720, h: 1280, tag: '9:16' },
+  { id: 'wd', label: '4:3 Classic', w: 1024, h: 768, tag: '4:3' },
 ];
 
-const MAX_PROMPT = 1000;
-const MOBILE_BREAK = 820;
+const STYLE_PRESETS = [
+  { id: 'none', label: 'Natural', suffix: '' },
+  { id: 'cinematic', label: 'Cinematic 8K', suffix: ', cinematic lighting, 8k resolution, photorealistic masterpiece' },
+  { id: 'anime', label: 'Anime 4K', suffix: ', vibrant makoto shinkai style, studio ghibli anime aesthetic, crisp lines, 4k digital art' },
+  { id: 'cyberpunk', label: 'Cyberpunk', suffix: ', cyberpunk aesthetic, neon glow, futuristic night scene, octane render' },
+  { id: 'oil', label: 'Oil Painting', suffix: ', classical oil painting, textured brushstrokes, artistic masterpiece' },
+  { id: '3d', label: '3D Pixar', suffix: ', cute pixar 3d character style, octane render, soft ambient occlusion' },
+  { id: 'photo', label: 'Photorealistic', suffix: ', hyperrealistic photograph, natural daylight, 8k' },
+];
 
-// Match the app's other pages: switch to a mobile layout at ≤ 820 px.
-function useIsMobile() {
-  const [mobile, setMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth <= MOBILE_BREAK : false
-  );
-  useEffect(() => {
-    const onResize = () => setMobile(window.innerWidth <= MOBILE_BREAK);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-  return mobile;
-}
+const SURPRISE_PROMPTS = [
+  'A mystical tea garden in Assam surrounded by morning mist and golden sunrise light, cinematic wide shot 8k',
+  'Majestic Indian One-horned Rhino standing in Kaziranga marshland at sunset, photorealistic 8k octane render',
+  'Futuristic cyberpunk city floating in neon clouds above the Brahmaputra river at midnight, 3d render',
+  'Ancient Indian palace courtyard with glowing lotus lanterns and reflecting pool under starry galaxy sky',
+  'A wise tribal elder weaving traditional Assamese Eri silk with intricate golden patterns, dramatic portrait lighting',
+  'Astronaut discovering a crystal cave with glowing bioluminescent alien flora on Mars, unreal engine 5 render',
+  'Cute baby panda wearing astronaut helmet sitting on a floating moon rock eating bamboo, 3d pixar style',
+  'Steampunk locomotive racing through snowy Himalayan mountain pass at dusk with glowing furnace smoke',
+];
 
 export default function ImageGenerator({ onClose }) {
   const [prompt, setPrompt] = useState('');
-  const [modelKey, setModelKey] = useState('normal');
-  const [sizeKey, setSizeKey] = useState('sq');
+  const [aspectKey, setAspectKey] = useState('sq');
+  const [modelKey, setModelKey] = useState('normal'); // 'normal' | 'extreme'
+  const [selectedStyle, setSelectedStyle] = useState('none');
   const [negative, setNegative] = useState('');
   const [seed, setSeed] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState(null);   // { image, ms, width, height, model }
-  const [errorMsg, setErrorMsg] = useState(null);
+
+  // Chat conversation messages: [{ id, type: 'user' | 'assistant', prompt, result, loading, elapsed, error }]
+  const [messages, setMessages] = useState([]);
+  const [generating, setGenerating] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-  const promptRef = useRef(null);
-  const previewRef = useRef(null);
+
+  // Lightbox Zoom Modal
+  const [zoomImage, setZoomImage] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [userStatus, setUserStatus] = useState(null);
+
+  const textareaRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const timerRef = useRef(null);
-  const isMobile = useIsMobile();
 
-  useEffect(() => { if (!isMobile) promptRef.current?.focus(); }, [isMobile]);
-
-  // Live-elapsed counter while generating
+  // Auto focus input on mount
   useEffect(() => {
-    if (!busy) { clearInterval(timerRef.current); setElapsed(0); return; }
-    const t0 = Date.now();
-    timerRef.current = setInterval(() => setElapsed(((Date.now() - t0) / 1000).toFixed(1)), 100);
-    return () => clearInterval(timerRef.current);
-  }, [busy]);
+    textareaRef.current?.focus();
+  }, []);
 
-  // Esc to close (physical keyboard only)
+  // Fetch User Plan & Model Configuration
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape' && !busy) onClose?.(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [busy, onClose]);
+    fetch('/api/user-status/')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data) setUserStatus(data);
+      })
+      .catch(() => {});
+  }, []);
 
-  // On mobile, scroll the result into view as soon as it appears so the user
-  // doesn't have to scroll down to find it.
+  // Auto scroll to bottom when messages update
   useEffect(() => {
-    if (isMobile && result?.image && previewRef.current) {
-      previewRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, generating, elapsed]);
+
+  // Live timer while generating
+  useEffect(() => {
+    if (!generating) {
+      clearInterval(timerRef.current);
+      setElapsed(0);
+      return;
     }
-  }, [result, isMobile]);
+    const t0 = Date.now();
+    timerRef.current = setInterval(() => {
+      setElapsed(((Date.now() - t0) / 1000).toFixed(1));
+    }, 100);
+    return () => clearInterval(timerRef.current);
+  }, [generating]);
 
-  const size = SIZES.find((s) => s.k === sizeKey) || SIZES[0];
-  const canGenerate = prompt.trim().length > 0 && !busy;
+  // Escape to close
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') {
+        if (zoomImage) setZoomImage(null);
+        else if (!generating) onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [zoomImage, generating, onClose]);
 
-  const generate = useCallback(async () => {
-    if (!canGenerate) return;
-    setBusy(true); setErrorMsg(null); setResult(null);
+  const selectedAspect = ASPECT_RATIOS.find((a) => a.id === aspectKey) || ASPECT_RATIOS[0];
+  const isPro = !!userStatus?.is_premium;
+  const remaining = userStatus?.remaining_today ?? 5;
+
+  // Auto resize textarea
+  const handleTextareaInput = (e) => {
+    setPrompt(e.target.value);
+    e.target.style.height = 'auto';
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+  };
+
+  // Surprise Prompt Picker
+  const handleSurprisePrompt = () => {
+    const random = SURPRISE_PROMPTS[Math.floor(Math.random() * SURPRISE_PROMPTS.length)];
+    setPrompt(random);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.style.height = 'auto';
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+        }
+      }, 0);
+    }
+  };
+
+  // Send & Generate Action
+  const handleGenerate = async (targetPrompt) => {
+    const query = (targetPrompt || prompt).trim();
+    if (!query || generating) return;
+
+    const userMsgId = `u-${Date.now()}`;
+    const assistantMsgId = `a-${Date.now()}`;
+
+    // Append user message & assistant loading placeholder
+    setMessages((prev) => [
+      ...prev,
+      { id: userMsgId, type: 'user', text: query },
+      { id: assistantMsgId, type: 'assistant', loading: true, prompt: query },
+    ]);
+
+    setPrompt('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
+    setGenerating(true);
+
     try {
+      const activeStyleObj = STYLE_PRESETS.find((s) => s.id === selectedStyle);
+      const styledPrompt = (query + (activeStyleObj?.suffix || '')).slice(0, 1000);
+
       const seedNum = seed.trim() ? Number(seed.trim()) : undefined;
       const body = {
-        prompt: prompt.trim(),
+        prompt: styledPrompt,
         model: modelKey,
-        quality: modelKey,          // 'normal' or 'extreme' — server routes to the right Cloudflare model
-        width: size.w,
-        height: size.h,
+        quality: modelKey,
+        width: selectedAspect.w,
+        height: selectedAspect.h,
       };
       if (negative.trim()) body.negative_prompt = negative.trim();
       if (Number.isFinite(seedNum)) body.seed = seedNum;
 
-      const r = await fetch('/api/generate-image/', {
+      const res = await fetch('/api/generate-image/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,528 +206,805 @@ export default function ImageGenerator({ onClose }) {
         },
         body: JSON.stringify(body),
       });
-      const d = await r.json();
-      if (!r.ok || !d.success) throw new Error(d.error || 'Image generation failed.');
-      setResult(d);
-    } catch (e) {
-      setErrorMsg(e.message || 'Something went wrong.');
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to generate image.');
+      }
+
+      // Update assistant message with completed image
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMsgId
+            ? {
+                ...msg,
+                loading: false,
+                result: {
+                  ...data,
+                  prompt: query,
+                  used_prompt: data.used_prompt || styledPrompt,
+                  model_name:
+                    data.engine === 'cloudflare'
+                      ? data.quality === 'extreme'
+                        ? 'SDXL Turbo'
+                        : 'FLUX.1 Schnell'
+                      : data.engine === 'pollinations'
+                      ? 'Pollinations FLUX'
+                      : 'SDXL 1.0 Base',
+                  width: selectedAspect.w,
+                  height: selectedAspect.h,
+                  aspectLabel: selectedAspect.label,
+                },
+              }
+            : msg
+        )
+      );
+
+      // Update quota
+      if (typeof data.used_today === 'number') {
+        setUserStatus((prev) =>
+          prev
+            ? { ...prev, used_today: data.used_today, remaining_today: data.remaining_today }
+            : null
+        );
+      }
+    } catch (err) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantMsgId
+            ? { ...msg, loading: false, error: err.message || 'Generation failed.' }
+            : msg
+        )
+      );
     } finally {
-      setBusy(false);
+      setGenerating(false);
+      textareaRef.current?.focus();
     }
-  }, [canGenerate, prompt, modelKey, size, negative, seed]);
+  };
 
-  const downloadImg = () => {
-    if (!result?.image) return;
+  // Download Handler
+  const handleDownload = (item) => {
+    if (!item?.image) return;
     const a = document.createElement('a');
-    a.href = result.image;
-    const safe = prompt.trim().slice(0, 40).replace(/[^a-z0-9\-_ ]+/gi, '').trim().replace(/\s+/g, '_') || 'axom_image';
-    a.download = `${safe}_${result.width}x${result.height}.png`;
-    document.body.appendChild(a); a.click(); a.remove();
+    a.href = item.image;
+    const cleanName =
+      (item.prompt || 'axom-ai-art')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .slice(0, 40) || 'axom-artwork';
+    a.download = `${cleanName}-${item.width}x${item.height}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
-  const newImage = () => { setResult(null); setErrorMsg(null); promptRef.current?.focus(); };
-
-  const S = getStyles(isMobile);
+  // Copy Prompt
+  const handleCopyPrompt = (text, id) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   return (
-    <div style={S.overlay}>
-      {/* HEADER */}
-      <div style={S.header}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-          <div style={{ ...S.iconBadge, color: '#ec4899', background: 'rgba(236,72,153,0.14)' }}>
-            <ImagePlus size={isMobile ? 16 : 18} />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={S.headerTitle}>Image Generator</div>
-            <div style={S.headerSub}>
-              Text → image · HuggingFace FLUX
-            </div>
-          </div>
-        </div>
-        <button onClick={onClose} disabled={busy} title="Close (Esc)" style={S.closeBtn} aria-label="Close">
-          <X size={isMobile ? 18 : 16} />
-        </button>
-      </div>
-
-      {/* MAIN AREA */}
-      <div style={S.main}>
-        {/* On mobile, preview goes on top when there's a result or activity;
-            otherwise a compact hint sits above so the prompt is instantly visible. */}
-        {isMobile ? (
-          <>
-            <div ref={previewRef} style={S.previewMobile}>
-              {renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, downloadImg, newImage })}
-            </div>
-            <div style={S.controlsMobile}>
-              {renderControls({
-                prompt, setPrompt, modelKey, setModelKey, sizeKey, setSizeKey,
-                negative, setNegative, seed, setSeed,
-                showAdvanced, setShowAdvanced,
-                busy, errorMsg, canGenerate, generate, elapsed,
-                promptRef, S,
-              })}
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={S.controlsDesktop}>
-              {renderControls({
-                prompt, setPrompt, modelKey, setModelKey, sizeKey, setSizeKey,
-                negative, setNegative, seed, setSeed,
-                showAdvanced, setShowAdvanced,
-                busy, errorMsg, canGenerate, generate, elapsed,
-                promptRef, S,
-              })}
-            </div>
-            <div style={S.previewDesktop}>
-              {renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, downloadImg, newImage })}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------- render helpers (kept as functions so both layouts stay in sync) ----------------
-
-function renderControls({
-  prompt, setPrompt, modelKey, setModelKey, sizeKey, setSizeKey,
-  negative, setNegative, seed, setSeed,
-  showAdvanced, setShowAdvanced,
-  busy, errorMsg, canGenerate, generate, elapsed,
-  promptRef, S,
-}) {
-  return (
-    <>
-      <label style={S.label}>
-        Prompt
-        <span style={S.counter}>{prompt.length} / {MAX_PROMPT}</span>
-      </label>
-      <textarea
-        ref={promptRef}
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value.slice(0, MAX_PROMPT))}
-        placeholder='Describe the image you want. e.g. "A snowy tea garden in Assam at sunrise, golden light, cinematic wide shot"'
-        rows={4}
-        style={S.textarea}
-        disabled={busy}
-        onKeyDown={(e) => {
-          if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generate();
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1000,
+        background: '#0d0d12',
+        color: '#ececec',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100dvh',
+        width: '100vw',
+        fontFamily: 'var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* 1. TOP MINIMALIST CHATGPT-STYLE NAVBAR */}
+      <header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 20px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'rgba(13, 13, 18, 0.95)',
+          backdropFilter: 'blur(16px)',
+          flexShrink: 0,
+          zIndex: 10,
         }}
-      />
-
-      <label style={S.label}>Model</label>
-      <div style={S.radioGroup}>
-        {MODELS.map((m) => (
-          <label key={m.k} style={{ ...S.radioCard, ...(modelKey === m.k ? S.radioCardActive : {}) }}>
-            <input
-              type="radio"
-              name="model"
-              checked={modelKey === m.k}
-              onChange={() => setModelKey(m.k)}
-              disabled={busy}
-              style={{ display: 'none' }}
-            />
-            <div style={S.radioName}>{m.name}</div>
-            <div style={S.radioDesc}>{m.desc}</div>
-          </label>
-        ))}
-      </div>
-
-      <label style={S.label}>Size / Aspect</label>
-      <div style={S.selectWrap}>
-        <select
-          value={sizeKey}
-          onChange={(e) => setSizeKey(e.target.value)}
-          disabled={busy}
-          style={S.select}
-        >
-          {SIZES.map((s) => <option key={s.k} value={s.k}>{s.label}</option>)}
-        </select>
-        <ChevronDown size={16} style={S.selectChevron} />
-      </div>
-
-      {/* Advanced */}
-      <button
-        type="button"
-        onClick={() => setShowAdvanced((v) => !v)}
-        style={S.advToggle}
-        disabled={busy}
       >
-        <ChevronDown size={14} style={{ transform: showAdvanced ? 'rotate(180deg)' : 'none', transition: '0.15s' }} />
-        Advanced options
-      </button>
-      {showAdvanced && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <label style={S.label}>Negative prompt (what to avoid)</label>
-          <textarea
-            value={negative}
-            onChange={(e) => setNegative(e.target.value.slice(0, 500))}
-            rows={2}
-            placeholder="blurry, low quality, extra fingers, watermark"
-            disabled={busy}
-            style={{ ...S.textarea, minHeight: 60 }}
-          />
-          <label style={S.label}>Seed (leave blank for random)</label>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={seed}
-            onChange={(e) => setSeed(e.target.value.replace(/[^0-9-]/g, '').slice(0, 12))}
-            placeholder="e.g. 42"
-            disabled={busy}
-            style={S.input}
-          />
-        </div>
-      )}
-
-      {errorMsg && (
-        <div style={S.error}>
-          <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-          <span>{errorMsg}</span>
-        </div>
-      )}
-
-      <button onClick={generate} disabled={!canGenerate} style={{ ...S.generateBtn, ...(canGenerate ? {} : S.generateBtnDisabled) }}>
-        {busy ? (
-          <>
-            <Loader2 size={16} className="spin-icon" />
-            <span>Generating… {elapsed}s</span>
-          </>
-        ) : (
-          <>
-            <Sparkles size={16} />
-            <span>Generate image</span>
-          </>
-        )}
-      </button>
-      <div style={S.hint}>
-        Tip: press <kbd style={S.kbd}>Ctrl</kbd>+<kbd style={S.kbd}>Enter</kbd> to generate.
-        <br />
-        <b>Free tier: 5 images per device per day.</b> Powered by Cloudflare Workers AI.
-        <br />
-        Prompt in English, Hindi, Assamese or Hinglish — we'll translate for you.
-      </div>
-    </>
-  );
-}
-
-function renderPreview({ busy, result, prompt, modelKey, elapsed, isMobile, S, downloadImg, newImage }) {
-  if (busy) {
-    return (
-      <div style={S.previewPlaceholder}>
-        <Loader2 size={isMobile ? 34 : 42} className="spin-icon" />
-        <div style={S.placeholderTitle}>Painting your image… ({elapsed}s)</div>
-        <div style={S.placeholderSub}>
-          {modelKey === 'extreme' ? 'Extreme quality — usually 5-12 seconds.' : 'Usually 3-8 seconds.'}
-        </div>
-      </div>
-    );
-  }
-
-  if (result?.image) {
-    return (
-      <div style={S.resultBox}>
-        <img src={result.image} alt={prompt} style={S.resultImg} />
-        <div style={S.resultMeta}>
-          <span>{result.width} × {result.height}</span>
-          <span>·</span>
-          <span>{(result.ms / 1000).toFixed(1)} s</span>
-          <span>·</span>
-          <span>
-            {result.engine === 'gemini'
-              ? 'Google Gemini'
-              : result.engine === 'cloudflare'
-                ? (result.quality === 'extreme'
-                    ? 'Cloudflare · Extreme (Lucid Origin)'
-                    : 'Cloudflare · FLUX schnell')
-                : result.engine === 'pollinations'
-                  ? 'Pollinations · FLUX'
-                  : result.model_id || 'AI image'}
-          </span>
-        </div>
-        {typeof result.remaining_today === 'number' && (
+        {/* Left: Model Selector Pill (ChatGPT Style Dropdown) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div
             style={{
-              fontSize: 11,
-              opacity: 0.75,
-              marginTop: 6,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '6px 14px',
+              borderRadius: 20,
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              fontSize: '0.86rem',
+              fontWeight: 700,
+              color: '#ffffff',
+            }}
+          >
+            <Sparkles size={15} style={{ color: '#a855f7' }} />
+            <span>
+              {modelKey === 'normal'
+                ? isPro
+                  ? 'SDXL Turbo'
+                  : 'FLUX.1 Schnell'
+                : isPro
+                ? 'SDXL 1.0 Base'
+                : 'SDXL Turbo'}
+            </span>
+            <span
+              style={{
+                fontSize: '0.7rem',
+                padding: '2px 7px',
+                borderRadius: 12,
+                background: modelKey === 'extreme' ? 'rgba(168,85,247,0.2)' : 'rgba(34,197,94,0.15)',
+                color: modelKey === 'extreme' ? '#c084fc' : '#4ade80',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+              }}
+            >
+              {modelKey === 'extreme' ? 'HD' : 'Fast'}
+            </span>
+          </div>
+
+          {/* Model Switch Pills */}
+          <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', padding: 3, borderRadius: 10 }}>
+            <button
+              type="button"
+              onClick={() => setModelKey('normal')}
+              style={{
+                padding: '4px 10px',
+                borderRadius: 8,
+                border: 'none',
+                background: modelKey === 'normal' ? 'rgba(255,255,255,0.12)' : 'transparent',
+                color: modelKey === 'normal' ? '#fff' : '#94a3b8',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Normal
+            </button>
+            <button
+              type="button"
+              onClick={() => setModelKey('extreme')}
+              style={{
+                padding: '4px 10px',
+                borderRadius: 8,
+                border: 'none',
+                background: modelKey === 'extreme' ? 'rgba(168,85,247,0.25)' : 'transparent',
+                color: modelKey === 'extreme' ? '#c084fc' : '#94a3b8',
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              Extreme Quality
+            </button>
+          </div>
+        </div>
+
+        {/* Right: Plan Status & Close */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {isPro ? (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                padding: '4px 10px',
+                borderRadius: 14,
+                background: 'rgba(168,85,247,0.18)',
+                border: '1px solid rgba(168,85,247,0.4)',
+                color: '#c084fc',
+              }}
+            >
+              <Flame size={12} /> PRO PLAN
+            </span>
+          ) : (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                padding: '4px 11px',
+                borderRadius: 14,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                color: '#cbd5e1',
+              }}
+            >
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: remaining <= 1 ? '#ef4444' : '#22c55e',
+                }}
+              />
+              {remaining} of 5 free today
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={generating}
+            title="Close (Esc)"
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <X size={17} />
+          </button>
+        </div>
+      </header>
+
+      {/* 2. CENTER CONVERSATION & ARTWORK FEED (CHATGPT STYLE) */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          padding: '24px 16px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
+        <div style={{ maxWidth: 760, width: '100%', display: 'flex', flexDirection: 'column', gap: 24, margin: 'auto 0' }}>
+          {/* Empty Starter State */}
+          {messages.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '20px 16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div
+                style={{
+                  width: 54,
+                  height: 54,
+                  borderRadius: 18,
+                  background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  boxShadow: '0 8px 30px rgba(168, 85, 247, 0.35)',
+                  marginBottom: 16,
+                }}
+              >
+                <Sparkles size={28} />
+              </div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 8px', color: '#ffffff' }}>
+                What would you like to create?
+              </h2>
+              <p style={{ fontSize: '0.88rem', color: '#94a3b8', margin: '0 0 24px', maxWidth: 440, lineHeight: 1.5 }}>
+                Type any idea or prompt below in English, Hindi, or Assamese to generate instant high-fidelity artworks.
+              </p>
+
+              {/* Starter Suggestions Grid */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: 12,
+                  width: '100%',
+                }}
+              >
+                {STARTER_PROMPTS.map((item, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => handleGenerate(item.prompt)}
+                    style={{
+                      padding: '14px 16px',
+                      borderRadius: 14,
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.4)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                      e.currentTarget.style.transform = 'none';
+                    }}
+                  >
+                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#ffffff', marginBottom: 4 }}>
+                      {item.title}
+                    </div>
+                    <div style={{ fontSize: '0.76rem', color: '#94a3b8', lineHeight: 1.4 }}>
+                      {item.prompt.slice(0, 75)}...
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Conversation Stream */}
+          {messages.map((msg) => {
+            if (msg.type === 'user') {
+              return (
+                <div
+                  key={msg.id}
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    width: '100%',
+                  }}
+                >
+                  <div
+                    style={{
+                      maxWidth: '85%',
+                      padding: '12px 18px',
+                      borderRadius: '20px 20px 4px 20px',
+                      background: 'rgba(168, 85, 247, 0.18)',
+                      border: '1px solid rgba(168, 85, 247, 0.35)',
+                      color: '#ffffff',
+                      fontSize: '0.94rem',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {msg.text}
+                  </div>
+                </div>
+              );
+            }
+
+            // Assistant Response
+            return (
+              <div
+                key={msg.id}
+                style={{
+                  display: 'flex',
+                  gap: 14,
+                  width: '100%',
+                  alignItems: 'flex-start',
+                }}
+              >
+                {/* Sparkle Avatar */}
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    flexShrink: 0,
+                    marginTop: 4,
+                  }}
+                >
+                  <Sparkles size={16} />
+                </div>
+
+                {/* Content Box */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {msg.loading ? (
+                    /* Generating Shimmer Card */
+                    <div
+                      style={{
+                        padding: '24px 20px',
+                        borderRadius: 18,
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(168, 85, 247, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                      }}
+                    >
+                      <Loader2 size={24} className="animate-spin" style={{ color: '#c084fc', flexShrink: 0 }} />
+                      <div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff' }}>
+                          Painting your image… ({elapsed}s)
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 2 }}>
+                          Synthesizing latent diffusion layers with {modelKey === 'extreme' ? 'Extreme Quality' : 'FLUX.1 Schnell'}
+                        </div>
+                      </div>
+                    </div>
+                  ) : msg.error ? (
+                    /* Error Card */
+                    <div
+                      style={{
+                        padding: '14px 18px',
+                        borderRadius: 14,
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#fca5a5',
+                        fontSize: '0.88rem',
+                      }}
+                    >
+                      <div>{msg.error}</div>
+                      {msg.error.toLowerCase().includes('free images') && (
+                        <a
+                          href="/subscription/"
+                          style={{
+                            display: 'inline-block',
+                            marginTop: 8,
+                            color: '#c084fc',
+                            fontWeight: 700,
+                            textDecoration: 'underline',
+                          }}
+                        >
+                          Upgrade to Pro Plan 🚀
+                        </a>
+                      )}
+                    </div>
+                  ) : msg.result ? (
+                    /* Completed Generated Image Card (ChatGPT Style) */
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 10,
+                        maxWidth: '100%',
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'relative',
+                          borderRadius: 18,
+                          overflow: 'hidden',
+                          background: '#000000',
+                          border: '1px solid rgba(255, 255, 255, 0.12)',
+                          boxShadow: '0 12px 36px rgba(0,0,0,0.6)',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => setZoomImage(msg.result.image)}
+                      >
+                        <img
+                          src={msg.result.image}
+                          alt={msg.result.prompt}
+                          style={{
+                            display: 'block',
+                            width: '100%',
+                            maxHeight: 520,
+                            objectFit: 'contain',
+                          }}
+                        />
+                      </div>
+
+                      {/* Info & Action Toolbar (Below Image) */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: 10,
+                          padding: '4px 2px',
+                        }}
+                      >
+                        {/* Meta Tags */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.74rem', color: '#94a3b8' }}>
+                          <span style={{ color: '#c084fc', fontWeight: 700 }}>
+                            {msg.result.model_name}
+                          </span>
+                          <span>·</span>
+                          <span>{msg.result.width} × {msg.result.height}</span>
+                          <span>·</span>
+                          <span>{((msg.result.ms || 0) / 1000).toFixed(1)}s</span>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyPrompt(msg.result.used_prompt || msg.result.prompt, msg.id)}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: 8,
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.1)',
+                              color: '#cbd5e1',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                            }}
+                          >
+                            {copiedId === msg.id ? <Check size={13} style={{ color: '#4ade80' }} /> : <Copy size={13} />}
+                            <span>{copiedId === msg.id ? 'Copied' : 'Prompt'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDownload(msg.result)}
+                            style={{
+                              padding: '6px 14px',
+                              borderRadius: 8,
+                              background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                              border: 'none',
+                              color: '#ffffff',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 6,
+                            }}
+                          >
+                            <Download size={13} />
+                            <span>Download PNG</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* 3. DOCKED CHATGPT-STYLE INPUT BAR AT BOTTOM (NATURAL FLOW - ZERO OVERLAP) */}
+      <div
+        style={{
+          position: 'relative',
+          flexShrink: 0,
+          width: '100%',
+          padding: '12px 20px 18px',
+          background: 'rgba(13, 13, 18, 0.98)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          boxSizing: 'border-box',
+          zIndex: 20,
+        }}
+      >
+        <div style={{ maxWidth: 760, width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {/* Quick Option Pills (Aspect Ratio + Styles + Surprise) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
+            {/* Aspect Ratio Pills */}
+            {ASPECT_RATIOS.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => setAspectKey(a.id)}
+                style={{
+                  flexShrink: 0,
+                  padding: '4px 10px',
+                  borderRadius: 14,
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  background: aspectKey === a.id ? 'rgba(168,85,247,0.22)' : 'rgba(255,255,255,0.05)',
+                  border: aspectKey === a.id ? '1px solid #a855f7' : '1px solid rgba(255,255,255,0.08)',
+                  color: aspectKey === a.id ? '#ffffff' : '#94a3b8',
+                }}
+              >
+                {a.label}
+              </button>
+            ))}
+
+            <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)', flexShrink: 0, margin: '0 4px' }} />
+
+            {/* Art Style Selector Dropdown Pill */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <select
+                value={selectedStyle}
+                onChange={(e) => setSelectedStyle(e.target.value)}
+                style={{
+                  appearance: 'none',
+                  padding: '4px 22px 4px 10px',
+                  borderRadius: 14,
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  background: selectedStyle !== 'none' ? 'rgba(236,72,153,0.22)' : 'rgba(255,255,255,0.05)',
+                  border: selectedStyle !== 'none' ? '1px solid #ec4899' : '1px solid rgba(255,255,255,0.08)',
+                  color: selectedStyle !== 'none' ? '#ffffff' : '#94a3b8',
+                  outline: 'none',
+                }}
+              >
+                {STYLE_PRESETS.map((s) => (
+                  <option key={s.id} value={s.id} style={{ background: '#181926', color: '#fff' }}>
+                    Style: {s.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={11} style={{ position: 'absolute', right: 7, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94a3b8' }} />
+            </div>
+
+            {/* Surprise Me Pill */}
+            <button
+              type="button"
+              onClick={handleSurprisePrompt}
+              style={{
+                flexShrink: 0,
+                padding: '4px 10px',
+                borderRadius: 14,
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#c084fc',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                marginLeft: 'auto',
+              }}
+            >
+              <Dices size={12} />
+              <span>Surprise Prompt</span>
+            </button>
+          </div>
+
+          {/* ChatGPT Style Input Card */}
+          <div
+            style={{
+              position: 'relative',
+              background: 'rgba(24, 25, 38, 0.95)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: 24,
+              padding: '10px 14px',
+              display: 'flex',
+              alignItems: 'flex-end',
+              gap: 10,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+              transition: 'border-color 0.2s ease',
+            }}
+          >
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              value={prompt}
+              onInput={handleTextareaInput}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleGenerate();
+                }
+              }}
+              placeholder="Describe what to create with AI (e.g. 'A serene Himalayan monastery at dawn')..."
+              style={{
+                flex: 1,
+                background: 'transparent',
+                border: 'none',
+                color: '#ffffff',
+                fontSize: '0.94rem',
+                lineHeight: 1.5,
+                outline: 'none',
+                resize: 'none',
+                maxHeight: 120,
+                fontFamily: 'inherit',
+                padding: '4px 0',
+              }}
+              disabled={generating}
+            />
+
+            {/* Send / Generate Button (ChatGPT Circular Arrow) */}
+            <button
+              type="button"
+              onClick={() => handleGenerate()}
+              disabled={generating || !prompt.trim()}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: prompt.trim() && !generating
+                  ? 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
+                  : 'rgba(255,255,255,0.1)',
+                border: 'none',
+                color: prompt.trim() && !generating ? '#ffffff' : '#64748b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: prompt.trim() && !generating ? 'pointer' : 'not-allowed',
+                flexShrink: 0,
+                transition: 'all 0.2s ease',
+                boxShadow: prompt.trim() && !generating ? '0 4px 14px rgba(168,85,247,0.4)' : 'none',
+              }}
+              title="Generate image"
+            >
+              {generating ? <Loader2 size={16} className="animate-spin" /> : <ArrowUp size={18} />}
+            </button>
+          </div>
+
+          <div
+            style={{
+              fontSize: '0.7rem',
+              color: '#64748b',
               textAlign: 'center',
             }}
           >
-            {result.remaining_today > 0
-              ? `${result.remaining_today} of ${result.daily_limit} free images left for today.`
-              : `You have used all ${result.daily_limit} free images for today.`}
+            Powered by FLUX.1 Schnell &amp; SDXL Turbo · English, Hindi &amp; Assamese supported
           </div>
-        )}
-        {result.translated && result.used_prompt && (
-          <div
-            style={{
-              fontSize: 11,
-              opacity: 0.7,
-              marginTop: 8,
-              padding: '6px 10px',
-              background: 'rgba(59, 130, 246, 0.08)',
-              border: '1px solid rgba(59, 130, 246, 0.22)',
-              borderRadius: 6,
-              textAlign: 'center',
-              fontStyle: 'italic',
-            }}
-            title={result.original_prompt}
-          >
-            Prompted as: “{result.used_prompt}”
-          </div>
-        )}
-        <div style={S.resultActions}>
-          <button onClick={downloadImg} style={S.downloadBtn}>
-            <Download size={15} /> Download PNG
-          </button>
-          <button onClick={newImage} style={S.secondaryBtn}>
-            Generate another
-          </button>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div style={S.previewPlaceholder}>
-      <div style={{ ...S.iconBadge, width: isMobile ? 48 : 56, height: isMobile ? 48 : 56, color: '#ec4899', background: 'rgba(236,72,153,0.14)' }}>
-        <ImagePlus size={isMobile ? 24 : 30} />
-      </div>
-      <div style={S.placeholderTitle}>Your image will appear here</div>
-      <div style={S.placeholderSub}>
-        {isMobile
-          ? 'Type a prompt below, tap Generate.'
-          : 'Type a prompt on the left, choose a model and size, then hit Generate.'}
-      </div>
+      {/* 4. FULLSCREEN ZOOM LIGHTBOX MODAL */}
+      {zoomImage && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 3000,
+            background: 'rgba(5, 5, 10, 0.95)',
+            backdropFilter: 'blur(16px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+          onClick={() => setZoomImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setZoomImage(null)}
+            style={{
+              position: 'absolute',
+              top: 20,
+              right: 20,
+              width: 38,
+              height: 38,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)',
+              border: 'none',
+              color: '#fff',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <X size={20} />
+          </button>
+          <img
+            src={zoomImage}
+            alt="Fullscreen zoom"
+            style={{
+              maxWidth: '92vw',
+              maxHeight: '90vh',
+              objectFit: 'contain',
+              borderRadius: 14,
+              boxShadow: '0 20px 70px rgba(0,0,0,0.8)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
-}
-
-// ---------------- styles (recomputed per layout) ----------------
-function getStyles(isMobile) {
-  return {
-    overlay: {
-      position: 'fixed', inset: 0, background: 'var(--bg-primary, #0b0b12)', zIndex: 60,
-      display: 'flex', flexDirection: 'column',
-      // Use dvh so the browser chrome (URL bar) can't hide our action button.
-      height: '100dvh', minHeight: '100dvh',
-    },
-    header: {
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      gap: 10, padding: isMobile ? '10px 12px' : '12px 16px',
-      borderBottom: '1px solid var(--border-color)', flexShrink: 0,
-    },
-    iconBadge: {
-      width: isMobile ? 30 : 34, height: isMobile ? 30 : 34, borderRadius: 10,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-    },
-    headerTitle: {
-      fontWeight: 700, color: 'var(--text-primary)',
-      fontSize: isMobile ? '0.95rem' : '1rem',
-      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-    },
-    headerSub: {
-      fontSize: isMobile ? '0.72rem' : '0.78rem', color: 'var(--text-secondary)',
-      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-    },
-    closeBtn: {
-      background: 'transparent', border: '1px solid var(--border-color)',
-      color: 'var(--text-secondary)', borderRadius: 8,
-      padding: isMobile ? '8px 10px' : '7px 9px',
-      cursor: 'pointer', flexShrink: 0,
-      // Ensure a comfortable 40x40 touch target on mobile.
-      minWidth: isMobile ? 40 : undefined, minHeight: isMobile ? 40 : undefined,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    },
-    main: {
-      flex: 1,
-      display: isMobile ? 'flex' : 'grid',
-      flexDirection: isMobile ? 'column' : undefined,
-      gridTemplateColumns: isMobile ? undefined : 'minmax(300px, 380px) 1fr',
-      gap: isMobile ? 12 : 16,
-      padding: isMobile ? 12 : 16,
-      overflowY: isMobile ? 'auto' : 'hidden',
-      overflowX: 'hidden',
-      WebkitOverflowScrolling: 'touch',
-      minHeight: 0, minWidth: 0,
-      boxSizing: 'border-box',
-      width: '100%',
-    },
-    // Desktop-only wrappers
-    controlsDesktop: {
-      display: 'flex', flexDirection: 'column', gap: 10,
-      overflowY: 'auto', padding: 4, minWidth: 0,
-      boxSizing: 'border-box',
-    },
-    previewDesktop: {
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 16, borderRadius: 14, border: '1px dashed var(--border-color)',
-      background: 'var(--bg-secondary, #14141c)', overflow: 'auto', minWidth: 0,
-      boxSizing: 'border-box',
-    },
-    // Mobile stacked layout
-    controlsMobile: {
-      display: 'flex', flexDirection: 'column', gap: 10,
-      minWidth: 0, width: '100%', boxSizing: 'border-box',
-    },
-    previewMobile: {
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 12, borderRadius: 12, border: '1px dashed var(--border-color)',
-      background: 'var(--bg-secondary, #14141c)',
-      minHeight: 200,
-      // Hard-constrain to viewport width so the image can never spill out
-      // sideways on a narrow phone.
-      width: '100%', maxWidth: '100%',
-      boxSizing: 'border-box',
-      overflow: 'hidden',
-      minWidth: 0,
-    },
-    // Shared form pieces
-    label: {
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)',
-      marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.03em',
-    },
-    counter: { fontSize: '0.72rem', color: 'var(--text-tertiary, #7b7b90)', fontWeight: 500, textTransform: 'none' },
-    textarea: {
-      width: '100%', boxSizing: 'border-box', resize: 'vertical', minHeight: 90,
-      padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border-color)',
-      background: 'var(--bg-secondary, #14141c)', color: 'var(--text-primary)',
-      fontFamily: 'inherit',
-      // 16 px font on mobile prevents iOS Safari from zooming in on focus.
-      fontSize: isMobile ? '16px' : '0.92rem',
-      lineHeight: 1.4, outline: 'none',
-    },
-    input: {
-      width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 10,
-      border: '1px solid var(--border-color)', background: 'var(--bg-secondary, #14141c)',
-      color: 'var(--text-primary)',
-      fontSize: isMobile ? '16px' : '0.92rem',
-      outline: 'none', minHeight: isMobile ? 44 : undefined,
-    },
-    radioGroup: {
-      display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : '1fr',
-      gap: 8,
-    },
-    radioCard: {
-      display: 'block', cursor: 'pointer',
-      padding: isMobile ? '12px 14px' : '10px 12px',
-      borderRadius: 10,
-      border: '1px solid var(--border-color)', background: 'var(--bg-secondary, #14141c)',
-      transition: 'border-color 0.15s, background 0.15s',
-    },
-    radioCardActive: { borderColor: '#ec4899', background: 'rgba(236,72,153,0.08)' },
-    radioName: { fontWeight: 600, color: 'var(--text-primary)', fontSize: isMobile ? '0.95rem' : '0.9rem' },
-    radioDesc: { fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: 2 },
-    selectWrap: { position: 'relative' },
-    select: {
-      width: '100%', appearance: 'none',
-      padding: isMobile ? '12px 34px 12px 12px' : '10px 32px 10px 12px',
-      borderRadius: 10,
-      border: '1px solid var(--border-color)', background: 'var(--bg-secondary, #14141c)',
-      color: 'var(--text-primary)',
-      fontSize: isMobile ? '16px' : '0.92rem',
-      outline: 'none', cursor: 'pointer',
-      minHeight: isMobile ? 44 : undefined,
-    },
-    selectChevron: {
-      position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-      color: 'var(--text-secondary)', pointerEvents: 'none',
-    },
-    advToggle: {
-      display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none',
-      color: 'var(--text-secondary)', padding: '6px 0', cursor: 'pointer', fontSize: '0.85rem',
-      fontWeight: 600, alignSelf: 'flex-start',
-    },
-    error: {
-      display: 'flex', gap: 8, padding: '10px 12px', borderRadius: 10,
-      background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)',
-      color: '#fca5a5', fontSize: '0.88rem', lineHeight: 1.35,
-    },
-    generateBtn: {
-      marginTop: 6,
-      padding: isMobile ? '14px 16px' : '12px 14px',
-      borderRadius: 10, border: 'none', cursor: 'pointer',
-      background: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)', color: '#fff',
-      fontWeight: 700,
-      fontSize: isMobile ? '1rem' : '0.95rem',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-      width: '100%', boxSizing: 'border-box',
-      minHeight: isMobile ? 48 : undefined,
-      // Natural flow — no sticky/absolute positioning, so it can never sit
-      // on top of the preview image (a common source of "text overlapping
-      // on my picture" on mobile).
-    },
-    generateBtnDisabled: { opacity: 0.55, cursor: 'not-allowed' },
-    hint: { fontSize: '0.75rem', color: 'var(--text-tertiary, #7b7b90)', lineHeight: 1.4 },
-    kbd: {
-      padding: '1px 6px', borderRadius: 4, background: 'var(--bg-secondary, #14141c)',
-      border: '1px solid var(--border-color)', fontSize: '0.72rem',
-      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-    },
-    previewPlaceholder: {
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      color: 'var(--text-secondary)', textAlign: 'center', padding: '8px',
-    },
-    placeholderTitle: {
-      marginTop: 12, fontWeight: 600, color: 'var(--text-primary)',
-      fontSize: isMobile ? '0.9rem' : '1rem',
-    },
-    placeholderSub: {
-      marginTop: 6, fontSize: '0.82rem', color: 'var(--text-secondary)',
-      maxWidth: 320, lineHeight: 1.4,
-    },
-    resultBox: {
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      maxWidth: '100%', width: '100%',
-      minWidth: 0, boxSizing: 'border-box',
-    },
-    resultImg: {
-      // Fit BOTH width and (on desktop) height to keep the image inside its
-      // preview box. `display: block` kills the phantom inline-image baseline
-      // gap that otherwise pushed things a few px around on mobile.
-      display: 'block',
-      maxWidth: '100%',
-      width: 'auto',
-      height: 'auto',
-      maxHeight: isMobile ? 'none' : 'calc(100dvh - 260px)',
-      borderRadius: 10,
-      boxShadow: '0 10px 28px rgba(0,0,0,0.35)',
-      background: '#000',
-      objectFit: 'contain',
-    },
-    resultMeta: {
-      marginTop: 12, display: 'flex', gap: 6, fontSize: '0.82rem',
-      color: 'var(--text-secondary)', alignItems: 'center', flexWrap: 'wrap',
-      justifyContent: 'center',
-    },
-    resultActions: {
-      display: 'flex', gap: 10, marginTop: 12,
-      flexWrap: 'wrap', justifyContent: 'center',
-      width: isMobile ? '100%' : 'auto',
-    },
-    downloadBtn: {
-      padding: isMobile ? '11px 16px' : '9px 14px',
-      borderRadius: 9, border: 'none', cursor: 'pointer',
-      background: '#ec4899', color: '#fff', fontWeight: 600,
-      fontSize: isMobile ? '0.92rem' : '0.88rem',
-      display: 'flex', alignItems: 'center', gap: 6,
-      flex: isMobile ? '1 1 auto' : undefined,
-      justifyContent: 'center',
-      minHeight: isMobile ? 44 : undefined,
-    },
-    secondaryBtn: {
-      padding: isMobile ? '11px 16px' : '9px 14px',
-      borderRadius: 9, cursor: 'pointer',
-      background: 'transparent', border: '1px solid var(--border-color)',
-      color: 'var(--text-primary)', fontWeight: 600,
-      fontSize: isMobile ? '0.92rem' : '0.88rem',
-      flex: isMobile ? '1 1 auto' : undefined,
-      minHeight: isMobile ? 44 : undefined,
-    },
-  };
 }

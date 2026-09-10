@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+<meta name="theme-color" content="#020617">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>{% block title %}Axom AI — Content & Landing CMS{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { 
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; 
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .glass-card {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .glass-card-hover:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    box-shadow: 0 8px 30px rgba(168, 85, 247, 0.12);
+  }
+  /* Custom scrollbars */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #020617; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  /* Universal Mobile Responsive Overrides & Touch Polish */
+  @media screen and (max-width: 768px) {
+    /* Prevent iOS auto-zoom on input focus */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), 
+    select, 
+    textarea {
+      font-size: 16px !important;
+    }
+
+    /* Responsive card padding */
+    .glass-card {
+      padding: 1rem !important;
+      border-radius: 1rem !important;
+    }
+
+    /* Universal Modal Fitting on Mobile Screens */
+    .glass-card.max-w-lg, 
+    .glass-card.max-w-md, 
+    .glass-card.max-w-xl, 
+    .glass-card.max-w-2xl,
+    .glass-card.max-w-3xl,
+    .glass-card.max-w-4xl,
+    .glass-card.max-w-5xl,
+    [id$="Modal"] .glass-card,
+    [id$="modal"] .glass-card,
+    [id*="Modal"] > div,
+    [id*="modal"] > div {
+      width: 100% !important;
+      max-width: 100% !important;
+      max-height: 92dvh !important;
+      max-height: 92vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      margin: 0 !important;
+    }
+
+    /* Modal body scroll container */
+    [id$="Modal"] .glass-card > div:nth-child(2),
+    [id$="modal"] .glass-card > div:nth-child(2),
+    [id*="Modal"] > div > div:nth-child(2),
+    [id*="modal"] > div > div:nth-child(2),
+    .glass-card.max-w-lg > div:nth-child(2),
+    .glass-card.max-w-md > div:nth-child(2),
+    .glass-card.max-w-xl > div:nth-child(2),
+    .glass-card.max-w-2xl > div:nth-child(2) {
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      flex: 1 1 auto !important;
+      padding: 1rem !important;
+    }
+
+    /* Modal footer buttons full width on mobile */
+    [id$="Modal"] .glass-card > div:last-child,
+    [id$="modal"] .glass-card > div:last-child {
+      flex-direction: column-reverse !important;
+      gap: 0.5rem !important;
+      padding: 0.875rem 1rem !important;
+    }
+    [id$="Modal"] .glass-card > div:last-child button,
+    [id$="modal"] .glass-card > div:last-child button {
+      width: 100% !important;
+      justify-content: center !important;
+    }
+
+    /* Touch target comfort */
+    button, a.btn, input[type="submit"] {
+      min-height: 40px;
+    }
+
+    /* Image upload overlays visible on mobile without hover */
+    .group .group-hover\:opacity-100 {
+      opacity: 1 !important;
+      background: rgba(2, 6, 23, 0.85) !important;
+      position: relative !important;
+      inset: auto !important;
+      padding: 0.75rem !important;
+      flex-wrap: wrap !important;
+    }
+    .group #featured_img_preview_box {
+      height: auto !important;
+      min-height: 180px !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    /* CKEditor 5 mobile toolbar wrap and touch height */
+    .ck.ck-toolbar {
+      padding: 4px 6px !important;
+    }
+    .ck.ck-toolbar .ck-toolbar__items {
+      flex-wrap: wrap !important;
+    }
+    .ck.ck-toolbar .ck-button {
+      height: 36px !important;
+      min-width: 36px !important;
+      padding: 4px !important;
+    }
+    .ck.ck-editor__main > .ck-editor__editable {
+      min-height: 260px !important;
+      padding: 14px 16px !important;
+      font-size: 16px !important;
+    }
+
+    /* Flatpickr Calendar Mobile Centering */
+    .flatpickr-calendar {
+      width: calc(100vw - 32px) !important;
+      max-width: 320px !important;
+      margin: 0 auto !important;
+    }
+    .flatpickr-days, .dayContainer {
+      width: 100% !important;
+      min-width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    /* Data Tables Horizontal Smooth Scroll */
+    .overflow-x-auto {
+      -webkit-overflow-scrolling: touch !important;
+    }
+  }
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-fuchsia-500 selection:text-white">
+
+<!-- Mobile Sidebar Backdrop -->
+<div id="sidebar-backdrop" onclick="toggleMobileSidebar(false)" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden hidden transition-opacity duration-300 opacity-0 pointer-events-none"></div>
+
+<div class="flex h-full min-h-screen relative overflow-x-hidden">
+
+  <!-- Left Sidebar (Responsive Drawer on Mobile, Fixed on Desktop) -->
+  <aside id="cms-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 lg:w-64 bg-slate-900/95 lg:bg-slate-900/90 border-r border-slate-800/80 flex flex-col shrink-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none lg:static">
+    <!-- Brand Header -->
+    <div class="h-16 px-5 sm:px-6 flex items-center justify-between border-b border-slate-800">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-fuchsia-600 via-purple-600 to-indigo-600 flex items-center justify-center font-black text-white shadow-lg shadow-fuchsia-500/30">
+          <i class="fa-solid fa-pen-nib"></i>
+        </div>
+        <div>
+          <div class="text-base font-bold text-white tracking-wide">Axom<span class="text-fuchsia-400">AI</span></div>
+          <div class="text-[10px] font-semibold text-fuchsia-400 uppercase tracking-wider">Content CMS</div>
+        </div>
+      </div>
+      <!-- Mobile Close Button -->
+      <button onclick="toggleMobileSidebar(false)" aria-label="Close menu" class="lg:hidden w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto text-sm">
+      {% with a=active %}
+      <div class="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">General</div>
+      <a href="/axomai-content/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'dashboard' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-md shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <i class="fa-solid fa-gauge w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+        <div class="truncate">
+          <div class="text-xs font-semibold leading-tight">Dashboard</div>
+          <div class="text-[10px] text-slate-400">CMS Overview & Analytics</div>
+        </div>
+      </a>
+
+      <div class="pt-3 px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Frontend Landing Sections</div>
+
+      <!-- 1. Hero & Logos -->
+      <a href="/axomai-content/hero/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'hero' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-md shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <i class="fa-solid fa-wand-magic-sparkles w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+        <div class="truncate">
+          <div class="text-xs font-semibold leading-tight">1. Hero & Tech Logos</div>
+          <div class="text-[10px] text-slate-400 truncate">Top Banner · Headline · Tech Strip</div>
+        </div>
+      </a>
+
+      <!-- 2. Explore Section -->
+      <a href="/axomai-content/explore/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'explore' or a == 'features' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-md shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <i class="fa-solid fa-cubes w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+        <div class="truncate">
+          <div class="text-xs font-semibold leading-tight">2. Explore Section (Tools)</div>
+          <div class="text-[10px] text-slate-400 truncate">AI Toolkit Grid · 6 Capability Cards</div>
+        </div>
+      </a>
+
+      <!-- 3. Use Cases -->
+      <a href="/axomai-content/usecases/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'usecases' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-md shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <i class="fa-solid fa-users w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+        <div class="truncate">
+          <div class="text-xs font-semibold leading-tight">3. Use Cases (Audience)</div>
+          <div class="text-[10px] text-slate-400 truncate">Students, Devs, Business Tabs</div>
+        </div>
+      </a>
+
+      <!-- 4. Insights & Blogs -->
+      <a href="/axomai-content/articles/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'articles' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-md shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <i class="fa-solid fa-newspaper w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+        <div class="truncate">
+          <div class="text-xs font-semibold leading-tight">4. Insights & Blogs</div>
+          <div class="text-[10px] text-slate-400 truncate">Latest News & Blog Articles</div>
+        </div>
+      </a>
+
+      <!-- 5. Testimonials -->
+      <a href="/axomai-content/testimonials/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'testimonials' or a == 'testimonials_faqs' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-md shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <i class="fa-solid fa-star w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+        <div class="truncate">
+          <div class="text-xs font-semibold leading-tight">5. Testimonials</div>
+          <div class="text-[10px] text-slate-400 truncate">User Reviews & Social Proof</div>
+        </div>
+      </a>
+
+      <!-- 6. Pricing Plans -->
+      <a href="/axomai-content/pricing/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'pricing' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-md shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <i class="fa-solid fa-tags w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+        <div class="truncate">
+          <div class="text-xs font-semibold leading-tight">6. Pricing Plans</div>
+          <div class="text-[10px] text-slate-400 truncate">Monthly/Yearly Plans & Perks</div>
+        </div>
+      </a>
+
+      <div class="pt-3 px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Standalone Pages</div>
+
+      <!-- Pages Dropdown -->
+      <div class="space-y-1">
+        <button type="button" onclick="togglePagesDropdown()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'pages_faq' or a == 'faq_manager' or a == 'pages_about' or a == 'about_editor' %}bg-slate-800/80 text-fuchsia-400{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+          <div class="flex items-center">
+            <i class="fa-solid fa-layer-group w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+            <div class="text-left">
+              <div class="text-xs font-semibold leading-tight">Pages</div>
+              <div class="text-[10px] text-slate-400">Manage Custom Pages</div>
+            </div>
+          </div>
+          <i id="pages-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {% if a == 'pages_faq' or a == 'faq_manager' or a == 'pages_about' or a == 'about_editor' %}rotate-180 text-fuchsia-400{% else %}text-slate-500{% endif %}"></i>
+        </button>
+
+        <div id="pages-submenu" class="pl-4 space-y-1 {% if a != 'pages_faq' and a != 'faq_manager' and a != 'pages_about' and a != 'about_editor' %}hidden{% endif %}">
+          <!-- About Us Page -->
+          <a href="/axomai-content/pages/about/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'pages_about' or a == 'about_editor' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+            <i class="fa-solid fa-address-card w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold">About Us</div>
+              <div class="text-[9px] text-slate-400">Hero, Mission, Stats & GEO Specs</div>
+            </div>
+          </a>
+
+          <!-- FAQ Page -->
+          <a href="/axomai-content/pages/faq/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'pages_faq' or a == 'faq_manager' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+            <i class="fa-solid fa-circle-question w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold">FAQ Page</div>
+              <div class="text-[9px] text-slate-400">Questions, Answers & Categories</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="pt-3 px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Settings & Branding</div>
+
+      <!-- Settings Dropdown -->
+      <div class="space-y-1">
+        <button type="button" onclick="toggleSettingsDropdown()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'header_settings' or a == 'footer_settings' or a == 'seo' %}bg-slate-800/80 text-fuchsia-400{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+          <div class="flex items-center">
+            <i class="fa-solid fa-sliders w-5 text-center mr-3 text-sm flex-shrink-0"></i>
+            <div class="text-left">
+              <div class="text-xs font-semibold leading-tight">Settings</div>
+              <div class="text-[10px] text-slate-400">Header, Footer, SEO</div>
+            </div>
+          </div>
+          <i id="settings-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {% if a == 'header_settings' or a == 'footer_settings' or a == 'seo' %}rotate-180 text-fuchsia-400{% else %}text-slate-500{% endif %}"></i>
+        </button>
+
+        <div id="settings-submenu" class="pl-4 space-y-1 {% if a != 'header_settings' and a != 'footer_settings' and a != 'seo' %}hidden{% endif %}">
+          <!-- Header Settings -->
+          <a href="/axomai-content/settings/header/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'header_settings' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+            <i class="fa-solid fa-heading w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold">Header Settings</div>
+              <div class="text-[9px] text-slate-400">Logo, Nav & Mega Menu</div>
+            </div>
+          </a>
+
+          <!-- Footer Settings -->
+          <a href="/axomai-content/settings/footer/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'footer_settings' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+            <i class="fa-solid fa-shoe-prints w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold">Footer Settings</div>
+              <div class="text-[9px] text-slate-400">Columns, Links & Socials</div>
+            </div>
+          </a>
+
+          <!-- SEO & Metadata -->
+          <a href="/axomai-content/seo/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'seo' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+            <i class="fa-solid fa-magnifying-glass-chart w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold">SEO & Meta Tags</div>
+              <div class="text-[9px] text-slate-400">Google Search · Social Meta</div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="pt-4 mt-4 border-t border-slate-800 space-y-1">
+        <a href="https://aiaxom.co.in" target="_blank" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800">
+          <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center mr-3"></i>
+          View Live Site (aiaxom.co.in)
+        </a>
+        <a href="https://admin.aiaxom.co.in" target="_blank" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800">
+          <i class="fa-solid fa-shield-halved w-5 text-center mr-3"></i>
+          Super Admin Panel
+        </a>
+        <a href="/axomai-content/logout/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium text-red-400 hover:text-red-300 hover:bg-red-950/40">
+          <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center mr-3"></i>
+          Sign Out
+        </a>
+      </div>
+      {% endwith %}
+    </nav>
+
+    <!-- Admin User Footer -->
+    <div class="p-3 border-t border-slate-800 flex items-center justify-between">
+      <div class="flex items-center space-x-3 overflow-hidden">
+        <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+          {{ request.user.username|slice:":2"|upper }}
+        </div>
+        <div class="truncate text-xs">
+          <div class="font-semibold text-slate-200 truncate">{{ request.user.username }}</div>
+          <div class="text-[10px] text-fuchsia-400 font-medium">Content Manager</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-slate-950">
+    <!-- Top Header -->
+    <header class="h-16 border-b border-slate-800/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between bg-slate-900/40 backdrop-blur-md sticky top-0 z-30">
+      <div class="flex items-center gap-3 min-w-0">
+        <!-- Mobile Hamburger Toggle -->
+        <button onclick="toggleMobileSidebar(true)" aria-label="Open sidebar navigation" class="lg:hidden w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white grid place-items-center transition shrink-0">
+          <i class="fa-solid fa-bars text-sm"></i>
+        </button>
+
+        <div class="truncate">
+          <h1 class="text-base sm:text-lg font-bold text-white tracking-tight truncate">{% block page_title %}Content Manager{% endblock %}</h1>
+          <p class="text-[11px] sm:text-xs text-slate-400 truncate hidden sm:block">{% block page_subtitle %}Manage live landing page & blogs for aiaxom.co.in{% endblock %}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <a href="https://aiaxom.co.in" target="_blank" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-eye text-fuchsia-400"></i>
+          <span class="hidden sm:inline">Preview Live</span>
+        </a>
+        <div class="h-4 w-px bg-slate-800 hidden sm:block"></div>
+        <div class="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-emerald-400 bg-emerald-500/10 px-2 sm:px-2.5 py-1 rounded-full border border-emerald-500/20 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="hidden md:inline">CMS Live Sync</span>
+          <span class="md:hidden">Sync</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Body Container -->
+    <div class="p-4 sm:p-6 lg:p-8 flex-1">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+</div>
+
+<!-- Global Toast Notification Container -->
+<div id="toast-container" class="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 left-4 sm:left-auto z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  const isSuccess = type === 'success';
+  toast.className = `px-4 py-3 rounded-xl border text-sm font-medium flex items-center gap-3 shadow-xl backdrop-blur-md pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0 ${
+    isSuccess
+      ? 'bg-slate-900/95 border-emerald-500/40 text-emerald-300 shadow-emerald-950/40'
+      : 'bg-slate-900/95 border-rose-500/40 text-rose-300 shadow-rose-950/40'
+  }`;
+  toast.innerHTML = `
+    <i class="fa-solid ${isSuccess ? 'fa-circle-check text-emerald-400' : 'fa-circle-exclamation text-rose-400'} text-base"></i>
+    <span>${message}</span>
+  `;
+  container.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-y-2', 'opacity-0');
+  });
+  setTimeout(() => {
+    toast.classList.add('opacity-0', 'translate-y-2');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+function togglePagesDropdown() {
+  const submenu = document.getElementById('pages-submenu');
+  const chevron = document.getElementById('pages-chevron');
+  if (submenu) {
+    submenu.classList.toggle('hidden');
+    if (chevron) {
+      chevron.classList.toggle('rotate-180');
+    }
+  }
+}
+window.togglePagesDropdown = togglePagesDropdown;
+
+function toggleSettingsDropdown() {
+  const submenu = document.getElementById('settings-submenu');
+  const chevron = document.getElementById('settings-chevron');
+  if (submenu) {
+    submenu.classList.toggle('hidden');
+    if (chevron) {
+      chevron.classList.toggle('rotate-180');
+    }
+  }
+}
+window.toggleSettingsDropdown = toggleSettingsDropdown;
+
+function toggleMobileSidebar(show) {
+  const sidebar = document.getElementById('cms-sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  if (!sidebar || !backdrop) return;
+  
+  if (show) {
+    sidebar.classList.remove('-translate-x-full');
+    backdrop.classList.remove('hidden');
+    backdrop.classList.remove('pointer-events-none');
+    requestAnimationFrame(() => {
+      backdrop.classList.remove('opacity-0');
+      backdrop.classList.add('opacity-100');
+    });
+  } else {
+    sidebar.classList.add('-translate-x-full');
+    backdrop.classList.remove('opacity-100');
+    backdrop.classList.add('opacity-0');
+    backdrop.classList.add('pointer-events-none');
+    setTimeout(() => {
+      backdrop.classList.add('hidden');
+    }, 300);
+  }
+}
+window.toggleMobileSidebar = toggleMobileSidebar;
+
+// Auto-close sidebar on mobile when clicking any nav link
+document.querySelectorAll('#cms-sidebar a').forEach(link => {
+  link.addEventListener('click', () => {
+    if (window.innerWidth < 1024) {
+      toggleMobileSidebar(false);
+    }
+  });
+});
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

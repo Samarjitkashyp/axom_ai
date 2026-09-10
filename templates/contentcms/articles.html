@@ -1,0 +1,454 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}4. Insights & Blogs — Axom AI CMS{% endblock %}
+{% block page_title %}4. Insights & Blog Articles{% endblock %}
+{% block page_subtitle %}Controls Landing Page Section: "Learn, Explore & Stay Updated" (Blog cards & articles) (aiaxom.co.in/#insights){% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-6xl">
+
+  <!-- Section 0: Insights Header & Visibility Settings -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-fuchsia-400"></i>
+          Insights Section Headline & Visibility
+        </h2>
+        <p class="text-xs text-slate-400">Configure main section title, view all link, and visibility on the landing page</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="insights_sec_active" class="sr-only peer" {% if hero.insights_section_active %}checked{% endif %}>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-fuchsia-600"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Visible on Landing Page</span>
+      </label>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Pill Badge</label>
+        <input type="text" id="insights_badge" value="{{ hero.insights_badge|default:'Insights' }}" placeholder="Insights"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Prefix)</label>
+        <input type="text" id="insights_prefix" value="{{ hero.insights_title_prefix|default:'Learn, Explore &' }}" placeholder="Learn, Explore &"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Highlight Gradient)</label>
+        <input type="text" id="insights_highlight" value="{{ hero.insights_title_highlight|default:'Stay Updated' }}" placeholder="Stay Updated"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subheading</label>
+        <input type="text" id="insights_subheading" value="{{ hero.insights_subheading|default:'Guides, tips and stories from the Axom AI team and community.' }}" placeholder="Guides, tips and stories..."
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">View All Button Text</label>
+        <input type="text" id="insights_view_all_text" value="{{ hero.insights_view_all_text|default:'View all articles' }}" placeholder="View all articles"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">View All Link URL</label>
+        <input type="text" id="insights_view_all_url" value="{{ hero.insights_view_all_url|default:'#' }}" placeholder="https://aiaxom.co.in/blog/ or #"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+    </div>
+
+    <div class="pt-2 flex flex-col sm:flex-row justify-end">
+      <button onclick="saveInsightsHeader()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Header Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 1: Articles Management & Table -->
+  <div class="space-y-4">
+    <!-- Search, Filter & Quick Action Bar -->
+    <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-800/80 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      
+      <!-- Search & Custom Filters Form -->
+      <form id="articles_filter_form" method="GET" class="flex flex-wrap items-center gap-2.5 flex-1">
+        <!-- Search Input -->
+        <div class="relative flex-1 min-w-[200px]">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+          <input type="text" name="q" value="{{ q }}" placeholder="Search by title, excerpt or category..."
+            class="w-full pl-9 pr-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-fuchsia-500 transition shadow-inner">
+        </div>
+
+        <!-- Custom Category Dropdown Filter -->
+        <div class="relative" id="filter_cat_dropdown">
+          <input type="hidden" name="cat" id="filter_cat_input" value="{{ cat }}">
+          
+          <button type="button" onclick="toggleFilterCatDropdown(event)"
+            class="flex items-center justify-between gap-2 px-3.5 py-2 bg-slate-900/90 border border-slate-700/80 hover:border-fuchsia-500/50 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-fuchsia-500 transition shadow-sm min-w-[140px]">
+            <span class="truncate font-medium">
+              {% if cat %}
+                {% for val, label in categories %}
+                  {% if cat == val %}{{ label }}{% endif %}
+                {% endfor %}
+              {% else %}
+                All Categories
+              {% endif %}
+            </span>
+            <i id="filter_cat_chevron" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 shrink-0"></i>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div id="filter_cat_menu" class="hidden absolute left-0 top-full mt-1.5 z-50 min-w-[170px] p-1.5 bg-slate-900/95 backdrop-blur-xl border border-fuchsia-500/30 rounded-xl shadow-2xl shadow-purple-950/60 space-y-1">
+            <button type="button" onclick="selectFilterCat('')"
+              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition text-left {% if not cat %}bg-fuchsia-600/20 text-fuchsia-300 font-semibold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/80{% endif %}">
+              <span>All Categories</span>
+              {% if not cat %}<i class="fa-solid fa-check text-xs text-fuchsia-400"></i>{% endif %}
+            </button>
+            {% for val, label in categories %}
+            <button type="button" onclick="selectFilterCat('{{ val }}')"
+              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition text-left {% if cat == val %}bg-fuchsia-600/20 text-fuchsia-300 font-semibold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/80{% endif %}">
+              <div class="flex items-center gap-2 truncate">
+                <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shrink-0"></span>
+                <span class="truncate">{{ label }}</span>
+              </div>
+              {% if cat == val %}<i class="fa-solid fa-check text-xs text-fuchsia-400"></i>{% endif %}
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Custom Status Dropdown Filter -->
+        <div class="relative" id="filter_status_dropdown">
+          <input type="hidden" name="status" id="filter_status_input" value="{{ status }}">
+          
+          <button type="button" onclick="toggleFilterStatusDropdown(event)"
+            class="flex items-center justify-between gap-2 px-3.5 py-2 bg-slate-900/90 border border-slate-700/80 hover:border-fuchsia-500/50 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-fuchsia-500 transition shadow-sm min-w-[125px]">
+            <span class="truncate font-medium">
+              {% if status == 'published' %}Published{% elif status == 'draft' %}Draft{% else %}All Statuses{% endif %}
+            </span>
+            <i id="filter_status_chevron" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 shrink-0"></i>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div id="filter_status_menu" class="hidden absolute left-0 top-full mt-1.5 z-50 min-w-[140px] p-1.5 bg-slate-900/95 backdrop-blur-xl border border-fuchsia-500/30 rounded-xl shadow-2xl shadow-purple-950/60 space-y-1">
+            <button type="button" onclick="selectFilterStatus('')"
+              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition text-left {% if not status %}bg-fuchsia-600/20 text-fuchsia-300 font-semibold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/80{% endif %}">
+              <span>All Statuses</span>
+              {% if not status %}<i class="fa-solid fa-check text-xs text-fuchsia-400"></i>{% endif %}
+            </button>
+            <button type="button" onclick="selectFilterStatus('published')"
+              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition text-left {% if status == 'published' %}bg-fuchsia-600/20 text-fuchsia-300 font-semibold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/80{% endif %}">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>Published</span>
+              </div>
+              {% if status == 'published' %}<i class="fa-solid fa-check text-xs text-fuchsia-400"></i>{% endif %}
+            </button>
+            <button type="button" onclick="selectFilterStatus('draft')"
+              class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition text-left {% if status == 'draft' %}bg-fuchsia-600/20 text-fuchsia-300 font-semibold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/80{% endif %}">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                <span>Draft</span>
+              </div>
+              {% if status == 'draft' %}<i class="fa-solid fa-check text-xs text-fuchsia-400"></i>{% endif %}
+            </button>
+          </div>
+        </div>
+
+        {% if q or cat or status %}
+        <a href="/axomai-content/articles/" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-xmark text-rose-400"></i> Clear
+        </a>
+        {% endif %}
+      </form>
+
+      <!-- Counter Badge & Create Button -->
+      <div class="flex items-center gap-3 shrink-0">
+        <span class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">
+          <strong class="text-white">{{ articles|length }}</strong> article{{ articles|length|pluralize }}
+        </span>
+
+        <a href="/axomai-content/articles/new/"
+          class="px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-lg shadow-fuchsia-600/30 hover:shadow-fuchsia-600/50 transition flex items-center gap-2 shrink-0">
+          <i class="fa-solid fa-plus text-xs"></i>
+          New Blog Article
+        </a>
+      </div>
+    </div>
+
+    <!-- Enhanced Articles Table -->
+    <div class="glass-card rounded-2xl border border-slate-800/80 overflow-hidden shadow-2xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead class="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800">
+            <tr>
+              <th class="px-5 py-4 w-24">Cover</th>
+              <th class="px-5 py-4">Article Headline & Summary</th>
+              <th class="px-4 py-4 w-36">Category</th>
+              <th class="px-4 py-4 w-32">Read Time</th>
+              <th class="px-4 py-4 w-32">Published</th>
+              <th class="px-4 py-4 w-28 text-center">Status</th>
+              <th class="px-5 py-4 w-36 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 text-slate-300">
+            {% for art in articles %}
+            <tr class="hover:bg-slate-900/60 transition duration-150 group">
+              <!-- Cover Image / Gradient Thumbnail -->
+              <td class="px-5 py-4 align-middle">
+                <div class="w-16 h-11 rounded-xl overflow-hidden shadow-md border border-white/10 relative group-hover:border-fuchsia-500/40 transition shrink-0">
+                  {% if art.cover_image_url %}
+                  <img src="{{ art.cover_image_url }}" alt="{{ art.title }}" class="w-full h-full object-cover">
+                  {% else %}
+                  <div class="w-full h-full flex items-center justify-center text-white/70"
+                    style="background: linear-gradient(135deg, {{ art.gradient_from|default:'#a855f7' }}, {{ art.gradient_to|default:'#ec4899' }});">
+                    <i class="fa-solid fa-newspaper text-xs"></i>
+                  </div>
+                  {% endif %}
+                </div>
+              </td>
+
+              <!-- Title & Excerpt -->
+              <td class="px-5 py-4 align-middle">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <a href="/axomai-content/articles/edit/{{ art.id }}/" class="font-bold text-white text-sm hover:text-fuchsia-400 transition line-clamp-1">
+                      {{ art.title }}
+                    </a>
+                    {% if art.external_link %}
+                    <a href="{{ art.external_link }}" target="_blank" title="External link" class="text-[10px] text-slate-500 hover:text-slate-300 transition">
+                      <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                    {% endif %}
+                  </div>
+                  <p class="text-xs text-slate-400 line-clamp-1 max-w-lg leading-relaxed font-normal">
+                    {{ art.excerpt|default:'No card summary provided yet.' }}
+                  </p>
+                </div>
+              </td>
+
+              <!-- Category Badge -->
+              <td class="px-4 py-4 align-middle">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-fuchsia-950/40 text-fuchsia-300 border border-fuchsia-500/30">
+                  <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400"></span>
+                  <span class="truncate max-w-[110px]">{{ art.get_category_display }}</span>
+                </span>
+              </td>
+
+              <!-- Read Time -->
+              <td class="px-4 py-4 align-middle text-xs text-slate-400 whitespace-nowrap">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-regular fa-clock text-slate-500 text-[11px]"></i>
+                  <span>{{ art.read_time|default:'4 min read' }}</span>
+                </div>
+              </td>
+
+              <!-- Published Date -->
+              <td class="px-4 py-4 align-middle text-xs text-slate-400 whitespace-nowrap">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-regular fa-calendar-days text-slate-500 text-[11px]"></i>
+                  <span>{{ art.published_at|date:"M d, Y" }}</span>
+                </div>
+              </td>
+
+              <!-- Status Switch Button -->
+              <td class="px-4 py-4 align-middle text-center whitespace-nowrap">
+                <button onclick="toggleArticleStatus({{ art.id }})"
+                  id="status-btn-{{ art.id }}"
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition shadow-sm {% if art.is_published %}bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20{% else %}bg-slate-800/80 text-slate-400 border-slate-700 hover:bg-slate-700{% endif %}">
+                  <span class="w-1.5 h-1.5 rounded-full {% if art.is_published %}bg-emerald-400 animate-pulse{% else %}bg-slate-500{% endif %}"></span>
+                  <span>{% if art.is_published %}Published{% else %}Draft{% endif %}</span>
+                </button>
+              </td>
+
+              <!-- Action Buttons -->
+              <td class="px-5 py-4 align-middle text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1.5 justify-end">
+                  <!-- View / Preview on Blog -->
+                  <a href="{% if art.external_link %}{{ art.external_link }}{% else %}https://aiaxom.co.in/blog/{{ art.slug }}/{% endif %}" target="_blank" title="View Live Public Post"
+                    class="w-8 h-8 rounded-lg bg-slate-800/60 hover:bg-slate-700 border border-slate-700/60 hover:border-slate-600 text-slate-400 hover:text-white grid place-items-center text-xs transition">
+                    <i class="fa-regular fa-eye"></i>
+                  </a>
+
+                  <!-- Edit Button -->
+                  <a href="/axomai-content/articles/edit/{{ art.id }}/" title="Edit Article"
+                    class="w-8 h-8 rounded-lg bg-fuchsia-600/10 hover:bg-fuchsia-600/20 border border-fuchsia-500/30 hover:border-fuchsia-500/50 text-fuchsia-300 hover:text-fuchsia-200 grid place-items-center text-xs transition">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </a>
+
+                  <!-- Delete Button -->
+                  <button onclick="deleteArticle({{ art.id }}, '{{ art.title|escapejs }}')" title="Delete Article"
+                    class="w-8 h-8 rounded-lg bg-rose-600/10 hover:bg-rose-600/20 border border-rose-500/30 hover:border-rose-500/50 text-rose-400 hover:text-rose-300 grid place-items-center text-xs transition">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="px-6 py-16 text-center text-slate-500">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-slate-900 border border-slate-800 text-slate-600 grid place-items-center text-2xl">
+                  <i class="fa-regular fa-newspaper"></i>
+                </div>
+                <h3 class="text-sm font-semibold text-slate-300 mb-1">No articles found</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">Start publishing your insights, product updates, and tutorials for your community.</p>
+                <a href="/axomai-content/articles/new/" class="inline-flex items-center gap-2 px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl text-xs font-semibold transition shadow-md shadow-fuchsia-600/25">
+                  <i class="fa-solid fa-plus text-xs"></i> Create First Article
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Custom Category Filter Dropdown
+function toggleFilterCatDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('filter_cat_menu');
+  const chevron = document.getElementById('filter_cat_chevron');
+  const statusMenu = document.getElementById('filter_status_menu');
+  const statusChevron = document.getElementById('filter_status_chevron');
+  
+  if (statusMenu) statusMenu.classList.add('hidden');
+  if (statusChevron) statusChevron.classList.remove('rotate-180');
+
+  if (menu.classList.contains('hidden')) {
+    menu.classList.remove('hidden');
+    chevron.classList.add('rotate-180');
+  } else {
+    menu.classList.add('hidden');
+    chevron.classList.remove('rotate-180');
+  }
+}
+
+function selectFilterCat(val) {
+  document.getElementById('filter_cat_input').value = val;
+  document.getElementById('articles_filter_form').submit();
+}
+
+// Custom Status Filter Dropdown
+function toggleFilterStatusDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('filter_status_menu');
+  const chevron = document.getElementById('filter_status_chevron');
+  const catMenu = document.getElementById('filter_cat_menu');
+  const catChevron = document.getElementById('filter_cat_chevron');
+
+  if (catMenu) catMenu.classList.add('hidden');
+  if (catChevron) catChevron.classList.remove('rotate-180');
+
+  if (menu.classList.contains('hidden')) {
+    menu.classList.remove('hidden');
+    chevron.classList.add('rotate-180');
+  } else {
+    menu.classList.add('hidden');
+    chevron.classList.remove('rotate-180');
+  }
+}
+
+function selectFilterStatus(val) {
+  document.getElementById('filter_status_input').value = val;
+  document.getElementById('articles_filter_form').submit();
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', (e) => {
+  const catDropdown = document.getElementById('filter_cat_dropdown');
+  const statusDropdown = document.getElementById('filter_status_dropdown');
+  
+  if (catDropdown && !catDropdown.contains(e.target)) {
+    document.getElementById('filter_cat_menu')?.classList.add('hidden');
+    document.getElementById('filter_cat_chevron')?.classList.remove('rotate-180');
+  }
+  if (statusDropdown && !statusDropdown.contains(e.target)) {
+    document.getElementById('filter_status_menu')?.classList.add('hidden');
+    document.getElementById('filter_status_chevron')?.classList.remove('rotate-180');
+  }
+});
+
+async function saveInsightsHeader() {
+  const payload = {
+    insights_badge: document.getElementById('insights_badge').value,
+    insights_title_prefix: document.getElementById('insights_prefix').value,
+    insights_title_highlight: document.getElementById('insights_highlight').value,
+    insights_subheading: document.getElementById('insights_subheading').value,
+    insights_view_all_text: document.getElementById('insights_view_all_text').value,
+    insights_view_all_url: document.getElementById('insights_view_all_url').value,
+    insights_section_active: document.getElementById('insights_sec_active').checked
+  };
+
+  try {
+    const res = await fetch('/axomai-content/articles/header/save/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Insights header settings saved!', 'success');
+    } else {
+      showToast(data.error || 'Failed to save', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while saving header', 'error');
+  }
+}
+
+async function toggleArticleStatus(id) {
+  try {
+    const res = await fetch(`/axomai-content/articles/toggle/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      const btn = document.getElementById(`status-btn-${id}`);
+      if (data.is_published) {
+        btn.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition shadow-sm bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20';
+        btn.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span>Published</span>';
+        showToast('Article published live on landing page!', 'success');
+      } else {
+        btn.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition shadow-sm bg-slate-800/80 text-slate-400 border-slate-700 hover:bg-slate-700';
+        btn.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span><span>Draft</span>';
+        showToast('Article set to draft.', 'success');
+      }
+    }
+  } catch (err) {
+    showToast('Failed to toggle article status', 'error');
+  }
+}
+
+async function deleteArticle(id, title) {
+  if (!confirm(`Are you sure you want to delete article "${title}"?`)) return;
+  try {
+    const res = await fetch(`/axomai-content/articles/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 600);
+    } else {
+      showToast(data.error || 'Failed to delete', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting article', 'error');
+  }
+}
+</script>
+{% endblock %}

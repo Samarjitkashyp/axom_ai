@@ -18,6 +18,9 @@ import {
   PenTool,
   Signature,
   ImagePlus,
+  Images,
+  Video,
+  Network,
 } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
@@ -292,6 +295,33 @@ export const ALL_TOOLS = [
     imagegen: true,
     hint: 'Prompt → image',
     desc: 'Turn a text prompt into a high-quality image using FLUX (HuggingFace).',
+  },
+  {
+    id: 'imagefinder',
+    name: 'AI Image Finder',
+    cat: 'AI Tools',
+    icon: Images,
+    imagefinder: true,
+    hint: 'Keywords → 4K Stock & AI Photos',
+    desc: 'Search, explore and download millions of free high-resolution 4K stock and creative photos powered by Pexels.',
+  },
+  {
+    id: 'videofinder',
+    name: 'AI Video Finder',
+    cat: 'AI Tools',
+    icon: Video,
+    videofinder: true,
+    hint: 'Keywords → 4K & HD Stock Videos',
+    desc: 'Search, preview and download free high-resolution 4K & HD stock footage and motion clips powered by Pexels.',
+  },
+  {
+    id: 'diagramgen',
+    name: 'AI Diagram Generator',
+    cat: 'AI Tools',
+    icon: Network,
+    diagramgen: true,
+    hint: 'Prompt → Flowchart, Sequence, Architecture, ER',
+    desc: 'Generate flowcharts, sequence diagrams, cloud architectures, database ER diagrams & mindmaps with Mermaid AI.',
   },
 
   // Interactive Canvas Editor

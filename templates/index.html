@@ -17,8 +17,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{% static 'dist/favicon.svg' %}">
     <!-- Vite React App Bundle Styles -->
-    <link rel="stylesheet" href="{% static 'dist/assets/index.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/assets/index.css' %}?v={% now 'U' %}">
 </head>
 <body class="dark-theme">
     <!-- Google Tag Manager (noscript) -->
@@ -34,6 +35,6 @@
         window.isStaff = {{ request.user.is_staff|yesno:"true,false" }};
     </script>
     <!-- Vite React App Bundle Script -->
-    <script type="module" src="{% static 'dist/assets/index.js' %}"></script>
+    <script type="module" src="{% static 'dist/assets/index.js' %}?v={% now 'U' %}"></script>
 </body>
 </html>

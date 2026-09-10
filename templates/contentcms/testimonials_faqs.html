@@ -1,0 +1,300 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}5. Testimonials & FAQs — Axom AI CMS{% endblock %}
+{% block page_title %}5. Reviews, Testimonials & FAQs{% endblock %}
+{% block page_subtitle %}Controls Landing Page Sections: Community Testimonials (#testimonials) & Frequently Asked Questions Accordion (#faq) on aiaxom.co.in{% endblock %}
+
+{% block content %}
+<div class="space-y-10 max-w-6xl">
+
+  <!-- Section 1: Testimonials -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-star text-amber-400"></i>
+          User Testimonials & Social Proof
+        </h2>
+        <p class="text-xs text-slate-400">Quotes shown with Assam landscape backdrop</p>
+      </div>
+      <button onclick="openTestimonialModal()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 transition">
+        <i class="fa-solid fa-plus"></i> Add Testimonial
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for t in testimonials %}
+      <div class="glass-card rounded-2xl border border-slate-800/80 p-5 flex flex-col justify-between glass-card-hover transition">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-fuchsia-600 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-md">
+                {{ t.avatar_initials }}
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white">{{ t.name }}</div>
+                <div class="text-[11px] text-slate-400">{{ t.role_designation }}</div>
+              </div>
+            </div>
+            <div class="flex text-amber-400 text-xs">
+              {% for i in "12345"|slice:t.rating %}<i class="fa-solid fa-star"></i>{% endfor %}
+            </div>
+          </div>
+          <p class="text-xs text-slate-300 italic">"{{ t.quote_assamese }}"</p>
+          {% if t.quote_english %}
+          <p class="text-[11px] text-slate-500 mt-2">"{{ t.quote_english }}"</p>
+          {% endif %}
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-500">Order: {{ t.order }}</span>
+          <div class="flex items-center gap-3">
+            <button onclick="editTestimonial({{ t.id }}, '{{ t.name|escapejs }}', '{{ t.role_designation|escapejs }}', '{{ t.avatar_initials|escapejs }}', '{{ t.quote_assamese|escapejs }}', '{{ t.quote_english|escapejs }}', {{ t.rating }}, {{ t.order }})" class="text-fuchsia-400 hover:text-fuchsia-300 font-medium">Edit</button>
+            <button onclick="deleteTestimonial({{ t.id }})" class="text-rose-400 hover:text-rose-300 font-medium">Delete</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-3 glass-card rounded-2xl p-8 text-center text-slate-500 text-xs">
+        No testimonials created yet. Click "Add Testimonial" above.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Section 2: FAQs -->
+  <div class="space-y-4 pt-6 border-t border-slate-800">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-emerald-400"></i>
+          Frequently Asked Questions (FAQs)
+        </h2>
+        <p class="text-xs text-slate-400">Expandable FAQ accordions answering user queries</p>
+      </div>
+      <button onclick="openFaqModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 transition">
+        <i class="fa-solid fa-plus"></i> Add FAQ
+      </button>
+    </div>
+
+    <div class="glass-card rounded-2xl border border-slate-800/80 overflow-hidden divide-y divide-slate-800/60">
+      {% for faq in faqs %}
+      <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-900/40 transition">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-emerald-400 border border-emerald-500/20 uppercase">
+              {{ faq.get_category_display }}
+            </span>
+            <span class="text-sm font-bold text-white">{{ faq.question }}</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">{{ faq.answer }}</p>
+        </div>
+        <div class="flex items-center gap-4 text-xs shrink-0">
+          <span class="text-slate-500">Order: {{ faq.order }}</span>
+          <button onclick="editFaq({{ faq.id }}, '{{ faq.question|escapejs }}', '{{ faq.answer|escapejs }}', '{{ faq.category }}', {{ faq.order }})" class="text-fuchsia-400 hover:text-fuchsia-300 font-medium">Edit</button>
+          <button onclick="deleteFaq({{ faq.id }})" class="text-rose-400 hover:text-rose-300 font-medium">Delete</button>
+        </div>
+      </div>
+      {% empty %}
+      <div class="p-8 text-center text-slate-500 text-xs">
+        No FAQs added yet.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Testimonial Modal -->
+<div id="tModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-lg p-6 space-y-4 shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="tModalTitle" class="text-base font-bold text-white">Add Testimonial</h3>
+      <button onclick="closeTModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <input type="hidden" id="modal_tid">
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Name</label>
+        <input type="text" id="modal_tname" placeholder="Abhijit Kalita" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Role / Location</label>
+        <input type="text" id="modal_trole" placeholder="Student, Guwahati" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Avatar Initials</label>
+        <input type="text" id="modal_tavatar" placeholder="AK" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Rating (1-5)</label>
+        <input type="number" id="modal_trating" min="1" max="5" value="5" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+      </div>
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Quote (Assamese)</label>
+      <textarea id="modal_tquote_as" rows="3" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"></textarea>
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Quote (English translation)</label>
+      <textarea id="modal_tquote_en" rows="2" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"></textarea>
+    </div>
+    <div class="flex justify-end gap-3 pt-3 border-t border-slate-800">
+      <button onclick="closeTModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs">Cancel</button>
+      <button onclick="submitTestimonial()" class="px-5 py-2 bg-amber-600 text-white font-semibold rounded-xl text-xs">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ Modal -->
+<div id="faqModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm hidden p-4">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-lg p-6 space-y-4 shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="faqModalTitle" class="text-base font-bold text-white">Add FAQ Item</h3>
+      <button onclick="closeFaqModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <input type="hidden" id="modal_faqid">
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Question</label>
+      <input type="text" id="modal_faq_q" placeholder="How accurate is Axom AI in Assamese?" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+      <select id="modal_faq_cat" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+        {% for val, label in faq_categories %}
+        <option value="{{ val }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Answer</label>
+      <textarea id="modal_faq_ans" rows="4" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white"></textarea>
+    </div>
+    <div class="flex justify-end gap-3 pt-3 border-t border-slate-800">
+      <button onclick="closeFaqModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs">Cancel</button>
+      <button onclick="submitFaq()" class="px-5 py-2 bg-emerald-600 text-white font-semibold rounded-xl text-xs">Save FAQ</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function openTestimonialModal() {
+  document.getElementById('tModalTitle').innerText = 'Add Testimonial';
+  document.getElementById('modal_tid').value = '';
+  document.getElementById('modal_tname').value = '';
+  document.getElementById('modal_trole').value = '';
+  document.getElementById('modal_tavatar').value = 'AK';
+  document.getElementById('modal_tquote_as').value = '';
+  document.getElementById('modal_tquote_en').value = '';
+  document.getElementById('modal_trating').value = 5;
+  document.getElementById('tModal').classList.remove('hidden');
+}
+
+function editTestimonial(id, name, role, avatar, q_as, q_en, rating, order) {
+  document.getElementById('tModalTitle').innerText = 'Edit Testimonial';
+  document.getElementById('modal_tid').value = id;
+  document.getElementById('modal_tname').value = name;
+  document.getElementById('modal_trole').value = role;
+  document.getElementById('modal_tavatar').value = avatar;
+  document.getElementById('modal_tquote_as').value = q_as;
+  document.getElementById('modal_tquote_en').value = q_en;
+  document.getElementById('modal_trating').value = rating;
+  document.getElementById('tModal').classList.remove('hidden');
+}
+
+function closeTModal() { document.getElementById('tModal').classList.add('hidden'); }
+
+async function submitTestimonial() {
+  const payload = {
+    id: document.getElementById('modal_tid').value || null,
+    name: document.getElementById('modal_tname').value,
+    role_designation: document.getElementById('modal_trole').value,
+    avatar_initials: document.getElementById('modal_tavatar').value,
+    quote_assamese: document.getElementById('modal_tquote_as').value,
+    quote_english: document.getElementById('modal_tquote_en').value,
+    rating: parseInt(document.getElementById('modal_trating').value || 5),
+    is_active: true
+  };
+
+  try {
+    const res = await fetch('/axomai-content/testimonials/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 500);
+    }
+  } catch (err) { showToast('Error saving testimonial', 'error'); }
+}
+
+async function deleteTestimonial(id) {
+  if (!confirm('Delete this testimonial?')) return;
+  try {
+    const res = await fetch(`/axomai-content/testimonials/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) { showToast(data.message, 'success'); setTimeout(() => location.reload(), 500); }
+  } catch (err) { showToast('Error deleting', 'error'); }
+}
+
+function openFaqModal() {
+  document.getElementById('faqModalTitle').innerText = 'Add FAQ Item';
+  document.getElementById('modal_faqid').value = '';
+  document.getElementById('modal_faq_q').value = '';
+  document.getElementById('modal_faq_ans').value = '';
+  document.getElementById('faqModal').classList.remove('hidden');
+}
+
+function editFaq(id, q, ans, cat, order) {
+  document.getElementById('faqModalTitle').innerText = 'Edit FAQ Item';
+  document.getElementById('modal_faqid').value = id;
+  document.getElementById('modal_faq_q').value = q;
+  document.getElementById('modal_faq_ans').value = ans;
+  document.getElementById('modal_faq_cat').value = cat;
+  document.getElementById('faqModal').classList.remove('hidden');
+}
+
+function closeFaqModal() { document.getElementById('faqModal').classList.add('hidden'); }
+
+async function submitFaq() {
+  const payload = {
+    id: document.getElementById('modal_faqid').value || null,
+    question: document.getElementById('modal_faq_q').value,
+    answer: document.getElementById('modal_faq_ans').value,
+    category: document.getElementById('modal_faq_cat').value,
+    is_active: true
+  };
+
+  try {
+    const res = await fetch('/axomai-content/faqs/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) { showToast(data.message, 'success'); setTimeout(() => location.reload(), 500); }
+  } catch (err) { showToast('Error saving FAQ', 'error'); }
+}
+
+async function deleteFaq(id) {
+  if (!confirm('Delete this FAQ?')) return;
+  try {
+    const res = await fetch(`/axomai-content/faqs/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) { showToast(data.message, 'success'); setTimeout(() => location.reload(), 500); }
+  } catch (err) { showToast('Error deleting', 'error'); }
+}
+</script>
+{% endblock %}

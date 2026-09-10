@@ -1,233 +1,225 @@
-# 🧠 Axom AI — Assam's Own AI Platform
+# 🧠 Axom AI — Assam's Premier Indigenous AI Platform
 
-> **The first native Assamese AI assistant.** ChatGPT-quality answers, image generation, web search, document intelligence, and now full subscription commerce — all speaking অসমীয়া, deployed at production scale on AWS.
+> **Pioneering Artificial Intelligence in Assam, Built for the World.**  
+> Axom AI is the first indigenous Assamese generative AI platform — engineered to bridge the linguistic divide for 15+ million Assamese speakers with native conversational intelligence, multimodal creative suites, live web synthesis, and regional computing infrastructure.
 
-**🌐 Live:** [https://aiaxom.co.in](https://aiaxom.co.in) &nbsp;·&nbsp; [admin.aiaxom.co.in](https://admin.aiaxom.co.in) &nbsp;·&nbsp; [user.aiaxom.co.in](https://user.aiaxom.co.in)
-
----
-
-## 🎯 What is Axom AI
-
-Axom AI is a **vertically integrated AI product** built for the 15 million Assamese speakers who have no first-class AI assistant today. Where ChatGPT / Gemini / Claude treat Assamese as a low-resource afterthought, Axom AI is **Assamese-first, by design**:
-
-- Native Assamese output from every model path (Groq / Gemini / IndicTrans2)
-- Custom-trained knowledge base of 25,000 Assamese Wikipedia articles (~112K semantic chunks)
-- All UI, error messages, notifications, prompts — in Assamese
-- Full monetisation stack (Razorpay), admin ops, and user account management
-
-Built by one team on a single AWS Lightsail instance, no external SaaS lock-in, no vendor-managed AI.
+**🌐 Official Portal:** [https://aiaxom.co.in](https://aiaxom.co.in)
 
 ---
 
-## 💰 The Business
+## 🎯 What is Axom AI?
 
-| Metric | Detail |
-|---|---|
-| **TAM** | ~15M Assamese speakers, 4.5M+ smartphone users in Assam |
-| **Revenue model** | Freemium → subscription (Starter / Pro / Business × Monthly / Yearly) |
-| **Payment stack** | Razorpay Standard Checkout (UPI / cards / netbanking / wallets) |
-| **Pricing** | ₹99 / ₹299 / ₹799 per month; yearly discounts |
-| **Free tier limits** | 5 images/day, 5 web searches/day, unlimited chat |
-| **Unit economics** | ~₹0.4 avg inference cost per message; ~90 %+ contribution margin on Pro |
-| **Infrastructure cost** | Single Lightsail node + Cloudflare Free plan (~$40/mo total) |
+Mainstream global AI models (ChatGPT, Google Gemini, Claude) frequently treat Assamese as a low-resource afterthought — commonly mistranslating, substituting Bengali script characters (like replacing ‘ৰ’ with ‘র’), or failing to understand regional Northeast Indian cultural context.
 
----
-
-## ✨ Product Modules
-
-### 1. Chat (`aiaxom.co.in`)
-- 💬 **Streaming ChatGPT-style chat** in Assamese, token-by-token
-- 🎯 **Zero-hallucination guarantee** — RAG-first over 25K Wikipedia articles + custom KB
-- ⚡ **Groq `openai/gpt-oss-120b` primary** (~0.7 s TTFB), **Gemini fallback**
-- 🌐 **Live web search** — Tavily API + Groq synthesis, always Assamese output
-- 🔎 **Semantic search** with `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
-- 📚 **Uploadable knowledge base** — PDF / DOCX / Excel / CSV / JSONL with source attribution
-
-### 2. Tools Hub (`/tools`)
-- 🖼 **AI Image Generation** — Cloudflare Workers AI (FLUX) primary + Gemini Nano Banana + Pollinations fallback, auto-translates prompts from Assamese / Hinglish / English
-- 📄 **Universal Summarizer** — PDF / DOCX / TXT / paste, 3 lengths × 3 languages, 450-word cap
-- 🔄 **PDF ⇄ Word / Image / OCR** — LibreOffice + Tesseract server-side
-- 🧾 **PDF suite** — merge / split / extract / compress / watermark / protect / unlock / edit
-
-### 3. Subscription & Payments
-- 💳 **Razorpay integration** — 6 plans, one-time checkout, idempotency, CSRF, rate-limit, webhook HMAC verify
-- 🎟 **Coupon codes** — % discount, expiry, max-uses, admin CRUD
-- 📃 **Tax invoice generation** — downloadable PDF per transaction
-
-### 4. Super Admin Panel (`admin.aiaxom.co.in`)
-Full operator console with **22 endpoints**:
-- 📊 **Executive Dashboard** — Total users (7d/30d growth), Active subscribers (Starter/Pro/Business), MRR, today's revenue, 24h feature usage, live API health (Groq/Gemini/Razorpay/Tavily)
-- 👥 **User Management** — search / filter / paginate, activate/suspend, reset password, change plan, gift free days, delete, CSV export
-- 💳 **Payments & Refunds** — all Razorpay transactions, filters, refund initiate (real Razorpay API), CSV export
-- 📦 **Plans & Coupons** — CRUD pricing / quota per plan, promo code generator with expiry & usage limits
-- 🛡 **Content Moderation** — chat log viewer, unanswered queries tracker, user feedback (👍👎), delete abusive sessions
-- 🧠 **Knowledge Base (RAG)** — chunk stats, live semantic search tester, document management
-- 📈 **Analytics** — feature distribution, top power users, revenue chart (Chart.js)
-- ⚙️ **System Settings** — feature flags (web search / image gen / PDF / maintenance mode), announcement banner broadcaster, masked API-key status
-- 🔐 **Audit Logs** — every admin action logged (who / what / IP / timestamp) for SOC 2 readiness
-
-### 5. User Account Panel (`user.aiaxom.co.in`)
-Self-service portal with **19 endpoints**:
-- 🏠 Dashboard (plan card, days-left countdown, real-time usage bars, notifications, announcement banner)
-- 👤 Profile (name / email / phone / language / timezone / password change / GDPR JSON export / account delete)
-- ⭐ Subscription (plan matrix, integrated Razorpay checkout, cancel with reason survey)
-- 💳 Payments (history + printable tax invoice per transaction)
-- 📊 Usage (14-day activity chart + personal CSV export)
-- 📚 My Library (saved chats, rename, delete, search)
-- 💬 Support (ticket creation, threaded reply, FAQ accordion, 4-category prioritisation)
+**Axom AI is Assamese-first, by design:**
+- **Authentic Assamese Output:** High-fidelity script processing with zero script confusion or regional grammar degradation.
+- **Indigenous Knowledge Base:** Custom RAG pipeline indexed over 25,000+ Assamese Wikipedia articles, historical chronicles, and cultural repositories (~112,000 semantic vector chunks).
+- **Hybrid Multi-Model Orchestration:** Groq LPU inference (~0.7s TTFB) backed by IndicTrans2, Gemini fallback, and regional multilingual embeddings.
+- **Multimodal Intelligence:** Generative FLUX image synthesis, AI video/image finders, universal document intelligence, and OCR.
+- **Enterprise-Grade Infrastructure:** Full subscription commerce (UPI/Razorpay), administrative governance, role-based access control, and automated CI/CD deployment.
 
 ---
 
-## 🏗 Architecture
+## ✨ Core Product Modules
+
+### 1. Conversational AI & Neural Chat
+- 💬 **Streaming Low-Latency Chat:** Native Assamese generation with streaming token-by-token delivery.
+- 🎯 **RAG-Grounded Accuracy:** Vector search over 112K+ semantic knowledge chunks to eliminate hallucinations.
+- ⚡ **Groq LPU Acceleration:** High-speed inference streaming tokens at sub-second response times.
+- 🌐 **Real-Time Live Web Search:** Tavily API integration synthesizing real-time Assam news, government job notifications, and current events directly into Assamese.
+- 📚 **Custom Document RAG:** Users can upload PDF, DOCX, CSV, Excel, or JSONL documents with exact citation attribution.
+
+### 2. Multimodal AI Tools Hub
+- 🖼 **FLUX AI Image Generation:** Text-to-image synthesis converting Assamese, Hinglish, or English prompts into photorealistic visuals.
+- 🎬 **Video & Media Discovery:** Intelligent video finder and media discovery engine tailored for educational and creative workflows.
+- 📊 **Architecture & Diagram Generator:** Automated Mermaid-based flowcharts, sequence diagrams, and architecture visualization.
+- 📄 **Universal Document Summarizer:** Multilingual PDF/DOCX/TXT synthesis with customizable summary lengths.
+- 🧾 **Complete Document & OCR Suite:** Tesseract-powered regional OCR, PDF merge, split, compress, watermark, and format conversions.
+
+### 3. Subscription Commerce & Payments
+- 💳 **Indigenous Payment Gateway:** Seamless Razorpay integration supporting UPI (Google Pay, PhonePe, Paytm), Netbanking, and Credit/Debit cards.
+- 🎟 **Promotional Engine:** Flexible promo codes, discount percentages, usage caps, and expiration limits.
+- 🧾 **Automated Tax Invoicing:** Instant downloadable PDF invoices generated for every transaction.
+
+### 4. Search, Answer & Generative Engine Optimization (SEO / GEO / AEO)
+- 🚀 **Google Position 0 & SGE Optimization:** Target-engineered for queries including *"Assam AI"*, *"AI in Assam"*, *"Axom AI"*, and *"Assam Artificial Intelligence"*.
+- 📑 **Comprehensive Schema.org Graph:** Multi-entity JSON-LD schema spanning `Organization`, `SoftwareApplication`, `AboutPage`, `FAQPage`, and `BreadcrumbList`.
+- 🤖 **AI Crawler Friendly:** Fully indexable by Googlebot, Bingbot, GPTBot, Google-Extended, PerplexityBot, and ClaudeBot.
+- 🏛 **Authoritative Citation Factsheet:** Standardized machine-readable entity definitions and copyable BibTeX/APA citation records.
+
+### 5. Administrative Management Suite
+- 📊 **Executive Dashboard:** Live metrics tracking user growth, active subscribers, revenue, inference latency, and external API health.
+- 👥 **User & Access Management:** Granular user administration, plan management, session auditing, and account lifecycle controls.
+- 🛡 **Content Moderation & Audit Trails:** Real-time query logs, user feedback analytics, and tamper-proof action auditing for SOC 2 readiness.
+- 📰 **Integrated Content Management (CMS):** Full dynamic editing suite for landing page sections, insights articles, FAQs, testimonials, and the official About Us portal.
+- ⚙️ **System Settings & Flags:** Instant toggle controls for web search, image generation, OCR tools, and maintenance broadcasts.
+
+### 6. User Account Workspace
+- 🏠 **Personal Dashboard:** Plan entitlements, real-time quota usage bars, notifications, and account settings.
+- 📚 **Library & Session History:** Saved chats, searchable conversation archives, and export capabilities.
+- 💳 **Billing & Invoices:** Transaction logs, subscription upgrade/downgrade matrix, and tax receipts.
+- 💬 **Support Desk:** Integrated ticket management with threaded replies and categorized help center.
+- 🔒 **Data Privacy:** Full GDPR-compliant JSON data export and account management.
+
+---
+
+## 🏗 High-Level Architecture
 
 ```
                        ┌─────────────────────────┐
-                       │      Cloudflare CDN     │  Full-strict SSL, WAF, DDoS
-                       │  (aiaxom.co.in +wilds)  │
+                       │      Cloudflare CDN     │  Full-Strict SSL, WAF, DDoS Protection
+                       │     (aiaxom.co.in)      │
                        └────────────┬────────────┘
                                     │
                        ┌────────────▼────────────┐
-                       │    Nginx (443/80)       │  Origin CA cert, real-IP,
-                       │  proxy to gunicorn      │  H2, 300s streaming timeout
-                       └────────────┬────────────┘
-                                    │
-                       ┌────────────▼────────────┐
-                       │  Gunicorn + Django 5.2  │
-                       │  ─────────────────────  │
-                       │  chat / tools / auth    │
-                       │  payments / superadmin  │
-                       │  userpanel / knowledge  │
-                       └──┬──────────┬──────────┬┘
-                          │          │          │
-                 ┌────────▼──┐  ┌────▼────┐  ┌──▼──────────┐
-                 │ Postgres  │  │  Redis  │  │ IndicTrans2 │
-                 │ (users,   │  │ (cache, │  │ (Assamese   │
-                 │  chats,   │  │  queue) │  │  translit)  │
-                 │  payments)│  └─────────┘  └─────────────┘
-                 └───────────┘
-
-External APIs: Groq · Google Gemini · Cloudflare Workers AI · Tavily · Razorpay · Pollinations
+                       │     Nginx Web Server    │  Reverse Proxy, SSL Termination,
+                       │       (Port 80/443)     │  HTTP/2, Real-IP Restoration
+                       └───────┬───────────┬─────┘
+                               │           │
+           ┌───────────────────▼───┐   ┌───▼─────────────────────┐
+           │ Next.js 14 SSR Server │   │  Django 5.2 (Gunicorn)  │
+           │  (Port 3000)          │   │  (Port 8000)            │
+           │  - Landing Page       │   │  - REST API Endpoints   │
+           │  - Dynamic About Page │   │  - Auth & Middleware    │
+           │  - Blog & Insights    │   │  - Multimodal Tools     │
+           │  - Regional FAQ Hub   │   │  - Content CMS Engine   │
+           └───────────────────────┘   │  - Payments & Billing   │
+                                       └───────────┬─────────────┘
+                                                   │
+                ┌──────────────────────────────────┼─────────────────────────┐
+                │                                  │                         │
+       ┌────────▼─────────┐              ┌─────────▼─────────┐     ┌─────────▼─────────┐
+       │ PostgreSQL DB    │              │ Vector Embeddings │     │ External AI APIs  │
+       │ Users, Payments, │              │ 112K+ Knowledge   │     │ Groq LPUs, Gemini,│
+       │ Articles, CMS    │              │ Chunks (MiniLM)   │     │ FLUX, Tavily      │
+       └──────────────────┘              └───────────────────┘     └───────────────────┘
 ```
 
-**Stack:**
-- **Backend:** Django 5.2, DRF pattern, WhiteNoise, gunicorn (gthread × 4)
-- **Frontend:** React 18 + Vite + Tailwind CSS (main app) · Tailwind CDN (admin/user panels)
-- **Database:** PostgreSQL (users, payments, chats, RAG chunks, subscriptions, tickets)
-- **AI:** Groq (primary), Google Gemini (fallback + web search), Cloudflare Workers AI (image), IndicTrans2 (Assamese), MiniLM-L12-v2 (embeddings)
-- **Infra:** AWS Lightsail (Debian 12), Cloudflare Full-strict SSL, GitHub Actions CI/CD (auto deploy on push)
-- **Payments:** Razorpay Standard Checkout + webhook HMAC verify
+---
+
+## 💻 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Public Frontend** | Next.js 14 (App Router, Server-Side Rendering, Tailwind CSS) |
+| **Interactive Apps** | React 18, Vite, Tailwind CSS, KaTeX, Mermaid.js |
+| **Backend Framework** | Django 5.2, Django REST Framework, WhiteNoise, Gunicorn |
+| **Database** | PostgreSQL 15 |
+| **AI Inference** | Groq LPU (`openai/gpt-oss-120b`), Google Gemini, IndicTrans2 |
+| **Vector Search / RAG** | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` |
+| **Image & OCR** | Cloudflare Workers AI (FLUX.1-Schnell), Tesseract OCR, PyMuPDF |
+| **Payments** | Razorpay Standard Checkout + HMAC-SHA256 Webhook Verification |
+| **Infrastructure** | AWS Lightsail (Debian Linux), Cloudflare CDN, Systemd Services |
+| **CI / CD** | GitHub Actions Automated SSH Deployment Pipeline |
 
 ---
 
-## 🔐 Security & Compliance
+## 🚀 Local Development Setup
 
-- ✅ **HTTPS everywhere** — Cloudflare Full-strict + Origin CA cert (15-yr validity)
-- ✅ **CSRF protection** — Django middleware, https-aware, `SECURE_PROXY_SSL_HEADER` set
-- ✅ **Payment hardening** — idempotency keys, CSRF, rate-limit, webhook HMAC-SHA256, order-amount verification
-- ✅ **RBAC** — `superuser_required` gate on 22 admin routes, `login_required` on 19 user routes
-- ✅ **Audit trail** — every admin action logged (user + IP + timestamp + target)
-- ✅ **Cross-tenant isolation** — user data scoped to `request.user` FK on ChatSession, SupportTicket, UsageRecord
-- ✅ **Password hashing** — PBKDF2 (Django default), password validators enforced on change
-- ✅ **GDPR-ready** — user data export (JSON) + account delete with password confirm
-- ✅ **Cloudflare real-IP** — nginx snippet restores true client IP behind proxy
-- 🔜 **In roadmap:** 2FA (TOTP), email verification on signup, self-service password reset, soft-delete with 30-day grace
+### Prerequisites
+- Python 3.11+
+- Node.js 20+ & npm
+- PostgreSQL 15+
+- Git
 
----
-
-## 📊 Data & Traction
-
-- **25,000** Assamese Wikipedia articles ingested → **112,000** semantic chunks
-- **6** Razorpay pricing tiers live
-- **41** authenticated routes across admin + user panels
-- **9** Django apps: `axom_ai`, `knowledge`, `payments`, `superadmin`, `userpanel`, + core modules
-- **Deployment cadence:** every `git push origin main` triggers auto-deploy to production (auto-stash + hard-reset resilient)
-
----
-
-## 🚀 Running Locally
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Samarjitkashyp/axom_ai.git
 cd axom_ai
+```
 
-# Backend
+### 2. Backend Setup (Django)
+```bash
+# Create and activate virtual environment
 python -m venv venv
-venv\Scripts\activate      # Windows  (or  source venv/bin/activate on macOS/Linux)
-pip install -r requirements.txt
-cp .env.example .env       # fill in DB creds, API keys, Razorpay keys
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+venv\Scripts\activate          # Windows
+# source venv/bin/activate     # macOS / Linux
 
-# Frontend (main React app)
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your database credentials and API keys
+
+# Run database migrations
+python manage.py migrate
+
+# Create superuser for local testing
+python manage.py createsuperuser
+
+# Start Django development server
+python manage.py runserver
+```
+
+### 3. Frontend Setup (React App)
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Open:
-- Main app → http://127.0.0.1:8000/
-- Super Admin → http://127.0.0.1:8000/axomai-admin/
-- User Panel → http://127.0.0.1:8000/axomai-user/
+### 4. Public Site Setup (Next.js)
+```bash
+cd ../next-frontend
+npm install
+npm run dev
+```
 
 ---
 
-## 🌐 Production Deployment
+## 🔄 CI/CD Deployment Pipeline
 
-Any push to `main` auto-deploys:
+The project incorporates an automated **GitHub Actions CI/CD pipeline** configured in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
 
 ```
-git push origin main
-   ↓
-GitHub Actions
-   ↓
-SSH into Lightsail → git fetch + auto-stash + hard-reset origin/main
-   ↓
-pip install -r requirements.txt (if changed)
-   ↓
-python manage.py migrate --noinput
-   ↓
-python manage.py collectstatic --noinput
-   ↓
-sudo systemctl restart axom
+Push to main branch
+       │
+       ▼
+GitHub Actions CI Runner
+  ├── 1. Set up Python 3.12 & Node.js 20
+  ├── 2. Install dependencies & verify packages
+  ├── 3. Run PostgreSQL service container
+  ├── 4. Execute Django system check & test migrations
+  └── 5. Build React frontend bundle
+       │
+       ▼ (If CI checks pass)
+Deploy Stage (SSH to Production Server)
+  ├── 1. Fetch and align latest commits from origin/main
+  ├── 2. Install any updated Python requirements
+  ├── 3. Automatically rebuild frontend bundles on source changes
+  ├── 4. Automatically rebuild Next.js app on source changes
+  ├── 5. Apply pending database migrations (`python manage.py migrate`)
+  ├── 6. Collect production static files (`python manage.py collectstatic`)
+  └── 7. Gracefully reload production application services
 ```
 
-Rollback = `git revert` + push. Downtime per deploy: < 5 s (gunicorn graceful reload).
+### Configuring Deployment Secrets in GitHub:
+To activate automated server deployment, configure the following secrets in your repository (**Settings → Secrets and variables → Actions**):
+- `LIGHTSAIL_HOST`: Server IP address or hostname
+- `LIGHTSAIL_USER`: SSH username (`admin`)
+- `LIGHTSAIL_SSH_KEY`: Private SSH Key (.pem content)
 
 ---
 
-## 📈 Roadmap
+## 🔐 Security & Data Governance
 
-**Q1 2026 — LIVE**
-- ✅ Chat / RAG / Wikipedia KB
-- ✅ Image generation (multi-provider fallback)
-- ✅ Web search (Tavily + Groq synthesis)
-- ✅ Universal document summarizer
-- ✅ Razorpay subscription commerce
-- ✅ Super admin console + user panel
-
-**Q2 2026**
-- 🔜 Voice input / output (Bhashini ASR + TTS in Assamese)
-- 🔜 Mobile app (React Native, same backend)
-- 🔜 API access tier (Business plan → developer keys)
-- 🔜 Team accounts (5-seat Business plan)
-
-**Q3 2026**
-- 🔜 Assamese fine-tuned model (LoRA on Llama-3.1 8B, ~2K Assamese instruction pairs)
-- 🔜 Government / enterprise vertical (Assam state schemes chatbot)
-- 🔜 Referral program + affiliate portal
-- 🔜 Regional expansion — Bodo, Bengali (Sylheti), Meitei
+- **Strict SSL / TLS Encryption:** Cloudflare Full-strict SSL with 15-year Origin Certificate.
+- **CSRF & Injection Hardening:** Complete CSRF token verification, SQL injection protection, and input sanitization across all forms and API endpoints.
+- **HMAC Payment Security:** Razorpay order ID verification, amount mismatch checks, idempotency tracking, and cryptographic signature validation.
+- **Role-Based Access Control:** Enterprise RBAC enforcing superuser gates across administrative routes and session authentication across user endpoints.
+- **Audit Logging:** Comprehensive logging of administrative actions with timestamp, actor identity, and originating IP addresses.
 
 ---
 
 ## 👥 Team & Contact
 
-**Founder / Engineering:** Samarjit Kashyap · samarjitkashyp@gmail.com
-
-For investment / partnership inquiries: [samarjitkashyp@gmail.com](mailto:samarjitkashyp@gmail.com)
+- **Lead Architect & Founder:** Samarjit Kashyap
+- **Email:** [samarjitkashyp@gmail.com](mailto:samarjitkashyp@gmail.com)
+- **Website:** [https://aiaxom.co.in](https://aiaxom.co.in)
 
 ---
 
 ## 📜 License
 
-Proprietary. All rights reserved. © 2026 Axom AI.
+Proprietary software. All rights reserved. © 2026 Axom AI.

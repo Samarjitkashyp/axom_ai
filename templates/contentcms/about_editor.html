@@ -1,0 +1,667 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}About Us Page Management — Axom AI CMS{% endblock %}
+{% block page_title %}About Us Page Editor{% endblock %}
+{% block page_subtitle %}Manage live content, GEO entity factsheet, stats, pillars, founder quote, and SEO meta tags for https://aiaxom.co.in/about{% endblock %}
+
+{% block extra_head %}
+<style>
+  .focus-ring:focus {
+    border-color: #d946ef !important;
+    box-shadow: 0 0 15px rgba(217, 70, 239, 0.25) !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 pb-12">
+
+  <!-- Top Action & Navigation Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="/axomai-content/" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+      </a>
+      <div>
+        <div class="text-xs text-slate-400">Standalone Page Configuration</div>
+        <div class="text-sm font-bold text-white flex items-center gap-2">
+          <span>About Us Page (aiaxom.co.in/about)</span>
+          <span class="text-[10px] bg-fuchsia-500/20 text-fuchsia-300 px-2 py-0.5 rounded-full border border-fuchsia-500/30">GEO + SEO Dynamic</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2.5">
+      <a href="https://aiaxom.co.in/about/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-arrow-up-right-from-square text-fuchsia-400 text-xs"></i>
+        <span>View Live About Page</span>
+      </a>
+
+      <button id="saveTopBtn" onclick="saveAboutConfig()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/25 transition">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save Changes</span>
+        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[9px] bg-black/30 rounded border border-white/20 text-fuchsia-200">Ctrl+S</kbd>
+      </button>
+    </div>
+  </div>
+
+  <form id="aboutPageForm" onsubmit="event.preventDefault(); saveAboutConfig();" class="space-y-8">
+
+    <!-- 1. HERO HEADER SECTION -->
+    <div id="sec-hero" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center text-fuchsia-400">
+            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">1. Hero Section & Main Headings</h2>
+            <p class="text-xs text-slate-400">Controls the primary H1 headline, bilingual subheadings, and primary CTA button</p>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-slate-400">Above-the-fold</span>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Eyebrow Badge Text</label>
+          <input type="text" id="badge_text" value="{{ config.badge_text|default:"অসমৰ প্ৰথমটো থলুৱা AI প্লেটফৰ্ম • PIONEERING ASSAM'S AI FUTURE" }}" placeholder="Top badge text"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <!-- H1 Headline 3-Part Generator -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Prefix</label>
+            <input type="text" id="main_heading_prefix" value="{{ config.main_heading_prefix|default:'Pioneering Artificial Intelligence in' }}" placeholder="Prefix"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Highlighted Keyword (Gradient)</label>
+            <input type="text" id="main_heading_highlight" value="{{ config.main_heading_highlight|default:'Assam' }}" placeholder="Assam"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-fuchsia-500/40 rounded-xl text-xs text-fuchsia-300 font-semibold focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Suffix</label>
+            <input type="text" id="main_heading_suffix" value="{{ config.main_heading_suffix|default:', Built for the World.' }}" placeholder="Suffix"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">English Descriptive Subheading</label>
+          <textarea id="subheading_english" rows="3" placeholder="English description..."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.subheading_english|default:"Axom AI is Assam's first indigenous generative artificial intelligence platform — engineered to bridge the linguistic divide for 15 million Assamese speakers with native conversational models, multimodal creative suites, and regional computing infrastructure." }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Assamese Cultural Mission Subheading (অসমীয়া)</label>
+          <textarea id="subheading_assamese" rows="2" placeholder="অসমীয়া অনুচ্ছেদ..."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-fuchsia-200 focus:outline-none focus-ring leading-relaxed">{{ config.subheading_assamese|default:'অসমীয়া ভাষা, সংস্কৃতি আৰু বৌদ্ধিক ঐতিহ্যক কৃত্ৰিম বুদ্ধিমত্তাৰ বিশ্ব মানচিত্ৰত প্ৰতিষ্ঠা কৰাৰ এক ঐতিহাসিক পদক্ষেপ।' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hero Primary CTA Button Text</label>
+            <input type="text" id="cta_primary_text" value="{{ config.cta_primary_text|default:'Experience Axom AI Free' }}" placeholder="Button text"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hero Primary CTA Target URL</label>
+            <input type="text" id="cta_primary_url" value="{{ config.cta_primary_url|default:'https://chat.aiaxom.co.in' }}" placeholder="https://..."
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. VITAL IMPACT METRICS -->
+    <div id="sec-stats" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-4">
+        <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400">
+          <i class="fa-solid fa-chart-simple text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">2. Vital Statistics & Authority Proof Cards</h2>
+          <p class="text-xs text-slate-400">Four numeric stats displayed below the hero header providing trust metrics</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Stat 1 -->
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Metric #1</div>
+          <input type="text" id="stat_1_val" value="{{ config.stat_1_val|default:'15M+' }}" placeholder="15M+"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-sm text-white font-bold focus:outline-none focus-ring">
+          <input type="text" id="stat_1_label" value="{{ config.stat_1_label|default:'Assamese Speakers Empowered' }}" placeholder="Label"
+            class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+        </div>
+
+        <!-- Stat 2 -->
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Metric #2</div>
+          <input type="text" id="stat_2_val" value="{{ config.stat_2_val|default:'25K+' }}" placeholder="25K+"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-sm text-fuchsia-400 font-bold focus:outline-none focus-ring">
+          <input type="text" id="stat_2_label" value="{{ config.stat_2_label|default:'Assamese Knowledge Chunks' }}" placeholder="Label"
+            class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+        </div>
+
+        <!-- Stat 3 -->
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Metric #3</div>
+          <input type="text" id="stat_3_val" value="{{ config.stat_3_val|default:'<0.8s' }}" placeholder="<0.8s"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-sm text-purple-400 font-bold focus:outline-none focus-ring">
+          <input type="text" id="stat_3_label" value="{{ config.stat_3_label|default:'Ultra-Fast TTFB Latency' }}" placeholder="Label"
+            class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+        </div>
+
+        <!-- Stat 4 -->
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Metric #4</div>
+          <input type="text" id="stat_4_val" value="{{ config.stat_4_val|default:'100%' }}" placeholder="100%"
+            class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-sm text-pink-400 font-bold focus:outline-none focus-ring">
+          <input type="text" id="stat_4_label" value="{{ config.stat_4_label|default:'Indigenous Regional LLM' }}" placeholder="Label"
+            class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. GEO ENTITY DEFINITION & FACTSHEET -->
+    <div id="sec-geo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 grid place-items-center text-pink-400">
+            <i class="fa-solid fa-globe text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">3. GEO Entity Profile & Knowledge Graph Factsheet</h2>
+            <p class="text-xs text-slate-400">Citable definition and structured entity specifications read by Google SGE, Perplexity, ChatGPT & Gemini</p>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full bg-pink-500/10 text-pink-300 border border-pink-500/20">AEO / GEO Engine</span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Factsheet Badge</label>
+            <input type="text" id="entity_badge" value="{{ config.entity_badge|default:'Generative Engine Citation & Entity Profile (GEO Factsheet)' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Factsheet Title</label>
+            <input type="text" id="entity_title" value="{{ config.entity_title|default:'What is Axom AI? (Assam AI Definition)' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Definitive 50-Word Entity Definition (AI Citation Ground Truth)</label>
+          <textarea id="entity_definition" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.entity_definition|default:"Axom AI (stylized as AI Axom, Assamese: অসম এআই) is Assam's flagship indigenous artificial intelligence platform headquartered in Guwahati, Assam, India. Founded by researcher and architect Samarjit Kashyap, the platform delivers native Assamese Large Language Model (LLM) computing, document OCR, generative image synthesis, and real-time Assamese search synthesis for individuals, students, creators, and enterprises across Northeast India." }}</textarea>
+        </div>
+
+        <!-- Machine Table Values -->
+        <div class="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 space-y-4">
+          <div class="text-xs font-bold text-pink-400 uppercase tracking-wider">Entity Specifications Table Data</div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Entity / Platform Name</label>
+              <input type="text" id="fact_entity_name" value="{{ config.fact_entity_name|default:'Axom AI (AI Axom / Assam AI / অসম এআই)' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Official Canonical URL</label>
+              <input type="text" id="fact_official_url" value="{{ config.fact_official_url|default:'https://aiaxom.co.in' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Headquarters & Coordinates</label>
+              <input type="text" id="fact_headquarters" value="{{ config.fact_headquarters|default:'Guwahati, Assam, India (PIN: 781001, Geo: 26.1445° N, 91.7362° E)' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Primary Founder</label>
+              <input type="text" id="fact_founder" value="{{ config.fact_founder|default:'Samarjit Kashyap (Lead Architect)' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Supported Languages</label>
+              <input type="text" id="fact_languages" value="{{ config.fact_languages|default:'Assamese (অসমীয়া), English, Indic Transliterations' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-400 mb-1">Service Coverage Area</label>
+              <input type="text" id="fact_coverage" value="{{ config.fact_coverage|default:'Assam (all 35 districts), Northeast India, Pan-India, Global Assamese Diaspora' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Core Architecture Description</label>
+            <input type="text" id="fact_architecture" value="{{ config.fact_architecture|default:'RAG over 25,000+ Assamese Wikipedia articles (~112K chunks), Groq LPU inference, IndicTrans2, Cloudflare FLUX & Gemini fallback' }}"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. WHY ASSAM NEEDS AI -->
+    <div id="sec-why" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-4">
+        <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 grid place-items-center text-amber-400">
+          <i class="fa-solid fa-language text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">4. Why Does Assam Need an Independent AI Platform?</h2>
+          <p class="text-xs text-slate-400">Addresses linguistic exclusion, Bengali-Assamese character confusion, cultural nuance, and pricing</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Badge</label>
+            <input type="text" id="why_badge" value="{{ config.why_badge|default:'The Linguistic Divide' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Heading</label>
+            <input type="text" id="why_title" value="{{ config.why_title|default:'Why Does Assam Need an Independent AI Platform?' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subheading</label>
+          <textarea id="why_subheading" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.why_subheading|default:"Mainstream AI solutions like ChatGPT, Gemini, and Claude were built on English and Western-centric datasets, leaving Northeast India's rich linguistic heritage on the sidelines." }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <!-- Card 1 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5">
+            <div class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Point 1 (Script Purity)</div>
+            <input type="text" id="why_card_1_title" value="{{ config.why_card_1_title|default:'Eliminating Script Confusion' }}" placeholder="Title"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white focus:outline-none focus-ring">
+            <textarea id="why_card_1_desc" rows="4" placeholder="Description..."
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-[11px] text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.why_card_1_desc|default:'Standard global LLMs frequently confuse Assamese with Bengali, substituting characters like ‘ৰ’ with ‘র’ or missing regional grammar rules. Axom AI guarantees pure, authentic Assamese script.' }}</textarea>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5">
+            <div class="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Point 2 (Culture Grounding)</div>
+            <input type="text" id="why_card_2_title" value="{{ config.why_card_2_title|default:'Deep Cultural Grounding' }}" placeholder="Title"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white focus:outline-none focus-ring">
+            <textarea id="why_card_2_desc" rows="4" placeholder="Description..."
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-[11px] text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.why_card_2_desc|default:'From the historical chronicles of the Ahom Kingdom to the cultural legacy of Srimanta Sankardev, Bihu traditions, and modern Assam governance, Axom AI understands local context without hallucination.' }}</textarea>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5">
+            <div class="text-[10px] font-bold text-pink-400 uppercase tracking-wider">Point 3 (Accessibility & UPI)</div>
+            <input type="text" id="why_card_3_title" value="{{ config.why_card_3_title|default:'Affordable & Accessible' }}" placeholder="Title"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white focus:outline-none focus-ring">
+            <textarea id="why_card_3_desc" rows="4" placeholder="Description..."
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-[11px] text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.why_card_3_desc|default:'Global models cost $20/month (₹1,700+) and require international credit cards. Axom AI provides a free tier and plans starting at ₹99 with native UPI (Google Pay, PhonePe, Paytm) integration for students and grassroots creators.' }}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. FOUR TECHNOLOGICAL PILLARS -->
+    <div id="sec-pillars" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-4">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-emerald-400">
+          <i class="fa-solid fa-cubes text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">5. The Four Technological Pillars of Axom AI</h2>
+          <p class="text-xs text-slate-400">Technical pillars highlighting Knowledge Base RAG, Multimodal Tools, Groq LPU, and Web Search</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pillars Badge</label>
+            <input type="text" id="pillars_badge" value="{{ config.pillars_badge|default:'State-of-the-Art Architecture' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pillars Heading</label>
+            <input type="text" id="pillars_title" value="{{ config.pillars_title|default:'The Four Technological Pillars of Axom AI' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <!-- Pillar 1 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+            <label class="block text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Pillar 1 Title</label>
+            <input type="text" id="pillar_1_title" value="{{ config.pillar_1_title|default:'1. Indigenous Assamese Knowledge Base' }}"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white focus:outline-none focus-ring">
+            <textarea id="pillar_1_desc" rows="3"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-[11px] text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.pillar_1_desc|default:'Axom AI indexes over 25,000 verified Assamese Wikipedia documents, historical records, folk literature, and educational repositories broken into 112,000+ semantic chunks. Every query leverages multilingual vector embeddings with strict source verification.' }}</textarea>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+            <label class="block text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Pillar 2 Title</label>
+            <input type="text" id="pillar_2_title" value="{{ config.pillar_2_title|default:'2. Multimodal AI Toolset for Assam' }}"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white focus:outline-none focus-ring">
+            <textarea id="pillar_2_desc" rows="3"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-[11px] text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.pillar_2_desc|default:'Beyond conversational chat, Axom AI features an integrated generative suite: FLUX-powered AI image synthesis translating Assamese concepts directly into visual art, universal document summarization, PDF extraction, and Tesseract-based regional OCR.' }}</textarea>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+            <label class="block text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Pillar 3 Title</label>
+            <input type="text" id="pillar_3_title" value="{{ config.pillar_3_title|default:'3. Ultra-Low Latency Groq LPU Inference' }}"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white focus:outline-none focus-ring">
+            <textarea id="pillar_3_desc" rows="3"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-[11px] text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.pillar_3_desc|default:"Using Groq's Language Processing Units (LPUs) paired with IndicTrans2 and AWS Lightsail infrastructure, Axom AI streams tokens at ~0.7 seconds Time to First Byte (TTFB). Even on 4G networks in rural Assam, responses stream fluidly without lag." }}</textarea>
+          </div>
+
+          <!-- Pillar 4 -->
+          <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+            <label class="block text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Pillar 4 Title</label>
+            <input type="text" id="pillar_4_title" value="{{ config.pillar_4_title|default:'4. Real-Time Live Web Search' }}"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-xs font-semibold text-white focus:outline-none focus-ring">
+            <textarea id="pillar_4_desc" rows="3"
+              class="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-[11px] text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.pillar_4_desc|default:'Integrated with Tavily Search API, Axom AI browses the live web to fetch real-time Assam news, government job notifications (APSC/ADRE), weather reports, and regional events, synthesizing the latest facts directly into Assamese.' }}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. FOUNDER & VISION -->
+    <div id="sec-founder" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-4">
+        <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 grid place-items-center text-blue-400">
+          <i class="fa-solid fa-user-tie text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">6. Leadership & Founder Vision</h2>
+          <p class="text-xs text-slate-400">Highlights the founder profile, quote headline, and mission statement</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Badge</label>
+            <input type="text" id="founder_badge" value="{{ config.founder_badge|default:'Leadership & Vision' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Founder Name</label>
+            <input type="text" id="founder_name" value="{{ config.founder_name|default:'Samarjit Kashyap' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-semibold focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Founder Title / Designation</label>
+            <input type="text" id="founder_title" value="{{ config.founder_title|default:'Lead AI Architect & Founder' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Quote Headline</label>
+            <input type="text" id="founder_quote_title" value="{{ config.founder_quote_title|default:"Building Assam as Northeast India's AI Capital" }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Founder Contact Email</label>
+            <input type="email" id="founder_email" value="{{ config.founder_email|default:'samarjitkashyp@gmail.com' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Founder Statement / Mission Quote</label>
+          <textarea id="founder_quote" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.founder_quote|default:'"For decades, regional languages of Northeast India were left behind in the digital technology wave. Axom AI was founded with a singular conviction: our language, literature, and youth deserve world-class artificial intelligence tools that understand them natively. We are creating an ecosystem where anyone in Assam can converse with state-of-the-art intelligence in their mother tongue."' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. BOTTOM CTA SECTION -->
+    <div id="sec-cta" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-4">
+        <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 grid place-items-center text-indigo-400">
+          <i class="fa-solid fa-rocket text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">7. Bottom Call To Action Banner</h2>
+          <p class="text-xs text-slate-400">The high-converting footer action card driving users to start chatting or explore tools</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Badge</label>
+            <input type="text" id="cta_badge" value="{{ config.cta_badge|default:'Experience the Future Today' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Heading</label>
+            <input type="text" id="cta_title" value="{{ config.cta_title|default:"Be Part of Assam's AI Revolution" }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Description</label>
+          <textarea id="cta_desc" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.cta_desc|default:'Join thousands of students, professionals, and creators across Assam who are chatting, researching, creating, and automating with Axom AI.' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Primary Button Text</label>
+            <input type="text" id="cta_btn_text" value="{{ config.cta_btn_text|default:'Start Free Chatting' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Primary Button URL</label>
+            <input type="text" id="cta_btn_url" value="{{ config.cta_btn_url|default:'https://chat.aiaxom.co.in' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. SEO & SEARCH META TAGS -->
+    <div id="sec-seo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-4">
+        <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400">
+          <i class="fa-solid fa-magnifying-glass text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">8. SEO & Machine Metadata (Google, Perplexity & AI Bots)</h2>
+          <p class="text-xs text-slate-400">Controls canonical page title, meta description, and high-ranking Assam AI keyword tags</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300">SEO Page Title Tag <span class="text-fuchsia-400">*</span></label>
+            <span id="titleCount" class="text-[10px] text-slate-500">0 / 70 chars recommended</span>
+          </div>
+          <input type="text" id="meta_title" value="{{ config.meta_title|default:"About Axom AI — Assam's Premier Indigenous AI Platform & LLM Ecosystem | Assam AI" }}" oninput="updateCharCounts()"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300">SEO Meta Description <span class="text-fuchsia-400">*</span></label>
+            <span id="descCount" class="text-[10px] text-slate-500">0 / 160 chars recommended</span>
+          </div>
+          <textarea id="meta_description" rows="3" oninput="updateCharCounts()"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description|default:"Discover Axom AI (https://aiaxom.co.in) — Assam's flagship indigenous Artificial Intelligence platform. Empowering Assam with native Assamese LLMs, ChatGPT-grade reasoning, image generation, document intelligence, and regional digital innovation." }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Keywords (Comma separated)</label>
+          <textarea id="meta_keywords" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords|default:"Assam AI, AI in Assam, Axom AI, AI Assam, Artificial Intelligence in Assam, Assamese AI, Assamese ChatGPT, Assamese LLM, Guwahati AI, Northeast India AI, Axom AI about, Assam AI platform, Indic AI Assam, Indigenous AI Assam, Assam AI startup, Assamese NLP" }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Save Action Card (Inline & Non-Sticky) -->
+    <div class="glass-card rounded-2xl border border-slate-800/80 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></div>
+        <div class="text-xs text-slate-300">
+          <span class="font-semibold text-white">About Us Page</span> — All changes sync live across <strong class="text-fuchsia-400">aiaxom.co.in/about</strong>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto justify-end">
+        <a href="https://aiaxom.co.in/about/" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-arrow-up-right-from-square text-fuchsia-400 text-xs"></i>
+          <span>View Live Page</span>
+        </a>
+
+        <button type="button" onclick="saveAboutConfig()" id="saveBottomBtn" class="px-7 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/30 transition hover:scale-[1.02]">
+          <i class="fa-solid fa-floppy-disk text-xs"></i>
+          <span>Save Changes</span>
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+function updateCharCounts() {
+  const t = document.getElementById('meta_title').value.length;
+  const d = document.getElementById('meta_description').value.length;
+  const tEl = document.getElementById('titleCount');
+  const dEl = document.getElementById('descCount');
+  if (tEl) tEl.innerText = `${t} / 70 chars recommended`;
+  if (dEl) dEl.innerText = `${d} / 160 chars recommended`;
+}
+updateCharCounts();
+
+// Shortcut Ctrl+S / Cmd+S to Save
+window.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveAboutConfig();
+  }
+});
+
+async function saveAboutConfig() {
+  const topBtn = document.getElementById('saveTopBtn');
+  const btmBtn = document.getElementById('saveBottomBtn');
+  
+  const setBtnLoading = (loading) => {
+    [topBtn, btmBtn].forEach(btn => {
+      if (!btn) return;
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i><span>Saving...</span>';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk text-xs"></i><span>Save Changes</span>';
+      }
+    });
+  };
+
+  const payload = {
+    badge_text: document.getElementById('badge_text').value,
+    main_heading_prefix: document.getElementById('main_heading_prefix').value,
+    main_heading_highlight: document.getElementById('main_heading_highlight').value,
+    main_heading_suffix: document.getElementById('main_heading_suffix').value,
+    subheading_english: document.getElementById('subheading_english').value,
+    subheading_assamese: document.getElementById('subheading_assamese').value,
+    stat_1_val: document.getElementById('stat_1_val').value,
+    stat_1_label: document.getElementById('stat_1_label').value,
+    stat_2_val: document.getElementById('stat_2_val').value,
+    stat_2_label: document.getElementById('stat_2_label').value,
+    stat_3_val: document.getElementById('stat_3_val').value,
+    stat_3_label: document.getElementById('stat_3_label').value,
+    stat_4_val: document.getElementById('stat_4_val').value,
+    stat_4_label: document.getElementById('stat_4_label').value,
+    cta_primary_text: document.getElementById('cta_primary_text').value,
+    cta_primary_url: document.getElementById('cta_primary_url').value,
+    entity_badge: document.getElementById('entity_badge').value,
+    entity_title: document.getElementById('entity_title').value,
+    entity_definition: document.getElementById('entity_definition').value,
+    fact_entity_name: document.getElementById('fact_entity_name').value,
+    fact_official_url: document.getElementById('fact_official_url').value,
+    fact_headquarters: document.getElementById('fact_headquarters').value,
+    fact_founder: document.getElementById('fact_founder').value,
+    fact_languages: document.getElementById('fact_languages').value,
+    fact_architecture: document.getElementById('fact_architecture').value,
+    fact_coverage: document.getElementById('fact_coverage').value,
+    why_badge: document.getElementById('why_badge').value,
+    why_title: document.getElementById('why_title').value,
+    why_subheading: document.getElementById('why_subheading').value,
+    why_card_1_title: document.getElementById('why_card_1_title').value,
+    why_card_1_desc: document.getElementById('why_card_1_desc').value,
+    why_card_2_title: document.getElementById('why_card_2_title').value,
+    why_card_2_desc: document.getElementById('why_card_2_desc').value,
+    why_card_3_title: document.getElementById('why_card_3_title').value,
+    why_card_3_desc: document.getElementById('why_card_3_desc').value,
+    pillars_badge: document.getElementById('pillars_badge').value,
+    pillars_title: document.getElementById('pillars_title').value,
+    pillar_1_title: document.getElementById('pillar_1_title').value,
+    pillar_1_desc: document.getElementById('pillar_1_desc').value,
+    pillar_2_title: document.getElementById('pillar_2_title').value,
+    pillar_2_desc: document.getElementById('pillar_2_desc').value,
+    pillar_3_title: document.getElementById('pillar_3_title').value,
+    pillar_3_desc: document.getElementById('pillar_3_desc').value,
+    pillar_4_title: document.getElementById('pillar_4_title').value,
+    pillar_4_desc: document.getElementById('pillar_4_desc').value,
+    founder_badge: document.getElementById('founder_badge').value,
+    founder_name: document.getElementById('founder_name').value,
+    founder_title: document.getElementById('founder_title').value,
+    founder_quote_title: document.getElementById('founder_quote_title').value,
+    founder_quote: document.getElementById('founder_quote').value,
+    founder_email: document.getElementById('founder_email').value,
+    cta_badge: document.getElementById('cta_badge').value,
+    cta_title: document.getElementById('cta_title').value,
+    cta_desc: document.getElementById('cta_desc').value,
+    cta_btn_text: document.getElementById('cta_btn_text').value,
+    cta_btn_url: document.getElementById('cta_btn_url').value,
+    meta_title: document.getElementById('meta_title').value,
+    meta_description: document.getElementById('meta_description').value,
+    meta_keywords: document.getElementById('meta_keywords').value,
+  };
+
+  setBtnLoading(true);
+
+  try {
+    const res = await fetch('/axomai-content/pages/about/save/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    setBtnLoading(false);
+
+    if (data.success) {
+      showToast('About Us Page configuration updated successfully!', 'success');
+    } else {
+      showToast(data.error || 'Failed to save changes.', 'error');
+    }
+  } catch (err) {
+    setBtnLoading(false);
+    console.error(err);
+    showToast('Network error while saving. Please try again.', 'error');
+  }
+}
+</script>
+{% endblock %}

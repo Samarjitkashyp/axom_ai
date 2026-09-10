@@ -1,0 +1,647 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}Footer & Social Settings — Axom AI CMS{% endblock %}
+{% block page_title %}Footer & Social Settings{% endblock %}
+{% block page_subtitle %}Manage Brand Description, 4 Footer Navigation Columns & Links, and Social Media Icons{% endblock %}
+
+{% block content %}
+<div class="space-y-10 max-w-6xl">
+
+  <!-- Section 1: Footer Brand & Descriptions -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-shoe-prints text-fuchsia-400"></i>
+          Footer Brand & Copyright
+        </h2>
+        <p class="text-xs text-slate-400">Configure footer logo, company bio, Assamese tagline, and copyright notice</p>
+      </div>
+      <button onclick="saveFooterGeneralSettings()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Footer Brand
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col items-center justify-center text-center space-y-3">
+        <div class="text-xs font-semibold text-slate-300">Footer Logo Preview</div>
+        <div class="h-24 w-full flex items-center justify-center p-3 rounded-lg bg-slate-950/80 border border-slate-800 overflow-hidden">
+          <img id="footer_logo_preview" src="{{ footer.logo_image_url|default:'/axom-logo.png' }}" alt="Logo Preview" 
+            style="width: {{ footer.logo_width|default:'180px' }}; height: {{ footer.logo_height|default:'auto' }}; object-fit: {{ footer.logo_fit|default:'contain' }}; max-width: 100%; max-height: 80px;">
+        </div>
+        <div class="w-full">
+          <label class="w-full cursor-pointer px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 flex items-center justify-center gap-2 border border-slate-700 transition">
+            <i class="fa-solid fa-cloud-arrow-up text-fuchsia-400"></i>
+            <span>Upload Footer Logo</span>
+            <input type="file" id="footer_logo_file_input" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="hidden" onchange="uploadFooterLogo(this)">
+          </label>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Logo Image URL</label>
+          <input type="text" id="footer_logo_url" value="{{ footer.logo_image_url|default:'/axom-logo.png' }}" placeholder="/axom-logo.png"
+            oninput="updateFooterLogoLivePreview()"
+            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500 font-mono text-xs">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+              Logo Width (px)
+            </label>
+            <input type="text" id="footer_logo_width" value="{{ footer.logo_width|default:'180px' }}" placeholder="180px"
+              oninput="updateFooterLogoLivePreview()"
+              class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 font-mono">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+              Logo Height
+            </label>
+            <input type="text" id="footer_logo_height" value="{{ footer.logo_height|default:'auto' }}" placeholder="auto"
+              oninput="updateFooterLogoLivePreview()"
+              class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 font-mono">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+              Object Fit
+            </label>
+            <select id="footer_logo_fit" onchange="updateFooterLogoLivePreview()" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+              <option value="contain" {% if footer.logo_fit == 'contain' or not footer.logo_fit %}selected{% endif %}>contain</option>
+              <option value="cover" {% if footer.logo_fit == 'cover' %}selected{% endif %}>cover</option>
+              <option value="fill" {% if footer.logo_fit == 'fill' %}selected{% endif %}>fill</option>
+              <option value="scale-down" {% if footer.logo_fit == 'scale-down' %}selected{% endif %}>scale-down</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Brand Mission / Description</label>
+          <textarea id="footer_description" rows="2" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 leading-relaxed">{{ footer.description }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tagline (Assamese / English)</label>
+            <input type="text" id="footer_tagline" value="{{ footer.tagline }}" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Copyright Notice</label>
+            <input type="text" id="footer_copyright" value="{{ footer.copyright_text }}" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Footer Navigation Columns & Links -->
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-table-columns text-fuchsia-400"></i>
+          Footer Navigation Columns & Links ({{ columns|length }} Columns)
+        </h2>
+        <p class="text-xs text-slate-400">Organize footer links under 4 thematic columns (e.g. Products, Solutions, Company, Legal)</p>
+      </div>
+      <button onclick="openColumnModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+        <i class="fa-solid fa-plus"></i>
+        Add Footer Column
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for col in columns %}
+      <div class="glass-card rounded-2xl p-5 flex flex-col justify-between border border-slate-800/80 space-y-4">
+        <div>
+          <!-- Column Header -->
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+            <div>
+              <div class="font-bold text-white text-sm">{{ col.title }}</div>
+              <div class="text-[10px] text-slate-400 font-mono">Order: {{ col.order }}</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="editColumn({{ col.id }}, '{{ col.title|escapejs }}', {{ col.order }}, {{ col.is_active|yesno:'true,false' }})" class="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800" title="Edit Column">
+                <i class="fa-solid fa-pen text-[11px]"></i>
+              </button>
+              <button onclick="deleteColumn({{ col.id }})" class="p-1 rounded text-rose-400 hover:text-rose-300 hover:bg-rose-950/40" title="Delete Column">
+                <i class="fa-solid fa-trash text-[11px]"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Links List -->
+          <div class="space-y-2">
+            {% for link in col.links.all %}
+            <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs">
+              <div class="truncate mr-2">
+                <div class="font-medium text-slate-200 truncate flex items-center gap-1.5">
+                  <span>{{ link.title }}</span>
+                  {% if link.is_external %}
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500"></i>
+                  {% endif %}
+                </div>
+                <div class="text-[10px] text-slate-500 font-mono truncate">{{ link.url }}</div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button onclick="editLink({{ link.id }}, {{ col.id }}, '{{ link.title|escapejs }}', '{{ link.url|escapejs }}', {{ link.order }}, {{ link.is_external|yesno:'true,false' }}, {{ link.is_active|yesno:'true,false' }})" class="p-1 text-slate-400 hover:text-white">
+                  <i class="fa-solid fa-pen text-[10px]"></i>
+                </button>
+                <button onclick="deleteLink({{ link.id }})" class="p-1 text-rose-400 hover:text-rose-300">
+                  <i class="fa-solid fa-trash text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+            {% empty %}
+            <div class="p-4 text-center text-[11px] text-slate-500 italic">No links in this column</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button onclick="openAddLinkModal({{ col.id }}, '{{ col.title|escapejs }}')" class="w-full py-2 bg-slate-900/80 hover:bg-slate-800 border border-slate-700/80 rounded-xl text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-plus text-fuchsia-400 text-[10px]"></i>
+          Add Link
+        </button>
+      </div>
+      {% empty %}
+      <div class="col-span-4 glass-card rounded-2xl p-12 text-center border border-slate-800 space-y-3">
+        <div class="text-sm font-semibold text-white">No Footer Columns Configured</div>
+        <p class="text-xs text-slate-400">Click "Add Footer Column" above to get started.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Section 3: Social Media Links -->
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-share-nodes text-fuchsia-400"></i>
+          Social Media Links ({{ socials|length }})
+        </h2>
+        <p class="text-xs text-slate-400">Manage social channel icons shown at the bottom of the footer</p>
+      </div>
+      <button onclick="openSocialModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+        <i class="fa-solid fa-plus"></i>
+        Add Social Channel
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {% for s in socials %}
+      <div class="glass-card rounded-2xl p-4 flex items-center justify-between border border-slate-800/80 hover:border-slate-700 transition">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-lg text-slate-200">
+            <i class="{{ s.icon_class|default:'fa-brands fa-x-twitter' }}"></i>
+          </div>
+          <div>
+            <div class="font-bold text-white text-xs">{{ s.platform }}</div>
+            <div class="text-[10px] text-slate-400 truncate max-w-[120px] font-mono">{{ s.url }}</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button onclick="editSocial({{ s.id }}, '{{ s.platform|escapejs }}', '{{ s.icon_class|escapejs }}', '{{ s.url|escapejs }}', {{ s.order }}, {{ s.is_active|yesno:'true,false' }})" class="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white">
+            <i class="fa-solid fa-pen text-[10px]"></i>
+          </button>
+          <button onclick="deleteSocial({{ s.id }})" class="p-1.5 rounded-lg bg-rose-950/40 text-rose-300 hover:text-rose-200">
+            <i class="fa-solid fa-trash text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-4 glass-card rounded-2xl p-8 text-center border border-slate-800 text-slate-400 text-xs">
+        No social channels added yet.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal: Add/Edit Column -->
+<div id="colModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4" onclick="if(event.target===this) closeColModal()">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-md shadow-2xl relative" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+      <h3 id="colModalTitle" class="text-base font-bold text-white">Add Footer Column</h3>
+      <button onclick="closeColModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <div class="p-6 space-y-4 text-xs">
+      <input type="hidden" id="col_id">
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Column Title *</label>
+        <input type="text" id="col_title" placeholder="Products / Solutions / Company / Legal" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Order</label>
+        <input type="number" id="col_order" min="0" value="0" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+      </div>
+    </div>
+    <div class="px-6 py-3.5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90">
+      <button onclick="closeColModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs">Cancel</button>
+      <button onclick="submitColumn()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-semibold rounded-xl text-xs shadow-md">Save Column</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add/Edit Link -->
+<div id="linkModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4" onclick="if(event.target===this) closeLinkModal()">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-md shadow-2xl relative" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+      <h3 id="linkModalTitle" class="text-base font-bold text-white">Add Link</h3>
+      <button onclick="closeLinkModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <div class="p-6 space-y-4 text-xs">
+      <input type="hidden" id="link_id">
+      <input type="hidden" id="link_col_id">
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Link Label *</label>
+        <input type="text" id="link_title" placeholder="Axom Chat / Pricing / Privacy Policy" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Destination URL *</label>
+        <input type="text" id="link_url" placeholder="/pricing/ or /faq/ or https://..." class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Order</label>
+          <input type="number" id="link_order" min="0" value="0" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div class="flex items-center pt-6">
+          <label class="inline-flex items-center cursor-pointer gap-2">
+            <input type="checkbox" id="link_external" class="w-4 h-4 rounded text-fuchsia-500 bg-slate-800 border-slate-700">
+            <span class="font-semibold text-slate-300 text-xs">External Link</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-3.5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90">
+      <button onclick="closeLinkModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs">Cancel</button>
+      <button onclick="submitLink()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-semibold rounded-xl text-xs shadow-md">Save Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add/Edit Social -->
+<div id="socialModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4" onclick="if(event.target===this) closeSocialModal()">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-md shadow-2xl relative" onclick="event.stopPropagation()">
+    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+      <h3 id="socialModalTitle" class="text-base font-bold text-white">Add Social Channel</h3>
+      <button onclick="closeSocialModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <div class="p-6 space-y-4 text-xs">
+      <input type="hidden" id="social_id">
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Platform Name *</label>
+        <input type="text" id="social_platform" placeholder="X (Twitter) / GitHub / Discord / LinkedIn" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">FontAwesome Icon Class</label>
+        <input type="text" id="social_icon" placeholder="fa-brands fa-x-twitter" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        <!-- Quick Social Icons -->
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          <button type="button" onclick="selectSocialPreset('X (Twitter)', 'fa-brands fa-x-twitter')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] border border-slate-700"><i class="fa-brands fa-x-twitter"></i> X</button>
+          <button type="button" onclick="selectSocialPreset('GitHub', 'fa-brands fa-github')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] border border-slate-700"><i class="fa-brands fa-github"></i> GitHub</button>
+          <button type="button" onclick="selectSocialPreset('Discord', 'fa-brands fa-discord')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] border border-slate-700"><i class="fa-brands fa-discord"></i> Discord</button>
+          <button type="button" onclick="selectSocialPreset('LinkedIn', 'fa-brands fa-linkedin')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] border border-slate-700"><i class="fa-brands fa-linkedin"></i> LinkedIn</button>
+          <button type="button" onclick="selectSocialPreset('YouTube', 'fa-brands fa-youtube')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] border border-slate-700"><i class="fa-brands fa-youtube"></i> YouTube</button>
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Profile URL *</label>
+        <input type="text" id="social_url" placeholder="https://x.com/axom_ai" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Order</label>
+          <input type="number" id="social_order" min="0" value="0" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div class="flex items-center pt-6">
+          <label class="inline-flex items-center cursor-pointer gap-2">
+            <input type="checkbox" id="social_active" class="w-4 h-4 rounded text-emerald-500 bg-slate-800 border-slate-700 focus:ring-emerald-500" checked>
+            <span class="font-semibold text-emerald-400 text-xs">Active</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-3.5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90">
+      <button onclick="closeSocialModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs">Cancel</button>
+      <button onclick="submitSocial()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-semibold rounded-xl text-xs shadow-md">Save Channel</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function updateFooterLogoLivePreview() {
+  const url = document.getElementById('footer_logo_url').value.trim();
+  const width = document.getElementById('footer_logo_width').value.trim();
+  const height = document.getElementById('footer_logo_height').value.trim();
+  const fit = document.getElementById('footer_logo_fit').value;
+  const img = document.getElementById('footer_logo_preview');
+  if (img) {
+    if (url) img.src = url;
+    img.style.width = width || '180px';
+    img.style.height = height || 'auto';
+    img.style.objectFit = fit || 'contain';
+  }
+}
+
+async function uploadFooterLogo(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('logo', file);
+
+  try {
+    const res = await fetch('/axomai-content/settings/header/upload-logo/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('footer_logo_url').value = data.logo_url;
+      updateFooterLogoLivePreview();
+      showToast('Footer logo uploaded!', 'success');
+    } else {
+      showToast(data.error || 'Failed to upload logo', 'error');
+    }
+  } catch (err) {
+    showToast('Error uploading logo', 'error');
+  }
+}
+
+async function saveFooterGeneralSettings() {
+  const payload = {
+    logo_image_url: document.getElementById('footer_logo_url').value.trim(),
+    logo_width: document.getElementById('footer_logo_width').value.trim() || '180px',
+    logo_height: document.getElementById('footer_logo_height').value.trim() || 'auto',
+    logo_fit: document.getElementById('footer_logo_fit').value || 'contain',
+    description: document.getElementById('footer_description').value.trim(),
+    tagline: document.getElementById('footer_tagline').value.trim(),
+    copyright_text: document.getElementById('footer_copyright').value.trim()
+  };
+
+  try {
+    const res = await fetch('/axomai-content/settings/footer/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message || 'Footer settings saved!', 'success');
+      updateFooterLogoLivePreview();
+    } else {
+      showToast(data.error || 'Failed to save settings', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving footer settings', 'error');
+  }
+}
+
+// Columns
+function openColumnModal() {
+  document.getElementById('colModalTitle').innerText = 'Add Footer Column';
+  document.getElementById('col_id').value = '';
+  document.getElementById('col_title').value = '';
+  document.getElementById('col_order').value = 0;
+  document.getElementById('colModal').classList.remove('hidden');
+}
+
+function editColumn(id, title, order) {
+  document.getElementById('colModalTitle').innerText = 'Edit Column: ' + title;
+  document.getElementById('col_id').value = id;
+  document.getElementById('col_title').value = title;
+  document.getElementById('col_order').value = order;
+  document.getElementById('colModal').classList.remove('hidden');
+}
+
+function closeColModal() {
+  document.getElementById('colModal').classList.add('hidden');
+}
+
+async function submitColumn() {
+  const title = document.getElementById('col_title').value.trim();
+  if (!title) {
+    showToast('Column title is required', 'error');
+    return;
+  }
+  const payload = {
+    id: document.getElementById('col_id').value || null,
+    title: title,
+    order: parseInt(document.getElementById('col_order').value || 0),
+    is_active: true
+  };
+
+  try {
+    const res = await fetch('/axomai-content/settings/footer/column/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to save column', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving column', 'error');
+  }
+}
+
+async function deleteColumn(id) {
+  if (!confirm('Are you sure you want to delete this column and all its links?')) return;
+  try {
+    const res = await fetch(`/axomai-content/settings/footer/column/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to delete column', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting column', 'error');
+  }
+}
+
+// Links
+function openAddLinkModal(colId, colTitle) {
+  document.getElementById('linkModalTitle').innerText = 'Add Link to ' + colTitle;
+  document.getElementById('link_id').value = '';
+  document.getElementById('link_col_id').value = colId;
+  document.getElementById('link_title').value = '';
+  document.getElementById('link_url').value = '';
+  document.getElementById('link_order').value = 0;
+  document.getElementById('link_external').checked = false;
+  document.getElementById('linkModal').classList.remove('hidden');
+}
+
+function editLink(id, colId, title, url, order, isExternal, isActive) {
+  document.getElementById('linkModalTitle').innerText = 'Edit Link: ' + title;
+  document.getElementById('link_id').value = id;
+  document.getElementById('link_col_id').value = colId;
+  document.getElementById('link_title').value = title;
+  document.getElementById('link_url').value = url;
+  document.getElementById('link_order').value = order;
+  document.getElementById('link_external').checked = !!isExternal;
+  document.getElementById('linkModal').classList.remove('hidden');
+}
+
+function closeLinkModal() {
+  document.getElementById('linkModal').classList.add('hidden');
+}
+
+async function submitLink() {
+  const title = document.getElementById('link_title').value.trim();
+  const url = document.getElementById('link_url').value.trim();
+  if (!title || !url) {
+    showToast('Title and URL are required', 'error');
+    return;
+  }
+  const payload = {
+    id: document.getElementById('link_id').value || null,
+    column_id: document.getElementById('link_col_id').value || null,
+    title: title,
+    url: url,
+    order: parseInt(document.getElementById('link_order').value || 0),
+    is_external: document.getElementById('link_external').checked,
+    is_active: true
+  };
+
+  try {
+    const res = await fetch('/axomai-content/settings/footer/link/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to save link', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving link', 'error');
+  }
+}
+
+async function deleteLink(id) {
+  if (!confirm('Are you sure you want to delete this link?')) return;
+  try {
+    const res = await fetch(`/axomai-content/settings/footer/link/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to delete link', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting link', 'error');
+  }
+}
+
+// Socials
+function selectSocialPreset(platform, icon) {
+  document.getElementById('social_platform').value = platform;
+  document.getElementById('social_icon').value = icon;
+}
+
+function openSocialModal() {
+  document.getElementById('socialModalTitle').innerText = 'Add Social Channel';
+  document.getElementById('social_id').value = '';
+  document.getElementById('social_platform').value = '';
+  document.getElementById('social_icon').value = 'fa-brands fa-x-twitter';
+  document.getElementById('social_url').value = 'https://x.com/';
+  document.getElementById('social_order').value = 0;
+  document.getElementById('social_active').checked = true;
+  document.getElementById('socialModal').classList.remove('hidden');
+}
+
+function editSocial(id, platform, icon, url, order, active) {
+  document.getElementById('socialModalTitle').innerText = 'Edit Social: ' + platform;
+  document.getElementById('social_id').value = id;
+  document.getElementById('social_platform').value = platform;
+  document.getElementById('social_icon').value = icon || 'fa-brands fa-x-twitter';
+  document.getElementById('social_url').value = url;
+  document.getElementById('social_order').value = order;
+  document.getElementById('social_active').checked = active !== false;
+  document.getElementById('socialModal').classList.remove('hidden');
+}
+
+function closeSocialModal() {
+  document.getElementById('socialModal').classList.add('hidden');
+}
+
+async function submitSocial() {
+  const platform = document.getElementById('social_platform').value.trim();
+  const url = document.getElementById('social_url').value.trim();
+  if (!platform || !url) {
+    showToast('Platform and URL are required', 'error');
+    return;
+  }
+  const payload = {
+    id: document.getElementById('social_id').value || null,
+    platform: platform,
+    icon_class: document.getElementById('social_icon').value.trim(),
+    url: url,
+    order: parseInt(document.getElementById('social_order').value || 0),
+    is_active: document.getElementById('social_active').checked
+  };
+
+  try {
+    const res = await fetch('/axomai-content/settings/footer/social/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to save social channel', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving social channel', 'error');
+  }
+}
+
+async function deleteSocial(id) {
+  if (!confirm('Are you sure you want to delete this social channel?')) return;
+  try {
+    const res = await fetch(`/axomai-content/settings/footer/social/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to delete social channel', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting channel', 'error');
+  }
+}
+</script>
+{% endblock %}

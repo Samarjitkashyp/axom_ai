@@ -1,0 +1,149 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}6. SEO & Metadata — Axom AI CMS{% endblock %}
+{% block page_title %}6. SEO & Social Sharing Metadata{% endblock %}
+{% block page_subtitle %}Controls Google Search snippet, Meta Descriptions, OG Social Cards, and Google Tag Manager for aiaxom.co.in{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-4xl">
+
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-magnifying-glass-chart text-fuchsia-400"></i>
+          Search Engine Optimization (SEO)
+        </h2>
+        <p class="text-xs text-slate-400">Google search preview & metadata</p>
+      </div>
+      <div class="text-xs text-slate-400">
+        Last updated: <strong class="text-slate-300">{{ seo.updated_at|date:"M d, Y" }}</strong>
+      </div>
+    </div>
+
+    <!-- Meta Title -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Page Title (<span id="title_len">0</span> / 60 chars recommended)</label>
+      <input type="text" id="seo_title" value="{{ seo.meta_title }}"
+        class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+    </div>
+
+    <!-- Meta Description -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Description (<span id="desc_len">0</span> / 160 chars recommended)</label>
+      <textarea id="seo_desc" rows="3"
+        class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">{{ seo.meta_description }}</textarea>
+    </div>
+
+    <!-- Keywords -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Keywords (Comma-separated)</label>
+      <input type="text" id="seo_keywords" value="{{ seo.meta_keywords }}"
+        class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+    </div>
+
+    <!-- Google Search SERP Preview Box -->
+    <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+      <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <i class="fa-brands fa-google text-slate-400"></i> Google Search Result Preview
+      </div>
+      <div class="text-xs text-emerald-400">https://aiaxom.co.in</div>
+      <div id="preview_title" class="text-sm font-semibold text-indigo-400 hover:underline cursor-pointer">{{ seo.meta_title }}</div>
+      <div id="preview_desc" class="text-xs text-slate-400 line-clamp-2">{{ seo.meta_description }}</div>
+    </div>
+
+    <!-- Social / OpenGraph Card Preview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-800">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Social Share Title (OG Title)</label>
+        <input type="text" id="seo_og_title" value="{{ seo.og_title }}"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Social Share Image URL (OG Image)</label>
+        <input type="text" id="seo_og_image" value="{{ seo.og_image_url }}"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Social Share Description (OG Description)</label>
+      <textarea id="seo_og_desc" rows="2"
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none">{{ seo.og_description }}</textarea>
+    </div>
+
+    <!-- Analytics & Tracking Container -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-800">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Google Tag Manager (GTM Container ID)</label>
+        <input type="text" id="seo_gtm" value="{{ seo.gtm_container_id|default:'GTM-K4N88ZBR' }}" placeholder="GTM-XXXXXXX"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Footer Cultural Tagline</label>
+        <input type="text" id="seo_footer_tagline" value="{{ seo.footer_tagline }}"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none">
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-end pt-4 border-t border-slate-800">
+      <button onclick="saveSeo()" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-lg shadow-fuchsia-600/25 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save SEO Metadata
+      </button>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const titleInput = document.getElementById('seo_title');
+const descInput = document.getElementById('seo_desc');
+const prevTitle = document.getElementById('preview_title');
+const prevDesc = document.getElementById('preview_desc');
+const titleLen = document.getElementById('title_len');
+const descLen = document.getElementById('desc_len');
+
+function updateLengths() {
+  titleLen.innerText = titleInput.value.length;
+  descLen.innerText = descInput.value.length;
+  prevTitle.innerText = titleInput.value || 'Axom AI';
+  prevDesc.innerText = descInput.value || 'Axom AI description...';
+}
+
+titleInput.addEventListener('input', updateLengths);
+descInput.addEventListener('input', updateLengths);
+updateLengths();
+
+async function saveSeo() {
+  const payload = {
+    meta_title: document.getElementById('seo_title').value,
+    meta_description: document.getElementById('seo_desc').value,
+    meta_keywords: document.getElementById('seo_keywords').value,
+    og_title: document.getElementById('seo_og_title').value,
+    og_description: document.getElementById('seo_og_desc').value,
+    og_image_url: document.getElementById('seo_og_image').value,
+    gtm_container_id: document.getElementById('seo_gtm').value,
+    footer_tagline: document.getElementById('seo_footer_tagline').value,
+  };
+
+  try {
+    const res = await fetch('/axomai-content/seo/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error, 'error');
+    }
+  } catch (err) {
+    showToast('Error saving SEO settings', 'error');
+  }
+}
+</script>
+{% endblock %}

@@ -7,13 +7,21 @@ export default defineConfig({
   plugins: [react()],
   base: '/static/dist/',
   build: {
-    outDir: path.resolve(__dirname, '../static/dist'),
+    outDir: path.resolve(import.meta.dirname, '../static/dist'),
     emptyOutDir: true,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name].js',
         chunkFileNames: 'assets/[name].js',
         assetFileNames: 'assets/[name].[ext]',
+        manualChunks(id) {
+          if (id.includes('node_modules/mermaid')) {
+            return 'mermaid-core';
+          }
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'vendor-react';
+          }
+        },
       }
     }
   }

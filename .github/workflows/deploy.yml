@@ -29,10 +29,10 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -57,7 +57,7 @@ jobs:
           python manage.py migrate --noinput
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -106,13 +106,17 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             # Rebuild frontend when relevant sources changed since last deploy.
-            # Skip when nothing under frontend/ or requirements.txt has changed
-            # to keep quick backend-only deploys fast.
             if git diff --name-only HEAD@{1} HEAD 2>/dev/null | grep -qE '^frontend/'; then
               echo "frontend changes detected — rebuilding bundle"
               (cd frontend && npm ci --no-audit --no-fund && npm run build)
             else
               echo "no frontend changes since last deploy — skipping npm build"
+            fi
+            # Rebuild next-frontend when relevant sources changed since last deploy.
+            if git diff --name-only HEAD@{1} HEAD 2>/dev/null | grep -qE '^next-frontend/'; then
+              echo "next-frontend changes detected — rebuilding Next.js app"
+              (cd next-frontend && npm install --no-audit --no-fund && npm run build)
+              sudo systemctl restart axom-next || true
             fi
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput

@@ -1,0 +1,469 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}FAQ Page Management — Axom AI CMS{% endblock %}
+{% block page_title %}FAQ Page & Questions Manager{% endblock %}
+{% block page_subtitle %}Manage Public FAQ Page (aiaxom.co.in/faq) header settings, real-time search, and Homepage (#faq) dynamic questions{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-6xl pb-16">
+
+  <!-- Section 1: FAQ Page Header & Search Configuration -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-heading text-fuchsia-400"></i>
+          FAQ Page Header & Search Settings
+        </h2>
+        <p class="text-xs text-slate-400">Configure title, description, live search placeholder, and support CTA box on https://aiaxom.co.in/faq</p>
+      </div>
+      <a href="https://aiaxom.co.in/faq" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition self-start sm:self-auto">
+        <i class="fa-solid fa-arrow-up-right-from-square text-fuchsia-400 text-xs"></i>
+        <span>View Live FAQ Page</span>
+      </a>
+    </div>
+
+    <!-- Main Header Fields -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Top Badge Text</label>
+        <input type="text" id="faq_badge" value="{{ config.badge|default:'Help Center & FAQs' }}" placeholder="Help Center & FAQs"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Prefix)</label>
+        <input type="text" id="faq_title_prefix" value="{{ config.title_prefix|default:'Frequently Asked' }}" placeholder="Frequently Asked"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Highlight Gradient)</label>
+        <input type="text" id="faq_title_highlight" value="{{ config.title_highlight|default:'Questions' }}" placeholder="Questions"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Page Subtitle / Description</label>
+      <textarea id="faq_subheading" rows="2" placeholder="Everything you need to know about Axom AI..."
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 leading-relaxed">{{ config.subheading|default:'Everything you need to know about Axom AI, our Assamese language intelligence, tools, subscriptions and data privacy.' }}</textarea>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Search Bar Placeholder</label>
+        <input type="text" id="faq_search_placeholder" value="{{ config.search_placeholder|default:'Search questions (e.g., pricing, Assamese AI, file limits)...' }}" placeholder="Search questions..."
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">SEO Meta Title</label>
+        <input type="text" id="faq_meta_title" value="{{ config.meta_title|default:'FAQs & Help Center — Axom AI' }}" placeholder="FAQs & Help Center — Axom AI"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+    </div>
+
+    <!-- Support CTA Card Settings -->
+    <div class="pt-4 border-t border-slate-800/80 space-y-4">
+      <div class="text-xs font-bold text-fuchsia-400 uppercase tracking-wider">Bottom Support CTA Box Settings</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Support Box Title</label>
+          <input type="text" id="faq_support_title" value="{{ config.support_box_title|default:'Still have questions?' }}" placeholder="Still have questions?"
+            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Support Box Description</label>
+          <input type="text" id="faq_support_desc" value="{{ config.support_box_desc|default:'Can\'t find the answer you\'re looking for? Our support team and community are here to help.' }}" placeholder="Can't find the answer..."
+            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Support Button Text & URL</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="faq_support_btn_text" value="{{ config.support_button_text|default:'Contact Support' }}" placeholder="Contact Support"
+              class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+            <input type="text" id="faq_support_btn_url" value="{{ config.support_button_url|default:'https://user.aiaxom.co.in/support/' }}" placeholder="URL"
+              class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Chat Button Text & URL</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="faq_chat_btn_text" value="{{ config.chat_button_text|default:'Ask Axom AI' }}" placeholder="Ask Axom AI"
+              class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+            <input type="text" id="faq_chat_btn_url" value="{{ config.chat_button_url|default:'https://chat.aiaxom.co.in' }}" placeholder="URL"
+              class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-3 flex flex-col sm:flex-row justify-end">
+      <button onclick="saveFaqPageConfig()" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Header & Search Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 2: Manage FAQ Questions & Answers -->
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-emerald-400"></i>
+          FAQ Questions & Answers ({{ faqs|length }} Total)
+        </h2>
+        <p class="text-xs text-slate-400">Add, edit, reorder questions and choose whether they appear on the homepage (#faq)</p>
+      </div>
+      <button onclick="openAddFaqModal()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition">
+        <i class="fa-solid fa-plus"></i> Add New Question
+      </button>
+    </div>
+
+    <!-- Filter Category Pills -->
+    <div class="flex flex-wrap items-center gap-2 pt-2">
+      <button onclick="filterCategory('all')" id="filter-all" class="cat-pill active px-3 py-1.5 rounded-lg text-xs font-semibold bg-fuchsia-600 text-white transition">
+        All Questions ({{ faqs|length }})
+      </button>
+      <button onclick="filterCategory('general')" id="filter-general" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition">
+        General
+      </button>
+      <button onclick="filterCategory('features')" id="filter-features" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition">
+        Features & AI Models
+      </button>
+      <button onclick="filterCategory('pricing')" id="filter-pricing" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition">
+        Pricing & Payments
+      </button>
+      <button onclick="filterCategory('privacy')" id="filter-privacy" class="cat-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white transition">
+        Data & Privacy
+      </button>
+    </div>
+
+    <!-- FAQ Items List -->
+    <div class="glass-card rounded-2xl border border-slate-800/80 overflow-hidden divide-y divide-slate-800/60" id="faqs-container">
+      {% for f in faqs %}
+      <div class="p-5 flex flex-col md:flex-row md:items-start justify-between gap-4 hover:bg-slate-900/40 transition faq-row" data-category="{{ f.category }}">
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {% if f.category == 'general' %}bg-blue-500/10 text-blue-400 border border-blue-500/20{% elif f.category == 'features' %}bg-purple-500/10 text-purple-400 border border-purple-500/20{% elif f.category == 'pricing' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-amber-500/10 text-amber-400 border border-amber-500/20{% endif %}">
+              {{ f.get_category_display }}
+            </span>
+            {% if f.show_on_homepage %}
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/30 flex items-center gap-1">
+              <i class="fa-solid fa-house text-[9px]"></i> On Homepage
+            </span>
+            {% endif %}
+            <span class="text-[10px] text-slate-500 font-mono">Order: {{ f.order }}</span>
+          </div>
+
+          <h3 class="text-sm font-bold text-white mb-1.5 leading-snug">{{ f.question }}</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">{{ f.answer }}</p>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800/60 justify-between md:justify-end">
+          <!-- Toggle Homepage -->
+          <button onclick="toggleHomepageVisibility({{ f.id }}, this)" title="Toggle Homepage display" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 {% if f.show_on_homepage %}bg-fuchsia-950/40 border-fuchsia-500/30 text-fuchsia-300 hover:bg-fuchsia-900/50{% else %}bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white{% endif %}">
+            <i class="fa-solid fa-house text-[10px]"></i>
+            <span class="text-[11px]">{% if f.show_on_homepage %}Homepage: Yes{% else %}Homepage: No{% endif %}</span>
+          </button>
+
+          <!-- Toggle Active -->
+          <button onclick="toggleFaqActive({{ f.id }}, this)" title="Toggle Active status" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 {% if f.is_active %}bg-emerald-950/40 border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/50{% else %}bg-rose-950/40 border-rose-500/30 text-rose-300 hover:bg-rose-900/50{% endif %}">
+            <span class="w-1.5 h-1.5 rounded-full {% if f.is_active %}bg-emerald-400{% else %}bg-rose-400{% endif %}"></span>
+            <span class="text-[11px]">{% if f.is_active %}Active{% else %}Hidden{% endif %}</span>
+          </button>
+
+          <!-- Edit & Delete -->
+          <button onclick="openEditFaqModal({{ f.id }}, '{{ f.question|escapejs }}', '{{ f.answer|escapejs }}', '{{ f.category }}', {{ f.order }}, {{ f.show_on_homepage|yesno:'true,false' }}, {{ f.is_active|yesno:'true,false' }})" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white grid place-items-center transition" title="Edit Question">
+            <i class="fa-solid fa-pen text-xs"></i>
+          </button>
+          <button onclick="deleteFaqItem({{ f.id }})" class="w-8 h-8 rounded-lg bg-rose-950/30 hover:bg-rose-900/50 text-rose-400 hover:text-rose-300 border border-rose-900/40 grid place-items-center transition" title="Delete Question">
+            <i class="fa-solid fa-trash text-xs"></i>
+          </button>
+        </div>
+      </div>
+      {% empty %}
+      <div class="p-12 text-center text-slate-500 text-xs">
+        <i class="fa-solid fa-circle-question text-3xl text-slate-600 mb-3 block"></i>
+        No FAQ questions found. Click "Add New Question" to create your first FAQ.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- FAQ Modal (Add / Edit) -->
+<div id="faqModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="glass-card max-w-2xl w-full rounded-2xl border border-slate-800 shadow-2xl p-6 space-y-5 animate-scale-up">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="modal-title" class="text-sm font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-circle-question text-emerald-400"></i>
+        Add FAQ Question
+      </h3>
+      <button onclick="closeFaqModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white grid place-items-center text-xs transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <input type="hidden" id="faq_id" value="">
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Question Text *</label>
+        <input type="text" id="faq_question" placeholder="e.g., How does the monthly word limit work?"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Category *</label>
+          <select id="faq_category" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+            <option value="general">General</option>
+            <option value="features">Features & AI Models</option>
+            <option value="pricing">Pricing & Payments</option>
+            <option value="privacy">Data & Privacy</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Display Order</label>
+          <input type="number" id="faq_order" value="0" min="0"
+            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Answer Text *</label>
+        <textarea id="faq_answer" rows="5" placeholder="Detailed answer explanation..."
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 leading-relaxed"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer">
+          <input type="checkbox" id="faq_show_on_homepage" checked class="w-4 h-4 rounded text-fuchsia-600 focus:ring-fuchsia-500 bg-slate-800 border-slate-700">
+          <div>
+            <div class="text-xs font-semibold text-slate-200">Show on Homepage</div>
+            <div class="text-[10px] text-slate-400">Display in #faq section on aiaxom.co.in</div>
+          </div>
+        </label>
+
+        <label class="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800 cursor-pointer">
+          <input type="checkbox" id="faq_is_active" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 bg-slate-800 border-slate-700">
+          <div>
+            <div class="text-xs font-semibold text-slate-200">Active (Visible)</div>
+            <div class="text-[10px] text-slate-400">Publicly visible on FAQ page</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+      <button onclick="closeFaqModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition">
+        Cancel
+      </button>
+      <button onclick="submitFaqItem()" class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-emerald-600/20 transition flex items-center gap-2">
+        <i class="fa-solid fa-check"></i> Save Question
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function saveFaqPageConfig() {
+  const payload = {
+    badge: document.getElementById('faq_badge').value.trim(),
+    title_prefix: document.getElementById('faq_title_prefix').value.trim(),
+    title_highlight: document.getElementById('faq_title_highlight').value.trim(),
+    subheading: document.getElementById('faq_subheading').value.trim(),
+    search_placeholder: document.getElementById('faq_search_placeholder').value.trim(),
+    meta_title: document.getElementById('faq_meta_title').value.trim(),
+    support_box_title: document.getElementById('faq_support_title').value.trim(),
+    support_box_desc: document.getElementById('faq_support_desc').value.trim(),
+    support_button_text: document.getElementById('faq_support_btn_text').value.trim(),
+    support_button_url: document.getElementById('faq_support_btn_url').value.trim(),
+    chat_button_text: document.getElementById('faq_chat_btn_text').value.trim(),
+    chat_button_url: document.getElementById('faq_chat_btn_url').value.trim(),
+  };
+
+  fetch('/axomai-content/pages/faq/config/save/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken,
+    },
+    body: JSON.stringify(payload),
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast(data.message || 'FAQ Page configuration saved successfully!', 'success');
+    } else {
+      showToast(data.error || 'Failed to save configuration', 'error');
+    }
+  })
+  .catch(err => {
+    showToast('Network error while saving FAQ config', 'error');
+  });
+}
+
+function filterCategory(cat) {
+  document.querySelectorAll('.cat-pill').forEach(btn => {
+    btn.classList.remove('bg-fuchsia-600', 'text-white');
+    btn.classList.add('bg-slate-800', 'text-slate-300');
+  });
+  const activeBtn = document.getElementById(`filter-${cat}`);
+  if (activeBtn) {
+    activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+    activeBtn.classList.add('bg-fuchsia-600', 'text-white');
+  }
+
+  const rows = document.querySelectorAll('.faq-row');
+  rows.forEach(row => {
+    if (cat === 'all' || row.dataset.category === cat) {
+      row.classList.remove('hidden');
+    } else {
+      row.classList.add('hidden');
+    }
+  });
+}
+
+function openAddFaqModal() {
+  document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-plus text-emerald-400"></i> Add FAQ Question';
+  document.getElementById('faq_id').value = '';
+  document.getElementById('faq_question').value = '';
+  document.getElementById('faq_category').value = 'general';
+  document.getElementById('faq_order').value = document.querySelectorAll('.faq-row').length + 1;
+  document.getElementById('faq_answer').value = '';
+  document.getElementById('faq_show_on_homepage').checked = true;
+  document.getElementById('faq_is_active').checked = true;
+  document.getElementById('faqModal').classList.remove('hidden');
+}
+
+function openEditFaqModal(id, q, a, cat, order, showHome, isActive) {
+  document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen text-fuchsia-400"></i> Edit FAQ Question';
+  document.getElementById('faq_id').value = id;
+  document.getElementById('faq_question').value = q;
+  document.getElementById('faq_category').value = cat || 'general';
+  document.getElementById('faq_order').value = order || 0;
+  document.getElementById('faq_answer').value = a;
+  document.getElementById('faq_show_on_homepage').checked = !!showHome;
+  document.getElementById('faq_is_active').checked = !!isActive;
+  document.getElementById('faqModal').classList.remove('hidden');
+}
+
+function closeFaqModal() {
+  document.getElementById('faqModal').classList.add('hidden');
+}
+
+function submitFaqItem() {
+  const id = document.getElementById('faq_id').value;
+  const question = document.getElementById('faq_question').value.trim();
+  const category = document.getElementById('faq_category').value;
+  const order = parseInt(document.getElementById('faq_order').value) || 0;
+  const answer = document.getElementById('faq_answer').value.trim();
+  const show_on_homepage = document.getElementById('faq_show_on_homepage').checked;
+  const is_active = document.getElementById('faq_is_active').checked;
+
+  if (!question) {
+    showToast('Question text is required', 'error');
+    return;
+  }
+  if (!answer) {
+    showToast('Answer text is required', 'error');
+    return;
+  }
+
+  const payload = {
+    id: id ? parseInt(id) : null,
+    question: question,
+    category: category,
+    order: order,
+    answer: answer,
+    show_on_homepage: show_on_homepage,
+    is_active: is_active,
+  };
+
+  fetch('/axomai-content/pages/faq/save/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrftoken,
+    },
+    body: JSON.stringify(payload),
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast(data.message || 'FAQ Question saved!', 'success');
+      closeFaqModal();
+      setTimeout(() => window.location.reload(), 600);
+    } else {
+      showToast(data.error || 'Failed to save question', 'error');
+    }
+  })
+  .catch(err => {
+    showToast('Network error while saving FAQ', 'error');
+  });
+}
+
+function toggleHomepageVisibility(id, btn) {
+  fetch(`/axomai-content/pages/faq/toggle-homepage/${id}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrftoken,
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to toggle status', 'error');
+    }
+  })
+  .catch(() => showToast('Error toggling homepage status', 'error'));
+}
+
+function toggleFaqActive(id, btn) {
+  fetch(`/axomai-content/pages/faq/toggle-status/${id}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrftoken,
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to toggle status', 'error');
+    }
+  })
+  .catch(() => showToast('Error toggling active status', 'error'));
+}
+
+function deleteFaqItem(id) {
+  if (!confirm('Are you sure you want to delete this FAQ question?')) return;
+
+  fetch(`/axomai-content/pages/faq/delete/${id}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrftoken,
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showToast(data.message || 'Question deleted successfully', 'success');
+      setTimeout(() => window.location.reload(), 500);
+    } else {
+      showToast(data.error || 'Failed to delete question', 'error');
+    }
+  })
+  .catch(() => showToast('Network error while deleting FAQ', 'error'));
+}
+</script>
+{% endblock %}

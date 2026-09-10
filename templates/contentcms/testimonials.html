@@ -1,0 +1,321 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}5. Testimonials & Social Proof — Axom AI CMS{% endblock %}
+{% block page_title %}5. User Testimonials & Reviews{% endblock %}
+{% block page_subtitle %}Controls Landing Page Section: Community Testimonials & Social Proof Quotes (aiaxom.co.in/#testimonials){% endblock %}
+
+{% block content %}
+<div class="space-y-10 max-w-6xl">
+
+  <!-- Section 0: Testimonials Section Header & Visibility Settings -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-amber-400"></i>
+          Testimonials Section Headline & Visibility
+        </h2>
+        <p class="text-xs text-slate-400">Configure the main section headline, badge, and visibility on the landing page</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="test_sec_active" class="sr-only peer" {% if hero.testimonials_section_active %}checked{% endif %}>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Visible on Landing Page</span>
+      </label>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Pill Badge</label>
+        <input type="text" id="test_badge" value="{{ hero.testimonials_badge|default:'Testimonials' }}" placeholder="Testimonials"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Prefix)</label>
+        <input type="text" id="test_prefix" value="{{ hero.testimonials_title_prefix|default:'Loved by Users' }}" placeholder="Loved by Users"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Highlight Gradient)</label>
+        <input type="text" id="test_highlight" value="{{ hero.testimonials_title_highlight|default:'Across Assam' }}" placeholder="Across Assam"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subheading / Description</label>
+      <input type="text" id="test_subheading" value="{{ hero.testimonials_subheading|default:'Real feedback and stories from everyday users, students and businesses.' }}" placeholder="Real stories and feedback from our community."
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500">
+    </div>
+
+    <div class="pt-2 flex flex-col sm:flex-row justify-end">
+      <button onclick="saveTestimonialsHeader()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 transition">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save Header Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 1: Testimonials Cards Grid -->
+  <div class="space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-star text-amber-400"></i>
+          User Reviews & Quotes ({{ testimonials|length }})
+        </h2>
+        <p class="text-xs text-slate-400">Individual review cards shown on the landing page</p>
+      </div>
+      <button onclick="openTestimonialModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 transition">
+        <i class="fa-solid fa-plus"></i>
+        Add New Testimonial
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for t in testimonials %}
+      <div class="glass-card rounded-2xl border border-slate-800/80 p-5 flex flex-col justify-between glass-card-hover transition relative group">
+        <div>
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-fuchsia-600 to-indigo-600 flex items-center justify-center text-sm font-bold text-white shadow-md shadow-fuchsia-500/20">
+                {{ t.avatar_initials|default:"AK" }}
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white">{{ t.name }}</div>
+                <div class="text-xs text-slate-400">{{ t.role_designation }}</div>
+              </div>
+            </div>
+            <div class="flex text-amber-400 text-xs gap-0.5">
+              {% for i in "12345"|slice:t.rating %}
+              <i class="fa-solid fa-star"></i>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 space-y-2">
+            <div class="text-xs text-slate-200 font-medium leading-relaxed font-assamese">
+              "{{ t.quote_assamese }}"
+            </div>
+            {% if t.quote_english %}
+            <div class="text-[11px] text-slate-400 italic pt-2 border-t border-slate-800/60">
+              "{{ t.quote_english }}"
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span class="text-slate-500 text-[11px]">Display Order: <strong class="text-slate-300">{{ t.order }}</strong></span>
+          <div class="flex items-center gap-3">
+            <button onclick="editTestimonial({{ t.id }}, '{{ t.name|escapejs }}', '{{ t.role_designation|escapejs }}', '{{ t.avatar_initials|escapejs }}', '{{ t.quote_assamese|escapejs }}', '{{ t.quote_english|escapejs }}', {{ t.rating }}, {{ t.order }})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-pen text-amber-400 text-[10px]"></i> Edit
+            </button>
+            <button onclick="deleteTestimonial({{ t.id }})" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/20 text-rose-300 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+              <i class="fa-solid fa-trash text-[10px]"></i> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-span-3 glass-card rounded-2xl p-12 text-center border border-slate-800 space-y-3">
+        <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-xl">
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <div class="text-sm font-semibold text-white">No Testimonials Added Yet</div>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">Click the button below to add your first customer review.</p>
+        <button onclick="openTestimonialModal()" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold inline-flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Add Testimonial
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Testimonial Add / Edit Modal -->
+<div id="tModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm hidden p-4" onclick="if(event.target===this) closeTModal()">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-lg p-6 space-y-4 shadow-2xl relative" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+          <i class="fa-solid fa-star text-sm"></i>
+        </div>
+        <div>
+          <h3 id="tModalTitle" class="text-base font-bold text-white">Add Testimonial</h3>
+          <p class="text-[11px] text-slate-400">Configure customer review for landing page</p>
+        </div>
+      </div>
+      <button onclick="closeTModal()" class="text-slate-400 hover:text-white p-1">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <input type="hidden" id="modal_tid">
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">User Full Name *</label>
+        <input type="text" id="modal_tname" placeholder="Abhijit Kalita" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Role & Location *</label>
+        <input type="text" id="modal_trole" placeholder="Student, Cotton University" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Avatar Initials</label>
+        <input type="text" id="modal_tavatar" maxlength="3" placeholder="AK" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Star Rating</label>
+        <select id="modal_trating" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
+          <option value="5">★★★★★ (5 Stars)</option>
+          <option value="4">★★★★☆ (4 Stars)</option>
+          <option value="3">★★★☆☆ (3 Stars)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Sort Order</label>
+        <input type="number" id="modal_torder" min="0" value="0" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">Review Quote (Assamese) *</label>
+      <textarea id="modal_tquote_as" rows="3" placeholder="অসমীয়াত AI ৰ উত্তৰবোৰ ইমান স্পষ্ট আৰু নিখুঁত..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white font-assamese focus:outline-none focus:border-amber-500"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1">English Translation (Optional)</label>
+      <textarea id="modal_tquote_en" rows="2" placeholder="The Assamese AI responses are so accurate and natural..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500"></textarea>
+    </div>
+
+    <div class="flex justify-end gap-3 pt-3 border-t border-slate-800">
+      <button onclick="closeTModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+      <button onclick="submitTestimonial()" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold rounded-xl text-xs shadow-md shadow-amber-500/20">Save Testimonial</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function saveTestimonialsHeader() {
+  const payload = {
+    testimonials_badge: document.getElementById('test_badge').value,
+    testimonials_title_prefix: document.getElementById('test_prefix').value,
+    testimonials_title_highlight: document.getElementById('test_highlight').value,
+    testimonials_subheading: document.getElementById('test_subheading').value,
+    testimonials_section_active: document.getElementById('test_sec_active').checked
+  };
+
+  try {
+    const res = await fetch('/axomai-content/testimonials/header/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error || 'Failed to save header', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving header settings', 'error');
+  }
+}
+
+function openTestimonialModal() {
+  document.getElementById('tModalTitle').innerText = 'Add Testimonial';
+  document.getElementById('modal_tid').value = '';
+  document.getElementById('modal_tname').value = '';
+  document.getElementById('modal_trole').value = '';
+  document.getElementById('modal_tavatar').value = 'AK';
+  document.getElementById('modal_tquote_as').value = '';
+  document.getElementById('modal_tquote_en').value = '';
+  document.getElementById('modal_trating').value = 5;
+  document.getElementById('modal_torder').value = 0;
+  document.getElementById('tModal').classList.remove('hidden');
+}
+
+function editTestimonial(id, name, role, avatar, q_as, q_en, rating, order) {
+  document.getElementById('tModalTitle').innerText = 'Edit Testimonial';
+  document.getElementById('modal_tid').value = id;
+  document.getElementById('modal_tname').value = name;
+  document.getElementById('modal_trole').value = role;
+  document.getElementById('modal_tavatar').value = avatar;
+  document.getElementById('modal_tquote_as').value = q_as;
+  document.getElementById('modal_tquote_en').value = q_en;
+  document.getElementById('modal_trating').value = rating || 5;
+  document.getElementById('modal_torder').value = order || 0;
+  document.getElementById('tModal').classList.remove('hidden');
+}
+
+function closeTModal() { 
+  document.getElementById('tModal').classList.add('hidden'); 
+}
+
+async function submitTestimonial() {
+  const name = document.getElementById('modal_tname').value.trim();
+  const quote_as = document.getElementById('modal_tquote_as').value.trim();
+
+  if (!name || !quote_as) {
+    showToast('Name and Assamese quote are required', 'error');
+    return;
+  }
+
+  const payload = {
+    id: document.getElementById('modal_tid').value || null,
+    name: name,
+    role_designation: document.getElementById('modal_trole').value.trim(),
+    avatar_initials: document.getElementById('modal_tavatar').value.trim() || name.substring(0,2).toUpperCase(),
+    quote_assamese: quote_as,
+    quote_english: document.getElementById('modal_tquote_en').value.trim(),
+    rating: parseInt(document.getElementById('modal_trating').value || 5),
+    order: parseInt(document.getElementById('modal_torder').value || 0),
+    is_active: true
+  };
+
+  try {
+    const res = await fetch('/axomai-content/testimonials/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to save testimonial', 'error');
+    }
+  } catch (err) { 
+    showToast('Error saving testimonial', 'error'); 
+  }
+}
+
+async function deleteTestimonial(id) {
+  if (!confirm('Are you sure you want to delete this testimonial?')) return;
+  try {
+    const res = await fetch(`/axomai-content/testimonials/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) { 
+      showToast(data.message, 'success'); 
+      setTimeout(() => location.reload(), 400); 
+    } else {
+      showToast(data.error || 'Failed to delete testimonial', 'error');
+    }
+  } catch (err) { 
+    showToast('Error deleting testimonial', 'error'); 
+  }
+}
+</script>
+{% endblock %}

@@ -11,6 +11,9 @@ import PdfEditor from './components/PdfEditor';
 import PdfCompressor from './components/PdfCompressor';
 import WatermarkRemover from './components/WatermarkRemover';
 import ImageGenerator from './components/ImageGenerator';
+import ImageFinder from './components/ImageFinder';
+import VideoFinder from './components/VideoFinder';
+const DiagramGenerator = React.lazy(() => import('./components/DiagramGenerator'));
 import Summarize from './components/Summarize';
 import SubscriptionPage from './components/SubscriptionPage';
 import { useWordLimit } from './hooks/useWordLimit';
@@ -48,6 +51,9 @@ export default function App() {
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
   const [isWmOpen, setIsWmOpen] = useState(false);
   const [isImgGenOpen, setIsImgGenOpen] = useState(false);
+  const [isImageFinderOpen, setIsImageFinderOpen] = useState(false);
+  const [isVideoFinderOpen, setIsVideoFinderOpen] = useState(false);
+  const [isDiagramGenOpen, setIsDiagramGenOpen] = useState(false);
 
   // Active paid plan (fetched once + refreshed when returning from /upgrade)
   const [activePlan, setActivePlan] = useState(null);
@@ -217,6 +223,9 @@ export default function App() {
           onOpenCompressor={() => setIsCompressorOpen(true)}
           onOpenWmRemover={() => setIsWmOpen(true)}
           onOpenImageGen={() => setIsImgGenOpen(true)}
+          onOpenImageFinder={() => setIsImageFinderOpen(true)}
+          onOpenVideoFinder={() => setIsVideoFinderOpen(true)}
+          onOpenDiagramGen={() => setIsDiagramGenOpen(true)}
           onOpenSummarizer={() => setIsSummarizeOpen(true)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
@@ -232,6 +241,19 @@ export default function App() {
 
         {/* FULL-SCREEN IMAGE GENERATOR */}
         {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
+
+        {/* FULL-SCREEN AI IMAGE FINDER (PEXELS) */}
+        {isImageFinderOpen && <ImageFinder onClose={() => setIsImageFinderOpen(false)} />}
+
+        {/* FULL-SCREEN AI VIDEO FINDER (PEXELS) */}
+        {isVideoFinderOpen && <VideoFinder onClose={() => setIsVideoFinderOpen(false)} />}
+
+        {/* FULL-SCREEN AI DIAGRAM GENERATOR (MERMAID) */}
+        {isDiagramGenOpen && (
+          <React.Suspense fallback={null}>
+            <DiagramGenerator onClose={() => setIsDiagramGenOpen(false)} />
+          </React.Suspense>
+        )}
 
         {/* FULL-SCREEN SUMMARIZE */}
         {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
@@ -339,6 +361,25 @@ export default function App() {
 
       {/* FULL-SCREEN WATERMARK REMOVER */}
       {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
+
+      {/* FULL-SCREEN IMAGE GENERATOR */}
+      {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
+
+      {/* FULL-SCREEN AI IMAGE FINDER (PEXELS) */}
+      {isImageFinderOpen && <ImageFinder onClose={() => setIsImageFinderOpen(false)} />}
+
+      {/* FULL-SCREEN AI VIDEO FINDER (PEXELS) */}
+      {isVideoFinderOpen && <VideoFinder onClose={() => setIsVideoFinderOpen(false)} />}
+
+      {/* FULL-SCREEN AI DIAGRAM GENERATOR (MERMAID) */}
+      {isDiagramGenOpen && (
+        <React.Suspense fallback={null}>
+          <DiagramGenerator onClose={() => setIsDiagramGenOpen(false)} />
+        </React.Suspense>
+      )}
+
+      {/* FULL-SCREEN SUMMARIZE */}
+      {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
 
       {/* BEAUTIFUL CREDENTIALS MODAL */}
       <LoginModal

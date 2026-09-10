@@ -1,0 +1,981 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}{% if article %}Edit Article — {{ article.title }}{% else %}New Blog & Insight Post{% endif %}{% endblock %}
+{% block page_title %}{% if article %}Edit Blog / Insight Post{% else %}Create New Blog / Insight Post{% endif %}{% endblock %}
+{% block page_subtitle %}Compose article content displayed in the "Insights & Stories" section{% endblock %}
+
+{% block extra_head %}
+<!-- Flatpickr Dark Theme Datepicker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- CKEditor 5 SuperBuild -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+
+<style>
+  /* Premium Dark Glassmorphic Flatpickr */
+  .flatpickr-calendar {
+    background: #090d16 !important;
+    border: 1px solid rgba(192, 132, 252, 0.3) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(168, 85, 247, 0.25) !important;
+    border-radius: 16px !important;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    overflow: hidden !important;
+    padding: 8px !important;
+    width: 290px !important;
+  }
+  .flatpickr-calendar.arrowTop:after, .flatpickr-calendar.arrowTop:before {
+    border-bottom-color: #090d16 !important;
+  }
+  .flatpickr-calendar.arrowBottom:after, .flatpickr-calendar.arrowBottom:before {
+    border-top-color: #090d16 !important;
+  }
+
+  /* =========================================================
+     CKEditor 5 Ultra-Premium Dark Glassmorphic Theme
+     ========================================================= */
+  :root {
+    --ck-color-base-background: #090d16;
+    --ck-color-base-border: rgba(75, 85, 99, 0.4);
+    --ck-color-toolbar-background: #0f172a;
+    --ck-color-toolbar-border: rgba(255, 255, 255, 0.06);
+    --ck-color-text: #e2e8f0;
+    --ck-color-base-text: #e2e8f0;
+    --ck-color-focus-border: #c084fc;
+    --ck-color-shadow: rgba(0, 0, 0, 0.6);
+    --ck-color-button-default-hover-background: rgba(192, 132, 252, 0.2);
+    --ck-color-button-default-active-background: rgba(217, 70, 239, 0.25);
+    --ck-color-button-on-background: rgba(217, 70, 239, 0.25);
+    --ck-color-button-on-hover-background: rgba(217, 70, 239, 0.35);
+    --ck-color-dropdown-panel-background: #090d16;
+    --ck-color-dropdown-panel-border: rgba(192, 132, 252, 0.35);
+    --ck-color-list-background: #090d16;
+    --ck-color-list-button-hover-background: rgba(192, 132, 252, 0.2);
+    --ck-color-panel-background: #090d16;
+    --ck-color-panel-border: rgba(192, 132, 252, 0.35);
+    --ck-color-input-background: #050811;
+    --ck-color-input-border: #334155;
+    --ck-color-input-text: #ffffff;
+    --ck-color-dialog-background: #090d16;
+    --ck-color-dialog-border: rgba(192, 132, 252, 0.35);
+    --ck-border-radius: 12px;
+  }
+
+  .ck.ck-editor {
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.08) !important;
+    border: 1px solid rgba(75, 85, 99, 0.4) !important;
+    transition: all 0.25s ease !important;
+  }
+  .ck.ck-editor:focus-within {
+    border-color: #c084fc !important;
+    box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.8), 0 0 30px rgba(192, 132, 252, 0.25) !important;
+  }
+  .ck.ck-toolbar {
+    background: #0f172a !important;
+    border: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    padding: 6px 8px !important;
+    flex-wrap: wrap !important;
+  }
+  .ck.ck-toolbar .ck-button {
+    color: #cbd5e1 !important;
+    border-radius: 8px !important;
+    transition: all 0.15s ease !important;
+    height: 32px !important;
+  }
+  .ck.ck-toolbar .ck-button:hover {
+    background: rgba(192, 132, 252, 0.2) !important;
+    color: #ffffff !important;
+  }
+  .ck.ck-toolbar .ck-button.ck-on {
+    background: linear-gradient(135deg, rgba(192, 38, 211, 0.35), rgba(147, 51, 234, 0.35)) !important;
+    color: #f5d0fe !important;
+    border: 1px solid rgba(217, 70, 239, 0.4) !important;
+  }
+  .ck.ck-toolbar .ck-button svg {
+    fill: currentColor !important;
+  }
+  .ck.ck-editor__main > .ck-editor__editable {
+    background: #090d16 !important;
+    color: #e2e8f0 !important;
+    min-height: 480px !important;
+    padding: 20px 24px !important;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.85 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .ck.ck-editor__main > .ck-editor__editable:focus {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  .ck.ck-dropdown__panel {
+    background: #090d16 !important;
+    border: 1px solid rgba(192, 132, 252, 0.35) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(16px) !important;
+  }
+  .ck.ck-list__item .ck-button {
+    color: #cbd5e1 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+  }
+  .ck.ck-list__item .ck-button:hover, .ck.ck-list__item .ck-button.ck-on {
+    background: rgba(192, 132, 252, 0.2) !important;
+    color: #ffffff !important;
+  }
+  .ck.ck-balloon-panel {
+    background: #090d16 !important;
+    border: 1px solid rgba(192, 132, 252, 0.35) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
+    z-index: 99999 !important;
+  }
+  .ck.ck-balloon-panel:after, .ck.ck-balloon-panel:before {
+    border-bottom-color: #090d16 !important;
+    border-top-color: #090d16 !important;
+  }
+  .ck.ck-dialog {
+    background: #090d16 !important;
+    border: 1px solid rgba(192, 132, 252, 0.35) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95) !important;
+  }
+  .ck.ck-dialog .ck-dialog__header {
+    background: #0f172a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  }
+  .ck.ck-dialog .ck-dialog__body {
+    background: #090d16 !important;
+    color: #e2e8f0 !important;
+  }
+  .ck.ck-dialog .ck-dialog__footer {
+    background: #0f172a !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  .ck.ck-input-text, .ck.ck-textarea {
+    background: #050811 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+  }
+  .ck.ck-input-text:focus, .ck.ck-textarea:focus {
+    border-color: #d946ef !important;
+    box-shadow: 0 0 15px rgba(217, 70, 239, 0.3) !important;
+  }
+
+  /* Interior Typography within CKEditor editable area */
+  .ck-content h1, .ck-content h2, .ck-content h3, .ck-content h4 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.5em !important;
+  }
+  .ck-content h1 { font-size: 2rem !important; }
+  .ck-content h2 { font-size: 1.55rem !important; color: #f5d0fe !important; }
+  .ck-content h3 { font-size: 1.3rem !important; color: #e9d5ff !important; }
+  .ck-content h4 { font-size: 1.15rem !important; color: #d8b4fe !important; }
+  .ck-content p { margin-bottom: 1.25em !important; }
+  .ck-content a { color: #c084fc !important; text-decoration: underline !important; }
+  .ck-content a:hover { color: #f472b6 !important; }
+  .ck-content blockquote {
+    border-left: 4px solid #c084fc !important;
+    background: linear-gradient(90deg, rgba(192, 132, 252, 0.12) 0%, rgba(192, 132, 252, 0.02) 100%) !important;
+    padding: 14px 22px !important;
+    border-radius: 0 14px 14px 0 !important;
+    font-style: italic !important;
+    color: #f5d0fe !important;
+    margin: 20px 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+  .ck-content code {
+    background: rgba(255, 255, 255, 0.08) !important;
+    padding: 2px 7px !important;
+    border-radius: 6px !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font-size: 0.9em !important;
+    color: #f472b6 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  .ck-content pre {
+    background: #04060d !important;
+    padding: 18px !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    overflow-x: auto !important;
+    color: #38bdf8 !important;
+    margin: 18px 0 !important;
+  }
+  .ck-content .image {
+    margin: 20px 0 !important;
+  }
+  .ck-content .image > img {
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 12px 35px -5px rgba(0,0,0,0.6) !important;
+  }
+  .ck-content table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 20px 0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  .ck-content table th, .ck-content table td {
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 12px 16px !important;
+  }
+  .ck-content table th {
+    background: rgba(192, 132, 252, 0.15) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  }
+  .flatpickr-months {
+    background: #0f172a !important;
+    border-radius: 10px !important;
+    padding: 6px 4px !important;
+    margin-bottom: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+  .flatpickr-months .flatpickr-month {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    height: 30px !important;
+  }
+  .flatpickr-current-month {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #f1f5f9 !important;
+    padding: 2px 0 0 0 !important;
+  }
+  .flatpickr-current-month .cur-month {
+    font-weight: 700 !important;
+    color: #ffffff !important;
+  }
+  .flatpickr-current-month input.cur-year {
+    font-weight: 700 !important;
+    color: #c084fc !important;
+  }
+  .flatpickr-months .flatpickr-prev-month, 
+  .flatpickr-months .flatpickr-next-month {
+    fill: #c084fc !important;
+    color: #c084fc !important;
+    padding: 4px 8px !important;
+    top: 4px !important;
+  }
+  .flatpickr-months .flatpickr-prev-month:hover svg, 
+  .flatpickr-months .flatpickr-next-month:hover svg {
+    fill: #e879f9 !important;
+  }
+  .flatpickr-weekdays {
+    background: transparent !important;
+    height: 24px !important;
+    margin-bottom: 4px !important;
+  }
+  .flatpickr-weekday {
+    color: #c084fc !important;
+    font-weight: 700 !important;
+    font-size: 10px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+  }
+  .flatpickr-days {
+    width: 274px !important;
+  }
+  .dayContainer {
+    width: 274px !important;
+    min-width: 274px !important;
+    max-width: 274px !important;
+    justify-content: space-around !important;
+  }
+  .flatpickr-day {
+    color: #e2e8f0 !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    max-width: 32px !important;
+    margin: 2px 0 !important;
+    border: 1px solid transparent !important;
+    transition: all 0.15s ease !important;
+  }
+  .flatpickr-day:hover, .flatpickr-day:focus {
+    background: rgba(192, 132, 252, 0.2) !important;
+    border-color: rgba(192, 132, 252, 0.5) !important;
+    color: #ffffff !important;
+  }
+  .flatpickr-day.selected, .flatpickr-day.selected:hover {
+    background: linear-gradient(135deg, #c026d3, #9333ea) !important;
+    border-color: #e879f9 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(192, 38, 211, 0.6) !important;
+  }
+  .flatpickr-day.today {
+    border-color: #c084fc !important;
+    color: #f5d0fe !important;
+  }
+  .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+    color: #334155 !important;
+  }
+  .flatpickr-day.prevMonthDay:hover, .flatpickr-day.nextMonthDay:hover {
+    background: transparent !important;
+    color: #64748b !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+  <div class="flex items-center justify-between">
+    <a href="/axomai-content/articles/" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 font-medium transition">
+      <i class="fa-solid fa-arrow-left"></i> Back to Articles List
+    </a>
+    {% if article %}
+    <div class="text-xs text-slate-400">
+      Last edited: <strong class="text-slate-300">{{ article.updated_at|date:"M d, Y H:i" }}</strong>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Main Full-Width Form Card -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-7">
+    <input type="hidden" id="art_id" value="{{ article.id|default:'' }}">
+
+    <!-- Title & Permalink -->
+    <div class="space-y-2.5">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Article Headline / Title <span class="text-rose-400">*</span></label>
+        <input type="text" id="art_title" value="{{ article.title|default:'' }}" required placeholder="e.g., How Axom AI Powers Multilingual Learning in Assam..."
+          oninput="handleTitleChange(this.value)"
+          class="w-full px-4 py-3.5 bg-slate-900 border border-slate-700/80 rounded-xl text-base text-white font-medium focus:outline-none focus:border-fuchsia-500 transition shadow-inner">
+      </div>
+
+      <!-- Editable Permalink / URL Slug -->
+      <div class="rounded-xl bg-slate-900/60 border border-slate-800/90 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2 text-xs text-slate-400 flex-1 min-w-0">
+          <span class="font-semibold text-slate-300 shrink-0 flex items-center gap-1.5">
+            <i class="fa-solid fa-link text-fuchsia-400"></i> Permalink:
+          </span>
+          <span class="text-slate-500 font-mono text-[11px] shrink-0">https://aiaxom.co.in/blog/</span>
+          <input type="text" id="art_slug" value="{{ article.slug|default:'' }}" placeholder="article-url-slug"
+            oninput="handleSlugInput(this.value)"
+            class="flex-1 min-w-[140px] px-2.5 py-1 bg-slate-950 border border-slate-700/80 rounded-lg text-xs font-mono text-fuchsia-300 focus:outline-none focus:border-fuchsia-500 transition">
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <a id="art_live_link" href="https://aiaxom.co.in/blog/{{ article.slug|default:'' }}/" target="_blank"
+            class="text-xs text-fuchsia-400 hover:text-fuchsia-300 font-semibold flex items-center gap-1.5 transition {% if not article.slug %}hidden{% endif %}">
+            <span>View Live Post</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category & Date & Read Time (3 Columns) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      
+      <!-- Modern Custom Category Dropdown -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-layer-group text-fuchsia-400"></i> Category
+        </label>
+        <div class="relative" id="custom_cat_dropdown">
+          <input type="hidden" id="art_cat" value="{{ article.category|default:'product_update' }}">
+          
+          <button type="button" id="cat_dropdown_btn" onclick="toggleCatDropdown(event)"
+            class="w-full flex items-center justify-between pl-3.5 pr-3 py-2.5 bg-slate-900 border border-slate-700/80 hover:border-fuchsia-500/50 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition shadow-sm">
+            <span id="cat_selected_text" class="truncate font-medium">
+              {{ article.get_category_display|default:'Product Update' }}
+            </span>
+            <i id="cat_chevron" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ml-2 shrink-0"></i>
+          </button>
+
+          <!-- Animated Custom Popup Menu -->
+          <div id="cat_menu" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 p-1.5 bg-slate-900/95 backdrop-blur-xl border border-fuchsia-500/30 rounded-xl shadow-2xl shadow-purple-950/60 space-y-1">
+            {% for val, label in categories %}
+            <button type="button" onclick="selectCategory('{{ val }}', '{{ label|escapejs }}')"
+              class="cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left {% if article and article.category == val or not article and forloop.first %}bg-fuchsia-600/20 text-fuchsia-300 font-semibold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/80{% endif %}"
+              data-value="{{ val }}">
+              <div class="flex items-center gap-2 truncate">
+                <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shrink-0"></span>
+                <span class="truncate">{{ label }}</span>
+              </div>
+              <i class="fa-solid fa-check text-xs text-fuchsia-400 check-icon shrink-0 {% if article and article.category == val or not article and forloop.first %}{% else %}hidden{% endif %}"></i>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern Flatpickr Calendar -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-calendar-days text-fuchsia-400"></i> Published Date
+        </label>
+        <div class="relative">
+          <input type="text" id="art_date" value="{% if article %}{{ article.published_at|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}"
+            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 cursor-pointer transition">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <i class="fa-regular fa-calendar text-xs text-fuchsia-400"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estimated Read Time -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-clock text-fuchsia-400"></i> Read Time
+        </label>
+        <div class="relative">
+          <input type="text" id="art_read_time" value="{{ article.read_time|default:'4 min read' }}" placeholder="4 min read"
+            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+            <i class="fa-solid fa-stopwatch text-xs text-slate-500"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Excerpt (Summary for Cards) -->
+    <div>
+      <div class="flex items-center justify-between mb-1.5">
+        <label class="block text-xs font-semibold text-slate-300">Card Excerpt / Summary (20-30 words)</label>
+        <span id="excerpt_counter" class="text-[11px] text-slate-500">0 chars</span>
+      </div>
+      <textarea id="art_excerpt" rows="2" placeholder="Brief 1-2 sentence preview that appears on the landing page card..."
+        oninput="document.getElementById('excerpt_counter').innerText = `${this.value.length} chars`"
+        class="w-full px-4 py-3 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition leading-relaxed">{{ article.excerpt|default:'' }}</textarea>
+    </div>
+
+    <!-- Featured Cover Image & Banner Media (Full Width Card) -->
+    <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+          <i class="fa-solid fa-image text-fuchsia-400"></i> Featured Cover Image & Banner
+        </label>
+        <span class="text-[11px] text-slate-400">Used on blog cards and hero header</span>
+      </div>
+
+      <input type="hidden" id="art_cover_image" value="{{ article.cover_image_url|default:'' }}">
+      <input type="file" id="featured_image_input" accept="image/*" class="hidden" onchange="uploadFeaturedImageFile(this)">
+
+      <!-- Full-Width Dropzone & Preview Container -->
+      <div id="featured_img_container" class="relative group rounded-xl border-2 {% if article.cover_image_url %}border-fuchsia-500/40{% else %}border-dashed border-slate-700/80 hover:border-fuchsia-500/50{% endif %} overflow-hidden bg-slate-950/70 transition duration-200">
+        
+        <!-- Image View (if present) -->
+        <div id="featured_img_preview_box" class="{% if not article.cover_image_url %}hidden{% endif %} relative h-56 sm:h-64 w-full overflow-hidden">
+          <img id="featured_img_preview" src="{{ article.cover_image_url|default:'' }}" alt="Featured Cover" class="w-full h-full object-cover">
+          
+          <!-- Hover actions overlay -->
+          <div class="absolute inset-0 bg-slate-950/75 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3 p-4 z-10">
+            <button type="button" onclick="document.getElementById('featured_image_input').click()" 
+              class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-fuchsia-600/30 flex items-center gap-2 transition">
+              <i class="fa-solid fa-arrow-up-from-bracket text-xs"></i> Change Image
+            </button>
+            <button type="button" onclick="removeFeaturedImage()" 
+              class="px-4 py-2 bg-rose-600/90 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold shadow-lg shadow-rose-600/30 flex items-center gap-2 transition">
+              <i class="fa-solid fa-trash-can text-xs"></i> Remove Image
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty Upload Dropzone -->
+        <div id="featured_img_placeholder" onclick="document.getElementById('featured_image_input').click()" 
+          class="{% if article.cover_image_url %}hidden{% endif %} cursor-pointer p-8 text-center space-y-2.5 flex flex-col items-center justify-center min-h-[160px] group-hover:bg-fuchsia-950/10 transition">
+          <div class="w-12 h-12 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 grid place-items-center text-lg group-hover:scale-110 group-hover:bg-fuchsia-500/20 transition duration-200">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-slate-200 group-hover:text-fuchsia-300 transition">Upload Featured Cover Image</div>
+            <div class="text-xs text-slate-500 mt-1">Click to browse or drag & drop (JPG, PNG, WEBP, GIF, SVG up to 15MB)</div>
+          </div>
+        </div>
+
+        <!-- Uploading Spinner Overlay -->
+        <div id="featured_upload_spinner" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center gap-2.5 z-20">
+          <i class="fa-solid fa-circle-notch fa-spin text-fuchsia-400 text-2xl"></i>
+          <span class="text-xs text-fuchsia-200 font-medium">Uploading featured image...</span>
+        </div>
+      </div>
+
+      <!-- URL Input & Fallback Gradient Color Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+        <!-- External Image URL Input -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-[11px] font-medium text-slate-400">Or Image URL</label>
+            <button type="button" onclick="applyExternalImageUrl()" class="text-[11px] text-fuchsia-400 hover:text-fuchsia-300 font-semibold transition">Apply URL</button>
+          </div>
+          <div class="relative">
+            <input type="text" id="art_cover_url_input" value="{{ article.cover_image_url|default:'' }}" placeholder="https://images.unsplash.com/..." 
+              oninput="handleCoverUrlInput(this.value)"
+              class="w-full pl-8 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-fuchsia-500 transition">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-500">
+              <i class="fa-solid fa-link text-xs"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gradient Fallback Colors -->
+        <div>
+          <label class="block text-[11px] font-medium text-slate-400 mb-1.5">Fallback Gradient (When no image is set)</label>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex items-center gap-2 px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg">
+              <input type="color" id="art_grad_from" value="{{ article.gradient_from|default:'#a855f7' }}" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0 shrink-0">
+              <input type="text" id="art_grad_from_txt" value="{{ article.gradient_from|default:'#a855f7' }}" oninput="syncColorFromText('from')" class="w-full bg-transparent border-0 text-[11px] font-mono text-white focus:outline-none">
+            </div>
+            <div class="flex items-center gap-2 px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg">
+              <input type="color" id="art_grad_to" value="{{ article.gradient_to|default:'#ec4899' }}" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0 shrink-0">
+              <input type="text" id="art_grad_to_txt" value="{{ article.gradient_to|default:'#ec4899' }}" oninput="syncColorFromText('to')" class="w-full bg-transparent border-0 text-[11px] font-mono text-white focus:outline-none">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional External Link / Read More URL -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Optional External / Read More Link</label>
+      <div class="relative">
+        <input type="text" id="art_link" value="{{ article.external_link|default:'' }}" placeholder="https://..."
+          class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+          <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Article Content / Story (CKEditor 5 Full Width) -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between">
+        <label class="block text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-pen-nib text-fuchsia-400"></i> Full Article Story & Content (CKEditor)
+        </label>
+        <span class="text-[11px] text-slate-400">Supports rich text, headings, code blocks, images, tables & source code</span>
+      </div>
+      <textarea id="art_content" rows="12" placeholder="Start writing your article story..."
+        class="w-full px-4 py-3 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-fuchsia-500 transition">{{ article.content|default:'' }}</textarea>
+    </div>
+
+    <!-- Status & Publishing Action Bar -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-5 border-t border-slate-800">
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="art_published" class="sr-only peer" {% if not article or article.is_published %}checked{% endif %}>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Publish Live on Landing & Blog Page</span>
+      </label>
+
+      <button onclick="saveArticle()" class="w-full sm:w-auto px-7 py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-lg shadow-fuchsia-600/30 hover:shadow-fuchsia-600/50 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-floppy-disk text-sm"></i>
+        Save Article
+      </button>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Custom Category Dropdown Logic
+function toggleCatDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('cat_menu');
+  const chevron = document.getElementById('cat_chevron');
+  const isHidden = menu.classList.contains('hidden');
+  if (isHidden) {
+    menu.classList.remove('hidden');
+    chevron.classList.add('rotate-180');
+  } else {
+    menu.classList.add('hidden');
+    chevron.classList.remove('rotate-180');
+  }
+}
+
+function selectCategory(val, label) {
+  document.getElementById('art_cat').value = val;
+  document.getElementById('cat_selected_text').innerText = label;
+  
+  // Update active state styles in menu
+  document.querySelectorAll('.cat-option-btn').forEach(btn => {
+    const isCurrent = btn.getAttribute('data-value') === val;
+    const checkIcon = btn.querySelector('.check-icon');
+    if (isCurrent) {
+      btn.className = 'cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left bg-fuchsia-600/20 text-fuchsia-300 font-semibold';
+      if (checkIcon) checkIcon.classList.remove('hidden');
+    } else {
+      btn.className = 'cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left text-slate-300 hover:text-white hover:bg-slate-800/80';
+      if (checkIcon) checkIcon.classList.add('hidden');
+    }
+  });
+
+  // Close dropdown
+  document.getElementById('cat_menu').classList.add('hidden');
+  document.getElementById('cat_chevron').classList.remove('rotate-180');
+}
+
+// Close category dropdown on outside click
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('custom_cat_dropdown');
+  if (dropdown && !dropdown.contains(e.target)) {
+    document.getElementById('cat_menu').classList.add('hidden');
+    document.getElementById('cat_chevron').classList.remove('rotate-180');
+  }
+});
+
+// Initialize Flatpickr Dark Theme Datepicker
+flatpickr("#art_date", {
+  dateFormat: "Y-m-d",
+  altInput: true,
+  altFormat: "M d, Y",
+  defaultDate: document.getElementById('art_date').value || "today",
+  disableMobile: "true"
+});
+
+// Color Pickers Sync
+document.getElementById('art_grad_from').addEventListener('input', e => {
+  document.getElementById('art_grad_from_txt').value = e.target.value;
+});
+document.getElementById('art_grad_to').addEventListener('input', e => {
+  document.getElementById('art_grad_to_txt').value = e.target.value;
+});
+
+function syncColorFromText(type) {
+  if (type === 'from') {
+    const v = document.getElementById('art_grad_from_txt').value;
+    if (v.startsWith('#') && (v.length === 4 || v.length === 7)) {
+      document.getElementById('art_grad_from').value = v;
+    }
+  } else {
+    const v = document.getElementById('art_grad_to_txt').value;
+    if (v.startsWith('#') && (v.length === 4 || v.length === 7)) {
+      document.getElementById('art_grad_to').value = v;
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// Featured Image Upload & Control Handlers
+// -------------------------------------------------------------
+function uploadFeaturedImageFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const spinner = document.getElementById('featured_upload_spinner');
+  if (spinner) spinner.classList.remove('hidden');
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  fetch('/axomai-content/articles/upload-image/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': csrftoken },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (spinner) spinner.classList.add('hidden');
+    if (data && (data.location || data.url)) {
+      setFeaturedImage(data.location || data.url);
+      showToast('Featured image uploaded successfully!', 'success');
+    } else {
+      showToast(data.error || 'Failed to upload image', 'error');
+    }
+  })
+  .catch(err => {
+    if (spinner) spinner.classList.add('hidden');
+    showToast('Network error while uploading image', 'error');
+  });
+}
+
+function setFeaturedImage(url) {
+  url = (url || '').trim();
+  document.getElementById('art_cover_image').value = url;
+  document.getElementById('art_cover_url_input').value = url;
+
+  const previewBox = document.getElementById('featured_img_preview_box');
+  const previewImg = document.getElementById('featured_img_preview');
+  const placeholder = document.getElementById('featured_img_placeholder');
+  const container = document.getElementById('featured_img_container');
+
+  if (url) {
+    previewImg.src = url;
+    previewBox.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    container.className = 'relative group rounded-xl border-2 border-fuchsia-500/40 overflow-hidden bg-slate-950/60 transition duration-200';
+  } else {
+    previewImg.src = '';
+    previewBox.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    container.className = 'relative group rounded-xl border-2 border-dashed border-slate-700/80 hover:border-fuchsia-500/50 overflow-hidden bg-slate-950/60 transition duration-200';
+  }
+}
+
+function removeFeaturedImage() {
+  document.getElementById('featured_image_input').value = '';
+  setFeaturedImage('');
+  showToast('Featured image removed', 'info');
+}
+
+function handleCoverUrlInput(url) {
+  document.getElementById('art_cover_image').value = url.trim();
+  const previewImg = document.getElementById('featured_img_preview');
+  const previewBox = document.getElementById('featured_img_preview_box');
+  const placeholder = document.getElementById('featured_img_placeholder');
+  const container = document.getElementById('featured_img_container');
+
+  if (url.trim()) {
+    previewImg.src = url.trim();
+    previewBox.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    container.className = 'relative group rounded-xl border-2 border-fuchsia-500/40 overflow-hidden bg-slate-950/60 transition duration-200';
+  } else {
+    previewBox.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+    container.className = 'relative group rounded-xl border-2 border-dashed border-slate-700/80 hover:border-fuchsia-500/50 overflow-hidden bg-slate-950/60 transition duration-200';
+  }
+}
+
+function applyExternalImageUrl() {
+  const url = document.getElementById('art_cover_url_input').value.trim();
+  setFeaturedImage(url);
+  if (url) showToast('Featured image applied!', 'success');
+}
+
+// Initial excerpt counter setup
+const initialExcerpt = document.getElementById('art_excerpt');
+if (initialExcerpt) {
+  document.getElementById('excerpt_counter').innerText = `${initialExcerpt.value.length} chars`;
+}
+
+// -------------------------------------------------------------
+// Initialize CKEditor 5 SuperBuild with Complete Formatting
+// -------------------------------------------------------------
+let articleEditor;
+
+CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
+  toolbar: {
+    items: [
+      'undo', 'redo', '|',
+      'heading', 'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
+      'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript', '|',
+      'alignment', '|',
+      'bulletedList', 'numberedList', 'outdent', 'indent', '|',
+      'link', 'uploadImage', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
+      'sourceEditing', 'findAndReplace', 'selectAll'
+    ],
+    shouldNotGroupWhenFull: true
+  },
+  heading: {
+    options: [
+      { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+      { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+      { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+      { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+      { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
+    ]
+  },
+  fontSize: {
+    options: [ 10, 12, 14, 'default', 18, 20, 24, 30, 36 ],
+    supportAllValues: true
+  },
+  fontFamily: {
+    options: [
+      'default',
+      'Plus Jakarta Sans, sans-serif',
+      'Inter, sans-serif',
+      'Noto Serif Bengali, sans-serif',
+      'Arial, Helvetica, sans-serif',
+      'Courier New, Courier, monospace',
+      'Georgia, serif',
+      'Lucida Sans Unicode, Lucida Grande, sans-serif',
+      'Tahoma, Geneva, sans-serif',
+      'Times New Roman, Times, serif',
+      'Trebuchet MS, Helvetica, sans-serif',
+      'Verdana, Geneva, sans-serif'
+    ],
+    supportAllValues: true
+  },
+  fontColor: {
+    columns: 6,
+    colors: [
+      { color: '#ffffff', label: 'White' },
+      { color: '#f5d0fe', label: 'Light Purple' },
+      { color: '#c084fc', label: 'Purple Accent' },
+      { color: '#d946ef', label: 'Fuchsia' },
+      { color: '#f472b6', label: 'Pink' },
+      { color: '#38bdf8', label: 'Cyan' },
+      { color: '#4ade80', label: 'Green' },
+      { color: '#facc15', label: 'Yellow' },
+      { color: '#fb923c', label: 'Orange' },
+      { color: '#f87171', label: 'Red' },
+      { color: '#94a3b8', label: 'Slate' },
+      { color: '#000000', label: 'Black' }
+    ]
+  },
+  fontBackgroundColor: {
+    columns: 6,
+    colors: [
+      { color: 'transparent', label: 'None' },
+      { color: 'rgba(192, 132, 252, 0.25)', label: 'Purple Tint' },
+      { color: 'rgba(217, 70, 239, 0.25)', label: 'Fuchsia Tint' },
+      { color: 'rgba(56, 189, 248, 0.25)', label: 'Cyan Tint' },
+      { color: 'rgba(74, 222, 128, 0.25)', label: 'Green Tint' },
+      { color: 'rgba(250, 204, 21, 0.25)', label: 'Yellow Tint' },
+      { color: 'rgba(248, 113, 113, 0.25)', label: 'Red Tint' },
+      { color: '#1e293b', label: 'Dark Slate' },
+      { color: '#090d16', label: 'Dark Background' }
+    ]
+  },
+  simpleUpload: {
+    uploadUrl: '/axomai-content/articles/upload-image/',
+    headers: {
+      'X-CSRFToken': csrftoken
+    }
+  },
+  image: {
+    toolbar: [
+      'imageStyle:inline',
+      'imageStyle:block',
+      'imageStyle:side',
+      '|',
+      'toggleImageCaption',
+      'imageTextAlternative',
+      '|',
+      'linkImage'
+    ]
+  },
+  table: {
+    contentToolbar: [
+      'tableColumn', 'tableRow', 'mergeTableCells',
+      'tableProperties', 'tableCellProperties'
+    ]
+  },
+  htmlSupport: {
+    allow: [
+      {
+        name: /.*/,
+        attributes: true,
+        classes: true,
+        styles: true
+      }
+    ]
+  },
+  removePlugins: [
+    'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage', 'RealTimeCollaborativeComments',
+    'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory',
+    'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData', 'RevisionHistory',
+    'Pagination', 'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline',
+    'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange'
+  ]
+}).then(editor => {
+  articleEditor = editor;
+}).catch(error => {
+  console.error('CKEditor Init Error:', error);
+});
+
+// Slug & Permalink Handlers
+let isManualSlug = !!document.getElementById('art_slug').value;
+
+function slugifyText(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function handleTitleChange(title) {
+  const slugInput = document.getElementById('art_slug');
+  const liveLink = document.getElementById('art_live_link');
+  if (!isManualSlug) {
+    const slug = slugifyText(title);
+    slugInput.value = slug;
+    if (slug) {
+      liveLink.href = `https://aiaxom.co.in/blog/${slug}/`;
+      liveLink.classList.remove('hidden');
+    } else {
+      liveLink.classList.add('hidden');
+    }
+  }
+}
+
+function handleSlugInput(val) {
+  isManualSlug = true;
+  const clean = val.toLowerCase().replace(/[^a-z0-9-_]/g, '');
+  document.getElementById('art_slug').value = clean;
+  const liveLink = document.getElementById('art_live_link');
+  if (clean) {
+    liveLink.href = `https://aiaxom.co.in/blog/${clean}/`;
+    liveLink.classList.remove('hidden');
+  } else {
+    liveLink.classList.add('hidden');
+  }
+}
+
+async function saveArticle() {
+  const richContent = articleEditor
+    ? articleEditor.getData()
+    : document.getElementById('art_content').value;
+
+  const payload = {
+    id: document.getElementById('art_id').value || null,
+    title: document.getElementById('art_title').value,
+    slug: document.getElementById('art_slug').value.trim(),
+    category: document.getElementById('art_cat').value,
+    published_at: document.getElementById('art_date').value,
+    read_time: document.getElementById('art_read_time').value,
+    excerpt: document.getElementById('art_excerpt').value,
+    cover_image_url: document.getElementById('art_cover_image').value.trim(),
+    gradient_from: document.getElementById('art_grad_from_txt').value,
+    gradient_to: document.getElementById('art_grad_to_txt').value,
+    external_link: document.getElementById('art_link').value,
+    content: richContent,
+    is_published: document.getElementById('art_published').checked,
+  };
+
+  if (!payload.title.trim()) {
+    showToast('Please enter an article title', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch('/axomai-content/articles/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => {
+        window.location.href = '/axomai-content/articles/';
+      }, 600);
+    } else {
+      showToast(data.error || 'Failed to save', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while saving article', 'error');
+  }
+}
+</script>
+{% endblock %}

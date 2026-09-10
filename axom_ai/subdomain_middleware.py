@@ -22,6 +22,7 @@ from django.utils.deprecation import MiddlewareMixin
 
 ADMIN_HOSTS = {'admin.aiaxom.co.in', 'admin.aiaxom.local'}
 USER_HOSTS = {'user.aiaxom.co.in', 'user.aiaxom.local'}
+CONTENT_HOSTS = {'content.aiaxom.co.in', 'content.aiaxom.local'}
 CHAT_HOSTS = {'chat.aiaxom.co.in', 'chat.aiaxom.local'}
 LANDING_HOSTS = {'aiaxom.co.in', 'www.aiaxom.co.in'}
 
@@ -40,6 +41,10 @@ class SubdomainMiddleware(MiddlewareMixin):
         host = request.get_host().split(':')[0].lower()
         path = request.path_info
 
+        # Never rewrite static or media asset requests on any subdomain
+        if path.startswith('/media/') or path.startswith('/static/'):
+            return None
+
         # admin.aiaxom.co.in  →  /axomai-admin/*
         if host in ADMIN_HOSTS and not path.startswith('/axomai-admin'):
             request.path_info = '/axomai-admin' + path
@@ -51,6 +56,15 @@ class SubdomainMiddleware(MiddlewareMixin):
             request.path_info = '/axomai-user' + path
             request.path = request.path_info
             return None
+
+        # content.aiaxom.co.in  →  /axomai-content/*
+        if host in CONTENT_HOSTS:
+            if path.startswith('/blog'):
+                return HttpResponsePermanentRedirect(f'https://aiaxom.co.in{path}')
+            if not path.startswith('/axomai-content'):
+                request.path_info = '/axomai-content' + path
+                request.path = request.path_info
+                return None
 
         # chat.aiaxom.co.in  →  existing app routes at /, no rewrite needed.
         if host in CHAT_HOSTS:

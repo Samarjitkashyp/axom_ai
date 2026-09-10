@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/cms/landing/', contentcms_api.cms_landing_api, name='api_cms_landing'),
     path('api/cms/articles/', contentcms_api.cms_articles_api, name='api_cms_articles'),
     path('api/cms/articles/<slug:slug>/', contentcms_api.cms_article_detail_api, name='api_cms_article_detail'),
+    path('api/cms/about/', contentcms_api.cms_about_api, name='api_cms_about'),
     
     # Custom Admin Authentication & Dashboard Routes
     path('admin-panel/login/', knowledge_views.admin_login_view, name='admin_login'),
