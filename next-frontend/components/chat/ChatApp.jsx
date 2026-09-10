@@ -420,6 +420,16 @@ export default function ChatApp() {
         onClose={() => setRightSidebarCollapsed(true)}
       />
 
+      {/* MOBILE SCRIM BACKDROP */}
+      <div
+        className={`mobile-backdrop ${(!leftSidebarCollapsed || !rightSidebarCollapsed) ? 'visible' : ''}`}
+        onClick={() => {
+          setLeftSidebarCollapsed(true);
+          setRightSidebarCollapsed(true);
+        }}
+        aria-hidden="true"
+      />
+
       {/* DOCUMENT CONVERTER MODAL */}
       <DocConverterModal
         isOpen={isDocModalOpen}

@@ -275,7 +275,10 @@ export default function SidebarLeft({
           </div>
           <button
             type="button"
-            onClick={onOpenUpgrade}
+            onClick={() => {
+              onOpenUpgrade();
+              if (window.innerWidth <= 850) onCloseSidebar?.();
+            }}
             style={{
               width: '100%', height: '36px', borderRadius: '10px',
               background: 'linear-gradient(135deg, #c084fc, #e879f9)',
