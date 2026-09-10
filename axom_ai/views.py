@@ -33,6 +33,149 @@ def _client_ip(request):
 
 
 # ---------------------------------------------------------------------------
+# Web Search Grounding (Google Custom Search API + Fallback)
+# ---------------------------------------------------------------------------
+GOOGLE_SEARCH_API_KEY = os.getenv('GOOGLE_SEARCH_API_KEY', '').strip()
+GOOGLE_SEARCH_CX = os.getenv('GOOGLE_SEARCH_CX', '').strip()
+TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', '').strip()
+
+_WEBSEARCH_DAILY_LIMIT = int(os.getenv('WEBSEARCH_DAILY_LIMIT', '5'))   # Free tier daily limit per IP
+_WEBSEARCH_BURST_LIMIT = int(os.getenv('WEBSEARCH_BURST_LIMIT', '2'))   # Max searches per 30s
+_WEBSEARCH_BURST_WINDOW = 30  # seconds
+
+_WEBSEARCH_DAILY_HITS = {}  # {ip: {'date': 'YYYY-MM-DD', 'count': N}}
+_WEBSEARCH_BURST_HITS = {}  # {ip: [timestamp, ...]}
+_WEBSEARCH_CACHE = {}       # {md5(query): {'timestamp': t, 'results': [...]}}
+_WEBSEARCH_CACHE_TTL = 7200 # 2 hours cache to conserve quota and deliver instant answers
+
+
+def _websearch_daily_count(ip):
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _WEBSEARCH_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        return 0
+    return int(entry.get('count', 0))
+
+
+def _websearch_daily_incr(ip):
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    entry = _WEBSEARCH_DAILY_HITS.get(ip)
+    if not entry or entry.get('date') != today:
+        entry = {'date': today, 'count': 0}
+    entry['count'] = int(entry.get('count', 0)) + 1
+    _WEBSEARCH_DAILY_HITS[ip] = entry
+
+
+def _websearch_burst_limited(ip):
+    now = time.time()
+    hits = [t for t in _WEBSEARCH_BURST_HITS.get(ip, []) if now - t < _WEBSEARCH_BURST_WINDOW]
+    if len(hits) >= _WEBSEARCH_BURST_LIMIT:
+        _WEBSEARCH_BURST_HITS[ip] = hits
+        return True
+    hits.append(now)
+    _WEBSEARCH_BURST_HITS[ip] = hits
+    return False
+
+
+def _perform_web_search(raw_query, max_results=5):
+    """
+    Search the web using Google Programmable Custom Search JSON API as primary,
+    with query sanitization, 2-hour caching, and automatic fallback to Tavily Search API.
+    Returns: (hits, error_str, engine_name)
+    Each hit: {'title': str, 'url': str, 'content': str}
+    """
+    import hashlib
+    # 1. Sanitize query: strip control characters, clean spaces, cap to 200 chars
+    cleaned = re.sub(r'[\r\n\t]+', ' ', raw_query).strip()
+    query = re.sub(r'[^\w\s\u0980-\u09FF\.\,\-\?\!\'\"]', ' ', cleaned)
+    query = re.sub(r'\s{2,}', ' ', query).strip()[:200]
+    if not query:
+        return None, "Empty search query after sanitization.", None
+
+    # 2. Check 2-hour query cache
+    q_hash = hashlib.md5(query.lower().strip().encode('utf-8')).hexdigest()
+    now = time.time()
+    cached = _WEBSEARCH_CACHE.get(q_hash)
+    if cached and (now - cached.get('timestamp', 0) < _WEBSEARCH_CACHE_TTL):
+        return cached.get('results', []), None, 'google_cache'
+
+    hits = []
+    engine_used = None
+
+    # 3. Primary: Google Programmable Custom Search JSON API
+    if GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_CX:
+        try:
+            params = {
+                'key': GOOGLE_SEARCH_API_KEY,
+                'cx': GOOGLE_SEARCH_CX,
+                'q': query,
+                'num': min(max(max_results, 1), 10),
+                'gl': 'in',
+                'safe': 'active',
+            }
+            headers = {
+                'Referer': 'https://chat.aiaxom.co.in/',
+                'User-Agent': 'AxomAI/1.0 (GoogleCustomSearch)',
+            }
+            res = http_session.get(
+                'https://customsearch.googleapis.com/customsearch/v1',
+                params=params,
+                headers=headers,
+                timeout=8,
+            )
+            if res.status_code == 200:
+                data = res.json()
+                items = data.get('items', [])
+                for item in items:
+                    title = item.get('title', '').strip()
+                    link = item.get('link', '').strip()
+                    snippet = item.get('snippet', '').strip()
+                    if link and title:
+                        hits.append({'title': title, 'url': link, 'content': snippet})
+                if hits:
+                    engine_used = 'google_custom_search'
+        except Exception:
+            pass
+
+    # 4. Fallback: Tavily Search API if Google API fails or has quota issues
+    if not hits and TAVILY_API_KEY:
+        try:
+            t_res = http_session.post(
+                'https://api.tavily.com/search',
+                json={
+                    'api_key': TAVILY_API_KEY,
+                    'query': query,
+                    'max_results': max_results,
+                    'search_depth': 'basic',
+                },
+                timeout=8,
+            )
+            if t_res.status_code == 200:
+                raw_results = t_res.json().get('results', [])
+                for r in raw_results:
+                    title = r.get('title', '').strip()
+                    url = r.get('url', '').strip()
+                    content = r.get('content', '').strip()
+                    if url and title:
+                        hits.append({'title': title, 'url': url, 'content': content})
+                if hits:
+                    engine_used = 'tavily_search'
+        except Exception:
+            pass
+
+    if hits:
+        _WEBSEARCH_CACHE[q_hash] = {
+            'timestamp': now,
+            'results': hits,
+        }
+        return hits, None, engine_used
+
+    return None, "No web search results available.", None
+
+
+# ---------------------------------------------------------------------------
 # Greeting fast-path: matched in chat_api_view before any KB / LLM call so a
 # plain "hi" never triggers the 114k-embedding semantic search or a Gemini
 # request. Keep this small and pure-Python — it runs on every message.
@@ -743,32 +886,44 @@ def chat_api_view(request):
         })
 
     # -----------------------------------------------------------------------
-    # WEB SEARCH FAST PATH — Tavily search + Groq/Gemma synthesis in Assamese.
+    # WEB SEARCH FAST PATH — Google Custom Search API (with Tavily fallback).
     # Runs BEFORE the KB tier so a user who toggled 🌐 explicitly gets fresh
-    # web results. Per-device daily cap enforced first (English message when
-    # exceeded); grounded English snippets are synthesised into Assamese by
-    # Groq (Gemini/Cloudflare Gemma as fallbacks).
+    # web results with citations. Per-device daily cap & burst throttle enforced.
     # -----------------------------------------------------------------------
     if web_search:
         ws_ip = _client_ip(request)
-        ws_used = _websearch_daily_count(ws_ip)
-        if ws_used >= _WEBSEARCH_DAILY_LIMIT:
+
+        # 1. Burst rate limiting (prevents rapid-fire scraping / spamming)
+        if _websearch_burst_limited(ws_ip):
             return JsonResponse({
                 'error': (
-                    f"You can only do {_WEBSEARCH_DAILY_LIMIT} web searches "
-                    f"per day in Axom AI. You have used all of today's quota "
-                    f"from this device. Please come back tomorrow."
+                    'Too many web searches in a short period. '
+                    'Please wait a few seconds before searching again.'
                 ),
-                'websearch_limit': _WEBSEARCH_DAILY_LIMIT,
-                'used_today': ws_used,
             }, status=429)
 
-        hits, err = _tavily_search(prompt, max_results=5)
+        # 2. Plan-based daily quota limit
+        is_premium, plan_name, _ = _check_user_premium_status(request)
+        daily_cap = 50 if is_premium else _WEBSEARCH_DAILY_LIMIT
+        ws_used = _websearch_daily_count(ws_ip)
+        if ws_used >= daily_cap:
+            return JsonResponse({
+                'error': (
+                    f"You can only do {daily_cap} web searches per day in Axom AI. "
+                    f"You have used all of today's quota from this device. Please come back tomorrow."
+                ),
+                'websearch_limit': daily_cap,
+                'used_today': ws_used,
+                'remaining_today': 0,
+            }, status=429)
+
+        # 3. Perform search (Google Custom Search -> Tavily fallback -> Cache)
+        hits, err, engine_used = _perform_web_search(prompt, max_results=5)
         if hits is None:
             return JsonResponse({
                 'error': (
-                    'Web search is not available right now. '
-                    f'({err or "unknown error"})'
+                    'Web search is temporarily unavailable. '
+                    f'({err or "Please try again later"})'
                 ),
             }, status=503)
         if not hits:
@@ -776,7 +931,7 @@ def chat_api_view(request):
                 'error': 'No web results found for that query. Try rephrasing.',
             }, status=404)
 
-        # Build a compact grounded context for the LLM to synthesise from.
+        # Build grounded context for the LLM to synthesise from.
         context_lines = []
         for i, h in enumerate(hits, 1):
             snippet = (h.get('content') or '')[:600].strip()
@@ -807,7 +962,7 @@ def chat_api_view(request):
             if gk:
                 answer = _gemini_generate(
                     gk, ws_system, ws_prompt,
-                    ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'],
+                    ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-lite-latest'],
                 )
         if not answer:
             return JsonResponse({
@@ -850,10 +1005,10 @@ def chat_api_view(request):
             'sources': [
                 {'title': h['title'], 'uri': h['url']} for h in hits
             ],
-            'engine': 'tavily+groq',
-            'websearch_limit': _WEBSEARCH_DAILY_LIMIT,
+            'engine': f'{engine_used}+groq',
+            'websearch_limit': daily_cap,
             'used_today': ws_used + 1,
-            'remaining_today': max(0, _WEBSEARCH_DAILY_LIMIT - (ws_used + 1)),
+            'remaining_today': max(0, daily_cap - (ws_used + 1)),
         })
 
     # Language the user picked for the reply.
