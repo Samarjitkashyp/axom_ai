@@ -29,6 +29,16 @@
   </div>
   {% endif %}
 
+  <!-- Google One-Click Login -->
+  <div class="mb-4">
+    <div id="googleBtn" class="flex justify-center w-full"></div>
+  </div>
+  <div class="flex items-center my-4">
+    <div class="flex-grow border-t border-slate-200"></div>
+    <span class="flex-shrink mx-3 text-slate-400 text-xs font-semibold uppercase">Or with username</span>
+    <div class="flex-grow border-t border-slate-200"></div>
+  </div>
+
   <form method="post" class="space-y-4">
     {% csrf_token %}
     <div>
@@ -72,5 +82,65 @@
   </div>
 </div>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  const GOOGLE_CLIENT_ID = "514662966676-fo4atqrjblkn8sadd2t0enhqi5mch5aq.apps.googleusercontent.com";
+  function getOrCreateDeviceId() {
+    try {
+      let devId = localStorage.getItem('axom_device_uid');
+      if (!devId) {
+        devId = 'axom_dev_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+        localStorage.setItem('axom_device_uid', devId);
+      }
+      return devId;
+    } catch(e) { return ''; }
+  }
+
+  function handleCredentialResponse(response) {
+    if (!response || !response.credential) return;
+    const deviceId = getOrCreateDeviceId();
+    fetch('/api/auth/google/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Id': deviceId
+      },
+      body: JSON.stringify({ credential: response.credential, device_id: deviceId })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = '/axomai-user/';
+      } else {
+        alert(data.error || 'Google sign-in failed.');
+      }
+    })
+    .catch(err => {
+      alert('Error during Google sign-in. Please try again.');
+    });
+  }
+
+  function initGoogle() {
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse
+      });
+      const btn = document.getElementById('googleBtn');
+      if (btn) {
+        window.google.accounts.id.renderButton(btn, {
+          theme: 'outline',
+          size: 'large',
+          width: Math.min(window.innerWidth - 64, 380),
+          text: 'signin_with',
+          shape: 'rectangular'
+        });
+      }
+    } else {
+      setTimeout(initGoogle, 100);
+    }
+  }
+  window.addEventListener('DOMContentLoaded', initGoogle);
+</script>
 </body>
 </html>

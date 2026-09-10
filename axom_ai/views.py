@@ -48,6 +48,8 @@ def _client_ip(request):
 GOOGLE_SEARCH_API_KEY = os.getenv('GOOGLE_SEARCH_API_KEY', '').strip()
 GOOGLE_SEARCH_CX = os.getenv('GOOGLE_SEARCH_CX', '').strip()
 TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', '').strip()
+GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID', '514662966676-fo4atqrjblkn8sadd2t0enhqi5mch5aq.apps.googleusercontent.com').strip()
+
 
 _WEBSEARCH_DAILY_LIMIT = WEBSEARCH_DAILY_LIMIT  # Hard cap: Strictly 5 per day per IP
 _WEBSEARCH_CACHE = {}       # {md5(query): {'timestamp': t, 'results': [...]}}
@@ -1588,6 +1590,151 @@ def register_api_view(request):
     except Exception as e:
         logger.exception("Error creating user account: %s", e)
         return JsonResponse({'error': 'An unexpected error occurred while creating your account. Please try again.'}, status=500)
+
+
+@csrf_exempt
+def google_auth_api_view(request):
+    """
+    Handles Google OAuth 2.0 (Google Identity Services) ID token login and registration.
+    - If user exists by email -> Logs in immediately.
+    - If user does not exist -> Strictly checks device limit (single-account policy).
+      If allowed, creates User & Profile, records device registration, and logs in.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    ip = get_client_ip(request)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        credential = str(data.get('credential', '')).strip()
+        device_id = get_device_id(request, fallback_body=data)
+    except Exception:
+        return JsonResponse({'error': 'Invalid request payload.'}, status=400)
+
+    if not credential:
+        return JsonResponse({'error': 'Google authentication credential is required.'}, status=400)
+
+    # 1. Verify token with Google's official tokeninfo endpoint
+    try:
+        tokeninfo_url = 'https://oauth2.googleapis.com/tokeninfo'
+        g_res = http_session.get(tokeninfo_url, params={'id_token': credential}, timeout=8)
+        if g_res.status_code != 200:
+            return JsonResponse({'error': 'Invalid or expired Google authentication token.'}, status=401)
+        id_info = g_res.json()
+    except Exception as e:
+        logger.exception("Error verifying Google ID token: %s", e)
+        return JsonResponse({'error': 'Failed to verify Google token with authentication service.'}, status=502)
+
+    # 2. Validate token attributes
+    aud = id_info.get('aud', '')
+    if aud != GOOGLE_OAUTH_CLIENT_ID:
+        return JsonResponse({'error': 'Google token audience mismatch.'}, status=401)
+
+    iss = id_info.get('iss', '')
+    if iss not in ('accounts.google.com', 'https://accounts.google.com'):
+        return JsonResponse({'error': 'Untrusted token issuer.'}, status=401)
+
+    email = id_info.get('email', '').strip().lower()
+    email_verified = id_info.get('email_verified')
+    if str(email_verified).lower() not in ('true', '1') or not email:
+        return JsonResponse({'error': 'Unverified Google email address.'}, status=400)
+
+    full_name = id_info.get('name', '').strip()
+    picture_url = id_info.get('picture', '').strip()
+
+    from django.contrib.auth.models import User
+    from django.contrib.auth import login
+    from userpanel.models import UserProfile
+
+    # 3. Check if user already exists with this email
+    user = User.objects.filter(email__iexact=email).first()
+
+    if user:
+        # Existing user logging in: allowed without creating duplicate accounts
+        login(request, user)
+
+        # Update profile avatar if empty
+        try:
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            if picture_url and not profile.avatar_url:
+                profile.avatar_url = picture_url
+                profile.save(update_fields=['avatar_url'])
+        except Exception:
+            pass
+
+        # Link any anonymous session chats
+        if request.session.session_key:
+            from knowledge.models import ChatSession
+            ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
+
+        resp = JsonResponse({
+            'success': True,
+            'username': user.username,
+            'email': user.email,
+            'is_staff': bool(user.is_staff),
+            'is_new': False,
+            'message': 'Logged in successfully with Google!',
+        })
+        resp.set_cookie('axom_device_uid', device_id, max_age=315360000, httponly=False, samesite='Lax')
+        return resp
+
+    # 4. New user registration via Google: STRICT DEVICE & IP CHECK
+    allowed, err_msg = check_device_registration_allowed(ip=ip, device_id=device_id)
+    if not allowed:
+        return JsonResponse({
+            'error': err_msg,
+            'code': 'DEVICE_REGISTRATION_RESTRICTED',
+        }, status=403)
+
+    # Derive unique username from email
+    base_username = re.sub(r'[^a-zA-Z0-9_]', '', email.split('@')[0])[:20] or 'user'
+    derived_username = base_username
+    counter = 1
+    while User.objects.filter(username__iexact=derived_username).exists():
+        derived_username = f"{base_username}_{counter}"
+        counter += 1
+
+    try:
+        user = User.objects.create_user(
+            username=derived_username,
+            email=email,
+            first_name=full_name[:30] if full_name else '',
+        )
+        user.set_unusable_password()
+        user.save()
+
+        # Create Profile
+        UserProfile.objects.get_or_create(user=user, defaults={'avatar_url': picture_url})
+
+        # Record device registration
+        record_device_registration(
+            user=user,
+            ip=ip,
+            device_id=device_id,
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        )
+
+        login(request, user)
+
+        if request.session.session_key:
+            from knowledge.models import ChatSession
+            ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
+
+        resp = JsonResponse({
+            'success': True,
+            'username': user.username,
+            'email': user.email,
+            'is_staff': bool(user.is_staff),
+            'is_new': True,
+            'message': 'Account created successfully with Google!',
+        })
+        resp.set_cookie('axom_device_uid', device_id, max_age=315360000, httponly=False, samesite='Lax')
+        return resp
+    except Exception as e:
+        logger.exception("Error creating user from Google OAuth: %s", e)
+        return JsonResponse({'error': 'Failed to create user account with Google.'}, status=500)
+
 
 
 

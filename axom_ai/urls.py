@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/feedback/', views.feedback_view, name='feedback'),
     path('api/login/', views.login_api_view, name='login_api'),
     path('api/register/', views.register_api_view, name='register_api'),
+    path('api/auth/google/', views.google_auth_api_view, name='google_auth_api'),
     path('api/logout/', views.logout_api_view, name='logout_api'),
     path('health/', views.health_view, name='health'),
     

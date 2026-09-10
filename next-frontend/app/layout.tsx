@@ -91,7 +91,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','${GTM_ID}');`,
           }}
-        />
+        {/* Google Identity Services (OAuth 2.0 / Sign In) */}
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body className="antialiased min-h-screen flex flex-col justify-between">
         {/* Google Tag Manager — noscript fallback */}
