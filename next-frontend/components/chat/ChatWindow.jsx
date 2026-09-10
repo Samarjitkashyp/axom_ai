@@ -191,7 +191,11 @@ export default function ChatWindow({
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (currentSession?.messages?.length > 0 || streamingText !== null || isLoading) {
+      scrollToBottom();
+    } else if (mainBodyRef.current) {
+      mainBodyRef.current.scrollTop = 0;
+    }
   }, [currentSession?.messages, streamingText, isLoading, errorMsg]);
 
   // Clean up abort controller on unmount
@@ -423,14 +427,22 @@ export default function ChatWindow({
           <button className="icon-btn toggle-sidebar" onClick={onToggleLeftSidebar} title="Toggle Sidebar">
             <Menu size={20} />
           </button>
+          <div className="model-selector-pill">
+            <span className="model-name-text">Axom 2.0 Pro</span>
+            <span className="model-badge">Assam AI</span>
+          </div>
         </div>
 
         <div className="header-right">
+          <button className="header-action-btn" onClick={onOpenTools} title="Open AI Tools & Document Studio">
+            <Wrench size={14} />
+            <span className="btn-label">Tools</span>
+          </button>
           <button className="icon-btn" onClick={onToggleTheme} title="Toggle Theme">
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <button className="icon-btn toggle-sidebar" onClick={onToggleRightSidebar} title="Toggle Control Panel">
-            <Sliders size={20} />
+            <Sliders size={18} />
           </button>
         </div>
       </header>
@@ -442,7 +454,7 @@ export default function ChatWindow({
           <div className="hero-container" id="heroContainer">
             <div className="hero-greeting">
               <h1 className="greeting-title">
-                {user.isAuthenticated ? `Hi ${user.username}!` : "Hi, I'm Axom AI"}
+                {user.isAuthenticated ? `Hi, ${user.username}!` : "Hi, I'm Axom AI"}
                 <span className="wave-emoji">👋</span>
               </h1>
               <p className="greeting-subtitle">How can I help you today?</p>
@@ -464,9 +476,68 @@ export default function ChatWindow({
                 <div className="orb-orbit-particle p2"></div>
                 <div className="orb-orbit-particle p3"></div>
               </div>
-              <h2 className="hero-tagline" style={{ fontSize: '0.98rem', maxWidth: '620px', lineHeight: 1.5, opacity: 0.85, margin: '20px auto 0' }}>
-                I'm your AI assistant for <span className="gradient-text">everything about Assam</span> — its history, culture, festivals, tourism, food and people. Ask me in English, Hindi or Hinglish, and I'll always reply in <span className="gradient-text">Assamese (অসমীয়া)</span>.
+              <h2 className="hero-tagline" style={{ fontSize: '0.92rem', maxWidth: '580px', lineHeight: 1.5, opacity: 0.85, margin: '16px auto 0' }}>
+                Your AI workspace for <span className="gradient-text">everything about Assam</span> — reasoning, document tools, imagery and research. Replies natively in <span className="gradient-text">Assamese (অসমীয়া)</span>.
               </h2>
+            </div>
+
+            {/* ChatGPT-Style Prompt Starter Cards */}
+            <div className="prompt-cards-grid">
+              <div
+                className="prompt-card"
+                onClick={() => {
+                  if (onOpenDocConverterModal) onOpenDocConverterModal();
+                }}
+              >
+                <div className="prompt-card-icon">📄</div>
+                <div className="prompt-card-content">
+                  <div className="prompt-card-title">Document & PDF Studio</div>
+                  <div className="prompt-card-desc">Convert, compress, summarize or edit documents</div>
+                </div>
+              </div>
+
+              <div
+                className="prompt-card"
+                onClick={() => {
+                  setInputText("Generate an image of Kaziranga sunrise with a majestic one-horned rhinoceros");
+                  if (textareaRef.current) textareaRef.current.focus();
+                }}
+              >
+                <div className="prompt-card-icon">🎨</div>
+                <div className="prompt-card-content">
+                  <div className="prompt-card-title">Generate AI Image</div>
+                  <div className="prompt-card-desc">Photorealistic imagery powered by FLUX.1 & SDXL</div>
+                </div>
+              </div>
+
+              <div
+                className="prompt-card"
+                onClick={() => {
+                  setWebSearch(true);
+                  setInputText("অসমৰ আজিৰ শেহতীয়া প্ৰধান বাতৰি আৰু খবৰবোৰ কি?");
+                  if (textareaRef.current) textareaRef.current.focus();
+                }}
+              >
+                <div className="prompt-card-icon">🌐</div>
+                <div className="prompt-card-content">
+                  <div className="prompt-card-title">Assam Live News</div>
+                  <div className="prompt-card-desc">Real-time web research, verified facts and live citations</div>
+                </div>
+              </div>
+
+              <div
+                className="prompt-card"
+                onClick={() => {
+                  setInputText("অসমৰ জাতীয় সংস্কৃতি আৰু ৰঙালী বিহুৰ তাৎপৰ্য ব্যাখ্যা কৰক");
+                  if (textareaRef.current) textareaRef.current.focus();
+                }}
+              >
+                <div className="prompt-card-icon">✍️</div>
+                <div className="prompt-card-content">
+                  <div className="prompt-card-title">অসমীয়া সৃষ্টিশীল লেখনী</div>
+                  <div className="prompt-card-desc">অসমীয়াত প্ৰবন্ধ, কবিতা বা আনুষ্ঠানিক আবেদন পত্ৰ লিখক</div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -709,6 +780,14 @@ export default function ChatWindow({
       <div className="chat-input-area">
         <div className="input-card">
           <div className="input-row">
+            <button
+              type="button"
+              className="btn-attach"
+              onClick={() => docFileInputRef.current?.click()}
+              title="Attach document (.docx, .doc, .txt)"
+            >
+              <Paperclip size={18} />
+            </button>
             <textarea
               className="chat-textarea"
               ref={textareaRef}
@@ -729,52 +808,27 @@ export default function ChatWindow({
               </div>
               <button
                 type="button"
-                className="lang-btn"
-                onClick={onOpenTools || onOpenDocConverterModal}
-                title="Open all converter & PDF tools (/tools)"
-                id="btnChatTools"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', cursor: 'pointer', marginLeft: '8px' }}
-              >
-                <Wrench size={13} /> Tools
-              </button>
-              <button
-                type="button"
-                className="lang-btn"
+                className={`lang-btn ${webSearch ? 'active' : ''}`}
                 onClick={() => setWebSearch((v) => !v)}
                 title={webSearch
                   ? 'Web search ON — Axom AI will search the internet and cite sources. Limit: 5 searches per day.'
                   : 'Turn on web search — get up-to-date answers with sources, translated into Assamese.'}
                 aria-pressed={webSearch}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  cursor: 'pointer',
-                  marginLeft: '8px',
-                  borderColor: webSearch
-                    ? 'var(--accent-cyan, #06b6d4)'
-                    : undefined,
-                  color: webSearch
-                    ? 'var(--accent-cyan, #06b6d4)'
-                    : undefined,
-                  background: webSearch
-                    ? 'rgba(6, 182, 212, 0.10)'
-                    : undefined,
-                }}
               >
                 <Globe size={13} /> Web {webSearch ? 'ON' : ''}
+              </button>
+              <button
+                type="button"
+                className="lang-btn"
+                onClick={onOpenTools || onOpenDocConverterModal}
+                title="Open all converter & PDF tools (/tools)"
+                id="btnChatTools"
+              >
+                <Wrench size={13} /> Tools
               </button>
               {webSearch && (
                 <span
                   className="web-limit-hint"
-                  style={{
-                    marginLeft: '6px',
-                    fontSize: '10.5px',
-                    color: 'var(--text-muted, #64748b)',
-                    fontStyle: 'italic',
-                    alignSelf: 'center',
-                    whiteSpace: 'nowrap',
-                  }}
                   title="Free tier limit — resets every day"
                 >
                   Only 5 searches per day
@@ -784,12 +838,12 @@ export default function ChatWindow({
             <div className="controls-right">
               <button
                 type="button"
-                className="btn-send-message"
+                className={`btn-send-message ${inputText.trim() && !isLoading ? 'active' : ''}`}
                 onClick={handleSend}
                 disabled={isLoading || isConvertingDoc || !inputText.trim()}
                 title="Send Message"
               >
-                <Send size={14} />
+                {isLoading ? <Loader2 size={16} className="spin-icon" /> : <Send size={15} />}
               </button>
             </div>
           </div>

@@ -372,7 +372,7 @@ export default function ChatApp() {
 
   // Main Default Chat View (/)
   return (
-    <div className="app-container">
+    <div className="app-layout">
       {/* LEFT SIDEBAR */}
       <SidebarLeft
         sessions={sessions}

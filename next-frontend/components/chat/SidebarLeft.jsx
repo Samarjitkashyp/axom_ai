@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, MessageSquare, LogOut, ChevronDown, LayoutDashboard,
-  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText, X
+  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText, X, Wrench
 } from 'lucide-react';
 
 const RECENT_LIMIT = 15;
@@ -129,6 +129,20 @@ export default function SidebarLeft({
           <span className="btn-text">New Chat</span>
           <span className="shortcut-badge">Ctrl+K</span>
         </button>
+        <button
+          className="sidebar-tools-btn"
+          onClick={() => {
+            if (onOpenTools) onOpenTools();
+            if (window.innerWidth <= 850) onCloseSidebar?.();
+          }}
+          title="Open AI Tools & Document Studio (26 Tools)"
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Wrench size={15} style={{ color: '#c084fc' }} />
+            <span>Tools & Studio</span>
+          </div>
+          <span className="tools-badge">26</span>
+        </button>
       </div>
 
       {/* Recent Chats Section */}
@@ -249,6 +263,29 @@ export default function SidebarLeft({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Non-authenticated prompt card */}
+      {!user.isAuthenticated && (
+        <div style={{ padding: '8px 4px', marginTop: 'auto', borderTop: '1px solid var(--border-color)' }}>
+          <div style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '8px' }}>
+            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#f8fafc', marginBottom: '2px' }}>Sign in to save chats</div>
+            <div style={{ fontSize: '0.70rem', color: 'var(--text-muted)' }}>Sync history & unlock full models</div>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenUpgrade}
+            style={{
+              width: '100%', height: '36px', borderRadius: '10px',
+              background: 'linear-gradient(135deg, #c084fc, #e879f9)',
+              color: '#06060b', fontWeight: 700, fontSize: '0.80rem',
+              border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+              transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(192, 132, 252, 0.3)'
+            }}
+          >
+            <span>Sign In / Upgrade</span>
+          </button>
         </div>
       )}
 
