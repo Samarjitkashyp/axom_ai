@@ -67,23 +67,9 @@ body.light-theme .top-header { background-color: rgba(255, 255, 255, 0.88); }
 body.light-theme .message-bubble.assistant { background: #ffffff; }
 body.light-theme .icon-btn:hover { background-color: rgba(0, 0, 0, 0.05); }
 
-/* Mobile backdrop */
+/* Mobile backdrop (hidden by default everywhere; only shown inside @media <= 850px when drawer is active) */
 .mobile-backdrop {
-    display: none;
-}
-.mobile-backdrop.visible {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    z-index: 90;
-    animation: backdropFadeIn 0.2s ease-out;
-}
-@keyframes backdropFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    display: none !important;
 }
 
 /* Reset & Global */

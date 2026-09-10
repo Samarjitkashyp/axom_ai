@@ -106,9 +106,19 @@ export default function ChatApp() {
     return localStorage.getItem('axom_ai_theme') || 'dark';
   });
 
-  // Sidebar collapse states
-  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
-  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
+  // Sidebar collapse states - default to collapsed on mobile to avoid flash/blur
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth < 850;
+  });
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth < 1100;
+  });
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 850;
+  });
 
   // Document & Tool Modal states
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
@@ -189,12 +199,14 @@ export default function ChatApp() {
   // Window resizing handles default sidebar collapse states
   useEffect(() => {
     const checkWindowSize = () => {
+      const mobile = window.innerWidth <= 850;
+      setIsMobile(mobile);
       if (window.innerWidth < 1100) {
         setRightSidebarCollapsed(true);
       } else {
         setRightSidebarCollapsed(false);
       }
-      if (window.innerWidth < 850) {
+      if (mobile) {
         setLeftSidebarCollapsed(true);
       } else {
         setLeftSidebarCollapsed(false);
@@ -420,15 +432,17 @@ export default function ChatApp() {
         onClose={() => setRightSidebarCollapsed(true)}
       />
 
-      {/* MOBILE SCRIM BACKDROP */}
-      <div
-        className={`mobile-backdrop ${(!leftSidebarCollapsed || !rightSidebarCollapsed) ? 'visible' : ''}`}
-        onClick={() => {
-          setLeftSidebarCollapsed(true);
-          setRightSidebarCollapsed(true);
-        }}
-        aria-hidden="true"
-      />
+      {/* MOBILE SCRIM BACKDROP - only rendered on mobile when a drawer is open */}
+      {isMobile && (!leftSidebarCollapsed || !rightSidebarCollapsed) && (
+        <div
+          className="mobile-backdrop visible"
+          onClick={() => {
+            setLeftSidebarCollapsed(true);
+            setRightSidebarCollapsed(true);
+          }}
+          aria-hidden="true"
+        />
+      )}
 
       {/* DOCUMENT CONVERTER MODAL */}
       <DocConverterModal
