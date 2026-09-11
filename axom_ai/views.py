@@ -2359,8 +2359,9 @@ def _vertex_generate_image(prompt, model, timeout=90):
         return None, f'Pillow not available: {e}'
 
     url = _VERTEX_ENDPOINT.format(loc=_VERTEX_LOCATION, proj=_VERTEX_PROJECT_ID, model=model)
+    # Vertex requires explicit role on each content item; AI Studio doesn't.
     body = {
-        "contents": [{"parts": [{"text": prompt[:2000]}]}],
+        "contents": [{"role": "user", "parts": [{"text": prompt[:2000]}]}],
         "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]},
     }
     try:
