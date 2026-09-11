@@ -315,7 +315,7 @@ export default function Navbar({ header }: NavbarProps) {
         }}
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
             <img
               src={logoUrl}
@@ -339,8 +339,8 @@ export default function Navbar({ header }: NavbarProps) {
           </button>
         </div>
 
-        {/* Scrollable Navigation Links */}
-        <div className="py-3 px-2 flex-1 overflow-y-auto space-y-1">
+        {/* Navigation Links - natural scroll flow */}
+        <div className="py-3 px-2 space-y-1">
           {navItems.map((it) => {
             const isExternal = it.url.startsWith('http');
             const iconMap: Record<string, React.ElementType> = {
@@ -383,8 +383,8 @@ export default function Navbar({ header }: NavbarProps) {
           })}
         </div>
 
-        {/* Bottom Actions */}
-        <div className="px-5 pt-4 pb-4 border-t border-white/10 mt-auto shrink-0 bg-[#06060c]/90">
+        {/* Actions - flows naturally below links, NOT sticky */}
+        <div className="px-5 pt-5 pb-4 border-t border-white/10 mt-2">
           <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-2.5 font-semibold">Get Started</div>
           <a
             href={chatUrl}
@@ -407,7 +407,7 @@ export default function Navbar({ header }: NavbarProps) {
         </div>
 
         {/* Assamese Footer Tagline */}
-        <div className="px-5 pb-5 shrink-0 bg-[#06060c]/90">
+        <div className="px-5 pb-6 pt-1">
           <p className="font-assamese text-xs text-fuchsia-300/60 text-center">অসমৰ নিজা AI প্লেটফৰ্ম • AI for All</p>
         </div>
       </aside>

@@ -240,7 +240,10 @@ body {
   box-shadow: -25px 0 50px rgba(0, 0, 0, 0.85), -5px 0 25px rgba(192, 132, 252, 0.15);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .drawer.open { transform: translateX(0); }
 .drawer-item {
