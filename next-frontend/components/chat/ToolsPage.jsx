@@ -23,11 +23,14 @@ import {
 import { ALL_TOOLS, TOOL_CATEGORIES } from './utils/toolsData';
 import { getCsrfToken } from './utils/security';
 import ToolWorkspace from './ToolWorkspace';
+import Navbar from '../Navbar';
+import Footer from '../Footer';
 
 export default function ToolsPage({
   onBackToChat,
   onOpenEditor,
   onOpenCompressor,
+  onOpenVideoCompressor,
   onOpenWmRemover,
   onOpenImageGen,
   onOpenImageFinder,
@@ -103,6 +106,10 @@ export default function ToolsPage({
     }
     if (t.compressor) {
       onOpenCompressor?.();
+      return;
+    }
+    if (t.videocompressor) {
+      onOpenVideoCompressor?.();
       return;
     }
     if (t.wmeditor) {
@@ -253,40 +260,40 @@ export default function ToolsPage({
   };
 
   return (
-    <div className="tools-page">
-      {/* TOPBAR */}
-      <header className="tools-topbar">
-        <div className="tools-topbar-left">
-          <button className="tools-back-btn" onClick={onBackToChat} id="btnBackToChat" title="Return to Chat (Esc)">
-            <ChevronLeft size={18} />
-            <span className="tools-back-text">Chat</span>
-          </button>
-        </div>
+    <div className="tools-page min-h-screen flex flex-col bg-[#06060b] text-gray-100">
+      {/* GLOBAL REUSABLE NAVBAR */}
+      <Navbar onBackToChat={onBackToChat} />
 
-        <div className="tools-topbar-center">
-          <div className="tools-brand-badge">
-            <svg className="tools-sparkle-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#tools_sparkle_grad)" />
-              <defs>
-                <linearGradient id="tools_sparkle_grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#C084FC" />
-                  <stop offset="1" stopColor="#E879F9" />
-                </linearGradient>
-              </defs>
-            </svg>
-            <span className="tools-topbar-brand">Axom Tools</span>
+      {/* SUB-BAR FOR WORKSPACE NAVIGATION */}
+      <div className="tools-workspace-subbar pt-24 px-5 max-w-7xl mx-auto w-full flex items-center justify-between z-20">
+        <button
+          className="tools-back-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition text-xs font-semibold border border-white/10"
+          onClick={onBackToChat}
+          id="btnBackToChat"
+          title="Return to Chat (Esc)"
+        >
+          <ChevronLeft size={16} />
+          <span>Return to Chat</span>
+        </button>
+
+        <div className="flex items-center gap-3">
+          <div className="tools-brand-badge hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 text-xs font-medium">
+            <Sparkles size={13} className="text-fuchsia-400" />
+            <span>Productivity Suite</span>
           </div>
-        </div>
-
-        <div className="tools-topbar-right">
-          <button className="tools-icon-btn" onClick={onToggleTheme} title="Toggle Theme" aria-label="Toggle Theme">
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          <button
+            className="tools-icon-btn w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 grid place-items-center text-gray-300 hover:text-white transition"
+            onClick={onToggleTheme}
+            title="Toggle Theme"
+            aria-label="Toggle Theme"
+          >
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
           </button>
         </div>
-      </header>
+      </div>
 
       {/* MAIN CONTENT WRAPPER */}
-      <main className="tools-main-container">
+      <main className="tools-main-container flex-1">
         {/* HERO SECTION */}
         <section className="tools-hero">
           <div className="tools-hero-badge">
@@ -454,6 +461,9 @@ export default function ToolsPage({
           )}
         </section>
       </main>
+
+      {/* GLOBAL REUSABLE FOOTER */}
+      <Footer />
 
       {/* Full-screen tool workspace: instant preview + tool-specific options */}
       {activeTool && <ToolWorkspace tool={activeTool} onClose={closeRunner} />}

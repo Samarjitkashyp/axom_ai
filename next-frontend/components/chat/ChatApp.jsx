@@ -11,6 +11,7 @@ import LoginModal from './LoginModal';
 import DocConverterModal from './DocConverterModal';
 import PdfEditor from './PdfEditor';
 import PdfCompressor from './PdfCompressor';
+import VideoCompressor from './VideoCompressor';
 import WatermarkRemover from './WatermarkRemover';
 import ImageGenerator from './ImageGenerator';
 import ImageFinder from './ImageFinder';
@@ -124,6 +125,7 @@ export default function ChatApp() {
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
+  const [isVideoCompressorOpen, setIsVideoCompressorOpen] = useState(false);
   const [isWmOpen, setIsWmOpen] = useState(false);
   const [isImgGenOpen, setIsImgGenOpen] = useState(false);
   const [isImageFinderOpen, setIsImageFinderOpen] = useState(false);
@@ -348,6 +350,7 @@ export default function ChatApp() {
           onBackToChat={navigateToChat}
           onOpenEditor={() => setIsEditorOpen(true)}
           onOpenCompressor={() => setIsCompressorOpen(true)}
+          onOpenVideoCompressor={() => setIsVideoCompressorOpen(true)}
           onOpenWmRemover={() => setIsWmOpen(true)}
           onOpenImageGen={() => setIsImgGenOpen(true)}
           onOpenImageFinder={() => setIsImageFinderOpen(true)}
@@ -359,6 +362,12 @@ export default function ChatApp() {
         />
         {isEditorOpen && <PdfEditor onClose={() => setIsEditorOpen(false)} />}
         {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
+        {isVideoCompressorOpen && (
+          <VideoCompressor
+            onClose={() => setIsVideoCompressorOpen(false)}
+            isPro={!!activePlan?.active}
+          />
+        )}
         {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
         {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
         {isImageFinderOpen && <ImageFinder onClose={() => setIsImageFinderOpen(false)} />}
@@ -459,6 +468,14 @@ export default function ChatApp() {
 
       {/* FULL-SCREEN PDF COMPRESSOR */}
       {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
+
+      {/* FULL-SCREEN VIDEO COMPRESSOR */}
+      {isVideoCompressorOpen && (
+        <VideoCompressor
+          onClose={() => setIsVideoCompressorOpen(false)}
+          isPro={!!activePlan?.active}
+        />
+      )}
 
       {/* FULL-SCREEN WATERMARK REMOVER */}
       {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}

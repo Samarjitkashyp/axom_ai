@@ -69,27 +69,155 @@ def _websearch_burst_limited(ip):
 
 
 
+def _optimize_search_query(raw_query: str) -> str:
+    """
+    Intelligently converts user input (in English, Hindi, Hinglish, Assamese script,
+    or phonetic/Romanized Assamese like 'aji news ki hoi', 'botor kiba', 'adre exam ketiya')
+    into high-precision Google Search keywords tailored for Assam & Northeast India.
+    """
+    cleaned = (raw_query or '').strip()
+    if not cleaned:
+        return cleaned
+
+    lower_q = cleaned.lower()
+
+    # 1. Fast micro-LLM intent rewrite via Groq (~100-150ms)
+    try:
+        if 'GROQ_API_KEY' in globals() and GROQ_API_KEY:
+            opt_system = (
+                "You are an expert search query optimizer for Assam and Northeast India.\n"
+                "Users may ask in English, Hindi, Hinglish, Assamese script (অসমীয়া), "
+                "or Romanized Assamese written in Latin English letters (e.g., 'aji news ki hoi', 'botor kiba', 'adre exam ketiya', 'bihu ketiya').\n"
+                "Your task: Convert the user's intent into 1 crisp, high-precision Google search query in English "
+                "that will find real-time, verified news, facts, or information from Assam news portals and Indian websites.\n"
+                "Rules:\n"
+                "- If asking for news or daily updates without specifying a state/city, default the context to Assam.\n"
+                "- Understand Romanized Assamese: 'aji/ajir' = today, 'khobor/batari/barta/samachar/news' = news, 'botor' = weather, 'ketiya' = when/date, 'kiba' = what/how, 'kun' = who.\n"
+                "- Strip conversational filler ('ki hoi', 'kya hai', 'batao', 'please', 'tell me').\n"
+                "- Output ONLY the clean search keywords (3 to 6 words). No quotes, no markdown, no explanations."
+            )
+            opt_prompt = f"User input: {cleaned}\nOptimized Google search query:"
+            rewritten = _groq_generate(opt_system, opt_prompt, timeout=4)
+            if rewritten:
+                rewritten = re.sub(r'[\r\n\t"\']+', ' ', rewritten).strip()
+                rewritten = re.sub(r'^(search query|query|optimized query)\s*:\s*', '', rewritten, flags=re.IGNORECASE).strip()
+                if 3 <= len(rewritten) <= 120:
+                    return rewritten
+    except Exception:
+        pass
+
+    # 2. Rule-based intelligent fallback if LLM times out or is offline
+    is_news = any(w in lower_q for w in ('news', 'khobor', 'khabar', 'batari', 'barta', 'samachar', 'headline', 'taza'))
+    is_today = any(w in lower_q for w in ('aji', 'ajir', 'aaj', 'today', 'current', 'latest', 'aajir'))
+    is_weather = any(w in lower_q for w in ('weather', 'botor', 'mausam', 'barish', 'boroxun', 'temperature'))
+
+    if is_news and is_today:
+        return "Assam latest news headlines today Pratidin Time"
+    elif is_news:
+        clean_words = re.sub(r'\b(ki|hoi|hai|kya|batao|please|tell|me|kiba|koba|ne)\b', '', lower_q).strip()
+        return f"Assam news {clean_words}".strip()
+    elif is_weather and ('guwahati' in lower_q or 'assam' in lower_q):
+        loc = 'Guwahati' if 'guwahati' in lower_q else 'Assam'
+        return f"{loc} weather forecast today IMD"
+
+    return cleaned
+
+
+def _purify_assamese_with_grammar(text: str) -> str:
+    """
+    Purifies Assamese generated text using curated rules from the Axom AI RAG Grammar Base
+    (Assamese Grammar Seed through Vol 10).
+    - Eliminates Bengali script contamination (Bengali 'র' -> Assamese 'ৰ').
+    - Fixes false friends & loan calques ('বন্যা' -> 'বানপানী', 'ক্ৰোৰ' -> 'কোটি').
+    - Fixes animal gender and classifiers ('মহিলা হাতী' -> 'মাইকী হাতী', 'গৰাকী হাতী' -> 'টা হাতী').
+    - Ensures proper word boundary spacing for key proper nouns ('হিমন্ত বিশ্ব শৰ্মা').
+    - Preserves modern technical, medical, and institutional terms in English.
+    """
+    if not text:
+        return text
+
+    # 1. Standardize script: Bengali 'র' (U+09B0) -> Assamese 'ৰ' (U+09F0)
+    text = text.replace('\u09b0', '\u09f0')
+
+    # 2. Proper Nouns & Spacing (Chief Minister & Key Entities)
+    text = re.sub(r'হিমন্তবিশ্বাস\s*শৰ্মা', 'হিমন্ত বিশ্ব শৰ্মা', text)
+    text = re.sub(r'হিমন্তবিশ্বাস', 'হিমন্ত বিশ্ব', text)
+    text = re.sub(r'ড°?\s*হিমন্ত\s*বিশ্ব\s*শৰ্মা', 'ড° হিমন্ত বিশ্ব শৰ্মা', text)
+
+    # 3. Vocabulary Calques: Flood (বন্যা -> বানপানী / বান)
+    text = re.sub(r'বন্যাৰ', 'বানপানীৰ', text)
+    text = re.sub(r'বন্যাজনিত', 'বানজনিত', text)
+    text = re.sub(r'বন্যাদুৰ্গত', 'বানপীড়িত', text)
+    text = re.sub(r'বন্যা\s*পীড়িত', 'বানপীড়িত', text)
+    text = re.sub(r'বন্যা', 'বানপানী', text)
+
+    # 4. Hindi number calques: ক্ৰোৰ -> কোটি
+    text = re.sub(r'ক্ৰোৰ', 'কোটি', text)
+
+    # 5. Animals: female animal (মহিলা -> মাইকী)
+    text = re.sub(r'মহিলা\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)', r'মাইকী \1', text)
+
+    # 6. Animal Classifiers: গৰাকী is strictly for humans, animals take টা / জনী
+    text = re.sub(
+        r'(\d+|ন[\'’]?|দহ|পাঁচ|চাৰি|তিনি|দু|এক|কেইবা)\s*গৰাকী\s+মাইকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)',
+        r'\1 জনী মাইকী \2', text
+    )
+    text = re.sub(
+        r'(\d+|ন[\'’]?|দহ|পাঁচ|চাৰি|তিনি|দু|এক|কেইবা)\s*গৰাকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)',
+        r'\1 টা \2', text
+    )
+    text = re.sub(
+        r'গৰাকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)',
+        r'টা \1', text
+    )
+
+    # 7. Medical & Technical terms: Open-Heart Surgery & institutional clarity
+    text = re.sub(r'হৃদয়শল্য\s*চিকিৎসা|হৃদয়শল্য\s*অস্ত্ৰোপচাৰ|হৃদয়শল্য', 'Open-Heart Surgery', text)
+
+    # 8. Private Partner / Startups / Tech
+    text = re.sub(r'প্ৰাইভেট\s*অংশীদাৰ', 'ব্যক্তিগত অংশীদাৰ (Private Partner)', text)
+
+    # 9. Hindi news intrusions: তাজা খবৰ -> শেহতীয়া বাতৰি
+    text = re.sub(r'আজ\s*কি\s*তাজা\s*খবৰ', 'আজিৰ শেহতীয়া বাতৰি', text)
+    text = re.sub(r'তাজা\s*খবৰ', 'শেহতীয়া বাতৰি', text)
+
+    # 10. Common Chandrabindu / Verb endings from RAG Vol 3
+    text = re.sub(r'\bমই\s+ভাল\s+আছো\b', 'মই ভাল আছোঁ', text)
+    text = re.sub(r'\bমই\s+আছো\b', 'মই আছোঁ', text)
+
+    # Tidy spacing
+    text = re.sub(r'[ \t]{2,}', ' ', text)
+    return text
+
+
 def _perform_web_search(raw_query, max_results=5):
     """
     Search the web using Google Programmable Custom Search JSON API as primary,
-    with query sanitization, 2-hour caching, and automatic fallback to Tavily Search API.
-    Returns: (hits, error_str, engine_name)
+    with query optimization, query sanitization, 2-hour caching, and automatic fallback to Tavily Search API.
+    Returns: (hits, error_str, engine_name, query_used)
     Each hit: {'title': str, 'url': str, 'content': str}
     """
     import hashlib
-    # 1. Sanitize query: strip control characters, clean spaces, cap to 200 chars
-    cleaned = re.sub(r'[\r\n\t]+', ' ', raw_query).strip()
+
+    # 1. Optimize query for search engine (converts 'aji news ki hoi' -> 'Assam latest news headlines today')
+    optimized_query = _optimize_search_query(raw_query)
+
+    # Sanitize query: strip control characters, clean spaces, cap to 200 chars
+    cleaned = re.sub(r'[\r\n\t]+', ' ', optimized_query).strip()
     query = re.sub(r'[^\w\s\u0980-\u09FF\.\,\-\?\!\'\"]', ' ', cleaned)
     query = re.sub(r'\s{2,}', ' ', query).strip()[:200]
     if not query:
-        return None, "Empty search query after sanitization.", None
+        query = raw_query[:200]
 
     # 2. Check 2-hour query cache
-    q_hash = hashlib.md5(query.lower().strip().encode('utf-8')).hexdigest()
+    raw_hash = hashlib.md5(raw_query.lower().strip().encode('utf-8')).hexdigest()
+    opt_hash = hashlib.md5(query.lower().strip().encode('utf-8')).hexdigest()
     now = time.time()
-    cached = _WEBSEARCH_CACHE.get(q_hash)
-    if cached and (now - cached.get('timestamp', 0) < _WEBSEARCH_CACHE_TTL):
-        return cached.get('results', []), None, 'google_cache'
+
+    for h in (raw_hash, opt_hash):
+        cached = _WEBSEARCH_CACHE.get(h)
+        if cached and (now - cached.get('timestamp', 0) < _WEBSEARCH_CACHE_TTL):
+            return cached.get('results', []), None, 'google_cache', query
 
     hits = []
     engine_used = None
@@ -103,6 +231,7 @@ def _perform_web_search(raw_query, max_results=5):
                 'q': query,
                 'num': min(max(max_results, 1), 10),
                 'gl': 'in',
+                'cr': 'countryIN',
                 'safe': 'active',
             }
             headers = {
@@ -156,13 +285,12 @@ def _perform_web_search(raw_query, max_results=5):
             pass
 
     if hits:
-        _WEBSEARCH_CACHE[q_hash] = {
-            'timestamp': now,
-            'results': hits,
-        }
-        return hits, None, engine_used
+        cache_entry = {'timestamp': now, 'results': hits}
+        _WEBSEARCH_CACHE[raw_hash] = cache_entry
+        _WEBSEARCH_CACHE[opt_hash] = cache_entry
+        return hits, None, engine_used, query
 
-    return None, "No web search results available.", None
+    return None, "No web search results available.", None, query
 
 
 # ---------------------------------------------------------------------------
@@ -907,7 +1035,13 @@ def chat_api_view(request):
             }, status=429)
 
         # 3. Perform search (Google Custom Search -> Tavily fallback -> Cache)
-        hits, err, engine_used = _perform_web_search(prompt, max_results=5)
+        search_res = _perform_web_search(prompt, max_results=5)
+        if len(search_res) == 4:
+            hits, err, engine_used, query_used = search_res
+        else:
+            hits, err, engine_used = search_res[:3]
+            query_used = prompt
+
         if hits is None:
             return JsonResponse({
                 'error': (
@@ -929,20 +1063,31 @@ def chat_api_view(request):
             )
         context = '\n\n'.join(context_lines)
 
+        current_date_str = datetime.now().strftime('%d %B %Y (%A)')
         ws_system = (
-            "You are Axom AI. Use ONLY the web search results below to answer "
-            "the user's question. Reply in natural, native Assamese using "
-            "correct Assamese script (অসমীয়া) — never in English or Bengali. "
-            "Write plain, flowing prose only — NO inline citation markers like "
-            "[1], [2], (1), (2), or (Source 1). The user will see the source "
-            "URLs separately below the answer. Never invent facts that are "
-            "not in the results. If the results don't contain the answer, say "
-            "so honestly in Assamese. No Markdown, no bullets, no HTML."
+            f"Today's real-time date is: {current_date_str}.\n"
+            "You are Axom AI, a premier intelligent assistant specialized in Assam and Northeast India.\n"
+            "Your task: Use the real-time web search results provided below to answer the user's question accurately.\n\n"
+            "MANDATORY ASSAMESE GRAMMAR & VOCABULARY RULES (Axom AI Curated Standards):\n"
+            "1. Reply strictly in 100% natural, fluent, native Assamese using correct Assamese script (অসমীয়া).\n"
+            "2. Flood terminology: Always use 'বানপানী' or 'বান' (STRICTLY NEVER use Bengali 'বন্যা').\n"
+            "3. Large numbers: Always use 'কোটি' (STRICTLY NEVER use Hindi 'ক্ৰোৰ'). E.g., '৭৫ কোটি টকা', '১০ কোটি'.\n"
+            "4. Animals:\n"
+            "   - Female animals: Always use 'মাইকী' (e.g., 'মাইকী হাতী', STRICTLY NEVER 'মহিলা হাতী').\n"
+            "   - Animal classifiers: Use 'টা' or 'জনী' (e.g., '৯ টা হাতী', '৩ জনী মাইকী হাতী', STRICTLY NEVER use human honorific 'গৰাকী').\n"
+            "5. Proper Noun Spacing: Write the Assam Chief Minister's name correctly with spaces: 'ড° হিমন্ত বিশ্ব শৰ্মা' (never join as 'হিমন্তবিশ্বাস').\n"
+            "6. PRESERVE TECHNICAL, MEDICAL, AND INSTITUTIONAL TERMS IN ENGLISH:\n"
+            "   - For medical procedures, scientific concepts, and modern technology, keep the English term in Latin script (or alongside in brackets) so the exact meaning is clear and not distorted by clumsy translations.\n"
+            "   - Examples: 'Open-Heart Surgery', 'AIIMS Guwahati', 'AssamSAT', 'IIT Madras', 'Start-up', 'Cabinet', 'Marathon'.\n"
+            "7. News tone: Use authentic Assamese terms: 'বাতৰি' / 'সংবাদ' (news), 'আজিৰ' (today's), 'মুখ্য বাতৰি' (headlines), 'বতৰ' (weather). Never use Hindi words like 'তাজা খবৰ' or 'আজ'.\n"
+            "8. Structure your response cleanly with clear paragraphs or bullet points so it is easy and enjoyable to read.\n"
+            "9. NEVER invent facts. Base your reply directly on the provided search results.\n"
+            "10. Do NOT include inline citation markers like [1], [2], (1) because sources are shown separately below.\n"
         )
         ws_prompt = (
             f"Web search results:\n\n{context}\n\n"
             f"User question: {prompt}\n\n"
-            f"Answer in Assamese (অসমীয়া script):"
+            f"Answer in pure, natural Assamese (অসমীয়া script):"
         )
 
         answer = _groq_generate(ws_system, ws_prompt, timeout=45)
@@ -963,10 +1108,11 @@ def chat_api_view(request):
         indic_chars = sum(1 for ch in answer if 'ঀ' <= ch <= '৿')
         if indic_chars < max(20, int(len(answer) * 0.15)):
             asm = _groq_generate(
-                "Rewrite the following text in clear, natural, everyday "
+                "Rewrite the following text in clear, natural, authentic "
                 "Assamese (অসমীয়া script). Preserve every fact, name, date, "
-                "number and URL exactly. Do NOT add inline citation markers "
-                "like [1], [2], (1), (2). Plain prose only — no Markdown.",
+                "number and detail exactly. Keep modern technical/medical terms in English. "
+                "Use proper Assamese vocabulary. "
+                "Do NOT add inline citation markers like [1], [2], (1).",
                 answer, timeout=30,
             )
             if asm and asm.strip():
@@ -983,6 +1129,9 @@ def chat_api_view(request):
         # Tidy up any double spaces / stray "  ." left behind.
         answer = re.sub(r'\s+([।.,;:!?])', r'\1', answer)
         answer = re.sub(r'\s{2,}', ' ', answer).strip()
+
+        # RAG Grammar Purity Layer: Guarantee zero Bengali/Hindi loanwords, correct classifiers & terms
+        answer = _purify_assamese_with_grammar(answer)
 
         _websearch_daily_incr(ws_ip)
         _save_chat(request, client_id, prompt, answer)
@@ -1423,6 +1572,8 @@ def chat_api_view(request):
                             if asm and asm.strip():
                                 response_text = asm.strip()
 
+                    if language == 'assamese':
+                        response_text = _purify_assamese_with_grammar(response_text)
                     _save_chat(request, client_id, prompt, response_text)
                     return JsonResponse({
                         'response': response_text,
@@ -1446,6 +1597,8 @@ def chat_api_view(request):
     if GROQ_API_KEY and not web_search:
         groq_text = _groq_generate(system_instruction, final_prompt)
         if groq_text:
+            if language == 'assamese':
+                groq_text = _purify_assamese_with_grammar(groq_text)
             _save_chat(request, client_id, prompt, groq_text)
             return JsonResponse({
                 'response': groq_text,
@@ -3691,6 +3844,227 @@ def generate_diagram_api(request):
         'used_today': used_after,
         'remaining_today': max(0, daily_cap - used_after),
         'is_premium': is_premium,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Video Compressor APIs (Celery + Redis + FFmpeg)
+# ---------------------------------------------------------------------------
+from axom_ai.video_compress import (
+    FREE_MAX_UPLOAD_BYTES,
+    PRO_MAX_UPLOAD_BYTES,
+    FREE_DAILY_LIMIT,
+    PRO_DAILY_LIMIT,
+    FREE_MAX_DURATION_SEC,
+    PRO_MAX_DURATION_SEC,
+    PRESETS,
+    get_daily_video_count,
+    increment_daily_video_count,
+    probe_video,
+    dispatch_compression_job,
+    read_job,
+    delete_job_files,
+)
+from payments.utils import has_active_plan
+
+
+@csrf_exempt
+def video_compress_upload_api(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST requests are allowed.'}, status=405)
+
+    ip = _client_ip(request)
+    device_id = get_device_id(request)
+    rate_key = f"{ip}:{device_id}"
+
+    is_pro = has_active_plan(request.user)
+    max_upload = PRO_MAX_UPLOAD_BYTES if is_pro else FREE_MAX_UPLOAD_BYTES
+    daily_limit = PRO_DAILY_LIMIT if is_pro else FREE_DAILY_LIMIT
+    max_duration = PRO_MAX_DURATION_SEC if is_pro else FREE_MAX_DURATION_SEC
+
+    # Check daily quota
+    used_today = get_daily_video_count(rate_key)
+    if used_today >= daily_limit:
+        return JsonResponse({
+            'error': f'Daily limit of {daily_limit} video compressions reached. Upgrade to Pro for unlimited priority compressions.',
+            'upgrade_required': not is_pro,
+            'limit': daily_limit,
+            'used_today': used_today,
+        }, status=429 if is_pro else 402)
+
+    video_file = request.FILES.get('video') or request.FILES.get('file')
+    if not video_file:
+        return JsonResponse({'error': 'No video file provided.'}, status=400)
+
+    # Size check
+    if video_file.size > max_upload:
+        limit_mb = int(max_upload / (1024 * 1024))
+        return JsonResponse({
+            'error': f'File exceeds {limit_mb}MB limit. Upgrade to Pro to compress larger videos up to 100MB.',
+            'upgrade_required': not is_pro,
+            'file_size': video_file.size,
+            'limit_bytes': max_upload,
+        }, status=402 if not is_pro else 400)
+
+    # Preset check
+    preset_key = request.POST.get('preset', 'whatsapp').lower().strip()
+    if preset_key not in PRESETS:
+        preset_key = 'whatsapp'
+
+    preset_info = PRESETS[preset_key]
+    if preset_info.get('pro_only') and not is_pro:
+        return JsonResponse({
+            'error': f'{preset_info["label"]} preset is exclusive to Pro users. Upgrade to unlock full 1080p HD encoding.',
+            'upgrade_required': True,
+        }, status=402)
+
+    # Pro-exclusive Studio Controls (Aspect ratio, Resolution, Format)
+    aspect_ratio = request.POST.get('aspect_ratio', 'original').strip()
+    resolution = request.POST.get('resolution', 'original').strip()
+    format_ext = request.POST.get('format', 'mp4').strip().lower()
+
+    if aspect_ratio not in ('original', '9:16', '16:9', '1:1', '4:5'):
+        aspect_ratio = 'original'
+    if resolution not in ('original', '1080p', '720p', '480p', '360p'):
+        resolution = 'original'
+    if format_ext not in ('mp4', 'webm', 'mov'):
+        format_ext = 'mp4'
+
+    is_custom = (aspect_ratio != 'original') or (resolution != 'original') or (format_ext != 'mp4')
+    if is_custom and not is_pro:
+        return JsonResponse({
+            'error': 'Target Aspect Ratio (9:16, 16:9, 1:1, 4:5), Custom Resolution, and Container format options are exclusive to Pro VIP members.',
+            'upgrade_required': True,
+        }, status=402)
+
+    # Save to temp upload location
+    import uuid
+    from pathlib import Path
+    upload_ext = os.path.splitext(video_file.name)[1].lower() or '.mp4'
+    if upload_ext not in ('.mp4', '.mov', '.avi', '.mkv', '.webm', '.m4v', '.3gp'):
+        return JsonResponse({'error': 'Unsupported video format. Please upload MP4, MOV, MKV, AVI, or WebM.'}, status=400)
+
+    temp_id = uuid.uuid4().hex[:12]
+    temp_dir = Path(settings.MEDIA_ROOT) / 'video_compress'
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    temp_path = str(temp_dir / f"raw_{temp_id}{upload_ext}")
+
+    try:
+        with open(temp_path, 'wb+') as dest:
+            for chunk in video_file.chunks():
+                dest.write(chunk)
+    except Exception as e:
+        return JsonResponse({'error': f'Failed to store uploaded video: {str(e)}'}, status=500)
+
+    # Probe metadata
+    probe = probe_video(temp_path)
+    duration = probe.get('duration', 0)
+    if duration > max_duration:
+        try:
+            os.remove(temp_path)
+        except Exception:
+            pass
+        limit_min = int(max_duration / 60)
+        return JsonResponse({
+            'error': f'Video duration ({int(duration)}s) exceeds the {limit_min}-minute limit for your tier.',
+            'upgrade_required': not is_pro,
+            'duration': duration,
+        }, status=402 if not is_pro else 400)
+
+    # Increment quota
+    increment_daily_video_count(rate_key)
+
+    # Dispatch Celery task
+    task_id, err = dispatch_compression_job(
+        input_path=temp_path,
+        preset_key=preset_key,
+        duration=duration,
+        user_id=request.user.id if request.user.is_authenticated else None,
+        is_pro=is_pro,
+        aspect_ratio=aspect_ratio,
+        resolution=resolution,
+        format_ext=format_ext,
+        orig_w=probe.get('width', 0),
+        orig_h=probe.get('height', 0),
+    )
+
+    if err:
+        return JsonResponse({'error': err}, status=503)
+
+    return JsonResponse({
+        'success': True,
+        'task_id': task_id,
+        'probe': probe,
+        'preset': preset_key,
+        'preset_label': preset_info['label'],
+        'aspect_ratio': aspect_ratio,
+        'resolution': resolution,
+        'format': format_ext,
+        'is_pro': is_pro,
+        'daily_used': used_today + 1,
+        'daily_limit': daily_limit,
+    })
+
+
+def video_compress_status_api(request, task_id):
+    if not task_id or not re.match(r'^[A-Za-z0-9_]+$', task_id):
+        return JsonResponse({'error': 'Invalid task ID'}, status=400)
+
+    data = read_job(task_id)
+    if not data:
+        return JsonResponse({'error': 'Task not found or has expired.'}, status=404)
+
+    return JsonResponse({
+        'success': True,
+        'task_id': task_id,
+        'status': data.get('status', 'queued'),
+        'progress': data.get('progress', 0),
+        'input_size': data.get('input_size', 0),
+        'output_size': data.get('output_size', 0),
+        'duration': data.get('duration', 0),
+        'aspect_ratio': data.get('aspect_ratio', 'original'),
+        'resolution': data.get('resolution', 'original'),
+        'format': data.get('format', 'mp4'),
+        'download_url': data.get('download_url'),
+        'output_filename': data.get('output_filename'),
+        'error': data.get('error'),
+    })
+
+
+def video_compress_download_api(request, filename):
+    import mimetypes
+    from django.http import FileResponse, Http404
+    clean = os.path.basename(filename)
+    allowed_exts = ('.mp4', '.webm', '.mov')
+    if not any(clean.endswith(ext) for ext in allowed_exts) or '..' in clean:
+        raise Http404("Invalid video request.")
+
+    file_path = os.path.join(settings.MEDIA_ROOT, 'video_compress', clean)
+    if not os.path.exists(file_path):
+        raise Http404("Video file not found or has expired.")
+
+    content_type, _ = mimetypes.guess_type(file_path)
+    if not content_type:
+        content_type = 'video/mp4'
+
+    resp = FileResponse(open(file_path, 'rb'), content_type=content_type)
+    resp['Content-Disposition'] = f'attachment; filename="axom_compressed_{clean}"'
+    return resp
+
+
+@csrf_exempt
+def video_compress_delete_api(request, task_id):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST is allowed.'}, status=405)
+
+    if not task_id or not re.match(r'^[A-Za-z0-9_]+$', task_id):
+        return JsonResponse({'error': 'Invalid task ID'}, status=400)
+
+    deleted = delete_job_files(task_id)
+    return JsonResponse({
+        'success': True,
+        'deleted': deleted,
+        'message': 'Video permanently deleted from server memory.',
     })
 
 

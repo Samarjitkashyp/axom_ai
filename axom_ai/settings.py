@@ -82,6 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'contentcms.context_processors.global_header_footer',
             ],
         },
     },
@@ -172,5 +173,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Clickjacking Protection: SAMEORIGIN allows same-origin iframes and debugging tools like Google Tag Assistant
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# --- Celery & Redis Configuration ---
+CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 600  # 10 min hard limit
 
 

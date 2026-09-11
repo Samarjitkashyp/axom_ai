@@ -9,6 +9,7 @@ import LoginModal from './components/LoginModal';
 import DocConverterModal from './components/DocConverterModal';
 import PdfEditor from './components/PdfEditor';
 import PdfCompressor from './components/PdfCompressor';
+import VideoCompressor from './components/VideoCompressor';
 import WatermarkRemover from './components/WatermarkRemover';
 import ImageGenerator from './components/ImageGenerator';
 import ImageFinder from './components/ImageFinder';
@@ -49,6 +50,7 @@ export default function App() {
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
+  const [isVideoCompressorOpen, setIsVideoCompressorOpen] = useState(false);
   const [isWmOpen, setIsWmOpen] = useState(false);
   const [isImgGenOpen, setIsImgGenOpen] = useState(false);
   const [isImageFinderOpen, setIsImageFinderOpen] = useState(false);
@@ -221,6 +223,7 @@ export default function App() {
           onBackToChat={navigateToChat}
           onOpenEditor={() => setIsEditorOpen(true)}
           onOpenCompressor={() => setIsCompressorOpen(true)}
+          onOpenVideoCompressor={() => setIsVideoCompressorOpen(true)}
           onOpenWmRemover={() => setIsWmOpen(true)}
           onOpenImageGen={() => setIsImgGenOpen(true)}
           onOpenImageFinder={() => setIsImageFinderOpen(true)}
@@ -235,6 +238,14 @@ export default function App() {
 
         {/* FULL-SCREEN PDF COMPRESSOR */}
         {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
+
+        {/* FULL-SCREEN VIDEO COMPRESSOR */}
+        {isVideoCompressorOpen && (
+          <VideoCompressor
+            onClose={() => setIsVideoCompressorOpen(false)}
+            isPro={!!activePlan?.active}
+          />
+        )}
 
         {/* FULL-SCREEN WATERMARK REMOVER */}
         {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
@@ -358,6 +369,14 @@ export default function App() {
 
       {/* FULL-SCREEN PDF COMPRESSOR */}
       {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
+
+      {/* FULL-SCREEN VIDEO COMPRESSOR */}
+      {isVideoCompressorOpen && (
+        <VideoCompressor
+          onClose={() => setIsVideoCompressorOpen(false)}
+          isPro={!!activePlan?.active}
+        />
+      )}
 
       {/* FULL-SCREEN WATERMARK REMOVER */}
       {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}

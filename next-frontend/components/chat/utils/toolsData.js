@@ -186,6 +186,15 @@ export const ALL_TOOLS = [
     desc: 'Reduce PDF file size without noticeable loss of visual quality.',
   },
   {
+    id: 'video_compress',
+    name: 'Video Compressor',
+    cat: 'Optimize',
+    icon: Video,
+    videocompressor: true,
+    hint: 'MP4, MOV, MKV, WebM',
+    desc: 'Compress videos efficiently with H.264 presets (WhatsApp, Instagram, YouTube HD) with zero quality compromise.',
+  },
+  {
     id: 'watermark',
     name: 'Watermark PDF',
     cat: 'Optimize',

@@ -73,6 +73,13 @@ urlpatterns = [
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
 
+    # Video Compressor APIs (FFmpeg + Celery)
+    path('api/video-compress/upload/', views.video_compress_upload_api, name='video_compress_upload_api'),
+    path('api/video-compress/status/<str:task_id>/', views.video_compress_status_api, name='video_compress_status_api'),
+    path('api/video-compress/download/<str:filename>', views.video_compress_download_api, name='video_compress_download_api_raw'),
+    path('api/video-compress/download/<str:filename>/', views.video_compress_download_api, name='video_compress_download_api'),
+    path('api/video-compress/delete/<str:task_id>/', views.video_compress_delete_api, name='video_compress_delete_api'),
+
     # Razorpay payments
     path('api/', include('payments.urls')),
 

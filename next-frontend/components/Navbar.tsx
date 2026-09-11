@@ -52,6 +52,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 interface NavbarProps {
   header?: HeaderData;
+  onBackToChat?: () => void;
 }
 
 function toCssDimension(val?: string, defaultVal?: string): string | undefined {
@@ -69,9 +70,26 @@ function toCssDimension(val?: string, defaultVal?: string): string | undefined {
   return trimmed;
 }
 
-export default function Navbar({ header }: NavbarProps) {
+export default function Navbar({ header: initialHeader, onBackToChat }: NavbarProps) {
+  const [header, setHeader] = useState<HeaderData | undefined>(initialHeader);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    if (initialHeader) {
+      setHeader(initialHeader);
+    } else {
+      // Automatically sync with CMS API on client pages (e.g. /tools)
+      fetch('/api/cms/landing/')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.header) {
+            setHeader(data.header);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [initialHeader]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
@@ -89,9 +107,35 @@ export default function Navbar({ header }: NavbarProps) {
     }
   }, [open]);
 
-  const logoUrl = (header?.logo_image_url && header.logo_image_url !== '/axom-logo.png')
-    ? header.logo_image_url
-    : '/axom-logo.svg';
+  const isChatDomain = typeof window !== 'undefined' && (
+    window.location.hostname.startsWith('chat.') ||
+    window.location.pathname.startsWith('/chat') ||
+    window.location.pathname.startsWith('/tools')
+  );
+
+  const resolveUrl = (url: string) => {
+    if (!url) return url;
+    if (url.startsWith('http') || url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
+    if (isChatDomain) {
+      if (url === '/tools' || url === '/chat/tools') return '/tools';
+      return `https://aiaxom.co.in${url.startsWith('/') ? '' : '/'}${url}`;
+    }
+    return url;
+  };
+
+  // Resolve logo strictly from CMS settings (/media/brand/logo_... or /axom-brand-logo.png)
+  const rawLogo = header?.logo_image_url;
+  let logoUrl = '/axom-brand-logo.png';
+  if (rawLogo && rawLogo !== '/axom-logo.png' && rawLogo !== '/axom-logo.svg') {
+    if (rawLogo.startsWith('http')) {
+      logoUrl = rawLogo;
+    } else if (rawLogo.startsWith('/media/')) {
+      logoUrl = isChatDomain ? `https://aiaxom.co.in${rawLogo}` : rawLogo;
+    } else {
+      logoUrl = rawLogo;
+    }
+  }
+
   const logoAlt = header?.logo_alt_text || 'Axom AI — Smart. Assamese. AI For All.';
   const logoWidth = toCssDimension(header?.logo_width, '11.25rem'); // 180px -> 11.25rem
   const logoHeight = toCssDimension(header?.logo_height, 'auto');
@@ -100,13 +144,14 @@ export default function Navbar({ header }: NavbarProps) {
   const signinUrl = header?.cta_signin_url || 'https://chat.aiaxom.co.in/';
   const chatText = header?.cta_chat_text || 'Open Chat';
   const chatUrl = header?.cta_chat_url || 'https://chat.aiaxom.co.in/';
+  const homeHref = isChatDomain ? 'https://aiaxom.co.in/' : '/';
 
   // Dynamic Nav Items (fallback to default standard set if none configured)
   const navItems = header?.nav_items && header.nav_items.length > 0
     ? header.nav_items
     : [
         { id: 1, title: 'About', url: '/about', order: 1 },
-        { id: 2, title: 'AI Tools', url: '/#tools', order: 2 },
+        { id: 2, title: 'AI Tools', url: isChatDomain ? '/tools' : '/#tools', order: 2 },
         { id: 3, title: 'Use Cases', url: '/#usecases', order: 3 },
         { id: 4, title: 'Pricing', url: '/#pricing', order: 4 },
         { id: 5, title: 'Blog & Insights', url: '/blog', order: 5 },
@@ -142,8 +187,8 @@ export default function Navbar({ header }: NavbarProps) {
         }`}
       >
         <div className="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between">
-          {/* Brand Logo - pure Next.js SPA Link */}
-          <Link href="/" className="flex items-center gap-2 group shrink-0 py-0.5">
+          {/* Brand Logo */}
+          <a href={homeHref} className="flex items-center gap-2 group shrink-0 py-0.5">
             <img
               src={logoUrl}
               alt={logoAlt}
@@ -156,7 +201,7 @@ export default function Navbar({ header }: NavbarProps) {
               }}
               className="w-auto h-auto transition-transform duration-300 group-hover:scale-105"
             />
-          </Link>
+          </a>
 
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center gap-1 text-sm">
@@ -230,7 +275,8 @@ export default function Navbar({ header }: NavbarProps) {
                 );
               }
 
-              const isExternal = item.url.startsWith('http');
+              const targetUrl = resolveUrl(item.url);
+              const isExternal = targetUrl.startsWith('http');
               const linkClass = isBlog
                 ? "px-4 py-2 rounded-full text-white bg-fuchsia-500/20 border border-fuchsia-500/35 font-semibold transition hover:bg-fuchsia-500/30"
                 : "px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition";
@@ -238,9 +284,7 @@ export default function Navbar({ header }: NavbarProps) {
               return isExternal ? (
                 <a
                   key={item.id}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={targetUrl}
                   className={linkClass}
                 >
                   {item.title}
@@ -248,7 +292,7 @@ export default function Navbar({ header }: NavbarProps) {
               ) : (
                 <Link
                   key={item.id}
-                  href={item.url}
+                  href={targetUrl}
                   className={linkClass}
                 >
                   {item.title}
@@ -259,23 +303,36 @@ export default function Navbar({ header }: NavbarProps) {
 
           {/* Action Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <a
-              href={signinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-gray-300 hover:text-white transition px-3 font-medium"
-            >
-              {signinText}
-            </a>
-            <a
-              href={chatUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 font-semibold"
-            >
-              <span>{chatText}</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
+            {!onBackToChat && (
+              <a
+                href={signinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-300 hover:text-white transition px-3 font-medium"
+              >
+                {signinText}
+              </a>
+            )}
+            {onBackToChat ? (
+              <button
+                type="button"
+                onClick={onBackToChat}
+                className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 font-semibold"
+              >
+                <span>Back to Chat</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <a
+                href={chatUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 font-semibold"
+              >
+                <span>{chatText}</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            )}
           </div>
 
           {/* Mobile Hamburger Button */}
@@ -301,22 +358,21 @@ export default function Navbar({ header }: NavbarProps) {
         }}
       />
 
-      {/* Mobile Drawer - rendered outside nav to prevent backdrop-filter containment */}
+      {/* Slide-in Mobile Drawer */}
       <aside
         className={`drawer lg:hidden ${open ? 'open' : ''}`}
         role="dialog"
         aria-modal="true"
-        aria-label="Mobile Navigation"
+        aria-label="Mobile Navigation Drawer"
         style={{
           backgroundColor: '#090814',
           backgroundImage:
             'radial-gradient(ellipse at top right, rgba(168, 85, 247, 0.18), transparent 70%), linear-gradient(180deg, #100d22 0%, #07060e 100%)',
-          boxShadow: '-25px 0 50px rgba(0, 0, 0, 0.95), -5px 0 25px rgba(168, 85, 247, 0.15)',
         }}
       >
         {/* Drawer Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <img
               src={logoUrl}
               alt={logoAlt}
@@ -324,41 +380,43 @@ export default function Navbar({ header }: NavbarProps) {
                 width: logoWidth,
                 height: logoHeight,
                 objectFit: logoFit,
-                maxWidth: '140px',
-                maxHeight: '44px',
+                maxWidth: '8.75rem',
+                maxHeight: '2.5rem',
               }}
               className="w-auto h-auto"
             />
-          </Link>
+          </div>
           <button
             onClick={() => setOpen(false)}
             aria-label="Close menu"
-            className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 active:bg-white/20 grid place-items-center text-gray-300 transition"
+            className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 grid place-items-center text-gray-300 hover:text-white transition"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Navigation Links - natural scroll flow */}
-        <div className="py-3 px-2 space-y-1">
+        {/* Navigation Items */}
+        <div className="p-3 space-y-1 text-sm">
           {navItems.map((it) => {
-            const isExternal = it.url.startsWith('http');
-            const iconMap: Record<string, React.ElementType> = {
-              'AI Tools': Bot,
-              'Use Cases': Users,
-              'Pricing': Crown,
-              'Blog & Insights': Newspaper,
-              'Blog': Newspaper,
-              'FAQ': HelpCircle,
-            };
-            const IconComponent = iconMap[it.title] || Sparkles;
+            const IconComponent = it.title.toLowerCase().includes('about')
+              ? HelpCircle
+              : it.title.toLowerCase().includes('tool')
+              ? Bot
+              : it.title.toLowerCase().includes('case')
+              ? Users
+              : it.title.toLowerCase().includes('pric')
+              ? Crown
+              : it.title.toLowerCase().includes('blog')
+              ? Newspaper
+              : Sparkles;
+
+            const targetUrl = resolveUrl(it.url);
+            const isExternal = targetUrl.startsWith('http');
 
             return isExternal ? (
               <a
                 key={it.id}
-                href={it.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={targetUrl}
                 onClick={() => setOpen(false)}
                 className="drawer-item"
               >
@@ -370,7 +428,7 @@ export default function Navbar({ header }: NavbarProps) {
             ) : (
               <Link
                 key={it.id}
-                href={it.url}
+                href={targetUrl}
                 onClick={() => setOpen(false)}
                 className="drawer-item"
               >
@@ -386,24 +444,36 @@ export default function Navbar({ header }: NavbarProps) {
         {/* Actions - flows naturally below links, NOT sticky */}
         <div className="px-5 pt-5 pb-4 border-t border-white/10 mt-2">
           <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-2.5 font-semibold">Get Started</div>
-          <a
-            href={chatUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5 font-semibold shadow-lg shadow-fuchsia-600/30"
-          >
-            {chatText} &rarr;
-          </a>
-          <a
-            href={signinUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            className="btn-ghost block text-center text-sm px-4 py-3 rounded-full font-medium border border-white/10 hover:bg-white/5"
-          >
-            {signinText}
-          </a>
+          {onBackToChat ? (
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onBackToChat(); }}
+              className="btn-primary block w-full text-center text-sm px-4 py-3 rounded-full mb-2.5 font-semibold shadow-lg shadow-fuchsia-600/30"
+            >
+              Back to Chat &rarr;
+            </button>
+          ) : (
+            <a
+              href={chatUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5 font-semibold shadow-lg shadow-fuchsia-600/30"
+            >
+              {chatText} &rarr;
+            </a>
+          )}
+          {!onBackToChat && (
+            <a
+              href={signinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="btn-ghost block text-center text-sm px-4 py-3 rounded-full font-medium border border-white/10 hover:bg-white/5"
+            >
+              {signinText}
+            </a>
+          )}
         </div>
 
         {/* Assamese Footer Tagline */}

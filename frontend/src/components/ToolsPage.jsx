@@ -26,6 +26,7 @@ export default function ToolsPage({
   onBackToChat,
   onOpenEditor,
   onOpenCompressor,
+  onOpenVideoCompressor,
   onOpenWmRemover,
   onOpenImageGen,
   onOpenImageFinder,
@@ -101,6 +102,10 @@ export default function ToolsPage({
     }
     if (t.compressor) {
       onOpenCompressor?.();
+      return;
+    }
+    if (t.videocompressor) {
+      onOpenVideoCompressor?.();
       return;
     }
     if (t.wmeditor) {

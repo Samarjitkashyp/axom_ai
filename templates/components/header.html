@@ -1,0 +1,139 @@
+{% load static %}
+<!-- ==========================================================================
+     AXOM AI — GLOBAL REUSABLE HEADER / NAVBAR COMPONENT
+     ========================================================================== -->
+<header id="axomGlobalHeader" class="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between">
+    <!-- Brand Logo -->
+    <a href="/" class="flex items-center gap-2 group shrink-0 py-0.5">
+      {% if header.logo_image_url %}
+        <img src="{{ header.logo_image_url }}" alt="{{ header.logo_alt_text|default:'Axom AI — Smart. Assamese. AI For All.' }}"
+          style="width: {{ header.logo_width|default:'180px' }}; height: {{ header.logo_height|default:'auto' }}; object-fit: {{ header.logo_fit|default:'contain' }}; max-width: 100%; max-height: 48px;"
+          class="transition-transform duration-300 group-hover:scale-105">
+      {% else %}
+        <img src="/media/brand/logo_f2a10f37.png" alt="Axom AI — Smart. Assamese. AI For All."
+          style="width: 180px; height: auto; object-fit: contain; max-width: 100%; max-height: 48px;"
+          class="transition-transform duration-300 group-hover:scale-105"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="hidden items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center shadow-lg shadow-fuchsia-500/40 group-hover:scale-105 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          </div>
+          <div class="font-bold text-lg tracking-tight text-white">
+            Axom<span class="text-fuchsia-400"> AI</span>
+          </div>
+        </div>
+      {% endif %}
+    </a>
+
+    <!-- Desktop Navigation Links -->
+    <nav class="hidden lg:flex items-center gap-1.5 text-sm" aria-label="Main Navigation">
+      <a href="/" class="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Home</a>
+      <a href="/about/" class="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">About</a>
+      <a href="https://chat.aiaxom.co.in/tools" class="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition inline-flex items-center gap-1">
+        <span>AI Tools</span>
+      </a>
+      <a href="/#usecases" class="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Use Cases</a>
+      <a href="/#pricing" class="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Pricing</a>
+      <a href="/blog/" class="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">Blog & Insights</a>
+      <a href="/faq/" class="px-3.5 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition">FAQs</a>
+    </nav>
+
+    <!-- Header Action Buttons -->
+    <div class="flex items-center gap-3">
+      <a href="https://chat.aiaxom.co.in" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-block text-xs sm:text-sm text-gray-300 hover:text-white transition px-2.5 font-medium">
+        Sign in
+      </a>
+      <a href="https://chat.aiaxom.co.in" target="_blank" rel="noopener noreferrer" class="btn-primary text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-lg shadow-fuchsia-600/25">
+        <span>Open Chat</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <button id="axomMobileMenuBtn" aria-label="Open mobile menu" class="lg:hidden w-9 h-9 rounded-full bg-white/10 border border-white/15 grid place-items-center text-white hover:bg-white/15 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Slide-In Navigation Drawer -->
+<div id="axomDrawerOverlay" class="drawer-overlay" style="background-color: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"></div>
+<aside id="axomMobileDrawer" class="drawer" style="background-color: #090814; background-image: radial-gradient(ellipse at top right, rgba(168, 85, 247, 0.18), transparent 70%), linear-gradient(180deg, #100d22 0%, #07060e 100%);">
+  <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
+    <div class="flex items-center gap-2.5">
+      {% if header.logo_image_url %}
+        <img src="{{ header.logo_image_url }}" alt="{{ header.logo_alt_text|default:'Axom AI' }}"
+          style="width: 140px; height: auto; max-height: 36px; object-fit: contain;">
+      {% else %}
+        <img src="/media/brand/logo_f2a10f37.png" alt="Axom AI"
+          style="width: 140px; height: auto; max-height: 36px; object-fit: contain;"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="hidden items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-fuchsia-500 to-purple-600 grid place-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          </div>
+          <div class="font-bold text-white">Axom<span class="text-fuchsia-400"> AI</span></div>
+        </div>
+      {% endif %}
+    </div>
+    <button id="axomCloseDrawerBtn" aria-label="Close menu" class="w-8 h-8 rounded-full bg-white/10 text-gray-400 hover:text-white grid place-items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="p-4 space-y-1 text-sm">
+    <a href="/" class="block px-4 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
+    <a href="/about/" class="block px-4 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white">About Axom AI</a>
+    <a href="https://chat.aiaxom.co.in/tools" class="block px-4 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white">AI Tools Directory</a>
+    <a href="/#usecases" class="block px-4 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white">Use Cases</a>
+    <a href="/#pricing" class="block px-4 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white">Subscription & Pricing</a>
+    <a href="/blog/" class="block px-4 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white">Blog & Insights</a>
+    <a href="/faq/" class="block px-4 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 hover:text-white">Help & FAQs</a>
+    <div class="pt-4 mt-4 border-t border-white/10">
+      <a href="https://chat.aiaxom.co.in" target="_blank" rel="noopener noreferrer" class="btn-primary w-full text-center py-2.5 rounded-full block text-sm font-semibold shadow-lg shadow-fuchsia-600/30">
+        Open Chat &rarr;
+      </a>
+      <a href="https://chat.aiaxom.co.in" target="_blank" rel="noopener noreferrer" class="btn-ghost w-full text-center py-2.5 rounded-full block text-sm font-medium mt-2">
+        Sign in
+      </a>
+    </div>
+  </div>
+  <div class="px-5 pb-6 pt-2">
+    <p class="font-assamese text-xs text-fuchsia-300/60 text-center">অসমৰ নিজা AI প্লেটফৰ্ম • AI for All</p>
+  </div>
+</aside>
+
+<script>
+  (function() {
+    const menuBtn = document.getElementById('axomMobileMenuBtn');
+    const closeBtn = document.getElementById('axomCloseDrawerBtn');
+    const overlay = document.getElementById('axomDrawerOverlay');
+    const drawer = document.getElementById('axomMobileDrawer');
+    const header = document.getElementById('axomGlobalHeader');
+
+    function openNav() {
+      if (drawer) drawer.classList.add('open');
+      if (overlay) overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeNav() {
+      if (drawer) drawer.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (menuBtn) menuBtn.addEventListener('click', openNav);
+    if (closeBtn) closeBtn.addEventListener('click', closeNav);
+    if (overlay) overlay.addEventListener('click', closeNav);
+
+    window.addEventListener('scroll', function() {
+      if (header) {
+        if (window.scrollY > 30) {
+          header.classList.add('bg-black/90', 'shadow-2xl');
+          header.classList.remove('bg-black/80');
+        } else {
+          header.classList.add('bg-black/80');
+          header.classList.remove('bg-black/90', 'shadow-2xl');
+        }
+      }
+    });
+  })();
+</script>

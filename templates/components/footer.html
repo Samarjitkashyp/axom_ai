@@ -1,0 +1,105 @@
+{% load static %}
+<!-- ==========================================================================
+     AXOM AI — GLOBAL REUSABLE FOOTER COMPONENT
+     ========================================================================== -->
+<footer class="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-black/80 mt-20 relative text-gray-400">
+  <div class="max-w-7xl mx-auto px-5">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+      <!-- Brand Column -->
+      <div class="col-span-2 md:col-span-1">
+        <a href="/" class="inline-flex items-center gap-2.5 mb-4 group">
+          {% if footer.logo_image_url %}
+            <img src="{{ footer.logo_image_url }}" alt="Axom AI"
+              style="width: {{ footer.logo_width|default:'180px' }}; height: {{ footer.logo_height|default:'auto' }}; object-fit: {{ footer.logo_fit|default:'contain' }}; max-width: 100%; max-height: 48px;"
+              class="transition-transform duration-300 group-hover:scale-105">
+          {% else %}
+            <img src="/media/brand/logo_b365d8f6.png" alt="Axom AI"
+              style="width: 180px; height: auto; object-fit: contain; max-width: 100%; max-height: 48px;"
+              class="transition-transform duration-300 group-hover:scale-105"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="hidden items-center gap-2">
+              <span class="font-bold text-white text-lg">Axom<span class="text-fuchsia-400"> AI</span></span>
+            </div>
+          {% endif %}
+        </a>
+        <p class="text-xs text-gray-400 leading-relaxed mb-5">
+          AI for a more inclusive future.<br>Built in Assam, for the world.
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X Twitter" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">
+            <i class="fa-brands fa-x-twitter"></i>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">
+            <i class="fa-brands fa-linkedin-in"></i>
+          </a>
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">
+            <i class="fa-brands fa-youtube"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="w-8 h-8 rounded-full bg-white/5 hover:bg-fuchsia-500/20 hover:text-fuchsia-400 grid place-items-center text-gray-400 text-xs transition">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Col 1: Product -->
+      <div>
+        <div class="text-xs uppercase tracking-widest text-gray-300 font-semibold mb-3.5">Product</div>
+        <ul class="space-y-2 text-xs sm:text-sm text-gray-400">
+          <li><a href="https://chat.aiaxom.co.in" target="_blank" rel="noopener noreferrer" class="hover:text-fuchsia-400 transition-colors">AI Chat</a></li>
+          <li><a href="https://chat.aiaxom.co.in/tools" class="hover:text-fuchsia-400 transition-colors">AI Tools Directory</a></li>
+          <li><a href="/#pricing" class="hover:text-fuchsia-400 transition-colors">Subscription Pricing</a></li>
+          <li><a href="/blog/" class="hover:text-fuchsia-400 transition-colors">What's New</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 2: Solutions -->
+      <div>
+        <div class="text-xs uppercase tracking-widest text-gray-300 font-semibold mb-3.5">Solutions</div>
+        <ul class="space-y-2 text-xs sm:text-sm text-gray-400">
+          <li><a href="/#usecases" class="hover:text-fuchsia-400 transition-colors">For Students & Exams</a></li>
+          <li><a href="/#usecases" class="hover:text-fuchsia-400 transition-colors">For Content Creators</a></li>
+          <li><a href="/#usecases" class="hover:text-fuchsia-400 transition-colors">For Businesses</a></li>
+          <li><a href="/#usecases" class="hover:text-fuchsia-400 transition-colors">For Developers</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Resources -->
+      <div>
+        <div class="text-xs uppercase tracking-widest text-gray-300 font-semibold mb-3.5">Resources</div>
+        <ul class="space-y-2 text-xs sm:text-sm text-gray-400">
+          <li><a href="/blog/" class="hover:text-fuchsia-400 transition-colors">Blog & Insights</a></li>
+          <li><a href="/faq/" class="hover:text-fuchsia-400 transition-colors">Help Center & FAQs</a></li>
+          <li><a href="https://user.aiaxom.co.in/support/" target="_blank" rel="noopener noreferrer" class="hover:text-fuchsia-400 transition-colors">Live Support</a></li>
+          <li><a href="/about/" class="hover:text-fuchsia-400 transition-colors">About Axom AI</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Company & Legal -->
+      <div>
+        <div class="text-xs uppercase tracking-widest text-gray-300 font-semibold mb-3.5">Company</div>
+        <ul class="space-y-2 text-xs sm:text-sm text-gray-400">
+          <li><a href="/about/" class="hover:text-fuchsia-400 transition-colors">About Us</a></li>
+          <li><a href="mailto:samarjitkashyp@gmail.com" class="hover:text-fuchsia-400 transition-colors">Contact</a></li>
+          <li><a href="/faq/" class="hover:text-fuchsia-400 transition-colors">Privacy Policy</a></li>
+          <li><a href="/faq/" class="hover:text-fuchsia-400 transition-colors">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+      <div class="flex flex-wrap items-center gap-4">
+        <span>&copy; {% now "Y" %} Axom AI Technologies. All rights reserved.</span>
+        <a href="/faq/" class="hover:text-fuchsia-400 transition">Privacy</a>
+        <a href="/faq/" class="hover:text-fuchsia-400 transition">Terms</a>
+        <a href="/faq/" class="hover:text-fuchsia-400 transition">Refund Policy</a>
+      </div>
+      <div>
+        Made with <span class="text-red-500">&hearts;</span> in Guwahati, Assam, India &#127470;&#127475;
+      </div>
+    </div>
+    <div class="mt-4 text-center font-serif italic text-gray-500 text-xs">
+      অসমৰ পৰা · বিশ্বৰ প্ৰতিটো প্ৰান্তলৈ • From Assam, To A Smarter Tomorrow
+    </div>
+  </div>
+</footer>

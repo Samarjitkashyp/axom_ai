@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FooterData } from '@/lib/api';
 
@@ -71,11 +72,56 @@ function toCssDimension(val?: string, defaultVal?: string): string | undefined {
   return trimmed;
 }
 
-export default function Footer({ footer, seo }: FooterProps) {
+export default function Footer({ footer: initialFooter, seo }: FooterProps) {
+  const [footer, setFooter] = useState<FooterData | undefined>(initialFooter);
   const currentYear = new Date().getFullYear();
-  const logoUrl = (footer?.logo_image_url && footer.logo_image_url !== '/axom-logo.png')
-    ? footer.logo_image_url
-    : '/axom-logo.svg';
+
+  useEffect(() => {
+    if (initialFooter) {
+      setFooter(initialFooter);
+    } else {
+      fetch('/api/cms/landing/')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.footer) {
+            setFooter(data.footer);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [initialFooter]);
+
+  const isChatDomain = typeof window !== 'undefined' && (
+    window.location.hostname.startsWith('chat.') ||
+    window.location.pathname.startsWith('/chat') ||
+    window.location.pathname.startsWith('/tools')
+  );
+
+  const resolveUrl = (url: string) => {
+    if (!url) return url;
+    if (url.startsWith('http') || url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
+    if (isChatDomain) {
+      if (url === '/tools' || url === '/chat/tools') return '/tools';
+      return `https://aiaxom.co.in${url.startsWith('/') ? '' : '/'}${url}`;
+    }
+    return url;
+  };
+
+  const homeHref = isChatDomain ? 'https://aiaxom.co.in/' : '/';
+
+  // Resolve logo strictly from CMS settings (/media/brand/logo_... or /axom-brand-logo.png)
+  const rawLogo = footer?.logo_image_url;
+  let logoUrl = '/axom-brand-logo.png';
+  if (rawLogo && rawLogo !== '/axom-logo.png' && rawLogo !== '/axom-logo.svg') {
+    if (rawLogo.startsWith('http')) {
+      logoUrl = rawLogo;
+    } else if (rawLogo.startsWith('/media/')) {
+      logoUrl = isChatDomain ? `https://aiaxom.co.in${rawLogo}` : rawLogo;
+    } else {
+      logoUrl = rawLogo;
+    }
+  }
+
   const logoWidth = toCssDimension(footer?.logo_width, '11.25rem');
   const logoHeight = toCssDimension(footer?.logo_height, 'auto');
   const logoFit = (footer?.logo_fit as React.CSSProperties['objectFit']) || 'contain';
@@ -92,7 +138,7 @@ export default function Footer({ footer, seo }: FooterProps) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand Col */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block mb-4 group">
+            <a href={homeHref} className="inline-block mb-4 group">
               <img
                 src={logoUrl}
                 alt="Axom AI — Smart. Assamese. AI For All."
@@ -105,7 +151,7 @@ export default function Footer({ footer, seo }: FooterProps) {
                 }}
                 className="w-auto h-auto transition-transform duration-300 group-hover:scale-105"
               />
-            </Link>
+            </a>
             <p className="text-xs text-gray-400 leading-relaxed mb-5 whitespace-pre-line">
               {description}
             </p>
@@ -133,20 +179,21 @@ export default function Footer({ footer, seo }: FooterProps) {
               </div>
               <ul className="space-y-2 text-sm text-gray-400">
                 {(col.links || []).map((link, j) => {
-                  const isExt = link.is_external || link.url.startsWith('http') || link.url.startsWith('mailto');
+                  const targetUrl = resolveUrl(link.url);
+                  const isExt = link.is_external || targetUrl.startsWith('http') || targetUrl.startsWith('mailto:');
                   return (
                     <li key={link.id || j}>
                       {isExt ? (
                         <a
-                          href={link.url}
+                          href={targetUrl}
                           className="hover:text-fuchsia-400 transition-colors text-xs sm:text-sm"
-                          {...(link.url.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                          {...(targetUrl.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                         >
                           {link.title}
                         </a>
                       ) : (
                         <Link
-                          href={link.url}
+                          href={targetUrl}
                           className="hover:text-fuchsia-400 transition-colors text-xs sm:text-sm"
                         >
                           {link.title}
@@ -164,8 +211,8 @@ export default function Footer({ footer, seo }: FooterProps) {
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>&copy; {currentYear} {copyrightText}</span>
-            <Link href="/faq" className="hover:text-fuchsia-400 transition">Privacy Policy</Link>
-            <Link href="/faq" className="hover:text-fuchsia-400 transition">Terms of Use</Link>
+            <a href={resolveUrl('/faq')} className="hover:text-fuchsia-400 transition">Privacy Policy</a>
+            <a href={resolveUrl('/faq')} className="hover:text-fuchsia-400 transition">Terms of Use</a>
             <a href="mailto:samarjitkashyp@gmail.com" className="hover:text-fuchsia-400 transition">Support</a>
           </div>
           <div>
