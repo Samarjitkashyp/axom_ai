@@ -133,169 +133,189 @@ export default function Navbar({ header }: NavbarProps) {
       }));
 
   return (
-    <nav
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-black/85 backdrop-blur-xl border-b border-white/10 shadow-2xl'
-          : 'bg-black/60 backdrop-blur-md border-b border-white/5'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between">
-        {/* Brand Logo - pure Next.js SPA Link */}
-        <Link href="/" className="flex items-center gap-2 group shrink-0 py-0.5">
-          <img
-            src={logoUrl}
-            alt={logoAlt}
-            style={{
-              width: logoWidth,
-              height: logoHeight,
-              objectFit: logoFit,
-              maxWidth: '100%',
-              maxHeight: '3.75rem', // 60px max height constraint
-            }}
-            className="w-auto h-auto transition-transform duration-300 group-hover:scale-105"
-          />
-        </Link>
+    <>
+      <nav
+        className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
+          scrolled
+            ? 'bg-black/85 backdrop-blur-xl border-b border-white/10 shadow-2xl'
+            : 'bg-black/60 backdrop-blur-md border-b border-white/5'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between">
+          {/* Brand Logo - pure Next.js SPA Link */}
+          <Link href="/" className="flex items-center gap-2 group shrink-0 py-0.5">
+            <img
+              src={logoUrl}
+              alt={logoAlt}
+              style={{
+                width: logoWidth,
+                height: logoHeight,
+                objectFit: logoFit,
+                maxWidth: '100%',
+                maxHeight: '3.75rem', // 60px max height constraint
+              }}
+              className="w-auto h-auto transition-transform duration-300 group-hover:scale-105"
+            />
+          </Link>
 
-        {/* Desktop Navigation Links */}
-        <div className="hidden lg:flex items-center gap-1 text-sm">
-          {navItems.map((item) => {
-            const isMega = item.title.toLowerCase().includes('tool') || item.url === '/#tools';
-            const isBlog = item.url === '/blog' || item.url === '/blog/';
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center gap-1 text-sm">
+            {navItems.map((item) => {
+              const isMega = item.title.toLowerCase().includes('tool') || item.url === '/#tools';
+              const isBlog = item.url === '/blog' || item.url === '/blog/';
 
-            if (isMega) {
-              return (
-                <div key={item.id} className="nav-item relative">
-                  <Link
-                    href={item.url}
-                    className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition inline-flex items-center gap-1.5"
-                  >
-                    <span>{item.title}</span>
-                    <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-                  </Link>
-                  <div className="mega-menu w-[640px] p-3 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-fuchsia-500/10 mt-2">
-                    <div className="text-[10px] uppercase tracking-widest text-fuchsia-400 font-bold px-3 pt-2 pb-1">
-                      Explore AI Tools
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      {megaItems.map((m, idx) => {
-                        const IconComponent = m.icon;
-                        const isExternal = m.url.startsWith('http');
-                        return isExternal ? (
-                          <a
-                            key={idx}
-                            href={m.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mega-item"
-                          >
-                            <div className="mega-icon">
-                              <IconComponent className={`w-4 h-4 ${m.color}`} />
-                            </div>
-                            <div>
-                              <div className="text-sm font-semibold text-white">{m.title}</div>
-                              <div className="text-xs text-gray-400">{m.desc}</div>
-                            </div>
-                          </a>
-                        ) : (
-                          <Link
-                            key={idx}
-                            href={m.url}
-                            className="mega-item"
-                          >
-                            <div className="mega-icon">
-                              <IconComponent className={`w-4 h-4 ${m.color}`} />
-                            </div>
-                            <div>
-                              <div className="text-sm font-semibold text-white">{m.title}</div>
-                              <div className="text-xs text-gray-400">{m.desc}</div>
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                    <div className="border-t border-white/5 mt-2 pt-2 px-3">
-                      <a
-                        href={chatUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-fuchsia-400 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
-                      >
-                        Launch all tools in Axom Chat <ArrowRight className="w-3 h-3" />
-                      </a>
+              if (isMega) {
+                return (
+                  <div key={item.id} className="nav-item relative">
+                    <Link
+                      href={item.url}
+                      className="px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition inline-flex items-center gap-1.5"
+                    >
+                      <span>{item.title}</span>
+                      <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                    </Link>
+                    <div className="mega-menu w-[640px] p-3 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-fuchsia-500/10 mt-2">
+                      <div className="text-[10px] uppercase tracking-widest text-fuchsia-400 font-bold px-3 pt-2 pb-1">
+                        Explore AI Tools
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        {megaItems.map((m, idx) => {
+                          const IconComponent = m.icon;
+                          const isExternal = m.url.startsWith('http');
+                          return isExternal ? (
+                            <a
+                              key={idx}
+                              href={m.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mega-item"
+                            >
+                              <div className="mega-icon">
+                                <IconComponent className={`w-4 h-4 ${m.color}`} />
+                              </div>
+                              <div>
+                                <div className="text-sm font-semibold text-white">{m.title}</div>
+                                <div className="text-xs text-gray-400">{m.desc}</div>
+                              </div>
+                            </a>
+                          ) : (
+                            <Link
+                              key={idx}
+                              href={m.url}
+                              className="mega-item"
+                            >
+                              <div className="mega-icon">
+                                <IconComponent className={`w-4 h-4 ${m.color}`} />
+                              </div>
+                              <div>
+                                <div className="text-sm font-semibold text-white">{m.title}</div>
+                                <div className="text-xs text-gray-400">{m.desc}</div>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                      <div className="border-t border-white/5 mt-2 pt-2 px-3">
+                        <a
+                          href={chatUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-fuchsia-400 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
+                        >
+                          Launch all tools in Axom Chat <ArrowRight className="w-3 h-3" />
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
+                );
+              }
+
+              const isExternal = item.url.startsWith('http');
+              const linkClass = isBlog
+                ? "px-4 py-2 rounded-full text-white bg-fuchsia-500/20 border border-fuchsia-500/35 font-semibold transition hover:bg-fuchsia-500/30"
+                : "px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition";
+
+              return isExternal ? (
+                <a
+                  key={item.id}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                >
+                  {item.title}
+                </a>
+              ) : (
+                <Link
+                  key={item.id}
+                  href={item.url}
+                  className={linkClass}
+                >
+                  {item.title}
+                </Link>
               );
-            }
+            })}
+          </div>
 
-            const isExternal = item.url.startsWith('http');
-            const linkClass = isBlog
-              ? "px-4 py-2 rounded-full text-white bg-fuchsia-500/20 border border-fuchsia-500/35 font-semibold transition hover:bg-fuchsia-500/30"
-              : "px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition";
+          {/* Action Buttons */}
+          <div className="hidden lg:flex items-center gap-3">
+            <a
+              href={signinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-300 hover:text-white transition px-3 font-medium"
+            >
+              {signinText}
+            </a>
+            <a
+              href={chatUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 font-semibold"
+            >
+              <span>{chatText}</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
 
-            return isExternal ? (
-              <a
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={linkClass}
-              >
-                {item.title}
-              </a>
-            ) : (
-              <Link
-                key={item.id}
-                href={item.url}
-                className={linkClass}
-              >
-                {item.title}
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="hidden lg:flex items-center gap-3">
-          <a
-            href={signinUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-gray-300 hover:text-white transition px-3 font-medium"
+          {/* Mobile Hamburger Button */}
+          <button
+            onClick={() => setOpen(!open)}
+            aria-label="Open menu"
+            className="lg:hidden w-10 h-10 rounded-full bg-white/10 border border-white/15 grid place-items-center text-white hover:bg-white/15 transition"
           >
-            {signinText}
-          </a>
-          <a
-            href={chatUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 font-semibold"
-          >
-            <span>{chatText}</span>
-            <ArrowRight className="w-4 h-4" />
-          </a>
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
+      </nav>
 
-        {/* Mobile Hamburger Button */}
-        <button
-          onClick={() => setOpen(!open)}
-          aria-label="Open menu"
-          className="lg:hidden w-10 h-10 rounded-full bg-white/10 border border-white/15 grid place-items-center text-white hover:bg-white/15 transition"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Mobile Drawer Overlay */}
+      {/* Mobile Drawer Overlay - rendered outside nav to cover entire viewport */}
       <div
         className={`drawer-overlay lg:hidden ${open ? 'open' : ''}`}
         onClick={() => setOpen(false)}
+        aria-hidden={!open}
+        style={{
+          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
       />
 
-      {/* Mobile Drawer */}
-      <aside className={`drawer lg:hidden ${open ? 'open' : ''}`} role="dialog" aria-modal="true">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+      {/* Mobile Drawer - rendered outside nav to prevent backdrop-filter containment */}
+      <aside
+        className={`drawer lg:hidden ${open ? 'open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile Navigation"
+        style={{
+          backgroundColor: '#090814',
+          backgroundImage:
+            'radial-gradient(ellipse at top right, rgba(168, 85, 247, 0.18), transparent 70%), linear-gradient(180deg, #100d22 0%, #07060e 100%)',
+          boxShadow: '-25px 0 50px rgba(0, 0, 0, 0.95), -5px 0 25px rgba(168, 85, 247, 0.15)',
+        }}
+      >
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
           <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
             <img
               src={logoUrl}
@@ -313,13 +333,14 @@ export default function Navbar({ header }: NavbarProps) {
           <button
             onClick={() => setOpen(false)}
             aria-label="Close menu"
-            className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 grid place-items-center text-gray-300"
+            className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 active:bg-white/20 grid place-items-center text-gray-300 transition"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="py-2">
+        {/* Scrollable Navigation Links */}
+        <div className="py-3 px-2 flex-1 overflow-y-auto space-y-1">
           {navItems.map((it) => {
             const isExternal = it.url.startsWith('http');
             const iconMap: Record<string, React.ElementType> = {
@@ -341,8 +362,10 @@ export default function Navbar({ header }: NavbarProps) {
                 onClick={() => setOpen(false)}
                 className="drawer-item"
               >
-                <IconComponent className="w-4 h-4 text-fuchsia-400" />
-                {it.title}
+                <div className="w-8 h-8 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center shrink-0">
+                  <IconComponent className="w-4 h-4 text-fuchsia-400" />
+                </div>
+                <span>{it.title}</span>
               </a>
             ) : (
               <Link
@@ -351,21 +374,24 @@ export default function Navbar({ header }: NavbarProps) {
                 onClick={() => setOpen(false)}
                 className="drawer-item"
               >
-                <IconComponent className="w-4 h-4 text-fuchsia-400" />
-                {it.title}
+                <div className="w-8 h-8 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center shrink-0">
+                  <IconComponent className="w-4 h-4 text-fuchsia-400" />
+                </div>
+                <span>{it.title}</span>
               </Link>
             );
           })}
         </div>
 
-        <div className="px-5 pt-5 pb-6 border-t border-white/5 mt-auto">
-          <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Get Started</div>
+        {/* Bottom Actions */}
+        <div className="px-5 pt-4 pb-4 border-t border-white/10 mt-auto shrink-0 bg-[#06060c]/90">
+          <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-2.5 font-semibold">Get Started</div>
           <a
             href={chatUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
-            className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5 font-semibold"
+            className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5 font-semibold shadow-lg shadow-fuchsia-600/30"
           >
             {chatText} &rarr;
           </a>
@@ -374,16 +400,17 @@ export default function Navbar({ header }: NavbarProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
-            className="btn-ghost block text-center text-sm px-4 py-3 rounded-full font-medium"
+            className="btn-ghost block text-center text-sm px-4 py-3 rounded-full font-medium border border-white/10 hover:bg-white/5"
           >
             {signinText}
           </a>
         </div>
 
-        <div className="px-5 mb-5">
+        {/* Assamese Footer Tagline */}
+        <div className="px-5 pb-5 shrink-0 bg-[#06060c]/90">
           <p className="font-assamese text-xs text-fuchsia-300/60 text-center">অসমৰ নিজা AI প্লেটফৰ্ম • AI for All</p>
         </div>
       </aside>
-    </nav>
+    </>
   );
 }
