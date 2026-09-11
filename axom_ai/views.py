@@ -2288,22 +2288,81 @@ def remove_watermark_api(request):
 
 
 # ---------------------------------------------------------------------------
-# Image generation via Cloudflare Workers AI + Pollinations.ai fallback.
+# Image generation
+# Primary  : Google Gemini image models
+#            - Normal  : gemini-2.5-flash-image  (Nano Banana)
+#            - Extreme : gemini-3-pro-image      (falls back to 2.5-flash-image
+#                        if 3-pro is not yet enabled on the project)
+# Fallback : Cloudflare Workers AI  ->  Pollinations.ai
 # ---------------------------------------------------------------------------
 _CF_API_TOKEN = os.getenv('CF_API_TOKEN', '').strip()
 _CF_ACCOUNT_ID = os.getenv('CF_ACCOUNT_ID', '').strip()
 
-# Model constants for Cloudflare Workers AI
+# Model constants for Cloudflare Workers AI (kept as safety fallback)
 _CF_MODEL_FLUX_SCHNELL = '@cf/black-forest-labs/flux-1-schnell'
 _CF_MODEL_SDXL_LIGHTNING = '@cf/bytedance/stable-diffusion-xl-lightning'
 _CF_MODEL_SDXL_BASE = '@cf/stabilityai/stable-diffusion-xl-base-1.0'
 
-_IMGGEN_RATE_LIMIT = int(os.getenv('IMGGEN_RATE_LIMIT', '6'))
-_IMGGEN_RATE_WINDOW = int(os.getenv('IMGGEN_RATE_WINDOW', '60'))
+# Gemini image models (primary)
+_GEMINI_IMG_API_KEY = os.getenv('GEMINI_IMAGE_API_KEY', '').strip() or os.getenv('GEMINI_API_KEY', '').strip()
+_GEMINI_IMG_MODEL_NORMAL = os.getenv('GEMINI_IMG_MODEL_NORMAL', 'gemini-2.5-flash-image').strip()
+_GEMINI_IMG_MODEL_EXTREME = os.getenv('GEMINI_IMG_MODEL_EXTREME', 'gemini-3-pro-image').strip()
+_GEMINI_IMG_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent'
+
+# Rate limits (persistent across gunicorn restart via Django cache; memory as fallback)
+_IMGGEN_RATE_LIMIT = int(os.getenv('IMGGEN_RATE_LIMIT', '4'))          # per burst window
+_IMGGEN_RATE_WINDOW = int(os.getenv('IMGGEN_RATE_WINDOW', '60'))       # seconds
 _IMGGEN_HITS = {}
-_IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '60'))
+_IMGGEN_TIMEOUT = int(os.getenv('IMGGEN_TIMEOUT', '90'))
 _IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '5'))
-_IMGGEN_DAILY_HITS = {}   # ip -> {'date': 'YYYY-MM-DD', 'count': int}
+_IMGGEN_DAILY_HITS = {}   # in-memory fallback: ip -> {'date': 'YYYY-MM-DD', 'count': int}
+
+
+def _gemini_generate_image(prompt, model, timeout=90):
+    """Generate an image via Google Gemini image models.
+    Returns (PIL.Image, model_id) on success, or (None, error_string) on failure.
+    Silently handles Gemini's occasional text-only response by returning an error
+    so the caller can chain into the CF/Pollinations fallback."""
+    if not _GEMINI_IMG_API_KEY:
+        return None, 'Gemini image key not configured (GEMINI_IMAGE_API_KEY)'
+    try:
+        from PIL import Image as _PILImage
+        import io as _io
+        import base64 as _b64
+    except Exception as e:
+        return None, f'Pillow not available: {e}'
+
+    url = _GEMINI_IMG_ENDPOINT.format(model=model)
+    body = {
+        "contents": [{"parts": [{"text": prompt[:2000]}]}],
+        "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]},
+    }
+    try:
+        r = http_session.post(
+            url,
+            headers={
+                'Content-Type': 'application/json',
+                'x-goog-api-key': _GEMINI_IMG_API_KEY,
+            },
+            json=body, timeout=timeout,
+        )
+        if r.status_code != 200:
+            return None, f'Gemini HTTP {r.status_code}: {r.text[:200]}'
+        data = r.json()
+        cands = data.get('candidates') or []
+        for c in cands:
+            parts = (c.get('content') or {}).get('parts') or []
+            for p in parts:
+                inline = p.get('inlineData') or p.get('inline_data') or {}
+                b64 = inline.get('data') or ''
+                mime = inline.get('mimeType') or inline.get('mime_type') or ''
+                if b64 and 'image' in mime:
+                    raw = _b64.b64decode(b64)
+                    img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
+                    return img, f'gemini/{model}'
+        return None, 'Gemini returned no image (likely safety-blocked or text-only)'
+    except Exception as e:
+        return None, str(e)[:300]
 
 
 def _cloudflare_generate_image(prompt, width, height, model=None, timeout=60):
@@ -2441,36 +2500,103 @@ def _translate_prompt_for_image(prompt):
     return out or prompt, bool(out and out != prompt)
 
 
-def _imggen_daily_count(ip):
-    """How many images this IP has generated today (UTC calendar day)."""
-    from datetime import datetime, timezone
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    entry = _IMGGEN_DAILY_HITS.get(ip)
-    if not entry or entry.get('date') != today:
-        return 0
-    return int(entry.get('count', 0))
+def _imggen_key(ip, device=''):
+    """Compound key: whichever is stricter (ip OR device) blocks."""
+    if device:
+        return f'{ip}|{device[:64]}'
+    return ip
 
 
-def _imggen_daily_incr(ip):
-    """Record one successful generation against the IP's daily bucket."""
+def _imggen_daily_count(ip, device=''):
+    """How many images this IP+device has generated today (UTC).
+    Reads from Django cache first (persistent across gunicorn restarts),
+    falls back to in-memory dict."""
     from datetime import datetime, timezone
+    from django.core.cache import cache as _dj_cache
     today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    entry = _IMGGEN_DAILY_HITS.get(ip)
+    key_ip = f'imggen_daily:{today}:{ip}'
+    key_dev = f'imggen_daily:{today}:{device[:64]}' if device else None
+
+    # Cache-first (persistent)
+    ip_ct = 0
+    dev_ct = 0
+    try:
+        v = _dj_cache.get(key_ip)
+        if v is not None:
+            ip_ct = int(v)
+    except Exception:
+        pass
+    if key_dev:
+        try:
+            v = _dj_cache.get(key_dev)
+            if v is not None:
+                dev_ct = int(v)
+        except Exception:
+            pass
+
+    # Memory fallback (in case cache dropped)
+    entry = _IMGGEN_DAILY_HITS.get(_imggen_key(ip, device))
+    mem_ct = 0
+    if entry and entry.get('date') == today:
+        mem_ct = int(entry.get('count', 0))
+
+    # Whichever is higher (strictest) wins
+    return max(ip_ct, dev_ct, mem_ct)
+
+
+def _imggen_daily_incr(ip, device=''):
+    """Record one successful generation against IP + device daily bucket."""
+    from datetime import datetime, timezone
+    from django.core.cache import cache as _dj_cache
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    key_ip = f'imggen_daily:{today}:{ip}'
+    for k in filter(None, [key_ip, f'imggen_daily:{today}:{device[:64]}' if device else None]):
+        try:
+            cur = _dj_cache.get(k) or 0
+            _dj_cache.set(k, int(cur) + 1, timeout=86400)
+        except Exception:
+            pass
+    mem_key = _imggen_key(ip, device)
+    entry = _IMGGEN_DAILY_HITS.get(mem_key)
     if not entry or entry.get('date') != today:
         entry = {'date': today, 'count': 0}
     entry['count'] = int(entry.get('count', 0)) + 1
-    _IMGGEN_DAILY_HITS[ip] = entry
+    _IMGGEN_DAILY_HITS[mem_key] = entry
 
 
-def _imggen_rate_limited(ip):
+def _imggen_rate_limited(ip, device=''):
+    """Sliding-window burst limit on IP + device. Either exceeding = block."""
     now = time.time()
-    hits = [t for t in _IMGGEN_HITS.get(ip, []) if now - t < _IMGGEN_RATE_WINDOW]
+    mem_key = _imggen_key(ip, device)
+    hits = [t for t in _IMGGEN_HITS.get(mem_key, []) if now - t < _IMGGEN_RATE_WINDOW]
     if len(hits) >= _IMGGEN_RATE_LIMIT:
-        _IMGGEN_HITS[ip] = hits
+        _IMGGEN_HITS[mem_key] = hits
         return True
     hits.append(now)
-    _IMGGEN_HITS[ip] = hits
+    _IMGGEN_HITS[mem_key] = hits
     return False
+
+
+# Basic prompt safety filter — cheapest defence before we spend API quota
+_IMG_BLOCKED_TERMS = re.compile(
+    r'\b('
+    r'nude|nudity|naked|nsfw|porn|pornographic|sex|sexual|erotic|xxx|'
+    r'child|minor|underage|loli|shota|pedo|cp|'
+    r'gore|beheading|dismember|torture|snuff|'
+    r'terror|bomb|weapon|isis|nazi|swastika'
+    r')\b', re.IGNORECASE
+)
+
+
+def _imggen_prompt_safe(prompt):
+    """Cheap keyword filter for obviously unsafe prompts. Gemini's own
+    safety classifier is the real gate — this stops abuse before we
+    even bill the API."""
+    if not prompt:
+        return False, 'Prompt is empty.'
+    if _IMG_BLOCKED_TERMS.search(prompt):
+        return False, 'Prompt contains disallowed content (NSFW / violence / illegal). Please try a different prompt.'
+    return True, ''
 
 
 def _check_user_premium_status(request):
@@ -2489,40 +2615,32 @@ def _check_user_premium_status(request):
 @csrf_exempt
 def user_status_api(request):
     """Returns current user plan, daily quota usage, and model routing configuration."""
+    from axom_ai.security import get_device_id as _get_dev
     ip = _client_ip(request)
+    device = _get_dev(request)
     is_premium, plan_name, _ = _check_user_premium_status(request)
-    used_today = _imggen_daily_count(ip)
+    used_today = _imggen_daily_count(ip, device)
     user = getattr(request, 'user', None)
     is_auth = bool(user and getattr(user, 'is_authenticated', False))
 
     if is_premium:
         daily_limit = 100 if 'pro' in plan_name else (50 if 'starter' in plan_name else 500)
-        models_config = {
-            'normal': {
-                'id': 'SDXL Turbo',
-                'name': 'Normal (SDXL Turbo)',
-                'desc': 'Fast Generation · ~2-4 s · SDXL Turbo',
-            },
-            'extreme': {
-                'id': 'SDXL 1.0',
-                'name': 'Extreme Quality (SDXL 1.0)',
-                'desc': 'Master Fidelity · ~8-12 s · SDXL 1.0 Base',
-            },
-        }
     else:
         daily_limit = _IMGGEN_DAILY_LIMIT
-        models_config = {
-            'normal': {
-                'id': 'FLUX.1 Schnell',
-                'name': 'Normal (FLUX.1 Schnell)',
-                'desc': 'Fast · ~3-8 s · FLUX.1 Schnell on Cloudflare',
-            },
-            'extreme': {
-                'id': 'SDXL Turbo',
-                'name': 'Extreme Quality (SDXL Turbo)',
-                'desc': 'High Speed & Clarity · ~2-5 s · SDXL Turbo',
-            },
-        }
+
+    # Same models across all tiers now — Gemini for both normal and extreme
+    models_config = {
+        'normal': {
+            'id': _GEMINI_IMG_MODEL_NORMAL,
+            'name': 'Normal Quality (Gemini 2.5 Flash Image)',
+            'desc': 'Balanced speed + quality · Gemini 2.5 Flash Image (Nano Banana)',
+        },
+        'extreme': {
+            'id': _GEMINI_IMG_MODEL_EXTREME,
+            'name': 'Extreme Quality (Gemini 3 Pro Image)',
+            'desc': 'Master fidelity · Gemini 3 Pro Image',
+        },
+    }
 
     return JsonResponse({
         'is_authenticated': is_auth,
@@ -2540,47 +2658,62 @@ def user_status_api(request):
 @csrf_exempt
 def generate_image_api(request):
     """
-    POST JSON: {prompt, quality?: 'normal'|'extreme', width?, height?, negative_prompt?, seed?}.
-    
-    Plan-Based Model Architecture:
-      - Free Plan (IP-based limit: 5 images/day):
-          * Normal: FLUX.1 Schnell (Cloudflare @cf/black-forest-labs/flux-1-schnell, fallback: Pollinations flux)
-          * Extreme: SDXL Turbo (Cloudflare @cf/bytedance/stable-diffusion-xl-lightning, fallback: Pollinations turbo)
-      - Premium Plan:
-          * Normal: SDXL Turbo (Fast)
-          * Extreme: SDXL 1.0 (Cloudflare @cf/stabilityai/stable-diffusion-xl-base-1.0, fallback: Pollinations sdxl)
+    POST JSON: {prompt, quality?: 'normal'|'extreme', width?, height?, device_id?}.
+
+    Model routing (paid, single-source):
+      - Normal  : gemini-2.5-flash-image  (Nano Banana)
+      - Extreme : gemini-3-pro-image      (auto-falls back to 2.5-flash-image
+                  if 3-pro is not enabled on the API key)
+      - Emergency safety net : Cloudflare Workers AI -> Pollinations.ai
+        (used only when Gemini errors — keeps the tool functional even during
+        a Gemini outage / quota exhaustion; the response labels which engine
+        actually rendered the image so the frontend can flag downgraded output.)
+
+    Security:
+      - IP + device_id (X-Device-Id header or cookie) daily cap  (5/day free tier)
+      - Sliding-window burst limit (4 / 60 s) on IP+device
+      - Cache-backed counters (Django cache) so counts survive gunicorn restart
+      - Prompt keyword filter for NSFW / illegal content
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
+    from axom_ai.security import get_device_id as _get_dev
     ip = _client_ip(request)
     is_premium, plan_name, _ = _check_user_premium_status(request)
 
-    # 1) Quota verification:
-    # Free users are capped at 5 images/day per IP. Premium users have elevated quotas.
-    used_today = _imggen_daily_count(ip)
+    try:
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+    except Exception:
+        payload = {}
+        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+
+    device = _get_dev(request, payload)
+
+    # 1) Daily quota (per IP+device — whichever is stricter blocks)
+    used_today = _imggen_daily_count(ip, device)
     daily_cap = 100 if is_premium else _IMGGEN_DAILY_LIMIT
     if not is_premium and used_today >= _IMGGEN_DAILY_LIMIT:
         return JsonResponse({
             'error': (
                 f"You have used all {_IMGGEN_DAILY_LIMIT} free images for today from this device. "
-                f"Please upgrade to Premium for high-speed generation with SDXL 1.0!"
+                f"Please upgrade for higher quotas."
             ),
             'daily_limit': _IMGGEN_DAILY_LIMIT,
             'used_today': used_today,
             'is_premium': False,
         }, status=429)
+    if is_premium and used_today >= daily_cap:
+        return JsonResponse({
+            'error': f'Daily cap of {daily_cap} images reached for this plan.',
+            'daily_limit': daily_cap, 'used_today': used_today, 'is_premium': True,
+        }, status=429)
 
-    # 2) Rate-limit burst protection (max 6 requests / 60s)
-    if _imggen_rate_limited(ip):
+    # 2) Burst rate-limit
+    if _imggen_rate_limited(ip, device):
         return JsonResponse({
             'error': f'Too many requests. Please wait ~{_IMGGEN_RATE_WINDOW}s before generating again.',
         }, status=429)
-
-    try:
-        payload = json.loads(request.body.decode('utf-8') or '{}')
-    except Exception:
-        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
 
     original_prompt = (payload.get('prompt') or '').strip()
     if not original_prompt:
@@ -2588,10 +2721,15 @@ def generate_image_api(request):
     if len(original_prompt) > 1000:
         return JsonResponse({'error': 'Prompt exceeds 1000 characters.'}, status=400)
 
-    # Translate prompt to clean visual English via Groq if non-English
+    # 3) Content safety filter
+    ok, safety_err = _imggen_prompt_safe(original_prompt)
+    if not ok:
+        return JsonResponse({'error': safety_err}, status=400)
+
+    # 4) Translate to clean English if needed
     prompt, was_translated = _translate_prompt_for_image(original_prompt)
 
-    # Clamp geometry defensively (256 - 1536px, multiples of 8)
+    # Clamp geometry (Gemini ignores explicit width/height but keep for CF fallback)
     def _clamp_dim(v, default=1024):
         try:
             n = int(v)
@@ -2605,29 +2743,19 @@ def generate_image_api(request):
     if quality not in ('normal', 'extreme'):
         quality = 'normal'
 
-    # 3) Determine exact AI Model routing based on User Tier & Quality selection:
-    if not is_premium:
-        # FREE PLAN:
-        # Normal -> FLUX.1 Schnell | Extreme -> SDXL Turbo
-        if quality == 'extreme':
-            cf_model = _CF_MODEL_SDXL_LIGHTNING
-            poll_model = 'turbo'
-            display_model_name = 'SDXL Turbo'
-        else:
-            cf_model = _CF_MODEL_FLUX_SCHNELL
-            poll_model = 'flux'
-            display_model_name = 'FLUX.1 Schnell'
+    # 5) Model routing — Gemini for both tiers, model changes by quality
+    if quality == 'extreme':
+        gemini_model = _GEMINI_IMG_MODEL_EXTREME
+        gemini_fallback = _GEMINI_IMG_MODEL_NORMAL
+        display_model_name = 'Gemini 3 Pro Image'
+        cf_safety_model = _CF_MODEL_SDXL_LIGHTNING
+        poll_safety_model = 'turbo'
     else:
-        # PREMIUM PLAN:
-        # Normal -> SDXL Turbo | Extreme -> SDXL 1.0 Base
-        if quality == 'extreme':
-            cf_model = _CF_MODEL_SDXL_BASE
-            poll_model = 'sdxl'
-            display_model_name = 'SDXL 1.0 (Master Ultra Quality)'
-        else:
-            cf_model = _CF_MODEL_SDXL_LIGHTNING
-            poll_model = 'turbo'
-            display_model_name = 'SDXL Turbo'
+        gemini_model = _GEMINI_IMG_MODEL_NORMAL
+        gemini_fallback = _GEMINI_IMG_MODEL_NORMAL  # already the same
+        display_model_name = 'Gemini 2.5 Flash Image'
+        cf_safety_model = _CF_MODEL_FLUX_SCHNELL
+        poll_safety_model = 'flux'
 
     t0 = time.time()
     engine = None
@@ -2635,36 +2763,57 @@ def generate_image_api(request):
     pil_img = None
     tried_errors = []
 
-    # Primary: Cloudflare Workers AI
-    if _CF_API_TOKEN and _CF_ACCOUNT_ID:
+    # Primary: Gemini image model
+    if _GEMINI_IMG_API_KEY:
+        img, info = _gemini_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT)
+        if img is not None:
+            pil_img = img
+            engine = 'gemini'
+            engine_model = display_model_name
+        else:
+            tried_errors.append(f'Gemini ({gemini_model}): {info}')
+            # Try Gemini fallback model (extreme -> normal) before switching engine
+            if gemini_fallback and gemini_fallback != gemini_model:
+                img2, info2 = _gemini_generate_image(prompt, gemini_fallback, timeout=_IMGGEN_TIMEOUT)
+                if img2 is not None:
+                    pil_img = img2
+                    engine = 'gemini'
+                    engine_model = f'Gemini 2.5 Flash Image (fallback)'
+                else:
+                    tried_errors.append(f'Gemini ({gemini_fallback}): {info2}')
+    else:
+        tried_errors.append('Gemini image key not configured')
+
+    # Safety net: Cloudflare Workers AI
+    if pil_img is None and _CF_API_TOKEN and _CF_ACCOUNT_ID:
         cf_img, cf_info = _cloudflare_generate_image(
-            prompt, width, height, model=cf_model, timeout=_IMGGEN_TIMEOUT)
+            prompt, width, height, model=cf_safety_model, timeout=_IMGGEN_TIMEOUT)
         if cf_img is not None:
             pil_img = cf_img
             engine = 'cloudflare'
-            engine_model = display_model_name
+            engine_model = f'{display_model_name} (Cloudflare fallback)'
         else:
-            tried_errors.append(f'Cloudflare ({cf_model}): {cf_info}')
+            tried_errors.append(f'Cloudflare ({cf_safety_model}): {cf_info}')
 
-    # Secondary: Pollinations.ai with matching model fallback
+    # Final safety net: Pollinations.ai
     if pil_img is None:
         pl_img, pl_info = _pollinations_generate_image(
-            prompt, width, height, model=poll_model, timeout=_IMGGEN_TIMEOUT)
+            prompt, width, height, model=poll_safety_model, timeout=_IMGGEN_TIMEOUT)
         if pl_img is not None:
             pil_img = pl_img
             engine = 'pollinations'
-            engine_model = f'{display_model_name} (Pollinations)'
+            engine_model = f'{display_model_name} (Pollinations fallback)'
         else:
-            tried_errors.append(f'Pollinations ({poll_model}): {pl_info}')
+            tried_errors.append(f'Pollinations ({poll_safety_model}): {pl_info}')
 
     if pil_img is None:
         return JsonResponse({
             'error': 'Image generation failed. ' + ' | '.join(tried_errors),
         }, status=502)
 
-    # Success: record against daily bucket
-    _imggen_daily_incr(ip)
-    used_after = _imggen_daily_count(ip)
+    # Success: record against daily bucket (IP + device)
+    _imggen_daily_incr(ip, device)
+    used_after = _imggen_daily_count(ip, device)
 
     import io, base64
     buf = io.BytesIO()
