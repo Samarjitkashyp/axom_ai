@@ -38,3 +38,7 @@ server_test_out.txt
 # OS
 .DS_Store
 Thumbs.db
+
+# Local service-account JSONs (Vertex etc.) — never commit
+.credentials/
+*.json.creds
