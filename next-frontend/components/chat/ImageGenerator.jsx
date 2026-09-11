@@ -226,13 +226,18 @@ export default function ImageGenerator({ onClose }) {
                   prompt: query,
                   used_prompt: data.used_prompt || styledPrompt,
                   model_name:
-                    data.engine === 'cloudflare'
+                    data.model_id ||
+                    (data.engine === 'gemini-vertex' || data.engine === 'gemini'
                       ? data.quality === 'extreme'
-                        ? 'SDXL Turbo'
-                        : 'FLUX.1 Schnell'
+                        ? 'Gemini 3 Pro Image'
+                        : 'Gemini 2.5 Flash Image'
+                      : data.engine === 'cloudflare'
+                      ? data.quality === 'extreme'
+                        ? 'SDXL Turbo (fallback)'
+                        : 'FLUX.1 Schnell (fallback)'
                       : data.engine === 'pollinations'
-                      ? 'Pollinations FLUX'
-                      : 'SDXL 1.0 Base',
+                      ? 'Pollinations (fallback)'
+                      : 'Gemini'),
                   width: selectedAspect.w,
                   height: selectedAspect.h,
                   aspectLabel: selectedAspect.label,
@@ -337,12 +342,8 @@ export default function ImageGenerator({ onClose }) {
             <Sparkles size={15} style={{ color: '#a855f7' }} />
             <span>
               {modelKey === 'normal'
-                ? isPro
-                  ? 'SDXL Turbo'
-                  : 'FLUX.1 Schnell'
-                : isPro
-                ? 'SDXL 1.0 Base'
-                : 'SDXL Turbo'}
+                ? 'Gemini 2.5 Flash Image'
+                : 'Gemini 3 Pro Image'}
             </span>
             <span
               style={{
@@ -634,7 +635,7 @@ export default function ImageGenerator({ onClose }) {
                           Painting your image… ({elapsed}s)
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 2 }}>
-                          Synthesizing latent diffusion layers with {modelKey === 'extreme' ? 'Extreme Quality' : 'FLUX.1 Schnell'}
+                          Generating with {modelKey === 'extreme' ? 'Gemini 3 Pro Image (Extreme)' : 'Gemini 2.5 Flash Image (Normal)'}
                         </div>
                       </div>
                     </div>
@@ -951,7 +952,7 @@ export default function ImageGenerator({ onClose }) {
               textAlign: 'center',
             }}
           >
-            Powered by FLUX.1 Schnell &amp; SDXL Turbo · English, Hindi &amp; Assamese supported
+            Powered by Google Gemini 2.5 Flash Image &amp; Gemini 3 Pro Image · English, Hindi &amp; Assamese supported
           </div>
         </div>
       </div>

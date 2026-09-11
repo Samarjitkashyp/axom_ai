@@ -294,7 +294,7 @@ export const ALL_TOOLS = [
     icon: ImagePlus,
     imagegen: true,
     hint: 'Prompt → image',
-    desc: 'Turn a text prompt into a high-quality image using FLUX (HuggingFace).',
+    desc: 'Turn a text prompt into a stunning AI image with Google Gemini 2.5 Flash Image (Normal) or Gemini 3 Pro Image (Extreme).',
   },
   {
     id: 'imagefinder',
