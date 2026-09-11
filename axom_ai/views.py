@@ -2309,6 +2309,84 @@ _GEMINI_IMG_MODEL_NORMAL = os.getenv('GEMINI_IMG_MODEL_NORMAL', 'gemini-2.5-flas
 _GEMINI_IMG_MODEL_EXTREME = os.getenv('GEMINI_IMG_MODEL_EXTREME', 'gemini-3-pro-image').strip()
 _GEMINI_IMG_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent'
 
+# Vertex AI (Google Cloud billing) — preferred over AI Studio endpoint when configured
+_VERTEX_SA_JSON_PATH = os.getenv('GEMINI_VERTEX_SA_JSON', '').strip()
+_VERTEX_PROJECT_ID = os.getenv('GEMINI_VERTEX_PROJECT_ID', '').strip()
+_VERTEX_LOCATION = os.getenv('GEMINI_VERTEX_LOCATION', 'us-central1').strip()
+_VERTEX_ENDPOINT = 'https://{loc}-aiplatform.googleapis.com/v1/projects/{proj}/locations/{loc}/publishers/google/models/{model}:generateContent'
+_VERTEX_CREDS = None
+_VERTEX_TOKEN_CACHE = {'token': None, 'expiry_ts': 0}
+
+
+def _vertex_get_token():
+    """Return a valid OAuth access token for Vertex AI, refreshing every ~55 min."""
+    global _VERTEX_CREDS
+    now = time.time()
+    if _VERTEX_TOKEN_CACHE['token'] and now < _VERTEX_TOKEN_CACHE['expiry_ts']:
+        return _VERTEX_TOKEN_CACHE['token']
+    if not _VERTEX_SA_JSON_PATH or not os.path.exists(_VERTEX_SA_JSON_PATH):
+        return None
+    try:
+        from google.oauth2 import service_account as _sa
+        from google.auth.transport.requests import Request as _GAuthRequest
+        if _VERTEX_CREDS is None:
+            _VERTEX_CREDS = _sa.Credentials.from_service_account_file(
+                _VERTEX_SA_JSON_PATH,
+                scopes=['https://www.googleapis.com/auth/cloud-platform'],
+            )
+        _VERTEX_CREDS.refresh(_GAuthRequest())
+        _VERTEX_TOKEN_CACHE['token'] = _VERTEX_CREDS.token
+        # Google tokens live 1 hour — refresh 5 min early to be safe
+        _VERTEX_TOKEN_CACHE['expiry_ts'] = now + 55 * 60
+        return _VERTEX_CREDS.token
+    except Exception as e:
+        return None
+
+
+def _vertex_generate_image(prompt, model, timeout=90):
+    """Generate an image via Vertex AI Gemini image model (Google Cloud billing).
+    Returns (PIL.Image, model_id) on success, or (None, error_string) on failure."""
+    if not (_VERTEX_SA_JSON_PATH and _VERTEX_PROJECT_ID):
+        return None, 'Vertex AI not configured (GEMINI_VERTEX_SA_JSON / GEMINI_VERTEX_PROJECT_ID missing)'
+    token = _vertex_get_token()
+    if not token:
+        return None, 'Vertex AI OAuth token not available (service account JSON invalid or google-auth not installed)'
+    try:
+        from PIL import Image as _PILImage
+        import io as _io
+        import base64 as _b64
+    except Exception as e:
+        return None, f'Pillow not available: {e}'
+
+    url = _VERTEX_ENDPOINT.format(loc=_VERTEX_LOCATION, proj=_VERTEX_PROJECT_ID, model=model)
+    body = {
+        "contents": [{"parts": [{"text": prompt[:2000]}]}],
+        "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]},
+    }
+    try:
+        r = http_session.post(
+            url,
+            headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'},
+            json=body, timeout=timeout,
+        )
+        if r.status_code != 200:
+            return None, f'Vertex HTTP {r.status_code}: {r.text[:200]}'
+        data = r.json()
+        cands = data.get('candidates') or []
+        for c in cands:
+            parts = (c.get('content') or {}).get('parts') or []
+            for p in parts:
+                inline = p.get('inlineData') or p.get('inline_data') or {}
+                b64 = inline.get('data') or ''
+                mime = inline.get('mimeType') or inline.get('mime_type') or ''
+                if b64 and 'image' in mime:
+                    raw = _b64.b64decode(b64)
+                    img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
+                    return img, f'vertex/{model}'
+        return None, 'Vertex returned no image (likely safety-blocked or text-only)'
+    except Exception as e:
+        return None, str(e)[:300]
+
 # Rate limits (persistent across gunicorn restart via Django cache; memory as fallback)
 _IMGGEN_RATE_LIMIT = int(os.getenv('IMGGEN_RATE_LIMIT', '4'))          # per burst window
 _IMGGEN_RATE_WINDOW = int(os.getenv('IMGGEN_RATE_WINDOW', '60'))       # seconds
@@ -2763,26 +2841,42 @@ def generate_image_api(request):
     pil_img = None
     tried_errors = []
 
-    # Primary: Gemini image model
-    if _GEMINI_IMG_API_KEY:
+    # Primary A: Vertex AI (Google Cloud billing) — preferred when configured
+    if _VERTEX_SA_JSON_PATH and _VERTEX_PROJECT_ID:
+        img, info = _vertex_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT)
+        if img is not None:
+            pil_img = img
+            engine = 'gemini-vertex'
+            engine_model = display_model_name
+        else:
+            tried_errors.append(f'Vertex ({gemini_model}): {info}')
+            # Try Vertex with fallback model (extreme -> normal) before switching engine
+            if pil_img is None and gemini_fallback and gemini_fallback != gemini_model:
+                img2, info2 = _vertex_generate_image(prompt, gemini_fallback, timeout=_IMGGEN_TIMEOUT)
+                if img2 is not None:
+                    pil_img = img2
+                    engine = 'gemini-vertex'
+                    engine_model = f'Gemini 2.5 Flash Image (Vertex fallback)'
+                else:
+                    tried_errors.append(f'Vertex ({gemini_fallback}): {info2}')
+
+    # Primary B: Gemini AI Studio (prepaid credits) — fallback of Vertex or primary if Vertex not configured
+    if pil_img is None and _GEMINI_IMG_API_KEY:
         img, info = _gemini_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT)
         if img is not None:
             pil_img = img
             engine = 'gemini'
             engine_model = display_model_name
         else:
-            tried_errors.append(f'Gemini ({gemini_model}): {info}')
-            # Try Gemini fallback model (extreme -> normal) before switching engine
+            tried_errors.append(f'Gemini AI Studio ({gemini_model}): {info}')
             if gemini_fallback and gemini_fallback != gemini_model:
                 img2, info2 = _gemini_generate_image(prompt, gemini_fallback, timeout=_IMGGEN_TIMEOUT)
                 if img2 is not None:
                     pil_img = img2
                     engine = 'gemini'
-                    engine_model = f'Gemini 2.5 Flash Image (fallback)'
+                    engine_model = f'Gemini 2.5 Flash Image (AI Studio fallback)'
                 else:
-                    tried_errors.append(f'Gemini ({gemini_fallback}): {info2}')
-    else:
-        tried_errors.append('Gemini image key not configured')
+                    tried_errors.append(f'Gemini AI Studio ({gemini_fallback}): {info2}')
 
     # Safety net: Cloudflare Workers AI
     if pil_img is None and _CF_API_TOKEN and _CF_ACCOUNT_ID:
