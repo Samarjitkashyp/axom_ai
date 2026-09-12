@@ -6,6 +6,7 @@
 **🌐 Official Portal:** [https://aiaxom.co.in](https://aiaxom.co.in)  
 **💬 AI Chat & Tools Workspace:** [https://chat.aiaxom.co.in](https://chat.aiaxom.co.in)  
 **🛠 All-in-One Productivity Tools:** [https://chat.aiaxom.co.in/tools](https://chat.aiaxom.co.in/tools)  
+**🔧 Super Admin Panel:** [https://admin.aiaxom.co.in/admin-panel/](https://admin.aiaxom.co.in/admin-panel/)  
 **⚙️ Content Management System (CMS):** [https://content.aiaxom.co.in](https://content.aiaxom.co.in)
 
 ---
@@ -52,18 +53,25 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 - 📄 **Universal Document Summarizer:** Multilingual PDF/DOCX/TXT synthesis with customizable summary lengths.
 - 🧾 **Complete Document & OCR Suite:** Tesseract-powered regional OCR, PDF merge, split, compress, watermark, and format conversions.
 
-### 4. IP-Based Security & Device Protection
+### 4. Multi-Subdomain Architecture & Role-Based Access
+- 🌐 **Five Dedicated Subdomains:** `aiaxom.co.in` (landing), `chat.aiaxom.co.in` (AI workspace), `admin.aiaxom.co.in` (super admin panel), `content.aiaxom.co.in` (CMS), `user.aiaxom.co.in` (user dashboard).
+- 🔒 **Per-Subdomain Permission System:** Granular access control — admins assign `admin_access` and `content_access` flags per user from the super admin panel. Chat, user, and landing subdomains remain open to all authenticated users.
+- 🛡 **SubdomainPermissionMiddleware:** Django middleware enforces access checks after authentication. Superusers bypass all restrictions. Unauthorized users receive a 403 Access Denied page. Login pages are always accessible.
+- 🔀 **SubdomainMiddleware Path Rewriting:** Automatic path prefix injection (`/axomai-admin/`, `/axomai-user/`, `/axomai-content/`) based on hostname, with skip rules for `/api/`, `/admin-panel/`, and static assets.
+- 🍪 **Cross-Subdomain Session Sharing:** Single session cookie scoped to `.aiaxom.co.in` enables seamless authentication across all subdomains.
+
+### 5. IP-Based Security & Device Protection
 - 🛡 **Daily Web Search Quota (5 Searches/Day per IP):** Strict IP-level enforcement ensuring fair access across all users, backed by atomic Django cache counters and sliding-window persistence.
 - 🔒 **Single Account Per Device Enforcement:** Users are restricted from creating multiple accounts from the same physical device or IP address. Dual-layer identification leverages client IP tracking and persistent browser device fingerprinting.
 - ⏱ **Burst Rate Throttling:** Sliding-window burst rate limiter prevents rapid-fire automated scraping and DDoS spam.
 - 🍪 **Persistent Device Token Authentication:** Hardened, long-lived device identification token prevents session hijacking and incognito multi-account circumvention.
 
-### 5. Subscription Commerce & Payments
+### 6. Subscription Commerce & Payments
 - 💳 **Indigenous Payment Gateway:** Seamless Razorpay integration supporting UPI (Google Pay, PhonePe, Paytm), Netbanking, and Credit/Debit cards.
 - 🎟 **Promotional Engine:** Flexible promo codes, discount percentages, usage caps, and expiration limits.
 - 🧾 **Automated Tax Invoicing:** Instant downloadable PDF invoices generated for every transaction.
 
-### 6. Search & Generative Engine Optimization (SEO / GEO / AEO)
+### 7. Search & Generative Engine Optimization (SEO / GEO / AEO)
 - 🚀 **Google Position 0 & SGE Optimization:** Target-engineered for queries including *"Assam AI"*, *"AI in Assam"*, *"Axom AI"*, and *"Assam Artificial Intelligence"*.
 - 📑 **Comprehensive Schema.org Graph:** Multi-entity JSON-LD schema spanning `Organization`, `SoftwareApplication`, `AboutPage`, `FAQPage`, and `BreadcrumbList`.
 - 🤖 **AI Crawler Friendly:** Fully indexable by Googlebot, Bingbot, GPTBot, Google-Extended, PerplexityBot, and ClaudeBot.
@@ -215,6 +223,7 @@ To activate automated server deployment, configure the following secrets in your
 - **Strict Daily IP Search Limiting:** Maximum 5 web searches per day per IP address across all sessions, preventing search API quota depletion.
 - **Single-Account Device Restriction:** Each device / IP network is restricted to a single registered user account, eliminating multi-account bot abuse.
 - **Reverse Tabnabbing Isolation:** Every external link includes `target="_blank"` and `rel="noopener noreferrer"`.
+- **Subdomain Permission Enforcement:** Role-based middleware restricts `admin.aiaxom.co.in` and `content.aiaxom.co.in` to explicitly authorized users only.
 - **Cross-Domain Routing Guard:** Next.js client router checks hostname and resolves marketing URLs directly to `https://aiaxom.co.in`, avoiding 404 path rewrites on subdomains.
 - **Strict SSL / TLS Encryption:** Cloudflare Full-strict SSL with 15-year Origin Certificate.
 - **CSRF & Injection Hardening:** Complete CSRF token verification, SQL injection protection, and input sanitization across all forms and API endpoints.

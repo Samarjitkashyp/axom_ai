@@ -74,6 +74,25 @@ class CustomPlanOverride(models.Model):
         return f"{self.name} (₹{self.price_in_rupees})"
 
 
+class SubdomainPermission(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='subdomain_perm',
+    )
+    admin_access = models.BooleanField(default=False)
+    content_access = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        flags = []
+        if self.admin_access:
+            flags.append('admin')
+        if self.content_access:
+            flags.append('content')
+        return f"{self.user.username}: {', '.join(flags) or 'chat-only'}"
+
+
 class AuditLog(models.Model):
     """Audit log of Superadmin actions for security & compliance."""
     admin_user = models.ForeignKey(

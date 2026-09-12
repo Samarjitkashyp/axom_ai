@@ -190,6 +190,28 @@
         </div>
       </div>
 
+      <!-- Subdomain Permissions -->
+      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+        <label class="block font-bold text-white mb-2"><i class="fa-solid fa-shield-halved text-cyan-400 mr-1.5"></i> Subdomain Access Permissions</label>
+        <div class="flex flex-wrap gap-4 mt-2">
+          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+            <input type="checkbox" id="permAdmin" class="w-4 h-4 accent-indigo-500 rounded">
+            <span><strong class="text-indigo-400">admin</strong>.aiaxom.co.in</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+            <input type="checkbox" id="permContent" class="w-4 h-4 accent-pink-500 rounded">
+            <span><strong class="text-pink-400">content</strong>.aiaxom.co.in</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+            <input type="checkbox" disabled checked class="w-4 h-4 accent-emerald-500 rounded">
+            <span class="text-slate-500">chat / user / landing <em>(all users)</em></span>
+          </label>
+        </div>
+        <button onclick="savePermissions()" class="mt-3 px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg text-xs flex items-center space-x-1.5">
+          <i class="fa-solid fa-floppy-disk"></i> <span>Save Permissions</span>
+        </button>
+      </div>
+
       <!-- Danger Actions -->
       <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
         <button onclick="deleteUserAccount()" class="text-rose-400 hover:text-rose-300 font-semibold text-xs flex items-center space-x-1">
@@ -205,11 +227,16 @@
 
 {% block extra_scripts %}
 <script>
+  var permsMap = {{ perms_map|safe }};
+
   function openUserModal(userId, username, isActive, currentPlan) {
     document.getElementById('modalUserId').value = userId;
     document.getElementById('modalUsername').textContent = '@' + username;
     document.getElementById('modalPlanSelect').value = currentPlan;
     document.getElementById('modalNewPassword').value = '';
+    var p = permsMap[userId] || {};
+    document.getElementById('permAdmin').checked = !!p.admin;
+    document.getElementById('permContent').checked = !!p.content;
     document.getElementById('userActionModal').classList.remove('hidden');
   }
 
@@ -289,6 +316,19 @@
     if (res.success) {
       showToast(res.message, 'success');
       setTimeout(() => location.reload(), 800);
+    } else {
+      showToast(res.error, 'error');
+    }
+  }
+
+  async function savePermissions() {
+    const userId = document.getElementById('modalUserId').value;
+    const admin_access = document.getElementById('permAdmin').checked;
+    const content_access = document.getElementById('permContent').checked;
+    const res = await callUserApi({ action: 'set_permissions', user_id: userId, admin_access, content_access });
+    if (res.success) {
+      permsMap[userId] = { admin: admin_access, content: content_access };
+      showToast(res.message, 'success');
     } else {
       showToast(res.error, 'error');
     }

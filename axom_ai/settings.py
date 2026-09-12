@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axom_ai.subdomain_middleware.SubdomainPermissionMiddleware',
 ]
 
 ROOT_URLCONF = 'axom_ai.urls'
@@ -161,6 +162,9 @@ if not DEBUG:
     ]
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
+
+SESSION_COOKIE_DOMAIN = '.aiaxom.co.in'
+CSRF_COOKIE_DOMAIN = '.aiaxom.co.in'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

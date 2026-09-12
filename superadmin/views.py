@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST
 from payments.models import Payment, UserPlan, PLAN_CATALOG
 from knowledge.models import KnowledgeDocument, KnowledgeChunk, QAPair, ChatSession, ChatMessage, UnansweredQuery, Feedback
 from userpanel.models import SupportTicket, TicketReply, UsageRecord, InAppNotification
-from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog
+from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission
 
 
 def _is_super(u):
@@ -206,6 +206,10 @@ def users_page(request):
 
     plans_list = list(PLAN_CATALOG.keys())
 
+    perms_map = {}
+    for sp in SubdomainPermission.objects.filter(user__in=[u.id for u in users_page_obj]):
+        perms_map[sp.user_id] = {'admin': sp.admin_access, 'content': sp.content_access}
+
     context = {
         'active': 'users',
         'users': users_page_obj,
@@ -215,6 +219,7 @@ def users_page(request):
         'sort_by': sort_by,
         'plans_list': plans_list,
         'total_count': users_qs.count(),
+        'perms_map': json.dumps(perms_map),
     }
     return render(request, 'superadmin/users.html', context)
 
@@ -299,6 +304,17 @@ def user_action_api(request):
 
             _log_audit(request, "GIFT_DAYS", f"User: {user.username}", f"Gifted +{days} free premium days")
             return JsonResponse({'success': True, 'message': f'Gifted +{days} days to {user.username}.'})
+
+        elif action == 'set_permissions':
+            admin_access = bool(data.get('admin_access', False))
+            content_access = bool(data.get('content_access', False))
+            perm, _ = SubdomainPermission.objects.get_or_create(user=user)
+            perm.admin_access = admin_access
+            perm.content_access = content_access
+            perm.save()
+            _log_audit(request, "USER_PERMISSIONS", f"User: {user.username}",
+                       f"admin={admin_access}, content={content_access}")
+            return JsonResponse({'success': True, 'message': f'Permissions updated for {user.username}.'})
 
         elif action == 'delete':
             username = user.username

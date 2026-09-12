@@ -243,8 +243,7 @@ export default function SidebarLeft({
             }}>
               {user.isStaff && (
                 <a
-                  href="/admin-panel/"
-                  onClick={(e) => { e.preventDefault(); window.history.pushState(null, '', '/admin-panel/'); window.dispatchEvent(new PopStateEvent('popstate')); }}
+                  href="https://admin.aiaxom.co.in/admin-panel/"
                   style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none', borderRadius: '8px' }}
                   className="dropdown-item"
                 >

@@ -19,18 +19,20 @@ Production (Cloudflare + Nginx):
 
 from django.utils.deprecation import MiddlewareMixin
 
-
 ADMIN_HOSTS = {'admin.aiaxom.co.in', 'admin.aiaxom.local'}
 USER_HOSTS = {'user.aiaxom.co.in', 'user.aiaxom.local'}
 CONTENT_HOSTS = {'content.aiaxom.co.in', 'content.aiaxom.local'}
 CHAT_HOSTS = {'chat.aiaxom.co.in', 'chat.aiaxom.local'}
 LANDING_HOSTS = {'aiaxom.co.in', 'www.aiaxom.co.in'}
+RESTRICTED_HOST_GROUPS = {
+    'admin': ADMIN_HOSTS,
+    'content': CONTENT_HOSTS,
+}
 
 # App routes that must go to the chat app, never to the landing page.
 # When someone hits aiaxom.co.in/tools (etc.) redirect to chat subdomain.
 CHAT_APP_PREFIXES = (
     '/tools', '/upgrade', '/subscription',
-    '/api/', '/admin-panel',
 )
 
 
@@ -46,7 +48,10 @@ class SubdomainMiddleware(MiddlewareMixin):
             return None
 
         # admin.aiaxom.co.in  →  /axomai-admin/*
+        # /admin-panel and /api/ paths are served directly (no rewrite).
         if host in ADMIN_HOSTS and not path.startswith('/axomai-admin'):
+            if path.startswith('/admin-panel') or path.startswith('/api/'):
+                return None
             request.path_info = '/axomai-admin' + path
             request.path = request.path_info
             return None
@@ -80,3 +85,50 @@ class SubdomainMiddleware(MiddlewareMixin):
                     return HttpResponsePermanentRedirect(f'https://chat.aiaxom.co.in{path}{qs}')
 
         return None
+
+
+class SubdomainPermissionMiddleware(MiddlewareMixin):
+    """Deny access to restricted subdomains unless the user has the matching permission."""
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        from django.http import HttpResponseForbidden
+
+        host = request.get_host().split(':')[0].lower()
+        path = request.path_info
+
+        if path.startswith('/static/') or path.startswith('/media/'):
+            return None
+
+        perm_field = None
+        if host in ADMIN_HOSTS:
+            if path.startswith('/axomai-admin/login') or path == '/axomai-admin/login/':
+                return None
+            perm_field = 'admin_access'
+        elif host in CONTENT_HOSTS:
+            if path.startswith('/axomai-content/login') or path == '/axomai-content/login/':
+                return None
+            perm_field = 'content_access'
+
+        if perm_field is None:
+            return None
+
+        user = request.user
+        if not user.is_authenticated:
+            return None
+
+        if user.is_superuser:
+            return None
+
+        from superadmin.models import SubdomainPermission
+        try:
+            sp = SubdomainPermission.objects.get(user=user)
+            if getattr(sp, perm_field, False):
+                return None
+        except SubdomainPermission.DoesNotExist:
+            pass
+
+        return HttpResponseForbidden(
+            '<h2>Access Denied</h2>'
+            '<p>You do not have permission to access this subdomain. '
+            'Contact your administrator.</p>'
+        )
