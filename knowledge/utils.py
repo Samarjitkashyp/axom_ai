@@ -2,27 +2,18 @@ import os
 import csv
 import re
 import json
-import difflib
-import requests
 import numpy as np
 from django.db.models import Q
 from .models import KnowledgeDocument, KnowledgeChunk, QAPair
 
-# --------------------------------------------------------------------------
-# Semantic search — sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
-# (multilingual, 384-dim, ~120 MB, runs locally, no rate limits).
-# Small enough (~250 MB resident) to sit alongside Django on an 8 GB box while
-# still giving strong cross-lingual retrieval for Assamese / Hindi / English.
-# The model is loaded lazily once and kept resident in the process. Override
-# via the EMBED_MODEL env var (e.g. 'BAAI/bge-m3' for higher accuracy at ~2.5 GB).
-# --------------------------------------------------------------------------
-EMBED_MODEL = os.getenv(
-    'EMBED_MODEL',
-    'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
-)
+import time
+
+EMBED_MODEL = 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2'
 SEMANTIC_THRESHOLD = float(os.getenv('SEMANTIC_THRESHOLD', '0.72'))
 _EMBED_MODEL_OBJ = None
 _QA_CACHE = None  # (ids, answers, normalized_matrix, count)
+_QA_CACHE_TS = 0.0
+_QA_CACHE_TTL = float(os.getenv('QA_CACHE_TTL', '600'))
 
 
 def _get_model():
@@ -35,8 +26,7 @@ def _get_model():
 
 
 def _embed_texts(texts):
-    """Embed a list of texts locally with the configured sentence-transformer
-    model (MiniLM-L12-v2 by default). Returns a list of normalized vectors,
+    """Embed a list of texts locally. Returns a list of normalized vectors,
     or None on failure (caller falls back to keyword search)."""
     if not texts:
         return None
@@ -50,7 +40,7 @@ def _embed_texts(texts):
 
 def backfill_qa_embeddings(batch_size=256):
     """Compute + store embeddings for every QAPair that doesn't have one yet."""
-    global _QA_CACHE
+    global _QA_CACHE, _QA_CACHE_TS
     pending = list(QAPair.objects.filter(embedding='').only('id', 'question'))
     done = 0
     for i in range(0, len(pending), batch_size):
@@ -63,15 +53,18 @@ def backfill_qa_embeddings(batch_size=256):
         QAPair.objects.bulk_update(batch, ['embedding'])
         done += len(batch)
     _QA_CACHE = None
+    _QA_CACHE_TS = 0.0
     return done
 
 
 def _load_qa_matrix():
-    """Load all QAPair embeddings into a normalized numpy matrix (cached)."""
-    global _QA_CACHE
+    """Load all QAPair embeddings into a normalized numpy matrix (cached with TTL)."""
+    global _QA_CACHE, _QA_CACHE_TS
     total = QAPair.objects.exclude(embedding='').count()
     if _QA_CACHE is not None and _QA_CACHE[5] == total:
-        return _QA_CACHE
+        if time.time() - _QA_CACHE_TS < _QA_CACHE_TTL:
+            return _QA_CACHE
+        _QA_CACHE = None
     ids, answers, asms, srcs, vecs = [], [], [], [], []
     for qa in QAPair.objects.exclude(embedding='').only(
             'id', 'answer', 'answer_assamese', 'embedding', 'source_name', 'source_url').iterator():
@@ -90,6 +83,7 @@ def _load_qa_matrix():
     norms = np.linalg.norm(mat, axis=1, keepdims=True)
     norms[norms == 0] = 1.0
     _QA_CACHE = (ids, answers, asms, srcs, mat / norms, total)
+    _QA_CACHE_TS = time.time()
     return _QA_CACHE
 
 
@@ -341,8 +335,9 @@ def create_qa_pairs(document_obj):
     except Exception:
         pass  # embeddings can be backfilled later via manage.py backfill_embeddings
 
-    global _QA_CACHE
-    _QA_CACHE = None  # force the search matrix to rebuild with the new pairs
+    global _QA_CACHE, _QA_CACHE_TS
+    _QA_CACHE = None
+    _QA_CACHE_TS = 0.0
 
 
 def _normalize(s):

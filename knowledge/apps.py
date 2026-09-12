@@ -14,8 +14,10 @@ class KnowledgeConfig(AppConfig):
         # commands like migrate/collectstatic), and only if the KB has data.
         skip = {'migrate', 'makemigrations', 'collectstatic', 'check', 'shell',
                 'backfill_embeddings', 'test', 'createsuperuser', 'loaddata',
-                'dumpdata', 'sqlmigrate', 'showmigrations'}
+                'dumpdata', 'sqlmigrate', 'showmigrations', 'celery'}
         if any(cmd in sys.argv for cmd in skip):
+            return
+        if 'celery' in ' '.join(sys.argv).lower():
             return
         if os.getenv('AXOM_WARMUP', 'True').lower() not in ('true', '1', 't'):
             return
