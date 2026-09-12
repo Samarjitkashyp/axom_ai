@@ -203,6 +203,10 @@
             <span><strong class="text-pink-400">content</strong>.aiaxom.co.in</span>
           </label>
           <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+            <input type="checkbox" id="permBot" class="w-4 h-4 accent-amber-500 rounded">
+            <span><strong class="text-amber-400">axomai-bot</strong>.aiaxom.co.in</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
             <input type="checkbox" disabled checked class="w-4 h-4 accent-emerald-500 rounded">
             <span class="text-slate-500">chat / user / landing <em>(all users)</em></span>
           </label>
@@ -237,6 +241,7 @@
     var p = permsMap[userId] || {};
     document.getElementById('permAdmin').checked = !!p.admin;
     document.getElementById('permContent').checked = !!p.content;
+    document.getElementById('permBot').checked = !!p.bot;
     document.getElementById('userActionModal').classList.remove('hidden');
   }
 
@@ -325,9 +330,10 @@
     const userId = document.getElementById('modalUserId').value;
     const admin_access = document.getElementById('permAdmin').checked;
     const content_access = document.getElementById('permContent').checked;
-    const res = await callUserApi({ action: 'set_permissions', user_id: userId, admin_access, content_access });
+    const bot_access = document.getElementById('permBot').checked;
+    const res = await callUserApi({ action: 'set_permissions', user_id: userId, admin_access, content_access, bot_access });
     if (res.success) {
-      permsMap[userId] = { admin: admin_access, content: content_access };
+      permsMap[userId] = { admin: admin_access, content: content_access, bot: bot_access };
       showToast(res.message, 'success');
     } else {
       showToast(res.error, 'error');

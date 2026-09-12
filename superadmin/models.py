@@ -82,6 +82,7 @@ class SubdomainPermission(models.Model):
     )
     admin_access = models.BooleanField(default=False)
     content_access = models.BooleanField(default=False)
+    bot_access = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -90,6 +91,8 @@ class SubdomainPermission(models.Model):
             flags.append('admin')
         if self.content_access:
             flags.append('content')
+        if self.bot_access:
+            flags.append('bot')
         return f"{self.user.username}: {', '.join(flags) or 'chat-only'}"
 
 

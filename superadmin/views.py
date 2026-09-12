@@ -208,7 +208,7 @@ def users_page(request):
 
     perms_map = {}
     for sp in SubdomainPermission.objects.filter(user__in=[u.id for u in users_page_obj]):
-        perms_map[sp.user_id] = {'admin': sp.admin_access, 'content': sp.content_access}
+        perms_map[sp.user_id] = {'admin': sp.admin_access, 'content': sp.content_access, 'bot': sp.bot_access}
 
     context = {
         'active': 'users',
@@ -308,12 +308,14 @@ def user_action_api(request):
         elif action == 'set_permissions':
             admin_access = bool(data.get('admin_access', False))
             content_access = bool(data.get('content_access', False))
+            bot_access = bool(data.get('bot_access', False))
             perm, _ = SubdomainPermission.objects.get_or_create(user=user)
             perm.admin_access = admin_access
             perm.content_access = content_access
+            perm.bot_access = bot_access
             perm.save()
             _log_audit(request, "USER_PERMISSIONS", f"User: {user.username}",
-                       f"admin={admin_access}, content={content_access}")
+                       f"admin={admin_access}, content={content_access}, bot={bot_access}")
             return JsonResponse({'success': True, 'message': f'Permissions updated for {user.username}.'})
 
         elif action == 'delete':
