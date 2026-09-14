@@ -545,64 +545,6 @@ export default function ChatWindow({
               </h2>
             </div>
 
-            {/* ChatGPT-Style Prompt Starter Cards */}
-            <div className="prompt-cards-grid">
-              <div
-                className="prompt-card"
-                onClick={() => {
-                  if (onOpenDocConverterModal) onOpenDocConverterModal();
-                }}
-              >
-                <div className="prompt-card-icon">📄</div>
-                <div className="prompt-card-content">
-                  <div className="prompt-card-title">Document & PDF Studio</div>
-                  <div className="prompt-card-desc">Convert, compress, summarize or edit documents</div>
-                </div>
-              </div>
-
-              <div
-                className="prompt-card"
-                onClick={() => {
-                  setInputText("Generate an image of Kaziranga sunrise with a majestic one-horned rhinoceros");
-                  if (textareaRef.current) textareaRef.current.focus();
-                }}
-              >
-                <div className="prompt-card-icon">🎨</div>
-                <div className="prompt-card-content">
-                  <div className="prompt-card-title">Generate AI Image</div>
-                  <div className="prompt-card-desc">Photorealistic imagery powered by FLUX.1 & SDXL</div>
-                </div>
-              </div>
-
-              <div
-                className="prompt-card"
-                onClick={() => {
-                  setWebSearch(true);
-                  setInputText("অসমৰ আজিৰ শেহতীয়া প্ৰধান বাতৰি আৰু খবৰবোৰ কি?");
-                  if (textareaRef.current) textareaRef.current.focus();
-                }}
-              >
-                <div className="prompt-card-icon">🌐</div>
-                <div className="prompt-card-content">
-                  <div className="prompt-card-title">Assam Live News</div>
-                  <div className="prompt-card-desc">Real-time web research, verified facts and live citations</div>
-                </div>
-              </div>
-
-              <div
-                className="prompt-card"
-                onClick={() => {
-                  setInputText("অসমৰ জাতীয় সংস্কৃতি আৰু ৰঙালী বিহুৰ তাৎপৰ্য ব্যাখ্যা কৰক");
-                  if (textareaRef.current) textareaRef.current.focus();
-                }}
-              >
-                <div className="prompt-card-icon">✍️</div>
-                <div className="prompt-card-content">
-                  <div className="prompt-card-title">অসমীয়া সৃষ্টিশীল লেখনী</div>
-                  <div className="prompt-card-desc">অসমীয়াত প্ৰবন্ধ, কবিতা বা আনুষ্ঠানিক আবেদন পত্ৰ লিখক</div>
-                </div>
-              </div>
-            </div>
 
           </div>
         ) : (
