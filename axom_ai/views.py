@@ -1201,16 +1201,22 @@ def chat_api_view(request):
         "understand all of these, but ALWAYS reply in Assamese script. "
         "Do NOT write English words in Assamese script: greet with নমস্কাৰ (never হ্যালো/হাই), "
         "say ধন্যবাদ (never থেংক ইউ). "
-        "Use proper Assamese, NOT Bengali: use ৰ (not র), কৰ (not কর), হয় (not হয়). "
+        "CRITICAL SCRIPT RULE: You MUST use Assamese ৰ (U+09F0), NEVER Bengali র (U+09B0). "
+        "Examples: কৰ (not কর), ধৰ্ম (not ধর্ম), পূৰ্ণ (not পূর্ণ), সংৰক্ষণ (not সংরক্ষণ), পৰিচালনা (not পরিচালনা). "
         "Never use Bengali vocabulary or grammar — use a simpler Assamese word instead. "
         "When knowledge-base context is provided, synthesize it into a clear, natural conversational "
         "answer — do not copy-paste or dump raw text. Prefer that context and base your answer on it. "
         "When NO knowledge-base context is provided, answer from your own knowledge like ChatGPT would — "
         "give detailed, informative, helpful answers. NEVER say you don't know or can't answer. "
-        "FORMATTING: Use ### headings (in Assamese) to organize topics. Use **bold** for key terms. "
-        "Use - bullet lists when listing items. Use blank lines between paragraphs. "
-        "Keep each section focused on one topic. Do NOT dump everything in one big block. "
-        "Use '।' (Assamese full stop) at end of sentences. "
+        "FORMATTING RULES:\n"
+        "- Use ### headings (in Assamese) to organize topics.\n"
+        "- Use **bold** for key terms, names, dates, and important facts.\n"
+        "- Use - bullet lists when listing multiple items.\n"
+        "- Use blank lines between paragraphs and sections.\n"
+        "- Keep each section focused on one topic.\n"
+        "- Do NOT dump everything in one big block.\n"
+        "- Do NOT use markdown tables (| column | format) — use bullet lists or numbered lists instead.\n"
+        "- Use '।' (Assamese full stop) at end of sentences.\n"
         "IMPORTANT: Never invent specific facts — names of people or officials, who currently holds a "
         "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
     )
@@ -1270,6 +1276,12 @@ def chat_api_view(request):
         'gemini-3-flash-preview',
     ]
 
+    def _purify_stream(gen):
+        """Wrap a text-chunk generator so every chunk passes through
+        _purify_assamese_with_grammar (Bengali র→ৰ, vocab fixes, etc.)."""
+        for chunk in gen:
+            yield _purify_assamese_with_grammar(chunk)
+
     # 6a. PRIMARY: OpenAI free-tier model rotation — streams through up to 17
     #     models (9 mini/nano + 8 large) using daily free quotas before paid Luna.
     if not web_search:
@@ -1277,9 +1289,9 @@ def chat_api_view(request):
             from model_router.router import openai_stream
             oai_gen, oai_model = openai_stream(
                 system_instruction, final_prompt,
-                on_done=lambda txt: _save_chat(request, client_id, prompt, txt))
+                on_done=lambda txt: _save_chat(request, client_id, prompt, _purify_assamese_with_grammar(txt)))
             if oai_gen is not None:
-                sresp = StreamingHttpResponse(oai_gen, content_type='text/plain; charset=utf-8')
+                sresp = StreamingHttpResponse(_purify_stream(oai_gen), content_type='text/plain; charset=utf-8')
                 sresp['X-Engine'] = f'openai:{oai_model}'
                 sresp['X-From-Database'] = 'true' if custom_context else 'false'
                 sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
@@ -1294,9 +1306,9 @@ def chat_api_view(request):
     if GROQ_API_KEY and not web_search:
         gstream = _groq_stream_response(
             system_instruction, final_prompt,
-            lambda txt: _save_chat(request, client_id, prompt, txt))
+            lambda txt: _save_chat(request, client_id, prompt, _purify_assamese_with_grammar(txt)))
         if gstream is not None:
-            sresp = StreamingHttpResponse(gstream, content_type='text/plain; charset=utf-8')
+            sresp = StreamingHttpResponse(_purify_stream(gstream), content_type='text/plain; charset=utf-8')
             sresp['X-Engine'] = 'groq'
             sresp['X-From-Database'] = 'true' if custom_context else 'false'
             sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
@@ -1343,8 +1355,9 @@ def chat_api_view(request):
                             for cand in obj.get('candidates', []):
                                 for part in cand.get('content', {}).get('parts', []):
                                     if part.get('text'):
-                                        acc.append(part['text'])
-                                        yield part['text']
+                                        purified = _purify_assamese_with_grammar(part['text'])
+                                        acc.append(purified)
+                                        yield purified
                     finally:
                         resp.close()
                         _save_chat(request, client_id, prompt, ''.join(acc))
