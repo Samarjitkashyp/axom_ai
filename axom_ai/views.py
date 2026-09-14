@@ -1430,7 +1430,27 @@ def chat_api_view(request):
             sresp['X-Accel-Buffering'] = 'no'
             return sresp
 
-    # 6a. STREAM the general/RAG answer from Gemini so the first words reach the
+    # 6b. OpenAI free-tier model rotation — streams through up to 17 models
+    #      (9 mini/nano + 8 large) using daily free quotas before paid Luna.
+    if not web_search:
+        try:
+            from model_router.router import openai_stream
+            oai_gen, oai_model = openai_stream(
+                system_instruction, final_prompt,
+                on_done=lambda txt: _save_chat(request, client_id, prompt, txt))
+            if oai_gen is not None:
+                sresp = StreamingHttpResponse(oai_gen, content_type='text/plain; charset=utf-8')
+                sresp['X-Engine'] = f'openai:{oai_model}'
+                sresp['X-From-Database'] = 'true' if custom_context else 'false'
+                sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
+                sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
+                sresp['Cache-Control'] = 'no-cache'
+                sresp['X-Accel-Buffering'] = 'no'
+                return sresp
+        except Exception:
+            pass
+
+    # 6c. STREAM the general/RAG answer from Gemini so the first words reach the
     #     user immediately (feels fast). web_search stays non-streaming below —
     #     it needs the grounding metadata (sources) that arrives at the end.
     if not web_search:
@@ -1610,6 +1630,27 @@ def chat_api_view(request):
                 'engine': 'groq',
                 'source': kb_source,
             })
+
+    # OpenAI fallback (non-streaming): all streaming paths failed.
+    if not web_search:
+        try:
+            from model_router.router import openai_generate
+            oai_text, oai_model = openai_generate(system_instruction, final_prompt)
+            if oai_text:
+                if language == 'assamese':
+                    oai_text = _purify_assamese_with_grammar(oai_text)
+                _save_chat(request, client_id, prompt, oai_text)
+                return JsonResponse({
+                    'response': oai_text,
+                    'from_database': bool(custom_context),
+                    'source_docs': source_docs,
+                    'web_search': web_search,
+                    'sources': [],
+                    'engine': f'openai:{oai_model}',
+                    'source': kb_source,
+                })
+        except Exception:
+            pass
 
     # Fast Fallback: If API fails or is rate-limited, return database context if available!
     if custom_context:

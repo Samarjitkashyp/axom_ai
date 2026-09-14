@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'superadmin',
     'userpanel',
     'contentcms',
+    'model_router',
 ]
 
 # --- Razorpay (payments) ---

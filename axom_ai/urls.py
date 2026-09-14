@@ -92,6 +92,7 @@ urlpatterns = [
 
     # New: Super Admin panel  (admin.aiaxom.co.in  ->  /axomai-admin/ via middleware)
     path('axomai-admin/', include('superadmin.urls')),
+    path('axomai-admin/models/', include('model_router.urls')),
 
     # New: User Account panel  (user.aiaxom.co.in  ->  /axomai-user/ via middleware)
     path('axomai-user/', include('userpanel.urls')),

@@ -1,0 +1,235 @@
+{% extends "superadmin/base.html" %}
+{% block title %}AI Models — Axom AI Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="modelsDashboard()" x-init="loadData()">
+
+  <!-- Page Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-500/30">
+          <i class="fa-solid fa-robot text-white text-lg"></i>
+        </div>
+        AI Model Router
+      </h1>
+      <p class="text-sm text-slate-400 mt-1">Smart model rotation for maximum free token usage</p>
+    </div>
+    <div class="flex gap-3">
+      <button @click="seedModels()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm font-medium text-slate-300 transition-all border border-slate-700">
+        <i class="fa-solid fa-seedling mr-2"></i>Seed Defaults
+      </button>
+      <button @click="loadData()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-medium text-white transition-all shadow-lg shadow-indigo-600/30">
+        <i class="fa-solid fa-arrows-rotate mr-2"></i>Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="glass-card rounded-2xl p-5">
+      <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Active Model</div>
+      <div class="text-xl font-bold text-emerald-400" x-text="summary.active_model || '—'"></div>
+      <div class="text-xs text-slate-500 mt-1">Currently serving requests</div>
+    </div>
+    <div class="glass-card rounded-2xl p-5">
+      <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Used Today</div>
+      <div class="text-xl font-bold text-white" x-text="formatTokens(summary.total_used_today)"></div>
+      <div class="text-xs text-slate-500 mt-1">Across all models</div>
+    </div>
+    <div class="glass-card rounded-2xl p-5">
+      <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Free Remaining</div>
+      <div class="text-xl font-bold text-indigo-400" x-text="formatTokens(summary.total_free_remaining)"></div>
+      <div class="text-xs text-slate-500 mt-1">Before paid kicks in</div>
+    </div>
+    <div class="glass-card rounded-2xl p-5">
+      <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Total Free Limit</div>
+      <div class="text-xl font-bold text-violet-400" x-text="formatTokens(summary.total_free_limit)"></div>
+      <div class="text-xs text-slate-500 mt-1">~24.5M tokens/day</div>
+    </div>
+  </div>
+
+  <!-- 7-Day Usage Chart -->
+  <div class="glass-card rounded-2xl p-6">
+    <h2 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-chart-area mr-2 text-indigo-400"></i>7-Day Token Usage</h2>
+    <canvas id="usageChart" height="80"></canvas>
+  </div>
+
+  <!-- Model Table -->
+  <div class="glass-card rounded-2xl overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-800/80">
+      <h2 class="text-lg font-bold text-white"><i class="fa-solid fa-layer-group mr-2 text-indigo-400"></i>Model Rotation Queue</h2>
+      <p class="text-xs text-slate-400 mt-1">Models are tried in priority order. Lower priority = tried first.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800/50">
+            <th class="px-6 py-3 text-left">Priority</th>
+            <th class="px-6 py-3 text-left">Model</th>
+            <th class="px-6 py-3 text-left">Tier</th>
+            <th class="px-6 py-3 text-left">Daily Limit</th>
+            <th class="px-6 py-3 text-left">Used Today</th>
+            <th class="px-6 py-3 text-left">Remaining</th>
+            <th class="px-6 py-3 text-left">Usage</th>
+            <th class="px-6 py-3 text-left">Status</th>
+            <th class="px-6 py-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="m in models" :key="m.id">
+            <tr class="border-b border-slate-800/30 hover:bg-slate-800/30 transition-colors">
+              <td class="px-6 py-3">
+                <span class="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-slate-300" x-text="'#'+m.priority"></span>
+              </td>
+              <td class="px-6 py-3">
+                <div class="font-semibold text-white" x-text="m.name"></div>
+                <div class="text-xs text-slate-500 font-mono" x-text="m.model_id"></div>
+              </td>
+              <td class="px-6 py-3">
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
+                  :class="m.tier === 'free_mini' ? 'bg-emerald-500/15 text-emerald-400' :
+                          m.tier === 'free_large' ? 'bg-blue-500/15 text-blue-400' :
+                          'bg-amber-500/15 text-amber-400'"
+                  x-text="m.tier_display"></span>
+              </td>
+              <td class="px-6 py-3 text-slate-300" x-text="m.daily_limit > 0 ? formatTokens(m.daily_limit) : 'Unlimited'"></td>
+              <td class="px-6 py-3 font-semibold text-white" x-text="formatTokens(m.used_today)"></td>
+              <td class="px-6 py-3"
+                :class="m.is_exhausted ? 'text-red-400' : 'text-emerald-400'"
+                x-text="m.remaining !== null ? formatTokens(m.remaining) : '—'"></td>
+              <td class="px-6 py-3 w-40">
+                <div class="flex items-center gap-2" x-show="m.daily_limit > 0">
+                  <div class="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500"
+                      :class="m.usage_pct > 90 ? 'bg-red-500' : m.usage_pct > 60 ? 'bg-amber-500' : 'bg-emerald-500'"
+                      :style="'width:' + Math.min(m.usage_pct, 100) + '%'"></div>
+                  </div>
+                  <span class="text-xs text-slate-400 w-10 text-right" x-text="m.usage_pct + '%'"></span>
+                </div>
+                <span x-show="m.daily_limit === 0" class="text-xs text-slate-500">Paid</span>
+              </td>
+              <td class="px-6 py-3">
+                <span class="text-xs font-semibold px-2 py-1 rounded-full"
+                  :class="m.is_exhausted ? 'bg-red-500/15 text-red-400' : 'bg-emerald-500/15 text-emerald-400'"
+                  x-text="m.is_exhausted ? 'Exhausted' : 'Available'"></span>
+              </td>
+              <td class="px-6 py-3 text-center">
+                <button @click="toggleModel(m.id, m.is_exhausted)"
+                  class="text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
+                  :class="'bg-slate-700 hover:bg-slate-600 text-slate-300'">
+                  <i class="fa-solid fa-power-off mr-1"></i>Toggle
+                </button>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <div x-show="models.length === 0" class="px-6 py-12 text-center text-slate-500">
+      <i class="fa-solid fa-robot text-4xl mb-3 text-slate-700"></i>
+      <p class="text-sm">No models configured. Click <strong>Seed Defaults</strong> to add the free-tier rotation.</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js" defer></script>
+<script>
+function modelsDashboard() {
+  return {
+    models: [],
+    summary: {},
+    history: [],
+    chart: null,
+
+    formatTokens(n) {
+      if (n == null) return '—';
+      if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+      if (n >= 1_000) return (n / 1_000).toFixed(0) + 'K';
+      return n.toString();
+    },
+
+    async loadData() {
+      try {
+        const r = await fetch('/axomai-admin/models/api/status/');
+        const d = await r.json();
+        this.models = d.models || [];
+        this.summary = d.summary || {};
+        this.history = d.history || [];
+        this.renderChart();
+      } catch(e) { console.error('Load failed:', e); }
+    },
+
+    renderChart() {
+      const ctx = document.getElementById('usageChart');
+      if (!ctx) return;
+      if (this.chart) this.chart.destroy();
+      this.chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: this.history.map(h => h.label),
+          datasets: [
+            {
+              label: 'Input Tokens',
+              data: this.history.map(h => h.input_tokens),
+              backgroundColor: 'rgba(99, 102, 241, 0.6)',
+              borderRadius: 6,
+            },
+            {
+              label: 'Output Tokens',
+              data: this.history.map(h => h.output_tokens),
+              backgroundColor: 'rgba(139, 92, 246, 0.6)',
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+          },
+          scales: {
+            x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51,65,85,0.3)' } },
+            y: {
+              ticks: {
+                color: '#64748b',
+                callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v,
+              },
+              grid: { color: 'rgba(51,65,85,0.3)' },
+            },
+          },
+        },
+      });
+    },
+
+    async seedModels() {
+      try {
+        const r = await fetch('/axomai-admin/models/api/seed/', {method:'POST', headers:{'X-CSRFToken': getCookie('csrftoken')}});
+        const d = await r.json();
+        alert(d.created + ' models added');
+        this.loadData();
+      } catch(e) { alert('Error: ' + e); }
+    },
+
+    async toggleModel(id) {
+      const m = this.models.find(x => x.id === id);
+      if (!m) return;
+      try {
+        await fetch('/axomai-admin/models/api/toggle/', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')},
+          body: JSON.stringify({model_id: id, is_active: m.is_exhausted}),
+        });
+        this.loadData();
+      } catch(e) { console.error(e); }
+    },
+  };
+}
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return v ? v.pop() : '';
+}
+</script>
+{% endblock %}
