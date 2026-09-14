@@ -1174,11 +1174,14 @@ def chat_api_view(request):
     }
     target_lang = LANG_LABEL.get(language, LANG_LABEL['hinglish'])
 
-    # 1. System prompt — general-purpose AI assistant (ChatGPT / DeepSeek style).
+    # 1. System prompt — general-purpose AI assistant (ChatGPT style).
     today = datetime.now().strftime('%A, %d %B %Y')
     system_instruction = (
-        f"Today's date is {today}. You are Axom AI — a friendly, knowledgeable assistant focused on "
-        "Assam (its history, culture, festivals, tourism, food, geography and people). "
+        f"Today's date is {today}. You are Axom AI — a friendly, knowledgeable, and highly capable "
+        "AI assistant that can help with ANY topic: science, math, coding, history, geography, "
+        "health, technology, education, current affairs, creative writing, and everything else — "
+        "just like ChatGPT. You have special expertise in Assam and Northeast India, but you are "
+        "NOT limited to Assam topics. Answer ANY question the user asks, thoroughly and helpfully. "
         "ALWAYS reply in natural, native, everyday Assamese using correct Assamese script (অসমীয়া) and "
         "grammar — the way an educated Assamese person actually speaks. "
         "Users may write in Roman Assamese (e.g. 'Bihu kunuba hoi?'), Hindi, Hinglish, or English — "
@@ -1189,6 +1192,8 @@ def chat_api_view(request):
         "Never use Bengali vocabulary or grammar — use a simpler Assamese word instead. "
         "When knowledge-base context is provided, synthesize it into a clear, natural conversational "
         "answer — do not copy-paste or dump raw text. Prefer that context and base your answer on it. "
+        "When NO knowledge-base context is provided, answer from your own knowledge like ChatGPT would — "
+        "give detailed, informative, helpful answers. NEVER say you don't know or can't answer. "
         "STRICT OUTPUT FORMAT — write plain Assamese prose ONLY. NEVER use Markdown, tables, pipes (|), "
         "dashes as bullets (-, •, *), HTML tags (<br>, <b>, <i>), headings (#), blockquotes (>), or any "
         "special formatting characters. Use ordinary sentences and paragraphs separated by blank lines. "
@@ -1198,14 +1203,34 @@ def chat_api_view(request):
         "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
     )
 
+    # 1b. Translate user prompt to English for better KB search and LLM understanding.
+    english_query = prompt
+    if not _looks_like_english(prompt):
+        try:
+            from model_router.router import openai_generate as _oai_tr
+            _tr_sys = (
+                "Translate the following user message into clear, natural English. "
+                "The user may write in Assamese, Roman Assamese, Hindi, Hinglish, or mixed. "
+                "Output ONLY the English translation, nothing else."
+            )
+            _tr_out, _ = _oai_tr(_tr_sys, prompt, timeout=10)
+            if _tr_out and _tr_out.strip():
+                english_query = _tr_out.strip()
+        except Exception:
+            pass
+
     # 2. Find a knowledge-base answer (exact keyword match → semantic meaning match).
     kb_answer, kb_assamese, kb_source = None, '', None
     if not web_search:
         ia, ia_asm, ia_src = find_instant_answer(prompt)
+        if not ia:
+            ia, ia_asm, ia_src = find_instant_answer(english_query)
         if ia:
             kb_answer, kb_assamese, kb_source = ia, ia_asm, ia_src
         else:
             sa, sa_asm, _score, sa_src = semantic_find_answer(prompt)
+            if not sa:
+                sa, sa_asm, _score, sa_src = semantic_find_answer(english_query)
             if sa:
                 kb_answer, kb_assamese, kb_source = sa, sa_asm, sa_src
 
@@ -1249,13 +1274,9 @@ def chat_api_view(request):
     if (not web_search) and (not kb_answer):
         _log_unanswered(prompt, language)
 
-    # 3. Strict gate (only when there is NO KB answer and strict mode is enabled).
-    if (not web_search) and (not kb_answer) and STRICT_KB_MODE:
-        _save_chat(request, client_id, prompt, DONT_KNOW_MSG)
-        return JsonResponse({
-            'response': DONT_KNOW_MSG, 'from_database': False, 'source_docs': [],
-            'web_search': False, 'sources': [], 'engine': 'no-answer',
-        })
+    # 3. Strict gate removed — GPT always provides an answer (ChatGPT style).
+    #    Previously STRICT_KB_MODE would return "don't know" when KB had no answer.
+    #    Now the LLM engines below always handle the question.
 
     # 4. Formulate the model prompt with recent conversation for follow-up context.
     #    Memory management: keep the newest turns within a character budget (so short
@@ -1319,8 +1340,11 @@ def chat_api_view(request):
             f"dump the entire passage. Reply in natural Assamese (অসমীয়া)."
         )
     else:
-        # system_instruction is sent separately (Gemini systemInstruction / Ollama system).
-        final_prompt = f"{hist_block}User Question: {prompt}"
+        # Include English translation alongside original for better LLM understanding.
+        if english_query != prompt:
+            final_prompt = f"{hist_block}User Question: {prompt}\n(English meaning: {english_query})"
+        else:
+            final_prompt = f"{hist_block}User Question: {prompt}"
 
     # 5. PRIMARY ENGINE: local Ollama model, STREAMED token-by-token so the first
     #    word reaches the user immediately. Skipped for web_search (needs Gemini's
@@ -1408,10 +1432,14 @@ def chat_api_view(request):
             and USE_INDICTRANS and not (is_wiki and kb_answer)):
         en_system = (
             f"Today's date is {today}. Always write your reply in clear, natural English. "
-            "You are Axom AI, a helpful, knowledgeable, and friendly assistant. Give a "
-            "clear, accurate, well-structured answer. IMPORTANT: Never invent specific "
-            "facts — names of people or officials, who currently holds a post, dates, or "
-            "statistics. If you are unsure, say you are not certain instead of guessing."
+            "You are Axom AI, a highly capable AI assistant that can answer ANY question — "
+            "science, math, coding, history, geography, health, technology, education, "
+            "current affairs, creative writing, and everything else — just like ChatGPT. "
+            "You have special expertise in Assam and Northeast India. "
+            "Give a clear, accurate, detailed, and well-structured answer. "
+            "IMPORTANT: Never invent specific facts — names of people or officials, "
+            "who currently holds a post, dates, or statistics. If you are unsure, "
+            "say you are not certain instead of guessing."
         )
         en_prompt = f"{hist_block}User Question: {prompt}"
         english_answer = None
