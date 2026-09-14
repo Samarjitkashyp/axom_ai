@@ -1091,7 +1091,19 @@ def chat_api_view(request):
             f"Answer in pure, natural Assamese (অসমীয়া script):"
         )
 
-        answer = _groq_generate(ws_system, ws_prompt, timeout=45)
+        # Primary: OpenAI rotation (free-tier models first)
+        answer = None
+        try:
+            from model_router.router import openai_generate
+            oai_text, oai_model = openai_generate(ws_system, ws_prompt, timeout=45)
+            if oai_text:
+                answer = oai_text
+        except Exception:
+            pass
+        # Fallback 1: Groq
+        if not answer:
+            answer = _groq_generate(ws_system, ws_prompt, timeout=45)
+        # Fallback 2: Gemini
         if not answer:
             gk = os.getenv('GEMINI_API_KEY', '').strip()
             if gk:
@@ -1144,7 +1156,7 @@ def chat_api_view(request):
             'sources': [
                 {'title': h['title'], 'uri': h['url']} for h in hits
             ],
-            'engine': f'{engine_used}+groq',
+            'engine': f'{engine_used}+openai',
             'websearch_limit': daily_cap,
             'used_today': ws_used + 1,
             'remaining_today': max(0, daily_cap - (ws_used + 1)),

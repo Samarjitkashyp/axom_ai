@@ -23,7 +23,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 - **ChatGPT-Style Live Web Search Grounding:** Real-time Google Programmable Custom Search Engine (with Tavily fallback) delivering live Assam news, government exams, and current events directly in Assamese.
 - **Unified Reusable Component Architecture:** Shared modular Header and Footer across Django templates (`aiaxom.co.in`) and Next.js SSR apps (`chat.aiaxom.co.in/tools`) with dynamic CMS brand logo sync.
 - **Smart Multimodal Productivity Suite:** 27+ utilities including auto-detecting Video Compressor (16:9 vs 9:16), FLUX image synthesis, Word-to-PDF converter, background remover, QR generator, and regional OCR.
-- **Web Crawler Bot & Knowledge Import:** Dedicated crawler bot (`axomai-bot.aiaxom.co.in`) for automated web content ingestion into the RAG knowledge base with BGE-M3 embeddings.
+- **Web Crawler Bot & Knowledge Import:** Dedicated crawler bot (`axomai-bot.aiaxom.co.in`) for automated web content ingestion into the RAG knowledge base with semantic embeddings.
 - **IP-Based Security & Anti-Abuse Protection:** Strict 5 daily web searches limit per IP/device and single-account-per-device enforcement to eliminate spam and multi-account bot abuse.
 
 ---
@@ -68,7 +68,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 
 ### 5. Web Crawler Bot & Knowledge Import
 - **Automated Web Crawling:** Dedicated bot service at `axomai-bot.aiaxom.co.in` for crawling and importing web content into the RAG knowledge base.
-- **Import API:** Secure token-authenticated endpoint (`/api/import-crawl/`) for ingesting crawled pages with automatic deduplication and BGE-M3 vector embeddings.
+- **Import API:** Secure token-authenticated endpoint (`/api/import-crawl/`) for ingesting crawled pages with automatic deduplication and semantic vector embeddings.
 - **Bot Access Control:** Separate `bot_access` permission flag for crawler bot operators.
 
 ### 6. IP-Based Security & Device Protection
@@ -120,7 +120,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
        ┌────────▼─────────┐              ┌─────────▼─────────┐     ┌─────────▼─────────┐
        │ PostgreSQL DB    │              │ Vector Embeddings │     │ External AI APIs  │
        │ Users, Devices,  │              │ 112K+ Knowledge   │     │ OpenAI (GPT-5.x), │
-       │ Usage, CMS Config│              │ Chunks (BGE-M3)   │     │ Gemini, Groq LPU, │
+       │ Usage, CMS Config│              │ Chunks (MiniLM)   │     │ Gemini, Groq LPU, │
        │ Model Usage Logs │              │                   │     │ Google CSE, FLUX   │
        └──────────────────┘              └───────────────────┘     └───────────────────┘
 ```
@@ -139,7 +139,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 | **AI Inference** | OpenAI (GPT-5.x mini/nano rotation + GPT-5.6 Luna), Google Gemini 2.0 Flash, Groq LPU, IndicTrans2 |
 | **Image Generation** | Google Gemini (primary), Cloudflare Workers AI (FLUX.1-Schnell) |
 | **Web Search Grounding** | Google Programmable Custom Search JSON API + Tavily Fallback |
-| **Grammar & Vector RAG** | BGE-M3 embeddings, Sentence-Transformers, NLTK |
+| **Grammar & Vector RAG** | Multilingual MiniLM embeddings, Sentence-Transformers, NLTK |
 | **Media & Video Processing** | FFmpeg (H.264 / AAC, 16:9 & 9:16 aspect ratio detection), PyMuPDF, LibreOffice |
 | **Document & OCR** | Tesseract OCR, LibreOffice (Word/Excel/PPT to PDF) |
 | **Payments** | Razorpay Standard Checkout + HMAC-SHA256 Webhook Verification |

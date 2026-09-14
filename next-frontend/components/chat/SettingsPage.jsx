@@ -143,7 +143,7 @@ export default function SettingsPage({
               <div className="settings-about-card">
                 <div className="settings-about-row"><span>Assistant</span><b>Axom AI</b></div>
                 <div className="settings-about-row"><span>Languages</span><b>English, Assamese & Hindi</b></div>
-                <div className="settings-about-row"><span>Knowledge base</span><b>Semantic search (bge-m3)</b></div>
+                <div className="settings-about-row"><span>Knowledge base</span><b>Semantic search (MiniLM)</b></div>
                 <div className="settings-about-row"><span>Chat history</span><b>Saved on server</b></div>
               </div>
             </div>
