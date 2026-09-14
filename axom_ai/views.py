@@ -959,7 +959,48 @@ def admin_panel_view(request):
         return redirect('admin_login')
     return render(request, 'index.html')
 
+
+AUTH_ALLOWED_ORIGINS = {
+    'https://aiaxom.co.in',
+    'https://www.aiaxom.co.in',
+    'https://chat.aiaxom.co.in',
+    'https://content.aiaxom.co.in',
+    'https://admin.aiaxom.co.in',
+    'https://user.aiaxom.co.in',
+}
+
+
+def _apply_cross_subdomain_cors(request, response):
+    origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN', '')
+    if origin and (
+        origin in AUTH_ALLOWED_ORIGINS
+        or origin.endswith('.aiaxom.co.in')
+        or 'localhost' in origin
+        or '127.0.0.1' in origin
+    ):
+        response['Access-Control-Allow-Origin'] = origin
+        response['Access-Control-Allow-Credentials'] = 'true'
+        response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        req_headers = request.headers.get('Access-Control-Request-Headers')
+        response['Access-Control-Allow-Headers'] = req_headers or 'Content-Type, X-CSRFToken, X-Device-Id, Authorization, Cookie'
+        response['Access-Control-Expose-Headers'] = 'X-Engine, X-From-Database, X-Source'
+    return response
+
+
+def _chat_cors_view(view_func):
+    import functools
+    @functools.wraps(view_func)
+    def wrapped(request, *args, **kwargs):
+        if request.method == 'OPTIONS':
+            from django.http import HttpResponse
+            return _apply_cross_subdomain_cors(request, HttpResponse(status=204))
+        resp = view_func(request, *args, **kwargs)
+        return _apply_cross_subdomain_cors(request, resp)
+    return wrapped
+
+
 @csrf_exempt
+@_chat_cors_view
 def chat_api_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
@@ -1526,29 +1567,6 @@ def chat_api_view(request):
     return JsonResponse({'error': f"API Error: {last_error}"}, status=400)
 
 
-AUTH_ALLOWED_ORIGINS = {
-    'https://aiaxom.co.in',
-    'https://www.aiaxom.co.in',
-    'https://chat.aiaxom.co.in',
-    'https://content.aiaxom.co.in',
-    'https://admin.aiaxom.co.in',
-    'https://user.aiaxom.co.in',
-}
-
-
-def _apply_cross_subdomain_cors(request, response):
-    origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN', '')
-    if origin and (
-        origin in AUTH_ALLOWED_ORIGINS
-        or origin.endswith('.aiaxom.co.in')
-        or 'localhost' in origin
-        or '127.0.0.1' in origin
-    ):
-        response['Access-Control-Allow-Origin'] = origin
-        response['Access-Control-Allow-Credentials'] = 'true'
-        response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-        response['Access-Control-Allow-Headers'] = 'Content-Type, X-CSRFToken, X-Device-Id, Authorization'
-    return response
 
 
 def _attach_global_auth_cookies(request, response, device_id=None):
