@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Sparkles,
   X,
@@ -9,94 +9,44 @@ import {
   Check,
   Loader2,
   ArrowUp,
-  Dices,
-  RotateCcw,
   Maximize2,
-  SlidersHorizontal,
-  ChevronDown,
-  Layers,
   Image as ImageIcon,
   Flame,
-  Zap,
-  Info,
+  Paperclip,
 } from 'lucide-react';
 import { getCsrfToken } from './utils/security';
 
-const STARTER_PROMPTS = [
-  {
-    title: '🌿 Assam Tea Garden',
-    prompt: 'A breathtaking tea garden in Assam at golden hour sunrise, morning mist rolling over green hills, cinematic 8k',
-  },
-  {
-    title: '🦏 Kaziranga Rhino',
-    prompt: 'Majestic Indian One-horned Rhino standing in lush Kaziranga marshland at sunset, photorealistic 8k octane render',
-  },
-  {
-    title: '🏙️ Cyberpunk 3D City',
-    prompt: 'Futuristic cyberpunk city floating in neon clouds above a wide river at midnight, ultra detailed 3d render',
-  },
-  {
-    title: '🔮 3D Cute Character',
-    prompt: 'Cute baby panda wearing astronaut helmet sitting on a floating crystal moon rock, 3d pixar animation style',
-  },
-];
-
 const ASPECT_RATIOS = [
-  { id: 'sq', label: '1:1 Square', w: 1024, h: 1024, tag: '1:1' },
-  { id: 'ls', label: '16:9 Wide', w: 1280, h: 720, tag: '16:9' },
-  { id: 'pt', label: '9:16 Portrait', w: 720, h: 1280, tag: '9:16' },
-  { id: 'wd', label: '4:3 Classic', w: 1024, h: 768, tag: '4:3' },
-];
-
-const STYLE_PRESETS = [
-  { id: 'none', label: 'Natural', suffix: '' },
-  { id: 'cinematic', label: 'Cinematic 8K', suffix: ', cinematic lighting, 8k resolution, photorealistic masterpiece' },
-  { id: 'anime', label: 'Anime 4K', suffix: ', vibrant makoto shinkai style, studio ghibli anime aesthetic, crisp lines, 4k digital art' },
-  { id: 'cyberpunk', label: 'Cyberpunk', suffix: ', cyberpunk aesthetic, neon glow, futuristic night scene, octane render' },
-  { id: 'oil', label: 'Oil Painting', suffix: ', classical oil painting, textured brushstrokes, artistic masterpiece' },
-  { id: '3d', label: '3D Pixar', suffix: ', cute pixar 3d character style, octane render, soft ambient occlusion' },
-  { id: 'photo', label: 'Photorealistic', suffix: ', hyperrealistic photograph, natural daylight, 8k' },
-];
-
-const SURPRISE_PROMPTS = [
-  'A mystical tea garden in Assam surrounded by morning mist and golden sunrise light, cinematic wide shot 8k',
-  'Majestic Indian One-horned Rhino standing in Kaziranga marshland at sunset, photorealistic 8k octane render',
-  'Futuristic cyberpunk city floating in neon clouds above the Brahmaputra river at midnight, 3d render',
-  'Ancient Indian palace courtyard with glowing lotus lanterns and reflecting pool under starry galaxy sky',
-  'A wise tribal elder weaving traditional Assamese Eri silk with intricate golden patterns, dramatic portrait lighting',
-  'Astronaut discovering a crystal cave with glowing bioluminescent alien flora on Mars, unreal engine 5 render',
-  'Cute baby panda wearing astronaut helmet sitting on a floating moon rock eating bamboo, 3d pixar style',
-  'Steampunk locomotive racing through snowy Himalayan mountain pass at dusk with glowing furnace smoke',
+  { id: 'sq', label: '1:1', w: 1024, h: 1024, tag: '1:1' },
+  { id: 'ls', label: '16:9', w: 1280, h: 720, tag: '16:9' },
+  { id: 'pt', label: '9:16', w: 720, h: 1280, tag: '9:16' },
 ];
 
 export default function ImageGenerator({ onClose }) {
   const [prompt, setPrompt] = useState('');
   const [aspectKey, setAspectKey] = useState('sq');
-  const [modelKey, setModelKey] = useState('normal'); // 'normal' | 'extreme'
-  const [selectedStyle, setSelectedStyle] = useState('none');
-  const [negative, setNegative] = useState('');
-  const [seed, setSeed] = useState('');
+  const [modelKey, setModelKey] = useState('normal');
 
-  // Chat conversation messages: [{ id, type: 'user' | 'assistant', prompt, result, loading, elapsed, error }]
   const [messages, setMessages] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
-  // Lightbox Zoom Modal
   const [zoomImage, setZoomImage] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [userStatus, setUserStatus] = useState(null);
 
+  const [refImage, setRefImage] = useState(null);
+  const [refImagePreview, setRefImagePreview] = useState(null);
+
   const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const timerRef = useRef(null);
 
-  // Auto focus input on mount
   useEffect(() => {
     textareaRef.current?.focus();
   }, []);
 
-  // Fetch User Plan & Model Configuration
   useEffect(() => {
     fetch('/api/user-status/')
       .then((r) => r.json())
@@ -106,12 +56,10 @@ export default function ImageGenerator({ onClose }) {
       .catch(() => {});
   }, []);
 
-  // Auto scroll to bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, generating, elapsed]);
 
-  // Live timer while generating
   useEffect(() => {
     if (!generating) {
       clearInterval(timerRef.current);
@@ -125,7 +73,6 @@ export default function ImageGenerator({ onClose }) {
     return () => clearInterval(timerRef.current);
   }, [generating]);
 
-  // Escape to close
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === 'Escape') {
@@ -141,29 +88,49 @@ export default function ImageGenerator({ onClose }) {
   const isPro = !!userStatus?.is_premium;
   const remaining = userStatus?.remaining_today ?? 5;
 
-  // Auto resize textarea
   const handleTextareaInput = (e) => {
     setPrompt(e.target.value);
     e.target.style.height = 'auto';
     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
   };
 
-  // Surprise Prompt Picker
-  const handleSurprisePrompt = () => {
-    const random = SURPRISE_PROMPTS[Math.floor(Math.random() * SURPRISE_PROMPTS.length)];
-    setPrompt(random);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.style.height = 'auto';
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
-        }
-      }, 0);
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.type)) {
+      alert('Please upload a PNG, JPEG, WebP, or GIF image.');
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be under 5 MB.');
+      return;
+    }
+    setRefImage(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setRefImagePreview(ev.target.result);
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
-  // Send & Generate Action
+  const clearRefImage = () => {
+    setRefImage(null);
+    setRefImagePreview(null);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer?.files?.[0];
+    if (!file) return;
+    const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    if (!allowed.includes(file.type) || file.size > 5 * 1024 * 1024) return;
+    setRefImage(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setRefImagePreview(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
   const handleGenerate = async (targetPrompt) => {
     const query = (targetPrompt || prompt).trim();
     if (!query || generating) return;
@@ -171,14 +138,17 @@ export default function ImageGenerator({ onClose }) {
     const userMsgId = `u-${Date.now()}`;
     const assistantMsgId = `a-${Date.now()}`;
 
-    // Append user message & assistant loading placeholder
+    const currentRefImage = refImage;
+    const currentRefPreview = refImagePreview;
+
     setMessages((prev) => [
       ...prev,
-      { id: userMsgId, type: 'user', text: query },
+      { id: userMsgId, type: 'user', text: query, refImagePreview: currentRefPreview },
       { id: assistantMsgId, type: 'assistant', loading: true, prompt: query },
     ]);
 
     setPrompt('');
+    clearRefImage();
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -186,35 +156,46 @@ export default function ImageGenerator({ onClose }) {
     setGenerating(true);
 
     try {
-      const activeStyleObj = STYLE_PRESETS.find((s) => s.id === selectedStyle);
-      const styledPrompt = (query + (activeStyleObj?.suffix || '')).slice(0, 1000);
+      const styledPrompt = query.slice(0, 1000);
+      let res;
 
-      const seedNum = seed.trim() ? Number(seed.trim()) : undefined;
-      const body = {
-        prompt: styledPrompt,
-        model: modelKey,
-        quality: modelKey,
-        width: selectedAspect.w,
-        height: selectedAspect.h,
-      };
-      if (negative.trim()) body.negative_prompt = negative.trim();
-      if (Number.isFinite(seedNum)) body.seed = seedNum;
+      if (currentRefImage) {
+        const formData = new FormData();
+        formData.append('prompt', styledPrompt);
+        formData.append('quality', modelKey);
+        formData.append('width', selectedAspect.w);
+        formData.append('height', selectedAspect.h);
+        formData.append('image', currentRefImage);
 
-      const res = await fetch('/api/generate-image/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken() || '',
-        },
-        body: JSON.stringify(body),
-      });
+        res = await fetch('/api/generate-image/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCsrfToken() || '' },
+          body: formData,
+        });
+      } else {
+        const body = {
+          prompt: styledPrompt,
+          model: modelKey,
+          quality: modelKey,
+          width: selectedAspect.w,
+          height: selectedAspect.h,
+        };
+
+        res = await fetch('/api/generate-image/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken() || '',
+          },
+          body: JSON.stringify(body),
+        });
+      }
 
       const data = await res.json();
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Failed to generate image.');
       }
 
-      // Update assistant message with completed image
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantMsgId
@@ -247,7 +228,6 @@ export default function ImageGenerator({ onClose }) {
         )
       );
 
-      // Update quota
       if (typeof data.used_today === 'number') {
         setUserStatus((prev) =>
           prev
@@ -269,7 +249,6 @@ export default function ImageGenerator({ onClose }) {
     }
   };
 
-  // Download Handler
   const handleDownload = (item) => {
     if (!item?.image) return;
     const a = document.createElement('a');
@@ -285,7 +264,6 @@ export default function ImageGenerator({ onClose }) {
     a.remove();
   };
 
-  // Copy Prompt
   const handleCopyPrompt = (text, id) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
@@ -299,8 +277,8 @@ export default function ImageGenerator({ onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 1000,
-        background: '#0d0d12',
-        color: '#ececec',
+        background: '#0f0f14',
+        color: '#e4e4e7',
         display: 'flex',
         flexDirection: 'column',
         height: '100dvh',
@@ -309,70 +287,36 @@ export default function ImageGenerator({ onClose }) {
         overflow: 'hidden',
       }}
     >
-      {/* 1. TOP MINIMALIST CHATGPT-STYLE NAVBAR */}
+      {/* TOP BAR — clean Gemini style */}
       <header
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '12px 20px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          background: 'rgba(13, 13, 18, 0.95)',
-          backdropFilter: 'blur(16px)',
+          padding: '10px 20px',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: 'rgba(15,15,20,0.97)',
+          backdropFilter: 'blur(20px)',
           flexShrink: 0,
           zIndex: 10,
         }}
       >
-        {/* Left: Model Selector Pill (ChatGPT Style Dropdown) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '6px 14px',
-              borderRadius: 20,
-              background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              fontSize: '0.86rem',
-              fontWeight: 700,
-              color: '#ffffff',
-            }}
-          >
-            <Sparkles size={15} style={{ color: '#a855f7' }} />
-            <span>
-              {modelKey === 'normal'
-                ? 'Gemini 2.5 Flash Image'
-                : 'Gemini 3 Pro Image'}
-            </span>
-            <span
-              style={{
-                fontSize: '0.7rem',
-                padding: '2px 7px',
-                borderRadius: 12,
-                background: modelKey === 'extreme' ? 'rgba(168,85,247,0.2)' : 'rgba(34,197,94,0.15)',
-                color: modelKey === 'extreme' ? '#c084fc' : '#4ade80',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-              }}
-            >
-              {modelKey === 'extreme' ? 'HD' : 'Fast'}
-            </span>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Sparkles size={18} style={{ color: '#a78bfa' }} />
+          <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>Image Generation</span>
 
-          {/* Model Switch Pills */}
-          <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', padding: 3, borderRadius: 10 }}>
+          <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.04)', padding: 2, borderRadius: 10, marginLeft: 12 }}>
             <button
               type="button"
               onClick={() => setModelKey('normal')}
               style={{
-                padding: '4px 10px',
+                padding: '5px 14px',
                 borderRadius: 8,
                 border: 'none',
                 background: modelKey === 'normal' ? 'rgba(255,255,255,0.12)' : 'transparent',
-                color: modelKey === 'normal' ? '#fff' : '#94a3b8',
-                fontSize: '0.74rem',
-                fontWeight: 700,
+                color: modelKey === 'normal' ? '#fff' : '#71717a',
+                fontSize: '0.78rem',
+                fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
@@ -383,65 +327,64 @@ export default function ImageGenerator({ onClose }) {
               type="button"
               onClick={() => setModelKey('extreme')}
               style={{
-                padding: '4px 10px',
+                padding: '5px 14px',
                 borderRadius: 8,
                 border: 'none',
-                background: modelKey === 'extreme' ? 'rgba(168,85,247,0.25)' : 'transparent',
-                color: modelKey === 'extreme' ? '#c084fc' : '#94a3b8',
-                fontSize: '0.74rem',
-                fontWeight: 700,
+                background: modelKey === 'extreme' ? 'rgba(167,139,250,0.2)' : 'transparent',
+                color: modelKey === 'extreme' ? '#c4b5fd' : '#71717a',
+                fontSize: '0.78rem',
+                fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
             >
-              Extreme Quality
+              Extreme
             </button>
           </div>
         </div>
 
-        {/* Right: Plan Status & Close */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {isPro ? (
             <span
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 5,
-                fontSize: '0.74rem',
-                fontWeight: 800,
+                gap: 4,
+                fontSize: '0.72rem',
+                fontWeight: 700,
                 padding: '4px 10px',
                 borderRadius: 14,
-                background: 'rgba(168,85,247,0.18)',
-                border: '1px solid rgba(168,85,247,0.4)',
-                color: '#c084fc',
+                background: 'rgba(167,139,250,0.15)',
+                border: '1px solid rgba(167,139,250,0.3)',
+                color: '#c4b5fd',
               }}
             >
-              <Flame size={12} /> PRO PLAN
+              <Flame size={11} /> PRO
             </span>
           ) : (
             <span
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6,
-                fontSize: '0.74rem',
-                fontWeight: 700,
-                padding: '4px 11px',
+                gap: 5,
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                padding: '4px 10px',
                 borderRadius: 14,
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                color: '#cbd5e1',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#a1a1aa',
               }}
             >
               <span
                 style={{
-                  width: 6,
-                  height: 6,
+                  width: 5,
+                  height: 5,
                   borderRadius: '50%',
                   background: remaining <= 1 ? '#ef4444' : '#22c55e',
                 }}
               />
-              {remaining} of 5 free today
+              {remaining}/5 today
             </span>
           )}
 
@@ -451,12 +394,12 @@ export default function ImageGenerator({ onClose }) {
             disabled={generating}
             title="Close (Esc)"
             style={{
-              width: 34,
-              height: 34,
+              width: 32,
+              height: 32,
               borderRadius: '50%',
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#94a3b8',
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: '#71717a',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -464,18 +407,18 @@ export default function ImageGenerator({ onClose }) {
               transition: 'all 0.15s ease',
             }}
           >
-            <X size={17} />
+            <X size={16} />
           </button>
         </div>
       </header>
 
-      {/* 2. CENTER CONVERSATION & ARTWORK FEED (CHATGPT STYLE) */}
+      {/* CONVERSATION AREA */}
       <div
         style={{
           flex: 1,
           minHeight: 0,
           overflowY: 'auto',
-          padding: '24px 16px 20px',
+          padding: '28px 16px 20px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -483,79 +426,36 @@ export default function ImageGenerator({ onClose }) {
           boxSizing: 'border-box',
         }}
       >
-        <div style={{ maxWidth: 760, width: '100%', display: 'flex', flexDirection: 'column', gap: 24, margin: 'auto 0' }}>
-          {/* Empty Starter State */}
+        <div style={{ maxWidth: 720, width: '100%', display: 'flex', flexDirection: 'column', gap: 24, margin: 'auto 0' }}>
+          {/* Empty State */}
           {messages.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '20px 16px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ textAlign: 'center', padding: '60px 16px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div
                 style={{
-                  width: 54,
-                  height: 54,
-                  borderRadius: 18,
-                  background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                  width: 56,
+                  height: 56,
+                  borderRadius: 16,
+                  background: 'linear-gradient(135deg, #a78bfa 0%, #818cf8 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ffffff',
-                  boxShadow: '0 8px 30px rgba(168, 85, 247, 0.35)',
-                  marginBottom: 16,
+                  color: '#fff',
+                  boxShadow: '0 8px 32px rgba(167,139,250,0.3)',
+                  marginBottom: 20,
                 }}
               >
-                <Sparkles size={28} />
+                <ImageIcon size={28} />
               </div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 8px', color: '#ffffff' }}>
-                What would you like to create?
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 8px', color: '#fff' }}>
+                Create anything you imagine
               </h2>
-              <p style={{ fontSize: '0.88rem', color: '#94a3b8', margin: '0 0 24px', maxWidth: 440, lineHeight: 1.5 }}>
-                Type any idea or prompt below in English, Hindi, or Assamese to generate instant high-fidelity artworks.
+              <p style={{ fontSize: '0.9rem', color: '#71717a', margin: 0, maxWidth: 420, lineHeight: 1.6 }}>
+                Describe what you want to create or upload an image to edit it. Supports English, Hindi, and Assamese.
               </p>
-
-              {/* Starter Suggestions Grid */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: 12,
-                  width: '100%',
-                }}
-              >
-                {STARTER_PROMPTS.map((item, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => handleGenerate(item.prompt)}
-                    style={{
-                      padding: '14px 16px',
-                      borderRadius: 14,
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                      e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.4)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-                      e.currentTarget.style.transform = 'none';
-                    }}
-                  >
-                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#ffffff', marginBottom: 4 }}>
-                      {item.title}
-                    </div>
-                    <div style={{ fontSize: '0.76rem', color: '#94a3b8', lineHeight: 1.4 }}>
-                      {item.prompt.slice(0, 75)}...
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
-          {/* Conversation Stream */}
+          {/* Messages */}
           {messages.map((msg) => {
             if (msg.type === 'user') {
               return (
@@ -569,40 +469,47 @@ export default function ImageGenerator({ onClose }) {
                 >
                   <div
                     style={{
-                      maxWidth: '85%',
+                      maxWidth: '80%',
                       padding: '12px 18px',
                       borderRadius: '20px 20px 4px 20px',
-                      background: 'rgba(168, 85, 247, 0.18)',
-                      border: '1px solid rgba(168, 85, 247, 0.35)',
-                      color: '#ffffff',
-                      fontSize: '0.94rem',
-                      lineHeight: 1.5,
+                      background: 'rgba(167,139,250,0.12)',
+                      border: '1px solid rgba(167,139,250,0.25)',
+                      color: '#e4e4e7',
+                      fontSize: '0.92rem',
+                      lineHeight: 1.55,
                     }}
                   >
+                    {msg.refImagePreview && (
+                      <div style={{ marginBottom: 8 }}>
+                        <img
+                          src={msg.refImagePreview}
+                          alt="Reference"
+                          style={{ maxWidth: 120, maxHeight: 120, borderRadius: 10, objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }}
+                        />
+                      </div>
+                    )}
                     {msg.text}
                   </div>
                 </div>
               );
             }
 
-            // Assistant Response
             return (
               <div
                 key={msg.id}
                 style={{
                   display: 'flex',
-                  gap: 14,
+                  gap: 12,
                   width: '100%',
                   alignItems: 'flex-start',
                 }}
               >
-                {/* Sparkle Avatar */}
                 <div
                   style={{
-                    width: 32,
-                    height: 32,
+                    width: 30,
+                    height: 30,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                    background: 'linear-gradient(135deg, #a78bfa 0%, #818cf8 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -611,42 +518,39 @@ export default function ImageGenerator({ onClose }) {
                     marginTop: 4,
                   }}
                 >
-                  <Sparkles size={16} />
+                  <Sparkles size={14} />
                 </div>
 
-                {/* Content Box */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {msg.loading ? (
-                    /* Generating Shimmer Card */
                     <div
                       style={{
-                        padding: '24px 20px',
-                        borderRadius: 18,
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(168, 85, 247, 0.3)',
+                        padding: '20px 18px',
+                        borderRadius: 16,
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(167,139,250,0.2)',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 16,
+                        gap: 14,
                       }}
                     >
-                      <Loader2 size={24} className="animate-spin" style={{ color: '#c084fc', flexShrink: 0 }} />
+                      <Loader2 size={22} className="animate-spin" style={{ color: '#a78bfa', flexShrink: 0 }} />
                       <div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#ffffff' }}>
-                          Painting your image… ({elapsed}s)
+                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#e4e4e7' }}>
+                          Creating your image... ({elapsed}s)
                         </div>
-                        <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: 2 }}>
-                          Generating with {modelKey === 'extreme' ? 'Gemini 3 Pro Image (Extreme)' : 'Gemini 2.5 Flash Image (Normal)'}
+                        <div style={{ fontSize: '0.76rem', color: '#71717a', marginTop: 2 }}>
+                          {modelKey === 'extreme' ? 'Extreme quality' : 'Normal quality'}
                         </div>
                       </div>
                     </div>
                   ) : msg.error ? (
-                    /* Error Card */
                     <div
                       style={{
                         padding: '14px 18px',
                         borderRadius: 14,
-                        background: 'rgba(239, 68, 68, 0.12)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        background: 'rgba(239,68,68,0.08)',
+                        border: '1px solid rgba(239,68,68,0.2)',
                         color: '#fca5a5',
                         fontSize: '0.88rem',
                       }}
@@ -658,33 +562,32 @@ export default function ImageGenerator({ onClose }) {
                           style={{
                             display: 'inline-block',
                             marginTop: 8,
-                            color: '#c084fc',
+                            color: '#a78bfa',
                             fontWeight: 700,
                             textDecoration: 'underline',
                           }}
                         >
-                          Upgrade to Pro Plan 🚀
+                          Upgrade to Pro Plan
                         </a>
                       )}
                     </div>
                   ) : msg.result ? (
-                    /* Completed Generated Image Card (ChatGPT Style) */
                     <div
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 10,
+                        gap: 8,
                         maxWidth: '100%',
                       }}
                     >
                       <div
                         style={{
                           position: 'relative',
-                          borderRadius: 18,
+                          borderRadius: 16,
                           overflow: 'hidden',
-                          background: '#000000',
-                          border: '1px solid rgba(255, 255, 255, 0.12)',
-                          boxShadow: '0 12px 36px rgba(0,0,0,0.6)',
+                          background: '#000',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                           cursor: 'pointer',
                         }}
                         onClick={() => setZoomImage(msg.result.image)}
@@ -699,50 +602,65 @@ export default function ImageGenerator({ onClose }) {
                             objectFit: 'contain',
                           }}
                         />
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: 10,
+                            right: 10,
+                            width: 28,
+                            height: 28,
+                            borderRadius: '50%',
+                            background: 'rgba(0,0,0,0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            opacity: 0.7,
+                          }}
+                        >
+                          <Maximize2 size={13} />
+                        </div>
                       </div>
 
-                      {/* Info & Action Toolbar (Below Image) */}
                       <div
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           flexWrap: 'wrap',
-                          gap: 10,
-                          padding: '4px 2px',
+                          gap: 8,
+                          padding: '2px 0',
                         }}
                       >
-                        {/* Meta Tags */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.74rem', color: '#94a3b8' }}>
-                          <span style={{ color: '#c084fc', fontWeight: 700 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#71717a' }}>
+                          <span style={{ color: '#a78bfa', fontWeight: 600 }}>
                             {msg.result.model_name}
                           </span>
                           <span>·</span>
-                          <span>{msg.result.width} × {msg.result.height}</span>
+                          <span>{msg.result.width}×{msg.result.height}</span>
                           <span>·</span>
                           <span>{((msg.result.ms || 0) / 1000).toFixed(1)}s</span>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <button
                             type="button"
                             onClick={() => handleCopyPrompt(msg.result.used_prompt || msg.result.prompt, msg.id)}
                             style={{
-                              padding: '6px 12px',
+                              padding: '5px 10px',
                               borderRadius: 8,
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
-                              color: '#cbd5e1',
-                              fontSize: '0.78rem',
+                              background: 'rgba(255,255,255,0.04)',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              color: '#a1a1aa',
+                              fontSize: '0.76rem',
                               fontWeight: 600,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: 5,
+                              gap: 4,
                             }}
                           >
-                            {copiedId === msg.id ? <Check size={13} style={{ color: '#4ade80' }} /> : <Copy size={13} />}
+                            {copiedId === msg.id ? <Check size={12} style={{ color: '#4ade80' }} /> : <Copy size={12} />}
                             <span>{copiedId === msg.id ? 'Copied' : 'Prompt'}</span>
                           </button>
 
@@ -750,21 +668,21 @@ export default function ImageGenerator({ onClose }) {
                             type="button"
                             onClick={() => handleDownload(msg.result)}
                             style={{
-                              padding: '6px 14px',
+                              padding: '5px 12px',
                               borderRadius: 8,
-                              background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
-                              border: 'none',
-                              color: '#ffffff',
-                              fontSize: '0.78rem',
+                              background: 'rgba(167,139,250,0.15)',
+                              border: '1px solid rgba(167,139,250,0.3)',
+                              color: '#c4b5fd',
+                              fontSize: '0.76rem',
                               fontWeight: 700,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: 6,
+                              gap: 5,
                             }}
                           >
-                            <Download size={13} />
-                            <span>Download PNG</span>
+                            <Download size={12} />
+                            <span>Download</span>
                           </button>
                         </div>
                       </div>
@@ -779,15 +697,15 @@ export default function ImageGenerator({ onClose }) {
         </div>
       </div>
 
-      {/* 3. DOCKED CHATGPT-STYLE INPUT BAR AT BOTTOM (NATURAL FLOW - ZERO OVERLAP) */}
+      {/* BOTTOM INPUT BAR */}
       <div
         style={{
           position: 'relative',
           flexShrink: 0,
           width: '100%',
-          padding: '12px 20px 18px',
-          background: 'rgba(13, 13, 18, 0.98)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '10px 20px 16px',
+          background: 'rgba(15,15,20,0.98)',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -795,177 +713,180 @@ export default function ImageGenerator({ onClose }) {
           zIndex: 20,
         }}
       >
-        <div style={{ maxWidth: 760, width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {/* Quick Option Pills (Aspect Ratio + Styles + Surprise) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
-            {/* Aspect Ratio Pills */}
+        <div style={{ maxWidth: 720, width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {/* Aspect ratio pills */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {ASPECT_RATIOS.map((a) => (
               <button
                 key={a.id}
                 type="button"
                 onClick={() => setAspectKey(a.id)}
                 style={{
-                  flexShrink: 0,
-                  padding: '4px 10px',
-                  borderRadius: 14,
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
+                  padding: '4px 12px',
+                  borderRadius: 8,
+                  fontSize: '0.74rem',
+                  fontWeight: 600,
                   cursor: 'pointer',
-                  background: aspectKey === a.id ? 'rgba(168,85,247,0.22)' : 'rgba(255,255,255,0.05)',
-                  border: aspectKey === a.id ? '1px solid #a855f7' : '1px solid rgba(255,255,255,0.08)',
-                  color: aspectKey === a.id ? '#ffffff' : '#94a3b8',
+                  background: aspectKey === a.id ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.03)',
+                  border: aspectKey === a.id ? '1px solid rgba(167,139,250,0.35)' : '1px solid rgba(255,255,255,0.06)',
+                  color: aspectKey === a.id ? '#c4b5fd' : '#71717a',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 {a.label}
               </button>
             ))}
-
-            <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)', flexShrink: 0, margin: '0 4px' }} />
-
-            {/* Art Style Selector Dropdown Pill */}
-            <div style={{ position: 'relative', flexShrink: 0 }}>
-              <select
-                value={selectedStyle}
-                onChange={(e) => setSelectedStyle(e.target.value)}
-                style={{
-                  appearance: 'none',
-                  padding: '4px 22px 4px 10px',
-                  borderRadius: 14,
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  background: selectedStyle !== 'none' ? 'rgba(236,72,153,0.22)' : 'rgba(255,255,255,0.05)',
-                  border: selectedStyle !== 'none' ? '1px solid #ec4899' : '1px solid rgba(255,255,255,0.08)',
-                  color: selectedStyle !== 'none' ? '#ffffff' : '#94a3b8',
-                  outline: 'none',
-                }}
-              >
-                {STYLE_PRESETS.map((s) => (
-                  <option key={s.id} value={s.id} style={{ background: '#181926', color: '#fff' }}>
-                    Style: {s.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={11} style={{ position: 'absolute', right: 7, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#94a3b8' }} />
-            </div>
-
-            {/* Surprise Me Pill */}
-            <button
-              type="button"
-              onClick={handleSurprisePrompt}
-              style={{
-                flexShrink: 0,
-                padding: '4px 10px',
-                borderRadius: 14,
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#c084fc',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                marginLeft: 'auto',
-              }}
-            >
-              <Dices size={12} />
-              <span>Surprise Prompt</span>
-            </button>
           </div>
 
-          {/* ChatGPT Style Input Card */}
+          {/* Hidden file input */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            style={{ display: 'none' }}
+            onChange={handleImageUpload}
+          />
+
+          {/* Input card */}
           <div
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={handleDrop}
             style={{
-              position: 'relative',
-              background: 'rgba(24, 25, 38, 0.95)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: 24,
+              background: 'rgba(24,25,35,0.9)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 22,
               padding: '10px 14px',
               display: 'flex',
-              alignItems: 'flex-end',
-              gap: 10,
-              boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
+              flexDirection: 'column',
+              gap: 8,
+              boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
               transition: 'border-color 0.2s ease',
             }}
           >
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              value={prompt}
-              onInput={handleTextareaInput}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleGenerate();
-                }
-              }}
-              placeholder="Describe what to create with AI (e.g. 'A serene Himalayan monastery at dawn')..."
-              style={{
-                flex: 1,
-                background: 'transparent',
-                border: 'none',
-                color: '#ffffff',
-                fontSize: '0.94rem',
-                lineHeight: 1.5,
-                outline: 'none',
-                resize: 'none',
-                maxHeight: 120,
-                fontFamily: 'inherit',
-                padding: '4px 0',
-              }}
-              disabled={generating}
-            />
+            {/* Reference image preview */}
+            {refImagePreview && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ position: 'relative', width: 52, height: 52, borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0 }}>
+                  <img src={refImagePreview} alt="Reference" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button
+                    type="button"
+                    onClick={clearRefImage}
+                    style={{
+                      position: 'absolute', top: 2, right: 2, width: 16, height: 16, borderRadius: '50%',
+                      background: 'rgba(0,0,0,0.7)', border: 'none', color: '#fff', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0,
+                    }}
+                  >
+                    <X size={9} />
+                  </button>
+                </div>
+                <span style={{ fontSize: '0.74rem', color: '#a78bfa' }}>Edit this image with your prompt</span>
+              </div>
+            )}
 
-            {/* Send / Generate Button (ChatGPT Circular Arrow) */}
-            <button
-              type="button"
-              onClick={() => handleGenerate()}
-              disabled={generating || !prompt.trim()}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                background: prompt.trim() && !generating
-                  ? 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
-                  : 'rgba(255,255,255,0.1)',
-                border: 'none',
-                color: prompt.trim() && !generating ? '#ffffff' : '#64748b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: prompt.trim() && !generating ? 'pointer' : 'not-allowed',
-                flexShrink: 0,
-                transition: 'all 0.2s ease',
-                boxShadow: prompt.trim() && !generating ? '0 4px 14px rgba(168,85,247,0.4)' : 'none',
-              }}
-              title="Generate image"
-            >
-              {generating ? <Loader2 size={16} className="animate-spin" /> : <ArrowUp size={18} />}
-            </button>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+              {/* Upload button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={generating}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: '50%',
+                  background: refImage ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.05)',
+                  border: refImage ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                  color: refImage ? '#a78bfa' : '#71717a',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: generating ? 'not-allowed' : 'pointer',
+                  flexShrink: 0,
+                  transition: 'all 0.2s ease',
+                }}
+                title="Upload an image to edit"
+              >
+                <Paperclip size={15} />
+              </button>
+
+              <textarea
+                ref={textareaRef}
+                rows={1}
+                value={prompt}
+                onInput={handleTextareaInput}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleGenerate();
+                  }
+                }}
+                placeholder={refImage ? "Describe how to edit this image..." : "Describe what you want to create..."}
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#e4e4e7',
+                  fontSize: '0.92rem',
+                  lineHeight: 1.5,
+                  outline: 'none',
+                  resize: 'none',
+                  maxHeight: 120,
+                  fontFamily: 'inherit',
+                  padding: '4px 0',
+                }}
+                disabled={generating}
+              />
+
+              {/* Send button */}
+              <button
+                type="button"
+                onClick={() => handleGenerate()}
+                disabled={generating || !prompt.trim()}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: '50%',
+                  background: prompt.trim() && !generating
+                    ? 'linear-gradient(135deg, #a78bfa 0%, #818cf8 100%)'
+                    : 'rgba(255,255,255,0.06)',
+                  border: 'none',
+                  color: prompt.trim() && !generating ? '#fff' : '#52525b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: prompt.trim() && !generating ? 'pointer' : 'not-allowed',
+                  flexShrink: 0,
+                  transition: 'all 0.2s ease',
+                  boxShadow: prompt.trim() && !generating ? '0 2px 10px rgba(167,139,250,0.3)' : 'none',
+                }}
+                title="Generate"
+              >
+                {generating ? <Loader2 size={15} className="animate-spin" /> : <ArrowUp size={16} />}
+              </button>
+            </div>
           </div>
 
           <div
             style={{
-              fontSize: '0.7rem',
-              color: '#64748b',
+              fontSize: '0.68rem',
+              color: '#52525b',
               textAlign: 'center',
             }}
           >
-            Powered by Google Gemini 2.5 Flash Image &amp; Gemini 3 Pro Image · English, Hindi &amp; Assamese supported
+            Powered by Gemini · English, Hindi &amp; Assamese supported
           </div>
         </div>
       </div>
 
-      {/* 4. FULLSCREEN ZOOM LIGHTBOX MODAL */}
+      {/* FULLSCREEN ZOOM */}
       {zoomImage && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
             zIndex: 3000,
-            background: 'rgba(5, 5, 10, 0.95)',
-            backdropFilter: 'blur(16px)',
+            background: 'rgba(5,5,10,0.95)',
+            backdropFilter: 'blur(20px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -980,10 +901,10 @@ export default function ImageGenerator({ onClose }) {
               position: 'absolute',
               top: 20,
               right: 20,
-              width: 38,
-              height: 38,
+              width: 36,
+              height: 36,
               borderRadius: '50%',
-              background: 'rgba(255,255,255,0.1)',
+              background: 'rgba(255,255,255,0.08)',
               border: 'none',
               color: '#fff',
               cursor: 'pointer',
@@ -992,7 +913,7 @@ export default function ImageGenerator({ onClose }) {
               justifyContent: 'center',
             }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
           <img
             src={zoomImage}
@@ -1001,8 +922,8 @@ export default function ImageGenerator({ onClose }) {
               maxWidth: '92vw',
               maxHeight: '90vh',
               objectFit: 'contain',
-              borderRadius: 14,
-              boxShadow: '0 20px 70px rgba(0,0,0,0.8)',
+              borderRadius: 12,
+              boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
             }}
             onClick={(e) => e.stopPropagation()}
           />

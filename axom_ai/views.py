@@ -2746,11 +2746,11 @@ _IMGGEN_DAILY_LIMIT = int(os.getenv('IMGGEN_DAILY_LIMIT', '5'))
 _IMGGEN_DAILY_HITS = {}   # in-memory fallback: ip -> {'date': 'YYYY-MM-DD', 'count': int}
 
 
-def _gemini_generate_image(prompt, model, timeout=90):
-    """Generate an image via Google Gemini image models.
-    Returns (PIL.Image, model_id) on success, or (None, error_string) on failure.
-    Silently handles Gemini's occasional text-only response by returning an error
-    so the caller can chain into the CF/Pollinations fallback."""
+def _gemini_generate_image(prompt, model, timeout=90, ref_image_b64=None, ref_image_mime=None):
+    """Generate or edit an image via Google Gemini image models.
+    When ref_image_b64 is provided, sends the reference image alongside the
+    text prompt so Gemini can edit/transform it (ChatGPT-style image editing).
+    Returns (PIL.Image, model_id) on success, or (None, error_string) on failure."""
     if not _GEMINI_IMG_API_KEY:
         return None, 'Gemini image key not configured (GEMINI_IMAGE_API_KEY)'
     try:
@@ -2761,8 +2761,19 @@ def _gemini_generate_image(prompt, model, timeout=90):
         return None, f'Pillow not available: {e}'
 
     url = _GEMINI_IMG_ENDPOINT.format(model=model)
+
+    parts = []
+    if ref_image_b64:
+        parts.append({
+            "inlineData": {
+                "mimeType": ref_image_mime or "image/png",
+                "data": ref_image_b64,
+            }
+        })
+    parts.append({"text": prompt[:2000]})
+
     body = {
-        "contents": [{"parts": [{"text": prompt[:2000]}]}],
+        "contents": [{"parts": parts}],
         "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]},
     }
     try:
@@ -2779,8 +2790,8 @@ def _gemini_generate_image(prompt, model, timeout=90):
         data = r.json()
         cands = data.get('candidates') or []
         for c in cands:
-            parts = (c.get('content') or {}).get('parts') or []
-            for p in parts:
+            cparts = (c.get('content') or {}).get('parts') or []
+            for p in cparts:
                 inline = p.get('inlineData') or p.get('inline_data') or {}
                 b64 = inline.get('data') or ''
                 mime = inline.get('mimeType') or inline.get('mime_type') or ''
@@ -3130,11 +3141,19 @@ def generate_image_api(request):
     ip = _client_ip(request)
     is_premium, plan_name, _ = _check_user_premium_status(request)
 
-    try:
-        payload = json.loads(request.body.decode('utf-8') or '{}')
-    except Exception:
+    content_type = request.content_type or ''
+    if 'multipart' in content_type:
         payload = {}
-        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+        for k in ('prompt', 'quality', 'width', 'height', 'negative_prompt', 'seed', 'device_id'):
+            v = request.POST.get(k)
+            if v is not None:
+                payload[k] = v
+    else:
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except Exception:
+            payload = {}
+            return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
 
     device = _get_dev(request, payload)
 
@@ -3162,6 +3181,41 @@ def generate_image_api(request):
         return JsonResponse({
             'error': f'Too many requests. Please wait ~{_IMGGEN_RATE_WINDOW}s before generating again.',
         }, status=429)
+
+    # Parse reference image (for image editing — ChatGPT/Gemini style)
+    ref_image_b64 = None
+    ref_image_mime = None
+    _MAX_IMAGE_BYTES = 5 * 1024 * 1024  # 5 MB
+
+    if 'multipart' in content_type:
+        uploaded = request.FILES.get('image')
+        if uploaded:
+            if uploaded.size > _MAX_IMAGE_BYTES:
+                return JsonResponse({'error': 'Image must be under 5 MB.'}, status=400)
+            allowed_mimes = {'image/png', 'image/jpeg', 'image/webp', 'image/gif'}
+            fmime = uploaded.content_type or ''
+            if fmime not in allowed_mimes:
+                return JsonResponse({'error': f'Unsupported image type: {fmime}. Use PNG, JPEG, WebP, or GIF.'}, status=400)
+            import base64 as _b64_img
+            ref_image_b64 = _b64_img.b64encode(uploaded.read()).decode('ascii')
+            ref_image_mime = fmime
+    else:
+        ref_b64_field = payload.get('ref_image', '')
+        if ref_b64_field:
+            import base64 as _b64_img
+            if ref_b64_field.startswith('data:'):
+                header, _, b64data = ref_b64_field.partition(',')
+                ref_image_mime = header.split(':')[1].split(';')[0] if ':' in header else 'image/png'
+                ref_b64_field = b64data
+            else:
+                ref_image_mime = 'image/png'
+            try:
+                raw_bytes = _b64_img.b64decode(ref_b64_field)
+                if len(raw_bytes) > _MAX_IMAGE_BYTES:
+                    return JsonResponse({'error': 'Image must be under 5 MB.'}, status=400)
+                ref_image_b64 = ref_b64_field
+            except Exception:
+                return JsonResponse({'error': 'Invalid base64 image data.'}, status=400)
 
     original_prompt = (payload.get('prompt') or '').strip()
     if not original_prompt:
@@ -3232,7 +3286,7 @@ def generate_image_api(request):
 
     # Primary B: Gemini AI Studio (prepaid credits) — fallback of Vertex or primary if Vertex not configured
     if pil_img is None and _GEMINI_IMG_API_KEY:
-        img, info = _gemini_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT)
+        img, info = _gemini_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT, ref_image_b64=ref_image_b64, ref_image_mime=ref_image_mime)
         if img is not None:
             pil_img = img
             engine = 'gemini'
@@ -3240,7 +3294,7 @@ def generate_image_api(request):
         else:
             tried_errors.append(f'Gemini AI Studio ({gemini_model}): {info}')
             if gemini_fallback and gemini_fallback != gemini_model:
-                img2, info2 = _gemini_generate_image(prompt, gemini_fallback, timeout=_IMGGEN_TIMEOUT)
+                img2, info2 = _gemini_generate_image(prompt, gemini_fallback, timeout=_IMGGEN_TIMEOUT, ref_image_b64=ref_image_b64, ref_image_mime=ref_image_mime)
                 if img2 is not None:
                     pil_img = img2
                     engine = 'gemini'

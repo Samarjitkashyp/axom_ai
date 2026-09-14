@@ -105,21 +105,17 @@ jobs:
             git reset --hard origin/main
             source venv/bin/activate
             pip install -r requirements.txt
-            # Rebuild frontend when relevant sources changed since last deploy.
+            # Rebuild React frontend if sources changed
             if git diff --name-only HEAD@{1} HEAD 2>/dev/null | grep -qE '^frontend/'; then
               echo "frontend changes detected — rebuilding bundle"
               (cd frontend && npm ci --no-audit --no-fund && npm run build)
-            else
-              echo "no frontend changes since last deploy — skipping npm build"
             fi
-            # Rebuild next-frontend when relevant sources changed since last deploy.
-            if git diff --name-only HEAD@{1} HEAD 2>/dev/null | grep -qE '^next-frontend/'; then
-              echo "next-frontend changes detected — rebuilding Next.js app"
-              (cd next-frontend && npm install --no-audit --no-fund && npm run build)
-              sudo systemctl restart axom-next || true
-            fi
+            # Always rebuild Next.js app (used by all subdomains)
+            echo "Building Next.js app..."
+            (cd next-frontend && npm install --no-audit --no-fund && npm run build)
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
             python manage.py seed_models
-            sudo systemctl restart axom
+            # Restart all services
+            sudo systemctl restart axom axom-next axom-celery
             echo "Deploy complete."
