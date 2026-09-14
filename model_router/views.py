@@ -1,27 +1,40 @@
 import json
 from datetime import date, timedelta
+from functools import wraps
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
 
 from .models import ModelProvider, DailyModelUsage
 from .router import get_all_model_status, seed_default_models
 
 
-def _is_super(u):
-    return u.is_authenticated and u.is_superuser
+def superuser_required_api(view_func):
+    """Like @user_passes_test but returns 403 JSON instead of redirect for API endpoints."""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not (request.user.is_authenticated and request.user.is_superuser):
+            return JsonResponse({'error': 'Unauthorized'}, status=403)
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
-superuser_required = user_passes_test(_is_super, login_url='/axomai-admin/login/')
+def superuser_required_page(view_func):
+    """Redirect to login for page views."""
+    from django.contrib.auth.decorators import user_passes_test
+    return user_passes_test(
+        lambda u: u.is_authenticated and u.is_superuser,
+        login_url='/axomai-admin/login/',
+    )(view_func)
 
 
-@superuser_required
+@superuser_required_page
 def models_dashboard(request):
     return render(request, 'model_router/dashboard.html', {'active': 'models'})
 
 
-@superuser_required
+@superuser_required_api
 def models_api(request):
     """API returning current model status for the admin dashboard."""
     statuses = get_all_model_status()
@@ -71,7 +84,8 @@ def models_api(request):
     })
 
 
-@superuser_required
+@csrf_exempt
+@superuser_required_api
 @require_POST
 def toggle_model_api(request):
     """Enable/disable a model."""
@@ -91,7 +105,8 @@ def toggle_model_api(request):
     return JsonResponse({'success': True, 'name': provider.name, 'is_active': provider.is_active})
 
 
-@superuser_required
+@csrf_exempt
+@superuser_required_api
 @require_POST
 def seed_models_api(request):
     """Seed default model providers."""
@@ -99,7 +114,8 @@ def seed_models_api(request):
     return JsonResponse({'success': True, 'created': created})
 
 
-@superuser_required
+@csrf_exempt
+@superuser_required_api
 @require_POST
 def update_priority_api(request):
     """Update model priority."""
