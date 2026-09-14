@@ -1,9 +1,15 @@
 import os
+import json
+import logging
+from urllib.parse import urlparse
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
-from .models import KnowledgeDocument, KnowledgeChunk
-from .utils import extract_text_from_file, create_knowledge_chunks, create_qa_pairs
+from .models import KnowledgeDocument, KnowledgeChunk, QAPair
+from .utils import extract_text_from_file, create_knowledge_chunks, create_qa_pairs, _embed_texts
+
+logger = logging.getLogger('knowledge')
 
 def admin_login_view(request):
     if request.user.is_authenticated and request.user.is_staff:
@@ -166,4 +172,107 @@ def list_documents_api(request):
         'total_docs': total_docs,
         'total_chunks': total_chunks,
         'storage_display': storage_display
+    })
+
+
+@csrf_exempt
+def import_crawl_api(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+
+    token = request.headers.get('X-Bot-Token', '')
+    expected = os.getenv('BOT_IMPORT_TOKEN', '')
+    if not expected or token != expected:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    try:
+        body = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    seed_url = body.get('seed_url', '').strip()
+    job_id = body.get('job_id', '')
+    pages = body.get('pages', [])
+
+    if not seed_url or not pages:
+        return JsonResponse({'error': 'seed_url and pages required'}, status=400)
+
+    domain = urlparse(seed_url).netloc.replace('www.', '')
+    source_name = f'Web: {domain}'
+    doc_title = f'Crawl: {domain}'
+
+    doc = KnowledgeDocument.objects.filter(
+        title=doc_title, file_type='crawl'
+    ).first()
+    if not doc:
+        doc = KnowledgeDocument.objects.create(
+            title=doc_title,
+            file_type='crawl',
+            status='Indexed',
+            source_name=source_name,
+            source_url=seed_url,
+        )
+
+    existing_urls = set(
+        QAPair.objects.filter(document=doc)
+        .values_list('source_url', flat=True)
+    )
+
+    new_pairs = []
+    updated = 0
+    for page in pages:
+        url = page.get('url', '').strip()
+        title = page.get('title', '').strip()
+        content = page.get('content', '').strip()
+        if not url or not content or len(content) < 50:
+            continue
+
+        question = title if title else url
+        answer = content[:10000]
+
+        if url in existing_urls:
+            QAPair.objects.filter(document=doc, source_url=url).update(
+                question=question, answer=answer
+            )
+            updated += 1
+        else:
+            new_pairs.append(QAPair(
+                document=doc,
+                question=question,
+                answer=answer,
+                source_name=source_name[:255],
+                source_url=url[:500],
+            ))
+
+    created = 0
+    if new_pairs:
+        QAPair.objects.bulk_create(new_pairs)
+        created = len(new_pairs)
+
+    embedded = 0
+    pending = list(
+        QAPair.objects.filter(document=doc, embedding='')
+        .only('id', 'question')
+    )
+    batch_size = 256
+    for i in range(0, len(pending), batch_size):
+        batch = pending[i:i + batch_size]
+        vecs = _embed_texts([qa.question for qa in batch])
+        if vecs and len(vecs) == len(batch):
+            for qa, v in zip(batch, vecs):
+                qa.embedding = json.dumps(v)
+            QAPair.objects.bulk_update(batch, ['embedding'])
+            embedded += len(batch)
+
+    logger.info(
+        'import_crawl: %s — created=%d updated=%d embedded=%d',
+        domain, created, updated, embedded,
+    )
+
+    return JsonResponse({
+        'success': True,
+        'domain': domain,
+        'created': created,
+        'updated': updated,
+        'embedded': embedded,
     })

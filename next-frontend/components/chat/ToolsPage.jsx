@@ -37,6 +37,12 @@ export default function ToolsPage({
   onOpenVideoFinder,
   onOpenDiagramGen,
   onOpenSummarizer,
+  onOpenSvgEditor,
+  onOpenQrGen,
+  onOpenPaletteGen,
+  onOpenScreenshot2Code,
+  onOpenMemeGen,
+  onOpenBgRemover,
   theme,
   onToggleTheme,
 }) {
@@ -100,6 +106,10 @@ export default function ToolsPage({
   };
 
   const handleSelectTool = (t) => {
+    if (t.id === 'word2pdf') {
+      window.location.href = '/tools/word-to-pdf';
+      return;
+    }
     if (t.editor) {
       onOpenEditor?.();
       return;
@@ -134,6 +144,30 @@ export default function ToolsPage({
     }
     if (t.summarizer) {
       onOpenSummarizer?.();
+      return;
+    }
+    if (t.svgeditor) {
+      onOpenSvgEditor?.();
+      return;
+    }
+    if (t.qrgen) {
+      onOpenQrGen?.();
+      return;
+    }
+    if (t.palettegen) {
+      onOpenPaletteGen?.();
+      return;
+    }
+    if (t.screenshot2code) {
+      onOpenScreenshot2Code?.();
+      return;
+    }
+    if (t.memegen) {
+      onOpenMemeGen?.();
+      return;
+    }
+    if (t.bgremover) {
+      onOpenBgRemover?.();
       return;
     }
     resetRunner();

@@ -61,6 +61,7 @@ export default function LoginModal({
     try {
       const res = await fetch('/api/auth/google/', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCsrfToken() || '',
@@ -74,6 +75,9 @@ export default function LoginModal({
 
       const data = await res.json();
       if (res.ok && data.success) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: data }));
+        }
         if (typeof onLoginSuccess === 'function') {
           onLoginSuccess(data);
         }
@@ -100,7 +104,9 @@ export default function LoginModal({
     let mounted = true;
 
     const setupGoogle = () => {
-      if (!mounted || typeof window === 'undefined' || !window.google?.accounts?.id) return;
+      if (!mounted) return;
+      if (!window.google?.accounts?.id) return;
+
       try {
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
@@ -109,21 +115,21 @@ export default function LoginModal({
           cancel_on_tap_outside: true,
         });
 
-        const btnContainer = document.getElementById('googleGsiBtnContainer');
-        if (btnContainer) {
-          btnContainer.innerHTML = '';
-          const targetWidth = Math.min(Math.max(btnContainer.offsetWidth || 340, 240), 380);
-          window.google.accounts.id.renderButton(btnContainer, {
+        const btnEl = document.getElementById('googleGsiBtnContainer') || document.getElementById('googleSignInBtnModal');
+        if (btnEl) {
+          btnEl.innerHTML = '';
+          const targetWidth = Math.min(Math.max(btnEl.offsetWidth || 340, 240), 380);
+          window.google.accounts.id.renderButton(btnEl, {
             theme: 'filled_black',
             size: 'large',
             shape: 'rectangular',
             width: targetWidth,
-            text: mode === 'login' ? 'signin_with' : 'signup_with',
+            text: mode === 'register' ? 'signup_with' : 'signin_with',
             logo_alignment: 'left',
           });
         }
       } catch (e) {
-        console.warn('Google GSI initialization error:', e);
+        console.warn('Google GSI button rendering failed in modal:', e);
       }
     };
 
@@ -157,6 +163,7 @@ export default function LoginModal({
     try {
       const res = await fetch('/api/login/', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCsrfToken() || '',
@@ -169,6 +176,9 @@ export default function LoginModal({
 
       const data = await res.json();
       if (res.ok && data.success) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: data }));
+        }
         if (typeof onLoginSuccess === 'function') {
           onLoginSuccess(data);
         }
@@ -208,6 +218,7 @@ export default function LoginModal({
     try {
       const res = await fetch('/api/register/', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCsrfToken() || '',
@@ -224,6 +235,9 @@ export default function LoginModal({
 
       const data = await res.json();
       if (res.ok && data.success) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: data }));
+        }
         if (typeof onLoginSuccess === 'function') {
           onLoginSuccess(data);
         }

@@ -31,13 +31,14 @@ export default function ToolWorkspace({ tool, onClose }) {
   const [errorMsg, setErrorMsg] = useState(null);
   const [copied, setCopied] = useState(false);
   const [wm, setWm] = useState({ text: 'CONFIDENTIAL', position: 'diagonal', opacity: 0.15, size: 48, color: '#888888' });
+  const [imgTarget, setImgTarget] = useState('png');
   const inputRef = useRef(null);
   const theme = themeFor(tool.cat);
   const WM_COLORS = ['#888888', '#dc2626', '#2563eb', '#16a34a', '#111827'];
 
   const makePreview = useCallback(async (f) => {
     const ext = f.name.split('.').pop().toLowerCase();
-    if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+    if (['png', 'jpg', 'jpeg', 'webp', 'jfif', 'bmp', 'tiff', 'tif', 'gif', 'ico', 'avif', 'svg', 'heic', 'heif'].includes(ext)) {
       const url = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(f); });
       return { kind: 'image', data: url };
     }
@@ -103,8 +104,11 @@ export default function ToolWorkspace({ tool, onClose }) {
     if (!canRun) return;
     setIsRunning(true); setErrorMsg(null); setResult(null);
     const fd = new FormData();
-    const url = tool.ep === 'convert' ? '/api/convert-file/' : tool.ep === 'ai' ? '/api/pdf-ai/' : '/api/pdf-tool/';
-    if (tool.ep === 'convert') fd.append('target', tool.target); else fd.append('op', tool.op);
+    const isImgConv = !!tool.imgconverter;
+    const url = (tool.ep === 'convert' || isImgConv) ? '/api/convert-file/' : tool.ep === 'ai' ? '/api/pdf-ai/' : '/api/pdf-tool/';
+    if (isImgConv) fd.append('target', imgTarget);
+    else if (tool.ep === 'convert') fd.append('target', tool.target);
+    else fd.append('op', tool.op);
     if (tool.multi) files.forEach((f) => fd.append('files', f)); else fd.append('file', files[0]);
     if (tool.param === 'pages') fd.append('pages', paramText.trim());
     if (tool.param === 'text') fd.append('text', paramText.trim() || 'CONFIDENTIAL');
@@ -238,6 +242,15 @@ export default function ToolWorkspace({ tool, onClose }) {
                   </>
                 )}
 
+                {tool.imgconverter && (
+                  <label className="tool-ws-field"><span>Convert to format</span>
+                    <select value={imgTarget} onChange={(e) => setImgTarget(e.target.value)}>
+                      <option value="png">PNG (Lossless, Transparent)</option>
+                      <option value="jpg">JPG (Compressed, Smaller)</option>
+                      <option value="webp">WebP (Modern, Best Quality/Size)</option>
+                    </select>
+                  </label>
+                )}
                 {tool.param === 'angle' && (
                   <label className="tool-ws-field"><span>Rotation angle</span>
                     <select value={angle} onChange={(e) => setAngle(e.target.value)}>
@@ -271,7 +284,7 @@ export default function ToolWorkspace({ tool, onClose }) {
                 {errorMsg && <div className="tool-ws-error"><AlertCircle size={15} /> {errorMsg}</div>}
 
                 <button className="tool-ws-run" style={{ background: theme.color, opacity: canRun && !isRunning ? 1 : 0.55 }} onClick={run} disabled={!canRun || isRunning}>
-                  {isRunning ? <><Loader2 size={16} className="spin-icon" /> Processing…</> : <>{tool.ep === 'convert' ? `Convert ${tool.name.replace(/→/g, 'to')}` : `Run ${tool.name}`}</>}
+                  {isRunning ? <><Loader2 size={16} className="spin-icon" /> Processing…</> : <>{tool.imgconverter ? `Convert to ${imgTarget.toUpperCase()}` : tool.ep === 'convert' ? `Convert ${tool.name.replace(/→/g, 'to')}` : `Run ${tool.name}`}</>}
                 </button>
                 <button className="tool-ws-secondary" onClick={reset}>Choose another file</button>
                 {isRunning && <p className="tool-ws-note" style={{ marginTop: '10px' }}>Large / Office / OCR files can take a few seconds — hang tight.</p>}

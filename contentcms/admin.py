@@ -10,6 +10,8 @@ from .models import (
     LandingFAQ,
     SiteSEOSetting,
     AboutPageConfig,
+    WordToPdfToolConfig,
+    WordToPdfFAQ,
 )
 
 
@@ -70,4 +72,17 @@ class SiteSEOSettingAdmin(admin.ModelAdmin):
 @admin.register(AboutPageConfig)
 class AboutPageConfigAdmin(admin.ModelAdmin):
     list_display = ['main_heading_highlight', 'badge_text', 'updated_at']
+
+
+@admin.register(WordToPdfToolConfig)
+class WordToPdfToolConfigAdmin(admin.ModelAdmin):
+    list_display = ['hero_heading_highlight', 'hero_badge_text', 'free_daily_limit', 'updated_at']
+
+
+@admin.register(WordToPdfFAQ)
+class WordToPdfFAQAdmin(admin.ModelAdmin):
+    list_display = ['question', 'order', 'is_active', 'updated_at']
+    list_editable = ['order', 'is_active']
+    search_fields = ['question', 'answer']
+
 

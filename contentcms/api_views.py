@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.db.models import Count, Q
@@ -7,7 +8,7 @@ from .models import (
     Testimonial, LandingFAQ, FAQPageConfig, SiteSEOSetting, LandingPricingPlan,
     HeaderSettings, HeaderNavItem, HeaderMegaMenuItem,
     FooterSettings, FooterColumn, FooterColumnLink, FooterSocialLink,
-    AboutPageConfig
+    AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ, DEFAULT_COMPARISON_ROWS
 )
 
 
@@ -410,4 +411,110 @@ def cms_about_api(request):
         'meta_keywords': cfg.meta_keywords,
         'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
     })
+
+
+@require_GET
+def cms_word_to_pdf_api(request):
+    """API returning all dynamic content and FAQs for Word to PDF Tool in structured JSON."""
+    cfg = WordToPdfToolConfig.objects.first()
+    if not cfg:
+        cfg = WordToPdfToolConfig.objects.create()
+
+    # Ensure FAQs exist
+    from .views import _ensure_word_to_pdf_defaults
+    _ensure_word_to_pdf_defaults(cfg)
+
+    faqs = list(
+        WordToPdfFAQ.objects.filter(is_active=True)
+        .order_by('order', 'id')
+        .values('id', 'question', 'answer', 'order')
+    )
+
+    matrix = []
+    if cfg.comparison_matrix_json:
+        try:
+            matrix = json.loads(cfg.comparison_matrix_json)
+        except Exception:
+            try:
+                matrix = json.loads(DEFAULT_COMPARISON_ROWS)
+            except Exception:
+                matrix = []
+    else:
+        try:
+            matrix = json.loads(DEFAULT_COMPARISON_ROWS)
+        except Exception:
+            matrix = []
+
+    return JsonResponse({
+        # Hero & Limits
+        'hero_badge_text': cfg.hero_badge_text,
+        'hero_heading_prefix': cfg.hero_heading_prefix,
+        'hero_heading_highlight': cfg.hero_heading_highlight,
+        'hero_heading_suffix': cfg.hero_heading_suffix,
+        'hero_description': cfg.hero_description,
+        'free_daily_limit': cfg.free_daily_limit,
+        'pro_batch_limit': cfg.pro_batch_limit,
+        'max_file_size_mb': cfg.max_file_size_mb,
+
+        # How it works (3 Steps)
+        'how_it_works_title': cfg.how_it_works_title,
+        'how_it_works_subheading': cfg.how_it_works_subheading,
+        'step_1_title': cfg.step_1_title,
+        'step_1_desc': cfg.step_1_desc,
+        'step_2_title': cfg.step_2_title,
+        'step_2_desc': cfg.step_2_desc,
+        'step_3_title': cfg.step_3_title,
+        'step_3_desc': cfg.step_3_desc,
+
+        # Why Axom AI (6 Cards)
+        'why_title': cfg.why_title,
+        'why_subheading': cfg.why_subheading,
+        'benefit_1_title': cfg.benefit_1_title,
+        'benefit_1_desc': cfg.benefit_1_desc,
+        'benefit_2_title': cfg.benefit_2_title,
+        'benefit_2_desc': cfg.benefit_2_desc,
+        'benefit_3_title': cfg.benefit_3_title,
+        'benefit_3_desc': cfg.benefit_3_desc,
+        'benefit_4_title': cfg.benefit_4_title,
+        'benefit_4_desc': cfg.benefit_4_desc,
+        'benefit_5_title': cfg.benefit_5_title,
+        'benefit_5_desc': cfg.benefit_5_desc,
+        'benefit_6_title': cfg.benefit_6_title,
+        'benefit_6_desc': cfg.benefit_6_desc,
+
+        # Comparison Matrix
+        'comparison_badge': cfg.comparison_badge,
+        'comparison_title': cfg.comparison_title,
+        'comparison_subheading': cfg.comparison_subheading,
+        'comparison_matrix': matrix,
+
+        # Technical Specifications
+        'tech_spec_title': cfg.tech_spec_title,
+        'tech_spec_inputs': cfg.tech_spec_inputs,
+        'tech_spec_output': cfg.tech_spec_output,
+        'tech_spec_max_size': cfg.tech_spec_max_size,
+        'tech_spec_security': cfg.tech_spec_security,
+
+        # FAQ Section Header & FAQs
+        'faq_section_title': cfg.faq_section_title,
+        'faq_section_subheading': cfg.faq_section_subheading,
+        'faqs': [{'id': f['id'], 'q': f['question'], 'a': f['answer'], 'order': f['order']} for f in faqs],
+
+        # Bottom CTA Banner
+        'cta_title': cfg.cta_title,
+        'cta_desc': cfg.cta_desc,
+        'cta_btn_primary_text': cfg.cta_btn_primary_text,
+        'cta_btn_primary_url': cfg.cta_btn_primary_url,
+        'cta_btn_secondary_text': cfg.cta_btn_secondary_text,
+        'cta_btn_secondary_url': cfg.cta_btn_secondary_url,
+
+        # SEO & Meta
+        'meta_title': cfg.meta_title,
+        'meta_description': cfg.meta_description,
+        'meta_keywords': cfg.meta_keywords,
+        'canonical_url': cfg.canonical_url,
+        'og_image_url': cfg.og_image_url,
+        'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
+    })
+
 

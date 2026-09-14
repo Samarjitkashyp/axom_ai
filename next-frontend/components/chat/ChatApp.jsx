@@ -18,6 +18,12 @@ import ImageFinder from './ImageFinder';
 import VideoFinder from './VideoFinder';
 import DiagramGenerator from './DiagramGenerator';
 import Summarize from './Summarize';
+import SvgEditor from './SvgEditor';
+import QrGenerator from './QrGenerator';
+import ColorPaletteGen from './ColorPaletteGen';
+import ScreenshotToCode from './ScreenshotToCode';
+import MemeGenerator from './MemeGenerator';
+import BackgroundRemover from './BackgroundRemover';
 import SubscriptionPage from './SubscriptionPage';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
@@ -34,18 +40,49 @@ export default function ChatApp() {
 
   const checkAuth = async () => {
     try {
-      const res = await fetch('/api/user-status/', { credentials: 'same-origin' });
+      const res = await fetch('/api/user-status/', { credentials: 'include' });
       if (res.ok) {
         const d = await res.json();
-        setUser({
-          isAuthenticated: !!d.is_authenticated,
-          username: d.username || '',
-          isStaff: !!d.is_staff,
-          isLoaded: true,
-        });
-      } else {
-        setUser((prev) => ({ ...prev, isLoaded: true }));
+        if (d.is_authenticated) {
+          setUser({
+            isAuthenticated: true,
+            username: d.username || '',
+            isStaff: !!d.is_staff,
+            isLoaded: true,
+          });
+          return;
+        }
       }
+
+      // If not authenticated and we are on chat.aiaxom.co.in, sync from apex domain
+      if (
+        typeof window !== 'undefined' &&
+        window.location.hostname.endsWith('aiaxom.co.in') &&
+        window.location.hostname !== 'aiaxom.co.in'
+      ) {
+        try {
+          const syncRes = await fetch('https://aiaxom.co.in/api/user-status/', {
+            credentials: 'include',
+          });
+          if (syncRes.ok) {
+            const syncData = await syncRes.json();
+            if (syncData.is_authenticated) {
+              setUser({
+                isAuthenticated: true,
+                username: syncData.username || '',
+                isStaff: !!syncData.is_staff,
+                isLoaded: true,
+              });
+              window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: syncData }));
+              return;
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      setUser((prev) => ({ ...prev, isLoaded: true }));
     } catch (e) {
       setUser((prev) => ({ ...prev, isLoaded: true }));
     }
@@ -53,6 +90,17 @@ export default function ChatApp() {
 
   useEffect(() => {
     checkAuth();
+
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('axom_auth_state_changed', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
+    return () => {
+      window.removeEventListener('axom_auth_state_changed', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
+    };
   }, []);
 
   const handleLoginSuccess = (loginData) => {
@@ -63,6 +111,9 @@ export default function ChatApp() {
       isLoaded: true,
     });
     setLoginModalState((prev) => ({ ...prev, isOpen: false }));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: loginData }));
+    }
     // Refresh user status
     checkAuth();
   };
@@ -75,8 +126,18 @@ export default function ChatApp() {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCsrfToken() || '',
         },
-        credentials: 'same-origin',
+        credentials: 'include',
       });
+      if (
+        typeof window !== 'undefined' &&
+        window.location.hostname !== 'aiaxom.co.in' &&
+        window.location.hostname.endsWith('aiaxom.co.in')
+      ) {
+        fetch('https://aiaxom.co.in/api/logout/', {
+          method: 'POST',
+          credentials: 'include',
+        }).catch(() => {});
+      }
     } catch (e) {}
     setUser({
       isAuthenticated: false,
@@ -84,6 +145,9 @@ export default function ChatApp() {
       isStaff: false,
       isLoaded: true,
     });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: { isAuthenticated: false } }));
+    }
     setActivePlan(null);
     if (currentView === 'admin') {
       navigateToChat();
@@ -132,6 +196,12 @@ export default function ChatApp() {
   const [isVideoFinderOpen, setIsVideoFinderOpen] = useState(false);
   const [isDiagramGenOpen, setIsDiagramGenOpen] = useState(false);
   const [isSummarizeOpen, setIsSummarizeOpen] = useState(false);
+  const [isSvgEditorOpen, setIsSvgEditorOpen] = useState(false);
+  const [isQrGenOpen, setIsQrGenOpen] = useState(false);
+  const [isPaletteGenOpen, setIsPaletteGenOpen] = useState(false);
+  const [isScreenshot2CodeOpen, setIsScreenshot2CodeOpen] = useState(false);
+  const [isMemeGenOpen, setIsMemeGenOpen] = useState(false);
+  const [isBgRemoverOpen, setIsBgRemoverOpen] = useState(false);
 
   // Active paid plan
   const [activePlan, setActivePlan] = useState(null);
@@ -357,6 +427,12 @@ export default function ChatApp() {
           onOpenVideoFinder={() => setIsVideoFinderOpen(true)}
           onOpenDiagramGen={() => setIsDiagramGenOpen(true)}
           onOpenSummarizer={() => setIsSummarizeOpen(true)}
+          onOpenSvgEditor={() => setIsSvgEditorOpen(true)}
+          onOpenQrGen={() => setIsQrGenOpen(true)}
+          onOpenPaletteGen={() => setIsPaletteGenOpen(true)}
+          onOpenScreenshot2Code={() => setIsScreenshot2CodeOpen(true)}
+          onOpenMemeGen={() => setIsMemeGenOpen(true)}
+          onOpenBgRemover={() => setIsBgRemoverOpen(true)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
         />
@@ -374,6 +450,12 @@ export default function ChatApp() {
         {isVideoFinderOpen && <VideoFinder onClose={() => setIsVideoFinderOpen(false)} />}
         {isDiagramGenOpen && <DiagramGenerator onClose={() => setIsDiagramGenOpen(false)} />}
         {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
+        {isSvgEditorOpen && <SvgEditor onClose={() => setIsSvgEditorOpen(false)} />}
+        {isQrGenOpen && <QrGenerator onClose={() => setIsQrGenOpen(false)} />}
+        {isPaletteGenOpen && <ColorPaletteGen onClose={() => setIsPaletteGenOpen(false)} />}
+        {isScreenshot2CodeOpen && <ScreenshotToCode onClose={() => setIsScreenshot2CodeOpen(false)} />}
+        {isMemeGenOpen && <MemeGenerator onClose={() => setIsMemeGenOpen(false)} />}
+        {isBgRemoverOpen && <BackgroundRemover onClose={() => setIsBgRemoverOpen(false)} />}
       </>
     );
   }
@@ -494,6 +576,24 @@ export default function ChatApp() {
 
       {/* FULL-SCREEN SUMMARIZE */}
       {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
+
+      {/* FULL-SCREEN SVG EDITOR */}
+      {isSvgEditorOpen && <SvgEditor onClose={() => setIsSvgEditorOpen(false)} />}
+
+      {/* FULL-SCREEN QR CODE GENERATOR */}
+      {isQrGenOpen && <QrGenerator onClose={() => setIsQrGenOpen(false)} />}
+
+      {/* FULL-SCREEN COLOR PALETTE GENERATOR */}
+      {isPaletteGenOpen && <ColorPaletteGen onClose={() => setIsPaletteGenOpen(false)} />}
+
+      {/* FULL-SCREEN SCREENSHOT TO CODE */}
+      {isScreenshot2CodeOpen && <ScreenshotToCode onClose={() => setIsScreenshot2CodeOpen(false)} />}
+
+      {/* FULL-SCREEN MEME GENERATOR */}
+      {isMemeGenOpen && <MemeGenerator onClose={() => setIsMemeGenOpen(false)} />}
+
+      {/* FULL-SCREEN BACKGROUND REMOVER */}
+      {isBgRemoverOpen && <BackgroundRemover onClose={() => setIsBgRemoverOpen(false)} />}
 
       {/* CREDENTIALS LOGIN MODAL */}
       <LoginModal

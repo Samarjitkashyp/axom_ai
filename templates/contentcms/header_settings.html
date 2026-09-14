@@ -94,37 +94,7 @@
             class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
-            <div class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-              <i class="fa-solid fa-right-to-bracket text-slate-400"></i>
-              Secondary CTA (Sign in)
-            </div>
-            <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Button Label</label>
-              <input type="text" id="header_cta_signin_text" value="{{ header.cta_signin_text|default:'Sign in' }}" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Target URL</label>
-              <input type="text" id="header_cta_signin_url" value="{{ header.cta_signin_url|default:'https://chat.aiaxom.co.in/' }}" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white font-mono text-[11px]">
-            </div>
-          </div>
 
-          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
-            <div class="text-xs font-bold text-fuchsia-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-comment-dots text-fuchsia-400"></i>
-              Primary CTA (Open Chat)
-            </div>
-            <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Button Label</label>
-              <input type="text" id="header_cta_chat_text" value="{{ header.cta_chat_text|default:'Open Chat' }}" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Target URL</label>
-              <input type="text" id="header_cta_chat_url" value="{{ header.cta_chat_url|default:'https://chat.aiaxom.co.in/' }}" class="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white font-mono text-[11px]">
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -422,11 +392,7 @@ async function saveHeaderGeneralSettings() {
     logo_alt_text: document.getElementById('header_logo_alt').value.trim(),
     logo_width: document.getElementById('header_logo_width').value.trim() || '180px',
     logo_height: document.getElementById('header_logo_height').value.trim() || 'auto',
-    logo_fit: document.getElementById('header_logo_fit').value || 'contain',
-    cta_signin_text: document.getElementById('header_cta_signin_text').value.trim(),
-    cta_signin_url: document.getElementById('header_cta_signin_url').value.trim(),
-    cta_chat_text: document.getElementById('header_cta_chat_text').value.trim(),
-    cta_chat_url: document.getElementById('header_cta_chat_url').value.trim()
+    logo_fit: document.getElementById('header_logo_fit').value || 'contain'
   };
 
   try {

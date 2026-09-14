@@ -173,7 +173,7 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
 
           {/* Dynamic Navigation Columns */}
           {columns.map((col, i) => (
-            <div key={col.id || i}>
+            <div key={(col as any).id || i}>
               <div className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3.5">
                 {col.title}
               </div>

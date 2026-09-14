@@ -36,6 +36,10 @@ export function middleware(request: NextRequest) {
 
   // If request is on chat.aiaxom.co.in
   if (isChatSubdomain) {
+    // Dedicated tool pages like /tools/word-to-pdf should render naturally from app/tools/...
+    if (pathname.startsWith('/tools/')) {
+      return NextResponse.next();
+    }
     // Rewrite all chat paths (/, /tools, /upgrade, /settings) to the /chat catch-all
     const url = request.nextUrl.clone();
     url.pathname = `/chat${pathname === '/' ? '' : pathname}`;

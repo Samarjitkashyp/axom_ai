@@ -389,3 +389,97 @@ export async function getAboutCMS(): Promise<AboutCMSData | null> {
   }
 }
 
+export interface ComparisonMatrixRow {
+  feature: string;
+  axom: string;
+  other: string;
+  paid: string;
+  axom_check?: boolean;
+  other_check?: boolean;
+}
+
+export interface WordToPdfFaqItem {
+  id?: number;
+  q: string;
+  a: string;
+  order?: number;
+}
+
+export interface WordToPdfCMSData {
+  hero_badge_text?: string;
+  hero_heading_prefix?: string;
+  hero_heading_highlight?: string;
+  hero_heading_suffix?: string;
+  hero_description?: string;
+  free_daily_limit?: number;
+  pro_batch_limit?: number;
+  max_file_size_mb?: number;
+
+  how_it_works_title?: string;
+  how_it_works_subheading?: string;
+  step_1_title?: string;
+  step_1_desc?: string;
+  step_2_title?: string;
+  step_2_desc?: string;
+  step_3_title?: string;
+  step_3_desc?: string;
+
+  why_title?: string;
+  why_subheading?: string;
+  benefit_1_title?: string;
+  benefit_1_desc?: string;
+  benefit_2_title?: string;
+  benefit_2_desc?: string;
+  benefit_3_title?: string;
+  benefit_3_desc?: string;
+  benefit_4_title?: string;
+  benefit_4_desc?: string;
+  benefit_5_title?: string;
+  benefit_5_desc?: string;
+  benefit_6_title?: string;
+  benefit_6_desc?: string;
+
+  comparison_badge?: string;
+  comparison_title?: string;
+  comparison_subheading?: string;
+  comparison_matrix?: ComparisonMatrixRow[];
+
+  tech_spec_title?: string;
+  tech_spec_inputs?: string;
+  tech_spec_output?: string;
+  tech_spec_max_size?: string;
+  tech_spec_security?: string;
+
+  faq_section_title?: string;
+  faq_section_subheading?: string;
+  faqs?: WordToPdfFaqItem[];
+
+  cta_title?: string;
+  cta_desc?: string;
+  cta_btn_primary_text?: string;
+  cta_btn_primary_url?: string;
+  cta_btn_secondary_text?: string;
+  cta_btn_secondary_url?: string;
+
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  canonical_url?: string;
+  og_image_url?: string;
+  updated_at?: string;
+}
+
+export async function getWordToPdfCMS(): Promise<WordToPdfCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/tools/word-to-pdf/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch Word to PDF CMS data:', err);
+    return null;
+  }
+}
+
+

@@ -21,6 +21,8 @@ urlpatterns = [
     path('blog/<slug:slug>/', views.blog_detail_view, name='blog_detail'),
     path('tools/', views.home_view, name='tools'),
     path('tools', views.home_view, name='tools_no_slash'),
+    path('tools/word-to-pdf/', views.home_view, name='tools_word_to_pdf'),
+    path('tools/word-to-pdf', views.home_view, name='tools_word_to_pdf_no_slash'),
     path('upgrade/', views.home_view, name='upgrade'),
     path('upgrade', views.home_view, name='upgrade_no_slash'),
     path('subscription/', views.home_view, name='subscription'),
@@ -40,6 +42,7 @@ urlpatterns = [
     path('api/cms/articles/', contentcms_api.cms_articles_api, name='api_cms_articles'),
     path('api/cms/articles/<slug:slug>/', contentcms_api.cms_article_detail_api, name='api_cms_article_detail'),
     path('api/cms/about/', contentcms_api.cms_about_api, name='api_cms_about'),
+    path('api/cms/tools/word-to-pdf/', contentcms_api.cms_word_to_pdf_api, name='api_cms_word_to_pdf'),
     
     # Custom Admin Authentication & Dashboard Routes
     path('admin-panel/login/', knowledge_views.admin_login_view, name='admin_login'),
@@ -49,6 +52,7 @@ urlpatterns = [
     # Knowledge Base Upload / Delete APIs
     path('api/documents/', knowledge_views.list_documents_api, name='list_documents'),
     path('api/upload/', knowledge_views.upload_document_api, name='upload_document'),
+    path('api/import-crawl/', knowledge_views.import_crawl_api, name='import_crawl'),
     path('api/delete-document/<int:doc_id>/', knowledge_views.delete_document_api, name='delete_document'),
 
     # Document to PDF Converter APIs
@@ -64,6 +68,9 @@ urlpatterns = [
     path('api/remove-watermark/', views.remove_watermark_api, name='remove_watermark_api'),
     path('api/generate-image/', views.generate_image_api, name='generate_image_api'),
     path('api/generate-diagram/', views.generate_diagram_api, name='generate_diagram_api'),
+    path('api/screenshot-to-code/', views.screenshot_to_code_api, name='screenshot_to_code_api'),
+    path('api/remove-background/', views.remove_background_api, name='remove_background_api'),
+    path('api/depth-layers/', views.depth_layers_api, name='depth_layers_api'),
     path('api/user-status/', views.user_status_api, name='user_status_api'),
     path('api/stock-images/', views.search_stock_images_api, name='search_stock_images_api'),
     path('api/download-stock-image/', views.download_stock_image_api, name='download_stock_image_api'),

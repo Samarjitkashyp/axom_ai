@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "next-dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd next-frontend && npm run dev"],
+      "port": 3000
+    }
+  ]
+}

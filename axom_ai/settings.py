@@ -163,8 +163,13 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     USE_X_FORWARDED_HOST = True
 
-SESSION_COOKIE_DOMAIN = '.aiaxom.co.in'
-CSRF_COOKIE_DOMAIN = '.aiaxom.co.in'
+SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN', '.aiaxom.co.in' if not DEBUG else None)
+CSRF_COOKIE_DOMAIN = os.getenv('CSRF_COOKIE_DOMAIN', '.aiaxom.co.in' if not DEBUG else None)
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -187,5 +192,9 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 600  # 10 min hard limit
+
+# --- Upload Limits (Default is 2.5MB, increased to 50MB for HD Studio image uploads) ---
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 
 

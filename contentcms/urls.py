@@ -54,6 +54,13 @@ urlpatterns = [
     path('pages/faq/toggle-status/<int:faq_id>/', views.toggle_faq_status_api, name='toggle_faq_status_api'),
     path('faqs/save/', views.save_faq_api, name='save_faq_api'),
     path('faqs/delete/<int:faq_id>/', views.delete_faq_api, name='delete_faq_api'),
+
+    # Tools: Word to PDF Tool Manager
+    path('tools/word-to-pdf/', views.word_to_pdf_editor, name='word_to_pdf_editor'),
+    path('tools/word-to-pdf/save/', views.save_word_to_pdf_api, name='save_word_to_pdf_api'),
+    path('tools/word-to-pdf/faq/save/', views.save_word_to_pdf_faq_api, name='save_word_to_pdf_faq_api'),
+    path('tools/word-to-pdf/faq/delete/<int:faq_id>/', views.delete_word_to_pdf_faq_api, name='delete_word_to_pdf_faq_api'),
+
     path('seo/', views.seo_page, name='seo_page'),
     path('seo/save/', views.save_seo_api, name='save_seo_api'),
     # Header Settings

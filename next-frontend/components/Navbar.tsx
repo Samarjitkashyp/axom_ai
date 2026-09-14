@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Sparkles,
@@ -20,9 +20,47 @@ import {
   Crown,
   ChevronDown,
   HelpCircle,
-  Newspaper
+  Newspaper,
+  LogOut,
+  User as UserIcon,
+  Loader2
 } from 'lucide-react';
 import { HeaderData } from '@/lib/api';
+
+const GOOGLE_CLIENT_ID = "514662966676-fo4atqrjblkn8sadd2t0enhqi5mch5aq.apps.googleusercontent.com";
+
+interface UserState {
+  isAuthenticated: boolean;
+  name: string;
+  username: string;
+  email: string;
+}
+
+function getCookie(name: string): string {
+  if (typeof document === 'undefined') return '';
+  const cookies = document.cookie ? document.cookie.split(';') : [];
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+      return decodeURIComponent(cookie.substring(name.length + 1));
+    }
+  }
+  return '';
+}
+
+function getOrCreateDeviceId(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    let devId = localStorage.getItem('axom_device_uid');
+    if (!devId) {
+      devId = 'axom_dev_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+      localStorage.setItem('axom_device_uid', devId);
+    }
+    return devId;
+  } catch {
+    return '';
+  }
+}
 
 const DEFAULT_TOOLS = [
   { icon: Bot, title: 'AI Chat', desc: 'ChatGPT-style Assamese chat', color: 'text-fuchsia-400', url: 'https://chat.aiaxom.co.in/' },
@@ -74,6 +112,225 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   const [header, setHeader] = useState<HeaderData | undefined>(initialHeader);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // Authentication & User state
+  const [user, setUser] = useState<UserState | null>(null);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const userDropdownRef = useRef<HTMLDivElement>(null);
+
+  const checkUserStatus = useCallback(async () => {
+    try {
+      // 1. Check local session on current origin
+      const res = await fetch('/api/user-status/', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.is_authenticated) {
+          setUser({
+            isAuthenticated: true,
+            name: data.name || data.username || 'User',
+            username: data.username || '',
+            email: data.email || '',
+          });
+          return;
+        }
+      }
+
+      // 2. If unauthenticated on a subdomain (e.g. chat.aiaxom.co.in),
+      // seamlessly check the apex domain (aiaxom.co.in) which will re-issue the cookie for .aiaxom.co.in
+      if (
+        typeof window !== 'undefined' &&
+        window.location.hostname.endsWith('aiaxom.co.in') &&
+        window.location.hostname !== 'aiaxom.co.in'
+      ) {
+        try {
+          const syncRes = await fetch('https://aiaxom.co.in/api/user-status/', {
+            credentials: 'include',
+          });
+          if (syncRes.ok) {
+            const syncData = await syncRes.json();
+            if (syncData.is_authenticated) {
+              setUser({
+                isAuthenticated: true,
+                name: syncData.name || syncData.username || 'User',
+                username: syncData.username || '',
+                email: syncData.email || '',
+              });
+              window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: syncData }));
+              return;
+            }
+          }
+        } catch {
+          // Ignore cross-origin error if any
+        }
+      }
+
+      setUser(null);
+    } catch {
+      setUser(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkUserStatus();
+
+    const handleAuthChange = () => {
+      checkUserStatus();
+    };
+
+    window.addEventListener('axom_auth_state_changed', handleAuthChange);
+    window.addEventListener('storage', handleAuthChange);
+    return () => {
+      window.removeEventListener('axom_auth_state_changed', handleAuthChange);
+      window.removeEventListener('storage', handleAuthChange);
+    };
+  }, [checkUserStatus]);
+
+  // Close user dropdown on outside click
+  useEffect(() => {
+    if (!userDropdownOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userDropdownOpen]);
+
+  // Google Credential Callback
+  const handleGoogleCredentialResponse = useCallback(async (response: any) => {
+    if (!response?.credential) return;
+    setAuthLoading(true);
+    setAuthError(null);
+
+    const deviceId = getOrCreateDeviceId();
+
+    try {
+      const res = await fetch('/api/auth/google/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken') || '',
+          'X-Device-Id': deviceId,
+        },
+        body: JSON.stringify({
+          credential: response.credential,
+          device_id: deviceId,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setUser({
+          isAuthenticated: true,
+          name: data.name || data.username || 'User',
+          username: data.username || '',
+          email: data.email || '',
+        });
+        setShowAuthModal(false);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: data }));
+        }
+      } else {
+        setAuthError(data.error || 'Google authentication failed. Please try again.');
+      }
+    } catch (err) {
+      setAuthError('Connection error during Google authentication. Please try again.');
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
+  // Initialize Google Identity Services when modal opens
+  useEffect(() => {
+    if (!showAuthModal) return;
+
+    setAuthError(null);
+    let isCancelled = false;
+
+    const setupGoogle = () => {
+      if (isCancelled || typeof window === 'undefined') return;
+      const g = (window as any).google;
+      if (!g?.accounts?.id) return;
+
+      try {
+        g.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        const btnContainer = document.getElementById('navbarGoogleBtnContainer');
+        if (btnContainer) {
+          btnContainer.innerHTML = '';
+          g.accounts.id.renderButton(btnContainer, {
+            theme: 'filled_black',
+            size: 'large',
+            shape: 'pill',
+            width: 280,
+            text: 'continue_with',
+            logo_alignment: 'left',
+          });
+        }
+
+        g.accounts.id.prompt();
+      } catch (e) {
+        console.warn('Google GSI error:', e);
+      }
+    };
+
+    if ((window as any).google?.accounts?.id) {
+      setupGoogle();
+    } else {
+      const timer = setInterval(() => {
+        if ((window as any).google?.accounts?.id) {
+          clearInterval(timer);
+          setupGoogle();
+        }
+      }, 150);
+      return () => {
+        isCancelled = true;
+        clearInterval(timer);
+      };
+    }
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [showAuthModal, handleGoogleCredentialResponse]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken') || '',
+        },
+      });
+      if (
+        typeof window !== 'undefined' &&
+        window.location.hostname !== 'aiaxom.co.in' &&
+        window.location.hostname.endsWith('aiaxom.co.in')
+      ) {
+        fetch('https://aiaxom.co.in/api/logout/', {
+          method: 'POST',
+          credentials: 'include',
+        }).catch(() => {});
+      }
+    } catch {}
+    setUser(null);
+    setUserDropdownOpen(false);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('axom_auth_state_changed', { detail: { isAuthenticated: false } }));
+    }
+  };
 
   useEffect(() => {
     if (initialHeader) {
@@ -140,10 +397,6 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   const logoWidth = toCssDimension(header?.logo_width, '11.25rem'); // 180px -> 11.25rem
   const logoHeight = toCssDimension(header?.logo_height, 'auto');
   const logoFit = (header?.logo_fit as React.CSSProperties['objectFit']) || 'contain';
-  const signinText = header?.cta_signin_text || 'Sign in';
-  const signinUrl = header?.cta_signin_url || 'https://chat.aiaxom.co.in/';
-  const chatText = header?.cta_chat_text || 'Open Chat';
-  const chatUrl = header?.cta_chat_url || 'https://chat.aiaxom.co.in/';
   const homeHref = isChatDomain ? 'https://aiaxom.co.in/' : '/';
 
   // Dynamic Nav Items (fallback to default standard set if none configured)
@@ -262,12 +515,10 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                       </div>
                       <div className="border-t border-white/5 mt-2 pt-2 px-3">
                         <a
-                          href={chatUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          href="https://chat.aiaxom.co.in/tools"
                           className="text-xs text-fuchsia-400 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
                         >
-                          Launch all tools in Axom Chat <ArrowRight className="w-3 h-3" />
+                          Launch all tools in Axom AI <ArrowRight className="w-3 h-3" />
                         </a>
                       </div>
                     </div>
@@ -301,37 +552,71 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
             })}
           </div>
 
-          {/* Action Buttons */}
+          {/* Action Buttons: Sign In / User Profile */}
           <div className="hidden lg:flex items-center gap-3">
-            {!onBackToChat && (
-              <a
-                href={signinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-gray-300 hover:text-white transition px-3 font-medium"
-              >
-                {signinText}
-              </a>
-            )}
-            {onBackToChat ? (
+            {user?.isAuthenticated ? (
+              <div className="relative" ref={userDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-white transition group cursor-pointer"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <span className="text-sm font-semibold max-w-[130px] truncate text-slate-100 group-hover:text-white">
+                    {user.name}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-[#0d0b1a] border border-white/15 shadow-2xl p-2 z-50 animate-in fade-in duration-150">
+                    <div className="px-3 py-2.5 border-b border-white/10">
+                      <div className="text-[10px] uppercase tracking-wider text-fuchsia-400 font-bold">Signed in as</div>
+                      <div className="text-sm font-bold text-white truncate mt-0.5">{user.name}</div>
+                      {user.email && <div className="text-xs text-slate-400 truncate mt-0.5">{user.email}</div>}
+                    </div>
+
+                    <div className="py-1 space-y-0.5">
+                      <a
+                        href="https://chat.aiaxom.co.in/"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition"
+                      >
+                        <Bot className="w-4 h-4 text-fuchsia-400" />
+                        <span>AI Chat Workspace</span>
+                      </a>
+                      <a
+                        href="https://chat.aiaxom.co.in/tools"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition"
+                      >
+                        <Sparkles className="w-4 h-4 text-purple-400" />
+                        <span>All AI Tools</span>
+                      </a>
+                    </div>
+
+                    <div className="border-t border-white/10 pt-1 mt-1">
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-rose-400 hover:bg-rose-500/15 hover:text-rose-300 transition text-left cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
               <button
                 type="button"
-                onClick={onBackToChat}
-                className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 font-semibold"
+                onClick={() => setShowAuthModal(true)}
+                className="btn-primary text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-lg shadow-fuchsia-600/25 transition cursor-pointer"
               >
-                <span>Back to Chat</span>
+                <span>Sign in</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-            ) : (
-              <a
-                href={chatUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 font-semibold"
-              >
-                <span>{chatText}</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
             )}
           </div>
 
@@ -346,7 +631,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
         </div>
       </nav>
 
-      {/* Mobile Drawer Overlay - rendered outside nav to cover entire viewport */}
+      {/* Mobile Drawer Overlay */}
       <div
         className={`drawer-overlay lg:hidden ${open ? 'open' : ''}`}
         onClick={() => setOpen(false)}
@@ -441,38 +726,45 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
           })}
         </div>
 
-        {/* Actions - flows naturally below links, NOT sticky */}
+        {/* Drawer Actions: Sign In / User Profile */}
         <div className="px-5 pt-5 pb-4 border-t border-white/10 mt-2">
-          <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-2.5 font-semibold">Get Started</div>
-          {onBackToChat ? (
-            <button
-              type="button"
-              onClick={() => { setOpen(false); onBackToChat(); }}
-              className="btn-primary block w-full text-center text-sm px-4 py-3 rounded-full mb-2.5 font-semibold shadow-lg shadow-fuchsia-600/30"
-            >
-              Back to Chat &rarr;
-            </button>
+          {user?.isAuthenticated ? (
+            <div className="space-y-3">
+              <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-md">
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-bold text-white truncate">{user.name}</div>
+                  {user.email && <div className="text-xs text-slate-400 truncate">{user.email}</div>}
+                </div>
+              </div>
+              <a
+                href="https://chat.aiaxom.co.in/"
+                onClick={() => setOpen(false)}
+                className="btn-primary block w-full text-center text-sm px-4 py-2.5 rounded-full font-semibold shadow-lg shadow-fuchsia-600/30"
+              >
+                AI Chat Workspace &rarr;
+              </a>
+              <button
+                type="button"
+                onClick={() => { setOpen(false); handleLogout(); }}
+                className="block w-full text-center text-xs px-4 py-2.5 rounded-full font-semibold text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 transition cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
           ) : (
-            <a
-              href={chatUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="btn-primary block text-center text-sm px-4 py-3 rounded-full mb-2.5 font-semibold shadow-lg shadow-fuchsia-600/30"
-            >
-              {chatText} &rarr;
-            </a>
-          )}
-          {!onBackToChat && (
-            <a
-              href={signinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="btn-ghost block text-center text-sm px-4 py-3 rounded-full font-medium border border-white/10 hover:bg-white/5"
-            >
-              {signinText}
-            </a>
+            <div>
+              <div className="text-[10px] uppercase tracking-widest text-gray-400 mb-2.5 font-semibold">Account</div>
+              <button
+                type="button"
+                onClick={() => { setOpen(false); setShowAuthModal(true); }}
+                className="btn-primary block w-full text-center text-sm px-4 py-3 rounded-full font-semibold shadow-lg shadow-fuchsia-600/30 cursor-pointer"
+              >
+                Sign in with Google &rarr;
+              </button>
+            </div>
           )}
         </div>
 
@@ -481,6 +773,60 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
           <p className="font-assamese text-xs text-fuchsia-300/60 text-center">অসমৰ নিজা AI প্লেটফৰ্ম • AI for All</p>
         </div>
       </aside>
+
+      {/* Google Authentication Modal */}
+      {showAuthModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setShowAuthModal(false)}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-3xl bg-[#0b0a16] border border-white/15 p-6 shadow-2xl shadow-fuchsia-600/20 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 grid place-items-center text-slate-400 hover:text-white transition cursor-pointer"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Brand Logo / Icon */}
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-fuchsia-500 to-purple-600 grid place-items-center mx-auto mb-4 shadow-lg shadow-fuchsia-500/30">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+
+            <h3 className="text-lg font-bold text-white tracking-tight">Sign in to Axom AI</h3>
+            <p className="text-xs text-slate-400 mt-1 mb-6">
+              Sign in with your Google account to access all AI tools and native Assamese chat.
+            </p>
+
+            {authError && (
+              <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-left">
+                {authError}
+              </div>
+            )}
+
+            {/* Google GSI button container */}
+            <div className="flex flex-col items-center justify-center min-h-[48px] w-full">
+              <div id="navbarGoogleBtnContainer" className="w-full flex justify-center" />
+              {authLoading && (
+                <div className="flex items-center gap-2 text-xs text-fuchsia-400 mt-3 font-medium">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Authenticating with Google...</span>
+                </div>
+              )}
+            </div>
+
+            <p className="text-[11px] text-slate-500 mt-6">
+              Fair use policy: 1 account per user. By continuing you agree to Axom AI Terms.
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

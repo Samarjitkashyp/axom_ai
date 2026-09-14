@@ -21,6 +21,11 @@ import {
   Images,
   Video,
   Network,
+  RefreshCw,
+  QrCode,
+  Palette,
+  Code,
+  Laugh,
 } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
@@ -96,6 +101,17 @@ export const ALL_TOOLS = [
     multi: false,
     hint: 'PDF file',
     desc: 'Extract PDF pages as lossless, transparent PNG graphic files.',
+  },
+  {
+    id: 'imgconvert',
+    name: 'Image Format Converter',
+    cat: 'Convert',
+    icon: RefreshCw,
+    imgconverter: true,
+    accept: '.jfif,.webp,.svg,.bmp,.tiff,.tif,.gif,.ico,.avif,.heic,.heif,.png,.jpg,.jpeg',
+    multi: false,
+    hint: 'JFIF, WebP, SVG, BMP, TIFF, AVIF, GIF, ICO',
+    desc: 'Convert any image format — JFIF to PNG, WebP to PNG, SVG to PNG, and more. Supports all next-gen formats.',
   },
 
   // Office
@@ -331,6 +347,72 @@ export const ALL_TOOLS = [
     diagramgen: true,
     hint: 'Prompt → Flowchart, Sequence, Architecture, ER',
     desc: 'Generate flowcharts, sequence diagrams, cloud architectures, database ER diagrams & mindmaps with Mermaid AI.',
+  },
+
+  // QR Code Generator
+  {
+    id: 'qrgen',
+    name: 'QR Code Generator',
+    cat: 'Edit',
+    icon: QrCode,
+    qrgen: true,
+    hint: 'URL, Text, WiFi, UPI, vCard, WhatsApp',
+    desc: 'Generate QR codes from URLs, text, WiFi, UPI payments, contacts, WhatsApp, email or phone — customize colors, add logos, download PNG or SVG.',
+  },
+
+  // Screenshot to Code
+  {
+    id: 'screenshot2code',
+    name: 'Screenshot to Code',
+    cat: 'AI Tools',
+    icon: Code,
+    screenshot2code: true,
+    hint: 'Image → HTML/CSS code',
+    desc: 'Upload a screenshot or UI design and let Gemini AI generate pixel-perfect HTML/CSS code from it.',
+  },
+
+  // Meme Generator
+  {
+    id: 'memegen',
+    name: 'Meme Generator',
+    cat: 'Edit',
+    icon: Laugh,
+    memegen: true,
+    hint: 'Templates, text, fonts, download',
+    desc: 'Create hilarious memes — pick a template or upload your own image, add top/bottom text, customize fonts & colors, and download.',
+  },
+
+  // Background Remover
+  {
+    id: 'bgremover',
+    name: 'Background Remover',
+    cat: 'AI Tools',
+    icon: Scissors,
+    bgremover: true,
+    hint: 'Image → transparent PNG',
+    desc: 'Remove image backgrounds instantly with AI — download transparent PNG or replace with any solid color.',
+  },
+
+  // Color Palette Generator
+  {
+    id: 'palettegen',
+    name: 'Color Palette Generator',
+    cat: 'Edit',
+    icon: Palette,
+    palettegen: true,
+    hint: 'Random, image extract, harmony',
+    desc: 'Generate beautiful color palettes — random, analogous, complementary, triadic — or extract dominant colors from any image.',
+  },
+
+  // SVG / Vector Editor
+  {
+    id: 'svgeditor',
+    name: 'SVG Editor',
+    cat: 'Edit',
+    icon: PenTool,
+    svgeditor: true,
+    hint: 'Draw, edit & export SVG',
+    desc: 'Create and edit vector graphics — shapes, text, freehand drawing with layers, zoom, grid and SVG/PNG/JPG export.',
   },
 
   // Interactive Canvas Editor

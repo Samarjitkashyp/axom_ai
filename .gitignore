@@ -35,6 +35,11 @@ verify_*.py
 full_build_run.txt
 server_test_out.txt
 
+# Auto-generated / backup files
+*.bak
+next-frontend/next-env.d.ts
+next-frontend/tsconfig.tsbuildinfo
+
 # OS
 .DS_Store
 Thumbs.db

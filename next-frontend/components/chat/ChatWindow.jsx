@@ -352,11 +352,28 @@ export default function ChatWindow({
         return;
       }
 
-      // --- Non-streaming path (Gemini / web search): full JSON, then typewriter ---
-      const data = await res.json();
+      // --- Non-streaming path (Gemini / web search): safe JSON parsing with fallback ---
+      let data = null;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch (parseErr) {
+          console.warn('Could not parse response as JSON:', parseErr);
+        }
+      } else {
+        try {
+          const rawText = await res.text();
+          if (rawText && rawText.trim().startsWith('{') && rawText.trim().endsWith('}')) {
+            data = JSON.parse(rawText);
+          }
+        } catch (tErr) {
+          // non-json response (HTML error page from proxy/gateway/firewall)
+        }
+      }
       setIsWebSearching(false);
 
-      if (res.ok && data.response) {
+      if (res.ok && data && data.response) {
         if (typeof data.remaining_today === 'number') {
           setRemainingSearches(data.remaining_today);
         }
@@ -371,9 +388,6 @@ export default function ChatWindow({
         setStreamingFromDb(!!data.from_database);
 
         const responseText = data.response;
-        // Faster typewriter (~1.4 KB/s) so long replies stop feeling slow —
-        // still visibly incremental for the "AI is writing" feel, but ~3x
-        // quicker than the old 2 chars / 6 ms.
         const intervalId = setInterval(() => {
           if (i < responseText.length) {
             setStreamingText(responseText.substring(0, i + 6));
@@ -393,17 +407,32 @@ export default function ChatWindow({
           }
         }, 4);
       } else {
-        if (data.remaining_today === 0 || res.status === 429) {
+        if (data && (data.remaining_today === 0 || res.status === 429)) {
           setRemainingSearches(0);
         }
-        const err = data.error || 'Failed to get response from Axom AI.';
+        let err = data?.error;
+        if (!err) {
+          if (res.status === 403) {
+            err = 'অনুমতি নাই বা অধিৱেশন শেষ হ’ল (Session refreshed). অনুগ্ৰহ কৰি পেজটো ৰিফ্ৰেছ কৰক।';
+          } else if (res.status === 429) {
+            err = 'বহুত বেছি মেচেজ — অলপ সময় অপেক্ষা কৰি পুনৰ চেষ্টা কৰক (Rate limit reached).';
+          } else if (res.status >= 500) {
+            err = 'Axom AI সেৱা ব্যস্ত আছে (Server busy). অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।';
+          } else {
+            err = 'Failed to get response from Axom AI. Please try again.';
+          }
+        }
         setErrorMsg(err);
         setIsLoading(false);
       }
     } catch (err) {
       setIsWebSearching(false);
       if (err.name !== 'AbortError') {
-        setErrorMsg(err.message || 'Connection error.');
+        let msg = err.message || 'Connection error.';
+        if (msg.includes('Unexpected token') || msg.includes('not valid JSON') || msg.includes('DOCTYPE') || msg.includes('<')) {
+          msg = 'Axom AI সেৱা সংযোগত সমস্যা হৈছে। অনুগ্ৰহ কৰি পেজটো ৰিফ্ৰেছ কৰি পুনৰ চেষ্টা কৰক (Connection error).';
+        }
+        setErrorMsg(msg);
         setIsLoading(false);
       }
     }

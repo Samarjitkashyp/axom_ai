@@ -35,6 +35,8 @@ from .models import (
     FooterColumnLink,
     FooterSocialLink,
     AboutPageConfig,
+    WordToPdfToolConfig,
+    WordToPdfFAQ,
 )
 
 
@@ -1642,6 +1644,271 @@ def save_about_page_api(request):
 
         config.save()
         return JsonResponse({'success': True, 'message': 'About Us Page settings updated successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+def _ensure_word_to_pdf_defaults(config):
+    """Seed the 9 standard Word to PDF FAQs if none exist."""
+    if WordToPdfFAQ.objects.filter(tool_config=config).count() == 0 and WordToPdfFAQ.objects.count() == 0:
+        default_faqs = [
+            (
+                'How do I convert Word to PDF online for free?',
+                'Simply drag and drop or upload your Microsoft Word file (.docx or .doc) into the Axom AI converter box above. You can preview the document immediately. Click "Convert to PDF Now", and within seconds, your high-resolution, fully formatted PDF will be ready to download. No registration, login, or payment is required.',
+                1
+            ),
+            (
+                'How many files can I convert for free per day?',
+                'Free users can convert up to 20 Word documents per day with zero watermarks and full quality preservation. If you need to convert more than 20 files daily or convert multiple files at once, you can upgrade to an Axom AI Premium subscription for unlimited access and Pro Batch Mode.',
+                2
+            ),
+            (
+                'Can I convert multiple Word documents at once (Batch Conversion)?',
+                'Yes! Axom AI Premium subscribers have access to Pro Batch Mode, which allows you to upload and convert up to 20 Word documents simultaneously with a single click. All converted PDFs are automatically packaged into a high-speed ZIP download.',
+                3
+            ),
+            (
+                'Will converting Word to PDF alter my original formatting, fonts, or tables?',
+                'No. Axom AI utilizes advanced layout preservation algorithms that retain your exact font families, text margins, bullet hierarchies, tables, image placements, headers, and footers. The converted PDF looks identical to your original Word document.',
+                4
+            ),
+            (
+                'Is it safe to convert sensitive or confidential Word documents on Axom AI?',
+                'Yes, completely. Security and privacy are foundational to Axom AI. All files are transferred using 256-bit SSL encryption. Documents are processed in isolated, transient memory buffers and are automatically and permanently deleted from our servers right after conversion. We never store, read, or share your document data.',
+                5
+            ),
+            (
+                'What Word and document formats are supported?',
+                'Axom AI supports modern Microsoft Word (.docx), legacy Word (.doc), Rich Text Format (.rtf), OpenDocument Text (.odt), Markdown (.md), and plain text (.txt) files up to 25 MB in size.',
+                6
+            ),
+            (
+                'Does Axom AI add any watermark to the converted PDF?',
+                'No. Unlike other converters that place promotional stamps or watermarks on your files unless you buy a subscription, Axom AI produces 100% clean, watermark-free PDFs suitable for legal, academic, professional, and corporate use.',
+                7
+            ),
+            (
+                'Can I convert Word to PDF on my mobile phone (Android or iPhone)?',
+                'Yes. Axom AI Word to PDF Converter is fully responsive and optimized for mobile browsers including Chrome, Safari, Firefox, and Edge on iOS and Android devices. No app installation is required.',
+                8
+            ),
+            (
+                'How does Axom AI compare to Adobe Acrobat or Smallpdf?',
+                'Axom AI offers generous free daily allowances (20 files/day), lossless typography fidelity, and instant batch conversion for Pro members without annoying ads or complex installation.',
+                9
+            ),
+        ]
+        for q, a, order in default_faqs:
+            WordToPdfFAQ.objects.create(
+                tool_config=config,
+                question=q,
+                answer=a,
+                order=order,
+                is_active=True
+            )
+
+
+@content_admin_required
+@ensure_csrf_cookie
+def word_to_pdf_editor(request):
+    """Admin page to manage all dynamic settings and FAQs for Word to PDF tool."""
+    config = WordToPdfToolConfig.objects.first()
+    if not config:
+        config = WordToPdfToolConfig.objects.create()
+    _ensure_word_to_pdf_defaults(config)
+    faqs = WordToPdfFAQ.objects.all().order_by('order', 'id')
+    return render(request, 'contentcms/word_to_pdf_editor.html', {
+        'active': 'tools_word_to_pdf',
+        'config': config,
+        'faqs': faqs,
+    })
+
+
+@content_admin_required
+@require_POST
+def save_word_to_pdf_api(request):
+    """AJAX API to save all dynamic fields for Word to PDF Tool."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = WordToPdfToolConfig.objects.first()
+        if not config:
+            config = WordToPdfToolConfig.objects.create()
+
+        # Hero & Converter
+        if 'hero_badge_text' in data:
+            config.hero_badge_text = data.get('hero_badge_text', '').strip()
+        if 'hero_heading_prefix' in data:
+            config.hero_heading_prefix = data.get('hero_heading_prefix', '').strip()
+        if 'hero_heading_highlight' in data:
+            config.hero_heading_highlight = data.get('hero_heading_highlight', '').strip()
+        if 'hero_heading_suffix' in data:
+            config.hero_heading_suffix = data.get('hero_heading_suffix', '').strip()
+        if 'hero_description' in data:
+            config.hero_description = data.get('hero_description', '').strip()
+        if 'free_daily_limit' in data:
+            try:
+                config.free_daily_limit = int(data.get('free_daily_limit', 20))
+            except (ValueError, TypeError):
+                pass
+        if 'pro_batch_limit' in data:
+            try:
+                config.pro_batch_limit = int(data.get('pro_batch_limit', 20))
+            except (ValueError, TypeError):
+                pass
+        if 'max_file_size_mb' in data:
+            try:
+                config.max_file_size_mb = int(data.get('max_file_size_mb', 25))
+            except (ValueError, TypeError):
+                pass
+
+        # How it works (3 Steps)
+        if 'how_it_works_title' in data:
+            config.how_it_works_title = data.get('how_it_works_title', '').strip()
+        if 'how_it_works_subheading' in data:
+            config.how_it_works_subheading = data.get('how_it_works_subheading', '').strip()
+        if 'step_1_title' in data:
+            config.step_1_title = data.get('step_1_title', '').strip()
+        if 'step_1_desc' in data:
+            config.step_1_desc = data.get('step_1_desc', '').strip()
+        if 'step_2_title' in data:
+            config.step_2_title = data.get('step_2_title', '').strip()
+        if 'step_2_desc' in data:
+            config.step_2_desc = data.get('step_2_desc', '').strip()
+        if 'step_3_title' in data:
+            config.step_3_title = data.get('step_3_title', '').strip()
+        if 'step_3_desc' in data:
+            config.step_3_desc = data.get('step_3_desc', '').strip()
+
+        # Benefits (6 Cards)
+        if 'why_title' in data:
+            config.why_title = data.get('why_title', '').strip()
+        if 'why_subheading' in data:
+            config.why_subheading = data.get('why_subheading', '').strip()
+        for i in range(1, 7):
+            t_key = f'benefit_{i}_title'
+            d_key = f'benefit_{i}_desc'
+            if t_key in data:
+                setattr(config, t_key, data.get(t_key, '').strip())
+            if d_key in data:
+                setattr(config, d_key, data.get(d_key, '').strip())
+
+        # Comparison Matrix
+        if 'comparison_badge' in data:
+            config.comparison_badge = data.get('comparison_badge', '').strip()
+        if 'comparison_title' in data:
+            config.comparison_title = data.get('comparison_title', '').strip()
+        if 'comparison_subheading' in data:
+            config.comparison_subheading = data.get('comparison_subheading', '').strip()
+        if 'comparison_matrix_json' in data:
+            config.comparison_matrix_json = data.get('comparison_matrix_json', '').strip()
+
+        # Technical Specifications
+        if 'tech_spec_title' in data:
+            config.tech_spec_title = data.get('tech_spec_title', '').strip()
+        if 'tech_spec_inputs' in data:
+            config.tech_spec_inputs = data.get('tech_spec_inputs', '').strip()
+        if 'tech_spec_output' in data:
+            config.tech_spec_output = data.get('tech_spec_output', '').strip()
+        if 'tech_spec_max_size' in data:
+            config.tech_spec_max_size = data.get('tech_spec_max_size', '').strip()
+        if 'tech_spec_security' in data:
+            config.tech_spec_security = data.get('tech_spec_security', '').strip()
+
+        # FAQ Section Header
+        if 'faq_section_title' in data:
+            config.faq_section_title = data.get('faq_section_title', '').strip()
+        if 'faq_section_subheading' in data:
+            config.faq_section_subheading = data.get('faq_section_subheading', '').strip()
+
+        # Bottom CTA Banner
+        if 'cta_title' in data:
+            config.cta_title = data.get('cta_title', '').strip()
+        if 'cta_desc' in data:
+            config.cta_desc = data.get('cta_desc', '').strip()
+        if 'cta_btn_primary_text' in data:
+            config.cta_btn_primary_text = data.get('cta_btn_primary_text', '').strip()
+        if 'cta_btn_primary_url' in data:
+            config.cta_btn_primary_url = data.get('cta_btn_primary_url', '').strip()
+        if 'cta_btn_secondary_text' in data:
+            config.cta_btn_secondary_text = data.get('cta_btn_secondary_text', '').strip()
+        if 'cta_btn_secondary_url' in data:
+            config.cta_btn_secondary_url = data.get('cta_btn_secondary_url', '').strip()
+
+        # SEO & Meta
+        if 'meta_title' in data:
+            config.meta_title = data.get('meta_title', '').strip()
+        if 'meta_description' in data:
+            config.meta_description = data.get('meta_description', '').strip()
+        if 'meta_keywords' in data:
+            config.meta_keywords = data.get('meta_keywords', '').strip()
+        if 'canonical_url' in data:
+            config.canonical_url = data.get('canonical_url', '').strip()
+        if 'og_image_url' in data:
+            config.og_image_url = data.get('og_image_url', '').strip()
+
+        config.save()
+        return JsonResponse({'success': True, 'message': 'Word to PDF Tool settings saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_word_to_pdf_faq_api(request):
+    """AJAX API to create or edit a Word to PDF FAQ."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        faq_id = data.get('id')
+        question = data.get('question', '').strip()
+        answer = data.get('answer', '').strip()
+        order = int(data.get('order', 0))
+        is_active = bool(data.get('is_active', True))
+
+        if not question or not answer:
+            return JsonResponse({'success': False, 'error': 'Question and answer are required.'}, status=400)
+
+        config = WordToPdfToolConfig.objects.first()
+        if not config:
+            config = WordToPdfToolConfig.objects.create()
+
+        if faq_id:
+            faq = get_object_or_404(WordToPdfFAQ, id=faq_id)
+            faq.question = question
+            faq.answer = answer
+            faq.order = order
+            faq.is_active = is_active
+            faq.save()
+        else:
+            faq = WordToPdfFAQ.objects.create(
+                tool_config=config,
+                question=question,
+                answer=answer,
+                order=order,
+                is_active=is_active
+            )
+
+        return JsonResponse({
+            'success': True,
+            'faq': {
+                'id': faq.id,
+                'question': faq.question,
+                'answer': faq.answer,
+                'order': faq.order,
+                'is_active': faq.is_active,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_word_to_pdf_faq_api(request, faq_id):
+    """AJAX API to delete a Word to PDF FAQ."""
+    try:
+        faq = get_object_or_404(WordToPdfFAQ, id=faq_id)
+        faq.delete()
+        return JsonResponse({'success': True, 'message': 'FAQ deleted successfully.'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
