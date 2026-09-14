@@ -1071,23 +1071,27 @@ def chat_api_view(request):
         current_date_str = datetime.now().strftime('%d %B %Y (%A)')
         ws_system = (
             f"Today's real-time date is: {current_date_str}.\n"
-            "You are Axom AI, a premier intelligent assistant specialized in Assam and Northeast India.\n"
+            "You are Axom AI, a highly capable AI assistant.\n"
             "Your task: Use the real-time web search results provided below to answer the user's question accurately.\n\n"
-            "MANDATORY ASSAMESE GRAMMAR & VOCABULARY RULES (Axom AI Curated Standards):\n"
-            "1. Reply strictly in 100% natural, fluent, native Assamese using correct Assamese script (অসমীয়া).\n"
-            "2. Flood terminology: Always use 'বানপানী' or 'বান' (STRICTLY NEVER use Bengali 'বন্যা').\n"
-            "3. Large numbers: Always use 'কোটি' (STRICTLY NEVER use Hindi 'ক্ৰোৰ'). E.g., '৭৫ কোটি টকা', '১০ কোটি'.\n"
-            "4. Animals:\n"
-            "   - Female animals: Always use 'মাইকী' (e.g., 'মাইকী হাতী', STRICTLY NEVER 'মহিলা হাতী').\n"
-            "   - Animal classifiers: Use 'টা' or 'জনী' (e.g., '৯ টা হাতী', '৩ জনী মাইকী হাতী', STRICTLY NEVER use human honorific 'গৰাকী').\n"
-            "5. Proper Noun Spacing: Write the Assam Chief Minister's name correctly with spaces: 'ড° হিমন্ত বিশ্ব শৰ্মা' (never join as 'হিমন্তবিশ্বাস').\n"
-            "6. PRESERVE TECHNICAL, MEDICAL, AND INSTITUTIONAL TERMS IN ENGLISH:\n"
-            "   - For medical procedures, scientific concepts, and modern technology, keep the English term in Latin script (or alongside in brackets) so the exact meaning is clear and not distorted by clumsy translations.\n"
-            "   - Examples: 'Open-Heart Surgery', 'AIIMS Guwahati', 'AssamSAT', 'IIT Madras', 'Start-up', 'Cabinet', 'Marathon'.\n"
-            "7. News tone: Use authentic Assamese terms: 'বাতৰি' / 'সংবাদ' (news), 'আজিৰ' (today's), 'মুখ্য বাতৰি' (headlines), 'বতৰ' (weather). Never use Hindi words like 'তাজা খবৰ' or 'আজ'.\n"
-            "8. Structure your response cleanly with clear paragraphs or bullet points so it is easy and enjoyable to read.\n"
-            "9. NEVER invent facts. Base your reply directly on the provided search results.\n"
-            "10. Do NOT include inline citation markers like [1], [2], (1) because sources are shown separately below.\n"
+            "LANGUAGE RULES:\n"
+            "1. Reply STRICTLY in 100% natural, fluent Assamese using Assamese script (অসমীয়া).\n"
+            "2. EVERY single word MUST be in Assamese script — NO English words, NO Hindi words, NO Bengali words "
+            "written in any script. The ONLY exceptions are: proper nouns (people names, place names, organization "
+            "names like AIIMS, IIT), technical/scientific terms that have no Assamese equivalent, and numbers.\n"
+            "3. Use proper Assamese, NOT Bengali: use ৰ (not র), কৰ (not কর), হয় (not হয়).\n"
+            "4. Use 'বানপানী' (not Bengali 'বন্যা'), 'কোটি' (not Hindi 'ক্ৰোৰ').\n"
+            "5. NEVER use Hindi words like 'তাজা', 'খবৰ', 'আজ', 'লেকিন', 'ঔৰ' etc.\n\n"
+            "FORMATTING RULES (VERY IMPORTANT):\n"
+            "6. Structure your response with CLEAR TOPIC SECTIONS using ### headings in Assamese.\n"
+            "   Example: ### আহোম ৰাজবংশৰ ইতিহাস\n"
+            "7. Use a blank line between each section/paragraph for readability.\n"
+            "8. When there are multiple pieces of information, organize them under separate ### headings.\n"
+            "9. Keep each paragraph focused on ONE topic — do NOT dump everything in one block.\n"
+            "10. Use **bold** for important terms, names, dates, and key facts.\n"
+            "11. Use bullet points (- item) for listing multiple items.\n"
+            "12. Use '।' (Assamese full stop) at end of sentences, not '.' (English period).\n"
+            "13. NEVER invent facts. Base your reply directly on the provided search results.\n"
+            "14. Do NOT include inline citation markers like [1], [2], (1).\n"
         )
         ws_prompt = (
             f"Web search results:\n\n{context}\n\n"
@@ -1120,18 +1124,27 @@ def chat_api_view(request):
                 'error': 'AI service is busy. Please try again in a moment.',
             }, status=503)
 
-        # Assamese safety layer — if the synthesiser drifted to English, ask
-        # Groq to rewrite it in Assamese script while keeping facts+URLs.
+        # Assamese safety layer — if the response has too much English/Hindi,
+        # rewrite it in proper Assamese while keeping facts and formatting.
         indic_chars = sum(1 for ch in answer if 'ঀ' <= ch <= '৿')
-        if indic_chars < max(20, int(len(answer) * 0.15)):
-            asm = _groq_generate(
-                "Rewrite the following text in clear, natural, authentic "
-                "Assamese (অসমীয়া script). Preserve every fact, name, date, "
-                "number and detail exactly. Keep modern technical/medical terms in English. "
-                "Use proper Assamese vocabulary. "
-                "Do NOT add inline citation markers like [1], [2], (1).",
-                answer, timeout=30,
+        if indic_chars < max(20, int(len(answer) * 0.25)):
+            asm_fix_sys = (
+                "Rewrite the following text COMPLETELY in natural, authentic "
+                "Assamese (অসমীয়া script). EVERY word must be in Assamese script "
+                "except proper nouns and technical terms. Preserve ALL facts, "
+                "names, dates, numbers exactly. Keep ### headings and **bold** formatting. "
+                "Use proper Assamese vocabulary: ৰ (not র), কৰ (not কর). "
+                "Do NOT add citation markers like [1], [2]. "
+                "Do NOT leave ANY Hindi or English common words — translate them all."
             )
+            asm = None
+            try:
+                from model_router.router import openai_generate as _oai_fix
+                asm, _ = _oai_fix(asm_fix_sys, answer, timeout=30)
+            except Exception:
+                pass
+            if not asm:
+                asm = _groq_generate(asm_fix_sys, answer, timeout=30)
             if asm and asm.strip():
                 answer = asm.strip()
 
@@ -1194,11 +1207,10 @@ def chat_api_view(request):
         "answer — do not copy-paste or dump raw text. Prefer that context and base your answer on it. "
         "When NO knowledge-base context is provided, answer from your own knowledge like ChatGPT would — "
         "give detailed, informative, helpful answers. NEVER say you don't know or can't answer. "
-        "STRICT OUTPUT FORMAT — write plain Assamese prose ONLY. NEVER use Markdown, tables, pipes (|), "
-        "dashes as bullets (-, •, *), HTML tags (<br>, <b>, <i>), headings (#), blockquotes (>), or any "
-        "special formatting characters. Use ordinary sentences and paragraphs separated by blank lines. "
-        "When a list is genuinely needed, write items as normal Assamese sentences with commas or "
-        "৷ (Assamese full stop), not as bullet points. "
+        "FORMATTING: Use ### headings (in Assamese) to organize topics. Use **bold** for key terms. "
+        "Use - bullet lists when listing items. Use blank lines between paragraphs. "
+        "Keep each section focused on one topic. Do NOT dump everything in one big block. "
+        "Use '।' (Assamese full stop) at end of sentences. "
         "IMPORTANT: Never invent specific facts — names of people or officials, who currently holds a "
         "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
     )
