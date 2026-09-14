@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Plus, MessageSquare, LogOut, ChevronDown, LayoutDashboard,
+  Plus, MessageSquare, LogOut,
   MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText, X, Wrench
 } from 'lucide-react';
 
@@ -26,7 +26,6 @@ export default function SidebarLeft({
   onCloseSidebar,
   onLogout,
 }) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuFor, setMenuFor] = useState(null); // { id, top, left } — fixed-positioned
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
 
@@ -45,7 +44,6 @@ export default function SidebarLeft({
     setMenuFor({ id, top, left: Math.max(8, r.right - 150) });
   };
 
-  const handleProfileClick = (e) => { e.stopPropagation(); setDropdownOpen((p) => !p); };
 
   const all = Object.values(sessions);
   const pinned = all.filter((s) => s.pinned).reverse();
@@ -214,8 +212,8 @@ export default function SidebarLeft({
 
       {/* User Profile Card */}
       {user.isAuthenticated && (
-        <div className="user-profile-container" style={{ position: 'relative', width: '100%' }}>
-          <div className="user-profile-card" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
+        <div className="user-profile-container" style={{ width: '100%' }}>
+          <div className="user-profile-card" style={{ cursor: 'default' }}>
             <div className="user-avatar-wrapper">
               <img
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
@@ -223,46 +221,25 @@ export default function SidebarLeft({
                 className="user-avatar"
               />
             </div>
-            <div className="user-info">
+            <div className="user-info" style={{ flex: 1 }}>
               <span className="user-name">{user.username}</span>
-              <span className="user-badge">{user.isStaff ? 'Admin / Staff' : 'Premium User'}</span>
             </div>
-            <ChevronDown
-              size={16}
-              className="chevron-icon"
-              style={{ transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-            />
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); if (onLogout) onLogout(); }}
+              title="Sign Out"
+              aria-label="Sign Out"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'none', border: 'none', color: 'var(--text-muted)',
+                cursor: 'pointer', padding: '6px', borderRadius: '8px',
+                transition: 'color 0.2s',
+              }}
+              className="logout-inline-btn"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
-
-          {dropdownOpen && (
-            <div className="profile-dropdown-menu" style={{
-              position: 'absolute', bottom: '70px', left: '16px', right: '16px',
-              background: 'var(--bg-card)', border: '1px solid var(--border-color)',
-              borderRadius: '14px', boxShadow: '0 10px 25px rgba(0,0,0,0.4)', padding: '8px',
-              zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px',
-            }}>
-              {user.isStaff && (
-                <a
-                  href="https://admin.aiaxom.co.in/admin-panel/"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)', textDecoration: 'none', borderRadius: '8px' }}
-                  className="dropdown-item"
-                >
-                  <LayoutDashboard size={14} style={{ color: 'var(--accent-pink)' }} />
-                  <span>Admin Panel</span>
-                </a>
-              )}
-              {user.isStaff && <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '4px 0' }} />}
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); if (onLogout) onLogout(); setDropdownOpen(false); }}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', fontSize: '0.8rem', fontWeight: 600, color: '#ef4444', background: 'none', border: 'none', width: '100%', cursor: 'pointer', textAlign: 'left', borderRadius: '8px' }}
-                className="dropdown-item"
-              >
-                <LogOut size={14} />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          )}
         </div>
       )}
 

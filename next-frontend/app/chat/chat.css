@@ -461,6 +461,11 @@ body {
     color: var(--accent-pink);
 }
 
+.logout-inline-btn:hover {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+}
+
 .chevron-icon {
     width: 16px;
     height: 16px;
