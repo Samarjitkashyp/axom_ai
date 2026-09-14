@@ -626,22 +626,11 @@ export default function ImageGenerator({ onClose }) {
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'space-between',
-                          flexWrap: 'wrap',
+                          justifyContent: 'flex-end',
                           gap: 8,
                           padding: '2px 0',
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', color: '#71717a' }}>
-                          <span style={{ color: '#a78bfa', fontWeight: 600 }}>
-                            {msg.result.model_name}
-                          </span>
-                          <span>·</span>
-                          <span>{msg.result.width}×{msg.result.height}</span>
-                          <span>·</span>
-                          <span>{((msg.result.ms || 0) / 1000).toFixed(1)}s</span>
-                        </div>
-
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <button
                             type="button"

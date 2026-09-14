@@ -2909,23 +2909,45 @@ def _looks_like_english(prompt):
     return bool(_LIKELY_ENGLISH_WORDS.search(prompt))
 
 
-def _translate_prompt_for_image(prompt):
+def _translate_prompt_for_image(prompt, has_ref_image=False):
     """Rewrite an arbitrary-language prompt into a clean English image-gen
-    prompt. Returns (english_prompt, was_translated:bool)."""
+    prompt using OpenAI GPT (primary) with Groq/Gemini fallback.
+    Returns (english_prompt, was_translated:bool)."""
     if not prompt or not prompt.strip():
         return '', False
     prompt = prompt.strip()
-    if _looks_like_english(prompt):
+    if not has_ref_image and _looks_like_english(prompt):
         return prompt, False
-    system = (
-        "You rewrite image-generation prompts into clear, natural ENGLISH. "
-        "The user may write in English, Hindi, Assamese, Hinglish, or Roman-"
-        "Hindi/Assamese. Translate the meaning faithfully, keep it concise "
-        "(under 60 words), and phrase it as a visual scene description "
-        "suitable for a text-to-image model. Output ONLY the English prompt, "
-        "no quotes, no preface, no explanation."
-    )
-    out = _groq_generate(system, prompt, timeout=15)
+
+    if has_ref_image:
+        system = (
+            "You rewrite image-EDITING prompts into clear, natural ENGLISH. "
+            "The user has attached a reference image and wants to EDIT it. "
+            "The user may write in English, Hindi, Assamese, Hinglish, or "
+            "Roman-Hindi/Assamese. Translate the meaning faithfully. "
+            "Make it explicit that this is an image editing request on the "
+            "attached image — e.g. 'Edit this image: ...' or 'Modify the "
+            "uploaded image: ...'. Keep it concise (under 80 words). "
+            "Output ONLY the English prompt, no quotes, no preface."
+        )
+    else:
+        system = (
+            "You rewrite image-generation prompts into clear, natural ENGLISH. "
+            "The user may write in English, Hindi, Assamese, Hinglish, or Roman-"
+            "Hindi/Assamese. Translate the meaning faithfully, keep it concise "
+            "(under 60 words), and phrase it as a visual scene description "
+            "suitable for a text-to-image model. Output ONLY the English prompt, "
+            "no quotes, no preface, no explanation."
+        )
+
+    out = None
+    try:
+        from model_router.router import openai_generate
+        out, _ = openai_generate(system, prompt, timeout=15)
+    except Exception:
+        pass
+    if not out:
+        out = _groq_generate(system, prompt, timeout=15)
     if not out:
         gk = os.getenv('GEMINI_API_KEY', '').strip()
         if gk:
@@ -3228,8 +3250,8 @@ def generate_image_api(request):
     if not ok:
         return JsonResponse({'error': safety_err}, status=400)
 
-    # 4) Translate to clean English if needed
-    prompt, was_translated = _translate_prompt_for_image(original_prompt)
+    # 4) Translate to clean English if needed (with editing context when ref image attached)
+    prompt, was_translated = _translate_prompt_for_image(original_prompt, has_ref_image=bool(ref_image_b64))
 
     # Clamp geometry (Gemini ignores explicit width/height but keep for CF fallback)
     def _clamp_dim(v, default=1024):
