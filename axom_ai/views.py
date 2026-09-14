@@ -1220,17 +1220,23 @@ def chat_api_view(request):
             pass
 
     # 2. Find a knowledge-base answer (exact keyword match → semantic meaning match).
+    #    When the prompt was translated, search with English FIRST (more accurate),
+    #    then fall back to original prompt. This avoids false-positive keyword matches
+    #    on short Romanized words like "r", "kua", "ki" in the original prompt.
+    was_translated = (english_query != prompt)
     kb_answer, kb_assamese, kb_source = None, '', None
     if not web_search:
-        ia, ia_asm, ia_src = find_instant_answer(prompt)
-        if not ia:
-            ia, ia_asm, ia_src = find_instant_answer(english_query)
+        primary_q = english_query if was_translated else prompt
+        fallback_q = prompt if was_translated else None
+        ia, ia_asm, ia_src = find_instant_answer(primary_q)
+        if not ia and fallback_q:
+            ia, ia_asm, ia_src = find_instant_answer(fallback_q)
         if ia:
             kb_answer, kb_assamese, kb_source = ia, ia_asm, ia_src
         else:
-            sa, sa_asm, _score, sa_src = semantic_find_answer(prompt)
-            if not sa:
-                sa, sa_asm, _score, sa_src = semantic_find_answer(english_query)
+            sa, sa_asm, _score, sa_src = semantic_find_answer(primary_q)
+            if not sa and fallback_q:
+                sa, sa_asm, _score, sa_src = semantic_find_answer(fallback_q)
             if sa:
                 kb_answer, kb_assamese, kb_source = sa, sa_asm, sa_src
 
