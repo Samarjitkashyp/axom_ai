@@ -22,6 +22,8 @@ logger = logging.getLogger('model_router')
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
 OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
+MAX_OUTPUT_TOKENS = 2048
+MAX_INPUT_CHARS = 12000
 
 # Rough token estimator (tiktoken is optional)
 try:
@@ -144,6 +146,9 @@ def openai_generate(system, prompt, timeout=30):
     if not OPENAI_API_KEY:
         return None, None
 
+    system = (system or '')[:MAX_INPUT_CHARS]
+    prompt = (prompt or '')[:MAX_INPUT_CHARS]
+
     model_provider = get_available_model()
     if not model_provider:
         return None, None
@@ -157,6 +162,7 @@ def openai_generate(system, prompt, timeout=30):
             headers={'Authorization': f'Bearer {OPENAI_API_KEY}'},
             json={
                 'model': model_id,
+                'max_tokens': MAX_OUTPUT_TOKENS,
                 'messages': [
                     {'role': 'system', 'content': system},
                     {'role': 'user', 'content': prompt},
@@ -189,6 +195,9 @@ def openai_stream(system, prompt, on_done=None, timeout=30):
     if not OPENAI_API_KEY:
         return None, None
 
+    system = (system or '')[:MAX_INPUT_CHARS]
+    prompt = (prompt or '')[:MAX_INPUT_CHARS]
+
     model_provider = get_available_model()
     if not model_provider:
         return None, None
@@ -202,6 +211,7 @@ def openai_stream(system, prompt, on_done=None, timeout=30):
             headers={'Authorization': f'Bearer {OPENAI_API_KEY}'},
             json={
                 'model': model_id,
+                'max_tokens': MAX_OUTPUT_TOKENS,
                 'stream': True,
                 'stream_options': {'include_usage': True},
                 'messages': [

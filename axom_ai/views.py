@@ -987,6 +987,10 @@ def chat_api_view(request):
     if not prompt:
         return JsonResponse({'error': 'Prompt cannot be empty'}, status=400)
 
+    MAX_PROMPT_CHARS = 4000
+    if len(prompt) > MAX_PROMPT_CHARS:
+        prompt = prompt[:MAX_PROMPT_CHARS]
+
     import re
 
     # -----------------------------------------------------------------------
@@ -1397,11 +1401,9 @@ def chat_api_view(request):
         'gemini-3-flash-preview',
     ]
 
-    # 6-pre. Assamese WITHOUT a KB hit: get an English answer from Gemini, then
-    #        translate it to Assamese with IndicTrans2 (specialised, natural
-    #        Assamese). IndicTrans2 needs English input — Hinglish gives poor
-    #        output — so we ask Gemini in English here. Any failure (service down,
-    #        empty result) falls through to the normal Assamese flow below.
+    # 6-pre. Assamese WITHOUT a KB hit: get an English answer then translate
+    #        to Assamese with IndicTrans2 (best native Assamese quality).
+    #        Chain: OpenAI (English) → Groq (English) → Gemini (English) → IndicTrans2.
     if (language == 'assamese' and not translate_source and not web_search
             and USE_INDICTRANS and not (is_wiki and kb_answer)):
         en_system = (
@@ -1411,11 +1413,20 @@ def chat_api_view(request):
             "facts — names of people or officials, who currently holds a post, dates, or "
             "statistics. If you are unsure, say you are not certain instead of guessing."
         )
-        # Groq is primary; Gemini is the fallback if Groq is unavailable.
-        english_answer = _groq_generate(en_system, f"{hist_block}User Question: {prompt}")
+        en_prompt = f"{hist_block}User Question: {prompt}"
+        english_answer = None
+        try:
+            from model_router.router import openai_generate
+            oai_text, _ = openai_generate(en_system, en_prompt)
+            if oai_text:
+                english_answer = oai_text
+        except Exception:
+            pass
+        if not english_answer:
+            english_answer = _groq_generate(en_system, en_prompt)
         if not english_answer:
             english_answer = _gemini_generate(
-                api_key, en_system, f"{hist_block}User Question: {prompt}", candidate_models)
+                api_key, en_system, en_prompt, candidate_models)
         if english_answer:
             asm = _indic_translate(english_answer)
             if asm:
@@ -1425,25 +1436,8 @@ def chat_api_view(request):
                     'web_search': False, 'sources': [], 'engine': 'indictrans2',
                 })
 
-    # 6-primary. GROQ is the primary engine — stream it token-by-token for a
-    #            super-fast first word and accurate answers. Gemini is the
-    #            fallback below (and still handles web_search grounding).
-    if GROQ_API_KEY and not web_search:
-        gstream = _groq_stream_response(
-            system_instruction, final_prompt,
-            lambda txt: _save_chat(request, client_id, prompt, txt))
-        if gstream is not None:
-            sresp = StreamingHttpResponse(gstream, content_type='text/plain; charset=utf-8')
-            sresp['X-Engine'] = 'groq'
-            sresp['X-From-Database'] = 'true' if custom_context else 'false'
-            sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
-            sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
-            sresp['Cache-Control'] = 'no-cache'
-            sresp['X-Accel-Buffering'] = 'no'
-            return sresp
-
-    # 6b. OpenAI free-tier model rotation — streams through up to 17 models
-    #      (9 mini/nano + 8 large) using daily free quotas before paid Luna.
+    # 6a. PRIMARY: OpenAI free-tier model rotation — streams through up to 17
+    #     models (9 mini/nano + 8 large) using daily free quotas before paid Luna.
     if not web_search:
         try:
             from model_router.router import openai_stream
@@ -1461,6 +1455,21 @@ def chat_api_view(request):
                 return sresp
         except Exception:
             pass
+
+    # 6b. FALLBACK 1: Groq streaming — fast and free.
+    if GROQ_API_KEY and not web_search:
+        gstream = _groq_stream_response(
+            system_instruction, final_prompt,
+            lambda txt: _save_chat(request, client_id, prompt, txt))
+        if gstream is not None:
+            sresp = StreamingHttpResponse(gstream, content_type='text/plain; charset=utf-8')
+            sresp['X-Engine'] = 'groq'
+            sresp['X-From-Database'] = 'true' if custom_context else 'false'
+            sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
+            sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
+            sresp['Cache-Control'] = 'no-cache'
+            sresp['X-Accel-Buffering'] = 'no'
+            return sresp
 
     # 6c. STREAM the general/RAG answer from Gemini so the first words reach the
     #     user immediately (feels fast). web_search stays non-streaming below —
@@ -1519,6 +1528,47 @@ def chat_api_view(request):
 
     last_error = ""
 
+    # ── Non-streaming fallbacks: OpenAI → Groq → Gemini ──
+
+    # Non-streaming OpenAI fallback
+    if not web_search:
+        try:
+            from model_router.router import openai_generate
+            oai_text, oai_model = openai_generate(system_instruction, final_prompt)
+            if oai_text:
+                if language == 'assamese':
+                    oai_text = _purify_assamese_with_grammar(oai_text)
+                _save_chat(request, client_id, prompt, oai_text)
+                return JsonResponse({
+                    'response': oai_text,
+                    'from_database': bool(custom_context),
+                    'source_docs': source_docs,
+                    'web_search': web_search,
+                    'sources': [],
+                    'engine': f'openai:{oai_model}',
+                    'source': kb_source,
+                })
+        except Exception as err:
+            last_error = str(err)
+
+    # Non-streaming Groq fallback
+    if GROQ_API_KEY and not web_search:
+        groq_text = _groq_generate(system_instruction, final_prompt)
+        if groq_text:
+            if language == 'assamese':
+                groq_text = _purify_assamese_with_grammar(groq_text)
+            _save_chat(request, client_id, prompt, groq_text)
+            return JsonResponse({
+                'response': groq_text,
+                'from_database': bool(custom_context),
+                'source_docs': source_docs,
+                'web_search': web_search,
+                'sources': [],
+                'engine': 'groq',
+                'source': kb_source,
+            })
+
+    # Non-streaming Gemini fallback (also handles web_search grounding)
     for model_id in candidate_models:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}"
@@ -1537,11 +1587,9 @@ def chat_api_view(request):
                     ]
                 }
             }
-            # Enable Google Search grounding tool if web_search is active (only for Gemini models)
             if web_search and 'gemma' not in model_id:
                 payload["tools"] = [{"googleSearch": {}}]
 
-            # Short 8s timeout for maximum speed
             res = http_session.post(url, headers=headers, json=payload, timeout=8)
             res_data = res.json()
 
@@ -1550,8 +1598,7 @@ def chat_api_view(request):
                 parts = candidate.get('content', {}).get('parts', [])
                 if parts and 'text' in parts[0]:
                     response_text = parts[0]['text']
-                    
-                    # Extract unique source links from grounding metadata
+
                     sources = []
                     seen_uris = set()
                     if web_search:
@@ -1565,7 +1612,6 @@ def chat_api_view(request):
                                 seen_uris.add(uri)
                                 sources.append({'title': title or uri, 'uri': uri})
 
-                        # Fallback: Parse markdown or raw links directly from response text
                         md_links = re.findall(r'\[([^\]]+)\]\((https?://[^\)]+)\)', response_text)
                         for title, uri in md_links:
                             if uri not in seen_uris:
@@ -1579,14 +1625,7 @@ def chat_api_view(request):
                                 seen_uris.add(uri_clean)
                                 sources.append({'title': uri_clean, 'uri': uri_clean})
 
-                    # Safety: on web-search answers Gemini sometimes drifts
-                    # out of Assamese because its grounding chunks are in
-                    # English. If Assamese was requested but the reply has
-                    # almost no Assamese/Bengali script characters, ask Groq
-                    # to rewrite it faithfully in Assamese while keeping every
-                    # fact (and source list) intact.
                     if web_search and language == 'assamese':
-                        # Count characters in the Assamese/Bengali script range.
                         indic_chars = sum(
                             1 for ch in response_text
                             if 'ঀ' <= ch <= '৿'
@@ -1623,46 +1662,6 @@ def chat_api_view(request):
         except Exception as err:
             last_error = str(err)
             continue
-
-    # Groq fallback: Gemini failed (commonly its free daily quota is exhausted).
-    # Groq is fast and has a generous free tier, so the user still gets a real
-    # answer — including the translated/rewritten text for the KB-translate path.
-    if GROQ_API_KEY and not web_search:
-        groq_text = _groq_generate(system_instruction, final_prompt)
-        if groq_text:
-            if language == 'assamese':
-                groq_text = _purify_assamese_with_grammar(groq_text)
-            _save_chat(request, client_id, prompt, groq_text)
-            return JsonResponse({
-                'response': groq_text,
-                'from_database': bool(custom_context),
-                'source_docs': source_docs,
-                'web_search': web_search,
-                'sources': [],
-                'engine': 'groq',
-                'source': kb_source,
-            })
-
-    # OpenAI fallback (non-streaming): all streaming paths failed.
-    if not web_search:
-        try:
-            from model_router.router import openai_generate
-            oai_text, oai_model = openai_generate(system_instruction, final_prompt)
-            if oai_text:
-                if language == 'assamese':
-                    oai_text = _purify_assamese_with_grammar(oai_text)
-                _save_chat(request, client_id, prompt, oai_text)
-                return JsonResponse({
-                    'response': oai_text,
-                    'from_database': bool(custom_context),
-                    'source_docs': source_docs,
-                    'web_search': web_search,
-                    'sources': [],
-                    'engine': f'openai:{oai_model}',
-                    'source': kb_source,
-                })
-        except Exception:
-            pass
 
     # Fast Fallback: If API fails or is rate-limited, return database context if available!
     if custom_context:
