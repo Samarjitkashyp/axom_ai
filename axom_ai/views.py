@@ -1203,86 +1203,11 @@ def chat_api_view(request):
         "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
     )
 
-    # 1b. Translate user prompt to English for better KB search and LLM understanding.
-    english_query = prompt
-    if not _looks_like_english(prompt):
-        try:
-            from model_router.router import openai_generate as _oai_tr
-            _tr_sys = (
-                "Translate the following user message into clear, natural English. "
-                "The user may write in Assamese, Roman Assamese, Hindi, Hinglish, or mixed. "
-                "Output ONLY the English translation, nothing else."
-            )
-            _tr_out, _ = _oai_tr(_tr_sys, prompt, timeout=10)
-            if _tr_out and _tr_out.strip():
-                english_query = _tr_out.strip()
-        except Exception:
-            pass
-
-    # 2. Find a knowledge-base answer (exact keyword match → semantic meaning match).
-    #    When the prompt was translated, search with English FIRST (more accurate),
-    #    then fall back to original prompt. This avoids false-positive keyword matches
-    #    on short Romanized words like "r", "kua", "ki" in the original prompt.
-    was_translated = (english_query != prompt)
-    kb_answer, kb_assamese, kb_source = None, '', None
-    if not web_search:
-        primary_q = english_query if was_translated else prompt
-        fallback_q = prompt if was_translated else None
-        ia, ia_asm, ia_src = find_instant_answer(primary_q)
-        if not ia and fallback_q:
-            ia, ia_asm, ia_src = find_instant_answer(fallback_q)
-        if ia:
-            kb_answer, kb_assamese, kb_source = ia, ia_asm, ia_src
-        else:
-            sa, sa_asm, _score, sa_src = semantic_find_answer(primary_q)
-            if not sa and fallback_q:
-                sa, sa_asm, _score, sa_src = semantic_find_answer(fallback_q)
-            if sa:
-                kb_answer, kb_assamese, kb_source = sa, sa_asm, sa_src
-
-    # A source is only worth returning if it actually names something.
-    def _clean_source(src):
-        if src and (str(src.get('name', '')).strip() or str(src.get('url', '')).strip()):
-            return {'name': str(src.get('name', '')).strip(), 'url': str(src.get('url', '')).strip()}
-        return None
-    kb_source = _clean_source(kb_source)
-
-    # 2b. Language routing for a KB hit (Hybrid: verified record first, else translate).
-    translate_source = None
-    is_wiki = kb_source and str(kb_source.get('name', '')).startswith('Wikipedia:')
-    if kb_answer:
-        if is_wiki:
-            pass  # Wikipedia → synthesize a natural response via LLM below
-        elif language == 'assamese' and kb_assamese.strip():
-            # Verified Assamese record → return it directly (accurate, no model).
-            _save_chat(request, client_id, prompt, kb_assamese)
-            return JsonResponse({
-                'response': kb_assamese, 'from_database': True, 'source_docs': [],
-                'web_search': False, 'sources': [], 'engine': 'db-assamese',
-                'source': kb_source,
-            })
-        elif language == 'hinglish':
-            # Stored data is already Hinglish → return verbatim (fast, no model).
-            _save_chat(request, client_id, prompt, kb_answer)
-            return JsonResponse({
-                'response': kb_answer, 'from_database': True, 'source_docs': [],
-                'web_search': False, 'sources': [], 'engine': 'instant',
-                'source': kb_source,
-            })
-        else:
-            # English, or Assamese without a stored record → translate the exact answer.
-            translate_source = kb_answer
-
-    custom_context = translate_source or (kb_answer if is_wiki else "")
+    # 2. KB search skipped — go directly to GPT (ChatGPT style).
+    #    KB data is insufficient; GPT provides faster, better answers for all topics.
+    kb_answer, kb_source = None, None
+    custom_context = ""
     source_docs = []
-
-    # Log questions the knowledge base couldn't answer — a gap to fill later.
-    if (not web_search) and (not kb_answer):
-        _log_unanswered(prompt, language)
-
-    # 3. Strict gate removed — GPT always provides an answer (ChatGPT style).
-    #    Previously STRICT_KB_MODE would return "don't know" when KB had no answer.
-    #    Now the LLM engines below always handle the question.
 
     # 4. Formulate the model prompt with recent conversation for follow-up context.
     #    Memory management: keep the newest turns within a character budget (so short
@@ -1306,108 +1231,10 @@ def chat_api_view(request):
     if turns:
         hist_block = "Conversation so far:\n" + "\n".join(turns) + "\n\n"
 
-    if translate_source:
-        # Translate the exact KB answer into the chosen language — keep facts identical.
-        if language == 'assamese':
-            # Assamese-tuned prompt: aim for natural, native, fluent Assamese —
-            # not a stiff word-by-word transliteration. This meaningfully improves
-            # readability without any extra model or dependency.
-            final_prompt = (
-                "You are a native Assamese (অসমীয়া) speaker and professional translator. "
-                "Translate the information below into natural, fluent, everyday Assamese "
-                "using correct Assamese script and grammar. Write the way an educated "
-                "Assamese person would actually speak or write — NOT a literal, "
-                "word-for-word translation, and NOT Bengali. Use proper Assamese "
-                "vocabulary (e.g. use Assamese-specific words and verb forms, the "
-                "Assamese 'ৰ' not Bengali 'র'). Keep every fact, name, number, and place "
-                "exactly the same — do not add, remove, or change any information. "
-                "Keep proper nouns (like Dispur, Guwahati, Kaziranga) readable. "
-                "OUTPUT FORMAT: plain Assamese prose only. NO Markdown, NO tables, NO "
-                "pipes (|), NO dashes/bullets (-, •, *), NO HTML tags (<br>, <b>), NO "
-                "headings (#) and NO blockquotes (>). Write ordinary sentences and "
-                "paragraphs separated by blank lines. "
-                "Output only the Assamese text, nothing else:\n\n"
-                f"{translate_source}"
-            )
-        else:
-            final_prompt = (
-                f"Rewrite the following information in {target_lang}. Keep every fact exactly "
-                f"the same. Do not add, remove, or change any information. Output only the "
-                f"rewritten text:\n\n{translate_source}"
-            )
-    elif is_wiki and kb_answer:
-        wiki_context = kb_assamese or kb_answer
-        final_prompt = (
-            f"Relevant Wikipedia content (use this to answer):\n\n"
-            f"{wiki_context}\n\n"
-            f"{hist_block}User Question: {prompt}\n\n"
-            f"Answer the question using the Wikipedia content above. Keep your answer "
-            f"natural, conversational, and focused on what the user asked — do not "
-            f"dump the entire passage. Reply in natural Assamese (অসমীয়া)."
-        )
-    else:
-        # Include English translation alongside original for better LLM understanding.
-        if english_query != prompt:
-            final_prompt = f"{hist_block}User Question: {prompt}\n(English meaning: {english_query})"
-        else:
-            final_prompt = f"{hist_block}User Question: {prompt}"
+    # Direct GPT prompt — no KB context, no translation step.
+    final_prompt = f"{hist_block}User Question: {prompt}"
 
-    # 5. PRIMARY ENGINE: local Ollama model, STREAMED token-by-token so the first
-    #    word reaches the user immediately. Skipped for web_search (needs Gemini's
-    #    Google Search grounding). On connection failure we fall through to Gemini.
-    if USE_LOCAL_LLM and not web_search:
-        try:
-            ollama_res = http_session.post(
-                f"{OLLAMA_URL}/api/generate",
-                json={
-                    'model': OLLAMA_MODEL,
-                    'prompt': final_prompt,
-                    'system': system_instruction,
-                    'stream': True,
-                    'keep_alive': OLLAMA_KEEP_ALIVE,
-                    'options': {
-                        'num_predict': OLLAMA_NUM_PREDICT,
-                        'num_thread': OLLAMA_NUM_THREAD,
-                        'temperature': 0.7,
-                    },
-                },
-                stream=True,
-                timeout=120,
-            )
-        except Exception:
-            ollama_res = None
-
-        if ollama_res is not None and ollama_res.status_code == 200:
-            def token_stream():
-                acc = []
-                try:
-                    for line in ollama_res.iter_lines():
-                        if not line:
-                            continue
-                        try:
-                            obj = json.loads(line)
-                        except Exception:
-                            continue
-                        chunk = obj.get('response', '')
-                        if chunk:
-                            acc.append(chunk)
-                            yield chunk
-                        if obj.get('done'):
-                            break
-                finally:
-                    ollama_res.close()
-                    _save_chat(request, client_id, prompt, ''.join(acc))
-
-            stream_resp = StreamingHttpResponse(
-                token_stream(), content_type='text/plain; charset=utf-8'
-            )
-            stream_resp['X-Engine'] = 'local'
-            stream_resp['X-From-Database'] = 'true' if custom_context else 'false'
-            stream_resp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
-            stream_resp['Cache-Control'] = 'no-cache'
-            stream_resp['X-Accel-Buffering'] = 'no'
-            return stream_resp
-        # else: local unreachable — fall through to Gemini below
+    # 5. Ollama local model skipped — GPT gives much better answers.
 
     # 6. FALLBACK ENGINE: Google Gemini (also the primary engine for web_search).
     api_key = os.getenv('GEMINI_API_KEY')
@@ -1430,45 +1257,6 @@ def chat_api_view(request):
         'gemini-3.5-flash',
         'gemini-3-flash-preview',
     ]
-
-    # 6-pre. Assamese WITHOUT a KB hit: get an English answer then translate
-    #        to Assamese with IndicTrans2 (best native Assamese quality).
-    #        Chain: OpenAI (English) → Groq (English) → Gemini (English) → IndicTrans2.
-    if (language == 'assamese' and not translate_source and not web_search
-            and USE_INDICTRANS and not (is_wiki and kb_answer)):
-        en_system = (
-            f"Today's date is {today}. Always write your reply in clear, natural English. "
-            "You are Axom AI, a highly capable AI assistant that can answer ANY question — "
-            "science, math, coding, history, geography, health, technology, education, "
-            "current affairs, creative writing, and everything else — just like ChatGPT. "
-            "You have special expertise in Assam and Northeast India. "
-            "Give a clear, accurate, detailed, and well-structured answer. "
-            "IMPORTANT: Never invent specific facts — names of people or officials, "
-            "who currently holds a post, dates, or statistics. If you are unsure, "
-            "say you are not certain instead of guessing."
-        )
-        en_prompt = f"{hist_block}User Question: {prompt}"
-        english_answer = None
-        try:
-            from model_router.router import openai_generate
-            oai_text, _ = openai_generate(en_system, en_prompt)
-            if oai_text:
-                english_answer = oai_text
-        except Exception:
-            pass
-        if not english_answer:
-            english_answer = _groq_generate(en_system, en_prompt)
-        if not english_answer:
-            english_answer = _gemini_generate(
-                api_key, en_system, en_prompt, candidate_models)
-        if english_answer:
-            asm = _indic_translate(english_answer)
-            if asm:
-                _save_chat(request, client_id, prompt, asm)
-                return JsonResponse({
-                    'response': asm, 'from_database': False, 'source_docs': [],
-                    'web_search': False, 'sources': [], 'engine': 'indictrans2',
-                })
 
     # 6a. PRIMARY: OpenAI free-tier model rotation — streams through up to 17
     #     models (9 mini/nano + 8 large) using daily free quotas before paid Luna.
