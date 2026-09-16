@@ -999,6 +999,32 @@ def _chat_cors_view(view_func):
     return wrapped
 
 
+def _apply_tool_cors(request, response):
+    origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN', '')
+    if origin:
+        response['Access-Control-Allow-Origin'] = origin
+        response['Access-Control-Allow-Credentials'] = 'true'
+    else:
+        response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    req_headers = request.headers.get('Access-Control-Request-Headers')
+    response['Access-Control-Allow-Headers'] = req_headers or 'Content-Type, X-CSRFToken, X-Device-Id, Authorization, Cookie'
+    response['Access-Control-Expose-Headers'] = 'Content-Disposition, Content-Length'
+    return response
+
+
+def _tool_cors_view(view_func):
+    import functools
+    @functools.wraps(view_func)
+    def wrapped(request, *args, **kwargs):
+        if request.method == 'OPTIONS':
+            from django.http import HttpResponse
+            return _apply_tool_cors(request, HttpResponse(status=204))
+        resp = view_func(request, *args, **kwargs)
+        return _apply_tool_cors(request, resp)
+    return wrapped
+
+
 @csrf_exempt
 @_chat_cors_view
 def chat_api_view(request):
@@ -2019,6 +2045,8 @@ def download_converted_pdf_view(request, filename):
     return response
 
 
+@csrf_exempt
+@_tool_cors_view
 def convert_file_api(request):
     """
     Unified file converter (multipart POST):
@@ -2167,6 +2195,7 @@ def convert_file_api(request):
     })
 
 
+@_tool_cors_view
 def download_converted_file_view(request, filename):
     """Serve any converted file (pdf/docx/png/jpg/zip) as a download."""
     import mimetypes
@@ -2181,6 +2210,8 @@ def download_converted_file_view(request, filename):
     return resp
 
 
+@csrf_exempt
+@_tool_cors_view
 def pdf_tool_api(request):
     """
     PDF operations (multipart POST), selected by `op`:
