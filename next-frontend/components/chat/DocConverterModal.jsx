@@ -80,6 +80,10 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
   const pickTool = (t) => {
     if (t.id === 'word2pdf') { window.location.href = '/tools/word-to-pdf'; return; }
     if (t.id === 'pdf2word') { window.location.href = '/tools/pdf-to-word'; return; }
+    if (t.id === 'img2pdf') { window.location.href = '/tools/image-to-pdf'; return; }
+    if (t.id === 'pdf2jpg') { window.location.href = '/tools/pdf-to-jpg'; return; }
+    if (t.id === 'pdf2png') { window.location.href = '/tools/pdf-to-png'; return; }
+    if (t.id === 'imgconvert') { window.location.href = '/tools/image-format-converter'; return; }
     if (t.editor) { onClose?.(); onOpenEditor?.(); return; }
     if (t.compressor) { onClose?.(); onOpenCompressor?.(); return; }
     reset(); setTool(t); if (t.param === 'lang') setAngle('assamese');

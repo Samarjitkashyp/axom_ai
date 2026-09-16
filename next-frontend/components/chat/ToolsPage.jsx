@@ -114,6 +114,22 @@ export default function ToolsPage({
       window.location.href = '/tools/pdf-to-word';
       return;
     }
+    if (t.id === 'img2pdf') {
+      window.location.href = '/tools/image-to-pdf';
+      return;
+    }
+    if (t.id === 'pdf2jpg') {
+      window.location.href = '/tools/pdf-to-jpg';
+      return;
+    }
+    if (t.id === 'pdf2png') {
+      window.location.href = '/tools/pdf-to-png';
+      return;
+    }
+    if (t.id === 'imgconvert') {
+      window.location.href = '/tools/image-format-converter';
+      return;
+    }
     if (t.editor) {
       onOpenEditor?.();
       return;

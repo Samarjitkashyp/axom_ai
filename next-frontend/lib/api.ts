@@ -484,6 +484,21 @@ export async function getWordToPdfCMS(): Promise<WordToPdfCMSData | null> {
 
 export type PdfToWordCMSData = WordToPdfCMSData;
 
+export type PdfToPngCMSData = WordToPdfCMSData;
+
+export async function getPdfToPngCMS(): Promise<PdfToPngCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/tools/pdf-to-png/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch PDF to PNG CMS data:', err);
+    return null;
+  }
+}
+
 export async function getPdfToWordCMS(): Promise<PdfToWordCMSData | null> {
   try {
     const res = await fetch(`${API_BASE}/api/cms/tools/pdf-to-word/`, {
@@ -497,4 +512,48 @@ export async function getPdfToWordCMS(): Promise<PdfToWordCMSData | null> {
   }
 }
 
+export type ImageToPdfCMSData = WordToPdfCMSData;
+
+export async function getImageToPdfCMS(): Promise<ImageToPdfCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/tools/image-to-pdf/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch Image to PDF CMS data:', err);
+    return null;
+  }
+}
+
+export type PdfToJpgCMSData = WordToPdfCMSData;
+
+export async function getPdfToJpgCMS(): Promise<PdfToJpgCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/tools/pdf-to-jpg/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch PDF to JPG CMS data:', err);
+    return null;
+  }
+}
+
+export type ImageFormatCMSData = WordToPdfCMSData;
+
+export async function getImageFormatCMS(): Promise<ImageFormatCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/tools/image-format-converter/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch Image Format CMS data:', err);
+    return null;
+  }
+}
 
