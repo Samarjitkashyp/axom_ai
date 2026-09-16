@@ -223,7 +223,27 @@ export default function SidebarLeft({
             </div>
             <div className="user-info" style={{ flex: 1 }}>
               <span className="user-name">{user.username}</span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', marginTop: '1px' }}>Free Tier</span>
             </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenSettings();
+                if (window.innerWidth <= 850) onCloseSidebar?.();
+              }}
+              title="Settings & Profile"
+              aria-label="Settings & Profile"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'none', border: 'none', color: 'var(--text-muted)',
+                cursor: 'pointer', padding: '6px', borderRadius: '8px',
+                transition: 'color 0.2s',
+              }}
+              className="sidebar-settings-btn"
+            >
+              <SettingsIcon size={16} />
+            </button>
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); if (onLogout) onLogout(); }}

@@ -3062,6 +3062,68 @@ def user_status_api(request):
 
 
 @csrf_exempt
+def profile_api(request):
+    """GET: return full profile. POST: update profile fields."""
+    if request.method == 'OPTIONS':
+        from django.http import HttpResponse
+        return _apply_cross_subdomain_cors(request, HttpResponse(status=204))
+
+    user = getattr(request, 'user', None)
+    if not user or not getattr(user, 'is_authenticated', False):
+        resp = JsonResponse({'error': 'Not authenticated'}, status=401)
+        return _apply_cross_subdomain_cors(request, resp)
+
+    from userpanel.models import UserProfile
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+
+    if request.method == 'GET':
+        is_premium, plan_name, plan_obj = _check_user_premium_status(request)
+        plan_label = plan_name.replace('_', ' ').title() if plan_name else 'Free'
+        resp = JsonResponse({
+            'username': user.username,
+            'name': (user.get_full_name() or user.first_name or '').strip(),
+            'email': user.email or '',
+            'phone': profile.phone or '',
+            'bio': profile.bio or '',
+            'avatar_url': profile.avatar_url or '',
+            'location': '',
+            'plan': plan_name,
+            'plan_label': plan_label,
+            'is_premium': is_premium,
+        })
+        return _apply_cross_subdomain_cors(request, resp)
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            first_name = data.get('name', '').strip()
+            phone = data.get('phone', '').strip()
+            bio = data.get('bio', '').strip()
+            avatar_url = data.get('avatar_url', '').strip()
+            location = data.get('location', '').strip()
+
+            if first_name:
+                user.first_name = first_name
+                user.last_name = ''
+                user.save()
+
+            profile.phone = phone
+            profile.bio = bio
+            if avatar_url:
+                profile.avatar_url = avatar_url
+            profile.save()
+
+            resp = JsonResponse({'success': True, 'message': 'Profile updated.'})
+            return _apply_cross_subdomain_cors(request, resp)
+        except Exception as e:
+            resp = JsonResponse({'success': False, 'error': str(e)}, status=500)
+            return _apply_cross_subdomain_cors(request, resp)
+
+    resp = JsonResponse({'error': 'Method not allowed'}, status=405)
+    return _apply_cross_subdomain_cors(request, resp)
+
+
+@csrf_exempt
 def generate_image_api(request):
     """
     POST JSON: {prompt, quality?: 'normal'|'extreme', width?, height?, device_id?}.
