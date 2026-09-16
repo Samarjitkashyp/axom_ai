@@ -589,32 +589,16 @@ export default function SvgEditor({ onClose }) {
           </div>
         </div>
 
-        {/* Options Bar */}
+        {/* Options Bar — zoom & grid only */}
         <div style={S.optionsBar}>
-          <span style={S.label}>Fill</span>
-          <ColorGrid value={fillColor} onChange={(c) => { setFillColor(c); if (selectedObj) updateSelected('fill', c); }} show={showFillPicker} setShow={setShowFillPicker} />
-          <span style={S.label}>Stroke</span>
-          <ColorGrid value={strokeColor} onChange={(c) => { setStrokeColor(c); if (selectedObj) updateSelected('stroke', c); }} show={showStrokePicker} setShow={setShowStrokePicker} />
-          <select value={strokeWidth} onChange={(e) => { const v = +e.target.value; setStrokeWidth(v); if (selectedObj) updateSelected('strokeWidth', v); }} style={S.select}>
-            {STROKE_WIDTHS.map((w) => <option key={w} value={w}>{w}px</option>)}
-          </select>
-
+          <button onClick={undo} style={{ ...S.smBtn, opacity: canUndo ? 1 : 0.35 }} title="Undo (Ctrl+Z)"><Undo2 size={14} /></button>
+          <button onClick={redo} style={{ ...S.smBtn, opacity: canRedo ? 1 : 0.35 }} title="Redo (Ctrl+Y)"><Redo2 size={14} /></button>
           <div style={{ width: 1, height: 22, background: '#333' }} />
-
-          <select value={fontFamily} onChange={(e) => { setFontFamily(e.target.value); if (selectedObj?.type === 'textbox') updateSelected('fontFamily', e.target.value); }} style={S.select}>
-            {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
-          </select>
-          <select value={fontSize} onChange={(e) => { const v = +e.target.value; setFontSize(v); if (selectedObj?.type === 'textbox') updateSelected('fontSize', v); }} style={S.select}>
-            {FONT_SIZES.map((s) => <option key={s} value={s}>{s}px</option>)}
-          </select>
-
+          <button onClick={duplicateObj} style={S.smBtn} title="Duplicate"><Copy size={14} /></button>
+          <button onClick={deleteSelected} style={S.smBtn} title="Delete"><Trash2 size={14} /></button>
           <div style={{ width: 1, height: 22, background: '#333' }} />
-
-          <button onClick={flipH} style={S.smBtn} title="Flip Horizontal"><FlipHorizontal size={14} /></button>
-          <button onClick={flipV} style={S.smBtn} title="Flip Vertical"><FlipVertical size={14} /></button>
-          <button onClick={rotate90} style={S.smBtn} title="Rotate 90°"><RotateCcw size={14} /></button>
-          <button onClick={alignH} style={S.smBtn} title="Center H"><AlignCenterHorizontal size={14} /></button>
-          <button onClick={alignV} style={S.smBtn} title="Center V"><AlignCenterVertical size={14} /></button>
+          <button onClick={bringForward} style={S.smBtn} title="Bring Forward"><ArrowUp size={14} /></button>
+          <button onClick={sendBackward} style={S.smBtn} title="Send Backward"><ArrowDown size={14} /></button>
 
           <div style={{ flex: 1 }} />
 
@@ -622,9 +606,6 @@ export default function SvgEditor({ onClose }) {
           <span style={{ color: '#aaa', fontSize: '0.78rem', minWidth: 40, textAlign: 'center' }}>{zoom}%</span>
           <button onClick={() => setZoomLevel(zoom + 25)} style={S.smBtn}><ZoomIn size={14} /></button>
           <button onClick={() => setShowGrid(!showGrid)} style={{ ...S.smBtn, background: showGrid ? 'rgba(139,92,246,0.3)' : 'transparent' }} title="Grid"><Grid3X3 size={14} /></button>
-          <div style={{ width: 1, height: 22, background: '#333' }} />
-          <span style={S.label}>BG</span>
-          <ColorGrid value={canvasBg} onChange={(c) => setCanvasBg(c)} show={showBgPicker} setShow={setShowBgPicker} />
         </div>
 
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -641,14 +622,6 @@ export default function SvgEditor({ onClose }) {
             <div style={S.sep} />
             <button onClick={() => fileRef.current?.click()} style={S.toolBtn} title="Import SVG"><UploadCloud size={18} /></button>
             <button onClick={() => imgRef.current?.click()} style={S.toolBtn} title="Add Image"><ImageIcon size={18} /></button>
-            <div style={S.sep} />
-            <button onClick={undo} style={{ ...S.toolBtn, opacity: canUndo ? 1 : 0.35 }} title="Undo (Ctrl+Z)"><Undo2 size={18} /></button>
-            <button onClick={redo} style={{ ...S.toolBtn, opacity: canRedo ? 1 : 0.35 }} title="Redo (Ctrl+Y)"><Redo2 size={18} /></button>
-            <div style={S.sep} />
-            <button onClick={duplicateObj} style={S.toolBtn} title="Duplicate"><Copy size={18} /></button>
-            <button onClick={deleteSelected} style={S.toolBtn} title="Delete"><Trash2 size={18} /></button>
-            <button onClick={bringForward} style={S.toolBtn} title="Bring Forward"><ArrowUp size={18} /></button>
-            <button onClick={sendBackward} style={S.toolBtn} title="Send Backward"><ArrowDown size={18} /></button>
             <div style={{ flex: 1 }} />
             <button onClick={() => { setShowLayers(!showLayers); syncLayers(); }} style={{ ...S.toolBtn, background: showLayers ? 'rgba(139,92,246,0.3)' : 'transparent' }} title="Layers"><Layers size={18} /></button>
           </div>
@@ -658,47 +631,73 @@ export default function SvgEditor({ onClose }) {
             <div ref={wrapRef} />
           </div>
 
-          {/* Properties panel for selected object */}
-          {selectedObj && (
-            <div style={S.propsPanel}>
-              <div style={{ padding: '10px 12px', borderBottom: '1px solid #333', fontWeight: 700, fontSize: '0.85rem', color: '#ccc' }}>
-                Properties
+          {/* Right Sidebar — style options */}
+          <div style={S.rightPanel}>
+            {/* Colors */}
+            <div style={S.rpSection}>
+              <div style={S.rpHeader}>Colors</div>
+              <div style={S.rpRow}>
+                <span style={S.propLabel}>Fill</span>
+                <ColorGrid value={fillColor} onChange={(c) => { setFillColor(c); if (selectedObj) updateSelected('fill', c); }} show={showFillPicker} setShow={setShowFillPicker} />
               </div>
-              <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto' }}>
-                <div>
-                  <span style={S.propLabel}>Width</span>
-                  <input type="number" value={selWidth} onChange={(e) => changeSelSize('w', e.target.value)} style={S.propInput} min={1} />
+              <div style={S.rpRow}>
+                <span style={S.propLabel}>Stroke</span>
+                <ColorGrid value={strokeColor} onChange={(c) => { setStrokeColor(c); if (selectedObj) updateSelected('stroke', c); }} show={showStrokePicker} setShow={setShowStrokePicker} />
+              </div>
+              <div style={S.rpRow}>
+                <span style={S.propLabel}>Width</span>
+                <select value={strokeWidth} onChange={(e) => { const v = +e.target.value; setStrokeWidth(v); if (selectedObj) updateSelected('strokeWidth', v); }} style={{ ...S.select, flex: 1 }}>
+                  {STROKE_WIDTHS.map((w) => <option key={w} value={w}>{w}px</option>)}
+                </select>
+              </div>
+              <div style={S.rpRow}>
+                <span style={S.propLabel}>BG</span>
+                <ColorGrid value={canvasBg} onChange={(c) => setCanvasBg(c)} show={showBgPicker} setShow={setShowBgPicker} />
+              </div>
+            </div>
+
+            {/* Typography */}
+            <div style={S.rpSection}>
+              <div style={S.rpHeader}>Typography</div>
+              <select value={fontFamily} onChange={(e) => { setFontFamily(e.target.value); if (selectedObj?.type === 'textbox') updateSelected('fontFamily', e.target.value); }} style={{ ...S.select, width: '100%' }}>
+                {FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+              <select value={fontSize} onChange={(e) => { const v = +e.target.value; setFontSize(v); if (selectedObj?.type === 'textbox') updateSelected('fontSize', v); }} style={{ ...S.select, width: '100%', marginTop: 6 }}>
+                {FONT_SIZES.map((s) => <option key={s} value={s}>{s}px</option>)}
+              </select>
+            </div>
+
+            {/* Transform */}
+            <div style={S.rpSection}>
+              <div style={S.rpHeader}>Transform</div>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                <button onClick={flipH} style={S.smBtn} title="Flip H"><FlipHorizontal size={14} /></button>
+                <button onClick={flipV} style={S.smBtn} title="Flip V"><FlipVertical size={14} /></button>
+                <button onClick={rotate90} style={S.smBtn} title="Rotate 90°"><RotateCcw size={14} /></button>
+                <button onClick={alignH} style={S.smBtn} title="Center H"><AlignCenterHorizontal size={14} /></button>
+                <button onClick={alignV} style={S.smBtn} title="Center V"><AlignCenterVertical size={14} /></button>
+              </div>
+            </div>
+
+            {/* Properties — shown when object selected */}
+            {selectedObj && (
+              <div style={S.rpSection}>
+                <div style={S.rpHeader}>Properties</div>
+                <div style={S.rpRow}>
+                  <span style={S.propLabel}>W</span>
+                  <input type="number" value={selWidth} onChange={(e) => changeSelSize('w', e.target.value)} style={{ ...S.propInput, flex: 1 }} min={1} />
                 </div>
-                <div>
-                  <span style={S.propLabel}>Height</span>
-                  <input type="number" value={selHeight} onChange={(e) => changeSelSize('h', e.target.value)} style={S.propInput} min={1} />
+                <div style={S.rpRow}>
+                  <span style={S.propLabel}>H</span>
+                  <input type="number" value={selHeight} onChange={(e) => changeSelSize('h', e.target.value)} style={{ ...S.propInput, flex: 1 }} min={1} />
                 </div>
                 <div>
                   <span style={S.propLabel}>Opacity — {selOpacity}%</span>
                   <input type="range" min={0} max={100} value={selOpacity} onChange={(e) => changeSelOpacity(+e.target.value)} style={{ width: '100%' }} />
                 </div>
-                <div>
-                  <span style={S.propLabel}>Fill</span>
-                  <input type="color" value={(selectedObj.fill && selectedObj.fill !== 'transparent') ? selectedObj.fill : '#ffffff'} onChange={(e) => updateSelected('fill', e.target.value)}
-                    style={{ width: '100%', height: 28, cursor: 'pointer', border: '1px solid #444', borderRadius: 6, background: 'transparent' }} />
-                  <button onClick={() => updateSelected('fill', 'transparent')} style={{ ...S.smBtn, width: '100%', marginTop: 4, fontSize: '0.72rem', color: '#888' }}>No Fill</button>
-                </div>
-                <div>
-                  <span style={S.propLabel}>Stroke</span>
-                  <input type="color" value={(selectedObj.stroke && selectedObj.stroke !== 'transparent') ? selectedObj.stroke : '#000000'} onChange={(e) => updateSelected('stroke', e.target.value)}
-                    style={{ width: '100%', height: 28, cursor: 'pointer', border: '1px solid #444', borderRadius: 6, background: 'transparent' }} />
-                  <button onClick={() => updateSelected('stroke', 'transparent')} style={{ ...S.smBtn, width: '100%', marginTop: 4, fontSize: '0.72rem', color: '#888' }}>No Stroke</button>
-                </div>
-                <div>
-                  <span style={S.propLabel}>Stroke Width</span>
-                  <select value={selectedObj.strokeWidth || 0} onChange={(e) => updateSelected('strokeWidth', +e.target.value)} style={{ ...S.select, width: '100%' }}>
-                    <option value={0}>None</option>
-                    {STROKE_WIDTHS.map((w) => <option key={w} value={w}>{w}px</option>)}
-                  </select>
-                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Layers */}
           {showLayers && (
@@ -757,6 +756,10 @@ const S = {
   select: { background: '#1a1a24', color: '#ccc', border: '1px solid #333', borderRadius: 6, padding: '3px 6px', fontSize: '0.78rem', cursor: 'pointer', outline: 'none' },
   layerBtn: { width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, border: 'none', background: 'transparent', color: '#888', cursor: 'pointer', flexShrink: 0 },
   sep: { width: '100%', height: 1, background: '#333', margin: '4px 0' },
+  rightPanel: { width: 210, background: '#111118', borderLeft: '1px solid #222', display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'auto', padding: 0 },
+  rpSection: { padding: '10px 12px', borderBottom: '1px solid #222', display: 'flex', flexDirection: 'column', gap: 8 },
+  rpHeader: { fontWeight: 700, fontSize: '0.78rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.04em' },
+  rpRow: { display: 'flex', alignItems: 'center', gap: 8 },
   propsPanel: { width: 200, background: '#111118', borderLeft: '1px solid #222', display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'auto' },
   propLabel: { display: 'block', color: '#888', fontSize: '0.75rem', marginBottom: 4 },
   propInput: { width: '100%', background: '#1a1a24', color: '#ccc', border: '1px solid #333', borderRadius: 6, padding: '4px 8px', fontSize: '0.82rem', outline: 'none' },
