@@ -482,4 +482,19 @@ export async function getWordToPdfCMS(): Promise<WordToPdfCMSData | null> {
   }
 }
 
+export type PdfToWordCMSData = WordToPdfCMSData;
+
+export async function getPdfToWordCMS(): Promise<PdfToWordCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/tools/pdf-to-word/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch PDF to Word CMS data:', err);
+    return null;
+  }
+}
+
 
