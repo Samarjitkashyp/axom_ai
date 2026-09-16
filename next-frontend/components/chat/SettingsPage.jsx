@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   ChevronLeft, Archive, Palette, Info, Sun, Moon, Trash2,
   MessageSquare, Settings as SettingsIcon, User, Camera,
@@ -34,6 +34,43 @@ export default function SettingsPage({
   const [formPhone, setFormPhone] = useState('');
   const [formBio, setFormBio] = useState('');
   const [formLocation, setFormLocation] = useState('');
+
+  const avatarInputRef = useRef(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setSaveMsg('Image too large. Max 5MB.');
+      return;
+    }
+    setAvatarUploading(true);
+    try {
+      const csrf = getCsrfToken();
+      const fd = new FormData();
+      fd.append('avatar', file);
+      const res = await fetch('/api/profile/avatar/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: csrf ? { 'X-CSRFToken': csrf } : {},
+        body: fd,
+      });
+      const d = await res.json();
+      if (d.success && d.avatar_url) {
+        setProfile((prev) => ({ ...prev, avatar_url: d.avatar_url }));
+        setSaveMsg('Photo updated!');
+        setTimeout(() => setSaveMsg(''), 3000);
+      } else {
+        setSaveMsg(d.error || 'Failed to upload photo.');
+      }
+    } catch {
+      setSaveMsg('Network error uploading photo.');
+    } finally {
+      setAvatarUploading(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = '';
+    }
+  };
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -150,13 +187,25 @@ export default function SettingsPage({
                     ) : (
                       <span className="profile-avatar-initial">{initial}</span>
                     )}
-                    <button className="profile-avatar-edit" title="Change Photo">
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      style={{ display: 'none' }}
+                      onChange={handleAvatarUpload}
+                    />
+                    <button
+                      className="profile-avatar-edit"
+                      title="Change Photo"
+                      onClick={() => avatarInputRef.current?.click()}
+                      disabled={avatarUploading}
+                    >
                       <Camera size={14} />
                     </button>
                   </div>
                   <div className="profile-header-info">
                     <h2 className="profile-display-name">{formName || profile?.username || 'User'}</h2>
-                    <p className="profile-email-display">{profile?.email || ''}</p>
+                    <p className="profile-email-display">{profile?.email || user?.email || ''}</p>
                     <span className={`profile-plan-badge ${isPremium ? 'premium' : 'free'}`}>
                       <Star size={12} /> {planLabel} {isPremium ? '' : '• Active'}
                     </span>
@@ -199,7 +248,7 @@ export default function SettingsPage({
                     <input
                       type="email"
                       className="profile-input"
-                      value={profile?.email || ''}
+                      value={profile?.email || user?.email || ''}
                       readOnly
                       disabled
                     />

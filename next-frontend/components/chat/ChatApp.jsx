@@ -34,6 +34,7 @@ export default function ChatApp() {
   const [user, setUser] = useState({
     isAuthenticated: false,
     username: '',
+    email: '',
     isStaff: false,
     isLoaded: false,
   });
@@ -47,6 +48,7 @@ export default function ChatApp() {
           setUser({
             isAuthenticated: true,
             username: d.username || '',
+            email: d.email || '',
             isStaff: !!d.is_staff,
             isLoaded: true,
           });
@@ -70,6 +72,7 @@ export default function ChatApp() {
               setUser({
                 isAuthenticated: true,
                 username: syncData.username || '',
+                email: syncData.email || '',
                 isStaff: !!syncData.is_staff,
                 isLoaded: true,
               });
@@ -107,6 +110,7 @@ export default function ChatApp() {
     setUser({
       isAuthenticated: true,
       username: loginData.username || '',
+      email: loginData.email || '',
       isStaff: !!loginData.is_staff,
       isLoaded: true,
     });
@@ -408,6 +412,10 @@ export default function ChatApp() {
         deleteSession={deleteSession}
         theme={theme}
         onToggleTheme={handleToggleTheme}
+        user={user}
+        activePlan={activePlan}
+        onLogout={handleLogout}
+        onUpgrade={navigateToUpgrade}
       />
     );
   }

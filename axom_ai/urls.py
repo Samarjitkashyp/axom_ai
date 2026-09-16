@@ -73,6 +73,7 @@ urlpatterns = [
     path('api/depth-layers/', views.depth_layers_api, name='depth_layers_api'),
     path('api/user-status/', views.user_status_api, name='user_status_api'),
     path('api/profile/', views.profile_api, name='profile_api'),
+    path('api/profile/avatar/', views.profile_avatar_api, name='profile_avatar_api'),
     path('api/stock-images/', views.search_stock_images_api, name='search_stock_images_api'),
     path('api/download-stock-image/', views.download_stock_image_api, name='download_stock_image_api'),
     path('api/stock-videos/', views.search_stock_videos_api, name='search_stock_videos_api'),

@@ -3124,6 +3124,58 @@ def profile_api(request):
 
 
 @csrf_exempt
+def profile_avatar_api(request):
+    """POST multipart: upload avatar image."""
+    if request.method == 'OPTIONS':
+        from django.http import HttpResponse
+        return _apply_cross_subdomain_cors(request, HttpResponse(status=204))
+
+    user = getattr(request, 'user', None)
+    if not user or not getattr(user, 'is_authenticated', False):
+        resp = JsonResponse({'error': 'Not authenticated'}, status=401)
+        return _apply_cross_subdomain_cors(request, resp)
+
+    if request.method != 'POST':
+        resp = JsonResponse({'error': 'Method not allowed'}, status=405)
+        return _apply_cross_subdomain_cors(request, resp)
+
+    avatar_file = request.FILES.get('avatar')
+    if not avatar_file:
+        resp = JsonResponse({'error': 'No file provided'}, status=400)
+        return _apply_cross_subdomain_cors(request, resp)
+
+    if avatar_file.size > 5 * 1024 * 1024:
+        resp = JsonResponse({'error': 'File too large. Max 5MB.'}, status=400)
+        return _apply_cross_subdomain_cors(request, resp)
+
+    allowed = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
+    if avatar_file.content_type not in allowed:
+        resp = JsonResponse({'error': 'Invalid file type. Use JPG, PNG, WebP or GIF.'}, status=400)
+        return _apply_cross_subdomain_cors(request, resp)
+
+    import os
+    from django.conf import settings as django_settings
+    ext = os.path.splitext(avatar_file.name)[1] or '.jpg'
+    filename = f"avatars/user_{user.id}{ext}"
+    save_path = os.path.join(django_settings.MEDIA_ROOT, filename)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    with open(save_path, 'wb+') as f:
+        for chunk in avatar_file.chunks():
+            f.write(chunk)
+
+    avatar_url = f"/{django_settings.MEDIA_URL}{filename}"
+
+    from userpanel.models import UserProfile
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    profile.avatar_url = avatar_url
+    profile.save()
+
+    resp = JsonResponse({'success': True, 'avatar_url': avatar_url})
+    return _apply_cross_subdomain_cors(request, resp)
+
+
+@csrf_exempt
 def generate_image_api(request):
     """
     POST JSON: {prompt, quality?: 'normal'|'extreme', width?, height?, device_id?}.
