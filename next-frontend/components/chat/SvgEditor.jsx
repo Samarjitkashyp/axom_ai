@@ -23,8 +23,11 @@ export default function SvgEditor({ onClose }) {
   const fabricModRef = useRef(null);
   const fileRef = useRef(null);
   const imgRef = useRef(null);
+  const landingFileRef = useRef(null);
   const historyRef = useRef({ states: [], idx: -1, recording: true });
+  const pendingSvgRef = useRef(null);
 
+  const [mode, setMode] = useState(null); // null = landing, 'edit' = editor
   const [ready, setReady] = useState(false);
   const [tool, setTool] = useState('select');
   const [fillColor, setFillColor] = useState('#2563eb');
@@ -75,8 +78,9 @@ export default function SvgEditor({ onClose }) {
     syncLayers();
   }, [syncLayers]);
 
-  // ── Init Fabric ──
+  // ── Init Fabric (only when editor mode) ──
   useEffect(() => {
+    if (mode !== 'edit') return;
     let disposed = false;
     const init = async () => {
       const fabric = await import('fabric');
@@ -106,10 +110,35 @@ export default function SvgEditor({ onClose }) {
 
       saveHistory();
       setReady(true);
+
+      if (pendingSvgRef.current) {
+        const text = pendingSvgRef.current;
+        pendingSvgRef.current = null;
+        const result = await fabric.loadSVGFromString(text);
+        if (!result.objects || result.objects.length === 0) return;
+        const group = fabric.util.groupSVGElements(result.objects, result.options);
+        const sx = (canvasW * 0.9) / (group.width || 1);
+        const sy = (canvasH * 0.9) / (group.height || 1);
+        const scale = Math.min(sx, sy, 1);
+        fc.clear(); fc.backgroundColor = '#ffffff';
+        if (group.type === 'group') {
+          const flat = flattenGroup(group, scale, fabric);
+          const offsetX = canvasW / 2 - (group.width * scale) / 2;
+          const offsetY = canvasH / 2 - (group.height * scale) / 2;
+          for (const obj of flat) {
+            obj.set({ left: (obj.left || 0) * scale + offsetX, top: (obj.top || 0) * scale + offsetY });
+            fc.add(obj);
+          }
+        } else {
+          group.set({ scaleX: scale, scaleY: scale, left: canvasW / 2, top: canvasH / 2, originX: 'center', originY: 'center' });
+          fc.add(group);
+        }
+        fc.renderAll(); saveHistory();
+      }
     };
     init();
     return () => { disposed = true; if (fabricRef.current) { fabricRef.current.dispose(); fabricRef.current = null; } if (wrapRef.current) wrapRef.current.innerHTML = ''; };
-  }, []);
+  }, [mode]);
 
   const syncSel = () => {
     const ao = fabricRef.current?.getActiveObject();
@@ -449,6 +478,31 @@ export default function SvgEditor({ onClose }) {
     fc.renderAll();
   }, [showGrid, ready]);
 
+  // ── Landing page: upload SVG then open editor ──
+  const handleLandingUpload = async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const text = await f.text();
+    pendingSvgRef.current = text;
+    setMode('edit');
+    e.target.value = '';
+  };
+
+  const [dragActive, setDragActive] = useState(false);
+  const handleLandingDrag = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true);
+    else if (e.type === 'dragleave') setDragActive(false);
+  };
+  const handleLandingDrop = async (e) => {
+    e.preventDefault(); e.stopPropagation(); setDragActive(false);
+    const f = e.dataTransfer.files?.[0];
+    if (!f || !f.name.toLowerCase().endsWith('.svg')) return;
+    const text = await f.text();
+    pendingSvgRef.current = text;
+    setMode('edit');
+  };
+
   // ── Color picker ──
   const ColorGrid = ({ value, onChange, show, setShow }) => (
     <div style={{ position: 'relative' }}>
@@ -471,6 +525,50 @@ export default function SvgEditor({ onClose }) {
       )}
     </div>
   );
+
+  // ── Landing Screen ──
+  if (mode === null) {
+    return (
+      <div style={S.overlay}>
+        <div style={S.container}>
+          <div style={S.topBar}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <PenTool size={20} style={{ color: '#8b5cf6' }} />
+              <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#fff' }}>SVG Editor</span>
+              <span style={{ color: '#888', fontSize: '0.8rem' }}>— Draw, edit & export vector graphics</span>
+            </div>
+            <button onClick={onClose} style={S.closeBtn}><X size={18} /></button>
+          </div>
+          <div style={S.landingWrap}>
+            <div style={S.landingCards}>
+              {/* Upload SVG */}
+              <div
+                style={{ ...S.landingCard, borderColor: dragActive ? '#8b5cf6' : '#333' }}
+                onClick={() => landingFileRef.current?.click()}
+                onDragEnter={handleLandingDrag} onDragOver={handleLandingDrag}
+                onDragLeave={handleLandingDrag} onDrop={handleLandingDrop}
+              >
+                <div style={S.landingIcon}><UploadCloud size={44} style={{ color: '#8b5cf6' }} /></div>
+                <h3 style={S.landingTitle}>Upload SVG</h3>
+                <p style={S.landingDesc}>Upload an existing SVG file to edit its colors, shapes, sizes and more</p>
+                <span style={S.landingHint}>Drag & drop or click to browse</span>
+                <span style={S.landingBadge}>SVG files</span>
+              </div>
+              {/* Edit SVG (blank canvas) */}
+              <div style={S.landingCard} onClick={() => setMode('edit')}>
+                <div style={S.landingIcon}><PenTool size={44} style={{ color: '#06b6d4' }} /></div>
+                <h3 style={S.landingTitle}>Edit SVG</h3>
+                <p style={S.landingDesc}>Start with a blank canvas — draw shapes, add text, freehand and create from scratch</p>
+                <span style={S.landingHint}>Opens the full vector editor</span>
+                <span style={{ ...S.landingBadge, background: 'rgba(6,182,212,0.15)', color: '#06b6d4' }}>Create new</span>
+              </div>
+            </div>
+          </div>
+          <input ref={landingFileRef} type="file" accept=".svg" onChange={handleLandingUpload} hidden />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={S.overlay}>
@@ -662,4 +760,17 @@ const S = {
   propsPanel: { width: 200, background: '#111118', borderLeft: '1px solid #222', display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'auto' },
   propLabel: { display: 'block', color: '#888', fontSize: '0.75rem', marginBottom: 4 },
   propInput: { width: '100%', background: '#1a1a24', color: '#ccc', border: '1px solid #333', borderRadius: 6, padding: '4px 8px', fontSize: '0.82rem', outline: 'none' },
+  landingWrap: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0a0f', padding: 40 },
+  landingCards: { display: 'flex', gap: 32, maxWidth: 720, width: '100%' },
+  landingCard: {
+    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    gap: 14, padding: '48px 32px', borderRadius: 20, border: '2px dashed #333',
+    background: '#111118', cursor: 'pointer', transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
+    textAlign: 'center',
+  },
+  landingIcon: { width: 80, height: 80, borderRadius: '50%', background: 'rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  landingTitle: { color: '#fff', fontSize: '1.2rem', fontWeight: 700, margin: 0 },
+  landingDesc: { color: '#888', fontSize: '0.88rem', margin: 0, lineHeight: 1.5 },
+  landingHint: { color: '#666', fontSize: '0.78rem' },
+  landingBadge: { display: 'inline-block', padding: '4px 14px', borderRadius: 20, background: 'rgba(139,92,246,0.15)', color: '#8b5cf6', fontSize: '0.78rem', fontWeight: 600 },
 };
