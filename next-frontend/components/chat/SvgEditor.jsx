@@ -43,6 +43,11 @@ export default function SvgEditor({ onClose }) {
   const [canvasH] = useState(640);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [canvasBg, setCanvasBg] = useState('#ffffff');
+  const [showBgPicker, setShowBgPicker] = useState(false);
+  const [selWidth, setSelWidth] = useState('');
+  const [selHeight, setSelHeight] = useState('');
+  const [selOpacity, setSelOpacity] = useState(100);
 
   const syncLayers = useCallback(() => {
     const fc = fabricRef.current;
@@ -108,8 +113,11 @@ export default function SvgEditor({ onClose }) {
 
   const syncSel = () => {
     const ao = fabricRef.current?.getActiveObject();
-    if (!ao) { setSelectedObj(null); return; }
+    if (!ao) { setSelectedObj(null); setSelWidth(''); setSelHeight(''); setSelOpacity(100); return; }
     setSelectedObj({ type: ao.type, fill: ao.fill, stroke: ao.stroke, strokeWidth: ao.strokeWidth, fontSize: ao.fontSize, fontFamily: ao.fontFamily, opacity: ao.opacity });
+    setSelWidth(Math.round(ao.getScaledWidth()));
+    setSelHeight(Math.round(ao.getScaledHeight()));
+    setSelOpacity(Math.round((ao.opacity ?? 1) * 100));
   };
 
   // ── History ──
@@ -286,6 +294,25 @@ export default function SvgEditor({ onClose }) {
   };
 
   // ── Import SVG ──
+  const flattenGroup = (group, scale, fab) => {
+    const items = [];
+    const children = group.getObjects ? group.getObjects() : [];
+    for (const child of children) {
+      if (child.type === 'group') {
+        items.push(...flattenGroup(child, scale, fab));
+      } else {
+        child.set({
+          scaleX: (child.scaleX || 1) * scale,
+          scaleY: (child.scaleY || 1) * scale,
+          selectable: true,
+          evented: true,
+        });
+        items.push(child);
+      }
+    }
+    return items;
+  };
+
   const importSvg = async (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -294,15 +321,29 @@ export default function SvgEditor({ onClose }) {
     if (!fc || !fab) return;
     const text = await f.text();
     const result = await fab.loadSVGFromString(text);
+    if (!result.objects || result.objects.length === 0) return;
     const group = fab.util.groupSVGElements(result.objects, result.options);
-    const sx = (canvasW * 0.9) / group.width;
-    const sy = (canvasH * 0.9) / group.height;
+    const sx = (canvasW * 0.9) / (group.width || 1);
+    const sy = (canvasH * 0.9) / (group.height || 1);
     const scale = Math.min(sx, sy, 1);
-    group.set({ scaleX: scale, scaleY: scale, left: canvasW / 2, top: canvasH / 2, originX: 'center', originY: 'center' });
-    fc.clear(); fc.backgroundColor = '#ffffff';
+
+    fc.clear(); fc.backgroundColor = canvasBg;
+
     if (group.type === 'group') {
-      group.getObjects().forEach((o) => { o.set({ scaleX: o.scaleX * scale, scaleY: o.scaleY * scale }); fc.add(o); });
-    } else fc.add(group);
+      const flat = flattenGroup(group, scale, fab);
+      const offsetX = canvasW / 2 - (group.width * scale) / 2;
+      const offsetY = canvasH / 2 - (group.height * scale) / 2;
+      for (const obj of flat) {
+        obj.set({
+          left: (obj.left || 0) * scale + offsetX,
+          top: (obj.top || 0) * scale + offsetY,
+        });
+        fc.add(obj);
+      }
+    } else {
+      group.set({ scaleX: scale, scaleY: scale, left: canvasW / 2, top: canvasH / 2, originX: 'center', originY: 'center' });
+      fc.add(group);
+    }
     fc.renderAll(); saveHistory(); setTool('select');
     e.target.value = '';
   };
@@ -350,6 +391,42 @@ export default function SvgEditor({ onClose }) {
     const ao = fc?.getActiveObject();
     if (!ao) return;
     ao.set(prop, val); fc.renderAll(); saveHistory(); syncSel();
+  };
+
+  // ── Canvas background ──
+  useEffect(() => {
+    const fc = fabricRef.current;
+    if (!fc) return;
+    fc.backgroundColor = canvasBg;
+    fc.renderAll();
+  }, [canvasBg, ready]);
+
+  const changeSelSize = (dim, val) => {
+    const fc = fabricRef.current;
+    const ao = fc?.getActiveObject();
+    if (!ao || !val) return;
+    const num = parseInt(val, 10);
+    if (isNaN(num) || num <= 0) return;
+    if (dim === 'w') {
+      const newScale = num / (ao.width || 1);
+      ao.set('scaleX', newScale);
+      setSelWidth(num);
+    } else {
+      const newScale = num / (ao.height || 1);
+      ao.set('scaleY', newScale);
+      setSelHeight(num);
+    }
+    fc.renderAll(); saveHistory();
+  };
+
+  const changeSelOpacity = (val) => {
+    const fc = fabricRef.current;
+    const ao = fc?.getActiveObject();
+    if (!ao) return;
+    const v = Math.max(0, Math.min(100, val));
+    setSelOpacity(v);
+    ao.set('opacity', v / 100);
+    fc.renderAll(); saveHistory();
   };
 
   // ── Grid ──
@@ -447,6 +524,9 @@ export default function SvgEditor({ onClose }) {
           <span style={{ color: '#aaa', fontSize: '0.78rem', minWidth: 40, textAlign: 'center' }}>{zoom}%</span>
           <button onClick={() => setZoomLevel(zoom + 25)} style={S.smBtn}><ZoomIn size={14} /></button>
           <button onClick={() => setShowGrid(!showGrid)} style={{ ...S.smBtn, background: showGrid ? 'rgba(139,92,246,0.3)' : 'transparent' }} title="Grid"><Grid3X3 size={14} /></button>
+          <div style={{ width: 1, height: 22, background: '#333' }} />
+          <span style={S.label}>BG</span>
+          <ColorGrid value={canvasBg} onChange={(c) => setCanvasBg(c)} show={showBgPicker} setShow={setShowBgPicker} />
         </div>
 
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -479,6 +559,48 @@ export default function SvgEditor({ onClose }) {
           <div style={S.canvasWrap}>
             <div ref={wrapRef} />
           </div>
+
+          {/* Properties panel for selected object */}
+          {selectedObj && (
+            <div style={S.propsPanel}>
+              <div style={{ padding: '10px 12px', borderBottom: '1px solid #333', fontWeight: 700, fontSize: '0.85rem', color: '#ccc' }}>
+                Properties
+              </div>
+              <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto' }}>
+                <div>
+                  <span style={S.propLabel}>Width</span>
+                  <input type="number" value={selWidth} onChange={(e) => changeSelSize('w', e.target.value)} style={S.propInput} min={1} />
+                </div>
+                <div>
+                  <span style={S.propLabel}>Height</span>
+                  <input type="number" value={selHeight} onChange={(e) => changeSelSize('h', e.target.value)} style={S.propInput} min={1} />
+                </div>
+                <div>
+                  <span style={S.propLabel}>Opacity — {selOpacity}%</span>
+                  <input type="range" min={0} max={100} value={selOpacity} onChange={(e) => changeSelOpacity(+e.target.value)} style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <span style={S.propLabel}>Fill</span>
+                  <input type="color" value={(selectedObj.fill && selectedObj.fill !== 'transparent') ? selectedObj.fill : '#ffffff'} onChange={(e) => updateSelected('fill', e.target.value)}
+                    style={{ width: '100%', height: 28, cursor: 'pointer', border: '1px solid #444', borderRadius: 6, background: 'transparent' }} />
+                  <button onClick={() => updateSelected('fill', 'transparent')} style={{ ...S.smBtn, width: '100%', marginTop: 4, fontSize: '0.72rem', color: '#888' }}>No Fill</button>
+                </div>
+                <div>
+                  <span style={S.propLabel}>Stroke</span>
+                  <input type="color" value={(selectedObj.stroke && selectedObj.stroke !== 'transparent') ? selectedObj.stroke : '#000000'} onChange={(e) => updateSelected('stroke', e.target.value)}
+                    style={{ width: '100%', height: 28, cursor: 'pointer', border: '1px solid #444', borderRadius: 6, background: 'transparent' }} />
+                  <button onClick={() => updateSelected('stroke', 'transparent')} style={{ ...S.smBtn, width: '100%', marginTop: 4, fontSize: '0.72rem', color: '#888' }}>No Stroke</button>
+                </div>
+                <div>
+                  <span style={S.propLabel}>Stroke Width</span>
+                  <select value={selectedObj.strokeWidth || 0} onChange={(e) => updateSelected('strokeWidth', +e.target.value)} style={{ ...S.select, width: '100%' }}>
+                    <option value={0}>None</option>
+                    {STROKE_WIDTHS.map((w) => <option key={w} value={w}>{w}px</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Layers */}
           {showLayers && (
@@ -537,4 +659,7 @@ const S = {
   select: { background: '#1a1a24', color: '#ccc', border: '1px solid #333', borderRadius: 6, padding: '3px 6px', fontSize: '0.78rem', cursor: 'pointer', outline: 'none' },
   layerBtn: { width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, border: 'none', background: 'transparent', color: '#888', cursor: 'pointer', flexShrink: 0 },
   sep: { width: '100%', height: 1, background: '#333', margin: '4px 0' },
+  propsPanel: { width: 200, background: '#111118', borderLeft: '1px solid #222', display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'auto' },
+  propLabel: { display: 'block', color: '#888', fontSize: '0.75rem', marginBottom: 4 },
+  propInput: { width: '100%', background: '#1a1a24', color: '#ccc', border: '1px solid #333', borderRadius: 6, padding: '4px 8px', fontSize: '0.82rem', outline: 'none' },
 };

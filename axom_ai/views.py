@@ -2062,8 +2062,8 @@ def convert_file_api(request):
         return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
 
     target = (request.POST.get('target', '') or '').lower().strip()
-    if target not in ('pdf', 'docx', 'png', 'jpg', 'webp'):
-        return JsonResponse({'error': 'Invalid target. Use pdf, docx, png, jpg or webp.'}, status=400)
+    if target not in ('pdf', 'docx', 'png', 'jpg', 'webp', 'svg'):
+        return JsonResponse({'error': 'Invalid target. Use pdf, docx, png, jpg, webp or svg.'}, status=400)
 
     files = request.FILES.getlist('files') or (
         [request.FILES['file']] if 'file' in request.FILES else [])
@@ -2175,6 +2175,35 @@ def convert_file_api(request):
                 img.save(out, quality=95 if target == 'jpg' else 90)
                 os.remove(png_tmp)
             out_name = f"{stem}.{target}"
+        elif target == 'svg' and src_ext == '.svg':
+            import shutil
+            out = os.path.join(out_dir, f"{stem}_{uid}.svg")
+            shutil.copy2(saved[0][0], out)
+            out_name = f"{stem}.svg"
+        elif target == 'svg' and src_ext in (
+                '.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tiff', '.tif',
+                '.gif', '.ico', '.avif', '.heic', '.heif', '.jfif'):
+            import base64 as b64mod
+            from PIL import Image as PILImage
+            img = PILImage.open(saved[0][0])
+            if img.mode not in ('RGB', 'RGBA'):
+                img = img.convert('RGBA')
+            w, h = img.size
+            from io import BytesIO
+            buf = BytesIO()
+            img.save(buf, format='PNG')
+            b64 = b64mod.b64encode(buf.getvalue()).decode()
+            svg_content = (
+                f'<svg xmlns="http://www.w3.org/2000/svg" '
+                f'width="{w}" height="{h}" viewBox="0 0 {w} {h}">\n'
+                f'  <image href="data:image/png;base64,{b64}" '
+                f'width="{w}" height="{h}"/>\n'
+                f'</svg>\n'
+            )
+            out = os.path.join(out_dir, f"{stem}_{uid}.svg")
+            with open(out, 'w', encoding='utf-8') as fh:
+                fh.write(svg_content)
+            out_name = f"{stem}.svg"
         else:
             return JsonResponse(
                 {'error': f'Cannot convert "{src_ext}" to "{target}".'}, status=400)

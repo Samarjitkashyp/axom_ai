@@ -248,6 +248,7 @@ export default function ToolWorkspace({ tool, onClose }) {
                       <option value="png">PNG (Lossless, Transparent)</option>
                       <option value="jpg">JPG (Compressed, Smaller)</option>
                       <option value="webp">WebP (Modern, Best Quality/Size)</option>
+                      <option value="svg">SVG (Vector, Scalable)</option>
                     </select>
                   </label>
                 )}
