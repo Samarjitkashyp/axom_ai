@@ -110,6 +110,10 @@ export default function ToolsPage({
       window.location.href = '/tools/word-to-pdf';
       return;
     }
+    if (t.id === 'pdf2word') {
+      window.location.href = '/tools/pdf-to-word';
+      return;
+    }
     if (t.editor) {
       onOpenEditor?.();
       return;
