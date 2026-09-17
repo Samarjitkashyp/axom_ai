@@ -54,6 +54,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.95,
     },
+    {
+      url: 'https://chat.aiaxom.co.in/tools/word-to-pdf',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1.0,
+    },
+    {
+      url: 'https://chat.aiaxom.co.in/tools',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
   ];
 
   try {
