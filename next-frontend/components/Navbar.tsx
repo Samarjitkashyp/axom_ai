@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Sparkles,
   ArrowRight,
@@ -21,6 +22,7 @@ import {
   ChevronDown,
   HelpCircle,
   Newspaper,
+  Mail,
   LogOut,
   User as UserIcon,
   Loader2
@@ -109,6 +111,7 @@ function toCssDimension(val?: string, defaultVal?: string): string | undefined {
 }
 
 export default function Navbar({ header: initialHeader, onBackToChat }: NavbarProps) {
+  const pathname = usePathname();
   const [header, setHeader] = useState<HeaderData | undefined>(initialHeader);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -409,9 +412,10 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
         { id: 4, title: 'Pricing', url: '/pricing', order: 4 },
         { id: 5, title: 'Blog & Insights', url: '/blog', order: 5 },
         { id: 6, title: 'FAQ', url: '/faq', order: 6 },
+        { id: 7, title: 'Contact Us', url: '/contact', order: 7 },
       ];
 
-  const navItems = rawNavItems.map((item) => {
+  const mappedNavItems = rawNavItems.map((item) => {
     if (
       item.url === '/#usecases' ||
       item.url === '#usecases' ||
@@ -427,8 +431,24 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
     ) {
       return { ...item, url: '/pricing' };
     }
+    if (
+      item.url === '/#contact' ||
+      item.url === '#contact' ||
+      item.url === 'mailto:samarjitkashyp@gmail.com' ||
+      item.url === 'mailto:support@aiaxom.co.in'
+    ) {
+      return { ...item, url: '/contact' };
+    }
     return item;
   });
+
+  // Ensure 'Contact Us' is present in navbar
+  const hasContact = mappedNavItems.some(
+    (item) => item.url === '/contact' || item.url === '/contact/' || item.title.toLowerCase().includes('contact')
+  );
+  const navItems = hasContact
+    ? mappedNavItems
+    : [...mappedNavItems, { id: 99, title: 'Contact Us', url: '/contact', order: 99 }];
 
   // Dynamic Mega Menu Items
   const megaItems = header?.mega_menu_items && header.mega_menu_items.length > 0
@@ -547,8 +567,17 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
 
               const targetUrl = resolveUrl(item.url);
               const isExternal = targetUrl.startsWith('http');
-              const linkClass = isBlog
-                ? "px-4 py-2 rounded-full text-white bg-fuchsia-500/20 border border-fuchsia-500/35 font-semibold transition hover:bg-fuchsia-500/30"
+
+              // Determine accurate active state based on current pathname
+              const cleanTarget = targetUrl.replace(/\/+$/, '');
+              const cleanPath = (pathname || '').replace(/\/+$/, '');
+              const isActive =
+                cleanTarget !== '' &&
+                cleanTarget !== '#' &&
+                (cleanPath === cleanTarget || (cleanTarget !== '/' && cleanPath.startsWith(cleanTarget + '/')));
+
+              const linkClass = isActive
+                ? "px-4 py-2 rounded-full text-white bg-fuchsia-500/20 border border-fuchsia-500/35 font-semibold transition hover:bg-fuchsia-500/30 shadow-sm"
                 : "px-4 py-2 rounded-full text-gray-300 hover:text-white hover:bg-white/5 transition";
 
               return isExternal ? (
@@ -712,6 +741,10 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
               ? Crown
               : it.title.toLowerCase().includes('blog')
               ? Newspaper
+              : it.title.toLowerCase().includes('faq')
+              ? HelpCircle
+              : it.title.toLowerCase().includes('contact')
+              ? Mail
               : Sparkles;
 
             const targetUrl = resolveUrl(it.url);

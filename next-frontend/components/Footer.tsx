@@ -37,7 +37,7 @@ const DEFAULT_COLS = [
       { id: 13, title: 'About Axom AI', url: '/about', is_external: false },
       { id: 14, title: 'Privacy Policy', url: '/faq', is_external: false },
       { id: 15, title: 'Terms of Service', url: '/faq', is_external: false },
-      { id: 16, title: 'Contact Support', url: 'mailto:samarjitkashyp@gmail.com', is_external: true },
+      { id: 16, title: 'Contact Us', url: '/contact', is_external: false },
     ],
   },
 ];
@@ -147,6 +147,16 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
         (lnk.title.toLowerCase().includes('pricing') && lnk.url.includes('pricing'))
       ) {
         return { ...lnk, url: '/pricing' };
+      }
+      if (
+        lnk.url === 'mailto:samarjitkashyp@gmail.com' ||
+        lnk.url === 'mailto:support@aiaxom.co.in' ||
+        lnk.url === '/#contact' ||
+        lnk.url === '#contact' ||
+        lnk.title.toLowerCase().includes('contact support') ||
+        lnk.title.toLowerCase().includes('contact us')
+      ) {
+        return { ...lnk, title: 'Contact Us', url: '/contact', is_external: false };
       }
       return lnk;
     }),
