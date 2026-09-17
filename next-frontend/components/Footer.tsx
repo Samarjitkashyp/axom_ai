@@ -36,7 +36,7 @@ const DEFAULT_COLS = [
     links: [
       { id: 13, title: 'About Axom AI', url: '/about', is_external: false },
       { id: 14, title: 'Privacy Policy', url: '/privacy', is_external: false },
-      { id: 15, title: 'Terms of Service', url: '/faq', is_external: false },
+      { id: 15, title: 'Terms of Service', url: '/terms', is_external: false },
       { id: 16, title: 'Contact Us', url: '/contact', is_external: false },
     ],
   },
@@ -165,6 +165,14 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
       ) {
         return { ...lnk, title: 'Privacy Policy', url: '/privacy', is_external: false };
       }
+      if (
+        lnk.url === '/terms-of-service' ||
+        lnk.url === '/terms-of-use' ||
+        lnk.url === '#terms' ||
+        (lnk.title.toLowerCase().includes('terms') && !lnk.url.startsWith('http'))
+      ) {
+        return { ...lnk, title: 'Terms of Service', url: '/terms', is_external: false };
+      }
       return lnk;
     }),
   }));
@@ -249,8 +257,8 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>&copy; {currentYear} {copyrightText}</span>
-            <a href={resolveUrl('/faq')} className="hover:text-fuchsia-400 transition">Privacy Policy</a>
-            <a href={resolveUrl('/faq')} className="hover:text-fuchsia-400 transition">Terms of Use</a>
+            <a href={resolveUrl('/privacy')} className="hover:text-fuchsia-400 transition">Privacy Policy</a>
+            <a href={resolveUrl('/terms')} className="hover:text-fuchsia-400 transition">Terms of Service</a>
             <a href="mailto:samarjitkashyp@gmail.com" className="hover:text-fuchsia-400 transition">Support</a>
           </div>
           <div>
