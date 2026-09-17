@@ -169,10 +169,14 @@ export default function ChatApp() {
     return 'chat';
   });
 
-  // Theme state
+  // Theme state: default to luminous white gradient glassmorphic theme
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light';
-    return localStorage.getItem('axom_ai_theme') || 'light';
+    const savedV2 = localStorage.getItem('axom_theme_v2');
+    if (savedV2) return savedV2;
+    localStorage.setItem('axom_theme_v2', 'light');
+    localStorage.setItem('axom_ai_theme', 'light');
+    return 'light';
   });
 
   // Sidebar collapse states - default to collapsed on mobile to avoid flash/blur
@@ -270,6 +274,7 @@ export default function ChatApp() {
       body.classList.add('dark-theme');
     }
     localStorage.setItem('axom_ai_theme', theme);
+    localStorage.setItem('axom_theme_v2', theme);
   }, [theme]);
 
   // Window resizing handles default sidebar collapse states

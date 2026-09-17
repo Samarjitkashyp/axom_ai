@@ -578,6 +578,28 @@ body:not(.dark-theme) ::-webkit-scrollbar-thumb:hover {
     background: rgba(148, 163, 184, 0.6);
 }
 
+/* Dark Theme Overrides (when user toggles to dark) */
+body.dark-theme,
+body.dark-theme .app-layout,
+body.dark-theme .app-container,
+body.dark-theme .main-content {
+    background: #06060b !important;
+    color: #f8fafc;
+}
+body.dark-theme .sidebar-left,
+body.dark-theme .sidebar-right {
+    background: #090a14 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+body.dark-theme .top-header {
+    background: rgba(9, 10, 20, 0.88) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+
 /* Mobile backdrop (hidden by default everywhere; only shown inside @media <= 850px when drawer is active) */
 .mobile-backdrop {
     display: none !important;
