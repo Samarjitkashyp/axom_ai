@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   ShieldCheck,
@@ -18,7 +18,8 @@ import {
   HelpCircle,
   Scale,
   Send,
-  Loader2
+  Loader2,
+  Check
 } from 'lucide-react';
 import {
   PRIVACY_SECTIONS,
@@ -26,9 +27,36 @@ import {
   PRIVACY_POLICY_METADATA
 } from './privacyData';
 
+const ERASURE_OPTIONS = [
+  {
+    value: 'full-erasure',
+    label: 'Permanent Account & Conversation Erasure',
+    desc: 'Completely purge account credentials, personal identifiers, and all chat records.',
+  },
+  {
+    value: 'chat-only',
+    label: 'Purge Chat History Only (Keep Account)',
+    desc: 'Wipe all saved prompt logs while keeping your account and subscription active.',
+  },
+  {
+    value: 'data-export',
+    label: 'Request Data Copy / Portability Report',
+    desc: 'Receive a machine-readable export of all your stored personal and usage data.',
+  },
+  {
+    value: 'opt-out',
+    label: 'Withdraw All Consent for Data Processing',
+    desc: 'Formally revoke processing consent under Section 6 of India’s DPDP Act 2023.',
+  },
+];
+
 export default function PrivacyInteractiveContent() {
   const [activeSection, setActiveSection] = useState<string>('introduction');
   const [openFaqId, setOpenFaqId] = useState<string | null>(PRIVACY_FAQS[0]?.id || null);
+
+  // Custom Dropdown State for "Specific Action Requested"
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Data Erasure Request Form State
   const [erasureEmail, setErasureEmail] = useState('');
@@ -37,10 +65,24 @@ export default function PrivacyInteractiveContent() {
   const [erasureSubmitting, setErasureSubmitting] = useState(false);
   const [erasureSuccess, setErasureSuccess] = useState(false);
 
-  // Real-time ScrollSpy to update active TOC link as user reads right-hand content
+  const selectedOption =
+    ERASURE_OPTIONS.find((o) => o.value === erasureReason) || ERASURE_OPTIONS[0];
+
+  // Close custom dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Real-time ScrollSpy to keep TOC highlighted as user reads through right-side content
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 180;
+      const scrollPosition = window.scrollY + 200;
       for (let i = PRIVACY_SECTIONS.length - 1; i >= 0; i--) {
         const sec = PRIVACY_SECTIONS[i];
         const el = document.getElementById(sec.id);
@@ -56,8 +98,27 @@ export default function PrivacyInteractiveContent() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Ensure active TOC link stays in view inside sidebar on smaller screens
+  useEffect(() => {
+    const activeLinkEl = document.getElementById(`toc-link-${activeSection}`);
+    if (activeLinkEl) {
+      activeLinkEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [activeSection]);
+
   const toggleFaq = (id: string) => {
     setOpenFaqId((prev) => (prev === id ? null : id));
+  };
+
+  const handleScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    setActiveSection(id);
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -100;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   };
 
   const handleErasureSubmit = async (e: React.FormEvent) => {
@@ -137,7 +198,7 @@ export default function PrivacyInteractiveContent() {
 
       {/* Main 2-Column Grid: Sticky Table of Contents (Left) + Policy Sections (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16 relative">
-        {/* Left Sticky Sidebar (4 cols on desktop) */}
+        {/* Left Sticky Sidebar (4 cols on desktop) - Sticks throughout all 14 sections */}
         <aside className="lg:col-span-4 lg:sticky lg:top-24 z-20 self-start">
           <div className="rounded-3xl bg-[#0d0b1a]/95 border border-white/10 p-5 shadow-2xl backdrop-blur-xl max-h-[calc(100vh-7.5rem)] flex flex-col">
             <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 shrink-0">
@@ -145,7 +206,7 @@ export default function PrivacyInteractiveContent() {
                 <FileText className="w-4 h-4" />
                 <span>Policy Navigation</span>
               </div>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 font-medium">
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 font-medium">
                 14 Sections
               </span>
             </div>
@@ -154,23 +215,27 @@ export default function PrivacyInteractiveContent() {
               aria-label="Table of Contents"
               className="space-y-1 overflow-y-auto pr-1 text-xs custom-scrollbar flex-1"
             >
-              {PRIVACY_SECTIONS.map((sec) => {
+              {PRIVACY_SECTIONS.map((sec, idx) => {
                 const isSelected = activeSection === sec.id;
                 return (
                   <a
                     key={sec.id}
+                    id={`toc-link-${sec.id}`}
                     href={`#${sec.id}`}
-                    onClick={() => setActiveSection(sec.id)}
-                    className={`block px-3 py-2 rounded-xl transition-all duration-150 ${
+                    onClick={(e) => handleScrollToSection(e, sec.id)}
+                    className={`block px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer ${
                       isSelected
                         ? 'bg-gradient-to-r from-fuchsia-500/25 to-purple-500/20 text-white font-semibold border border-fuchsia-500/40 shadow-sm translate-x-1'
                         : 'text-gray-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="truncate">{sec.title}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate">
+                        <span className="text-gray-500 mr-1.5 font-mono">{idx + 1}.</span>
+                        {sec.shortTitle || sec.title}
+                      </span>
                       {isSelected && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shrink-0 ml-2" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shrink-0" />
                       )}
                     </div>
                   </a>
@@ -179,7 +244,8 @@ export default function PrivacyInteractiveContent() {
 
               <a
                 href="#request-deletion"
-                className="block mt-2 px-3 py-2 rounded-xl text-fuchsia-300 hover:text-white hover:bg-fuchsia-500/10 border border-dashed border-fuchsia-500/30 transition text-xs font-medium"
+                onClick={(e) => handleScrollToSection(e, 'request-deletion')}
+                className="block mt-2.5 px-3 py-2 rounded-xl text-fuchsia-300 hover:text-white hover:bg-fuchsia-500/10 border border-dashed border-fuchsia-500/30 transition text-xs font-medium cursor-pointer"
               >
                 <div className="flex items-center gap-1.5">
                   <Trash2 className="w-3.5 h-3.5 text-fuchsia-400" />
@@ -207,7 +273,7 @@ export default function PrivacyInteractiveContent() {
           </div>
         </aside>
 
-        {/* Right Policy Content (8 cols on desktop) */}
+        {/* Right Policy Content (8 cols on desktop) - Contains all 14 policy sections */}
         <div className="lg:col-span-8 space-y-8 text-gray-300 text-xs sm:text-sm leading-relaxed">
           {PRIVACY_SECTIONS.map((section) => (
             <section
@@ -255,7 +321,7 @@ export default function PrivacyInteractiveContent() {
       {/* FULL-WIDTH SECTION: Exercise Your Right to Erasure (DPDP Act 2023) */}
       <section
         id="request-deletion"
-        className="scroll-mt-28 rounded-3xl bg-gradient-to-br from-fuchsia-950/40 via-[#100c22] to-purple-950/40 border border-fuchsia-500/35 p-6 sm:p-10 md:p-12 shadow-2xl mb-16 w-full relative overflow-hidden"
+        className="scroll-mt-28 rounded-3xl bg-gradient-to-br from-fuchsia-950/40 via-[#100c22] to-purple-950/40 border border-fuchsia-500/35 p-6 sm:p-10 md:p-12 shadow-2xl mb-16 w-full relative overflow-visible"
       >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
           <div className="flex items-center gap-4">
@@ -308,7 +374,7 @@ export default function PrivacyInteractiveContent() {
                   value={erasureName}
                   onChange={(e) => setErasureName(e.target.value)}
                   placeholder="e.g. Samarjit Das"
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-white text-xs placeholder-gray-500 transition"
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-white text-xs placeholder-gray-500 transition"
                 />
               </div>
 
@@ -322,32 +388,74 @@ export default function PrivacyInteractiveContent() {
                   value={erasureEmail}
                   onChange={(e) => setErasureEmail(e.target.value)}
                   placeholder="e.g. yourname@example.com"
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-white text-xs placeholder-gray-500 transition"
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-white text-xs placeholder-gray-500 transition"
                 />
               </div>
 
-              <div>
+              {/* CUSTOM DARK THEMED DROPDOWN (Zero Browser OS Default Styles) */}
+              <div className="relative" ref={dropdownRef}>
                 <label className="block text-xs font-medium text-gray-300 mb-1.5">
                   Specific Action Requested <span className="text-fuchsia-400">*</span>
                 </label>
-                <select
-                  value={erasureReason}
-                  onChange={(e) => setErasureReason(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131024] border border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-white text-xs transition"
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-haspopup="listbox"
+                  aria-expanded={dropdownOpen}
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-white text-xs flex items-center justify-between gap-2 transition cursor-pointer text-left shadow-sm"
                 >
-                  <option value="full-erasure">Permanent Account & Conversation Erasure</option>
-                  <option value="chat-only">Purge Chat History Only (Keep Account)</option>
-                  <option value="data-export">Request Data Copy / Portability Report</option>
-                  <option value="opt-out">Withdraw All Consent for Data Processing</option>
-                </select>
+                  <span className="truncate font-medium text-gray-200">
+                    {selectedOption.label}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-fuchsia-400 shrink-0 transition-transform duration-200 ${
+                      dropdownOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl bg-[#0e0c1f] border border-fuchsia-500/30 shadow-2xl p-2 backdrop-blur-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-72 overflow-y-auto custom-scrollbar">
+                    {ERASURE_OPTIONS.map((opt) => {
+                      const isSelected = erasureReason === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => {
+                            setErasureReason(opt.value);
+                            setDropdownOpen(false);
+                          }}
+                          className={`w-full text-left p-2.5 rounded-xl transition flex items-start justify-between gap-3 cursor-pointer ${
+                            isSelected
+                              ? 'bg-fuchsia-500/20 text-white border border-fuchsia-500/35 shadow-sm'
+                              : 'text-gray-300 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs font-semibold text-white leading-tight">
+                              {opt.label}
+                            </div>
+                            <div className="text-[11px] text-gray-400 mt-0.5 leading-snug">
+                              {opt.desc}
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <CheckCircle2 className="w-4 h-4 text-fuchsia-400 shrink-0 mt-0.5" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5">
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5">
               <button
                 type="submit"
                 disabled={erasureSubmitting}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold text-xs transition shadow-xl shadow-fuchsia-500/25 cursor-pointer disabled:opacity-60"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold text-xs transition shadow-xl shadow-fuchsia-500/25 cursor-pointer disabled:opacity-60"
               >
                 {erasureSubmitting ? (
                   <>
