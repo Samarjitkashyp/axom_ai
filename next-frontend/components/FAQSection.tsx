@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Sparkles, Plus } from 'lucide-react';
 
+import { HOME_FAQS } from './homeFaqsData';
+
 interface FAQItem {
   id: number;
   question: string;
@@ -11,46 +13,13 @@ interface FAQItem {
 }
 
 interface FAQSectionProps {
-  faqs: FAQItem[];
+  faqs?: FAQItem[];
 }
 
 export default function FAQSection({ faqs }: FAQSectionProps) {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
-  const defaultFaqs: FAQItem[] = [
-    {
-      id: 1,
-      question: 'How does the monthly word limit work?',
-      answer: 'Each prompt and AI response counts towards your monthly quota. The counter resets on the 1st of every calendar month, and you can track your usage in real-time on your dashboard.',
-      category: 'general',
-    },
-    {
-      id: 2,
-      question: 'Can I switch or cancel my plan anytime?',
-      answer: 'Yes. Upgrade, downgrade, or cancel in a click. If you cancel, your paid benefits stay active until the end of the billing period.',
-      category: 'pricing',
-    },
-    {
-      id: 3,
-      question: 'What payment methods are supported?',
-      answer: 'All major Indian methods via Razorpay: UPI (GPay, PhonePe, Paytm), Credit/Debit (Visa, MasterCard, RuPay), Netbanking, and Wallets.',
-      category: 'pricing',
-    },
-    {
-      id: 4,
-      question: 'Is my data safe?',
-      answer: 'Yes — HTTPS end-to-end, CSRF-protected payments, all files encrypted at rest. You can export or delete your data anytime.',
-      category: 'privacy',
-    },
-    {
-      id: 5,
-      question: 'How is Axom AI different from ChatGPT or Gemini?',
-      answer: 'Axom AI is Assamese-first: every reply is naturally in অসমীয়া (unless requested otherwise), backed by curated knowledge bases for accurate regional answers.',
-      category: 'features',
-    },
-  ];
-
-  const items = faqs && faqs.length > 0 ? faqs : defaultFaqs;
+  const items = faqs && faqs.length > 0 ? faqs : HOME_FAQS;
 
   return (
     <section id="faq" className="py-20 md:py-28 relative border-t border-white/5 bg-[#06060b]">

@@ -18,13 +18,23 @@ import {
   Languages,
   Star,
   Layers,
-  Clock
+  Clock,
+  MapPin,
+  GraduationCap,
+  Briefcase,
+  Scale,
+  Building,
+  Check,
+  CheckCircle2,
+  Cpu,
+  BookOpen
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import UseCasesSection from '@/components/UseCasesSection';
 import PricingSection from '@/components/PricingSection';
 import FAQSection from '@/components/FAQSection';
+import { HOME_FAQS } from '@/components/homeFaqsData';
 import { getLandingCMS } from '@/lib/api';
 
 const CHAT_URL = 'https://chat.aiaxom.co.in/';
@@ -41,19 +51,144 @@ const TOOL_ICONS: Record<string, React.ElementType> = {
   'fa-solid fa-language': Languages,
 };
 
+const TARGET_KEYWORDS = [
+  // Primary SEO Keyword
+  'Axom AI',
+  // Secondary SEO Keywords
+  'AI platform',
+  'AI platform in Assam',
+  'AI tools',
+  'AI tools in Assam',
+  'Assamese AI',
+  'Assam AI',
+  'Assamese AI platform',
+  'AI assistant',
+  'Assamese AI assistant',
+  'AI chatbot',
+  'Assamese AI chatbot',
+  'AI chatbot in Assamese',
+  'AI for Assam',
+  'AI in Assam',
+  'artificial intelligence in Assam',
+  'AI technology in Assam',
+  'AI for Northeast India',
+  'regional AI platform',
+  'regional language AI',
+  'AI tools online',
+  'all-in-one AI platform',
+  // Brand + Entity Keywords
+  'Axom AI platform',
+  'Axom AI Assam',
+  'Axom AI Guwahati',
+  'Axom AI chatbot',
+  'Axom AI tools',
+  'Axom AI assistant',
+  'Axom AI Assamese',
+  'Axom AI 2.0',
+  'AI Axom',
+  'Assam AI platform',
+  'Assamese artificial intelligence',
+  'Assamese language AI',
+  'অসম এআই',
+  'অসমীয়া AI',
+  'অসমীয়া কৃত্ৰিম বুদ্ধিমত্তা',
+  // AEO Keywords
+  'What is Axom AI',
+  'What is Axom AI used for',
+  'Is Axom AI an AI chatbot',
+  'Is Axom AI free',
+  'Does Axom AI support Assamese',
+  'Can Axom AI understand Assamese',
+  'Can Axom AI reply in Assamese',
+  'What AI tools does Axom AI provide',
+  'What AI models does Axom AI use',
+  'What is the AI platform for Assam',
+  'Which AI chatbot supports Assamese',
+  'Is there an AI assistant for Assamese language',
+  'What are the best AI tools for Assamese users',
+  'Which AI platform understands Assamese culture',
+  // GEO Keywords
+  'AI platform built in Assam',
+  'AI platform for Assamese language',
+  'AI assistant for Assamese users',
+  'AI chatbot that understands Assamese',
+  'AI tools for people in Assam',
+  'AI platform for Northeast India',
+  'regional language AI platform India',
+  'Indian AI platform for regional languages',
+  'Assamese generative AI',
+  'AI tools for Assamese students',
+  'AI tools for Assamese businesses',
+  'AI tools for Assamese creators',
+  // Audience & Tools
+  'AI tools for students in Assam',
+  'AI tools for businesses in Assam',
+  'Assamese AI writer',
+  'Assamese AI translator',
+  'AI PDF analyzer online',
+  'AI image generator with Assamese prompts',
+  'AI coding assistant Assam',
+  'AI startup Guwahati',
+  'AI company Guwahati',
+  'AI in Northeast India',
+];
+
 export async function generateMetadata(): Promise<Metadata> {
-  const cms = await getLandingCMS();
+  const cms = await getLandingCMS().catch(() => null);
   const seo = cms?.seo;
 
+  const title =
+    seo?.meta_title && !seo.meta_title.includes("The Power of AI for Everyone")
+      ? seo.meta_title
+      : "Axom AI — Assam's Premier Indigenous AI Platform & Assamese AI Assistant | AI in Assam";
+
+  const description =
+    seo?.meta_description && seo.meta_description.length > 100
+      ? seo.meta_description
+      : "Axom AI (AI Axom / অসম এআই) is Assam's first indigenous Artificial Intelligence platform headquartered in Guwahati. Native Assamese chat, scanned OCR, 20+ document tools, and sovereign LLMs for students, businesses, and creators across Northeast India.";
+
+  const canonicalUrl = 'https://aiaxom.co.in/';
+  const ogImage = seo?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
+
   return {
-    title: seo?.meta_title || "Axom AI — The Power of AI for Everyone | Assam's Native AI Platform",
-    description: seo?.meta_description || "Axom AI is Assam's first indigenous AI platform. Chat in native Assamese, generate AI visuals, and analyze documents.",
-    keywords: seo?.meta_keywords?.split(',') || ['Axom AI', 'Assam AI', 'Assamese AI'],
+    title,
+    description,
+    keywords: TARGET_KEYWORDS,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: seo?.og_title || "Axom AI — Assam's Own AI Platform",
-      description: seo?.og_description || "Native Assamese intelligence, ChatGPT-grade reasoning, and document tools.",
-      url: 'https://aiaxom.co.in',
-      images: [{ url: seo?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif' }],
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: 'Axom AI',
+      type: 'website',
+      locale: 'en_IN',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: "Axom AI — Assam's Indigenous Artificial Intelligence Platform",
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   };
 }
@@ -62,7 +197,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const cms = await getLandingCMS();
+  const cms = await getLandingCMS().catch(() => null);
 
   const hero = cms?.hero;
   const logos = cms?.logos || [];
@@ -72,8 +207,140 @@ export default async function HomePage() {
   const insightsHeader = cms?.insights_header;
   const articles = insightsHeader?.articles || [];
 
+  // WebSite Schema with SearchAction
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': 'https://aiaxom.co.in/#website',
+    url: 'https://aiaxom.co.in/',
+    name: 'Axom AI',
+    alternateName: ['AI Axom', 'Assam AI', 'অসম এআই', 'AxomAI', 'Axom AI 2.0'],
+    description:
+      "Assam's first indigenous Artificial Intelligence platform and Assamese AI assistant.",
+    inLanguage: ['as', 'en', 'hi'],
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://chat.aiaxom.co.in/?q={search_term_string}',
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  // Organization Schema
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': 'https://aiaxom.co.in/#organization',
+    name: 'Axom AI',
+    legalName: 'Axom AI Technologies',
+    alternateName: ['AI Axom', 'Assam AI', 'অসম এআই', 'AxomAI', 'Axom AI Guwahati'],
+    url: 'https://aiaxom.co.in',
+    logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+    image: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+    description:
+      "Axom AI is Assam's flagship indigenous artificial intelligence platform headquartered in Guwahati, Assam, India. Developed to empower over 15 million Assamese speakers with native conversational LLMs, document OCR, and regional AI tools.",
+    foundingDate: '2024',
+    foundingLocation: {
+      '@type': 'Place',
+      name: 'Guwahati, Assam, India',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Guwahati',
+        addressRegion: 'Assam',
+        postalCode: '781001',
+        addressCountry: 'IN',
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 26.1445,
+        longitude: 91.7362,
+      },
+    },
+    founder: {
+      '@type': 'Person',
+      name: 'Samarjit Kashyap',
+      jobTitle: 'Lead AI Architect & Founder',
+      url: 'https://aiaxom.co.in/about',
+    },
+    areaServed: [
+      { '@type': 'AdministrativeArea', name: 'Assam' },
+      { '@type': 'AdministrativeArea', name: 'Northeast India' },
+      { '@type': 'Country', name: 'India' },
+    ],
+    knowsLanguage: ['as', 'en', 'hi'],
+    knowsAbout: [
+      'AI in Assam',
+      'Artificial Intelligence in Assam',
+      'Assam AI',
+      'Assamese AI',
+      'Assamese AI Chatbot',
+      'Assamese LLM',
+      'Assamese OCR',
+      'AI Tools in Assam',
+      'Indigenous AI India',
+      'Sovereign AI Northeast India',
+    ],
+    sameAs: [
+      'https://x.com',
+      'https://linkedin.com',
+      'https://youtube.com',
+      'https://instagram.com',
+    ],
+  };
+
+  // SoftwareApplication Schema
+  const softwareAppSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Axom AI Platform',
+    operatingSystem: 'Web, Android, iOS, Windows, macOS, Linux',
+    applicationCategory: 'BusinessApplication, Productivity, ArtificialIntelligence, Chatbot',
+    description:
+      "Axom AI is Assam's premier indigenous Artificial Intelligence platform offering conversational chat in Assamese, OCR, 20+ file converters, image generation, and live web search.",
+    url: 'https://aiaxom.co.in',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'INR',
+    },
+  };
+
+  // FAQPage Schema for Search Engines & AEO
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: HOME_FAQS.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <>
+      {/* Schema Injection */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       <Navbar header={cms?.header} />
 
       <main className="flex-1 pt-20">
@@ -90,13 +357,15 @@ export default async function HomePage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/60 border border-fuchsia-500/40 text-fuchsia-300 text-xs font-bold uppercase tracking-wider mb-8 shadow-xl backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-fuchsia-400 animate-pulse" />
-              {hero?.badge_text || 'অসমৰ নিজা AI প্লেটফৰ্ম • Axom AI 2.0'}
+              {hero?.badge_text || 'অসমৰ প্ৰথমটো থলুৱা AI প্লেটফৰ্ম • Assam’s #1 Indigenous AI • Axom AI 2.0'}
             </div>
 
-            {/* Headline */}
+            {/* Keyword-Rich H1 Headline */}
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08] mb-6">
-              {hero?.main_heading_prefix || 'The Power of AI,'} <br />
-              <span className="gradient-text">{hero?.main_heading_highlight || 'Rooted in Assam.'}</span>
+              Axom AI — <br className="hidden sm:inline" />
+              <span className="gradient-text">
+                {hero?.main_heading_highlight || "Assam's Indigenous AI Platform"}
+              </span>
             </h1>
 
             {/* Subheadings */}
@@ -104,21 +373,21 @@ export default async function HomePage() {
               {hero?.subheading_assamese || 'অসমৰ প্ৰথমটো থলুৱা কৃত্ৰিম বুদ্ধিমত্তা সহায়ক — যিয়ে অসমীয়া ভাষা আৰু সংস্কৃতি সঠিকভাৱে বুজি পায়।'}
             </p>
             <p className="text-xs sm:text-base text-gray-300 max-w-2xl mx-auto leading-relaxed mb-10">
-              {hero?.subheading_english || 'From fluent Assamese chat to instant image generation, document intelligence and automated workflows — built for the next generation of Assam.'}
+              {hero?.subheading_english || 'From fluent Assamese chat to instant image generation, scanned document OCR, and 20+ file tools — built for the next generation of Assam.'}
             </p>
 
             {/* CTAs */}
             <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
               <a
                 href={hero?.cta_primary_url || CHAT_URL}
-                className="btn-primary text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2 shadow-2xl"
+                className="btn-primary text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2 shadow-2xl transition transform hover:-translate-y-0.5"
               >
                 <span>{hero?.cta_primary_text || 'Start Chatting Free'}</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
               <a
                 href={hero?.cta_secondary_url || '#tools'}
-                className="btn-ghost text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2"
+                className="btn-ghost text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2 transition"
               >
                 <span>{hero?.cta_secondary_text || 'Explore AI Tools'}</span>
               </a>
@@ -132,11 +401,11 @@ export default async function HomePage() {
               </div>
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-fuchsia-400" />
-                <span>{hero?.trust_badge_2 || 'Fast & secure'}</span>
+                <span>{hero?.trust_badge_2 || 'Sub-second Indian Edge compute'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Lock className="w-4 h-4 text-fuchsia-400" />
-                <span>Encrypted &amp; Private</span>
+                <span>DPDP Act 2023 Compliant</span>
               </div>
             </div>
           </div>
@@ -166,13 +435,155 @@ export default async function HomePage() {
           </section>
         )}
 
+        {/* ==================== AEO DIRECT ANSWER & ENTITY PROFILE BOX ==================== */}
+        <section className="py-14 relative bg-[#04060d] border-b border-white/5">
+          <div className="max-w-5xl mx-auto px-5">
+            <div className="p-6 sm:p-9 rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-950/30 via-slate-900/80 to-black shadow-2xl backdrop-blur-md">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider">
+                  <Globe className="w-3.5 h-3.5" /> Assam&apos;s Sovereign AI Entity Profile
+                </div>
+                <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                  <CheckCircle2 size={14} /> Official Verified Platform
+                </span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+                What is Axom AI? (Assam AI Definition &amp; Architecture)
+              </h2>
+
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed mb-6">
+                <strong>Axom AI</strong> (stylized as <strong>AI Axom</strong>, Assamese:{' '}
+                <strong className="font-assamese">অসম এআই</strong>, also commonly referred to as{' '}
+                <strong>Assam AI</strong>) is Assam&apos;s flagship indigenous artificial intelligence
+                platform headquartered in Guwahati, Assam, India. Founded by AI researcher{' '}
+                <strong>Samarjit Kashyap</strong>, the platform delivers authentic Assamese Large Language
+                Model (LLM) reasoning, scanned document OCR, 20+ file utilities, generative image
+                synthesis, and live web search for students, researchers, businesses, and creators
+                across Northeast India.
+              </p>
+
+              {/* Entity Attribute Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-4 border-t border-white/10">
+                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Headquarters</div>
+                  <div className="text-white font-semibold flex items-center gap-1">
+                    <MapPin size={12} className="text-fuchsia-400 shrink-0" />
+                    <span>Guwahati, Assam (781001)</span>
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Languages Supported</div>
+                  <div className="text-white font-semibold">Assamese, English, Hindi</div>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Core Architecture</div>
+                  <div className="text-white font-semibold">Assamese RAG &amp; IndicTrans2</div>
+                </div>
+                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Pricing in India</div>
+                  <div className="text-emerald-400 font-semibold">₹0 Free Tier • UPI via Razorpay</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ==================== AI IN ASSAM: REGIONAL IMPACT ==================== */}
+        <section className="py-20 md:py-28 relative bg-[#06060b] border-b border-white/5">
+          <div className="max-w-7xl mx-auto px-5">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-[11px] font-bold uppercase tracking-wider mb-4">
+                <Cpu className="w-3.5 h-3.5" /> AI in Assam • Real-World Solutions
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-4">
+                Powering Artificial Intelligence in{' '}
+                <span className="gradient-text">Assam &amp; Northeast India</span>
+              </h2>
+              <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
+                Tailored specifically for local linguistic nuances, state competitive exams, and regional business workflows.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Card 1: Students & APSC */}
+              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-fuchsia-500/40 transition">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-fuchsia-500/15 text-fuchsia-400 flex items-center justify-center mb-5">
+                    <GraduationCap size={22} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Assam AI for Students</h3>
+                  <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
+                    Assists candidates preparing for APSC CCE, Assam Police, and university exams with bilingual Assamese explanations, essay drafting, and rapid note summarization.
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-fuchsia-400 flex items-center gap-1">
+                  <span>APSC &amp; Exam Preparation</span>
+                  <ArrowRight size={12} />
+                </div>
+              </div>
+
+              {/* Card 2: Businesses in Assam */}
+              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-purple-500/40 transition">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center mb-5">
+                    <Briefcase size={22} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">AI for Assam Businesses</h3>
+                  <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
+                    Automates bilingual customer support, commercial tender translations, and local marketing copy for MSMEs across Guwahati, Dibrugarh, and Silchar.
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-purple-400 flex items-center gap-1">
+                  <span>Bilingual Business Automation</span>
+                  <ArrowRight size={12} />
+                </div>
+              </div>
+
+              {/* Card 3: Scanned OCR & Land Docs */}
+              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-teal-500/40 transition">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center mb-5">
+                    <FileText size={22} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Assamese Document OCR</h3>
+                  <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
+                    Extracts, reads, and translates text from scanned Assamese paperwork, Jamabandi land records, government gazettes, and historical manuscripts.
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-teal-400 flex items-center gap-1">
+                  <span>Scanned Assamese OCR</span>
+                  <ArrowRight size={12} />
+                </div>
+              </div>
+
+              {/* Card 4: Authentic Assamese Script */}
+              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-pink-500/40 transition">
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-pink-500/15 text-pink-400 flex items-center justify-center mb-5">
+                    <Languages size={22} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">99.4% Script Accuracy</h3>
+                  <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
+                    Completely eliminates Bengali letter confusion (such as replacing authentic ‘ৰ’ and ‘ৱ’ with Bengali characters) seen in generic global AI chatbots.
+                  </p>
+                </div>
+                <div className="text-[11px] font-semibold text-pink-400 flex items-center gap-1">
+                  <span>Authentic Assamese LLM</span>
+                  <ArrowRight size={12} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ==================== EXPLORE AI TOOLS ==================== */}
         {explore?.active && (
           <section id="tools" className="py-20 md:py-28 relative bg-[#06060b]">
             <div className="max-w-7xl mx-auto px-5">
               <div className="text-center max-w-3xl mx-auto mb-14">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider mb-4">
-                  <Sparkles className="w-3.5 h-3.5" /> {explore.badge || 'Explore'}
+                  <Sparkles className="w-3.5 h-3.5" /> {explore.badge || 'Explore AI Tools'}
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-4">
                   {explore.title_prefix || 'A Complete AI Toolkit'}{' '}
@@ -381,7 +792,7 @@ export default async function HomePage() {
         )}
 
         {/* ==================== FAQ ==================== */}
-        {cms?.faqs && <FAQSection faqs={cms.faqs} />}
+        <FAQSection faqs={HOME_FAQS} />
 
         {/* ==================== FINAL CTA ==================== */}
         <section className="assam-bg py-24 md:py-32 relative border-t border-white/10">
@@ -393,21 +804,21 @@ export default async function HomePage() {
               Ready to Experience the Future of AI in Assam?
             </h2>
             <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed mb-10">
-              Join students, creators, developers, and businesses unlocking new possibilities every day with Axom AI.
+              Join thousands of students, creators, developers, and businesses unlocking new possibilities every day with Axom AI.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <a
                 href={CHAT_URL}
-                className="btn-primary text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2 shadow-2xl"
+                className="btn-primary text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2 shadow-2xl transition transform hover:-translate-y-0.5"
               >
                 <span>Start Chatting Free</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
               <Link
-                href="/blog"
-                className="btn-ghost text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2"
+                href="/pricing"
+                className="btn-ghost text-sm sm:text-base px-8 py-4 rounded-full inline-flex items-center gap-2 transition"
               >
-                <span>Read Blog &amp; Insights</span>
+                <span>View Transparent Pricing</span>
               </Link>
             </div>
           </div>
