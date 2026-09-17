@@ -8,147 +8,59 @@ import {
   X,
   MessageSquare,
   ArrowRight,
-  RotateCcw
+  RotateCcw,
+  CheckCircle2,
+  Globe,
+  Languages,
+  ShieldCheck,
+  CreditCard,
+  Cpu
 } from 'lucide-react';
+import { FULL_FAQS_LIST, FullFaqItem } from './faqFullData';
 
-export interface FAQItem {
-  id: number;
-  question: string;
-  answer: string;
-  category?: string;
-  tags?: string[];
-}
-
-const ALL_FAQS: FAQItem[] = [
-  // General
-  {
-    id: 1,
-    question: 'What is Axom AI and who is it built for?',
-    answer: 'Axom AI is Assam\'s premier artificial intelligence platform designed specifically for students, educators, writers, freelancers, businesses, and developers in Northeast India. It provides native Assamese chat, AI writing, PDF document analysis, FLUX image generation, and coding assistance tailored for regional workflows.',
-    tags: ['overview', 'about', 'assam', 'platform']
-  },
-  {
-    id: 2,
-    question: 'How do I start using Axom AI?',
-    answer: 'You can start completely free! Simply click "Open Chat" or "Sign in" at the top right of the website, create your account with your email or Google login, and immediately begin chatting with AI or using our 12+ creative tools.',
-    tags: ['start', 'signup', 'free', 'account']
-  },
-  {
-    id: 3,
-    question: 'Do I need any technical or programming knowledge to use Axom AI?',
-    answer: 'Not at all. Axom AI is designed with an intuitive, modern interface. You can type in natural English, Assamese (অসমীয়া), or Romanized Assamese (e.g. "Mur eta essay likhi diya") and the AI will understand and respond naturally.',
-    tags: ['easy', 'beginner', 'assamese']
-  },
-
-  // Models & Capabilities
-  {
-    id: 4,
-    question: 'Which AI models power Axom AI?',
-    answer: 'Axom AI leverages world-class state-of-the-art models including Gemini 2.5 Pro / Flash for reasoning and web search, FLUX and Pollinations for high-definition image generation, Claude 3.5 Sonnet for advanced code writing, and fine-tuned IndicTrans2 models for high-accuracy Assamese translations.',
-    tags: ['gemini', 'flux', 'claude', 'models', 'tech']
-  },
-  {
-    id: 5,
-    question: 'What types of documents can I upload and summarize?',
-    answer: 'You can upload PDF files, Microsoft Word (.docx), Excel spreadsheets (.xlsx, .csv), plain text, and images. Axom AI extracts the text, answers questions based on your document, and generates executive summaries or translations.',
-    tags: ['pdf', 'document', 'summary', 'analyzer']
-  },
-  {
-    id: 6,
-    question: 'How does live Web Search work in Axom AI?',
-    answer: 'When you ask time-sensitive questions or regional inquiries (such as current news, exam schedules, government schemes in Assam, or local events), Axom AI performs real-time web retrieval via Tavily Search and synthesizes up-to-date answers with cited sources.',
-    tags: ['web search', 'live', 'tavily', 'real-time']
-  },
-  {
-    id: 7,
-    question: 'Can I generate AI art and images with Axom AI?',
-    answer: 'Yes! Our Image Generator tool lets you create photorealistic portraits, cinematic landscapes, Assamese cultural art, logos, and marketing creatives using top text-to-image models including FLUX.1 and Gemini Imagen.',
-    tags: ['image', 'flux', 'art', 'graphics']
-  },
-
-  // Assamese & Regional Support
-  {
-    id: 8,
-    question: 'How accurate is Axom AI in Assamese (অসমীয়া)?',
-    answer: 'Axom AI uses dedicated regional fine-tuning and Indic language benchmarks to deliver natural, grammatically sound Assamese text without robotic or literal translation errors. It understands idioms, regional proverbs, and local Assam context.',
-    tags: ['assamese', 'language', 'accuracy', 'nlp']
-  },
-  {
-    id: 9,
-    question: 'Can I write in English and get responses in Assamese (or vice-versa)?',
-    answer: 'Absolutely! You can prompt in English and ask the AI to answer in Assamese, or paste Assamese text and receive English summaries. You can also mix languages freely in the same conversation.',
-    tags: ['translation', 'bilingual', 'indic']
-  },
-
-  // Pricing & Billing
-  {
-    id: 10,
-    question: 'How does the monthly word quota and free tier work?',
-    answer: 'Every free and paid plan includes a generous monthly word limit. Each prompt and AI response counts toward your quota. Your quota automatically resets on the 1st day of every calendar month, and you can track your live balance in your user dashboard.',
-    tags: ['quota', 'words', 'limit', 'free']
-  },
-  {
-    id: 11,
-    question: 'What payment methods do you accept?',
-    answer: 'We accept all major Indian payment methods via Razorpay, including UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards (Visa, MasterCard, RuPay), Net Banking across 50+ banks, and popular digital wallets.',
-    tags: ['payment', 'upi', 'razorpay', 'cards']
-  },
-  {
-    id: 12,
-    question: 'Can I upgrade, downgrade, or cancel my subscription anytime?',
-    answer: 'Yes, there are no lock-ins. You can upgrade or cancel your plan at any time from your Account Settings. If you cancel, your premium features remain active until the end of your current billing cycle.',
-    tags: ['cancel', 'upgrade', 'subscription', 'refund']
-  },
-
-  // Privacy & Security
-  {
-    id: 13,
-    question: 'Is my personal data and document content kept confidential?',
-    answer: 'Yes, user privacy is our highest priority. All communication is encrypted via 256-bit SSL/TLS in transit and encrypted at rest. We do not sell your personal data or use your private documents to train public third-party models.',
-    tags: ['security', 'privacy', 'encryption', 'safety']
-  },
-  {
-    id: 14,
-    question: 'Can I delete my chat history and uploaded files?',
-    answer: 'Yes. You can delete individual chats, clear your full history, or purge uploaded documents anytime directly from the chat interface and dashboard.',
-    tags: ['delete', 'history', 'data']
-  },
-
-  // Support & Accounts
-  {
-    id: 15,
-    question: 'How can I contact customer support if I face an issue?',
-    answer: 'You can reach our support team via email at support@aiaxom.co.in or samarjitkashyp@gmail.com. Paid plan users also enjoy priority WhatsApp support and dedicated account management.',
-    tags: ['support', 'contact', 'help', 'email']
-  },
-  {
-    id: 16,
-    question: 'What should I do if I forget my password or cannot log in?',
-    answer: 'Click "Sign in" and select "Forgot Password" on the login page. Enter your registered email address to receive an instant password reset link. If you signed up via Google, simply click "Continue with Google".',
-    tags: ['login', 'password', 'reset']
-  }
+const CATEGORIES = [
+  { id: 'all', label: 'All Questions', icon: Globe },
+  { id: 'general', label: 'General & Overview', icon: Sparkles },
+  { id: 'assamese', label: 'Assamese AI & Script', icon: Languages },
+  { id: 'features', label: 'AI Tools & Models', icon: Cpu },
+  { id: 'pricing', label: 'Pricing & UPI', icon: CreditCard },
+  { id: 'privacy', label: 'Privacy & Security', icon: ShieldCheck },
+  { id: 'assamese_native', label: 'অসমীয়া প্ৰশ্নোত্তৰ', icon: Languages },
 ];
 
-export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?: any[]; faqConfig?: any }) {
+export default function FAQPageContent({
+  serverFaqs,
+  faqConfig,
+}: {
+  serverFaqs?: any[];
+  faqConfig?: any;
+}) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [openIds, setOpenIds] = useState<number[]>([1, 4, 8, 10]); // Default open popular questions
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [openIds, setOpenIds] = useState<number[]>([1, 2, 6, 17, 22]); // Default open popular questions
 
-  // Filter FAQs based on search query
+  // Filter FAQs based on category and search query
   const filteredFaqs = useMemo(() => {
-    let list = (serverFaqs && serverFaqs.length > 0) ? serverFaqs : ALL_FAQS;
+    let list: FullFaqItem[] = FULL_FAQS_LIST;
 
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      list = list.filter((item) => item.category === selectedCategory);
+    }
+
+    // Apply search query filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(
-        (item: any) =>
-          (item.question && item.question.toLowerCase().includes(q)) ||
-          (item.answer && item.answer.toLowerCase().includes(q)) ||
-          (item.tags && Array.isArray(item.tags) && item.tags.some((t: string) => t.toLowerCase().includes(q)))
+        (item) =>
+          item.question.toLowerCase().includes(q) ||
+          item.answer.toLowerCase().includes(q) ||
+          item.tags.some((t) => t.toLowerCase().includes(q))
       );
     }
 
     return list;
-  }, [serverFaqs, searchQuery]);
+  }, [selectedCategory, searchQuery]);
 
   // Toggle single FAQ
   const toggleFaq = (id: number) => {
@@ -165,21 +77,22 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
-            {faqConfig?.badge || 'Frequently Asked Questions'}
+            {faqConfig?.badge || 'Help Center & Frequently Asked Questions'}
           </div>
 
           {/* Title */}
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.15] mb-5">
-            {faqConfig?.title_prefix || 'How Can We'}{' '}
-            <span className="gradient-text">{faqConfig?.title_highlight || 'Help You Today?'}</span>
+            {faqConfig?.title_prefix || 'Frequently Asked'}{' '}
+            <span className="gradient-text">{faqConfig?.title_highlight || 'Questions & Answers'}</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
-            {faqConfig?.subheading || 'Find instant answers to common questions about Axom AI tools, language accuracy, billing, models, security, and getting started.'}
+          <p className="text-base sm:text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8 font-normal">
+            {faqConfig?.subheading ||
+              'Everything you need to know about Axom AI: Assamese language reasoning, AI models (Gemini, Claude, FLUX), pricing plans, scanned document OCR, and privacy.'}
           </p>
 
           {/* GLOWING SEARCH BAR */}
-          <div className="max-w-2xl mx-auto relative group">
+          <div className="max-w-2xl mx-auto relative group mb-8">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-fuchsia-500 via-purple-600 to-indigo-600 rounded-full blur opacity-30 group-focus-within:opacity-85 transition duration-300 pointer-events-none" />
 
             <div className="relative w-full flex items-center rounded-full bg-slate-900/90 border border-white/15 group-focus-within:border-fuchsia-500/60 shadow-2xl transition-all">
@@ -191,7 +104,10 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={faqConfig?.search_placeholder || "Search any question, e.g. 'Assamese accuracy', 'UPI payment', 'PDF upload'..."}
+                placeholder={
+                  faqConfig?.search_placeholder ||
+                  "Search any question, e.g. 'Assamese accuracy', 'UPI payment', 'PDF OCR'..."
+                }
                 className="w-full py-4 pr-24 bg-transparent text-white placeholder-gray-400 text-sm sm:text-base focus:outline-none"
               />
 
@@ -212,20 +128,48 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
               </div>
             </div>
           </div>
+
+          {/* CATEGORY FILTER TABS */}
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-4xl mx-auto">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = selectedCategory === cat.id;
+              const isAssamese = cat.id === 'assamese_native';
+
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-fuchsia-500 text-white shadow-md shadow-fuchsia-500/25 scale-105'
+                      : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5'
+                  } ${isAssamese ? 'font-assamese' : ''}`}
+                >
+                  <Icon size={13} className={isActive ? 'text-white' : 'text-fuchsia-400'} />
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* FULL-WIDTH FAQ ACCORDION LIST */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Search Results Notice (only if search is typed) */}
         {searchQuery && (
           <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-white/10">
             <div className="text-sm text-gray-300">
-              Found <strong className="text-white">{filteredFaqs.length}</strong> questions matching <span className="text-fuchsia-400 font-semibold">"{searchQuery}"</span>
+              Found <strong className="text-white">{filteredFaqs.length}</strong> questions matching{' '}
+              <span className="text-fuchsia-400 font-semibold">&quot;{searchQuery}&quot;</span>
             </div>
             <button
-              onClick={() => setSearchQuery('')}
-              className="text-xs text-fuchsia-400 hover:text-fuchsia-300 font-semibold flex items-center gap-1"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('all');
+              }}
+              className="text-xs text-fuchsia-400 hover:text-fuchsia-300 font-semibold flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Clear Search
             </button>
@@ -237,6 +181,8 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
           <div className="space-y-4">
             {filteredFaqs.map((faq, index) => {
               const isOpen = openIds.includes(faq.id);
+              const isAssamese = faq.category === 'assamese_native';
+
               return (
                 <div
                   key={faq.id}
@@ -255,7 +201,11 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
                       <span className="w-7 h-7 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
                         {index + 1}
                       </span>
-                      <span className="font-semibold text-white text-base sm:text-lg lg:text-xl leading-snug">
+                      <span
+                        className={`font-semibold text-white text-base sm:text-lg lg:text-xl leading-snug ${
+                          isAssamese ? 'font-assamese leading-relaxed' : ''
+                        }`}
+                      >
                         {faq.question}
                       </span>
                     </div>
@@ -271,7 +221,9 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
 
                   {isOpen && (
                     <div className="px-6 sm:px-8 pb-6 pt-2 text-sm sm:text-base text-gray-300 leading-relaxed border-t border-white/5 pl-16 sm:pl-20">
-                      <p className="mb-3">{faq.answer}</p>
+                      <p className={`mb-3 ${isAssamese ? 'font-assamese text-sm sm:text-base leading-relaxed' : ''}`}>
+                        {faq.answer}
+                      </p>
 
                       {faq.tags && faq.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-4 pt-3 border-t border-white/5">
@@ -299,11 +251,14 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
             </div>
             <h3 className="text-xl font-bold text-white mb-2">No matching questions found</h3>
             <p className="text-sm text-gray-400 max-w-md mx-auto mb-6">
-              We couldn't find any questions matching "{searchQuery}". Try searching with different keywords.
+              We couldn&apos;t find any questions matching &quot;{searchQuery}&quot;. Try searching with different keywords.
             </p>
             <button
-              onClick={() => setSearchQuery('')}
-              className="btn-primary inline-flex items-center gap-2 text-xs px-6 py-3 rounded-full"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('all');
+              }}
+              className="btn-primary inline-flex items-center gap-2 text-xs px-6 py-3 rounded-full cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Clear Search &amp; View All
             </button>
@@ -321,22 +276,24 @@ export default function FAQPageContent({ serverFaqs, faqConfig }: { serverFaqs?:
                 {faqConfig?.support_box_title || 'Still have unanswered questions?'}
               </h3>
               <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
-                {faqConfig?.support_box_desc || "Can't find the answer you're looking for? Our support desk and developer community in Assam are ready to help."}
+                {faqConfig?.support_box_desc ||
+                  "Can't find the answer you're looking for? Our support desk and developer community in Assam are ready to help."}
               </p>
             </div>
 
             <div className="md:col-span-4 flex flex-col sm:flex-row md:flex-col gap-3 justify-end">
               <a
-                href={faqConfig?.chat_button_url || "https://chat.aiaxom.co.in/"}
+                href={faqConfig?.chat_button_url || 'https://chat.aiaxom.co.in/'}
                 className="btn-primary text-xs sm:text-sm px-5 py-3 rounded-full inline-flex items-center justify-center gap-2 text-center"
               >
-                {faqConfig?.chat_button_text || 'Ask AI Assistant'} <ArrowRight className="w-3.5 h-3.5" />
+                <span>{faqConfig?.chat_button_text || 'Ask AI Assistant'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </a>
               <a
-                href={faqConfig?.support_button_url || "mailto:support@aiaxom.co.in"}
+                href={faqConfig?.support_button_url || 'mailto:support@aiaxom.co.in'}
                 className="btn-ghost text-xs sm:text-sm px-5 py-3 rounded-full inline-flex items-center justify-center gap-2 text-center"
               >
-                {faqConfig?.support_button_text || 'Email Support Team'}
+                <span>{faqConfig?.support_button_text || 'Email Support Team'}</span>
               </a>
             </div>
           </div>
