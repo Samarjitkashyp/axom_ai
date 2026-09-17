@@ -247,11 +247,13 @@ export default async function PrivacyPage() {
 
       <Navbar header={landingData?.header} />
 
-      <main className="min-h-screen bg-[#06060b] text-white pt-24 pb-16 relative overflow-hidden">
-        {/* Ambient glow backgrounds */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-fuchsia-600/10 blur-[140px] rounded-full pointer-events-none" />
-        <div className="absolute top-1/3 right-0 w-[550px] h-[550px] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-10 left-0 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
+      <main className="min-h-screen bg-[#06060b] text-white pt-24 pb-16 relative">
+        {/* Ambient glow backgrounds wrapped in overflow-hidden to prevent horizontal scroll while allowing sticky positioning */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-fuchsia-600/10 blur-[140px] rounded-full" />
+          <div className="absolute top-1/3 right-0 w-[550px] h-[550px] bg-indigo-600/10 blur-[150px] rounded-full" />
+          <div className="absolute bottom-10 left-0 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full" />
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Header Section */}
