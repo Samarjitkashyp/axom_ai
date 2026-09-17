@@ -35,7 +35,7 @@ const DEFAULT_COLS = [
     title: 'Company',
     links: [
       { id: 13, title: 'About Axom AI', url: '/about', is_external: false },
-      { id: 14, title: 'Privacy Policy', url: '/faq', is_external: false },
+      { id: 14, title: 'Privacy Policy', url: '/privacy', is_external: false },
       { id: 15, title: 'Terms of Service', url: '/faq', is_external: false },
       { id: 16, title: 'Contact Us', url: '/contact', is_external: false },
     ],
@@ -157,6 +157,13 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
         lnk.title.toLowerCase().includes('contact us')
       ) {
         return { ...lnk, title: 'Contact Us', url: '/contact', is_external: false };
+      }
+      if (
+        lnk.url === '/privacy-policy' ||
+        lnk.url === '#privacy' ||
+        (lnk.title.toLowerCase().includes('privacy') && !lnk.url.startsWith('http'))
+      ) {
+        return { ...lnk, title: 'Privacy Policy', url: '/privacy', is_external: false };
       }
       return lnk;
     }),
