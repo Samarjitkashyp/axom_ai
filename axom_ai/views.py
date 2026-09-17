@@ -1225,7 +1225,7 @@ def chat_api_view(request):
         answer = re.sub(r'[⁰¹²³⁴-⁹]+', '', answer)
         # Tidy up any double spaces / stray "  ." left behind.
         answer = re.sub(r'\s+([।.,;:!?])', r'\1', answer)
-        answer = re.sub(r'\s{2,}', ' ', answer).strip()
+        answer = re.sub(r'[^\S\n]{2,}', ' ', answer).strip()
 
         # RAG Grammar Purity Layer: Guarantee zero Bengali/Hindi loanwords, correct classifiers & terms
         answer = _purify_assamese_with_grammar(answer)
