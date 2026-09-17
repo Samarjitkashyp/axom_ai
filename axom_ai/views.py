@@ -4655,5 +4655,63 @@ def depth_layers_api(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+def tools_api_view(request):
+    """
+    Public REST API to fetch available tools for chat.aiaxom.co.in/tools.
+    Returns only active tools by default; returns all tools if ?all=1 and user is superuser/staff.
+    """
+    try:
+        from superadmin.models import AITool
+        qs = AITool.objects.all().order_by('order', 'id')
+
+        include_all = request.GET.get('all') == '1' and (
+            hasattr(request, 'user') and (request.user.is_staff or request.user.is_superuser)
+        )
+        if not include_all:
+            qs = qs.filter(is_active=True)
+
+        tools_data = []
+        for t in qs:
+            tools_data.append({
+                'id': t.slug,
+                'slug': t.slug,
+                'name': t.name,
+                'category': t.category,
+                'cat': t.category,
+                'description': t.description,
+                'desc': t.description,
+                'hint': t.hint,
+                'badge': t.badge,
+                'icon_class': t.icon_class,
+                'lucide_icon': t.lucide_icon,
+                'color': t.color,
+                'color_class': t.color_class,
+                'endpoint_type': t.endpoint_type,
+                'ep': t.endpoint_type,
+                'operation': t.operation,
+                'op': t.operation,
+                'target': t.target,
+                'param_type': t.param_type,
+                'param': t.param_type,
+                'accept_types': t.accept_types,
+                'accept': t.accept_types,
+                'is_multi_file': t.is_multi_file,
+                'multi': t.is_multi_file,
+                'handler_type': t.handler_type,
+                'custom_url': t.custom_url,
+                'order': t.order,
+                'is_active': t.is_active,
+                'is_featured': t.is_featured,
+            })
+
+        return JsonResponse({
+            'success': True,
+            'total': len(tools_data),
+            'tools': tools_data,
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e), 'tools': []}, status=500)
+
+
 
 

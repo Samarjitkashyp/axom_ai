@@ -31,4 +31,8 @@ urlpatterns = [
     path('language-rules/save/', views.save_language_rule_api, name='save_language_rule'),
     path('language-rules/toggle/<int:rule_id>/', views.toggle_language_rule_api, name='toggle_language_rule'),
     path('language-rules/delete/<int:rule_id>/', views.delete_language_rule_api, name='delete_language_rule'),
+    path('tools/', views.tools_page, name='tools'),
+    path('tools/toggle/<int:tool_id>/', views.toggle_tool_api, name='toggle_tool'),
+    path('tools/save/', views.save_tool_api, name='save_tool'),
+    path('tools/delete/<int:tool_id>/', views.delete_tool_api, name='delete_tool'),
 ]

@@ -195,3 +195,50 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"[{self.created_at:%Y-%m-%d %H:%M}] {self.action} on {self.target}"
+
+
+class AITool(models.Model):
+    """Dynamic tool registry for Axom AI document, AI, and productivity tools."""
+    CATEGORY_CHOICES = [
+        ('Convert', 'Convert'),
+        ('Office', 'Office'),
+        ('Organize', 'Organize'),
+        ('Optimize', 'Optimize'),
+        ('Security', 'Security'),
+        ('OCR', 'OCR'),
+        ('AI Tools', 'AI Tools'),
+        ('Edit', 'Edit'),
+    ]
+
+    slug = models.CharField(max_length=64, unique=True, db_index=True)
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='AI Tools')
+    description = models.TextField(blank=True, default="")
+    hint = models.CharField(max_length=150, blank=True, default="")
+    badge = models.CharField(max_length=50, blank=True, default="")
+    icon_class = models.CharField(max_length=100, blank=True, default="fa-solid fa-sparkles")
+    lucide_icon = models.CharField(max_length=100, blank=True, default="Sparkles")
+    color = models.CharField(max_length=50, blank=True, default="#ec4899")
+    color_class = models.CharField(max_length=50, blank=True, default="text-fuchsia-400")
+
+    # Execution & routing properties
+    endpoint_type = models.CharField(max_length=50, blank=True, default="")  # 'convert', 'pdf', 'ai'
+    operation = models.CharField(max_length=50, blank=True, default="")      # 'merge', 'split', 'watermark', 'ocr', etc.
+    target = models.CharField(max_length=50, blank=True, default="")         # 'pdf', 'docx', 'jpg', 'png'
+    param_type = models.CharField(max_length=50, blank=True, default="")     # 'pages', 'password', 'question', 'angle', 'lang'
+    accept_types = models.CharField(max_length=255, blank=True, default="")  # '.pdf', '.docx,.doc', etc.
+    is_multi_file = models.BooleanField(default=False)
+    handler_type = models.CharField(max_length=50, blank=True, default="")   # 'editor', 'compressor', etc.
+    custom_url = models.CharField(max_length=255, blank=True, default="")   # e.g. '/tools/word-to-pdf'
+
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True, db_index=True)
+    is_featured = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"{self.name} ({self.category}) [{'Active' if self.is_active else 'Inactive'}]"

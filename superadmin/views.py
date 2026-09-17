@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST
 from payments.models import Payment, UserPlan, PLAN_CATALOG
 from knowledge.models import KnowledgeDocument, KnowledgeChunk, QAPair, ChatSession, ChatMessage, UnansweredQuery, Feedback
 from userpanel.models import SupportTicket, TicketReply, UsageRecord, InAppNotification
-from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission, LanguageRule
+from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission, LanguageRule, AITool
 
 
 def _is_super(u):
@@ -918,3 +918,143 @@ def delete_language_rule_api(request, rule_id):
     _log_audit(request, 'language_rule_delete', f'Rule #{rule.id}: {rule.title}')
     rule.delete()
     return JsonResponse({'success': True})
+
+
+# ---------------------------------------------------------------------------
+# Tools Management
+# ---------------------------------------------------------------------------
+
+@superuser_required
+def tools_page(request):
+    tools = AITool.objects.all().order_by('order', 'id')
+    total_count = tools.count()
+    active_count = tools.filter(is_active=True).count()
+    inactive_count = tools.filter(is_active=False).count()
+    categories = [c[0] for c in AITool.CATEGORY_CHOICES]
+
+    return render(request, 'superadmin/tools.html', {
+        'active': 'tools',
+        'tools': tools,
+        'total_count': total_count,
+        'active_count': active_count,
+        'inactive_count': inactive_count,
+        'categories': categories,
+    })
+
+
+@superuser_required
+@require_POST
+def toggle_tool_api(request, tool_id):
+    tool = get_object_or_404(AITool, id=tool_id)
+    tool.is_active = not tool.is_active
+    tool.save(update_fields=['is_active', 'updated_at'])
+    _log_audit(request, 'tool_toggle', f'Tool #{tool.id} ({tool.name}) → {"ON" if tool.is_active else "OFF"}')
+    return JsonResponse({
+        'success': True,
+        'is_active': tool.is_active,
+        'message': f'Tool "{tool.name}" is now {"Active (Visible)" if tool.is_active else "Inactive (Hidden)"}.'
+    })
+
+
+@superuser_required
+@require_POST
+def save_tool_api(request):
+    try:
+        data = json.loads(request.body)
+        tool_id = data.get('id')
+        name = data.get('name', '').strip()
+        slug = data.get('slug', '').strip().lower()
+        category = data.get('category', '').strip()
+        description = data.get('description', '').strip()
+        hint = data.get('hint', '').strip()
+        badge = data.get('badge', '').strip()
+        icon_class = data.get('icon_class', '').strip() or 'fa-solid fa-sparkles'
+        lucide_icon = data.get('lucide_icon', '').strip() or 'Sparkles'
+        color = data.get('color', '').strip() or '#ec4899'
+        color_class = data.get('color_class', '').strip() or 'text-fuchsia-400'
+        endpoint_type = data.get('endpoint_type', '').strip()
+        operation = data.get('operation', '').strip()
+        target = data.get('target', '').strip()
+        param_type = data.get('param_type', '').strip()
+        accept_types = data.get('accept_types', '').strip()
+        is_multi_file = bool(data.get('is_multi_file', False))
+        handler_type = data.get('handler_type', '').strip()
+        custom_url = data.get('custom_url', '').strip()
+        order = int(data.get('order', 0))
+        is_active = bool(data.get('is_active', True))
+        is_featured = bool(data.get('is_featured', False))
+
+        if not name or not slug or not category:
+            return JsonResponse({'error': 'Tool Name, Slug, and Category are required.'}, status=400)
+
+        valid_cats = [c[0] for c in AITool.CATEGORY_CHOICES]
+        if category not in valid_cats:
+            return JsonResponse({'error': f'Invalid category: {category}. Valid: {", ".join(valid_cats)}'}, status=400)
+
+        if tool_id:
+            tool = get_object_or_404(AITool, id=tool_id)
+            if AITool.objects.filter(slug=slug).exclude(id=tool_id).exists():
+                return JsonResponse({'error': f'Slug "{slug}" is already in use by another tool.'}, status=400)
+            tool.slug = slug
+            tool.name = name
+            tool.category = category
+            tool.description = description
+            tool.hint = hint
+            tool.badge = badge
+            tool.icon_class = icon_class
+            tool.lucide_icon = lucide_icon
+            tool.color = color
+            tool.color_class = color_class
+            tool.endpoint_type = endpoint_type
+            tool.operation = operation
+            tool.target = target
+            tool.param_type = param_type
+            tool.accept_types = accept_types
+            tool.is_multi_file = is_multi_file
+            tool.handler_type = handler_type
+            tool.custom_url = custom_url
+            tool.order = order
+            tool.is_active = is_active
+            tool.is_featured = is_featured
+            tool.save()
+            _log_audit(request, 'tool_update', f'Tool #{tool.id}: {name} ({slug})')
+        else:
+            if AITool.objects.filter(slug=slug).exists():
+                return JsonResponse({'error': f'Slug "{slug}" already exists.'}, status=400)
+            tool = AITool.objects.create(
+                slug=slug,
+                name=name,
+                category=category,
+                description=description,
+                hint=hint,
+                badge=badge,
+                icon_class=icon_class,
+                lucide_icon=lucide_icon,
+                color=color,
+                color_class=color_class,
+                endpoint_type=endpoint_type,
+                operation=operation,
+                target=target,
+                param_type=param_type,
+                accept_types=accept_types,
+                is_multi_file=is_multi_file,
+                handler_type=handler_type,
+                custom_url=custom_url,
+                order=order,
+                is_active=is_active,
+                is_featured=is_featured,
+            )
+            _log_audit(request, 'tool_create', f'Tool #{tool.id}: {name} ({slug})')
+
+        return JsonResponse({'success': True, 'id': tool.id, 'message': f'Tool "{tool.name}" saved successfully.'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@superuser_required
+@require_POST
+def delete_tool_api(request, tool_id):
+    tool = get_object_or_404(AITool, id=tool_id)
+    _log_audit(request, 'tool_delete', f'Tool #{tool.id}: {tool.name} ({tool.slug})')
+    tool.delete()
+    return JsonResponse({'success': True, 'message': f'Tool "{tool.name}" deleted successfully.'})

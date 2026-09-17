@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   ChevronLeft,
   Search,
@@ -19,12 +19,72 @@ import {
   Sparkles,
   Layers,
   FileUp,
+  FileType2,
+  Image as ImageIcon,
+  Combine,
+  Scissors,
+  FileOutput,
+  Minimize2,
+  Droplets,
+  Eraser,
+  Lock,
+  Unlock,
+  Presentation,
+  FileSpreadsheet,
+  ScanText,
+  MessagesSquare,
+  Languages,
+  PenTool,
+  Signature,
+  ImagePlus,
+  Images,
+  Video,
+  Network,
+  RefreshCw,
+  QrCode,
+  Palette,
+  Code,
+  Laugh,
+  Wrench,
+  Shapes,
 } from 'lucide-react';
 import { ALL_TOOLS, TOOL_CATEGORIES } from './utils/toolsData';
 import { getCsrfToken } from './utils/security';
 import ToolWorkspace from './ToolWorkspace';
 import Navbar from '../Navbar';
 import Footer from '../Footer';
+
+const ICON_MAP = {
+  FileType2,
+  ImageIcon,
+  Combine,
+  Scissors,
+  FileOutput,
+  Minimize2,
+  Droplets,
+  Eraser,
+  Lock,
+  Unlock,
+  Presentation,
+  FileSpreadsheet,
+  ScanText,
+  MessagesSquare,
+  Languages,
+  Sparkles,
+  PenTool,
+  Signature,
+  ImagePlus,
+  Images,
+  Video,
+  Network,
+  RefreshCw,
+  QrCode,
+  Palette,
+  Code,
+  Laugh,
+  Wrench,
+  Shapes,
+};
 
 export default function ToolsPage({
   onBackToChat,
@@ -46,9 +106,61 @@ export default function ToolsPage({
   theme,
   onToggleTheme,
 }) {
+  const [toolsList, setToolsList] = useState(ALL_TOOLS);
   const [selectedCat, setSelectedCat] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTool, setActiveTool] = useState(null);
+
+  // Fetch dynamic tools from backend
+  useEffect(() => {
+    let isMounted = true;
+    const fetchDynamicTools = async () => {
+      try {
+        const res = await fetch('/api/tools/');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && Array.isArray(data.tools) && isMounted) {
+          const dynamicTools = data.tools
+            .filter((apiTool) => apiTool.is_active !== false)
+            .map((apiTool) => {
+              const localBase = ALL_TOOLS.find((t) => t.id === apiTool.slug || t.id === apiTool.id) || {};
+              const iconComponent = ICON_MAP[apiTool.lucide_icon] || localBase.icon || Sparkles;
+
+              return {
+                ...localBase,
+                id: apiTool.slug || apiTool.id,
+                name: apiTool.name || localBase.name,
+                cat: apiTool.category || localBase.cat || 'AI Tools',
+                desc: apiTool.description || localBase.desc,
+                hint: apiTool.hint || localBase.hint,
+                badge: apiTool.badge || localBase.badge,
+                order: apiTool.order !== undefined ? apiTool.order : (localBase.order || 0),
+                is_active: apiTool.is_active !== undefined ? apiTool.is_active : true,
+                is_featured: apiTool.is_featured !== undefined ? apiTool.is_featured : localBase.is_featured,
+                icon: iconComponent,
+                accept: apiTool.accept_types || localBase.accept,
+                multi: apiTool.is_multi_file !== undefined ? apiTool.is_multi_file : localBase.multi,
+                ep: apiTool.endpoint_type || localBase.ep,
+                op: apiTool.operation || localBase.op,
+                target: apiTool.target || localBase.target,
+                param: apiTool.param_type || localBase.param,
+                custom_url: apiTool.custom_url || localBase.custom_url,
+                ...(apiTool.handler_type ? { [apiTool.handler_type]: true } : {}),
+              };
+            });
+
+          if (dynamicTools.length > 0 && isMounted) {
+            setToolsList(dynamicTools);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load dynamic tools from server, using local defaults.', err);
+      }
+    };
+
+    fetchDynamicTools();
+    return () => { isMounted = false; };
+  }, []);
 
   // Runner state for active tool
   const [files, setFiles] = useState([]);
@@ -63,7 +175,7 @@ export default function ToolsPage({
 
   // Filter tools based on category and search query
   const filteredTools = useMemo(() => {
-    return ALL_TOOLS.filter((t) => {
+    return toolsList.filter((t) => {
       const matchCat = selectedCat === 'all' || t.cat === selectedCat;
       const q = searchQuery.trim().toLowerCase();
       const matchSearch =
@@ -74,26 +186,28 @@ export default function ToolsPage({
         (t.desc && t.desc.toLowerCase().includes(q));
       return matchCat && matchSearch;
     });
-  }, [selectedCat, searchQuery]);
+  }, [toolsList, selectedCat, searchQuery]);
 
   // Counts by category
   const categoryCounts = useMemo(() => {
-    const counts = { all: ALL_TOOLS.length };
-    ALL_TOOLS.forEach((t) => {
+    const counts = { all: toolsList.length };
+    toolsList.forEach((t) => {
       counts[t.cat] = (counts[t.cat] || 0) + 1;
     });
     return counts;
-  }, []);
+  }, [toolsList]);
 
   // Category groupings for "All" view without search
   const categorizedSections = useMemo(() => {
     if (selectedCat !== 'all' || searchQuery.trim()) return null;
     const cats = TOOL_CATEGORIES.filter((c) => c.id !== 'all');
-    return cats.map((cat) => ({
-      ...cat,
-      tools: ALL_TOOLS.filter((t) => t.cat === cat.id),
-    }));
-  }, [selectedCat, searchQuery]);
+    return cats
+      .map((cat) => ({
+        ...cat,
+        tools: toolsList.filter((t) => t.cat === cat.id),
+      }))
+      .filter((cat) => cat.tools.length > 0);
+  }, [toolsList, selectedCat, searchQuery]);
 
   const resetRunner = () => {
     setFiles([]);

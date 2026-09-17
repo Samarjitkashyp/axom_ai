@@ -79,6 +79,7 @@ urlpatterns = [
     path('api/stock-videos/', views.search_stock_videos_api, name='search_stock_videos_api'),
     path('api/download-stock-video/', views.download_stock_video_api, name='download_stock_video_api'),
     path('api/summarize/', views.summarize_api, name='summarize_api'),
+    path('api/tools/', views.tools_api_view, name='tools_api'),
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
 

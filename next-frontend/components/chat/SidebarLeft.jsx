@@ -28,9 +28,23 @@ export default function SidebarLeft({
 }) {
   const [menuFor, setMenuFor] = useState(null); // { id, top, left } — fixed-positioned
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
+  const [toolsCount, setToolsCount] = useState(34);
 
   useEffect(() => {
-    const closeAll = () => { setDropdownOpen(false); setMenuFor(null); setHeaderMenuOpen(false); };
+    let isMounted = true;
+    fetch('/api/tools/')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.total !== undefined && isMounted) {
+          setToolsCount(d.total);
+        }
+      })
+      .catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
+
+  useEffect(() => {
+    const closeAll = () => { setMenuFor(null); setHeaderMenuOpen(false); };
     window.addEventListener('click', closeAll);
     return () => window.removeEventListener('click', closeAll);
   }, []);
@@ -134,13 +148,13 @@ export default function SidebarLeft({
             if (onOpenTools) onOpenTools();
             if (window.innerWidth <= 850) onCloseSidebar?.();
           }}
-          title="Open AI Tools & Document Studio (26 Tools)"
+          title={`Open AI Tools & Document Studio (${toolsCount} Tools)`}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Wrench size={15} style={{ color: '#c084fc' }} />
             <span>Tools & Studio</span>
           </div>
-          <span className="tools-badge">26</span>
+          <span className="tools-badge">{toolsCount}</span>
         </button>
       </div>
 
