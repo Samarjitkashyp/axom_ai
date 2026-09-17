@@ -400,16 +400,28 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   const homeHref = isChatDomain ? 'https://aiaxom.co.in/' : '/';
 
   // Dynamic Nav Items (fallback to default standard set if none configured)
-  const navItems = header?.nav_items && header.nav_items.length > 0
+  const rawNavItems = header?.nav_items && header.nav_items.length > 0
     ? header.nav_items
     : [
         { id: 1, title: 'About', url: '/about', order: 1 },
         { id: 2, title: 'AI Tools', url: isChatDomain ? '/tools' : '/#tools', order: 2 },
-        { id: 3, title: 'Use Cases', url: '/#usecases', order: 3 },
+        { id: 3, title: 'Use Cases', url: '/use-cases', order: 3 },
         { id: 4, title: 'Pricing', url: '/#pricing', order: 4 },
         { id: 5, title: 'Blog & Insights', url: '/blog', order: 5 },
         { id: 6, title: 'FAQ', url: '/faq', order: 6 },
       ];
+
+  const navItems = rawNavItems.map((item) => {
+    if (
+      item.url === '/#usecases' ||
+      item.url === '#usecases' ||
+      item.url === '/#use-cases' ||
+      (item.title.toLowerCase().includes('use case') && item.url.includes('usecase'))
+    ) {
+      return { ...item, url: '/use-cases' };
+    }
+    return item;
+  });
 
   // Dynamic Mega Menu Items
   const megaItems = header?.mega_menu_items && header.mega_menu_items.length > 0

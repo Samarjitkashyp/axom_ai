@@ -10,16 +10,16 @@ const DEFAULT_COLS = [
       { id: 1, title: 'AI Tools', url: 'https://chat.aiaxom.co.in/tools', is_external: true },
       { id: 2, title: 'Pricing', url: '/#pricing', is_external: false },
       { id: 3, title: "What's New", url: '/blog', is_external: false },
-      { id: 4, title: 'Use Cases', url: '/#usecases', is_external: false },
+      { id: 4, title: 'Use Cases', url: '/use-cases', is_external: false },
     ],
   },
   {
     title: 'Solutions',
     links: [
-      { id: 5, title: 'For Students', url: '/#usecases', is_external: false },
-      { id: 6, title: 'For Businesses', url: '/#usecases', is_external: false },
-      { id: 7, title: 'For Educators', url: '/#usecases', is_external: false },
-      { id: 8, title: 'For Developers', url: '/#usecases', is_external: false },
+      { id: 5, title: 'For Students', url: '/use-cases#students', is_external: false },
+      { id: 6, title: 'For Businesses', url: '/use-cases#businesses', is_external: false },
+      { id: 7, title: 'For Educators', url: '/use-cases#students', is_external: false },
+      { id: 8, title: 'For Developers', url: '/use-cases#developers', is_external: false },
     ],
   },
   {
@@ -129,7 +129,21 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
   const footerTagline = footer?.tagline || seo?.footer_tagline || 'অসমৰ প্ৰথমটো থলুৱা AI প্লেটফৰ্ম • Smart. Assamese. AI for All.';
   const copyrightText = footer?.copyright_text || 'Axom AI. All rights reserved.';
 
-  const columns = footer?.columns && footer.columns.length > 0 ? footer.columns : DEFAULT_COLS;
+  const rawColumns = footer?.columns && footer.columns.length > 0 ? footer.columns : DEFAULT_COLS;
+  const columns = rawColumns.map((col) => ({
+    ...col,
+    links: col.links.map((lnk) => {
+      if (
+        lnk.url === '/#usecases' ||
+        lnk.url === '#usecases' ||
+        lnk.url === '/#use-cases' ||
+        (lnk.title.toLowerCase().includes('use case') && lnk.url.includes('usecase'))
+      ) {
+        return { ...lnk, url: '/use-cases' };
+      }
+      return lnk;
+    }),
+  }));
   const socials = footer?.social_links && footer.social_links.length > 0 ? footer.social_links : DEFAULT_SOCIALS;
 
   return (

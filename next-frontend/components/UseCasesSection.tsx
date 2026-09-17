@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Sparkles, GraduationCap, Briefcase, Building, Palette, Check, ArrowRight } from 'lucide-react';
 import { UseCaseTab } from '@/lib/api';
 
@@ -98,6 +99,17 @@ export default function UseCasesSection({ header }: UseCasesSectionProps) {
             ))}
           </div>
         )}
+
+        {/* In-depth Dedicated Page Link */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/use-cases"
+            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-fuchsia-500/40 text-sm font-semibold text-white transition-all group shadow-sm"
+          >
+            <span>Explore All Dedicated Use Cases & Industry Solutions</span>
+            <ArrowRight className="w-4 h-4 text-fuchsia-400 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
 
       </div>
     </section>

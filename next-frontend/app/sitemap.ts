@@ -4,7 +4,6 @@ import { getArticlesCMS } from '../lib/api';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://aiaxom.co.in';
 
-  // Base routes
   const routes: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/`,
@@ -19,28 +18,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
+      url: `${baseUrl}/use-cases/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: 'https://chat.aiaxom.co.in/use-cases',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.90,
+    },
+    {
       url: `${baseUrl}/blog/`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/#features`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/#use-cases`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/#pricing`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
     },
     {
       url: `${baseUrl}/faq/`,
