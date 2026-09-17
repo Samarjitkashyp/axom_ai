@@ -8,7 +8,7 @@ const DEFAULT_COLS = [
     title: 'Product',
     links: [
       { id: 1, title: 'AI Tools', url: 'https://chat.aiaxom.co.in/tools', is_external: true },
-      { id: 2, title: 'Pricing', url: '/#pricing', is_external: false },
+      { id: 2, title: 'Pricing', url: '/pricing', is_external: false },
       { id: 3, title: "What's New", url: '/blog', is_external: false },
       { id: 4, title: 'Use Cases', url: '/use-cases', is_external: false },
     ],
@@ -140,6 +140,13 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
         (lnk.title.toLowerCase().includes('use case') && lnk.url.includes('usecase'))
       ) {
         return { ...lnk, url: '/use-cases' };
+      }
+      if (
+        lnk.url === '/#pricing' ||
+        lnk.url === '#pricing' ||
+        (lnk.title.toLowerCase().includes('pricing') && lnk.url.includes('pricing'))
+      ) {
+        return { ...lnk, url: '/pricing' };
       }
       return lnk;
     }),

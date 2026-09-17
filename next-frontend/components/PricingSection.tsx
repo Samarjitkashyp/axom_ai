@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Check } from 'lucide-react';
+import Link from 'next/link';
+import { Sparkles, Check, ArrowRight } from 'lucide-react';
 import { PricingPlan } from '@/lib/api';
 
 const CHAT_URL = 'https://chat.aiaxom.co.in/';
@@ -143,6 +144,17 @@ export default function PricingSection({ header }: PricingSectionProps) {
               </div>
             );
           })}
+        </div>
+
+        {/* Deep Link to Dedicated Pricing Page */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/40 text-xs sm:text-sm font-semibold text-slate-200 hover:text-white transition shadow-lg group"
+          >
+            <span>View Full Side-by-Side Feature Comparison &amp; Student Rebates</span>
+            <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
         {header.footer_note && (

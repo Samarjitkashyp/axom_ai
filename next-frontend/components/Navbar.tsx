@@ -406,7 +406,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
         { id: 1, title: 'About', url: '/about', order: 1 },
         { id: 2, title: 'AI Tools', url: isChatDomain ? '/tools' : '/#tools', order: 2 },
         { id: 3, title: 'Use Cases', url: '/use-cases', order: 3 },
-        { id: 4, title: 'Pricing', url: '/#pricing', order: 4 },
+        { id: 4, title: 'Pricing', url: '/pricing', order: 4 },
         { id: 5, title: 'Blog & Insights', url: '/blog', order: 5 },
         { id: 6, title: 'FAQ', url: '/faq', order: 6 },
       ];
@@ -419,6 +419,13 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
       (item.title.toLowerCase().includes('use case') && item.url.includes('usecase'))
     ) {
       return { ...item, url: '/use-cases' };
+    }
+    if (
+      item.url === '/#pricing' ||
+      item.url === '#pricing' ||
+      (item.title.toLowerCase().includes('pricing') && item.url.includes('pricing'))
+    ) {
+      return { ...item, url: '/pricing' };
     }
     return item;
   });

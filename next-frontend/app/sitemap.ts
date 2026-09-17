@@ -30,6 +30,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.90,
     },
     {
+      url: `${baseUrl}/pricing/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: 'https://chat.aiaxom.co.in/pricing',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.90,
+    },
+    {
       url: `${baseUrl}/blog/`,
       lastModified: new Date(),
       changeFrequency: 'daily',
