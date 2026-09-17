@@ -213,16 +213,42 @@ export default function SidebarLeft({
       {user.isAuthenticated && (
         <div className="user-profile-container" style={{ width: '100%' }}>
           <div className="user-profile-card" style={{ cursor: 'default' }}>
-            <div className="user-avatar-wrapper">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt={user.username}
-                className="user-avatar"
-              />
+            <div className="user-avatar-wrapper" style={{ position: 'relative' }}>
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl.startsWith('//media/') ? user.avatarUrl.slice(1) : user.avatarUrl}
+                  alt={user.username}
+                  className="user-avatar"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.parentElement?.querySelector('.user-avatar-fallback');
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <span
+                className="user-avatar-fallback"
+                style={{
+                  display: user.avatarUrl ? 'none' : 'flex',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #4f46e5, #06b6d4)',
+                  color: '#fff',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {(user.name || user.username || 'U')[0].toUpperCase()}
+              </span>
             </div>
             <div className="user-info" style={{ flex: 1 }}>
-              <span className="user-name">{user.username}</span>
-              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', marginTop: '1px' }}>Free Tier</span>
+              <span className="user-name">{user.name || user.username}</span>
+              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', marginTop: '1px' }}>
+                {user.planLabel || 'Free Tier'}
+              </span>
             </div>
             <button
               type="button"

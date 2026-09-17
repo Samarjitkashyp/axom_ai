@@ -37,6 +37,7 @@ export default function SettingsPage({
 
   const avatarInputRef = useRef(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -46,6 +47,7 @@ export default function SettingsPage({
       return;
     }
     setAvatarUploading(true);
+    setSaveMsg('Uploading photo...');
     try {
       const csrf = getCsrfToken();
       const fd = new FormData();
@@ -59,8 +61,12 @@ export default function SettingsPage({
       const d = await res.json();
       if (d.success && d.avatar_url) {
         setProfile((prev) => ({ ...prev, avatar_url: d.avatar_url }));
-        setSaveMsg('Photo updated!');
-        setTimeout(() => setSaveMsg(''), 3000);
+        setImgError(false);
+        setSaveMsg('Photo updated successfully!');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('axom_auth_state_changed'));
+        }
+        setTimeout(() => setSaveMsg(''), 3500);
       } else {
         setSaveMsg(d.error || 'Failed to upload photo.');
       }
@@ -141,8 +147,9 @@ export default function SettingsPage({
     { key: 'about', label: 'About', icon: Info },
   ];
 
-  const avatarUrl = profile?.avatar_url || null;
-  const initial = (formName || profile?.username || 'U')[0].toUpperCase();
+  const rawAvatarUrl = profile?.avatar_url || user?.avatarUrl || null;
+  const avatarUrl = rawAvatarUrl ? (rawAvatarUrl.startsWith('//media/') ? rawAvatarUrl.slice(1) : rawAvatarUrl) : null;
+  const initial = (formName || profile?.username || user?.username || 'U')[0].toUpperCase();
 
   return (
     <div className="settings-page">
@@ -181,16 +188,45 @@ export default function SettingsPage({
               {/* Profile Card Header */}
               <div className="profile-header-card">
                 <div className="profile-avatar-section">
-                  <div className="profile-avatar-large">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt={formName || 'Avatar'} />
+                  <div className="profile-avatar-large" style={{ position: 'relative' }}>
+                    {!imgError && avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={formName || 'Avatar'}
+                        onError={() => setImgError(true)}
+                      />
                     ) : (
                       <span className="profile-avatar-initial">{initial}</span>
+                    )}
+                    {avatarUploading && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          borderRadius: '50%',
+                          background: 'rgba(0,0,0,0.6)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          zIndex: 3,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            border: '3px solid rgba(255,255,255,0.3)',
+                            borderTopColor: '#fff',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite',
+                          }}
+                        />
+                      </div>
                     )}
                     <input
                       ref={avatarInputRef}
                       type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      accept="image/jpeg,image/png,image/webp,image/gif,image/jpg,.jpg,.jpeg,.png,.webp,.gif"
                       style={{ display: 'none' }}
                       onChange={handleAvatarUpload}
                     />

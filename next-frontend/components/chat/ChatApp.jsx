@@ -34,7 +34,10 @@ export default function ChatApp() {
   const [user, setUser] = useState({
     isAuthenticated: false,
     username: '',
+    name: '',
     email: '',
+    avatarUrl: '',
+    planLabel: 'Free Tier',
     isStaff: false,
     isLoaded: false,
   });
@@ -48,7 +51,10 @@ export default function ChatApp() {
           setUser({
             isAuthenticated: true,
             username: d.username || '',
+            name: d.name || '',
             email: d.email || '',
+            avatarUrl: d.avatar_url || '',
+            planLabel: d.plan_label || (d.is_premium ? 'Premium' : 'Free Tier'),
             isStaff: !!d.is_staff,
             isLoaded: true,
           });
@@ -72,7 +78,10 @@ export default function ChatApp() {
               setUser({
                 isAuthenticated: true,
                 username: syncData.username || '',
+                name: syncData.name || '',
                 email: syncData.email || '',
+                avatarUrl: syncData.avatar_url || '',
+                planLabel: syncData.plan_label || (syncData.is_premium ? 'Premium' : 'Free Tier'),
                 isStaff: !!syncData.is_staff,
                 isLoaded: true,
               });
@@ -110,7 +119,10 @@ export default function ChatApp() {
     setUser({
       isAuthenticated: true,
       username: loginData.username || '',
+      name: loginData.name || '',
       email: loginData.email || '',
+      avatarUrl: loginData.avatar_url || '',
+      planLabel: loginData.plan_label || 'Free Tier',
       isStaff: !!loginData.is_staff,
       isLoaded: true,
     });

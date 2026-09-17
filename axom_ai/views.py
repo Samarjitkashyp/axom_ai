@@ -1687,10 +1687,26 @@ def login_api_view(request):
     if user is not None:
         login(request, user)
         display_name = (user.get_full_name() or user.first_name or user.username).strip()
+        avatar_url = ''
+        from userpanel.models import UserProfile
+        try:
+            profile = UserProfile.objects.filter(user=user).first()
+            if profile and profile.avatar_url:
+                raw_avatar = profile.avatar_url.strip()
+                if raw_avatar.startswith('//media/'):
+                    avatar_url = raw_avatar[1:]
+                elif raw_avatar.startswith('media/'):
+                    avatar_url = '/' + raw_avatar
+                else:
+                    avatar_url = raw_avatar
+        except Exception:
+            pass
+
         resp = JsonResponse({
             'success': True,
             'username': user.username,
             'name': display_name,
+            'avatar_url': avatar_url,
             'is_staff': bool(user.is_staff),
         })
         return _attach_global_auth_cookies(request, resp, device_id=device_id)
@@ -1880,11 +1896,26 @@ def google_auth_api_view(request):
             ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
 
         display_name = (user.get_full_name() or user.first_name or user.username).strip()
+        user_avatar_url = ''
+        try:
+            profile_obj = UserProfile.objects.filter(user=user).first()
+            if profile_obj and profile_obj.avatar_url:
+                raw_avatar = profile_obj.avatar_url.strip()
+                if raw_avatar.startswith('//media/'):
+                    user_avatar_url = raw_avatar[1:]
+                elif raw_avatar.startswith('media/'):
+                    user_avatar_url = '/' + raw_avatar
+                else:
+                    user_avatar_url = raw_avatar
+        except Exception:
+            user_avatar_url = picture_url
+
         resp = JsonResponse({
             'success': True,
             'username': user.username,
             'name': display_name,
             'email': user.email,
+            'avatar_url': user_avatar_url or picture_url,
             'is_staff': bool(user.is_staff),
             'is_new': False,
             'message': 'Logged in successfully with Google!',
@@ -1939,6 +1970,7 @@ def google_auth_api_view(request):
             'username': user.username,
             'name': display_name,
             'email': user.email,
+            'avatar_url': picture_url,
             'is_staff': bool(user.is_staff),
             'is_new': True,
             'message': 'Account created successfully with Google!',
@@ -3061,17 +3093,35 @@ def user_status_api(request):
     }
 
     full_name = ''
+    avatar_url = ''
     if is_auth and user:
         full_name = (user.get_full_name() or user.first_name or user.username).strip()
+        from userpanel.models import UserProfile
+        try:
+            profile = UserProfile.objects.filter(user=user).first()
+            if profile and profile.avatar_url:
+                raw_avatar = profile.avatar_url.strip()
+                if raw_avatar.startswith('//media/'):
+                    avatar_url = raw_avatar[1:]
+                elif raw_avatar.startswith('media/'):
+                    avatar_url = '/' + raw_avatar
+                else:
+                    avatar_url = raw_avatar
+        except Exception:
+            pass
+
+    plan_label = plan_name.replace('_', ' ').title() if plan_name else 'Free Tier'
 
     resp = JsonResponse({
         'is_authenticated': is_auth,
         'username': getattr(user, 'username', '') if is_auth else '',
         'name': full_name,
         'email': getattr(user, 'email', '') if is_auth else '',
+        'avatar_url': avatar_url,
         'is_staff': bool(getattr(user, 'is_staff', False)) if is_auth else False,
         'is_premium': is_premium,
         'plan_name': plan_name,
+        'plan_label': plan_label,
         'daily_limit': daily_limit,
         'used_today': used_today,
         'remaining_today': max(0, daily_limit - used_today),
@@ -3099,13 +3149,19 @@ def profile_api(request):
     if request.method == 'GET':
         is_premium, plan_name, plan_obj = _check_user_premium_status(request)
         plan_label = plan_name.replace('_', ' ').title() if plan_name else 'Free'
+        raw_avatar = (profile.avatar_url or '').strip()
+        if raw_avatar.startswith('//media/'):
+            raw_avatar = raw_avatar[1:]
+        elif raw_avatar.startswith('media/'):
+            raw_avatar = '/' + raw_avatar
+
         resp = JsonResponse({
             'username': user.username,
             'name': (user.get_full_name() or user.first_name or '').strip(),
             'email': user.email or '',
             'phone': profile.phone or '',
             'bio': profile.bio or '',
-            'avatar_url': profile.avatar_url or '',
+            'avatar_url': raw_avatar,
             'location': '',
             'plan': plan_name,
             'plan_label': plan_label,
@@ -3130,6 +3186,10 @@ def profile_api(request):
             profile.phone = phone
             profile.bio = bio
             if avatar_url:
+                if avatar_url.startswith('//media/'):
+                    avatar_url = avatar_url[1:]
+                elif avatar_url.startswith('media/'):
+                    avatar_url = '/' + avatar_url
                 profile.avatar_url = avatar_url
             profile.save()
 
@@ -3168,14 +3228,23 @@ def profile_avatar_api(request):
         resp = JsonResponse({'error': 'File too large. Max 5MB.'}, status=400)
         return _apply_cross_subdomain_cors(request, resp)
 
-    allowed = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
-    if avatar_file.content_type not in allowed:
+    import os, time
+    ext = (os.path.splitext(avatar_file.name)[1] or '').lower()
+    valid_exts = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+    content_type = (avatar_file.content_type or '').lower().split(';')[0].strip()
+    allowed_types = {
+        'image/jpeg', 'image/jpg', 'image/pjpeg', 'image/png',
+        'image/x-png', 'image/webp', 'image/gif', 'application/octet-stream'
+    }
+
+    if content_type not in allowed_types and ext not in valid_exts:
         resp = JsonResponse({'error': 'Invalid file type. Use JPG, PNG, WebP or GIF.'}, status=400)
         return _apply_cross_subdomain_cors(request, resp)
 
-    import os
+    if ext not in valid_exts:
+        ext = '.jpg'
+
     from django.conf import settings as django_settings
-    ext = os.path.splitext(avatar_file.name)[1] or '.jpg'
     filename = f"avatars/user_{user.id}{ext}"
     save_path = os.path.join(django_settings.MEDIA_ROOT, filename)
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -3184,7 +3253,10 @@ def profile_avatar_api(request):
         for chunk in avatar_file.chunks():
             f.write(chunk)
 
-    avatar_url = f"/{django_settings.MEDIA_URL}{filename}"
+    media_prefix = django_settings.MEDIA_URL.strip('/')
+    avatar_path = f"{media_prefix}/{filename}".lstrip('/')
+    timestamp = int(time.time())
+    avatar_url = f"/{avatar_path}?t={timestamp}"
 
     from userpanel.models import UserProfile
     profile, _ = UserProfile.objects.get_or_create(user=user)
