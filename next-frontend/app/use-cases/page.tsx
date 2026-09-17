@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import UseCasesFaq, { USE_CASES_FAQS } from '../../components/UseCasesFaq';
+import UseCasesFaq from '../../components/UseCasesFaq';
+import { USE_CASES_FAQS } from '../../components/useCasesData';
 import { getLandingCMS } from '../../lib/api';
 import {
   Sparkles,
