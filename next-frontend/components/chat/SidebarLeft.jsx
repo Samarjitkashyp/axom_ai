@@ -193,21 +193,6 @@ export default function SidebarLeft({
             </div>
           )}
         </div>
-
-        {/* Settings (with archived chats inside) — only visible when logged in */}
-        {user.isAuthenticated && (
-          <button
-            className="settings-link"
-            onClick={() => {
-              onOpenSettings();
-              if (window.innerWidth <= 850) onCloseSidebar?.();
-            }}
-          >
-            <SettingsIcon size={16} />
-            <span>Settings</span>
-            {archivedCount > 0 && <span className="archived-badge">{archivedCount} archived</span>}
-          </button>
-        )}
       </div>
 
       {/* User Profile Card */}
