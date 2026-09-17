@@ -3,28 +3,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
-  ShieldCheck,
   Lock,
   EyeOff,
   Trash2,
-  FileText,
   ChevronDown,
-  AlertCircle,
   CheckCircle2,
   Building,
   Mail,
-  Sparkles,
-  ExternalLink,
   HelpCircle,
   Scale,
   Send,
   Loader2,
-  Check
 } from 'lucide-react';
 import {
   PRIVACY_SECTIONS,
   PRIVACY_FAQS,
-  PRIVACY_POLICY_METADATA
 } from './privacyData';
 
 const ERASURE_OPTIONS = [
@@ -51,7 +44,6 @@ const ERASURE_OPTIONS = [
 ];
 
 export default function PrivacyInteractiveContent() {
-  const [activeSection, setActiveSection] = useState<string>('introduction');
   const [openFaqId, setOpenFaqId] = useState<string | null>(PRIVACY_FAQS[0]?.id || null);
 
   // Custom Dropdown State for "Specific Action Requested"
@@ -79,46 +71,8 @@ export default function PrivacyInteractiveContent() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Real-time ScrollSpy to keep TOC highlighted as user reads through right-side content
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200;
-      for (let i = PRIVACY_SECTIONS.length - 1; i >= 0; i--) {
-        const sec = PRIVACY_SECTIONS[i];
-        const el = document.getElementById(sec.id);
-        if (el && el.offsetTop <= scrollPosition) {
-          setActiveSection(sec.id);
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Ensure active TOC link stays in view inside sidebar on smaller screens
-  useEffect(() => {
-    const activeLinkEl = document.getElementById(`toc-link-${activeSection}`);
-    if (activeLinkEl) {
-      activeLinkEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }
-  }, [activeSection]);
-
   const toggleFaq = (id: string) => {
     setOpenFaqId((prev) => (prev === id ? null : id));
-  };
-
-  const handleScrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault();
-    setActiveSection(id);
-    const element = document.getElementById(id);
-    if (element) {
-      const yOffset = -100;
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
   };
 
   const handleErasureSubmit = async (e: React.FormEvent) => {
@@ -134,7 +88,7 @@ export default function PrivacyInteractiveContent() {
   return (
     <div>
       {/* 4 Security & Privacy Key Highlights Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
         <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-5 shadow-lg flex flex-col justify-between">
           <div>
             <div className="w-9 h-9 rounded-xl bg-fuchsia-500/15 border border-fuchsia-500/25 text-fuchsia-400 grid place-items-center mb-3">
@@ -196,126 +150,50 @@ export default function PrivacyInteractiveContent() {
         </div>
       </div>
 
-      {/* Main 2-Column Grid: Sticky Table of Contents (Left) + Policy Sections (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16 relative">
-        {/* Left Sticky Sidebar (4 cols on desktop) - Sticks throughout all 14 sections */}
-        <aside className="lg:col-span-4 lg:sticky lg:top-24 z-20 self-start">
-          <div className="rounded-3xl bg-[#0d0b1a]/95 border border-white/10 p-5 shadow-2xl backdrop-blur-xl max-h-[calc(100vh-7.5rem)] flex flex-col">
-            <div className="flex items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-fuchsia-400">
-                <FileText className="w-4 h-4" />
-                <span>Policy Navigation</span>
-              </div>
-              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-300 font-medium">
-                14 Sections
+      {/* 14 Comprehensive Policy Sections (Centered, Clean Reading Layout) */}
+      <div className="max-w-4xl mx-auto space-y-8 text-gray-300 text-xs sm:text-sm leading-relaxed mb-16">
+        {PRIVACY_SECTIONS.map((section, idx) => (
+          <section
+            key={section.id}
+            id={section.id}
+            className="scroll-mt-28 rounded-3xl bg-[#0b0918]/85 border border-white/10 p-6 sm:p-8 md:p-10 shadow-xl transition-all"
+          >
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white tracking-tight mb-4 flex items-center gap-3 pb-3 border-b border-white/10">
+              <span className="w-7 h-7 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-xs font-bold flex items-center justify-center shrink-0 font-mono">
+                {idx + 1}
               </span>
+              <span>{section.title}</span>
+            </h2>
+
+            <div className="space-y-3.5">
+              {section.content.map((p, pIdx) => (
+                <p key={pIdx} className="text-gray-300 leading-relaxed">
+                  {p}
+                </p>
+              ))}
             </div>
 
-            <nav
-              aria-label="Table of Contents"
-              className="space-y-1 overflow-y-auto pr-1 text-xs custom-scrollbar flex-1"
-            >
-              {PRIVACY_SECTIONS.map((sec, idx) => {
-                const isSelected = activeSection === sec.id;
-                return (
-                  <a
-                    key={sec.id}
-                    id={`toc-link-${sec.id}`}
-                    href={`#${sec.id}`}
-                    onClick={(e) => handleScrollToSection(e, sec.id)}
-                    className={`block px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-fuchsia-500/25 to-purple-500/20 text-white font-semibold border border-fuchsia-500/40 shadow-sm translate-x-1'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate">
-                        <span className="text-gray-500 mr-1.5 font-mono">{idx + 1}.</span>
-                        {sec.shortTitle || sec.title}
-                      </span>
-                      {isSelected && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shrink-0" />
-                      )}
+            {section.subsections && section.subsections.length > 0 && (
+              <div className="mt-6 space-y-4 pt-4 border-t border-white/5">
+                {section.subsections.map((sub, sIdx) => (
+                  <div key={sIdx} className="rounded-2xl bg-white/[0.02] border border-white/5 p-4 sm:p-5">
+                    <h3 className="text-xs sm:text-sm font-semibold text-fuchsia-300 mb-2.5 flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400/80" />
+                      {sub.subtitle}
+                    </h3>
+                    <div className="space-y-2">
+                      {sub.paragraphs.map((para, paraIdx) => (
+                        <p key={paraIdx} className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                          {para}
+                        </p>
+                      ))}
                     </div>
-                  </a>
-                );
-              })}
-
-              <a
-                href="#request-deletion"
-                onClick={(e) => handleScrollToSection(e, 'request-deletion')}
-                className="block mt-2.5 px-3 py-2 rounded-xl text-fuchsia-300 hover:text-white hover:bg-fuchsia-500/10 border border-dashed border-fuchsia-500/30 transition text-xs font-medium cursor-pointer"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Trash2 className="w-3.5 h-3.5 text-fuchsia-400" />
-                  <span>Request Data Erasure &rarr;</span>
-                </div>
-              </a>
-            </nav>
-
-            <div className="mt-4 pt-4 border-t border-white/10 text-[11px] text-gray-400 space-y-1.5 shrink-0">
-              <div className="flex justify-between">
-                <span>Version:</span>
-                <span className="text-white font-mono font-medium">{PRIVACY_POLICY_METADATA.version}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Effective Date:</span>
-                <span className="text-gray-300">{PRIVACY_POLICY_METADATA.effectiveDate}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Guwahati DPO:</span>
-                <a href="mailto:support@aiaxom.co.in" className="text-fuchsia-400 hover:underline">
-                  support@aiaxom.co.in
-                </a>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Right Policy Content (8 cols on desktop) - Contains all 14 policy sections */}
-        <div className="lg:col-span-8 space-y-8 text-gray-300 text-xs sm:text-sm leading-relaxed">
-          {PRIVACY_SECTIONS.map((section) => (
-            <section
-              key={section.id}
-              id={section.id}
-              className="scroll-mt-28 rounded-3xl bg-[#0b0918]/85 border border-white/10 p-6 sm:p-8 shadow-xl transition-all"
-            >
-              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight mb-4 flex items-center gap-2.5 pb-3 border-b border-white/10">
-                <span className="w-2 h-2 rounded-full bg-fuchsia-400 shrink-0" />
-                <span>{section.title}</span>
-              </h2>
-
-              <div className="space-y-3.5">
-                {section.content.map((p, idx) => (
-                  <p key={idx} className="text-gray-300 leading-relaxed">
-                    {p}
-                  </p>
+                  </div>
                 ))}
               </div>
-
-              {section.subsections && section.subsections.length > 0 && (
-                <div className="mt-6 space-y-4 pt-4 border-t border-white/5">
-                  {section.subsections.map((sub, sIdx) => (
-                    <div key={sIdx} className="rounded-2xl bg-white/[0.02] border border-white/5 p-4 sm:p-5">
-                      <h3 className="text-xs sm:text-sm font-semibold text-fuchsia-300 mb-2.5 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400/80" />
-                        {sub.subtitle}
-                      </h3>
-                      <div className="space-y-2">
-                        {sub.paragraphs.map((para, pIdx) => (
-                          <p key={pIdx} className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                            {para}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          ))}
-        </div>
+            )}
+          </section>
+        ))}
       </div>
 
       {/* FULL-WIDTH SECTION: Exercise Your Right to Erasure (DPDP Act 2023) */}
