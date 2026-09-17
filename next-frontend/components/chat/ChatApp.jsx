@@ -171,8 +171,8 @@ export default function ChatApp() {
 
   // Theme state
   const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return localStorage.getItem('axom_ai_theme') || 'dark';
+    if (typeof window === 'undefined') return 'light';
+    return localStorage.getItem('axom_ai_theme') || 'light';
   });
 
   // Sidebar collapse states - default to collapsed on mobile to avoid flash/blur
