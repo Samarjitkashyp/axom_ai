@@ -122,7 +122,17 @@ export default function SettingsPage({
       });
       const d = await res.json();
       if (d.success) {
+        setProfile((prev) => ({
+          ...prev,
+          name: formName,
+          phone: formPhone,
+          bio: formBio,
+          location: formLocation,
+        }));
         setSaveMsg('Profile updated successfully!');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('axom_auth_state_changed'));
+        }
         setTimeout(() => setSaveMsg(''), 3000);
       } else {
         setSaveMsg(d.error || 'Failed to update profile.');

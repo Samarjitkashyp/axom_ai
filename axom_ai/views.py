@@ -3162,7 +3162,7 @@ def profile_api(request):
             'phone': profile.phone or '',
             'bio': profile.bio or '',
             'avatar_url': raw_avatar,
-            'location': '',
+            'location': getattr(profile, 'location', '') or '',
             'plan': plan_name,
             'plan_label': plan_label,
             'is_premium': is_premium,
@@ -3185,6 +3185,7 @@ def profile_api(request):
 
             profile.phone = phone
             profile.bio = bio
+            profile.location = location
             if avatar_url:
                 if avatar_url.startswith('//media/'):
                     avatar_url = avatar_url[1:]

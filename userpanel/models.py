@@ -8,6 +8,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="userpanel_profile")
     phone = models.CharField(max_length=20, blank=True, default="")
     avatar_url = models.CharField(max_length=500, blank=True, default="")
+    location = models.CharField(max_length=255, blank=True, default="")
     language = models.CharField(max_length=10, default="as", choices=[("as", "Assamese (অসমীয়া)"), ("en", "English"), ("hi", "Hindi / Hinglish")])
     timezone = models.CharField(max_length=50, default="Asia/Kolkata")
     bio = models.TextField(blank=True, default="")
