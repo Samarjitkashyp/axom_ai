@@ -5,39 +5,59 @@ export interface FaqItem {
 
 export const IMAGE_TO_PDF_FAQS: FaqItem[] = [
   {
-    q: 'How do I convert images to PDF online for free?',
-    a: 'Simply drag and drop or upload your image files (.png, .jpg, .jpeg, .webp) into the Axom AI converter box above. You can upload multiple images to merge them into a single PDF. Click "Convert to PDF Now", and within seconds, your high-quality PDF will be ready to download. No registration, login, or payment is required.',
+    q: 'How to convert image to PDF online for free?',
+    a: 'To convert images to PDF online for free: 1) Drag and drop or select your JPG, PNG, JPEG, or WebP images in the converter box above. 2) Reorder or arrange your images as needed. 3) Click "Convert to PDF Now". Your crisp, watermark-free PDF will be generated in 2–3 seconds ready for instant download. No account registration or payment is needed.',
   },
   {
-    q: 'How many images can I convert for free per day?',
-    a: 'Free users can convert up to 20 images per day with zero watermarks and full quality preservation. If you need to convert more than 20 images daily, you can upgrade to an Axom AI Premium subscription for unlimited access and Pro Batch Mode.',
+    q: 'How to convert multiple images into one PDF?',
+    a: 'Axom AI allows you to upload multiple images at once to merge them into a single multi-page PDF document. Each image is placed cleanly on its own page, preserving original dimensions, sharpness, and color profiles without distortion.',
   },
   {
-    q: 'Can I merge multiple images into one PDF?',
-    a: 'Yes! You can upload multiple images at once and Axom AI will merge them into a single multi-page PDF document. Each image becomes its own page in the resulting PDF, preserving the original resolution and aspect ratio of every image.',
+    q: 'How to convert JPG to PDF without losing quality?',
+    a: 'Axom AI uses lossless image embedding that retains 100% of your source JPG photo resolution, DPI, and color depth. It embeds the image directly into standard vector-wrapped PDF pages without downscaling or introducing compression artifacts.',
   },
   {
-    q: 'What image formats are supported for conversion to PDF?',
-    a: 'Axom AI supports the most popular image formats: PNG (.png), JPEG (.jpg, .jpeg), and WebP (.webp). Each image can be up to 25 MB in size. All images are converted at their original resolution for maximum quality.',
+    q: 'How to convert PNG to PDF with transparent backgrounds?',
+    a: 'When converting PNG images with alpha channel transparency, Axom AI seamlessly maps the transparent background onto standard clean white PDF canvas pages, ensuring crisp logos, diagrams, and signatures without pixelated black borders.',
   },
   {
-    q: 'Will converting images to PDF reduce the image quality?',
-    a: 'No. Axom AI preserves the original resolution and quality of your images during conversion. The resulting PDF maintains the full fidelity of your source images without any compression artifacts or quality loss.',
+    q: 'How to convert photos to PDF on iPhone and Android?',
+    a: 'Open https://chat.aiaxom.co.in/tools/image-to-pdf in Safari or Chrome on your mobile device. Tap to choose photos directly from your Camera Roll, Gallery, WhatsApp images, or Files app, and click convert. Your PDF downloads instantly to your mobile storage with zero app installation.',
   },
   {
-    q: 'Is it safe to convert sensitive or confidential images on Axom AI?',
-    a: 'Yes, completely. Security and privacy are foundational to Axom AI. All files are transferred using 256-bit SSL encryption. Images are processed in isolated, transient memory buffers and are automatically and permanently deleted from our servers right after conversion. We never store, read, or share your image data.',
+    q: 'Does converting images to PDF reduce quality?',
+    a: 'No. Axom AI preserves the original resolution and quality of your photos. Whether you upload high-resolution camera shots, mobile receipts, or graphic art, each image retains its native sharpness and print-ready quality in the generated PDF.',
+  },
+  {
+    q: 'How to convert images to PDF without installing software?',
+    a: 'Axom AI runs 100% in the cloud through any modern web browser. You do not need to install desktop software, Adobe Acrobat, printer drivers, or mobile apps. Everything processes smoothly on Windows, macOS, Android, iOS, and Linux.',
+  },
+  {
+    q: 'Can I convert WebP images to PDF?',
+    a: 'Yes. In addition to standard JPG and PNG formats, Axom AI provides native support for modern Google WebP (.webp) image files, converting them directly into standard PDF pages in seconds.',
+  },
+  {
+    q: 'Is an online image to PDF converter safe and private?',
+    a: 'Yes, completely safe. Axom AI protects every upload with bank-grade 256-bit TLS/SSL encryption. Uploaded images are processed in isolated transient memory and are automatically and permanently purged from server storage immediately after conversion.',
   },
   {
     q: 'Does Axom AI add any watermark to the converted PDF?',
-    a: 'No. Unlike other converters that place promotional stamps or watermarks on your files unless you buy a subscription, Axom AI produces 100% clean, watermark-free PDFs suitable for professional, academic, and personal use.',
+    a: 'No. Unlike many free converters that stamp promotional watermarks on your documents unless you buy a subscription, Axom AI produces 100% clean, watermark-free PDFs suitable for official, academic, and business submissions.',
   },
   {
-    q: 'Can I convert images to PDF on my mobile phone (Android or iPhone)?',
-    a: 'Yes. Axom AI Image to PDF Converter is fully responsive and optimized for mobile browsers including Chrome, Safari, Firefox, and Edge on iOS and Android devices. No app installation is required.',
+    q: 'How many images can I convert for free per day?',
+    a: 'Free users can convert and merge up to 20 images per day with zero watermarks. For power users handling hundreds of photos or enterprise bulk workflows, Axom AI Pro offers unlimited daily conversions and batch mode for up to 20 files at once.',
   },
   {
-    q: 'How does Axom AI Image to PDF compare to other online converters?',
-    a: 'Axom AI offers generous free daily allowances (20 images/day), lossless quality preservation, multi-image merge into a single PDF, and instant batch conversion for Pro members without annoying ads, watermarks, or complex installation. Most competitors limit free usage to 1-2 files and add watermarks.',
+    q: 'Can I convert scanned receipts, handwritten notes, and ID cards into PDF?',
+    a: 'Yes! Axom AI is ideal for digitizing physical paperwork. Take photos of paper receipts, tax bills, identity cards, or handwritten class notes on your smartphone and merge them into a single organized PDF document for easy filing.',
+  },
+  {
+    q: 'Why choose Axom AI Image to PDF over other online tools?',
+    a: 'Most tools impose aggressive 1-2 file limits, inject ads, or blur image resolution. Axom AI provides 20 free daily conversions, multi-image merging, lossless resolution preservation, zero watermarks, and lightning-fast sub-3-second processing.',
+  },
+  {
+    q: 'Is Axom AI optimized for users in Assam and India?',
+    a: 'Yes. Engineered in Assam, for the world, Axom AI utilizes local Indian cloud edge infrastructure for low latency (<100ms) uploads and downloads, providing blazing fast document processing across India.',
   },
 ];
