@@ -169,14 +169,15 @@ export default function ChatApp() {
     return 'chat';
   });
 
-  // Theme state: default to luminous white gradient glassmorphic theme
+  // Theme state
   const [theme, setTheme] = useState(() => {
-    if (typeof window === 'undefined') return 'light';
-    const savedV2 = localStorage.getItem('axom_theme_v2');
-    if (savedV2) return savedV2;
-    localStorage.setItem('axom_theme_v2', 'light');
-    localStorage.setItem('axom_ai_theme', 'light');
-    return 'light';
+    if (typeof window === 'undefined') return 'dark';
+    if (localStorage.getItem('axom_theme_v2')) {
+      localStorage.removeItem('axom_theme_v2');
+      localStorage.setItem('axom_ai_theme', 'dark');
+      return 'dark';
+    }
+    return localStorage.getItem('axom_ai_theme') || 'dark';
   });
 
   // Sidebar collapse states - default to collapsed on mobile to avoid flash/blur
@@ -274,7 +275,6 @@ export default function ChatApp() {
       body.classList.add('dark-theme');
     }
     localStorage.setItem('axom_ai_theme', theme);
-    localStorage.setItem('axom_theme_v2', theme);
   }, [theme]);
 
   // Window resizing handles default sidebar collapse states
