@@ -23,6 +23,26 @@ _RATE_HITS = {}
 
 # Memory management knobs.
 MEMORY_CHAR_BUDGET = int(os.getenv('MEMORY_CHAR_BUDGET', '3500'))   # conversation context budget
+
+# ---------------------------------------------------------------------------
+# Dynamic language rules — loaded from DB, cached 60s so every chat doesn't
+# hit the database. Cache is in-memory (single-worker Gunicorn).
+# ---------------------------------------------------------------------------
+_LANG_RULES_CACHE = {'text': '', 'ts': 0}
+_LANG_RULES_TTL = 60  # seconds
+
+def _get_language_rules_block():
+    now = time.time()
+    if now - _LANG_RULES_CACHE['ts'] < _LANG_RULES_TTL and _LANG_RULES_CACHE['text']:
+        return _LANG_RULES_CACHE['text']
+    try:
+        from superadmin.models import LanguageRule
+        block = LanguageRule.build_prompt_block()
+    except Exception:
+        block = ""
+    _LANG_RULES_CACHE['text'] = block
+    _LANG_RULES_CACHE['ts'] = now
+    return block
 MAX_MSGS_PER_SESSION = int(os.getenv('MAX_MSGS_PER_SESSION', '100'))  # messages kept per chat
 MAX_SESSIONS_PER_KEY = int(os.getenv('MAX_SESSIONS_PER_KEY', '50'))   # non-pinned chats kept
 
@@ -1159,7 +1179,7 @@ def chat_api_view(request):
             "12. Use '।' (Assamese full stop) at end of sentences, not '.' (English period).\n"
             "13. NEVER invent facts. Base your reply directly on the provided search results.\n"
             "14. Do NOT include inline citation markers like [1], [2], (1).\n"
-        )
+        ) + _get_language_rules_block()
         ws_prompt = (
             f"Web search results:\n\n{context}\n\n"
             f"User question: {prompt}\n\n"
@@ -1203,7 +1223,7 @@ def chat_api_view(request):
                 "Use proper Assamese vocabulary: ৰ (not র), কৰ (not কর). "
                 "Do NOT add citation markers like [1], [2]. "
                 "Do NOT leave ANY Hindi or English common words — translate them all."
-            )
+            ) + _get_language_rules_block()
             asm = None
             try:
                 from model_router.router import openai_generate as _oai_fix
@@ -1286,7 +1306,7 @@ def chat_api_view(request):
         "- Use '।' (Assamese full stop) at end of sentences.\n"
         "IMPORTANT: Never invent specific facts — names of people or officials, who currently holds a "
         "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
-    )
+    ) + _get_language_rules_block()
 
     # 2. KB search skipped — go directly to GPT (ChatGPT style).
     #    KB data is insufficient; GPT provides faster, better answers for all topics.
@@ -1552,7 +1572,7 @@ def chat_api_view(request):
                                 "date and number exactly. Keep any URLs "
                                 "unchanged. Output plain prose only — no "
                                 "Markdown, no bullets, no HTML."
-                            )
+                            ) + _get_language_rules_block()
                             asm = _groq_generate(rewrite_sys, response_text,
                                                  timeout=30)
                             if asm and asm.strip():

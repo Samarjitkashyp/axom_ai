@@ -1,0 +1,256 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Language Rules — Axom AI Super Admin{% endblock %}
+{% block heading %}<i class="fa-solid fa-language mr-2 text-indigo-400"></i> Language Rules{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <p class="text-sm text-slate-400 max-w-2xl">
+    Control how Axom AI handles language in responses. Add words to keep in English, define Assamese grammar rules,
+    vocabulary corrections, and example corrections. Changes apply instantly to all new chat responses.
+  </p>
+  <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+    <i class="fa-solid fa-plus"></i> Add Rule
+  </button>
+</div>
+
+<!-- Category Filter Tabs -->
+<div class="flex border-b border-slate-800 space-x-6 mb-6 text-sm font-semibold">
+  <button onclick="filterRules('all')" data-filter="all" class="filter-tab pb-3 border-b-2 border-indigo-500 text-white transition">
+    <i class="fa-solid fa-layer-group mr-1.5"></i> All ({{ rules|length }})
+  </button>
+  <button onclick="filterRules('keep_english')" data-filter="keep_english" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-font mr-1.5"></i> Keep English
+  </button>
+  <button onclick="filterRules('grammar')" data-filter="grammar" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-spell-check mr-1.5"></i> Grammar
+  </button>
+  <button onclick="filterRules('vocabulary')" data-filter="vocabulary" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-book mr-1.5"></i> Vocabulary
+  </button>
+  <button onclick="filterRules('example')" data-filter="example" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-lightbulb mr-1.5"></i> Examples
+  </button>
+</div>
+
+<!-- Rules List -->
+<div class="space-y-3" id="rules-list">
+  {% for rule in rules %}
+  <div class="glass-card rounded-xl p-4 border border-slate-800 glass-card-hover transition-all rule-card" data-category="{{ rule.category }}" data-id="{{ rule.id }}">
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2.5 mb-1.5">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase
+            {% if rule.category == 'keep_english' %}bg-cyan-500/15 text-cyan-400 border border-cyan-500/30
+            {% elif rule.category == 'grammar' %}bg-amber-500/15 text-amber-400 border border-amber-500/30
+            {% elif rule.category == 'vocabulary' %}bg-emerald-500/15 text-emerald-400 border border-emerald-500/30
+            {% else %}bg-violet-500/15 text-violet-400 border border-violet-500/30{% endif %}">
+            {{ rule.get_category_display }}
+          </span>
+          <span class="text-xs text-slate-500">Priority: {{ rule.priority }}</span>
+          {% if not rule.is_active %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">DISABLED</span>
+          {% endif %}
+        </div>
+        <h3 class="text-sm font-bold text-white mb-1">{{ rule.title }}</h3>
+        <p class="text-xs text-slate-400 leading-relaxed whitespace-pre-wrap break-words">{{ rule.content|truncatechars:300 }}</p>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="editRule({{ rule.id }}, '{{ rule.category }}', `{{ rule.title|escapejs }}`, `{{ rule.content|escapejs }}`, {{ rule.priority }}, {{ rule.is_active|yesno:'true,false' }})"
+                class="p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition" title="Edit">
+          <i class="fa-solid fa-pen-to-square text-xs"></i>
+        </button>
+        <button onclick="toggleRule({{ rule.id }})"
+                class="p-2 rounded-lg transition {% if rule.is_active %}text-emerald-400 hover:text-amber-400 hover:bg-amber-500/10{% else %}text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10{% endif %}" title="{% if rule.is_active %}Disable{% else %}Enable{% endif %}">
+          <i class="fa-solid {% if rule.is_active %}fa-toggle-on{% else %}fa-toggle-off{% endif %} text-sm"></i>
+        </button>
+        <button onclick="deleteRule({{ rule.id }}, `{{ rule.title|escapejs }}`)"
+                class="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition" title="Delete">
+          <i class="fa-solid fa-trash-can text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="glass-card rounded-xl p-8 border border-slate-800 text-center" id="empty-state">
+    <i class="fa-solid fa-language text-4xl text-slate-600 mb-3"></i>
+    <p class="text-slate-400 text-sm">No language rules defined yet. Click "Add Rule" to get started.</p>
+    <p class="text-slate-500 text-xs mt-1">Rules control how Axom AI handles English words, grammar, and vocabulary in Assamese responses.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Add/Edit Modal -->
+<div id="rule-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
+    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+      <h3 class="text-base font-bold text-white" id="modal-title">Add Language Rule</h3>
+      <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <input type="hidden" id="rule-id" value="">
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Category</label>
+        <select id="rule-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none" onchange="updateHelpText()">
+          <option value="keep_english">Keep in English (do not translate)</option>
+          <option value="grammar">Assamese Grammar Rule</option>
+          <option value="vocabulary">Vocabulary Correction (wrong → right)</option>
+          <option value="example">Example Correction</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Title</label>
+        <input type="text" id="rule-title" placeholder="e.g., Technical Programming Terms"
+               class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Content</label>
+        <textarea id="rule-content" rows="5" placeholder="Loading..."
+                  class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none resize-y"></textarea>
+        <p id="help-text" class="text-[11px] text-slate-500 mt-1"></p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Priority <span class="text-slate-500">(higher = applied first)</span></label>
+        <input type="number" id="rule-priority" value="0"
+               class="w-32 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-slate-800 flex justify-end gap-3">
+      <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">Cancel</button>
+      <button onclick="saveRule()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20">
+        <i class="fa-solid fa-check mr-1.5"></i> Save Rule
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const helpTexts = {
+  keep_english: 'Comma-separated words/phrases to keep in English: Python, JavaScript, NumPy, Guido van Rossum, machine learning',
+  grammar: 'Write the grammar rule in plain text. Example: "Always use ৰ (U+09F0), never Bengali র (U+09B0) in all words."',
+  vocabulary: 'Format: wrong → right. Example: "বন্যা → বানপানী (use Assamese word for flood, not Bengali)"',
+  example: 'Show a wrong vs correct example. Example: "WRONG: ডাইনামিক টাইপিং → RIGHT: Dynamic Typing (keep technical terms in English)"',
+};
+
+function updateHelpText() {
+  const cat = document.getElementById('rule-category').value;
+  document.getElementById('help-text').textContent = helpTexts[cat] || '';
+  document.getElementById('rule-content').placeholder = helpTexts[cat] || '';
+}
+
+function openModal() {
+  document.getElementById('rule-id').value = '';
+  document.getElementById('rule-category').value = 'keep_english';
+  document.getElementById('rule-title').value = '';
+  document.getElementById('rule-content').value = '';
+  document.getElementById('rule-priority').value = '0';
+  document.getElementById('modal-title').textContent = 'Add Language Rule';
+  updateHelpText();
+  document.getElementById('rule-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('rule-modal').classList.add('hidden');
+}
+
+function editRule(id, category, title, content, priority, isActive) {
+  document.getElementById('rule-id').value = id;
+  document.getElementById('rule-category').value = category;
+  document.getElementById('rule-title').value = title;
+  document.getElementById('rule-content').value = content;
+  document.getElementById('rule-priority').value = priority;
+  document.getElementById('modal-title').textContent = 'Edit Language Rule';
+  updateHelpText();
+  document.getElementById('rule-modal').classList.remove('hidden');
+}
+
+async function saveRule() {
+  const id = document.getElementById('rule-id').value;
+  const data = {
+    id: id || null,
+    category: document.getElementById('rule-category').value,
+    title: document.getElementById('rule-title').value,
+    content: document.getElementById('rule-content').value,
+    priority: document.getElementById('rule-priority').value,
+    is_active: true,
+  };
+  try {
+    const res = await fetch('/axomai-admin/language-rules/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast(id ? 'Rule updated successfully!' : 'Rule created successfully!');
+      closeModal();
+      setTimeout(() => location.reload(), 500);
+    } else {
+      showToast(result.error || 'Failed to save rule.', 'error');
+    }
+  } catch (e) {
+    showToast('Network error. Please try again.', 'error');
+  }
+}
+
+async function toggleRule(id) {
+  try {
+    const res = await fetch(`/axomai-admin/language-rules/toggle/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast(result.is_active ? 'Rule enabled.' : 'Rule disabled.');
+      setTimeout(() => location.reload(), 400);
+    }
+  } catch (e) {
+    showToast('Failed to toggle rule.', 'error');
+  }
+}
+
+async function deleteRule(id, title) {
+  if (!confirm(`Delete rule "${title}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`/axomai-admin/language-rules/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast('Rule deleted.');
+      document.querySelector(`.rule-card[data-id="${id}"]`)?.remove();
+    }
+  } catch (e) {
+    showToast('Failed to delete rule.', 'error');
+  }
+}
+
+function filterRules(cat) {
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.classList.remove('border-indigo-500', 'text-white');
+    t.classList.add('border-transparent', 'text-slate-400');
+  });
+  document.querySelector(`[data-filter="${cat}"]`).classList.add('border-indigo-500', 'text-white');
+  document.querySelector(`[data-filter="${cat}"]`).classList.remove('border-transparent', 'text-slate-400');
+
+  document.querySelectorAll('.rule-card').forEach(card => {
+    if (cat === 'all' || card.dataset.category === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+updateHelpText();
+</script>
+{% endblock %}

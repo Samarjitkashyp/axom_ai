@@ -96,6 +96,85 @@ class SubdomainPermission(models.Model):
         return f"{self.user.username}: {', '.join(flags) or 'chat-only'}"
 
 
+class LanguageRule(models.Model):
+    """Dynamic language rules for Axom AI's Assamese response generation."""
+    CATEGORY_CHOICES = [
+        ('keep_english', 'Keep in English (do not translate)'),
+        ('grammar', 'Assamese Grammar Rule'),
+        ('vocabulary', 'Vocabulary Correction (wrong → right)'),
+        ('example', 'Example Correction'),
+    ]
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, db_index=True)
+    title = models.CharField(max_length=120, help_text="Short label for this rule")
+    content = models.TextField(
+        help_text="For keep_english: comma-separated words/phrases. "
+                  "For grammar/vocabulary/example: the rule text."
+    )
+    is_active = models.BooleanField(default=True, db_index=True)
+    priority = models.IntegerField(default=0, help_text="Higher = injected first")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-priority', '-updated_at']
+
+    def __str__(self):
+        return f"[{self.get_category_display()}] {self.title}"
+
+    @classmethod
+    def build_prompt_block(cls):
+        """Build a prompt-ready text block from all active rules."""
+        rules = cls.objects.filter(is_active=True).order_by('-priority', '-updated_at')
+        if not rules.exists():
+            return ""
+
+        keep_english_words = []
+        grammar_rules = []
+        vocab_rules = []
+        example_rules = []
+
+        for r in rules:
+            if r.category == 'keep_english':
+                keep_english_words.extend(
+                    w.strip() for w in r.content.split(',') if w.strip()
+                )
+            elif r.category == 'grammar':
+                grammar_rules.append(r.content.strip())
+            elif r.category == 'vocabulary':
+                vocab_rules.append(r.content.strip())
+            elif r.category == 'example':
+                example_rules.append(r.content.strip())
+
+        parts = []
+        parts.append("\n\nADMIN-DEFINED LANGUAGE RULES (MUST FOLLOW):\n")
+
+        if keep_english_words:
+            parts.append(
+                "KEEP IN ENGLISH (Roman script, never transliterate to Assamese script): "
+                + ", ".join(keep_english_words) + ".\n"
+                "This includes: person names, place names, brand names, technical terms, "
+                "acronyms, and any word listed above. Write them in original English/Roman "
+                "script within the Assamese sentence.\n"
+            )
+
+        if grammar_rules:
+            parts.append("ASSAMESE GRAMMAR RULES:\n")
+            for gr in grammar_rules:
+                parts.append(f"- {gr}\n")
+
+        if vocab_rules:
+            parts.append("VOCABULARY CORRECTIONS (use right, never wrong):\n")
+            for vr in vocab_rules:
+                parts.append(f"- {vr}\n")
+
+        if example_rules:
+            parts.append("EXAMPLE CORRECTIONS (learn from these):\n")
+            for er in example_rules:
+                parts.append(f"- {er}\n")
+
+        return "".join(parts)
+
+
 class AuditLog(models.Model):
     """Audit log of Superadmin actions for security & compliance."""
     admin_user = models.ForeignKey(

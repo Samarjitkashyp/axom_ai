@@ -27,4 +27,8 @@ urlpatterns = [
     path('settings/save/', views.save_settings_api, name='save_settings'),
     path('api/health/', views.api_health_check, name='api_health'),
     path('api/chart-data/', views.chart_data_api, name='chart_data'),
+    path('language-rules/', views.language_rules_page, name='language_rules'),
+    path('language-rules/save/', views.save_language_rule_api, name='save_language_rule'),
+    path('language-rules/toggle/<int:rule_id>/', views.toggle_language_rule_api, name='toggle_language_rule'),
+    path('language-rules/delete/<int:rule_id>/', views.delete_language_rule_api, name='delete_language_rule'),
 ]

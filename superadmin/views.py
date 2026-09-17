@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST
 from payments.models import Payment, UserPlan, PLAN_CATALOG
 from knowledge.models import KnowledgeDocument, KnowledgeChunk, QAPair, ChatSession, ChatMessage, UnansweredQuery, Feedback
 from userpanel.models import SupportTicket, TicketReply, UsageRecord, InAppNotification
-from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission
+from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission, LanguageRule
 
 
 def _is_super(u):
@@ -845,3 +845,76 @@ def chart_data_api(request):
         'revenue': revenue_data,
         'signups': signup_data,
     })
+
+
+# ---------------------------------------------------------------------------
+# Language Rules Management
+# ---------------------------------------------------------------------------
+
+@superuser_required
+def language_rules_page(request):
+    rules = LanguageRule.objects.all()
+    return render(request, 'superadmin/language_rules.html', {
+        'active': 'language_rules',
+        'rules': rules,
+        'categories': LanguageRule.CATEGORY_CHOICES,
+    })
+
+
+@superuser_required
+@require_POST
+def save_language_rule_api(request):
+    try:
+        data = json.loads(request.body)
+        rule_id = data.get('id')
+        category = data.get('category', '').strip()
+        title = data.get('title', '').strip()
+        content = data.get('content', '').strip()
+        priority = int(data.get('priority', 0))
+        is_active = data.get('is_active', True)
+
+        if not title or not content or not category:
+            return JsonResponse({'error': 'Title, category, and content are required.'}, status=400)
+
+        valid_cats = [c[0] for c in LanguageRule.CATEGORY_CHOICES]
+        if category not in valid_cats:
+            return JsonResponse({'error': f'Invalid category: {category}'}, status=400)
+
+        if rule_id:
+            rule = get_object_or_404(LanguageRule, id=rule_id)
+            rule.category = category
+            rule.title = title
+            rule.content = content
+            rule.priority = priority
+            rule.is_active = is_active
+            rule.save()
+            _log_audit(request, 'language_rule_update', f'Rule #{rule.id}: {title}')
+        else:
+            rule = LanguageRule.objects.create(
+                category=category, title=title, content=content,
+                priority=priority, is_active=is_active,
+            )
+            _log_audit(request, 'language_rule_create', f'Rule #{rule.id}: {title}')
+
+        return JsonResponse({'success': True, 'id': rule.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@superuser_required
+@require_POST
+def toggle_language_rule_api(request, rule_id):
+    rule = get_object_or_404(LanguageRule, id=rule_id)
+    rule.is_active = not rule.is_active
+    rule.save(update_fields=['is_active', 'updated_at'])
+    _log_audit(request, 'language_rule_toggle', f'Rule #{rule.id} → {"ON" if rule.is_active else "OFF"}')
+    return JsonResponse({'success': True, 'is_active': rule.is_active})
+
+
+@superuser_required
+@require_POST
+def delete_language_rule_api(request, rule_id):
+    rule = get_object_or_404(LanguageRule, id=rule_id)
+    _log_audit(request, 'language_rule_delete', f'Rule #{rule.id}: {rule.title}')
+    rule.delete()
+    return JsonResponse({'success': True})
