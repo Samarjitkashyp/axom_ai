@@ -85,6 +85,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/tools/pdf-to-jpg/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1.0,
+    },
+    {
       url: 'https://chat.aiaxom.co.in/tools',
       lastModified: new Date(),
       changeFrequency: 'daily',

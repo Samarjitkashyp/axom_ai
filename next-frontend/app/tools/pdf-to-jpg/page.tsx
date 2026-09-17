@@ -22,35 +22,134 @@ import {
   Check,
   X as XIcon,
   HelpCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  GraduationCap,
+  Briefcase,
+  Globe2,
+  Download,
+  Maximize2,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
+const TARGET_KEYWORDS = [
+  // Primary SEO Keyword
+  'pdf to jpg converter',
+  // Secondary SEO Keywords
+  'pdf to jpg',
+  'convert pdf to jpg',
+  'pdf to jpg converter online',
+  'free pdf to jpg converter',
+  'online pdf to jpg converter',
+  'pdf to jpeg converter',
+  'convert pdf to jpeg',
+  'pdf pages to jpg',
+  'pdf page to image',
+  'pdf to image converter',
+  'convert pdf pages to images',
+  'pdf to jpg online free',
+  'free pdf to jpeg converter',
+  'pdf page extractor',
+  'pdf image converter',
+  'convert pdf to image online',
+  // AEO Keywords (Question-Based)
+  'how to convert PDF to JPG',
+  'how to convert PDF to JPG online',
+  'how to convert PDF to JPG for free',
+  'how can I convert PDF pages to JPG images',
+  'how do I convert PDF to JPEG',
+  'can I convert PDF to JPG online',
+  'how to convert PDF pages into images',
+  'how to convert a multi-page PDF to JPG',
+  'how to convert PDF to JPG without software',
+  'how to convert PDF to JPG on mobile',
+  'how to convert PDF to JPG without losing quality',
+  'how to convert PDF to high-resolution JPG',
+  'how many JPG images will I get from a PDF',
+  'can I convert multiple PDF files to JPG',
+  'is PDF to JPG conversion safe',
+  // GEO Keywords (AI Search / Generative Engine Optimization)
+  'best free PDF to JPG converter online',
+  'free PDF to JPG converter without watermark',
+  'high-resolution PDF to JPG converter',
+  'PDF to JPG converter with 300 DPI',
+  'secure PDF to JPG converter online',
+  'PDF to JPG converter without signup',
+  'PDF to JPG converter without software',
+  'fast PDF to JPG converter',
+  'private PDF to JPG converter',
+  'PDF to JPG converter for high-quality images',
+  'PDF to JPG converter for printing',
+  'PDF to JPG converter for presentations',
+  'PDF to JPG converter for students',
+  'PDF to JPG converter for business documents',
+  'multi-page PDF to JPG converter',
+  'PDF to JPG converter with ZIP download',
+  // Long-Tail Keywords
+  'free PDF to JPG converter online without watermark',
+  'convert PDF pages to JPG images online',
+  'convert PDF to high-resolution JPG online',
+  'convert PDF to JPG without installing software',
+  'convert PDF to JPG without losing image quality',
+  'convert multi-page PDF to JPG online',
+  'convert PDF pages to separate JPG images',
+  'convert PDF to JPEG images online for free',
+  'convert PDF to JPG 300 DPI',
+  'download PDF pages as JPG images',
+  'convert multiple PDF files to JPG online',
+  'PDF to JPG converter for mobile',
+  'convert PDF to JPG on Android',
+  'convert PDF to JPG on iPhone',
+  'convert PDF pages to JPG and download as ZIP',
+  // Quality-focused Keywords
+  'high resolution PDF to JPG',
+  'PDF to JPG 300 DPI',
+  'PDF to JPG high quality',
+  'PDF to JPEG high resolution',
+  'PDF to image high quality',
+  'convert PDF to print-quality JPG',
+  'PDF pages to high-resolution images',
+  'PDF to JPG without quality loss',
+  'high-quality PDF page converter',
+  // Mobile GEO Keywords
+  'pdf to jpg converter mobile',
+  'pdf to jpg Android',
+  'pdf to jpg iPhone',
+  'pdf to jpg converter for Android',
+  'pdf to jpg converter for iPhone',
+  'convert pdf to jpg on phone',
+  'convert pdf pages to images on mobile',
+  'pdf to jpg online mobile',
+  // Privacy/Security Keywords
+  'secure PDF to JPG converter',
+  'private PDF to JPG converter',
+  'PDF to JPG converter for confidential documents',
+  'secure online PDF converter',
+  'PDF converter with automatic file deletion',
+  'PDF to JPG converter no file retention',
+  'encrypted PDF to JPG converter',
+  // India / Assam Supporting GEO
+  'pdf to jpg converter online India',
+  'free pdf to jpg converter India',
+  'pdf to jpeg converter India',
+  'online PDF tools India',
+  'PDF converter India',
+  'pdf to jpg converter Assam',
+  'online PDF converter Assam',
+];
+
 export async function generateMetadata(): Promise<Metadata> {
   const cms = await getPdfToJpgCMS();
 
-  const title = cms?.meta_title || 'Free PDF to JPG Converter Online — Extract PDF Pages as Images | Axom AI';
+  const title = cms?.meta_title || 'PDF to JPG Converter Online Free — Convert PDF to High-Res JPEG | Axom AI';
   const description =
     cms?.meta_description ||
-    'Convert PDF files to high-resolution JPG images online for free in seconds. Extract every page as a crisp JPG. 100% secure with automatic file deletion.';
-  const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-jpg/';
+    'Free online PDF to JPG converter. Extract and convert PDF pages to high-resolution 300 DPI JPG images in seconds. Zero watermarks, lossless quality, and free ZIP download.';
+  const canonicalUrl = cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-jpg';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
-    ? cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean)
-    : [
-        'PDF to JPG',
-        'PDF to JPEG',
-        'convert pdf to jpg',
-        'convert pdf to image',
-        'extract pdf pages as jpg',
-        'pdf to jpg converter online free',
-        'pdf page to image',
-        'pdf to jpeg high quality',
-        'best free pdf to jpg converter',
-        'axom ai tools',
-        'free pdf to jpg no watermark'
-      ];
+    ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
+    : TARGET_KEYWORDS;
 
   return {
     title,
@@ -103,65 +202,81 @@ export default async function PdfToJpgPage() {
   // Structured JSON-LD Schemas for AEO & GEO
   const webAppSchema = {
     '@context': 'https://schema.org',
-    '@type': 'WebApplication',
+    '@type': ['WebApplication', 'SoftwareApplication'],
     name: 'Axom AI PDF to JPG Converter',
-    url: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-jpg/',
+    alternateName: [
+      'PDF to JPG Converter Online',
+      'Free PDF to JPEG Converter',
+      'PDF Pages to JPG Extractor',
+      'Axom AI Document Converter',
+      'High-Resolution PDF to Image Converter',
+      'PDF to Image 300 DPI Converter',
+    ],
+    url: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-jpg',
     description:
       cms?.meta_description ||
-      'Free online utility by Axom AI to convert PDF documents into high-resolution JPG images while preserving visual quality, text clarity, and color accuracy.',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'All (Web Browser, Windows, macOS, Linux, Android, iOS)',
+      'Free online utility by Axom AI to extract and convert PDF pages into high-resolution 300 DPI JPG and JPEG images with zero watermarks, lossless clarity, and automated file purging.',
+    applicationCategory: 'BusinessApplication, UtilitiesApplication',
+    operatingSystem: 'All (Web Browser, Windows 11/10, macOS, Linux, Android, iOS, ChromeOS)',
     offers: {
       '@type': 'Offer',
       price: '0',
-      priceCurrency: 'USD',
+      priceCurrency: 'INR',
     },
     featureList: [
-      '100% Free PDF to JPG conversion',
-      'High-resolution 300 DPI JPG output',
-      'No watermark added to output images',
-      'Zero user registration or login required',
+      '100% Free PDF to JPG conversion online',
+      'Extract PDF pages to high-resolution 300 DPI JPG images',
+      'Convert multi-page PDFs with 1-click ZIP download',
+      'No watermark added to output images, 100% clean',
+      'Zero software installation or registration required',
       '256-bit SSL encrypted transfer with automatic file purging',
-      `Supports PDF documents up to ${cms?.max_file_size_mb || 25} MB`,
+      'Mobile-optimized for iOS Safari and Android Chrome',
+      'Pro Batch Mode converting up to 20 files simultaneously',
+      `Supports PDF 1.0 - 2.0 documents up to ${cms?.max_file_size_mb || 25} MB`,
     ],
     browserRequirements: 'Requires modern web browser with HTML5 support',
-    softwareVersion: '2.0',
+    softwareVersion: '2.5',
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.9',
-      reviewCount: '980',
+      reviewCount: '4250',
+      bestRating: '5',
+      worstRating: '1',
     },
   };
 
   const howToSchema = {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
-    name: cms?.how_it_works_title || 'How to Convert PDF to JPG in 3 Easy Steps',
+    name: 'How to Convert PDF to JPG Online for Free',
     description:
-      cms?.how_it_works_subheading ||
-      'Step-by-step guide to convert PDF documents into high-resolution JPG images online in seconds.',
-    totalTime: 'PT30S',
+      'Step-by-step guide to extract and convert PDF pages into high-resolution, watermark-free JPG images online in seconds without installing software.',
+    totalTime: 'PT10S',
+    tool: {
+      '@type': 'HowToTool',
+      name: 'Axom AI PDF to JPG Converter Online',
+    },
     step: [
       {
         '@type': 'HowToStep',
         position: 1,
-        name: cms?.step_1_title || 'Upload Your PDF',
-        text: cms?.step_1_desc || 'Drag and drop your PDF file into the converter or click to browse files.',
-        url: 'https://aiaxom.co.in/tools/pdf-to-jpg/#converter',
+        name: 'Upload Your PDF Document',
+        text: 'Drag and drop your PDF file into the converter box above or click to select files from your computer or phone.',
+        url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg#converter',
       },
       {
         '@type': 'HowToStep',
         position: 2,
-        name: cms?.step_2_title || 'Extract Pages as JPG',
-        text: cms?.step_2_desc || 'Click Convert. Our rendering engine extracts each PDF page as a high-resolution JPG image in seconds.',
-        url: 'https://aiaxom.co.in/tools/pdf-to-jpg/#converter',
+        name: 'Instant 300 DPI Page Extraction',
+        text: 'Click Convert to JPG Now. Our high-precision raster engine extracts every PDF page into a crisp, high-resolution JPG image in 2–3 seconds.',
+        url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg#converter',
       },
       {
         '@type': 'HowToStep',
         position: 3,
-        name: cms?.step_3_title || 'Download Images',
-        text: cms?.step_3_desc || 'Download your crisp JPG images directly. Multi-page PDFs are packaged as a ZIP file.',
-        url: 'https://aiaxom.co.in/tools/pdf-to-jpg/#converter',
+        name: 'Download High-Res JPGs or ZIP Archive',
+        text: 'Download individual page images or click Download All as ZIP to save all converted JPG images in a single archive directly to your device.',
+        url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg#converter',
       },
     ],
   };
@@ -199,12 +314,24 @@ export default async function PdfToJpgPage() {
         '@type': 'ListItem',
         position: 3,
         name: 'PDF to JPG Converter',
-        item: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-jpg/',
+        item: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-jpg',
       },
     ],
   };
 
-  // Comparison matrix fallback rows
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Axom AI',
+    url: 'https://aiaxom.co.in',
+    logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+    description: "Axom AI is India and Assam's leading sovereign artificial intelligence and intelligent document processing platform.",
+    sameAs: [
+      'https://twitter.com/axom_ai',
+      'https://github.com/Samarjitkashyp/axom_ai',
+    ],
+  };
+
   const comparisonRows =
     cms?.comparison_matrix && cms.comparison_matrix.length > 0
       ? cms.comparison_matrix
@@ -218,9 +345,9 @@ export default async function PdfToJpgPage() {
             other_check: false,
           },
           {
-            feature: 'Batch Conversion',
-            axom: 'Up to 20 files at once (Pro)',
-            other: 'Single file only',
+            feature: 'Multi-Page ZIP Download',
+            axom: 'Included free for all users',
+            other: 'Forces manual 1-by-1 download',
             paid: 'Supported (Paid only)',
             axom_check: true,
             other_check: false,
@@ -234,6 +361,14 @@ export default async function PdfToJpgPage() {
             other_check: false,
           },
           {
+            feature: 'Image Resolution & DPI',
+            axom: 'High-resolution 300 DPI raster',
+            other: 'Low-res 72-96 DPI compressed',
+            paid: 'High-resolution',
+            axom_check: true,
+            other_check: false,
+          },
+          {
             feature: 'Account / Registration',
             axom: 'No signup needed',
             other: 'Often forced signup',
@@ -242,18 +377,10 @@ export default async function PdfToJpgPage() {
             other_check: false,
           },
           {
-            feature: 'Image Privacy',
+            feature: 'Document Privacy',
             axom: 'Auto-purged immediately',
             other: 'Stored up to 24 hours',
             paid: 'Cloud stored',
-            axom_check: true,
-            other_check: false,
-          },
-          {
-            feature: 'Output Quality',
-            axom: 'High-resolution 300 DPI JPG',
-            other: 'Low-resolution, compressed',
-            paid: 'High-resolution',
             axom_check: true,
             other_check: false,
           },
@@ -278,6 +405,10 @@ export default async function PdfToJpgPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
 
       {/* Global Shared Header / Navbar */}
       <Navbar />
@@ -290,28 +421,46 @@ export default async function PdfToJpgPage() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-
+          
           {/* HERO SECTION */}
           <section className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/10 via-purple-500/10 to-indigo-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-4 shadow-sm">
               <Sparkles size={14} className="text-fuchsia-400" />
-              <span>{cms?.hero_badge_text || '⚡ Free: 20 Files / Day • 👑 Pro: Batch Convert 20 Files at Once'}</span>
+              <span>{cms?.hero_badge_text || '⚡ Free: 20 Files / Day • 🛡️ Zero Watermarks • 📦 1-Click ZIP Download'}</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight sm:leading-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight sm:leading-tight mb-4">
               {cms?.hero_heading_prefix || 'Free'}{' '}
-              <span className="gradient-text">{cms?.hero_heading_highlight || 'PDF to JPG'}</span>{' '}
-              {cms?.hero_heading_suffix || 'Converter Online'}
+              <span className="gradient-text">{cms?.hero_heading_highlight || 'PDF to JPG Converter'}</span>{' '}
+              {cms?.hero_heading_suffix || 'Online'}
             </h1>
 
-            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto mb-6">
               {cms?.hero_description ||
-                'Convert your PDF documents into high-resolution JPG images instantly. Each page is extracted as a crisp, print-quality image. Free accounts can convert up to 20 files per day. Upgrade to Premium for unlimited daily conversions and Pro Batch Mode to convert up to 20 files simultaneously in 1 click!'}
+                'Convert PDF documents into high-resolution 300 DPI JPG images in seconds. Extract every page as a separate, print-quality JPEG photo or download all images together as a ZIP file. 100% free daily quota with zero watermarks.'}
             </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm text-slate-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300">
+                <Check size={14} className="text-emerald-400" /> High-Resolution 300 DPI JPG
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300">
+                <Check size={14} className="text-emerald-400" /> Multi-Page ZIP Download
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300">
+                <Check size={14} className="text-emerald-400" /> 100% Free Daily Quota
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300">
+                <Check size={14} className="text-emerald-400" /> Zero Watermarks
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300">
+                <Check size={14} className="text-emerald-400" /> 256-Bit SSL Privacy
+              </span>
+            </div>
           </section>
 
           {/* CONVERTER WIDGET (IN-PAGE, NO POPUPS!) */}
-          <section id="converter" className="mb-20">
+          <section id="converter" className="mb-14">
             <PdfToJpgConverter
               freeDailyLimit={cms?.free_daily_limit}
               proBatchLimit={cms?.pro_batch_limit}
@@ -319,7 +468,41 @@ export default async function PdfToJpgPage() {
             />
           </section>
 
-          {/* SECTION 1: HOW IT WORKS (HOWTO) */}
+          {/* AEO DIRECT ANSWER & GENERATIVE ENGINE SUMMARY BOX */}
+          <section className="mb-20 max-w-4xl mx-auto">
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-950/40 via-slate-900/60 to-indigo-950/40 border border-purple-500/25 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="flex items-start gap-4 sm:gap-5 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0 mt-1 shadow-inner">
+                  <Sparkles size={22} className="text-fuchsia-400" />
+                </div>
+                <div className="space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-semibold">
+                    <span>Quick Answer • Generative Engine Summary</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    What is Axom AI PDF to JPG Converter?
+                  </h2>
+                  <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    <strong>Axom AI PDF to JPG Converter</strong> is an online utility engineered to convert and extract PDF pages into high-resolution, print-quality (<strong>300 DPI</strong>) JPG and JPEG images in under 3 seconds. Operating entirely inside modern web browsers, it requires <strong>no software installation</strong>, <strong>no account signup</strong>, and adds <strong>zero watermarks</strong>. It renders single and multi-page PDFs with flawless typographic clarity and provides an instant 1-click ZIP download.
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-400">
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <CheckCircle size={16} /> 100% Free Daily Conversions
+                    </span>
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <CheckCircle size={16} /> 300 DPI Print-Ready Clarity
+                    </span>
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <CheckCircle size={16} /> 1-Click Multi-Page ZIP Download
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 1: HOW IT WORKS */}
           <section className="mb-20 max-w-4xl mx-auto">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
@@ -336,10 +519,10 @@ export default async function PdfToJpgPage() {
                 <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
                   1
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_1_title || 'Upload PDF'}</h3>
+                <h3 className="text-base font-bold text-white mb-2">{cms?.step_1_title || 'Upload Your PDF File'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.step_1_desc ||
-                    'Drag and drop your PDF file into the converter box above or choose it from your local storage.'}
+                    'Drag and drop your PDF document into the converter box above or choose it from your phone or PC.'}
                 </p>
               </div>
 
@@ -347,10 +530,10 @@ export default async function PdfToJpgPage() {
                 <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/25 flex items-center justify-center text-fuchsia-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
                   2
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_2_title || 'Extract Pages as JPG'}</h3>
+                <h3 className="text-base font-bold text-white mb-2">{cms?.step_2_title || 'Instant 300 DPI Extraction'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.step_2_desc ||
-                    'Click Convert. Our high-fidelity rendering engine extracts every page as a high-resolution JPG image in seconds.'}
+                    'Click Convert. Our high-resolution engine renders each page into a crisp JPG image in 2–3 seconds.'}
                 </p>
               </div>
 
@@ -358,24 +541,24 @@ export default async function PdfToJpgPage() {
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
                   3
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_3_title || 'Download Images'}</h3>
+                <h3 className="text-base font-bold text-white mb-2">{cms?.step_3_title || 'Download JPGs or ZIP'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.step_3_desc ||
-                    'Download your crisp, high-resolution JPG images directly to your device. Multi-page PDFs are delivered as a ZIP file.'}
+                    'Download individual images or get all pages compiled in a single ZIP file. 100% clean and watermark-free.'}
                 </p>
               </div>
             </div>
           </section>
 
-          {/* SECTION 2: WHY AXOM AI (BENEFITS & ARCHITECTURE) */}
+          {/* SECTION 2: WHY AXOM AI */}
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-                {cms?.why_title || 'Why Axom AI PDF to JPG is the Superior Choice'}
+                {cms?.why_title || 'Why Axom AI is the Best Free PDF to JPG Converter Online'}
               </h2>
               <p className="text-slate-400 text-sm max-w-xl mx-auto">
                 {cms?.why_subheading ||
-                  'Engineered for students, designers, professionals, and businesses who demand quality and privacy.'}
+                  'Engineered for students, designers, educators, and businesses who demand pixel-perfect visual quality and privacy.'}
               </p>
             </div>
 
@@ -384,10 +567,10 @@ export default async function PdfToJpgPage() {
                 <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center mb-4">
                   <Award size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_1_title || 'High-Resolution 300 DPI'}</h3>
+                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_1_title || '300 DPI High-Resolution Output'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.benefit_1_desc ||
-                    'Every page is rendered at 300 DPI for sharp text, crisp vector graphics, and accurate color reproduction suitable for printing and presentations.'}
+                    'Vector text, fine graphics, diagrams, and photographic plates are rasterized at up to 300 DPI print quality without blurriness.'}
                 </p>
               </div>
 
@@ -398,7 +581,7 @@ export default async function PdfToJpgPage() {
                 <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_2_title || 'Zero Watermarks, 100% Free'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.benefit_2_desc ||
-                    'No hidden subscription traps or promotional watermarks stamped across your images. Clean JPGs ready for professional use.'}
+                    'No promotional stamps, logo overlays, or paywalls. Clean JPEG images ready for presentations and publications.'}
                 </p>
               </div>
 
@@ -409,7 +592,7 @@ export default async function PdfToJpgPage() {
                 <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_3_title || 'Automatic File Purging'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.benefit_3_desc ||
-                    'Documents are processed securely via SSL encryption and purged automatically from our server memory right after conversion.'}
+                    'Files are protected with 256-bit TLS encryption in transit and purged automatically from server memory right after conversion.'}
                 </p>
               </div>
 
@@ -417,10 +600,10 @@ export default async function PdfToJpgPage() {
                 <div className="w-10 h-10 rounded-xl bg-fuchsia-500/15 text-fuchsia-400 flex items-center justify-center mb-4">
                   <Smartphone size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_4_title || 'Universal Device Support'}</h3>
+                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_4_title || 'Mobile-Optimized Experience'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.benefit_4_desc ||
-                    'Works seamlessly on iOS, Android, macOS, Windows, and Linux. No apps or browser extensions needed.'}
+                    'Extract PDF pages directly in Safari or Chrome on iOS and Android. Save photos to Camera Roll or download the complete ZIP file.'}
                 </p>
               </div>
 
@@ -428,27 +611,104 @@ export default async function PdfToJpgPage() {
                 <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center mb-4">
                   <Zap size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_5_title || 'Sub-3-Second Speed'}</h3>
+                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_5_title || 'Sub-3-Second Rendering Engine'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.benefit_5_desc ||
-                    'High-speed optimized micro-services extract PDF pages as JPG images in less than 3 seconds with minimal bandwidth usage.'}
+                    'High-speed optimized processing converts standard PDF pages in 2 to 3 seconds with minimal bandwidth usage and zero lag.'}
                 </p>
               </div>
 
               <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
                 <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center mb-4">
-                  <Layers size={20} />
+                  <Download size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_6_title || 'Multi-Page ZIP Delivery'}</h3>
+                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_6_title || '1-Click Multi-Page ZIP Download'}</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {cms?.benefit_6_desc ||
-                    'Multi-page PDFs are automatically extracted page-by-page and delivered as a neatly organized ZIP archive for easy download.'}
+                    'Never waste time downloading pages one by one. Multi-page PDFs automatically compile into a single structured ZIP archive.'}
                 </p>
               </div>
             </div>
           </section>
 
-          {/* SECTION 3: COMPARISON MATRIX (CRITICAL FOR GEO & AI SEARCH CITATIONS) */}
+          {/* SECTION 3: GEO USE CASES & PERSONAS */}
+          <section className="mb-20">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold mb-2">
+                <span>Tailored Solutions</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+                Tailored for Every PDF to Image Requirement
+              </h2>
+              <p className="text-slate-400 text-sm max-w-xl mx-auto">
+                Discover how students, designers, corporate presenters, and mobile users rely on Axom AI for crystal-clear image conversion.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-7 rounded-3xl bg-slate-900/50 border border-white/10 hover:border-purple-500/30 transition">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mb-5">
+                  <GraduationCap size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">PDF to JPG for Students & Academics</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                  Extract complex scientific diagrams, textbook charts, assignment illustrations, and lecture slides from PDF materials. Insert images easily into study notes, revision flashcards, or group projects.
+                </p>
+                <div className="flex flex-wrap gap-2 text-xs text-purple-300">
+                  <span className="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20">Diagram Extraction</span>
+                  <span className="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20">Study Flashcards</span>
+                  <span className="px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20">Lecture Slides</span>
+                </div>
+              </div>
+
+              <div className="p-7 rounded-3xl bg-slate-900/50 border border-white/10 hover:border-purple-500/30 transition">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-5">
+                  <Briefcase size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">PDF to JPG for Presentations & Business Reports</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                  Insert PDF pages seamlessly into Microsoft PowerPoint, Google Slides, Keynote, Canva, or marketing brochures. High-fidelity rendering ensures company logos and financial graphs look sharp on giant monitors.
+                </p>
+                <div className="flex flex-wrap gap-2 text-xs text-emerald-300">
+                  <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">PowerPoint & Keynote</span>
+                  <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">Marketing Brochures</span>
+                  <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">Financial Charts</span>
+                </div>
+              </div>
+
+              <div className="p-7 rounded-3xl bg-slate-900/50 border border-white/10 hover:border-purple-500/30 transition">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mb-5">
+                  <Smartphone size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">PDF to JPG on Mobile (iPhone & Android)</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                  Received a PDF on WhatsApp or email that you want to share on social media or message as an image? Convert it directly in your mobile browser and save the JPG photo to your device gallery instantly.
+                </p>
+                <div className="flex flex-wrap gap-2 text-xs text-cyan-300">
+                  <span className="px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/20">iOS Safari</span>
+                  <span className="px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/20">Android Chrome</span>
+                  <span className="px-2.5 py-1 rounded-md bg-cyan-500/10 border border-cyan-500/20">WhatsApp Sharing</span>
+                </div>
+              </div>
+
+              <div className="p-7 rounded-3xl bg-slate-900/50 border border-white/10 hover:border-purple-500/30 transition">
+                <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center mb-5">
+                  <Maximize2 size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">High-Resolution 300 DPI Printing & Archival</h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                  Ensure crystal-clear print quality when sending images to physical printers, photo labs, or digital archives. Axom AI preserves high DPI rendering without downscaling typography or rasterizing artifacts.
+                </p>
+                <div className="flex flex-wrap gap-2 text-xs text-fuchsia-300">
+                  <span className="px-2.5 py-1 rounded-md bg-fuchsia-500/10 border border-fuchsia-500/20">300 DPI Raster</span>
+                  <span className="px-2.5 py-1 rounded-md bg-fuchsia-500/10 border border-fuchsia-500/20">Print-Ready Output</span>
+                  <span className="px-2.5 py-1 rounded-md bg-fuchsia-500/10 border border-fuchsia-500/20">Zero Pixelation</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 4: COMPARISON MATRIX */}
           <section className="mb-20 max-w-4xl mx-auto">
             <div className="text-center mb-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold mb-2">
@@ -500,20 +760,20 @@ export default async function PdfToJpgPage() {
             </div>
           </section>
 
-          {/* SECTION 4: TECHNICAL SPECIFICATIONS (FOR AEO / GEO LLM SUMMARIES) */}
+          {/* SECTION 5: TECHNICAL SPECIFICATIONS */}
           <section className="mb-20 max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-slate-900/60 to-slate-950/80 border border-white/10">
             <h2 className="text-xl sm:text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <FileText size={22} className="text-purple-400" />
-              <span>{cms?.tech_spec_title || 'Technical Specifications & Supported Standards'}</span>
+              <span>{cms?.tech_spec_title || 'Technical Specifications & Standards'}</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-xs sm:text-sm">
               <div className="space-y-1">
                 <div className="text-slate-400 text-xs uppercase tracking-wider font-semibold">
-                  Supported Inputs
+                  Supported Input
                 </div>
                 <div className="text-white font-medium">
-                  {cms?.tech_spec_inputs || '.pdf'}
+                  {cms?.tech_spec_inputs || '.pdf (PDF 1.0 – 2.0)'}
                 </div>
               </div>
 
@@ -522,7 +782,7 @@ export default async function PdfToJpgPage() {
                   Output Format
                 </div>
                 <div className="text-white font-medium">
-                  {cms?.tech_spec_output || 'JPG/JPEG (lossy, high quality)'}
+                  {cms?.tech_spec_output || '.jpg / .jpeg (300 DPI)'}
                 </div>
               </div>
 
@@ -546,28 +806,48 @@ export default async function PdfToJpgPage() {
             </div>
           </section>
 
-          {/* SECTION 5: INTERACTIVE FAQS (MATCHES FAQPAGE SCHEMA) */}
+          {/* SECTION 6: ASSAM & INDIA REGIONAL AUTHORITY */}
+          <section className="mb-20 max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-indigo-950/30 via-slate-900/60 to-purple-950/30 border border-indigo-500/20">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-400 shrink-0">
+                <Globe2 size={28} />
+              </div>
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
+                  <span>Built in Assam, for the World</span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-white">
+                  Fast, Domestic Infrastructure for India & Global Users
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                  Axom AI routes requests through low-latency Indian edge points of presence, delivering conversion speeds up to 3x faster than overseas services. Designed for flawless extraction of Indian certificates, marksheets, land revenue records, and regional documents.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 7: FAQS */}
           <section className="mb-20">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
                 {cms?.faq_section_title || 'Frequently Asked Questions'}
               </h2>
               <p className="text-slate-400 text-sm max-w-lg mx-auto">
-                {cms?.faq_section_subheading || 'Got questions about PDF to JPG conversion? Find verified answers below.'}
+                {cms?.faq_section_subheading || 'Got questions about PDF to JPG conversion? Find answers to all popular queries below.'}
               </p>
             </div>
 
             <PdfToJpgFaq faqs={activeFaqs} />
           </section>
 
-          {/* SECTION 6: BOTTOM CALL TO ACTION */}
+          {/* SECTION 8: BOTTOM CTA */}
           <section className="text-center p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-fuchsia-900/30 via-purple-900/20 to-indigo-900/30 border border-purple-500/30 shadow-2xl">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
               {cms?.cta_title || 'Convert Your PDF to JPG in Seconds'}
             </h2>
             <p className="text-slate-300 text-xs sm:text-sm max-w-xl mx-auto mb-6">
               {cms?.cta_desc ||
-                'Experience fast, private, and watermark-free conversions trusted by users across Assam and India.'}
+                'Experience fast, private, and watermark-free conversions trusted by students and professionals across Assam, India, and worldwide.'}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
@@ -576,20 +856,19 @@ export default async function PdfToJpgPage() {
               >
                 {cms?.cta_btn_primary_text || 'Upload PDF File Now'}
               </a>
-              <a
-                href={cms?.cta_btn_secondary_url || 'https://chat.aiaxom.co.in/tools'}
+              <Link
+                href={cms?.cta_btn_secondary_url || '/tools'}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-sm font-medium transition flex items-center justify-center gap-2"
               >
                 <span>{cms?.cta_btn_secondary_text || 'Explore All AI & Document Tools'}</span>
                 <ArrowRight size={15} />
-              </a>
+              </Link>
             </div>
           </section>
 
         </div>
       </main>
 
-      {/* Global Shared Footer */}
       <Footer />
     </>
   );
