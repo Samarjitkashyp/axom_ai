@@ -5206,6 +5206,8 @@ _VD_MAX_SIZE_MB = 100
 _YT_DLP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'venv', 'bin', 'yt-dlp')
 if not os.path.isfile(_YT_DLP):
     _YT_DLP = 'yt-dlp'
+_YT_COOKIES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'yt_cookies.txt')
+_YT_COOKIE_ARGS = ['--cookies', _YT_COOKIES] if os.path.isfile(_YT_COOKIES) else []
 
 def _vd_validate_url(url):
     if not url or not isinstance(url, str):
@@ -5262,7 +5264,7 @@ def video_download_info_api(request):
         result = subprocess.run(
             [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
              '--no-warnings', '--socket-timeout', '20', '--no-check-certificates',
-             '--remote-components', 'ejs:github', url],
+             '--remote-components', 'ejs:github'] + _YT_COOKIE_ARGS + [url],
             capture_output=True, text=True, timeout=45,
         )
         if result.returncode != 0:
@@ -5337,6 +5339,7 @@ def video_download_stream_api(request):
             '--socket-timeout', '20', '--no-check-certificates',
             '--remote-components', 'ejs:github',
             '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
+            ] + _YT_COOKIE_ARGS + [
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
             url
         ]

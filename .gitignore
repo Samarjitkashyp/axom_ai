@@ -51,3 +51,4 @@ Thumbs.db
 # Generated export PDFs & local agent artifacts
 AxomAI_*.pdf
 .claude/
+yt_cookies.txt
