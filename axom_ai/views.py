@@ -5203,6 +5203,9 @@ _VD_ALLOWED_DOMAINS = {
 }
 
 _VD_MAX_SIZE_MB = 100
+_YT_DLP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'venv', 'bin', 'yt-dlp')
+if not os.path.isfile(_YT_DLP):
+    _YT_DLP = 'yt-dlp'
 
 def _vd_validate_url(url):
     if not url or not isinstance(url, str):
@@ -5257,7 +5260,7 @@ def video_download_info_api(request):
         return JsonResponse({'error': err}, status=400)
     try:
         result = subprocess.run(
-            ['yt-dlp', '--no-download', '--dump-json', '--no-playlist',
+            [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
              '--socket-timeout', '15', '--no-check-certificates', url],
             capture_output=True, text=True, timeout=30,
         )
@@ -5329,7 +5332,7 @@ def video_download_stream_api(request):
     tmpdir = tempfile.mkdtemp(prefix='vd_')
     try:
         cmd = [
-            'yt-dlp', '-f', str(format_id), '--no-playlist',
+            _YT_DLP, '-f', str(format_id), '--no-playlist',
             '--socket-timeout', '20', '--no-check-certificates',
             '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
