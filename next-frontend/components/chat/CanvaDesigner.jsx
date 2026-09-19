@@ -32,6 +32,7 @@ export default function CanvaDesigner({ onClose }) {
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiResult, setAiResult] = useState(null);
+  const [presetResult, setPresetResult] = useState(null);
   const [copied, setCopied] = useState(null);
 
   const checkStatus = useCallback(async () => {
@@ -106,6 +107,7 @@ export default function CanvaDesigner({ onClose }) {
         }),
       });
       const data = await res.json();
+      setPresetResult(data);
       setNewTitle('');
       setTimeout(() => fetchDesigns(), 2000);
     } catch (err) {
@@ -296,7 +298,7 @@ export default function CanvaDesigner({ onClose }) {
             <>
               {/* Action bar */}
               <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-                <button onClick={() => { setShowNewDesign(!showNewDesign); setAiResult(null); }} style={{
+                <button onClick={() => { setShowNewDesign(!showNewDesign); setAiResult(null); setPresetResult(null); }} style={{
                   background: showNewDesign
                     ? 'rgba(123,47,247,0.25)'
                     : 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
@@ -417,6 +419,34 @@ export default function CanvaDesigner({ onClose }) {
                           Creating design in Canva...
                         </div>
                       )}
+                      {presetResult?.design?.urls?.edit_url && !creating && (
+                        <div style={{
+                          marginTop: 14, padding: 14, background: 'rgba(16,185,129,0.1)',
+                          border: '1px solid rgba(16,185,129,0.25)', borderRadius: 10,
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Check size={16} style={{ color: '#34d399' }} />
+                            <span style={{ color: '#e2e8f0', fontSize: 13, fontWeight: 600 }}>
+                              Design created! — {presetResult.design.title || 'Untitled'}
+                            </span>
+                          </div>
+                          <a
+                            href={presetResult.design.urls.edit_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              background: 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
+                              border: 'none', borderRadius: 8, padding: '8px 16px',
+                              color: '#fff', fontSize: 12, fontWeight: 600,
+                              textDecoration: 'none',
+                              display: 'flex', alignItems: 'center', gap: 6,
+                            }}
+                          >
+                            <ExternalLink size={13} /> Edit in Canva
+                          </a>
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -527,7 +557,7 @@ export default function CanvaDesigner({ onClose }) {
                           {aiResult.ai_content && (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                               <div style={{ color: '#94a3b8', fontSize: 11, fontWeight: 600 }}>
-                                Copy this content into your Canva design:
+                                Step 1: Copy the content below, then click "Edit in Canva" to paste it:
                               </div>
                               {aiResult.ai_content.heading && (
                                 <ContentRow
