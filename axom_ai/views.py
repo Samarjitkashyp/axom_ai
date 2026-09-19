@@ -5261,8 +5261,9 @@ def video_download_info_api(request):
     try:
         result = subprocess.run(
             [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
-             '--socket-timeout', '15', '--no-check-certificates', url],
-            capture_output=True, text=True, timeout=30,
+             '--no-warnings', '--socket-timeout', '20', '--no-check-certificates',
+             '--remote-components', 'ejs:github', url],
+            capture_output=True, text=True, timeout=45,
         )
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Unknown error'
@@ -5334,6 +5335,7 @@ def video_download_stream_api(request):
         cmd = [
             _YT_DLP, '-f', str(format_id), '--no-playlist',
             '--socket-timeout', '20', '--no-check-certificates',
+            '--remote-components', 'ejs:github',
             '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
             url
