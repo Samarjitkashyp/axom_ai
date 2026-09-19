@@ -38,6 +38,7 @@ export const TOOL_CATEGORIES = [
   { id: 'OCR', name: 'OCR', color: '#eab308', bg: 'rgba(234, 179, 8, 0.12)' },
   { id: 'AI Tools', name: 'AI Tools', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
   { id: 'Edit', name: 'Edit', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
+  { id: 'Design', name: 'Design', color: '#7b2ff7', bg: 'rgba(123, 47, 247, 0.12)' },
 ];
 
 export const ALL_TOOLS = [
@@ -433,5 +434,16 @@ export const ALL_TOOLS = [
     editor: true,
     hint: 'PDF file',
     desc: 'Draw or insert your electronic signature and place it anywhere on your PDF.',
+  },
+
+  // Design
+  {
+    id: 'canva',
+    name: 'Canva Designer',
+    cat: 'Design',
+    icon: Palette,
+    canva: true,
+    hint: 'Create designs',
+    desc: 'Create presentations, social media posts, logos, posters and more with Canva.',
   },
 ];

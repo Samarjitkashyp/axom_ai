@@ -83,6 +83,16 @@ urlpatterns = [
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
 
+    # Canva Connect API (OAuth + design management)
+    path('api/canva/auth/', views.canva_auth_start, name='canva_auth_start'),
+    path('api/canva/callback/', views.canva_callback, name='canva_callback'),
+    path('api/canva/status/', views.canva_status_api, name='canva_status'),
+    path('api/canva/disconnect/', views.canva_disconnect_api, name='canva_disconnect'),
+    path('api/canva/designs/', views.canva_designs_api, name='canva_designs'),
+    path('api/canva/create/', views.canva_create_design_api, name='canva_create_design'),
+    path('api/canva/export/', views.canva_export_api, name='canva_export'),
+    path('api/canva/export/<str:export_id>/', views.canva_export_status_api, name='canva_export_status'),
+
     # Video Compressor APIs (FFmpeg + Celery)
     path('api/video-compress/upload/', views.video_compress_upload_api, name='video_compress_upload_api'),
     path('api/video-compress/status/<str:task_id>/', views.video_compress_status_api, name='video_compress_status_api'),

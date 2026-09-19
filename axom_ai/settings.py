@@ -56,6 +56,11 @@ RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '')
 # Server-to-server payment confirmation; HMAC-SHA256 of raw request body.
 RAZORPAY_WEBHOOK_SECRET = os.getenv('RAZORPAY_WEBHOOK_SECRET', '')
 
+# --- Canva Connect API ---
+CANVA_CLIENT_ID = os.getenv('CANVA_CLIENT_ID', '')
+CANVA_CLIENT_SECRET = os.getenv('CANVA_CLIENT_SECRET', '')
+CANVA_REDIRECT_URI = os.getenv('CANVA_REDIRECT_URI', 'https://aiaxom.co.in/api/canva/callback/')
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

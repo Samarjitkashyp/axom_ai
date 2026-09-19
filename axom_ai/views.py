@@ -4786,5 +4786,303 @@ def tools_api_view(request):
         return JsonResponse({'success': False, 'error': str(e), 'tools': []}, status=500)
 
 
+# ---------------------------------------------------------------------------
+# Canva Connect — OAuth2 flow + API proxy
+# ---------------------------------------------------------------------------
+import hashlib, base64, secrets as _secrets
+from urllib.parse import urlencode
+from django.utils import timezone as _tz
+from datetime import timedelta as _td
 
+def canva_auth_start(request):
+    """Initiate Canva OAuth2 PKCE flow — returns the authorization URL."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+
+    client_id = settings.CANVA_CLIENT_ID
+    redirect_uri = settings.CANVA_REDIRECT_URI
+    if not client_id:
+        return JsonResponse({'error': 'Canva not configured'}, status=500)
+
+    code_verifier = _secrets.token_urlsafe(64)
+    code_challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(code_verifier.encode()).digest()
+    ).rstrip(b'=').decode()
+
+    state = _secrets.token_urlsafe(32)
+    request.session['canva_code_verifier'] = code_verifier
+    request.session['canva_state'] = state
+
+    params = {
+        'response_type': 'code',
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'scope': 'design:content:read design:content:write design:meta:read asset:read asset:write',
+        'state': state,
+        'code_challenge': code_challenge,
+        'code_challenge_method': 'S256',
+    }
+    auth_url = f'https://www.canva.com/api/oauth/authorize?{urlencode(params)}'
+    return JsonResponse({'auth_url': auth_url})
+
+
+def canva_callback(request):
+    """Handle Canva OAuth2 callback — exchange code for tokens."""
+    code = request.GET.get('code')
+    state = request.GET.get('state')
+    error = request.GET.get('error')
+
+    if error:
+        return redirect(f'https://aiaxom.co.in/tools?canva_error={error}')
+
+    if not code or state != request.session.get('canva_state'):
+        return redirect('https://aiaxom.co.in/tools?canva_error=invalid_state')
+
+    code_verifier = request.session.pop('canva_code_verifier', '')
+    request.session.pop('canva_state', None)
+
+    try:
+        resp = http_session.post(
+            'https://api.canva.com/rest/v1/oauth/token',
+            data={
+                'grant_type': 'authorization_code',
+                'code': code,
+                'code_verifier': code_verifier,
+                'redirect_uri': settings.CANVA_REDIRECT_URI,
+            },
+            auth=(settings.CANVA_CLIENT_ID, settings.CANVA_CLIENT_SECRET),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        token_data = resp.json()
+    except Exception:
+        return redirect('https://aiaxom.co.in/tools?canva_error=token_exchange_failed')
+
+    from superadmin.models import CanvaToken
+    expires_at = _tz.now() + _td(seconds=token_data.get('expires_in', 3600))
+
+    CanvaToken.objects.update_or_create(
+        user=request.user,
+        defaults={
+            'access_token': token_data['access_token'],
+            'refresh_token': token_data.get('refresh_token', ''),
+            'token_type': token_data.get('token_type', 'Bearer'),
+            'expires_at': expires_at,
+            'scope': token_data.get('scope', ''),
+        },
+    )
+    return redirect('https://aiaxom.co.in/tools?canva_connected=1')
+
+
+def _refresh_canva_token(canva_token):
+    """Refresh an expired Canva access token."""
+    if not canva_token.refresh_token:
+        return False
+    try:
+        resp = http_session.post(
+            'https://api.canva.com/rest/v1/oauth/token',
+            data={
+                'grant_type': 'refresh_token',
+                'refresh_token': canva_token.refresh_token,
+            },
+            auth=(settings.CANVA_CLIENT_ID, settings.CANVA_CLIENT_SECRET),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        td = resp.json()
+        canva_token.access_token = td['access_token']
+        canva_token.refresh_token = td.get('refresh_token', canva_token.refresh_token)
+        canva_token.expires_at = _tz.now() + _td(seconds=td.get('expires_in', 3600))
+        canva_token.save()
+        return True
+    except Exception:
+        return False
+
+
+def _get_canva_headers(canva_token):
+    """Return valid Canva API headers, refreshing token if needed."""
+    if canva_token.is_expired:
+        if not _refresh_canva_token(canva_token):
+            return None
+    return {
+        'Authorization': f'Bearer {canva_token.access_token}',
+        'Content-Type': 'application/json',
+    }
+
+
+@ensure_csrf_cookie
+def canva_status_api(request):
+    """Check if current user has Canva connected."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'connected': False})
+    from superadmin.models import CanvaToken
+    try:
+        ct = CanvaToken.objects.get(user=request.user)
+        headers = _get_canva_headers(ct)
+        if headers is None:
+            ct.delete()
+            return JsonResponse({'connected': False})
+        return JsonResponse({'connected': True})
+    except CanvaToken.DoesNotExist:
+        return JsonResponse({'connected': False})
+
+
+@ensure_csrf_cookie
+def canva_disconnect_api(request):
+    """Disconnect Canva for current user."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    from superadmin.models import CanvaToken
+    CanvaToken.objects.filter(user=request.user).delete()
+    return JsonResponse({'success': True})
+
+
+@ensure_csrf_cookie
+def canva_designs_api(request):
+    """List user's Canva designs."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    from superadmin.models import CanvaToken
+    try:
+        ct = CanvaToken.objects.get(user=request.user)
+    except CanvaToken.DoesNotExist:
+        return JsonResponse({'error': 'Canva not connected'}, status=403)
+
+    headers = _get_canva_headers(ct)
+    if not headers:
+        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
+
+    query = request.GET.get('query', '')
+    params = {'ownership': 'owned'}
+    if query:
+        params['query'] = query
+
+    try:
+        resp = http_session.get(
+            'https://api.canva.com/rest/v1/designs',
+            headers=headers, params=params, timeout=15,
+        )
+        resp.raise_for_status()
+        return JsonResponse(resp.json())
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=502)
+
+
+@ensure_csrf_cookie
+def canva_create_design_api(request):
+    """Create a new Canva design."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    from superadmin.models import CanvaToken
+    try:
+        ct = CanvaToken.objects.get(user=request.user)
+    except CanvaToken.DoesNotExist:
+        return JsonResponse({'error': 'Canva not connected'}, status=403)
+
+    headers = _get_canva_headers(ct)
+    if not headers:
+        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
+
+    try:
+        body = json.loads(request.body)
+    except Exception:
+        body = {}
+
+    design_type = body.get('design_type', {})
+    if not design_type:
+        design_type = {'type': 'preset', 'name': 'doc'}
+
+    payload = {
+        'design_type': design_type,
+    }
+    if body.get('title'):
+        payload['title'] = body['title']
+    if body.get('asset_id'):
+        payload['asset_id'] = body['asset_id']
+
+    try:
+        resp = http_session.post(
+            'https://api.canva.com/rest/v1/designs',
+            headers=headers, json=payload, timeout=15,
+        )
+        resp.raise_for_status()
+        return JsonResponse(resp.json())
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=502)
+
+
+@ensure_csrf_cookie
+def canva_export_api(request):
+    """Export a Canva design as PNG/PDF/etc."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    from superadmin.models import CanvaToken
+    try:
+        ct = CanvaToken.objects.get(user=request.user)
+    except CanvaToken.DoesNotExist:
+        return JsonResponse({'error': 'Canva not connected'}, status=403)
+
+    headers = _get_canva_headers(ct)
+    if not headers:
+        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
+
+    try:
+        body = json.loads(request.body)
+    except Exception:
+        body = {}
+
+    design_id = body.get('design_id')
+    if not design_id:
+        return JsonResponse({'error': 'design_id required'}, status=400)
+
+    export_format = body.get('format', 'png')
+
+    try:
+        resp = http_session.post(
+            f'https://api.canva.com/rest/v1/exports',
+            headers=headers,
+            json={
+                'design_id': design_id,
+                'format': {'type': export_format},
+            },
+            timeout=15,
+        )
+        resp.raise_for_status()
+        return JsonResponse(resp.json())
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=502)
+
+
+@ensure_csrf_cookie
+def canva_export_status_api(request, export_id):
+    """Check export status."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    from superadmin.models import CanvaToken
+    try:
+        ct = CanvaToken.objects.get(user=request.user)
+    except CanvaToken.DoesNotExist:
+        return JsonResponse({'error': 'Canva not connected'}, status=403)
+
+    headers = _get_canva_headers(ct)
+    if not headers:
+        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
+
+    try:
+        resp = http_session.get(
+            f'https://api.canva.com/rest/v1/exports/{export_id}',
+            headers=headers, timeout=15,
+        )
+        resp.raise_for_status()
+        return JsonResponse(resp.json())
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=502)
 

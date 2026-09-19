@@ -17,6 +17,7 @@ import ColorPaletteGen from '@/components/chat/ColorPaletteGen';
 import ScreenshotToCode from '@/components/chat/ScreenshotToCode';
 import MemeGenerator from '@/components/chat/MemeGenerator';
 import BackgroundRemover from '@/components/chat/BackgroundRemover';
+import CanvaDesigner from '@/components/chat/CanvaDesigner';
 import '@/app/chat/chat.css';
 
 export default function ToolsIndexPage() {
@@ -35,6 +36,7 @@ export default function ToolsIndexPage() {
   const [isScreenshot2CodeOpen, setIsScreenshot2CodeOpen] = useState(false);
   const [isMemeGenOpen, setIsMemeGenOpen] = useState(false);
   const [isBgRemoverOpen, setIsBgRemoverOpen] = useState(false);
+  const [isCanvaOpen, setIsCanvaOpen] = useState(false);
 
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'dark';
@@ -73,6 +75,7 @@ export default function ToolsIndexPage() {
         onOpenScreenshot2Code={() => setIsScreenshot2CodeOpen(true)}
         onOpenMemeGen={() => setIsMemeGenOpen(true)}
         onOpenBgRemover={() => setIsBgRemoverOpen(true)}
+        onOpenCanva={() => setIsCanvaOpen(true)}
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />
@@ -91,6 +94,7 @@ export default function ToolsIndexPage() {
       {isScreenshot2CodeOpen && <ScreenshotToCode onClose={() => setIsScreenshot2CodeOpen(false)} />}
       {isMemeGenOpen && <MemeGenerator onClose={() => setIsMemeGenOpen(false)} />}
       {isBgRemoverOpen && <BackgroundRemover onClose={() => setIsBgRemoverOpen(false)} />}
+      {isCanvaOpen && <CanvaDesigner onClose={() => setIsCanvaOpen(false)} />}
     </>
   );
 }

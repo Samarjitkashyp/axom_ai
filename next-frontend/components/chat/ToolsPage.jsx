@@ -104,6 +104,7 @@ export default function ToolsPage({
   onOpenScreenshot2Code,
   onOpenMemeGen,
   onOpenBgRemover,
+  onOpenCanva,
   theme,
   onToggleTheme,
 }) {
@@ -304,6 +305,10 @@ export default function ToolsPage({
     }
     if (t.bgremover) {
       onOpenBgRemover?.();
+      return;
+    }
+    if (t.canva) {
+      onOpenCanva?.();
       return;
     }
     resetRunner();
