@@ -66,14 +66,14 @@ function getOrCreateDeviceId(): string {
 
 const DEFAULT_TOOLS = [
   { icon: Bot, title: 'AI Chat', desc: 'ChatGPT-style Assamese chat', color: 'text-fuchsia-400', url: 'https://chat.aiaxom.co.in/' },
-  { icon: PenTool, title: 'AI Writer', desc: 'Emails, posts, essays', color: 'text-purple-400', url: 'https://aiaxom.co.in/tools' },
-  { icon: ImageIcon, title: 'Image Generator', desc: 'FLUX + Pollinations + Gemini', color: 'text-pink-400', url: 'https://aiaxom.co.in/tools' },
-  { icon: FileText, title: 'Document Analyzer', desc: 'Summarize PDFs & DOCX', color: 'text-blue-400', url: 'https://aiaxom.co.in/tools' },
-  { icon: Code, title: 'Code Assistant', desc: 'Write, debug, explain code', color: 'text-indigo-400', url: 'https://aiaxom.co.in/tools' },
-  { icon: Globe, title: 'Web Search', desc: 'Real-time answers via Tavily', color: 'text-amber-400', url: 'https://aiaxom.co.in/tools' },
-  { icon: FileCode, title: 'PDF Tools', desc: 'Merge / split / OCR / edit', color: 'text-red-400', url: 'https://aiaxom.co.in/tools' },
-  { icon: BarChart3, title: 'Data Analyzer', desc: 'Excel & CSV insights', color: 'text-cyan-400', url: 'https://aiaxom.co.in/tools' },
-  { icon: Languages, title: 'Translator', desc: 'IndicTrans2 Assamese', color: 'text-emerald-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: PenTool, title: 'AI Writer', desc: 'Emails, posts, essays', color: 'text-purple-400', url: '/tools' },
+  { icon: ImageIcon, title: 'Image Generator', desc: 'FLUX + Pollinations + Gemini', color: 'text-pink-400', url: '/tools' },
+  { icon: FileText, title: 'Document Analyzer', desc: 'Summarize PDFs & DOCX', color: 'text-blue-400', url: '/tools' },
+  { icon: Code, title: 'Code Assistant', desc: 'Write, debug, explain code', color: 'text-indigo-400', url: '/tools' },
+  { icon: Globe, title: 'Web Search', desc: 'Real-time answers via Tavily', color: 'text-amber-400', url: '/tools' },
+  { icon: FileCode, title: 'PDF Tools', desc: 'Merge / split / OCR / edit', color: 'text-red-400', url: '/tools' },
+  { icon: BarChart3, title: 'Data Analyzer', desc: 'Excel & CSV insights', color: 'text-cyan-400', url: '/tools' },
+  { icon: Languages, title: 'Translator', desc: 'IndicTrans2 Assamese', color: 'text-emerald-400', url: '/tools' },
 ];
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -374,7 +374,16 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
 
   const resolveUrl = (url: string) => {
     if (!url) return url;
-    if (url.startsWith('http') || url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
+    if (url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
+
+    // If on main domain and url points to https://aiaxom.co.in/..., strip domain so it's an internal Link
+    if (!isChatDomain && (url.startsWith('https://aiaxom.co.in') || url.startsWith('http://aiaxom.co.in'))) {
+      const path = url.replace(/^https?:\/\/aiaxom\.co\.in/, '') || '/';
+      return path;
+    }
+
+    if (url.startsWith('http')) return url;
+
     if (isChatDomain) {
       if (url === '/tools' || url === '/chat/tools') return 'https://aiaxom.co.in/tools';
       return `https://aiaxom.co.in${url.startsWith('/') ? '' : '/'}${url}`;
@@ -517,11 +526,12 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                       <div className="grid grid-cols-2 gap-1">
                         {megaItems.map((m, idx) => {
                           const IconComponent = m.icon;
-                          const isExternal = m.url.startsWith('http');
-                          return isExternal ? (
+                          const targetMegaUrl = resolveUrl(m.url);
+                          const isMegaExternal = targetMegaUrl.startsWith('http');
+                          return isMegaExternal ? (
                             <a
                               key={idx}
-                              href={m.url}
+                              href={targetMegaUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="mega-item"
@@ -537,7 +547,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                           ) : (
                             <Link
                               key={idx}
-                              href={m.url}
+                              href={targetMegaUrl}
                               className="mega-item"
                             >
                               <div className="mega-icon">
@@ -552,12 +562,12 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                         })}
                       </div>
                       <div className="border-t border-white/5 mt-2 pt-2 px-3">
-                        <a
-                          href="https://aiaxom.co.in/tools"
+                        <Link
+                          href={resolveUrl('/tools')}
                           className="text-xs text-fuchsia-400 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
                         >
                           Launch all tools in Axom AI <ArrowRight className="w-3 h-3" />
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -633,13 +643,13 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                         <Bot className="w-4 h-4 text-fuchsia-400" />
                         <span>AI Chat Workspace</span>
                       </a>
-                      <a
-                        href="https://aiaxom.co.in/tools"
+                      <Link
+                        href={resolveUrl('/tools')}
                         className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition"
                       >
                         <Sparkles className="w-4 h-4 text-purple-400" />
                         <span>All AI Tools</span>
-                      </a>
+                      </Link>
                     </div>
 
                     <div className="border-t border-white/10 pt-1 mt-1">

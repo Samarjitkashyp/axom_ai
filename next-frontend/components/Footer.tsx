@@ -98,7 +98,16 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
 
   const resolveUrl = (url: string) => {
     if (!url) return url;
-    if (url.startsWith('http') || url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
+    if (url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
+
+    // If on main domain and url points to https://aiaxom.co.in/..., strip domain so it's an internal Link
+    if (!isChatDomain && (url.startsWith('https://aiaxom.co.in') || url.startsWith('http://aiaxom.co.in'))) {
+      const path = url.replace(/^https?:\/\/aiaxom\.co\.in/, '') || '/';
+      return path;
+    }
+
+    if (url.startsWith('http')) return url;
+
     if (isChatDomain) {
       if (url === '/tools' || url === '/chat/tools') return 'https://aiaxom.co.in/tools';
       return `https://aiaxom.co.in${url.startsWith('/') ? '' : '/'}${url}`;
@@ -256,8 +265,8 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>&copy; {currentYear} {copyrightText}</span>
-            <a href={resolveUrl('/privacy')} className="hover:text-fuchsia-400 transition">Privacy Policy</a>
-            <a href={resolveUrl('/terms')} className="hover:text-fuchsia-400 transition">Terms of Service</a>
+            <Link href={resolveUrl('/privacy')} className="hover:text-fuchsia-400 transition">Privacy Policy</Link>
+            <Link href={resolveUrl('/terms')} className="hover:text-fuchsia-400 transition">Terms of Service</Link>
             <a href="mailto:samarjitkashyp@gmail.com" className="hover:text-fuchsia-400 transition">Support</a>
           </div>
           <div>

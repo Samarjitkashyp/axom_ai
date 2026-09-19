@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ChevronLeft,
   Search,
@@ -106,6 +107,7 @@ export default function ToolsPage({
   theme,
   onToggleTheme,
 }) {
+  const router = useRouter();
   const [toolsList, setToolsList] = useState(ALL_TOOLS);
   const [selectedCat, setSelectedCat] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -221,27 +223,27 @@ export default function ToolsPage({
 
   const handleSelectTool = (t) => {
     if (t.id === 'word2pdf') {
-      window.location.href = '/tools/word-to-pdf';
+      router.push('/tools/word-to-pdf');
       return;
     }
     if (t.id === 'pdf2word') {
-      window.location.href = '/tools/pdf-to-word';
+      router.push('/tools/pdf-to-word');
       return;
     }
     if (t.id === 'img2pdf') {
-      window.location.href = '/tools/image-to-pdf';
+      router.push('/tools/image-to-pdf');
       return;
     }
     if (t.id === 'pdf2jpg') {
-      window.location.href = '/tools/pdf-to-jpg';
+      router.push('/tools/pdf-to-jpg');
       return;
     }
     if (t.id === 'pdf2png') {
-      window.location.href = '/tools/pdf-to-png';
+      router.push('/tools/pdf-to-png');
       return;
     }
     if (t.id === 'imgconvert') {
-      window.location.href = '/tools/image-format-converter';
+      router.push('/tools/image-format-converter');
       return;
     }
     if (t.editor) {

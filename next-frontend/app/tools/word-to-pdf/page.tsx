@@ -801,13 +801,13 @@ export default async function WordToPdfPage() {
               >
                 {cms?.cta_btn_primary_text || 'Upload Word File Now'}
               </a>
-              <a
-                href={cms?.cta_btn_secondary_url || 'https://aiaxom.co.in/tools'}
+              <Link
+                href={cms?.cta_btn_secondary_url || '/tools'}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-sm font-medium transition flex items-center justify-center gap-2"
               >
                 <span>{cms?.cta_btn_secondary_text || 'Explore All AI & Document Tools'}</span>
                 <ArrowRight size={15} />
-              </a>
+              </Link>
             </div>
           </section>
 
