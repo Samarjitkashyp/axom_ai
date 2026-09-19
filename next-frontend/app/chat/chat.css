@@ -87,6 +87,30 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Global scrollbar fallback inside chat module */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #06060b;
+}
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #c084fc 0%, #a855f7 50%, #e879f9 100%);
+    border-radius: 9999px;
+    border: 2px solid #06060b;
+    box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.3);
+    transition: all 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #d946ef 0%, #c084fc 50%, #818cf8 100%);
+    box-shadow: 0 0 12px rgba(217, 70, 239, 0.7);
+}
+::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(180deg, #ec4899 0%, #a855f7 50%, #6366f1 100%);
+    box-shadow: 0 0 16px rgba(232, 121, 249, 0.9);
+}
+
 /* App Master Layout (Fixed Full-Viewport Container) */
 .app-layout, .app-container {
     position: fixed;
@@ -353,13 +377,22 @@ body {
     padding-right: 2px;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Left Sidebar Recent Chats */
 .recent-chats-list::-webkit-scrollbar {
-    width: 4px;
+    width: 5px;
+}
+.recent-chats-list::-webkit-scrollbar-track {
+    background: transparent;
 }
 .recent-chats-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    background: linear-gradient(180deg, rgba(192, 132, 252, 0.35), rgba(232, 121, 249, 0.35));
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+}
+.recent-chats-list:hover::-webkit-scrollbar-thumb,
+.recent-chats-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #c084fc, #e879f9);
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
 }
 
 .chat-history-item {
@@ -653,9 +686,18 @@ body {
 .main-body::-webkit-scrollbar {
     width: 6px;
 }
+.main-body::-webkit-scrollbar-track {
+    background: transparent;
+}
 .main-body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 6px;
+    background: linear-gradient(180deg, rgba(192, 132, 252, 0.35), rgba(232, 121, 249, 0.35));
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+}
+.main-body:hover::-webkit-scrollbar-thumb,
+.main-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #c084fc, #e879f9);
+    box-shadow: 0 0 10px rgba(192, 132, 252, 0.6);
 }
 
 /* Hero Container */
@@ -1342,11 +1384,20 @@ body {
 }
 
 .sidebar-right::-webkit-scrollbar {
-    width: 4px;
+    width: 5px;
+}
+.sidebar-right::-webkit-scrollbar-track {
+    background: transparent;
 }
 .sidebar-right::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 4px;
+    background: linear-gradient(180deg, rgba(192, 132, 252, 0.3), rgba(232, 121, 249, 0.3));
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+}
+.sidebar-right:hover::-webkit-scrollbar-thumb,
+.sidebar-right::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #c084fc, #e879f9);
+    box-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
 }
 
 /* Pro Upgrade Card */
@@ -5814,11 +5865,12 @@ body.light-theme .tools-topbar {
   background: rgba(15, 23, 42, 0.4);
 }
 .diagram-custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.25);
-  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(192, 132, 252, 0.35), rgba(99, 102, 241, 0.35));
+  border-radius: 9999px;
 }
 .diagram-custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.45);
+  background: linear-gradient(180deg, #c084fc, #818cf8);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.5);
 }
 
 /* -------------------------------------------------------------
@@ -6072,11 +6124,11 @@ body.light-theme .tools-topbar {
   animation: imgfinderFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: #c084fc transparent;
 }
 
 .imgfinder-overlay::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
 }
 
 .imgfinder-overlay::-webkit-scrollbar-track {
@@ -6084,12 +6136,13 @@ body.light-theme .tools-topbar {
 }
 
 .imgfinder-overlay::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(192, 132, 252, 0.4), rgba(232, 121, 249, 0.4));
+  border-radius: 9999px;
 }
 
 .imgfinder-overlay::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 85, 247, 0.4);
+  background: linear-gradient(180deg, #c084fc, #e879f9);
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.6);
 }
 
 @keyframes imgfinderFadeIn {
@@ -7238,11 +7291,15 @@ body.light-theme .tools-topbar {
 }
 
 .imggen-styles-scroll::-webkit-scrollbar {
-  height: 4px;
+  height: 5px;
 }
 .imggen-styles-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(192, 132, 252, 0.4), rgba(232, 121, 249, 0.4));
+  border-radius: 9999px;
+}
+.imggen-styles-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #c084fc, #e879f9);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
 }
 
 .imggen-style-chip {
