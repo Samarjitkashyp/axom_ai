@@ -5262,7 +5262,7 @@ def video_download_info_api(request):
         result = subprocess.run(
             [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
              '--socket-timeout', '15', '--no-check-certificates',
-             '--js-runtimes', 'nodejs', url],
+             '--js-runtimes', 'node', url],
             capture_output=True, text=True, timeout=30,
         )
         if result.returncode != 0:
@@ -5335,7 +5335,7 @@ def video_download_stream_api(request):
         cmd = [
             _YT_DLP, '-f', str(format_id), '--no-playlist',
             '--socket-timeout', '20', '--no-check-certificates',
-            '--js-runtimes', 'nodejs',
+            '--js-runtimes', 'node',
             '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
             url
