@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Plus, Download, Search, ExternalLink, RefreshCw, Loader2, LogOut, Palette } from 'lucide-react';
+import { X, Plus, Download, Search, ExternalLink, RefreshCw, Loader2, LogOut, Palette, Sparkles, Send, Copy, Check } from 'lucide-react';
 import { getCsrfToken } from './utils/security';
 
 const DESIGN_PRESETS = [
@@ -26,8 +26,13 @@ export default function CanvaDesigner({ onClose }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [creating, setCreating] = useState(false);
   const [exporting, setExporting] = useState(null);
-  const [showPresets, setShowPresets] = useState(false);
+  const [showNewDesign, setShowNewDesign] = useState(false);
+  const [newDesignTab, setNewDesignTab] = useState('design');
   const [newTitle, setNewTitle] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+  const [copied, setCopied] = useState(null);
 
   const checkStatus = useCallback(async () => {
     try {
@@ -105,12 +110,48 @@ export default function CanvaDesigner({ onClose }) {
         window.open(data.design.urls.edit_url, '_blank');
       }
       setNewTitle('');
-      setShowPresets(false);
+      setShowNewDesign(false);
       setTimeout(() => fetchDesigns(), 2000);
     } catch (err) {
       console.error('Create design error:', err);
     }
     setCreating(false);
+  };
+
+  const handleAiDesign = async () => {
+    if (!aiPrompt.trim()) return;
+    setAiGenerating(true);
+    setAiResult(null);
+    try {
+      const res = await fetch('/api/canva/ai-design/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken(),
+        },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        setAiResult({ error: data.error });
+      } else {
+        setAiResult(data);
+        if (data.design?.urls?.edit_url) {
+          window.open(data.design.urls.edit_url, '_blank');
+        }
+        setTimeout(() => fetchDesigns(), 2000);
+      }
+    } catch (err) {
+      setAiResult({ error: 'Failed to generate design' });
+    }
+    setAiGenerating(false);
+  };
+
+  const handleCopyContent = (text, key) => {
+    navigator.clipboard.writeText(text);
+    setCopied(key);
+    setTimeout(() => setCopied(null), 1500);
   };
 
   const handleExport = async (designId, format = 'png') => {
@@ -126,11 +167,8 @@ export default function CanvaDesigner({ onClose }) {
         body: JSON.stringify({ design_id: designId, format }),
       });
       const data = await res.json();
-      if (data.job?.id) {
-        pollExport(data.job.id);
-      }
-    } catch (err) {
-      console.error('Export error:', err);
+      if (data.job?.id) pollExport(data.job.id);
+    } catch {
       setExporting(null);
     }
   };
@@ -164,6 +202,14 @@ export default function CanvaDesigner({ onClose }) {
     fetchDesigns(searchQuery);
   };
 
+  const tabStyle = (active) => ({
+    flex: 1, padding: '10px 0', border: 'none', borderRadius: 8,
+    fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+    background: active ? 'linear-gradient(135deg, #00c4cc, #7b2ff7)' : 'rgba(255,255,255,0.04)',
+    color: active ? '#fff' : '#94a3b8',
+  });
+
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9999,
@@ -171,7 +217,7 @@ export default function CanvaDesigner({ onClose }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       <div style={{
-        width: '95vw', maxWidth: 1000, height: '90vh', maxHeight: 700,
+        width: '95vw', maxWidth: 1000, height: '90vh', maxHeight: 750,
         background: 'linear-gradient(145deg, #0f0f1a 0%, #1a1a2e 100%)',
         borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -216,7 +262,7 @@ export default function CanvaDesigner({ onClose }) {
 
         {/* Body */}
         <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
-          {/* Not connected — show connect button */}
+          {/* Not connected */}
           {connected === false && (
             <div style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -252,16 +298,17 @@ export default function CanvaDesigner({ onClose }) {
             </div>
           )}
 
-          {/* Connected — show designs */}
+          {/* Connected */}
           {connected && (
             <>
               {/* Action bar */}
-              <div style={{
-                display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap',
-              }}>
-                <button onClick={() => setShowPresets(!showPresets)} style={{
-                  background: 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
-                  border: 'none', borderRadius: 10, padding: '10px 20px',
+              <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+                <button onClick={() => { setShowNewDesign(!showNewDesign); setAiResult(null); }} style={{
+                  background: showNewDesign
+                    ? 'rgba(123,47,247,0.25)'
+                    : 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
+                  border: showNewDesign ? '1px solid rgba(123,47,247,0.5)' : 'none',
+                  borderRadius: 10, padding: '10px 20px',
                   color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 6,
                 }}>
@@ -299,64 +346,273 @@ export default function CanvaDesigner({ onClose }) {
                 </button>
               </div>
 
-              {/* Create design panel */}
-              {showPresets && (
+              {/* New Design Panel with Tabs */}
+              {showNewDesign && (
                 <div style={{
                   background: 'rgba(255,255,255,0.03)', borderRadius: 14,
                   border: '1px solid rgba(255,255,255,0.06)', padding: 20, marginBottom: 20,
                 }}>
-                  <div style={{ marginBottom: 12 }}>
-                    <input
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                      placeholder="Design title (optional)"
-                      style={{
-                        width: '100%', background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
-                        padding: '10px 14px', color: '#fff', fontSize: 13, outline: 'none',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                  </div>
+                  {/* Tab switcher */}
                   <div style={{
-                    display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-                    gap: 10,
+                    display: 'flex', gap: 6, marginBottom: 16,
+                    background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 4,
                   }}>
-                    {DESIGN_PRESETS.map((preset) => (
-                      <button
-                        key={preset.name}
-                        onClick={() => handleCreateDesign(preset.name)}
-                        disabled={creating}
-                        style={{
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          borderRadius: 10, padding: '14px 10px',
-                          color: '#e2e8f0', fontSize: 12, cursor: 'pointer',
-                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                          transition: 'all 0.2s',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(123,47,247,0.15)';
-                          e.currentTarget.style.borderColor = 'rgba(123,47,247,0.4)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-                        }}
-                      >
-                        <span style={{ fontSize: 22 }}>{preset.icon}</span>
-                        <span style={{ fontWeight: 500 }}>{preset.label}</span>
-                      </button>
-                    ))}
+                    <button onClick={() => setNewDesignTab('design')} style={tabStyle(newDesignTab === 'design')}>
+                      <Palette size={14} /> Design
+                    </button>
+                    <button onClick={() => setNewDesignTab('prompt')} style={tabStyle(newDesignTab === 'prompt')}>
+                      <Sparkles size={14} /> Design by Prompt
+                    </button>
                   </div>
-                  {creating && (
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      color: '#7b2ff7', fontSize: 12, marginTop: 12,
-                    }}>
-                      <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
-                      Creating design in Canva...
-                    </div>
+
+                  {/* Tab: Design (presets) */}
+                  {newDesignTab === 'design' && (
+                    <>
+                      <div style={{ marginBottom: 12 }}>
+                        <input
+                          value={newTitle}
+                          onChange={(e) => setNewTitle(e.target.value)}
+                          placeholder="Design title (optional)"
+                          style={{
+                            width: '100%', background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8,
+                            padding: '10px 14px', color: '#fff', fontSize: 13, outline: 'none',
+                            boxSizing: 'border-box',
+                          }}
+                        />
+                      </div>
+                      <div style={{
+                        display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                        gap: 10,
+                      }}>
+                        {DESIGN_PRESETS.map((preset) => (
+                          <button
+                            key={preset.name}
+                            onClick={() => handleCreateDesign(preset.name)}
+                            disabled={creating}
+                            style={{
+                              background: 'rgba(255,255,255,0.04)',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              borderRadius: 10, padding: '14px 10px',
+                              color: '#e2e8f0', fontSize: 12, cursor: creating ? 'wait' : 'pointer',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                              transition: 'all 0.2s',
+                              opacity: creating ? 0.5 : 1,
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!creating) {
+                                e.currentTarget.style.background = 'rgba(123,47,247,0.15)';
+                                e.currentTarget.style.borderColor = 'rgba(123,47,247,0.4)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                            }}
+                          >
+                            <span style={{ fontSize: 22 }}>{preset.icon}</span>
+                            <span style={{ fontWeight: 500 }}>{preset.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                      {creating && (
+                        <div style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          color: '#7b2ff7', fontSize: 12, marginTop: 12,
+                        }}>
+                          <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                          Creating design in Canva...
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Tab: Design by Prompt */}
+                  {newDesignTab === 'prompt' && (
+                    <>
+                      <div style={{ marginBottom: 4 }}>
+                        <p style={{ color: '#94a3b8', fontSize: 12, margin: '0 0 12px' }}>
+                          Describe what you want to create — AI will pick the best design type, generate content, and open it in Canva for editing.
+                        </p>
+                        <div style={{
+                          display: 'flex', gap: 8,
+                          background: 'rgba(255,255,255,0.05)', borderRadius: 12,
+                          border: '1px solid rgba(255,255,255,0.08)', padding: '4px 4px 4px 14px',
+                        }}>
+                          <textarea
+                            value={aiPrompt}
+                            onChange={(e) => setAiPrompt(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleAiDesign();
+                              }
+                            }}
+                            placeholder="e.g. Create an Instagram post for a coffee shop grand opening with warm colors and a modern vibe..."
+                            rows={3}
+                            style={{
+                              flex: 1, background: 'none', border: 'none', outline: 'none',
+                              color: '#fff', fontSize: 13, resize: 'none', padding: '8px 0',
+                              fontFamily: 'inherit',
+                            }}
+                          />
+                          <button
+                            onClick={handleAiDesign}
+                            disabled={aiGenerating || !aiPrompt.trim()}
+                            style={{
+                              alignSelf: 'flex-end',
+                              background: aiPrompt.trim()
+                                ? 'linear-gradient(135deg, #00c4cc, #7b2ff7)'
+                                : 'rgba(255,255,255,0.06)',
+                              border: 'none', borderRadius: 10, padding: '10px 16px',
+                              color: '#fff', cursor: aiGenerating || !aiPrompt.trim() ? 'not-allowed' : 'pointer',
+                              display: 'flex', alignItems: 'center', gap: 6,
+                              fontSize: 12, fontWeight: 600, marginBottom: 4,
+                            }}
+                          >
+                            {aiGenerating ? (
+                              <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                            ) : (
+                              <Send size={14} />
+                            )}
+                            {aiGenerating ? 'Generating...' : 'Generate'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* AI Result */}
+                      {aiGenerating && (
+                        <div style={{
+                          display: 'flex', flexDirection: 'column', alignItems: 'center',
+                          gap: 10, padding: 30, color: '#7b2ff7',
+                        }}>
+                          <Loader2 size={28} style={{ animation: 'spin 1s linear infinite' }} />
+                          <span style={{ fontSize: 13 }}>AI is designing your template...</span>
+                        </div>
+                      )}
+
+                      {aiResult && !aiResult.error && (
+                        <div style={{
+                          marginTop: 16, background: 'rgba(123,47,247,0.08)',
+                          border: '1px solid rgba(123,47,247,0.2)', borderRadius: 12, padding: 16,
+                        }}>
+                          <div style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            marginBottom: 12,
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <Sparkles size={16} style={{ color: '#a78bfa' }} />
+                              <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 700 }}>
+                                Design Created!
+                              </span>
+                            </div>
+                            {aiResult.design?.urls?.edit_url && (
+                              <a
+                                href={aiResult.design.urls.edit_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  background: 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
+                                  border: 'none', borderRadius: 8, padding: '8px 16px',
+                                  color: '#fff', fontSize: 12, fontWeight: 600,
+                                  textDecoration: 'none',
+                                  display: 'flex', alignItems: 'center', gap: 6,
+                                }}
+                              >
+                                <ExternalLink size={13} /> Edit in Canva
+                              </a>
+                            )}
+                          </div>
+
+                          <div style={{
+                            color: '#94a3b8', fontSize: 11, marginBottom: 12,
+                          }}>
+                            Type: <span style={{ color: '#a78bfa' }}>{aiResult.ai_design_type}</span>
+                          </div>
+
+                          {/* AI Generated Content — copy to use in Canva */}
+                          {aiResult.ai_content && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              <div style={{ color: '#94a3b8', fontSize: 11, fontWeight: 600 }}>
+                                Copy this content into your Canva design:
+                              </div>
+                              {aiResult.ai_content.heading && (
+                                <ContentRow
+                                  label="Heading"
+                                  text={aiResult.ai_content.heading}
+                                  copied={copied}
+                                  onCopy={handleCopyContent}
+                                />
+                              )}
+                              {aiResult.ai_content.subheading && (
+                                <ContentRow
+                                  label="Subheading"
+                                  text={aiResult.ai_content.subheading}
+                                  copied={copied}
+                                  onCopy={handleCopyContent}
+                                />
+                              )}
+                              {aiResult.ai_content.body && (
+                                <ContentRow
+                                  label="Body"
+                                  text={aiResult.ai_content.body}
+                                  copied={copied}
+                                  onCopy={handleCopyContent}
+                                />
+                              )}
+                              {aiResult.ai_content.color_scheme && (
+                                <div style={{
+                                  display: 'flex', alignItems: 'center', gap: 8,
+                                  padding: '6px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8,
+                                }}>
+                                  <span style={{ color: '#64748b', fontSize: 11, minWidth: 80 }}>Colors:</span>
+                                  <div style={{ display: 'flex', gap: 4 }}>
+                                    {aiResult.ai_content.color_scheme.map((c, i) => (
+                                      <button
+                                        key={i}
+                                        onClick={() => handleCopyContent(c, `color-${i}`)}
+                                        title={`Click to copy ${c}`}
+                                        style={{
+                                          width: 28, height: 28, borderRadius: 6,
+                                          background: c, border: '2px solid rgba(255,255,255,0.15)',
+                                          cursor: 'pointer', position: 'relative',
+                                        }}
+                                      >
+                                        {copied === `color-${i}` && (
+                                          <Check size={12} style={{
+                                            position: 'absolute', top: '50%', left: '50%',
+                                            transform: 'translate(-50%, -50%)', color: '#fff',
+                                            filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))',
+                                          }} />
+                                        )}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {aiResult.ai_content.style_notes && (
+                                <div style={{
+                                  padding: '6px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8,
+                                  color: '#94a3b8', fontSize: 11, fontStyle: 'italic',
+                                }}>
+                                  💡 {aiResult.ai_content.style_notes}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {aiResult?.error && (
+                        <div style={{
+                          marginTop: 12, padding: 12, background: 'rgba(239,68,68,0.1)',
+                          border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8,
+                          color: '#ef4444', fontSize: 12,
+                        }}>
+                          {aiResult.error}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -385,7 +641,6 @@ export default function CanvaDesigner({ onClose }) {
                       border: '1px solid rgba(255,255,255,0.06)',
                       borderRadius: 14, overflow: 'hidden', transition: 'all 0.2s',
                     }}>
-                      {/* Thumbnail */}
                       <div style={{
                         width: '100%', aspectRatio: '4/3',
                         background: 'rgba(255,255,255,0.02)',
@@ -402,7 +657,6 @@ export default function CanvaDesigner({ onClose }) {
                           <Palette size={30} style={{ color: '#334155' }} />
                         )}
                       </div>
-                      {/* Info */}
                       <div style={{ padding: '10px 12px' }}>
                         <div style={{
                           color: '#e2e8f0', fontSize: 13, fontWeight: 600,
@@ -413,7 +667,6 @@ export default function CanvaDesigner({ onClose }) {
                         <div style={{ color: '#64748b', fontSize: 11, marginTop: 2 }}>
                           {design.created_at ? new Date(design.created_at * 1000).toLocaleDateString() : ''}
                         </div>
-                        {/* Actions */}
                         <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
                           {design.urls?.edit_url && (
                             <a
@@ -439,8 +692,7 @@ export default function CanvaDesigner({ onClose }) {
                               flex: 1, background: 'rgba(16,185,129,0.12)',
                               border: '1px solid rgba(16,185,129,0.3)',
                               borderRadius: 6, padding: '6px 0',
-                              color: '#34d399', fontSize: 11, fontWeight: 600,
-                              cursor: 'pointer',
+                              color: '#34d399', fontSize: 11, fontWeight: 600, cursor: 'pointer',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                             }}
                           >
@@ -458,8 +710,7 @@ export default function CanvaDesigner({ onClose }) {
                               flex: 1, background: 'rgba(59,130,246,0.12)',
                               border: '1px solid rgba(59,130,246,0.3)',
                               borderRadius: 6, padding: '6px 0',
-                              color: '#60a5fa', fontSize: 11, fontWeight: 600,
-                              cursor: 'pointer',
+                              color: '#60a5fa', fontSize: 11, fontWeight: 600, cursor: 'pointer',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                             }}
                           >
@@ -481,6 +732,29 @@ export default function CanvaDesigner({ onClose }) {
         </div>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
+function ContentRow({ label, text, copied, onCopy }) {
+  const key = `content-${label}`;
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 8,
+      padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderRadius: 8,
+    }}>
+      <span style={{ color: '#64748b', fontSize: 11, minWidth: 80, paddingTop: 2 }}>{label}:</span>
+      <span style={{ color: '#e2e8f0', fontSize: 12, flex: 1, lineHeight: 1.4 }}>{text}</span>
+      <button
+        onClick={() => onCopy(text, key)}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: copied === key ? '#34d399' : '#64748b', padding: 2, flexShrink: 0,
+        }}
+        title="Copy"
+      >
+        {copied === key ? <Check size={13} /> : <Copy size={13} />}
+      </button>
     </div>
   );
 }

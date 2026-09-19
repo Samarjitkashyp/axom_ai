@@ -5086,3 +5086,84 @@ def canva_export_status_api(request, export_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=502)
 
+
+@ensure_csrf_cookie
+def canva_ai_design_api(request):
+    """Use AI to pick a design type and generate content from a prompt, then create in Canva."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    from superadmin.models import CanvaToken
+    try:
+        ct = CanvaToken.objects.get(user=request.user)
+    except CanvaToken.DoesNotExist:
+        return JsonResponse({'error': 'Canva not connected'}, status=403)
+
+    try:
+        body = json.loads(request.body)
+    except Exception:
+        body = {}
+
+    user_prompt = body.get('prompt', '').strip()
+    if not user_prompt:
+        return JsonResponse({'error': 'Prompt is required'}, status=400)
+
+    system = (
+        "You are a design assistant. Given a user's design request, respond with ONLY valid JSON "
+        "(no markdown, no code fences) with these fields:\n"
+        '- "design_type": one of: doc, presentation, whiteboard, instagram_post, instagram_story, '
+        'facebook_post, youtube_thumbnail, logo, poster, flyer, resume, business_card, invitation, '
+        'a4_document, letter_document\n'
+        '- "title": a short catchy title for the design\n'
+        '- "content": an object with "heading", "subheading", "body" (main text), '
+        '"color_scheme" (array of 3-4 hex colors), "style_notes" (brief style guidance)\n'
+        "Pick the most appropriate design_type for the user's request."
+    )
+
+    gk = os.getenv('GEMINI_API_KEY', '').strip()
+    ai_result = None
+    if gk:
+        ai_result = _gemini_generate(gk, system, user_prompt,
+                                     ['gemini-2.0-flash', 'gemini-1.5-flash'])
+
+    design_preset = 'doc'
+    title = 'Untitled Design'
+    content = {}
+
+    if ai_result:
+        try:
+            cleaned = ai_result.strip()
+            if cleaned.startswith('```'):
+                cleaned = cleaned.split('\n', 1)[1] if '\n' in cleaned else cleaned[3:]
+                if cleaned.endswith('```'):
+                    cleaned = cleaned[:-3]
+            parsed = json.loads(cleaned)
+            design_preset = parsed.get('design_type', 'doc')
+            title = parsed.get('title', title)
+            content = parsed.get('content', {})
+        except (json.JSONDecodeError, KeyError):
+            pass
+
+    headers = _get_canva_headers(ct)
+    if not headers:
+        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
+
+    payload = {
+        'design_type': {'type': 'preset', 'name': design_preset},
+        'title': title,
+    }
+
+    try:
+        resp = http_session.post(
+            'https://api.canva.com/rest/v1/designs',
+            headers=headers, json=payload, timeout=15,
+        )
+        resp.raise_for_status()
+        result = resp.json()
+        result['ai_content'] = content
+        result['ai_design_type'] = design_preset
+        return JsonResponse(result)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=502)
+

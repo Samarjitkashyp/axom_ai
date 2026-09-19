@@ -92,6 +92,7 @@ urlpatterns = [
     path('api/canva/create/', views.canva_create_design_api, name='canva_create_design'),
     path('api/canva/export/', views.canva_export_api, name='canva_export'),
     path('api/canva/export/<str:export_id>/', views.canva_export_status_api, name='canva_export_status'),
+    path('api/canva/ai-design/', views.canva_ai_design_api, name='canva_ai_design'),
 
     # Video Compressor APIs (FFmpeg + Celery)
     path('api/video-compress/upload/', views.video_compress_upload_api, name='video_compress_upload_api'),
