@@ -106,11 +106,7 @@ export default function CanvaDesigner({ onClose }) {
         }),
       });
       const data = await res.json();
-      if (data.design?.urls?.edit_url) {
-        window.open(data.design.urls.edit_url, '_blank');
-      }
       setNewTitle('');
-      setShowNewDesign(false);
       setTimeout(() => fetchDesigns(), 2000);
     } catch (err) {
       console.error('Create design error:', err);
@@ -137,9 +133,6 @@ export default function CanvaDesigner({ onClose }) {
         setAiResult({ error: data.error });
       } else {
         setAiResult(data);
-        if (data.design?.urls?.edit_url) {
-          window.open(data.design.urls.edit_url, '_blank');
-        }
         setTimeout(() => fetchDesigns(), 2000);
       }
     } catch (err) {
