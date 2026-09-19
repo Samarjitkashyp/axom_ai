@@ -142,20 +142,18 @@ export default function SidebarLeft({
           <span className="btn-text">New Chat</span>
           <span className="shortcut-badge">Ctrl+K</span>
         </button>
-        <button
+        <a
           className="sidebar-tools-btn"
-          onClick={() => {
-            if (onOpenTools) onOpenTools();
-            if (window.innerWidth <= 850) onCloseSidebar?.();
-          }}
+          href="https://aiaxom.co.in/tools"
           title={`Open AI Tools & Document Studio (${toolsCount} Tools)`}
+          style={{ textDecoration: 'none' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Wrench size={15} style={{ color: '#c084fc' }} />
             <span>Tools & Studio</span>
           </div>
           <span className="tools-badge">{toolsCount}</span>
-        </button>
+        </a>
       </div>
 
       {/* Recent Chats Section */}

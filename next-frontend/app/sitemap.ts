@@ -72,16 +72,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     },
     {
-      url: `${baseUrl}/tools/word-to-pdf/`,
+      url: `${baseUrl}/tools`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.95,
     },
     {
-      url: 'https://chat.aiaxom.co.in/tools/word-to-pdf',
+      url: `${baseUrl}/tools/word-to-pdf/`,
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 1.0,
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/tools/pdf-to-word/`,
@@ -90,22 +90,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
-      url: 'https://chat.aiaxom.co.in/tools/pdf-to-word',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
       url: `${baseUrl}/tools/image-to-pdf/`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.95,
-    },
-    {
-      url: 'https://chat.aiaxom.co.in/tools/image-to-pdf',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
     },
     {
       url: `${baseUrl}/tools/pdf-to-jpg/`,
@@ -114,40 +102,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
-      url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
       url: `${baseUrl}/tools/pdf-to-png/`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.95,
     },
     {
-      url: 'https://chat.aiaxom.co.in/tools/pdf-to-png',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
       url: `${baseUrl}/tools/image-format-converter/`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.95,
-    },
-    {
-      url: 'https://chat.aiaxom.co.in/tools/image-format-converter',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: 'https://chat.aiaxom.co.in/tools',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
     },
   ];
 

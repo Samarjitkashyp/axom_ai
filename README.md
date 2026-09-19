@@ -5,7 +5,7 @@
 
 **Official Portal:** [https://aiaxom.co.in](https://aiaxom.co.in)  
 **AI Chat & Tools Workspace:** [https://chat.aiaxom.co.in](https://chat.aiaxom.co.in)  
-**All-in-One Productivity Tools:** [https://chat.aiaxom.co.in/tools](https://chat.aiaxom.co.in/tools)  
+**All-in-One Productivity Tools:** [https://aiaxom.co.in/tools](https://aiaxom.co.in/tools)  
 **Super Admin Panel:** [https://admin.aiaxom.co.in/axomai-admin/](https://admin.aiaxom.co.in/axomai-admin/)  
 **Content Management System (CMS):** [https://content.aiaxom.co.in](https://content.aiaxom.co.in)
 
@@ -21,7 +21,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 - **Indigenous Knowledge Base:** Custom RAG pipeline indexed over 25,000+ Assamese Wikipedia articles, historical chronicles, and cultural repositories (~112,000 semantic vector chunks).
 - **Smart Multi-Model Orchestration:** Automatic model rotation across OpenAI free-tier models (GPT-5.4-mini, GPT-5-mini, GPT-4.1-mini, nano variants) for cost-free daily usage, with GPT-5.6 Luna fallback for complex queries and Gemini for image generation.
 - **ChatGPT-Style Live Web Search Grounding:** Real-time Google Programmable Custom Search Engine (with Tavily fallback) delivering live Assam news, government exams, and current events directly in Assamese.
-- **Unified Reusable Component Architecture:** Shared modular Header and Footer across Django templates (`aiaxom.co.in`) and Next.js SSR apps (`chat.aiaxom.co.in/tools`) with dynamic CMS brand logo sync.
+- **Unified Reusable Component Architecture:** Shared modular Header and Footer across Django templates (`aiaxom.co.in`) and Next.js SSR apps (`aiaxom.co.in/tools`) with dynamic CMS brand logo sync.
 - **Smart Multimodal Productivity Suite:** 27+ utilities including auto-detecting Video Compressor (16:9 vs 9:16), FLUX image synthesis, Word-to-PDF converter, background remover, QR generator, and regional OCR.
 - **Web Crawler Bot & Knowledge Import:** Dedicated crawler bot (`axomai-bot.aiaxom.co.in`) for automated web content ingestion into the RAG knowledge base with semantic embeddings.
 - **IP-Based Security & Anti-Abuse Protection:** Strict 5 daily web searches limit per IP/device and single-account-per-device enforcement to eliminate spam and multi-account bot abuse.
@@ -44,7 +44,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 - **Dynamic CMS Brand Logo Sync:** Automatically pulls uploaded logos and dimensions from `HeaderSettings` (`https://content.aiaxom.co.in/axomai-content/settings/header/`) with instantaneous fallback to official high-resolution brand assets.
 - **Intelligent Cross-Domain Routing:** `resolveUrl` dynamically routes marketing links (`/about`, `/pricing`, `/blog`, `/faq`) to `https://aiaxom.co.in/...` while keeping chat sessions in-app without Next.js middleware 404 rewrites.
 - **Security Hardening:** External links enforce `rel="noopener noreferrer"` and `target="_blank"` against reverse tabnabbing; mobile drawer guarantees body scroll-lock restoration.
-- **Tools Page Header & Subnav:** Full Axom AI navigation embedded on `https://chat.aiaxom.co.in/tools` featuring a persistent `← Return to Chat` button, workspace indicator, and dark/light mode toggle.
+- **Tools Page Header & Subnav:** Full Axom AI navigation embedded on `https://aiaxom.co.in/tools` featuring a persistent `← Return to Chat` button, workspace indicator, and dark/light mode toggle.
 
 ### 3. All-in-One Productivity Tools Hub (27+ Tools)
 - **Smart Video Compressor:** Auto-detects aspect ratio (`16:9` widescreen vs `9:16` vertical reels/shorts/TikTok), adjusts bitrate, and manages Pro-tier resolution limits (4K/1080p).

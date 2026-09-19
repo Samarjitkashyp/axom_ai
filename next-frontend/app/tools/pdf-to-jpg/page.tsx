@@ -145,7 +145,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     cms?.meta_description ||
     'Free online PDF to JPG converter. Extract and convert PDF pages to high-resolution 300 DPI JPG images in seconds. Zero watermarks, lossless quality, and free ZIP download.';
-  const canonicalUrl = cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-jpg';
+  const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-jpg';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
     ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
@@ -212,7 +212,7 @@ export default async function PdfToJpgPage() {
       'High-Resolution PDF to Image Converter',
       'PDF to Image 300 DPI Converter',
     ],
-    url: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-jpg',
+    url: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-jpg',
     description:
       cms?.meta_description ||
       'Free online utility by Axom AI to extract and convert PDF pages into high-resolution 300 DPI JPG and JPEG images with zero watermarks, lossless clarity, and automated file purging.',
@@ -262,21 +262,21 @@ export default async function PdfToJpgPage() {
         position: 1,
         name: 'Upload Your PDF Document',
         text: 'Drag and drop your PDF file into the converter box above or click to select files from your computer or phone.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-jpg#converter',
       },
       {
         '@type': 'HowToStep',
         position: 2,
         name: 'Instant 300 DPI Page Extraction',
         text: 'Click Convert to JPG Now. Our high-precision raster engine extracts every PDF page into a crisp, high-resolution JPG image in 2–3 seconds.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-jpg#converter',
       },
       {
         '@type': 'HowToStep',
         position: 3,
         name: 'Download High-Res JPGs or ZIP Archive',
         text: 'Download individual page images or click Download All as ZIP to save all converted JPG images in a single archive directly to your device.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-jpg#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-jpg#converter',
       },
     ],
   };
@@ -308,13 +308,13 @@ export default async function PdfToJpgPage() {
         '@type': 'ListItem',
         position: 2,
         name: 'Tools',
-        item: 'https://chat.aiaxom.co.in/tools',
+        item: 'https://aiaxom.co.in/tools',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'PDF to JPG Converter',
-        item: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-jpg',
+        item: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-jpg',
       },
     ],
   };

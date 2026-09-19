@@ -471,7 +471,7 @@ class HeaderMegaMenuItem(models.Model):
     description = models.CharField(max_length=200, blank=True)
     icon_class = models.CharField(max_length=100, default='fa-solid fa-brain')
     color_class = models.CharField(max_length=100, default='text-fuchsia-400')
-    url = models.CharField(max_length=300, default='https://chat.aiaxom.co.in/tools')
+    url = models.CharField(max_length=300, default='https://aiaxom.co.in/tools')
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
@@ -672,7 +672,7 @@ class WordToPdfToolConfig(models.Model):
     cta_btn_primary_text = models.CharField(max_length=100, default='Upload Word File Now')
     cta_btn_primary_url = models.CharField(max_length=300, default='#converter')
     cta_btn_secondary_text = models.CharField(max_length=100, default='Explore All AI & Document Tools')
-    cta_btn_secondary_url = models.CharField(max_length=300, default='https://chat.aiaxom.co.in/tools')
+    cta_btn_secondary_url = models.CharField(max_length=300, default='https://aiaxom.co.in/tools')
 
     # 8. SEO & Meta
     meta_title = models.CharField(max_length=255, default='Free Word to PDF Converter Online — Convert DOCX to PDF | Axom AI')

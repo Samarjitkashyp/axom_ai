@@ -170,12 +170,12 @@ export default function ChatApp() {
     }
   };
 
-  // View state: 'chat' | 'admin' | 'settings' | 'tools' | 'upgrade'
+  // View state: 'chat' | 'admin' | 'settings' | 'upgrade'
   const [currentView, setCurrentView] = useState(() => {
     if (typeof window === 'undefined') return 'chat';
     const path = window.location.pathname;
     if (path.startsWith('/admin-panel')) return 'admin';
-    if (path.startsWith('/tools')) return 'tools';
+
     if (path.startsWith('/upgrade') || path.startsWith('/subscription')) return 'upgrade';
     if (path.startsWith('/settings')) return 'settings';
     return 'chat';
@@ -261,8 +261,6 @@ export default function ChatApp() {
       const path = window.location.pathname;
       if (path.startsWith('/admin-panel')) {
         setCurrentView('admin');
-      } else if (path.startsWith('/tools')) {
-        setCurrentView('tools');
       } else if (path.startsWith('/upgrade') || path.startsWith('/subscription')) {
         setCurrentView('upgrade');
       } else if (path.startsWith('/settings')) {
@@ -356,8 +354,7 @@ export default function ChatApp() {
   };
 
   const navigateToTools = () => {
-    if (typeof window !== 'undefined') window.history.pushState(null, '', '/tools');
-    setCurrentView('tools');
+    if (typeof window !== 'undefined') window.location.href = 'https://aiaxom.co.in/tools';
   };
 
   const navigateToUpgrade = () => {
@@ -437,53 +434,7 @@ export default function ChatApp() {
     );
   }
 
-  // Render Tools View (/tools)
-  if (currentView === 'tools') {
-    return (
-      <>
-        <ToolsPage
-          onBackToChat={navigateToChat}
-          onOpenEditor={() => setIsEditorOpen(true)}
-          onOpenCompressor={() => setIsCompressorOpen(true)}
-          onOpenVideoCompressor={() => setIsVideoCompressorOpen(true)}
-          onOpenWmRemover={() => setIsWmOpen(true)}
-          onOpenImageGen={() => setIsImgGenOpen(true)}
-          onOpenImageFinder={() => setIsImageFinderOpen(true)}
-          onOpenVideoFinder={() => setIsVideoFinderOpen(true)}
-          onOpenDiagramGen={() => setIsDiagramGenOpen(true)}
-          onOpenSummarizer={() => setIsSummarizeOpen(true)}
-          onOpenSvgEditor={() => setIsSvgEditorOpen(true)}
-          onOpenQrGen={() => setIsQrGenOpen(true)}
-          onOpenPaletteGen={() => setIsPaletteGenOpen(true)}
-          onOpenScreenshot2Code={() => setIsScreenshot2CodeOpen(true)}
-          onOpenMemeGen={() => setIsMemeGenOpen(true)}
-          onOpenBgRemover={() => setIsBgRemoverOpen(true)}
-          theme={theme}
-          onToggleTheme={handleToggleTheme}
-        />
-        {isEditorOpen && <PdfEditor onClose={() => setIsEditorOpen(false)} />}
-        {isCompressorOpen && <PdfCompressor onClose={() => setIsCompressorOpen(false)} />}
-        {isVideoCompressorOpen && (
-          <VideoCompressor
-            onClose={() => setIsVideoCompressorOpen(false)}
-            isPro={!!activePlan?.active}
-          />
-        )}
-        {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
-        {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
-        {isImageFinderOpen && <ImageFinder onClose={() => setIsImageFinderOpen(false)} />}
-        {isVideoFinderOpen && <VideoFinder onClose={() => setIsVideoFinderOpen(false)} />}
-        {isDiagramGenOpen && <DiagramGenerator onClose={() => setIsDiagramGenOpen(false)} />}
-        {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
-        {isSvgEditorOpen && <SvgEditor onClose={() => setIsSvgEditorOpen(false)} />}
-        {isQrGenOpen && <QrGenerator onClose={() => setIsQrGenOpen(false)} />}
-        {isPaletteGenOpen && <ColorPaletteGen onClose={() => setIsPaletteGenOpen(false)} />}
-        {isScreenshot2CodeOpen && <ScreenshotToCode onClose={() => setIsScreenshot2CodeOpen(false)} />}
-        {isMemeGenOpen && <MemeGenerator onClose={() => setIsMemeGenOpen(false)} />}
-        {isBgRemoverOpen && <BackgroundRemover onClose={() => setIsBgRemoverOpen(false)} />}
-      </>
-    );
-  }
+  // Tools now live on main domain (aiaxom.co.in/tools) — navigateToTools redirects there
 
   // Render Upgrade / Subscription View (/upgrade or /subscription)
   if (currentView === 'upgrade') {

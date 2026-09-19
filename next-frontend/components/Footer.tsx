@@ -7,7 +7,7 @@ const DEFAULT_COLS = [
   {
     title: 'Product',
     links: [
-      { id: 1, title: 'AI Tools', url: 'https://chat.aiaxom.co.in/tools', is_external: true },
+      { id: 1, title: 'AI Tools', url: '/tools', is_external: false },
       { id: 2, title: 'Pricing', url: '/pricing', is_external: false },
       { id: 3, title: "What's New", url: '/blog', is_external: false },
       { id: 4, title: 'Use Cases', url: '/use-cases', is_external: false },
@@ -28,7 +28,7 @@ const DEFAULT_COLS = [
       { id: 9, title: 'Blog & Insights', url: '/blog', is_external: false },
       { id: 10, title: 'Frequently Asked Questions', url: '/faq', is_external: false },
       { id: 11, title: 'Help & Support', url: 'https://user.aiaxom.co.in/support/', is_external: true },
-      { id: 12, title: 'AI Tools Directory', url: 'https://chat.aiaxom.co.in/tools', is_external: true },
+      { id: 12, title: 'AI Tools Directory', url: '/tools', is_external: false },
     ],
   },
   {
@@ -93,15 +93,14 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
 
   const isChatDomain = typeof window !== 'undefined' && (
     window.location.hostname.startsWith('chat.') ||
-    window.location.pathname.startsWith('/chat') ||
-    window.location.pathname.startsWith('/tools')
+    window.location.pathname.startsWith('/chat')
   );
 
   const resolveUrl = (url: string) => {
     if (!url) return url;
     if (url.startsWith('http') || url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
     if (isChatDomain) {
-      if (url === '/tools' || url === '/chat/tools') return '/tools';
+      if (url === '/tools' || url === '/chat/tools') return 'https://aiaxom.co.in/tools';
       return `https://aiaxom.co.in${url.startsWith('/') ? '' : '/'}${url}`;
     }
     return url;

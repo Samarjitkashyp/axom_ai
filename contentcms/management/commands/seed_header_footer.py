@@ -37,15 +37,15 @@ class Command(BaseCommand):
 
         # 3. HeaderMegaMenuItems
         mega_items_data = [
-            ('AI Chat', 'ChatGPT-style Assamese chat', 'fa-solid fa-brain', 'text-fuchsia-400', 'https://chat.aiaxom.co.in/tools', 1),
-            ('AI Writer', 'Emails, posts, essays', 'fa-solid fa-pen-nib', 'text-purple-400', 'https://chat.aiaxom.co.in/tools', 2),
-            ('Image Generator', 'FLUX + Pollinations + Gemini', 'fa-solid fa-wand-magic-sparkles', 'text-pink-400', 'https://chat.aiaxom.co.in/tools', 3),
-            ('Document Analyzer', 'Summarize PDFs & DOCX', 'fa-solid fa-file-pdf', 'text-blue-400', 'https://chat.aiaxom.co.in/tools', 4),
-            ('Code Assistant', 'Write, debug, explain code', 'fa-solid fa-code', 'text-indigo-400', 'https://chat.aiaxom.co.in/tools', 5),
-            ('Web Search', 'Real-time answers via Tavily', 'fa-solid fa-globe', 'text-amber-400', 'https://chat.aiaxom.co.in/tools', 6),
-            ('PDF Tools', 'Merge / split / OCR / edit', 'fa-solid fa-file-contract', 'text-red-400', 'https://chat.aiaxom.co.in/tools', 7),
-            ('Data Analyzer', 'Excel & CSV insights', 'fa-solid fa-chart-pie', 'text-cyan-400', 'https://chat.aiaxom.co.in/tools', 8),
-            ('Translator', 'IndicTrans2 Assamese', 'fa-solid fa-language', 'text-emerald-400', 'https://chat.aiaxom.co.in/tools', 9),
+            ('AI Chat', 'ChatGPT-style Assamese chat', 'fa-solid fa-brain', 'text-fuchsia-400', 'https://aiaxom.co.in/tools', 1),
+            ('AI Writer', 'Emails, posts, essays', 'fa-solid fa-pen-nib', 'text-purple-400', 'https://aiaxom.co.in/tools', 2),
+            ('Image Generator', 'FLUX + Pollinations + Gemini', 'fa-solid fa-wand-magic-sparkles', 'text-pink-400', 'https://aiaxom.co.in/tools', 3),
+            ('Document Analyzer', 'Summarize PDFs & DOCX', 'fa-solid fa-file-pdf', 'text-blue-400', 'https://aiaxom.co.in/tools', 4),
+            ('Code Assistant', 'Write, debug, explain code', 'fa-solid fa-code', 'text-indigo-400', 'https://aiaxom.co.in/tools', 5),
+            ('Web Search', 'Real-time answers via Tavily', 'fa-solid fa-globe', 'text-amber-400', 'https://aiaxom.co.in/tools', 6),
+            ('PDF Tools', 'Merge / split / OCR / edit', 'fa-solid fa-file-contract', 'text-red-400', 'https://aiaxom.co.in/tools', 7),
+            ('Data Analyzer', 'Excel & CSV insights', 'fa-solid fa-chart-pie', 'text-cyan-400', 'https://aiaxom.co.in/tools', 8),
+            ('Translator', 'IndicTrans2 Assamese', 'fa-solid fa-language', 'text-emerald-400', 'https://aiaxom.co.in/tools', 9),
         ]
         if not HeaderMegaMenuItem.objects.exists():
             for title, desc, icon, color, url, order in mega_items_data:
@@ -69,7 +69,7 @@ class Command(BaseCommand):
         # 5. Footer Columns & Links
         columns_data = [
             ('Product', 1, [
-                ('AI Tools', 'https://chat.aiaxom.co.in/tools', True, 1),
+                ('AI Tools', 'https://aiaxom.co.in/tools', True, 1),
                 ('Pricing', '/#pricing', False, 2),
                 ("What's New", '/blog', False, 3),
                 ('Use Cases', '/#usecases', False, 4),
@@ -84,7 +84,7 @@ class Command(BaseCommand):
                 ('Blog & Insights', '/blog', False, 1),
                 ('Frequently Asked Questions', '/faq', False, 2),
                 ('Help & Support', 'https://user.aiaxom.co.in/support/', True, 3),
-                ('AI Tools Directory', 'https://chat.aiaxom.co.in/tools', True, 4),
+                ('AI Tools Directory', 'https://aiaxom.co.in/tools', True, 4),
             ]),
             ('Company', 4, [
                 ('About Axom AI', '/#tools', False, 1),

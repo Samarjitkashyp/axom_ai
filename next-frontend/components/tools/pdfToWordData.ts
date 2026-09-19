@@ -26,7 +26,7 @@ export const PDF_TO_WORD_FAQS: FaqItem[] = [
   },
   {
     q: 'Can I convert PDF to Word on mobile (Android and iPhone)?',
-    a: 'Yes. Axom AI PDF to Word Converter is 100% mobile-friendly. You can open https://chat.aiaxom.co.in/tools/pdf-to-word on Chrome, Safari, or any mobile browser on your Android smartphone, tablet, iPhone, or iPad, upload PDFs from your files or cloud storage, and download editable DOCX files immediately.',
+    a: 'Yes. Axom AI PDF to Word Converter is 100% mobile-friendly. You can open https://aiaxom.co.in/tools/pdf-to-word on Chrome, Safari, or any mobile browser on your Android smartphone, tablet, iPhone, or iPad, upload PDFs from your files or cloud storage, and download editable DOCX files immediately.',
   },
   {
     q: 'Is PDF to Word conversion free on Axom AI?',

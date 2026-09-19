@@ -129,7 +129,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     cms?.meta_description ||
     'Free online image to PDF converter. Convert and merge JPG, PNG, and WebP photos into high-quality PDF in seconds with original resolution, no watermark, and zero signup.';
-  const canonicalUrl = cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/image-to-pdf';
+  const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/image-to-pdf';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
     ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
@@ -196,7 +196,7 @@ export default async function ImageToPdfPage() {
       'Merge Images to PDF Online',
       'Photo to PDF Converter',
     ],
-    url: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/image-to-pdf',
+    url: cms?.canonical_url || 'https://aiaxom.co.in/tools/image-to-pdf',
     description:
       cms?.meta_description ||
       'Free online image to PDF converter utility by Axom AI to convert and merge JPG, PNG, JPEG, and WebP pictures into publication-quality PDF documents with original resolution and zero watermarks.',
@@ -247,21 +247,21 @@ export default async function ImageToPdfPage() {
         position: 1,
         name: 'Upload Your Images (JPG, PNG, WebP)',
         text: 'Drag and drop your images into the converter box above or click to browse files from your computer, phone gallery, or camera roll.',
-        url: 'https://chat.aiaxom.co.in/tools/image-to-pdf#converter',
+        url: 'https://aiaxom.co.in/tools/image-to-pdf#converter',
       },
       {
         '@type': 'HowToStep',
         position: 2,
         name: 'Arrange & Convert to PDF',
         text: 'Reorder images if creating a multi-page PDF, then click Convert to PDF Now. Our high-resolution engine embeds images into vector PDF pages in 2–3 seconds without downscaling.',
-        url: 'https://chat.aiaxom.co.in/tools/image-to-pdf#converter',
+        url: 'https://aiaxom.co.in/tools/image-to-pdf#converter',
       },
       {
         '@type': 'HowToStep',
         position: 3,
         name: 'Download High-Quality PDF',
         text: 'Click Download PDF to save your clean, watermark-free PDF document directly to your device storage.',
-        url: 'https://chat.aiaxom.co.in/tools/image-to-pdf#converter',
+        url: 'https://aiaxom.co.in/tools/image-to-pdf#converter',
       },
     ],
   };
@@ -293,13 +293,13 @@ export default async function ImageToPdfPage() {
         '@type': 'ListItem',
         position: 2,
         name: 'Tools',
-        item: 'https://chat.aiaxom.co.in/tools',
+        item: 'https://aiaxom.co.in/tools',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'Image to PDF Converter',
-        item: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/image-to-pdf',
+        item: cms?.canonical_url || 'https://aiaxom.co.in/tools/image-to-pdf',
       },
     ],
   };

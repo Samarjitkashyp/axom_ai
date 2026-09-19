@@ -26,7 +26,7 @@ export const PDF_TO_PNG_FAQS: FaqItem[] = [
   },
   {
     q: 'How to convert PDF to high-resolution PNG on mobile (Android and iPhone)?',
-    a: 'Visit https://chat.aiaxom.co.in/tools/pdf-to-png in Safari or Chrome on your iPhone, iPad, or Android phone. Upload your PDF from device storage or cloud drives, convert in 2–3 seconds, and save individual PNG images directly to your Photos/Gallery or download the complete ZIP file.',
+    a: 'Visit https://aiaxom.co.in/tools/pdf-to-png in Safari or Chrome on your iPhone, iPad, or Android phone. Upload your PDF from device storage or cloud drives, convert in 2–3 seconds, and save individual PNG images directly to your Photos/Gallery or download the complete ZIP file.',
   },
   {
     q: 'How to convert PDF to PNG without installing software?',

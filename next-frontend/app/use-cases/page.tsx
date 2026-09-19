@@ -291,7 +291,7 @@ export default async function UseCasesPage() {
       ],
       impactMetric: '100% Confidentiality & Data Sovereignty',
       ctaText: 'Analyze Legal Documents',
-      ctaUrl: 'https://chat.aiaxom.co.in/tools',
+      ctaUrl: 'https://aiaxom.co.in/tools',
     },
     {
       id: 'healthcare',
@@ -357,7 +357,7 @@ export default async function UseCasesPage() {
       ],
       impactMetric: '<0.8s Cloud Execution Latency',
       ctaText: 'Launch Code Assistant',
-      ctaUrl: 'https://chat.aiaxom.co.in/tools',
+      ctaUrl: 'https://aiaxom.co.in/tools',
     },
   ];
 

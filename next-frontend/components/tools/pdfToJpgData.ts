@@ -30,7 +30,7 @@ export const PDF_TO_JPG_FAQS: FaqItem[] = [
   },
   {
     q: 'How to convert PDF to JPG on mobile (Android and iPhone)?',
-    a: 'Open https://chat.aiaxom.co.in/tools/pdf-to-jpg in Chrome or Safari on your Android smartphone, iPhone, or iPad. Upload your PDF from your phone files or Google Drive/iCloud, convert in seconds, and save individual JPG photos to your Camera Roll or download the complete ZIP file.',
+    a: 'Open https://aiaxom.co.in/tools/pdf-to-jpg in Chrome or Safari on your Android smartphone, iPhone, or iPad. Upload your PDF from your phone files or Google Drive/iCloud, convert in seconds, and save individual JPG photos to your Camera Roll or download the complete ZIP file.',
   },
   {
     q: 'How to convert PDF to JPG without installing software?',

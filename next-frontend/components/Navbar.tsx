@@ -66,14 +66,14 @@ function getOrCreateDeviceId(): string {
 
 const DEFAULT_TOOLS = [
   { icon: Bot, title: 'AI Chat', desc: 'ChatGPT-style Assamese chat', color: 'text-fuchsia-400', url: 'https://chat.aiaxom.co.in/' },
-  { icon: PenTool, title: 'AI Writer', desc: 'Emails, posts, essays', color: 'text-purple-400', url: 'https://chat.aiaxom.co.in/tools' },
-  { icon: ImageIcon, title: 'Image Generator', desc: 'FLUX + Pollinations + Gemini', color: 'text-pink-400', url: 'https://chat.aiaxom.co.in/tools' },
-  { icon: FileText, title: 'Document Analyzer', desc: 'Summarize PDFs & DOCX', color: 'text-blue-400', url: 'https://chat.aiaxom.co.in/tools' },
-  { icon: Code, title: 'Code Assistant', desc: 'Write, debug, explain code', color: 'text-indigo-400', url: 'https://chat.aiaxom.co.in/tools' },
-  { icon: Globe, title: 'Web Search', desc: 'Real-time answers via Tavily', color: 'text-amber-400', url: 'https://chat.aiaxom.co.in/tools' },
-  { icon: FileCode, title: 'PDF Tools', desc: 'Merge / split / OCR / edit', color: 'text-red-400', url: 'https://chat.aiaxom.co.in/tools' },
-  { icon: BarChart3, title: 'Data Analyzer', desc: 'Excel & CSV insights', color: 'text-cyan-400', url: 'https://chat.aiaxom.co.in/tools' },
-  { icon: Languages, title: 'Translator', desc: 'IndicTrans2 Assamese', color: 'text-emerald-400', url: 'https://chat.aiaxom.co.in/tools' },
+  { icon: PenTool, title: 'AI Writer', desc: 'Emails, posts, essays', color: 'text-purple-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: ImageIcon, title: 'Image Generator', desc: 'FLUX + Pollinations + Gemini', color: 'text-pink-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: FileText, title: 'Document Analyzer', desc: 'Summarize PDFs & DOCX', color: 'text-blue-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: Code, title: 'Code Assistant', desc: 'Write, debug, explain code', color: 'text-indigo-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: Globe, title: 'Web Search', desc: 'Real-time answers via Tavily', color: 'text-amber-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: FileCode, title: 'PDF Tools', desc: 'Merge / split / OCR / edit', color: 'text-red-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: BarChart3, title: 'Data Analyzer', desc: 'Excel & CSV insights', color: 'text-cyan-400', url: 'https://aiaxom.co.in/tools' },
+  { icon: Languages, title: 'Translator', desc: 'IndicTrans2 Assamese', color: 'text-emerald-400', url: 'https://aiaxom.co.in/tools' },
 ];
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -369,15 +369,14 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
 
   const isChatDomain = typeof window !== 'undefined' && (
     window.location.hostname.startsWith('chat.') ||
-    window.location.pathname.startsWith('/chat') ||
-    window.location.pathname.startsWith('/tools')
+    window.location.pathname.startsWith('/chat')
   );
 
   const resolveUrl = (url: string) => {
     if (!url) return url;
     if (url.startsWith('http') || url.startsWith('mailto:') || url.startsWith('javascript:')) return url;
     if (isChatDomain) {
-      if (url === '/tools' || url === '/chat/tools') return '/tools';
+      if (url === '/tools' || url === '/chat/tools') return 'https://aiaxom.co.in/tools';
       return `https://aiaxom.co.in${url.startsWith('/') ? '' : '/'}${url}`;
     }
     return url;
@@ -407,7 +406,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
     ? header.nav_items
     : [
         { id: 1, title: 'About', url: '/about', order: 1 },
-        { id: 2, title: 'AI Tools', url: isChatDomain ? '/tools' : '/#tools', order: 2 },
+        { id: 2, title: 'AI Tools', url: '/tools', order: 2 },
         { id: 3, title: 'Use Cases', url: '/use-cases', order: 3 },
         { id: 4, title: 'Pricing', url: '/pricing', order: 4 },
         { id: 5, title: 'Blog & Insights', url: '/blog', order: 5 },
@@ -458,7 +457,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
         title: m.title,
         desc: m.description,
         color: m.color_class || 'text-fuchsia-400',
-        url: m.url || 'https://chat.aiaxom.co.in/tools',
+        url: m.url || 'https://aiaxom.co.in/tools',
       }))
     : DEFAULT_TOOLS.map((t) => ({
         icon: t.icon,
@@ -554,7 +553,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                       </div>
                       <div className="border-t border-white/5 mt-2 pt-2 px-3">
                         <a
-                          href="https://chat.aiaxom.co.in/tools"
+                          href="https://aiaxom.co.in/tools"
                           className="text-xs text-fuchsia-400 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
                         >
                           Launch all tools in Axom AI <ArrowRight className="w-3 h-3" />
@@ -635,7 +634,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                         <span>AI Chat Workspace</span>
                       </a>
                       <a
-                        href="https://chat.aiaxom.co.in/tools"
+                        href="https://aiaxom.co.in/tools"
                         className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition"
                       >
                         <Sparkles className="w-4 h-4 text-purple-400" />

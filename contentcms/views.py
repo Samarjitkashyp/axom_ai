@@ -578,7 +578,7 @@ def save_feature_api(request):
         feature.badge = data.get('badge', '').strip()
         feature.icon_class = data.get('icon_class', 'fa-solid fa-wand-magic-sparkles').strip()
         feature.gradient_color = data.get('gradient_color', 'from-purple-500 to-indigo-500').strip()
-        feature.action_url = data.get('action_url', 'https://chat.aiaxom.co.in/tools').strip()
+        feature.action_url = data.get('action_url', 'https://aiaxom.co.in/tools').strip()
         feature.order = int(data.get('order', 0))
         if 'is_active' in data:
             feature.is_active = bool(data.get('is_active'))
@@ -1035,7 +1035,7 @@ def save_mega_menu_item_api(request):
         item.description = data.get('description', '').strip()
         item.icon_class = data.get('icon_class', 'fa-solid fa-brain').strip()
         item.color_class = data.get('color_class', 'text-fuchsia-400').strip()
-        item.url = data.get('url', 'https://chat.aiaxom.co.in/tools').strip()
+        item.url = data.get('url', 'https://aiaxom.co.in/tools').strip()
         item.order = int(data.get('order', 0))
         if 'is_active' in data:
             item.is_active = bool(data.get('is_active'))

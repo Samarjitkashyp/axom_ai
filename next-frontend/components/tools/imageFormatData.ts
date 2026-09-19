@@ -66,7 +66,7 @@ export const IMAGE_FORMAT_FAQS: FaqItem[] = [
   },
   {
     q: 'Can I convert image formats on mobile (Android and iPhone)?',
-    a: 'Yes! Axom AI is fully optimized for mobile devices. Open chat.aiaxom.co.in/tools/image-format-converter in Safari (iOS) or Chrome (Android), upload images directly from your Photo Library or camera roll, select your format, and save the converted image directly to your device storage.',
+    a: 'Yes! Axom AI is fully optimized for mobile devices. Open aiaxom.co.in/tools/image-format-converter in Safari (iOS) or Chrome (Android), upload images directly from your Photo Library or camera roll, select your format, and save the converted image directly to your device storage.',
   },
   {
     q: 'How to convert JFIF, BMP, or TIFF images to modern formats?',

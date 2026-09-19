@@ -106,7 +106,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     cms?.meta_description ||
     'Free online Word to PDF converter. Convert Word documents (.docx, .doc) to PDF online in seconds with 100% original formatting, tables, and fonts preserved. No watermark, no software installation, completely free.';
-  const canonicalUrl = cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/word-to-pdf';
+  const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/word-to-pdf';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
     ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
@@ -171,7 +171,7 @@ export default async function WordToPdfPage() {
       'Axom AI Document Converter',
       'Online Word Document to PDF Converter',
     ],
-    url: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/word-to-pdf',
+    url: cms?.canonical_url || 'https://aiaxom.co.in/tools/word-to-pdf',
     description:
       cms?.meta_description ||
       'Free online Word to PDF converter utility by Axom AI to convert Microsoft Word documents (.docx, .doc) to publication-quality PDF files while preserving typography, tables, and formatting with zero watermarks.',
@@ -221,21 +221,21 @@ export default async function WordToPdfPage() {
         position: 1,
         name: 'Upload Your Word Document (.docx or .doc)',
         text: 'Drag and drop your Microsoft Word document (.docx or .doc) into the converter box above or click to browse files from your computer or phone.',
-        url: 'https://chat.aiaxom.co.in/tools/word-to-pdf#converter',
+        url: 'https://aiaxom.co.in/tools/word-to-pdf#converter',
       },
       {
         '@type': 'HowToStep',
         position: 2,
         name: 'Instant High-Fidelity Conversion',
         text: 'Click Convert to PDF Now. Our high-fidelity document engine parses structures, styles, margins, and tables in 2–3 seconds without altering layouts.',
-        url: 'https://chat.aiaxom.co.in/tools/word-to-pdf#converter',
+        url: 'https://aiaxom.co.in/tools/word-to-pdf#converter',
       },
       {
         '@type': 'HowToStep',
         position: 3,
         name: 'Download Your Clean PDF',
         text: 'Click Download PDF to save your publication-ready, watermark-free PDF document directly to your device.',
-        url: 'https://chat.aiaxom.co.in/tools/word-to-pdf#converter',
+        url: 'https://aiaxom.co.in/tools/word-to-pdf#converter',
       },
     ],
   };
@@ -267,13 +267,13 @@ export default async function WordToPdfPage() {
         '@type': 'ListItem',
         position: 2,
         name: 'Tools',
-        item: 'https://chat.aiaxom.co.in/tools',
+        item: 'https://aiaxom.co.in/tools',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'Word to PDF Converter',
-        item: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/word-to-pdf',
+        item: cms?.canonical_url || 'https://aiaxom.co.in/tools/word-to-pdf',
       },
     ],
   };
@@ -802,7 +802,7 @@ export default async function WordToPdfPage() {
                 {cms?.cta_btn_primary_text || 'Upload Word File Now'}
               </a>
               <a
-                href={cms?.cta_btn_secondary_url || 'https://chat.aiaxom.co.in/tools'}
+                href={cms?.cta_btn_secondary_url || 'https://aiaxom.co.in/tools'}
                 className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-sm font-medium transition flex items-center justify-center gap-2"
               >
                 <span>{cms?.cta_btn_secondary_text || 'Explore All AI & Document Tools'}</span>

@@ -36,11 +36,13 @@ export function middleware(request: NextRequest) {
 
   // If request is on chat.aiaxom.co.in
   if (isChatSubdomain) {
-    // Dedicated tool pages like /tools/word-to-pdf should render naturally from app/tools/...
-    if (pathname.startsWith('/tools/')) {
-      return NextResponse.next();
+    // Redirect /tools and /tools/* to main domain (aiaxom.co.in/tools)
+    if (pathname === '/tools' || pathname.startsWith('/tools/')) {
+      const dest = new URL(`https://aiaxom.co.in${pathname}`);
+      dest.search = request.nextUrl.search;
+      return NextResponse.redirect(dest, 308);
     }
-    // Rewrite all chat paths (/, /tools, /upgrade, /settings) to the /chat catch-all
+    // Rewrite all chat paths (/, /upgrade, /settings) to the /chat catch-all
     const url = request.nextUrl.clone();
     url.pathname = `/chat${pathname === '/' ? '' : pathname}`;
     return NextResponse.rewrite(url);

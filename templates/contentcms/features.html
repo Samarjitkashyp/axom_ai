@@ -109,7 +109,7 @@
               data-badge="{{ f.badge|default:''|escape }}"
               data-icon="{{ f.icon_class|default:'fa-solid fa-wand-magic-sparkles'|escape }}"
               data-gradient="{{ f.gradient_color|default:'from-purple-500 to-indigo-500'|escape }}"
-              data-url="{{ f.action_url|default:'https://chat.aiaxom.co.in/tools'|escape }}"
+              data-url="{{ f.action_url|default:'https://aiaxom.co.in/tools'|escape }}"
               data-order="{{ f.order }}"
               data-active="{{ f.is_active|yesno:'true,false' }}"
               onclick="onEditFeatureClick(this)"
@@ -185,7 +185,7 @@
         </div>
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Action URL</label>
-          <input type="text" id="modal_furl" value="https://chat.aiaxom.co.in/tools" placeholder="https://chat.aiaxom.co.in/tools" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+          <input type="text" id="modal_furl" value="https://aiaxom.co.in/tools" placeholder="https://aiaxom.co.in/tools" class="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
         </div>
       </div>
 
@@ -304,7 +304,7 @@ function openFeatureModal() {
   document.getElementById('modal_fdesc').value = '';
   document.getElementById('modal_fbadge').value = '';
   syncIconSelection('fa-solid fa-wand-magic-sparkles');
-  document.getElementById('modal_furl').value = 'https://chat.aiaxom.co.in/tools';
+  document.getElementById('modal_furl').value = 'https://aiaxom.co.in/tools';
   document.getElementById('modal_forder').value = '0';
   document.getElementById('modal_factive').checked = true;
   document.body.style.overflow = 'hidden';
@@ -318,7 +318,7 @@ function onEditFeatureClick(btn) {
   const desc = btn.getAttribute('data-desc') || '';
   const badge = btn.getAttribute('data-badge') || '';
   const icon = btn.getAttribute('data-icon') || 'fa-solid fa-wand-magic-sparkles';
-  const url = btn.getAttribute('data-url') || 'https://chat.aiaxom.co.in/tools';
+  const url = btn.getAttribute('data-url') || 'https://aiaxom.co.in/tools';
   const order = parseInt(btn.getAttribute('data-order')) || 0;
   const active = btn.getAttribute('data-active') === 'true';
 
@@ -368,7 +368,7 @@ async function submitFeature() {
     description: desc,
     badge: document.getElementById('modal_fbadge').value.trim(),
     icon_class: document.getElementById('modal_ficon').value.trim() || 'fa-solid fa-wand-magic-sparkles',
-    action_url: document.getElementById('modal_furl').value.trim() || 'https://chat.aiaxom.co.in/tools',
+    action_url: document.getElementById('modal_furl').value.trim() || 'https://aiaxom.co.in/tools',
     order: parseInt(document.getElementById('modal_forder').value || 0),
     is_active: document.getElementById('modal_factive').checked
   };

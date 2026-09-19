@@ -174,7 +174,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     cms?.meta_description ||
     'Free online image format converter. Convert JPG, PNG, WebP, HEIC, GIF, SVG, BMP & TIFF in seconds. Zero watermarks, batch conversion, lossless quality & 100% free.';
-  const canonicalUrl = cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/image-format-converter';
+  const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/image-format-converter';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
     ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
@@ -241,7 +241,7 @@ export default async function ImageFormatConverterPage() {
       'Batch Image Converter Online',
       'Universal Image Converter',
     ],
-    url: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/image-format-converter',
+    url: cms?.canonical_url || 'https://aiaxom.co.in/tools/image-format-converter',
     description:
       cms?.meta_description ||
       'Free online utility by Axom AI to convert between image formats — JPG, PNG, WebP, HEIC, SVG, GIF, BMP, TIFF, JFIF, AVIF. 100% clean, no watermarks, batch conversion support, and automatic file purging.',
@@ -291,21 +291,21 @@ export default async function ImageFormatConverterPage() {
         position: 1,
         name: 'Upload Your Image',
         text: 'Drag and drop your image file (JPG, PNG, WebP, HEIC, SVG, GIF, BMP, TIFF, JFIF, AVIF) into the converter box or select it from your device.',
-        url: 'https://chat.aiaxom.co.in/tools/image-format-converter#converter',
+        url: 'https://aiaxom.co.in/tools/image-format-converter#converter',
       },
       {
         '@type': 'HowToStep',
         position: 2,
         name: 'Select Your Desired Target Format',
         text: 'Choose your preferred output format — PNG (lossless with alpha transparency), JPG (compact size for sharing), or WebP (modern web optimization for faster load speeds).',
-        url: 'https://chat.aiaxom.co.in/tools/image-format-converter#converter',
+        url: 'https://aiaxom.co.in/tools/image-format-converter#converter',
       },
       {
         '@type': 'HowToStep',
         position: 3,
         name: 'Download Converted Image',
         text: 'Click Convert Now. Your converted image is generated in under 3 seconds with zero watermarks and is immediately ready for download.',
-        url: 'https://chat.aiaxom.co.in/tools/image-format-converter#converter',
+        url: 'https://aiaxom.co.in/tools/image-format-converter#converter',
       },
     ],
   };
@@ -337,13 +337,13 @@ export default async function ImageFormatConverterPage() {
         '@type': 'ListItem',
         position: 2,
         name: 'Tools',
-        item: 'https://chat.aiaxom.co.in/tools',
+        item: 'https://aiaxom.co.in/tools',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'Image Format Converter',
-        item: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/image-format-converter',
+        item: cms?.canonical_url || 'https://aiaxom.co.in/tools/image-format-converter',
       },
     ],
   };

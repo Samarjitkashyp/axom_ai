@@ -22,7 +22,7 @@ export const IMAGE_TO_PDF_FAQS: FaqItem[] = [
   },
   {
     q: 'How to convert photos to PDF on iPhone and Android?',
-    a: 'Open https://chat.aiaxom.co.in/tools/image-to-pdf in Safari or Chrome on your mobile device. Tap to choose photos directly from your Camera Roll, Gallery, WhatsApp images, or Files app, and click convert. Your PDF downloads instantly to your mobile storage with zero app installation.',
+    a: 'Open https://aiaxom.co.in/tools/image-to-pdf in Safari or Chrome on your mobile device. Tap to choose photos directly from your Camera Roll, Gallery, WhatsApp images, or Files app, and click convert. Your PDF downloads instantly to your mobile storage with zero app installation.',
   },
   {
     q: 'Does converting images to PDF reduce quality?',

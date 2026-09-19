@@ -299,7 +299,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       "badge": "{{ f.badge|default:''|escapejs }}",
       "icon_class": "{{ f.icon_class|default:'fa-solid fa-wand-magic-sparkles'|escapejs }}",
       "gradient_color": "{{ f.gradient_color|default:'from-purple-500 to-indigo-500'|escapejs }}",
-      "action_url": "{{ f.action_url|default:'https://chat.aiaxom.co.in/tools'|escapejs }}",
+      "action_url": "{{ f.action_url|default:'https://aiaxom.co.in/tools'|escapejs }}",
       "order": {{ f.order|default:0 }}
     }{% if not forloop.last %},{% endif %}
     {% endfor %}

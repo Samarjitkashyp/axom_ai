@@ -157,7 +157,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     cms?.meta_description ||
     'Free online PDF to PNG converter. Extract PDF pages to lossless, transparent, high-resolution PNG images in seconds. Zero watermarks, pixel-perfect, and free ZIP download.';
-  const canonicalUrl = cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-png';
+  const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-png';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
     ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
@@ -224,7 +224,7 @@ export default async function PdfToPngPage() {
       'PDF to Image Converter',
       'Pixel Perfect PDF to PNG',
     ],
-    url: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-png',
+    url: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-png',
     description:
       cms?.meta_description ||
       'Free online utility by Axom AI to extract and convert PDF pages into lossless, transparent, high-resolution PNG images with zero watermarks, alpha transparency, and automated file purging.',
@@ -274,21 +274,21 @@ export default async function PdfToPngPage() {
         position: 1,
         name: 'Upload Your PDF Document',
         text: 'Drag and drop your PDF file into the converter box above or click to select files from your computer or phone.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-png#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-png#converter',
       },
       {
         '@type': 'HowToStep',
         position: 2,
         name: 'Instant Lossless PNG Extraction with Transparency',
         text: 'Click Convert to PNG Now. Our high-precision raster engine extracts every PDF page into a crisp, transparent PNG image in 2–3 seconds without loss of quality.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-png#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-png#converter',
       },
       {
         '@type': 'HowToStep',
         position: 3,
         name: 'Download Crisp PNGs or ZIP Archive',
         text: 'Download individual page images or click Download All as ZIP to save all converted PNG images in a single archive directly to your device.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-png#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-png#converter',
       },
     ],
   };
@@ -320,13 +320,13 @@ export default async function PdfToPngPage() {
         '@type': 'ListItem',
         position: 2,
         name: 'Tools',
-        item: 'https://chat.aiaxom.co.in/tools',
+        item: 'https://aiaxom.co.in/tools',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'PDF to PNG Converter',
-        item: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-png',
+        item: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-png',
       },
     ],
   };

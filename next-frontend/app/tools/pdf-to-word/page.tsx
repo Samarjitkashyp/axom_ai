@@ -108,7 +108,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description =
     cms?.meta_description ||
     'Free online PDF to Word converter. Convert PDF to editable Word (.docx) documents in seconds with 100% original formatting, tables, and fonts preserved. No watermark, no software installation, completely free.';
-  const canonicalUrl = cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-word';
+  const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-word';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
     ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
@@ -174,7 +174,7 @@ export default async function PdfToWordPage() {
       'Online PDF Document to Word Converter',
       'PDF to Editable Word Converter',
     ],
-    url: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-word',
+    url: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-word',
     description:
       cms?.meta_description ||
       'Free online utility by Axom AI to convert PDF documents into fully editable Microsoft Word (.docx) files while accurately reconstructing typography, tables, and layouts with zero watermarks.',
@@ -224,21 +224,21 @@ export default async function PdfToWordPage() {
         position: 1,
         name: 'Upload Your PDF File',
         text: 'Drag and drop your PDF file into the converter box above or click to select files from your computer or mobile device.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-word#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-word#converter',
       },
       {
         '@type': 'HowToStep',
         position: 2,
         name: 'Instant Document Extraction & Layout Reconstruction',
         text: 'Click Convert to Word Now. Our intelligent extraction engine detects paragraphs, complex tables, images, and fonts, reconstructing them into native Word format in 2–3 seconds.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-word#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-word#converter',
       },
       {
         '@type': 'HowToStep',
         position: 3,
         name: 'Download Editable Word Document (.docx)',
         text: 'Click Download Word to save your fully editable, watermark-free .docx document directly to your device.',
-        url: 'https://chat.aiaxom.co.in/tools/pdf-to-word#converter',
+        url: 'https://aiaxom.co.in/tools/pdf-to-word#converter',
       },
     ],
   };
@@ -270,13 +270,13 @@ export default async function PdfToWordPage() {
         '@type': 'ListItem',
         position: 2,
         name: 'Tools',
-        item: 'https://chat.aiaxom.co.in/tools',
+        item: 'https://aiaxom.co.in/tools',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'PDF to Word Converter',
-        item: cms?.canonical_url || 'https://chat.aiaxom.co.in/tools/pdf-to-word',
+        item: cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-word',
       },
     ],
   };

@@ -4730,7 +4730,7 @@ def depth_layers_api(request):
 
 def tools_api_view(request):
     """
-    Public REST API to fetch available tools for chat.aiaxom.co.in/tools.
+    Public REST API to fetch available tools for aiaxom.co.in/tools.
     Returns only active tools by default; returns all tools if ?all=1 and user is superuser/staff.
     """
     try:

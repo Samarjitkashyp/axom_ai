@@ -322,7 +322,7 @@
       </div>
       <div>
         <label class="block font-semibold text-slate-300 mb-1">Target Tool URL</label>
-        <input type="text" id="mega_url" placeholder="https://chat.aiaxom.co.in/tools" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
+        <input type="text" id="mega_url" placeholder="https://aiaxom.co.in/tools" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
@@ -532,7 +532,7 @@ function openMegaModal() {
   document.getElementById('mega_desc').value = '';
   document.getElementById('mega_icon').value = 'fa-solid fa-brain';
   document.getElementById('mega_color').value = 'text-fuchsia-400';
-  document.getElementById('mega_url').value = 'https://chat.aiaxom.co.in/tools';
+  document.getElementById('mega_url').value = 'https://aiaxom.co.in/tools';
   document.getElementById('mega_order').value = 0;
   document.getElementById('mega_active').checked = true;
   document.getElementById('megaModal').classList.remove('hidden');
@@ -545,7 +545,7 @@ function editMegaItem(id, title, desc, icon, color, url, order, active) {
   document.getElementById('mega_desc').value = desc;
   document.getElementById('mega_icon').value = icon || 'fa-solid fa-brain';
   document.getElementById('mega_color').value = color || 'text-fuchsia-400';
-  document.getElementById('mega_url').value = url || 'https://chat.aiaxom.co.in/tools';
+  document.getElementById('mega_url').value = url || 'https://aiaxom.co.in/tools';
   document.getElementById('mega_order').value = order;
   document.getElementById('mega_active').checked = active !== false;
   document.getElementById('megaModal').classList.remove('hidden');
