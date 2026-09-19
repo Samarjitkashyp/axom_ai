@@ -4777,10 +4777,13 @@ def tools_api_view(request):
                 'is_featured': t.is_featured,
             })
 
+        disabled_slugs = list(AITool.objects.filter(is_active=False).values_list('slug', flat=True))
+
         return JsonResponse({
             'success': True,
             'total': len(tools_data),
             'tools': tools_data,
+            'disabled_slugs': disabled_slugs,
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e), 'tools': []}, status=500)

@@ -435,15 +435,4 @@ export const ALL_TOOLS = [
     hint: 'PDF file',
     desc: 'Draw or insert your electronic signature and place it anywhere on your PDF.',
   },
-
-  // Design
-  {
-    id: 'canva',
-    name: 'Canva Designer',
-    cat: 'Design',
-    icon: Palette,
-    canva: true,
-    hint: 'Create designs',
-    desc: 'Create presentations, social media posts, logos, posters and more with Canva.',
-  },
 ];

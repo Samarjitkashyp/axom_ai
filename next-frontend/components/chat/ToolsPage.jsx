@@ -153,8 +153,9 @@ export default function ToolsPage({
             });
 
           if (dynamicTools.length > 0 && isMounted) {
+            const disabledIds = new Set(data.disabled_slugs || []);
             const dynamicIds = new Set(dynamicTools.map((t) => t.id));
-            const localOnly = ALL_TOOLS.filter((t) => !dynamicIds.has(t.id));
+            const localOnly = ALL_TOOLS.filter((t) => !dynamicIds.has(t.id) && !disabledIds.has(t.id));
             setToolsList([...dynamicTools, ...localOnly]);
           }
         }
@@ -504,7 +505,7 @@ export default function ToolsPage({
 
           {/* CATEGORY FILTER PILLS */}
           <div className="tools-categories-bar" role="tablist">
-            {TOOL_CATEGORIES.map((cat) => {
+            {TOOL_CATEGORIES.filter((cat) => cat.id === 'all' || (categoryCounts[cat.id] || 0) > 0).map((cat) => {
               const count = categoryCounts[cat.id] || 0;
               const isActive = selectedCat === cat.id;
               return (
