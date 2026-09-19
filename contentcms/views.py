@@ -4,9 +4,11 @@ import uuid
 import json
 from datetime import datetime
 from html.parser import HTMLParser
+from io import BytesIO
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,6 +16,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from PIL import Image, ImageOps, ImageFilter, ImageEnhance
 
 from .models import (
     SiteHeroConfig,
@@ -1926,6 +1929,143 @@ def delete_converter_tool_faq_api(request, tool_slug, faq_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+@content_admin_required
+@require_POST
+def upload_converter_tool_og_image_api(request, tool_slug=None):
+    """
+    Direct image upload for Tool SEO & Social Cards.
+    Automatically resizes & converts any uploaded image to EXACT 1200 x 630 pixels
+    (the universal OpenGraph / Twitter Card standard).
+    """
+    try:
+        uploaded_file = (
+            request.FILES.get('image') or 
+            request.FILES.get('file') or 
+            request.FILES.get('og_image')
+        )
+        if not uploaded_file:
+            return JsonResponse({'success': False, 'error': 'No image file provided for upload.'}, status=400)
+
+        # Validate file extension
+        ext = os.path.splitext(uploaded_file.name)[1].lower()
+        allowed_exts = {'.jpg', '.jpeg', '.png', '.webp', '.avif', '.jfif', '.bmp', '.tiff', '.gif'}
+        if ext not in allowed_exts:
+            return JsonResponse({
+                'success': False,
+                'error': f'Unsupported format "{ext}". Supported: JPG, PNG, WEBP, AVIF, GIF, BMP, TIFF.'
+            }, status=400)
+
+        # Max file size: 25MB
+        if uploaded_file.size > 25 * 1024 * 1024:
+            return JsonResponse({'success': False, 'error': 'File exceeds maximum upload limit of 25MB.'}, status=400)
+
+        fit_mode = (request.POST.get('fit_mode') or 'cover').strip().lower()
+
+        # Open image and normalize EXIF orientation
+        img = Image.open(uploaded_file)
+        try:
+            img = ImageOps.exif_transpose(img)
+        except Exception:
+            pass
+
+        target_w, target_h = 1200, 630
+
+        # Handle alpha channels (RGBA, LA, or palette with transparency)
+        if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+            img = img.convert('RGBA')
+            bg = Image.new('RGBA', img.size, (15, 23, 42, 255))  # Axom AI Dark Slate (#0f172a)
+            bg.paste(img, mask=img.split()[3])
+            rgb_img = bg.convert('RGB')
+        else:
+            rgb_img = img.convert('RGB')
+
+        # Convert to exact 1200 x 630 dimensions
+        if fit_mode == 'contain':
+            # Smart Contain: Scale original cleanly to fit inside 1200x630,
+            # with the background filled by a darkened, blurred version of the image
+            canvas = Image.new('RGB', (target_w, target_h), (15, 23, 42))
+
+            # Background: blurred version of the image
+            bg_cover = ImageOps.fit(rgb_img, (target_w, target_h), method=Image.Resampling.BILINEAR)
+            bg_blurred = bg_cover.filter(ImageFilter.GaussianBlur(radius=25))
+            bg_blurred = ImageEnhance.Brightness(bg_blurred).enhance(0.5)
+            canvas.paste(bg_blurred, (0, 0))
+
+            # Foreground: fit cleanly within margins
+            margin = 30
+            max_inner_w = target_w - (margin * 2)
+            max_inner_h = target_h - (margin * 2)
+            orig_aspect = rgb_img.width / rgb_img.height
+
+            if orig_aspect > (max_inner_w / max_inner_h):
+                fg_w = max_inner_w
+                fg_h = int(fg_w / orig_aspect)
+            else:
+                fg_h = max_inner_h
+                fg_w = int(fg_h * orig_aspect)
+
+            fg_resized = rgb_img.resize((fg_w, fg_h), Image.Resampling.LANCZOS)
+            pos_x = (target_w - fg_w) // 2
+            pos_y = (target_h - fg_h) // 2
+            canvas.paste(fg_resized, (pos_x, pos_y))
+            final_img = canvas
+        else:
+            # Default 'cover': Sharp Lanczos center crop filling exact 1200x630
+            final_img = ImageOps.fit(
+                rgb_img,
+                (target_w, target_h),
+                method=Image.Resampling.LANCZOS,
+                centering=(0.5, 0.5)
+            )
+
+        # Compress & Optimize for SEO / Social Media
+        out_buf = BytesIO()
+        final_img.save(
+            out_buf,
+            format='JPEG',
+            quality=90,
+            optimize=True,
+            progressive=True
+        )
+        file_bytes = out_buf.getvalue()
+
+        # Save to storage
+        resolved_slug = tool_slug or request.POST.get('tool_slug') or 'tool'
+        slug_clean = slugify(resolved_slug) or 'seo'
+        file_id = uuid.uuid4().hex[:8]
+        filename = f"cms/og_images/{slug_clean}_og_{file_id}.jpg"
+        saved_rel_path = default_storage.save(filename, ContentFile(file_bytes))
+
+        # Absolute URL
+        full_url = f"https://aiaxom.co.in/media/{saved_rel_path}"
+
+        # If a valid tool_slug is passed, update tool config directly
+        if resolved_slug in CONVERTER_TOOLS_METADATA:
+            tool_config = ensure_converter_tool_defaults(resolved_slug)
+            tool_config.og_image_url = full_url
+            tool_config.save(update_fields=['og_image_url', 'updated_at'])
+
+        # Also support general SEO page if requested
+        if resolved_slug == 'general-seo' or request.POST.get('is_general_seo') == 'true':
+            seo_setting, _ = SiteSEOSetting.objects.get_or_create(id=1)
+            seo_setting.og_image_url = full_url
+            seo_setting.save(update_fields=['og_image_url'])
+
+        return JsonResponse({
+            'success': True,
+            'url': full_url,
+            'relative_url': f"/media/{saved_rel_path}",
+            'width': target_w,
+            'height': target_h,
+            'size_kb': round(len(file_bytes) / 1024, 1),
+            'filename': os.path.basename(saved_rel_path),
+            'message': f'Image converted to exact 1200×630 pixels ({round(len(file_bytes) / 1024, 1)} KB) and saved for SEO!'
+        })
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Image upload failed: {str(e)}'}, status=400)
+
+
 # Backward-compatible aliases for Word to PDF
 @content_admin_required
 @ensure_csrf_cookie
@@ -1949,6 +2089,12 @@ def save_word_to_pdf_faq_api(request):
 @require_POST
 def delete_word_to_pdf_faq_api(request, faq_id):
     return delete_converter_tool_faq_api(request, 'word-to-pdf', faq_id)
+
+
+@content_admin_required
+@require_POST
+def upload_word_to_pdf_og_image_api(request):
+    return upload_converter_tool_og_image_api(request, 'word-to-pdf')
 
 
 

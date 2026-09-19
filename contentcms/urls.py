@@ -60,6 +60,9 @@ urlpatterns = [
     path('tools/word-to-pdf/save/', views.save_word_to_pdf_api, name='save_word_to_pdf_api'),
     path('tools/word-to-pdf/faq/save/', views.save_word_to_pdf_faq_api, name='save_word_to_pdf_faq_api'),
     path('tools/word-to-pdf/faq/delete/<int:faq_id>/', views.delete_word_to_pdf_faq_api, name='delete_word_to_pdf_faq_api'),
+    path('tools/word-to-pdf/upload-og-image/', views.upload_word_to_pdf_og_image_api, name='upload_word_to_pdf_og_image_api'),
+    path('tools/upload-og-image/', views.upload_converter_tool_og_image_api, name='upload_converter_tool_og_image_general_api'),
+    path('tools/<slug:tool_slug>/upload-og-image/', views.upload_converter_tool_og_image_api, name='upload_converter_tool_og_image_api'),
     path('tools/<slug:tool_slug>/', views.converter_tool_editor, name='converter_tool_editor'),
     path('tools/<slug:tool_slug>/save/', views.save_converter_tool_api, name='save_converter_tool_api'),
     path('tools/<slug:tool_slug>/faq/save/', views.save_converter_tool_faq_api, name='save_converter_tool_faq_api'),
@@ -67,6 +70,7 @@ urlpatterns = [
 
     path('seo/', views.seo_page, name='seo_page'),
     path('seo/save/', views.save_seo_api, name='save_seo_api'),
+    path('seo/upload-og-image/', views.upload_converter_tool_og_image_api, name='upload_seo_og_image_api'),
     # Header Settings
     path('settings/header/', views.header_settings_page, name='header_settings_page'),
     path('settings/header/save/', views.save_header_settings_api, name='save_header_settings_api'),

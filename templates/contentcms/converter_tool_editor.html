@@ -499,30 +499,216 @@
         </div>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-5">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Title Tag (Max 65 chars recommended)</label>
-          <input type="text" id="meta_title" value="{{ config.meta_title }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Description (Max 160 chars recommended)</label>
-          <textarea id="meta_description" rows="3" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description }}</textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Keywords (Comma-separated)</label>
-          <textarea id="meta_keywords" rows="3" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords }}</textarea>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Canonical URL</label>
-            <input type="text" id="canonical_url" value="{{ config.canonical_url }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300">Meta Title Tag (Max 65 chars recommended)</label>
+            <span id="meta_title_count" class="text-[10px] text-slate-500">0 / 65</span>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">OpenGraph / Twitter Image URL</label>
-            <input type="text" id="og_image_url" value="{{ config.og_image_url }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          <input type="text" id="meta_title" value="{{ config.meta_title }}" oninput="updateCharCount('meta_title', 'meta_title_count', 65); syncSocialPreview();" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300">Meta Description (Max 160 chars recommended)</label>
+            <span id="meta_desc_count" class="text-[10px] text-slate-500">0 / 160</span>
+          </div>
+          <textarea id="meta_description" rows="3" oninput="updateCharCount('meta_description', 'meta_desc_count', 160); syncSocialPreview();" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Keywords (Comma-separated for Regional & Generative Engines)</label>
+          <textarea id="meta_keywords" rows="2" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Canonical URL</label>
+          <input type="text" id="canonical_url" value="{{ config.canonical_url }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <!-- OPENGRAPH / TWITTER SOCIAL CARD IMAGE (AUTO-CONVERT 1200x630) -->
+        <div class="pt-5 border-t border-slate-800/90 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center text-fuchsia-400">
+                <i class="fa-solid fa-share-nodes text-xs"></i>
+              </div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Social Share & OpenGraph Image (1200 × 630 px)</h3>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i>
+                Auto-Converts to 1200×630
+              </span>
+              <span class="text-[10px] font-semibold bg-purple-500/15 text-purple-300 px-2.5 py-0.5 rounded-full border border-purple-500/30 font-mono">
+                1.91:1 SEO Standard
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Upload & Fit Controls (Left 6 cols) -->
+            <div class="lg:col-span-6 space-y-4">
+              <!-- Drag & Drop Upload Zone -->
+              <div id="og_dropzone" onclick="document.getElementById('og_image_file_input').click()"
+                ondragover="event.preventDefault(); this.classList.add('border-fuchsia-500', 'bg-fuchsia-950/20')"
+                ondragleave="this.classList.remove('border-fuchsia-500', 'bg-fuchsia-950/20')"
+                ondrop="event.preventDefault(); this.classList.remove('border-fuchsia-500', 'bg-fuchsia-950/20'); handleOgDrop(event);"
+                class="relative cursor-pointer rounded-2xl border-2 border-dashed border-slate-700 hover:border-fuchsia-500/80 bg-slate-900/80 hover:bg-slate-900 p-6 text-center transition group shadow-inner">
+                
+                <!-- Spinner Overlay -->
+                <div id="og_upload_spinner" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center gap-2.5 z-20">
+                  <div class="w-8 h-8 rounded-full border-2 border-fuchsia-500 border-t-transparent animate-spin"></div>
+                  <p class="text-xs font-semibold text-fuchsia-300 animate-pulse">Converting & Optimizing to 1200×630...</p>
+                  <p class="text-[10px] text-slate-400">Lanczos high-DPI filter & progressive compression</p>
+                </div>
+
+                <input type="file" id="og_image_file_input" accept="image/png,image/jpeg,image/webp,image/avif,image/jfif,image/gif,image/bmp" class="hidden" onchange="handleOgImageUpload(this)">
+
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-fuchsia-500/20 to-purple-600/20 border border-fuchsia-500/30 text-fuchsia-400 grid place-items-center text-lg mb-3 group-hover:scale-110 transition shadow-lg shadow-fuchsia-500/10">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+
+                <div class="space-y-1">
+                  <p class="text-xs font-bold text-white group-hover:text-fuchsia-300 transition">Click to Upload Image or Drag & Drop</p>
+                  <p class="text-[11px] text-slate-400">Supports PNG, JPG, WebP, AVIF, GIF (Any size up to 25MB)</p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-center gap-4 text-[10px] text-slate-400">
+                  <span class="flex items-center gap-1 text-emerald-400">
+                    <i class="fa-solid fa-check text-[9px]"></i> Auto-Crops & Fits
+                  </span>
+                  <span class="flex items-center gap-1 text-emerald-400">
+                    <i class="fa-solid fa-check text-[9px]"></i> 100% SEO Valid
+                  </span>
+                  <span class="flex items-center gap-1 text-emerald-400">
+                    <i class="fa-solid fa-check text-[9px]"></i> No Distortion
+                  </span>
+                </div>
+              </div>
+
+              <!-- Fit Mode Option -->
+              <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-sliders text-fuchsia-400 text-xs"></i>
+                    <span>Conversion Fit Mode:</span>
+                  </label>
+                  <span class="text-[10px] text-slate-500">Output: Exact 1200×630</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 cursor-pointer text-xs text-slate-200">
+                    <input type="radio" name="og_fit_mode" value="cover" checked class="accent-fuchsia-500">
+                    <span class="text-[11px]">
+                      <strong>Fill & Crop</strong>
+                      <span class="block text-[9px] text-slate-400">Crops cleanly to 1200×630</span>
+                    </span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 cursor-pointer text-xs text-slate-200">
+                    <input type="radio" name="og_fit_mode" value="contain" class="accent-fuchsia-500">
+                    <span class="text-[11px]">
+                      <strong>Smart Contain</strong>
+                      <span class="block text-[9px] text-slate-400">Blurred backdrop (logos)</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Image URL Input (Direct / Fallback) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span>Image URL (Generated or External CDN)</span>
+                  <span class="text-[10px] text-slate-500 font-mono">Live in DB</span>
+                </label>
+                <div class="flex items-center gap-2">
+                  <input type="text" id="og_image_url" value="{{ config.og_image_url }}" oninput="syncSocialPreview()"
+                    placeholder="https://aiaxom.co.in/media/cms/og_images/..."
+                    class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
+                  <button type="button" onclick="copyOgImageUrl()" title="Copy Image URL" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition shrink-0">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                  <a id="og_view_link" href="{{ config.og_image_url|default:'#' }}" target="_blank" rel="noopener noreferrer" title="View Full Size Image" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition shrink-0">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Social Share Card Mockup (Right 6 cols) -->
+            <div class="lg:col-span-6 space-y-3">
+              <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-semibold text-slate-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-eye text-fuchsia-400"></i>
+                  <span>Live Card Preview (WhatsApp / Google / X)</span>
+                </span>
+                <span id="og_size_badge" class="text-[10px] font-mono text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                  1200 × 630 px
+                </span>
+              </div>
+
+              <!-- Social Card Container -->
+              <div class="rounded-2xl border border-slate-700/90 bg-slate-950 overflow-hidden shadow-2xl">
+                <!-- Image Box with Aspect Ratio 1200 / 630 (1.905) -->
+                <div class="relative w-full aspect-[1200/630] bg-slate-900 overflow-hidden group">
+                  <img id="og_image_preview_img"
+                    src="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}"
+                    alt="OpenGraph Social Preview"
+                    onerror="this.src='https://aiaxom.co.in/static/dist/hero/assam.avif'"
+                    class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                  
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60"></div>
+                  
+                  <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+                    <span class="text-[9px] font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                      SEO Ready
+                    </span>
+                    <span class="text-[9px] font-bold font-mono bg-black/70 backdrop-blur-md text-white px-2 py-0.5 rounded-md border border-white/20">
+                      1200×630
+                    </span>
+                  </div>
+
+                  <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-white/90 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded flex items-center gap-1">
+                      <i class="fa-solid fa-bolt text-fuchsia-400 text-[9px]"></i>
+                      <span>Axom AI SEO Card</span>
+                    </span>
+                    <button type="button" onclick="document.getElementById('og_image_file_input').click()"
+                      class="text-[10px] font-semibold text-white bg-fuchsia-600/90 hover:bg-fuchsia-500 px-2.5 py-1 rounded-lg backdrop-blur-sm transition flex items-center gap-1 shadow">
+                      <i class="fa-solid fa-camera text-[9px]"></i>
+                      <span>Replace</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Simulated Link Preview Body -->
+                <div class="p-4 space-y-1.5 bg-slate-900/90 border-t border-slate-800">
+                  <div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
+                    <i class="fa-solid fa-globe text-[10px] text-fuchsia-400"></i>
+                    <span>aiaxom.co.in</span>
+                    <span>•</span>
+                    <span>tools/{{ tool_slug }}</span>
+                  </div>
+                  <h4 id="og_preview_title" class="text-xs sm:text-sm font-bold text-white line-clamp-1">
+                    {{ config.meta_title|default:"Word to PDF Converter Online Free" }}
+                  </h4>
+                  <p id="og_preview_desc" class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                    {{ config.meta_description|default:"Convert documents online in seconds with 100% formatting preserved." }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Quick action links -->
+              <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                <button type="button" onclick="resetOgImageToDefault()" class="hover:text-amber-400 transition flex items-center gap-1">
+                  <i class="fa-solid fa-rotate-left text-[10px]"></i>
+                  <span>Reset to Default Image</span>
+                </button>
+                <button type="button" onclick="document.getElementById('og_image_file_input').click()" class="text-fuchsia-400 hover:text-fuchsia-300 font-semibold transition flex items-center gap-1">
+                  <i class="fa-solid fa-arrow-up-from-bracket text-[10px]"></i>
+                  <span>Upload New Photo</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -807,5 +993,136 @@ async function deleteFaq(faqId) {
     showToast('Network error while deleting FAQ: ' + (e.message || ''), 'error');
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// SEO & OPENGRAPH IMAGE UPLOAD & LIVE PREVIEW (1200×630)
+// ─────────────────────────────────────────────────────────────
+
+function updateCharCount(inputId, countId, maxLen) {
+  const input = document.getElementById(inputId);
+  const count = document.getElementById(countId);
+  if (!input || !count) return;
+  const len = input.value.length;
+  count.textContent = `${len} / ${maxLen}`;
+  if (len > maxLen) {
+    count.className = 'text-[10px] text-amber-400 font-semibold';
+  } else {
+    count.className = 'text-[10px] text-slate-500';
+  }
+}
+
+function syncSocialPreview() {
+  const metaTitle = document.getElementById('meta_title')?.value || '';
+  const metaDesc = document.getElementById('meta_description')?.value || '';
+  const ogUrl = document.getElementById('og_image_url')?.value || '';
+
+  const prevTitle = document.getElementById('og_preview_title');
+  const prevDesc = document.getElementById('og_preview_desc');
+  const prevImg = document.getElementById('og_image_preview_img');
+  const viewLink = document.getElementById('og_view_link');
+
+  if (prevTitle) prevTitle.textContent = metaTitle || '{{ tool_meta.name }} Tool — Axom AI';
+  if (prevDesc) prevDesc.textContent = metaDesc || 'Convert files online with Axom AI';
+  if (prevImg && ogUrl) prevImg.src = ogUrl;
+  if (viewLink && ogUrl) viewLink.href = ogUrl;
+}
+
+async function handleOgImageUpload(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  await uploadOgFile(file);
+  input.value = '';
+}
+
+function handleOgDrop(event) {
+  const files = event.dataTransfer?.files;
+  if (files && files.length > 0) {
+    uploadOgFile(files[0]);
+  }
+}
+
+async function uploadOgFile(file) {
+  const spinner = document.getElementById('og_upload_spinner');
+  if (spinner) spinner.classList.remove('hidden');
+
+  try {
+    const fitModeEl = document.querySelector('input[name="og_fit_mode"]:checked');
+    const fitMode = fitModeEl ? fitModeEl.value : 'cover';
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('fit_mode', fitMode);
+    formData.append('tool_slug', TOOL_SLUG);
+
+    const token = getCsrfToken();
+    const res = await fetch(`/axomai-content/tools/${TOOL_SLUG}/upload-og-image/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': token,
+      },
+      body: formData,
+    });
+
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      showToast('Invalid server response while uploading image.', 'error');
+      return;
+    }
+
+    if (data.success) {
+      const ogInput = document.getElementById('og_image_url');
+      const prevImg = document.getElementById('og_image_preview_img');
+      const sizeBadge = document.getElementById('og_size_badge');
+      const viewLink = document.getElementById('og_view_link');
+
+      if (ogInput) ogInput.value = data.url;
+      if (prevImg) prevImg.src = data.url;
+      if (viewLink) viewLink.href = data.url;
+      if (sizeBadge) sizeBadge.textContent = `1200 × 630 px • ${data.size_kb} KB`;
+
+      showToast(data.message || 'Image converted to 1200×630 and saved for SEO!', 'success');
+      syncSocialPreview();
+    } else {
+      showToast(data.error || 'Failed to convert image.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while uploading image: ' + (err.message || ''), 'error');
+  } finally {
+    if (spinner) spinner.classList.add('hidden');
+  }
+}
+
+function copyOgImageUrl() {
+  const ogInput = document.getElementById('og_image_url');
+  if (!ogInput || !ogInput.value) {
+    showToast('No image URL to copy.', 'error');
+    return;
+  }
+  navigator.clipboard.writeText(ogInput.value).then(() => {
+    showToast('OpenGraph Image URL copied to clipboard!', 'success');
+  }).catch(() => {
+    showToast('Failed to copy URL.', 'error');
+  });
+}
+
+function resetOgImageToDefault() {
+  const defUrl = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
+  const ogInput = document.getElementById('og_image_url');
+  if (ogInput) {
+    ogInput.value = defUrl;
+    syncSocialPreview();
+    showToast('Reset to default image. Remember to Save Changes!', 'info');
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+  updateCharCount('meta_title', 'meta_title_count', 65);
+  updateCharCount('meta_description', 'meta_desc_count', 160);
+  syncSocialPreview();
+});
 </script>
 {% endblock %}
