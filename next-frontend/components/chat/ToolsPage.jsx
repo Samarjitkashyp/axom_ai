@@ -153,7 +153,9 @@ export default function ToolsPage({
             });
 
           if (dynamicTools.length > 0 && isMounted) {
-            setToolsList(dynamicTools);
+            const dynamicIds = new Set(dynamicTools.map((t) => t.id));
+            const localOnly = ALL_TOOLS.filter((t) => !dynamicIds.has(t.id));
+            setToolsList([...dynamicTools, ...localOnly]);
           }
         }
       } catch (err) {
