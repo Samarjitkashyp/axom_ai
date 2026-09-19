@@ -5264,7 +5264,8 @@ def video_download_info_api(request):
         result = subprocess.run(
             [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
              '--no-warnings', '--socket-timeout', '20', '--no-check-certificates',
-             '--remote-components', 'ejs:github'] + _YT_COOKIE_ARGS + [url],
+             '--remote-components', 'ejs:github',
+             '--extractor-args', 'youtube:player_client=mweb'] + _YT_COOKIE_ARGS + [url],
             capture_output=True, text=True, timeout=45,
         )
         if result.returncode != 0:
@@ -5338,6 +5339,7 @@ def video_download_stream_api(request):
             _YT_DLP, '-f', str(format_id), '--no-playlist',
             '--socket-timeout', '20', '--no-check-certificates',
             '--remote-components', 'ejs:github',
+            '--extractor-args', 'youtube:player_client=mweb',
             '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
             ] + _YT_COOKIE_ARGS + [
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
