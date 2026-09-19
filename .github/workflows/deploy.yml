@@ -103,6 +103,11 @@ jobs:
               git stash push -u -m "auto-stash before deploy $(date -u +%Y%m%dT%H%M%SZ)" || true
             fi
             git reset --hard origin/main
+            # Ensure deno is installed (yt-dlp needs a JS runtime for YouTube)
+            if ! command -v deno &>/dev/null; then
+              curl -fsSL https://deno.land/install.sh | sh
+              sudo ln -sf ~/.deno/bin/deno /usr/local/bin/deno
+            fi
             source venv/bin/activate
             pip install -r requirements.txt
             # Rebuild React frontend if sources changed
