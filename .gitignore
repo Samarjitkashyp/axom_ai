@@ -47,3 +47,7 @@ Thumbs.db
 # Local service-account JSONs (Vertex etc.) — never commit
 .credentials/
 *.json.creds
+
+# Generated export PDFs & local agent artifacts
+AxomAI_*.pdf
+.claude/
