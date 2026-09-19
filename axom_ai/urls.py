@@ -102,6 +102,10 @@ urlpatterns = [
     path('api/video-compress/download/<str:filename>/', views.video_compress_download_api, name='video_compress_download_api'),
     path('api/video-compress/delete/<str:task_id>/', views.video_compress_delete_api, name='video_compress_delete_api'),
 
+    # Video Downloader
+    path('api/video-download/info/', views.video_download_info_api, name='video_download_info_api'),
+    path('api/video-download/stream/', views.video_download_stream_api, name='video_download_stream_api'),
+
     # Razorpay payments
     path('api/', include('payments.urls')),
 

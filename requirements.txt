@@ -21,6 +21,9 @@ img2pdf>=0.5.0                                # PNG/JPG -> PDF (lossless)
 PyMuPDF>=1.24.0                               # PDF -> PNG/JPG (page rendering)
 opencv-python-headless>=4.8.0                 # content-aware watermark inpainting
 
+# --- Video Downloader ---
+yt-dlp>=2024.1.0
+
 # --- Payments ---
 razorpay>=1.4.2                                # Razorpay orders/checkout/webhooks
 

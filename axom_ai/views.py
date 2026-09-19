@@ -5177,3 +5177,206 @@ def canva_ai_design_api(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=502)
 
+
+# ─── Video Downloader (yt-dlp streaming, no server storage) ───────────────────
+
+import subprocess, shlex, tempfile, glob as glob_mod
+from urllib.parse import urlparse
+
+_VD_ALLOWED_DOMAINS = {
+    'youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be',
+    'facebook.com', 'www.facebook.com', 'fb.watch', 'm.facebook.com',
+    'instagram.com', 'www.instagram.com',
+    'tiktok.com', 'www.tiktok.com', 'vm.tiktok.com',
+    'twitter.com', 'www.twitter.com', 'x.com', 'www.x.com',
+    'reddit.com', 'www.reddit.com', 'old.reddit.com',
+    'vimeo.com', 'www.vimeo.com',
+    'dailymotion.com', 'www.dailymotion.com',
+    'twitch.tv', 'www.twitch.tv', 'clips.twitch.tv',
+    'linkedin.com', 'www.linkedin.com',
+    'pinterest.com', 'www.pinterest.com',
+    'tumblr.com', 'www.tumblr.com',
+    'snapchat.com', 'www.snapchat.com',
+    'threads.net', 'www.threads.net',
+    'bilibili.com', 'www.bilibili.com',
+}
+
+_VD_MAX_SIZE_MB = 100
+
+def _vd_validate_url(url):
+    if not url or not isinstance(url, str):
+        return None, 'URL is required'
+    url = url.strip()
+    if not url.startswith(('http://', 'https://')):
+        url = 'https://' + url
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return None, 'Invalid URL format'
+    if parsed.scheme not in ('http', 'https'):
+        return None, 'Only HTTP/HTTPS URLs are allowed'
+    host = (parsed.hostname or '').lower()
+    if not host:
+        return None, 'No hostname in URL'
+    if host in _VD_ALLOWED_DOMAINS:
+        return url, None
+    for d in _VD_ALLOWED_DOMAINS:
+        if host.endswith('.' + d):
+            return url, None
+    return None, f'Domain "{host}" is not supported. Supported: YouTube, Facebook, Instagram, TikTok, Twitter/X, Reddit, Vimeo, Dailymotion, Twitch, LinkedIn, Pinterest, Snapchat, Threads, Bilibili.'
+
+
+_vd_rate = {}
+
+def _vd_check_rate(ip, limit=10, window=60):
+    now = time.time()
+    key = f'vd_{ip}'
+    hits = _vd_rate.get(key, [])
+    hits = [t for t in hits if now - t < window]
+    if len(hits) >= limit:
+        return False
+    hits.append(now)
+    _vd_rate[key] = hits
+    return True
+
+
+@csrf_exempt
+@require_POST
+def video_download_info_api(request):
+    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    if not _vd_check_rate(ip, 10, 60):
+        return JsonResponse({'error': 'Too many requests. Please wait a minute.'}, status=429)
+    try:
+        body = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    raw_url = body.get('url', '')
+    url, err = _vd_validate_url(raw_url)
+    if err:
+        return JsonResponse({'error': err}, status=400)
+    try:
+        result = subprocess.run(
+            ['yt-dlp', '--no-download', '--dump-json', '--no-playlist',
+             '--socket-timeout', '15', '--no-check-certificates', url],
+            capture_output=True, text=True, timeout=30,
+        )
+        if result.returncode != 0:
+            stderr = result.stderr[:300] if result.stderr else 'Unknown error'
+            return JsonResponse({'error': f'Could not fetch video info: {stderr}'}, status=400)
+        info = json.loads(result.stdout)
+        formats = []
+        seen = set()
+        for f in info.get('formats', []):
+            if not f.get('url'):
+                continue
+            h = f.get('height')
+            ext = f.get('ext', 'mp4')
+            vcodec = f.get('vcodec', 'none')
+            acodec = f.get('acodec', 'none')
+            has_video = vcodec and vcodec != 'none'
+            has_audio = acodec and acodec != 'none'
+            if not has_video:
+                continue
+            label = f'{h}p' if h else ext
+            fsize = f.get('filesize') or f.get('filesize_approx') or 0
+            if fsize and fsize > _VD_MAX_SIZE_MB * 1024 * 1024:
+                continue
+            key = f'{h}_{ext}_{has_audio}'
+            if key in seen:
+                continue
+            seen.add(key)
+            formats.append({
+                'format_id': f.get('format_id', ''),
+                'label': label,
+                'ext': ext,
+                'height': h or 0,
+                'has_audio': has_audio,
+                'filesize': fsize,
+            })
+        formats.sort(key=lambda x: x['height'], reverse=True)
+        return JsonResponse({
+            'title': info.get('title', 'video'),
+            'thumbnail': info.get('thumbnail', ''),
+            'duration': info.get('duration', 0),
+            'uploader': info.get('uploader', ''),
+            'formats': formats[:8],
+            'webpage_url': info.get('webpage_url', url),
+        })
+    except subprocess.TimeoutExpired:
+        return JsonResponse({'error': 'Request timed out. Try again.'}, status=504)
+    except Exception as e:
+        return JsonResponse({'error': str(e)[:200]}, status=500)
+
+
+@csrf_exempt
+@require_POST
+def video_download_stream_api(request):
+    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    if not _vd_check_rate(ip, 5, 60):
+        return JsonResponse({'error': 'Too many requests. Please wait a minute.'}, status=429)
+    try:
+        body = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    raw_url = body.get('url', '')
+    format_id = body.get('format_id', 'best')
+    url, err = _vd_validate_url(raw_url)
+    if err:
+        return JsonResponse({'error': err}, status=400)
+    if not re.match(r'^[a-zA-Z0-9_\-+]+$', str(format_id)):
+        return JsonResponse({'error': 'Invalid format ID'}, status=400)
+    tmpdir = tempfile.mkdtemp(prefix='vd_')
+    try:
+        cmd = [
+            'yt-dlp', '-f', str(format_id), '--no-playlist',
+            '--socket-timeout', '20', '--no-check-certificates',
+            '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
+            '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
+            url
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        if result.returncode != 0:
+            stderr = result.stderr[:300] if result.stderr else 'Download failed'
+            return JsonResponse({'error': stderr}, status=400)
+        files = glob_mod.glob(os.path.join(tmpdir, '*'))
+        if not files:
+            return JsonResponse({'error': 'No file was downloaded'}, status=500)
+        filepath = files[0]
+        fsize = os.path.getsize(filepath)
+        if fsize > _VD_MAX_SIZE_MB * 1024 * 1024:
+            os.remove(filepath)
+            return JsonResponse({'error': f'File too large (>{_VD_MAX_SIZE_MB}MB)'}, status=400)
+        filename = os.path.basename(filepath)
+        safe_name = re.sub(r'[^\w\s\-\.]', '', filename)[:100] or 'video.mp4'
+
+        def file_stream():
+            try:
+                with open(filepath, 'rb') as f:
+                    while True:
+                        chunk = f.read(1024 * 256)
+                        if not chunk:
+                            break
+                        yield chunk
+            finally:
+                try:
+                    os.remove(filepath)
+                except Exception:
+                    pass
+                try:
+                    os.rmdir(tmpdir)
+                except Exception:
+                    pass
+
+        response = StreamingHttpResponse(file_stream(), content_type='application/octet-stream')
+        response['Content-Disposition'] = f'attachment; filename="{safe_name}"'
+        response['Content-Length'] = fsize
+        return response
+    except subprocess.TimeoutExpired:
+        import shutil
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        return JsonResponse({'error': 'Download timed out (video too large?)'}, status=504)
+    except Exception as e:
+        import shutil
+        shutil.rmtree(tmpdir, ignore_errors=True)
+        return JsonResponse({'error': str(e)[:200]}, status=500)
+

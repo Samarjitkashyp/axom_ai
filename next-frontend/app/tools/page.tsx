@@ -18,6 +18,7 @@ import ScreenshotToCode from '@/components/chat/ScreenshotToCode';
 import MemeGenerator from '@/components/chat/MemeGenerator';
 import BackgroundRemover from '@/components/chat/BackgroundRemover';
 import CanvaDesigner from '@/components/chat/CanvaDesigner';
+import VideoDownloader from '@/components/chat/VideoDownloader';
 import '@/app/chat/chat.css';
 
 export default function ToolsIndexPage() {
@@ -37,6 +38,7 @@ export default function ToolsIndexPage() {
   const [isMemeGenOpen, setIsMemeGenOpen] = useState(false);
   const [isBgRemoverOpen, setIsBgRemoverOpen] = useState(false);
   const [isCanvaOpen, setIsCanvaOpen] = useState(false);
+  const [isVideoDownloaderOpen, setIsVideoDownloaderOpen] = useState(false);
 
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'dark';
@@ -76,6 +78,7 @@ export default function ToolsIndexPage() {
         onOpenMemeGen={() => setIsMemeGenOpen(true)}
         onOpenBgRemover={() => setIsBgRemoverOpen(true)}
         onOpenCanva={() => setIsCanvaOpen(true)}
+        onOpenVideoDownloader={() => setIsVideoDownloaderOpen(true)}
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />
@@ -95,6 +98,7 @@ export default function ToolsIndexPage() {
       {isMemeGenOpen && <MemeGenerator onClose={() => setIsMemeGenOpen(false)} />}
       {isBgRemoverOpen && <BackgroundRemover onClose={() => setIsBgRemoverOpen(false)} />}
       {isCanvaOpen && <CanvaDesigner onClose={() => setIsCanvaOpen(false)} />}
+      {isVideoDownloaderOpen && <VideoDownloader onClose={() => setIsVideoDownloaderOpen(false)} />}
     </>
   );
 }

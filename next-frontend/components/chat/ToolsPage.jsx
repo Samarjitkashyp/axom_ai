@@ -105,6 +105,7 @@ export default function ToolsPage({
   onOpenMemeGen,
   onOpenBgRemover,
   onOpenCanva,
+  onOpenVideoDownloader,
   theme,
   onToggleTheme,
 }) {
@@ -312,6 +313,10 @@ export default function ToolsPage({
     }
     if (t.canva || t.id === 'canva' || t.slug === 'canva') {
       onOpenCanva?.();
+      return;
+    }
+    if (t.videodownloader) {
+      onOpenVideoDownloader?.();
       return;
     }
     resetRunner();

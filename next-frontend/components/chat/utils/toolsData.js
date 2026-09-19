@@ -26,6 +26,7 @@ import {
   Palette,
   Code,
   Laugh,
+  ArrowDownToLine,
 } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
@@ -414,6 +415,17 @@ export const ALL_TOOLS = [
     svgeditor: true,
     hint: 'Draw, edit & export SVG',
     desc: 'Create and edit vector graphics — shapes, text, freehand drawing with layers, zoom, grid and SVG/PNG/JPG export.',
+  },
+
+  // Video Downloader
+  {
+    id: 'videodownloader',
+    name: 'Video Downloader',
+    cat: 'AI Tools',
+    icon: ArrowDownToLine,
+    videodownloader: true,
+    hint: 'YouTube, Facebook, Instagram, TikTok & more',
+    desc: 'Download videos from YouTube, Facebook, Instagram, TikTok, Twitter/X, Reddit, Vimeo and 14+ platforms instantly.',
   },
 
   // Interactive Canvas Editor
