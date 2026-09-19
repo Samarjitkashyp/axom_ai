@@ -55,11 +55,15 @@ urlpatterns = [
     path('faqs/save/', views.save_faq_api, name='save_faq_api'),
     path('faqs/delete/<int:faq_id>/', views.delete_faq_api, name='delete_faq_api'),
 
-    # Tools: Word to PDF Tool Manager
+    # Tools: Converter Tools Manager (Word to PDF, PDF to Word, Image to PDF, PDF to JPG, PDF to PNG, Image Format Converter)
     path('tools/word-to-pdf/', views.word_to_pdf_editor, name='word_to_pdf_editor'),
     path('tools/word-to-pdf/save/', views.save_word_to_pdf_api, name='save_word_to_pdf_api'),
     path('tools/word-to-pdf/faq/save/', views.save_word_to_pdf_faq_api, name='save_word_to_pdf_faq_api'),
     path('tools/word-to-pdf/faq/delete/<int:faq_id>/', views.delete_word_to_pdf_faq_api, name='delete_word_to_pdf_faq_api'),
+    path('tools/<slug:tool_slug>/', views.converter_tool_editor, name='converter_tool_editor'),
+    path('tools/<slug:tool_slug>/save/', views.save_converter_tool_api, name='save_converter_tool_api'),
+    path('tools/<slug:tool_slug>/faq/save/', views.save_converter_tool_faq_api, name='save_converter_tool_faq_api'),
+    path('tools/<slug:tool_slug>/faq/delete/<int:faq_id>/', views.delete_converter_tool_faq_api, name='delete_converter_tool_faq_api'),
 
     path('seo/', views.seo_page, name='seo_page'),
     path('seo/save/', views.save_seo_api, name='save_seo_api'),

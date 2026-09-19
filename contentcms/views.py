@@ -37,6 +37,13 @@ from .models import (
     AboutPageConfig,
     WordToPdfToolConfig,
     WordToPdfFAQ,
+    ConverterToolConfig,
+    ConverterToolFAQ,
+)
+from .converter_defaults import (
+    CONVERTER_TOOLS_METADATA,
+    CONVERTER_TOOLS_DEFAULTS,
+    ensure_converter_tool_defaults,
 )
 
 
@@ -1710,15 +1717,24 @@ def _ensure_word_to_pdf_defaults(config):
 
 @content_admin_required
 @ensure_csrf_cookie
-def word_to_pdf_editor(request):
-    """Admin page to manage all dynamic settings and FAQs for Word to PDF tool."""
-    config = WordToPdfToolConfig.objects.first()
-    if not config:
-        config = WordToPdfToolConfig.objects.create()
-    _ensure_word_to_pdf_defaults(config)
-    faqs = WordToPdfFAQ.objects.all().order_by('order', 'id')
-    return render(request, 'contentcms/word_to_pdf_editor.html', {
-        'active': 'tools_word_to_pdf',
+def converter_tool_editor(request, tool_slug):
+    """Admin page to manage all dynamic settings and FAQs for any Converter tool."""
+    if tool_slug not in CONVERTER_TOOLS_METADATA:
+        tool_slug = 'word-to-pdf'
+
+    config = ensure_converter_tool_defaults(tool_slug)
+    faqs = ConverterToolFAQ.objects.filter(tool_config=config).order_by('order', 'id')
+    tool_meta = CONVERTER_TOOLS_METADATA.get(tool_slug, {
+        'name': config.tool_name,
+        'icon': 'fa-solid fa-file-pdf text-red-400',
+        'badge': 'Hero, How-To, Specs & FAQs',
+        'target_url': f'https://aiaxom.co.in/tools/{tool_slug}',
+    })
+
+    return render(request, 'contentcms/converter_tool_editor.html', {
+        'active': f'tools_{tool_slug.replace("-", "_")}',
+        'tool_slug': tool_slug,
+        'tool_meta': tool_meta,
         'config': config,
         'faqs': faqs,
     })
@@ -1726,13 +1742,11 @@ def word_to_pdf_editor(request):
 
 @content_admin_required
 @require_POST
-def save_word_to_pdf_api(request):
-    """AJAX API to save all dynamic fields for Word to PDF Tool."""
+def save_converter_tool_api(request, tool_slug):
+    """AJAX API to save all dynamic fields for a Converter Tool."""
     try:
         data = json.loads(request.body.decode('utf-8'))
-        config = WordToPdfToolConfig.objects.first()
-        if not config:
-            config = WordToPdfToolConfig.objects.create()
+        config = ensure_converter_tool_defaults(tool_slug)
 
         # Hero & Converter
         if 'hero_badge_text' in data:
@@ -1847,15 +1861,15 @@ def save_word_to_pdf_api(request):
             config.og_image_url = data.get('og_image_url', '').strip()
 
         config.save()
-        return JsonResponse({'success': True, 'message': 'Word to PDF Tool settings saved successfully!'})
+        return JsonResponse({'success': True, 'message': f'{config.tool_name} settings saved successfully!'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
 @content_admin_required
 @require_POST
-def save_word_to_pdf_faq_api(request):
-    """AJAX API to create or edit a Word to PDF FAQ."""
+def save_converter_tool_faq_api(request, tool_slug):
+    """AJAX API to create or edit a Converter Tool FAQ."""
     try:
         data = json.loads(request.body.decode('utf-8'))
         faq_id = data.get('id')
@@ -1867,19 +1881,17 @@ def save_word_to_pdf_faq_api(request):
         if not question or not answer:
             return JsonResponse({'success': False, 'error': 'Question and answer are required.'}, status=400)
 
-        config = WordToPdfToolConfig.objects.first()
-        if not config:
-            config = WordToPdfToolConfig.objects.create()
+        config = ensure_converter_tool_defaults(tool_slug)
 
         if faq_id:
-            faq = get_object_or_404(WordToPdfFAQ, id=faq_id)
+            faq = get_object_or_404(ConverterToolFAQ, id=faq_id, tool_config=config)
             faq.question = question
             faq.answer = answer
             faq.order = order
             faq.is_active = is_active
             faq.save()
         else:
-            faq = WordToPdfFAQ.objects.create(
+            faq = ConverterToolFAQ.objects.create(
                 tool_config=config,
                 question=question,
                 answer=answer,
@@ -1903,14 +1915,41 @@ def save_word_to_pdf_faq_api(request):
 
 @content_admin_required
 @require_POST
-def delete_word_to_pdf_faq_api(request, faq_id):
-    """AJAX API to delete a Word to PDF FAQ."""
+def delete_converter_tool_faq_api(request, tool_slug, faq_id):
+    """AJAX API to delete a Converter Tool FAQ."""
     try:
-        faq = get_object_or_404(WordToPdfFAQ, id=faq_id)
+        config = ensure_converter_tool_defaults(tool_slug)
+        faq = get_object_or_404(ConverterToolFAQ, id=faq_id, tool_config=config)
         faq.delete()
         return JsonResponse({'success': True, 'message': 'FAQ deleted successfully.'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+# Backward-compatible aliases for Word to PDF
+@content_admin_required
+@ensure_csrf_cookie
+def word_to_pdf_editor(request):
+    return converter_tool_editor(request, 'word-to-pdf')
+
+
+@content_admin_required
+@require_POST
+def save_word_to_pdf_api(request):
+    return save_converter_tool_api(request, 'word-to-pdf')
+
+
+@content_admin_required
+@require_POST
+def save_word_to_pdf_faq_api(request):
+    return save_converter_tool_faq_api(request, 'word-to-pdf')
+
+
+@content_admin_required
+@require_POST
+def delete_word_to_pdf_faq_api(request, faq_id):
+    return delete_converter_tool_faq_api(request, 'word-to-pdf', faq_id)
+
 
 
 def get_landing_content_payload():

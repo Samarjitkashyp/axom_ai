@@ -1,0 +1,811 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}{{ tool_meta.name }} Tool Management — Axom AI CMS{% endblock %}
+{% block page_title %}{{ tool_meta.name }} Converter Editor{% endblock %}
+{% block page_subtitle %}Live configuration, limits, guide, FAQs, and SEO for {{ tool_meta.target_url }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .focus-ring:focus {
+    border-color: #d946ef !important;
+    box-shadow: 0 0 15px rgba(217, 70, 239, 0.25) !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8 pb-16">
+
+  <!-- Top Action & Navigation Card -->
+  <div class="glass-card rounded-2xl border border-slate-800/90 p-5 sm:p-6 bg-slate-900/60 backdrop-blur-xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+    <div class="flex items-center gap-4">
+      <a href="/axomai-content/" class="w-10 h-10 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/80 text-slate-300 hover:text-white grid place-items-center transition shadow-sm shrink-0" title="Back to CMS Dashboard">
+        <i class="fa-solid fa-arrow-left text-sm"></i>
+      </a>
+      <div>
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h2 class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <i class="{{ tool_meta.icon }}"></i>
+            <span>{{ tool_meta.name }} Tool Management</span>
+          </h2>
+          <span class="text-[10px] font-semibold bg-fuchsia-500/15 text-fuchsia-300 px-2.5 py-0.5 rounded-full border border-fuchsia-500/30 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Dynamic Live Tool
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
+          <span>Target Page:</span>
+          <a href="{{ tool_meta.target_url }}" target="_blank" rel="noopener noreferrer" class="text-fuchsia-400 hover:text-fuchsia-300 hover:underline flex items-center gap-1 font-mono text-[11px]">
+            <span>{{ tool_meta.target_url }}</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 shrink-0">
+      <a href="{{ tool_meta.target_url }}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-xl bg-slate-800/70 hover:bg-slate-700 border border-slate-700/80 text-xs font-semibold text-slate-200 hover:text-white flex items-center gap-2 transition shadow-sm">
+        <i class="fa-solid fa-eye text-fuchsia-400 text-xs"></i>
+        <span>Live Preview</span>
+      </a>
+
+      <button id="saveTopBtn" onclick="saveToolConfig()" class="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold rounded-xl text-xs flex items-center gap-2.5 shadow-lg shadow-purple-600/30 transition hover:scale-[1.02] active:scale-[0.98]">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save Changes</span>
+        <kbd class="hidden md:inline-block px-1.5 py-0.5 text-[9px] bg-black/40 rounded border border-white/20 text-purple-200 font-mono">Ctrl+S</kbd>
+      </button>
+    </div>
+  </div>
+
+  <form id="toolForm" onsubmit="event.preventDefault(); saveToolConfig();" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- 1. HERO & LIMITS SECTION -->
+    <div id="sec-hero" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400">
+            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">1. Hero Section & Conversion Limits</h2>
+            <p class="text-xs text-slate-400">Controls top badge, primary title parts, intro description, and conversion limits</p>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">Above-the-fold</span>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Top Eyebrow Badge Text</label>
+          <input type="text" id="hero_badge_text" value="{{ config.hero_badge_text }}" placeholder="⚡ Free: 20 Files / Day • 👑 Pro: Batch Convert 20 Files at Once"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <!-- H1 Headline 3-Part Generator -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Prefix</label>
+            <input type="text" id="hero_heading_prefix" value="{{ config.hero_heading_prefix }}" placeholder="Free"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Highlighted Keyword (Gradient)</label>
+            <input type="text" id="hero_heading_highlight" value="{{ config.hero_heading_highlight }}" placeholder="{{ tool_meta.name }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-purple-500/40 rounded-xl text-xs text-purple-300 font-semibold focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Suffix</label>
+            <input type="text" id="hero_heading_suffix" value="{{ config.hero_heading_suffix }}" placeholder="Converter Online"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hero Intro Description</label>
+          <textarea id="hero_description" rows="3" placeholder="Description paragraph..."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.hero_description }}</textarea>
+        </div>
+
+        <!-- Conversion Limits -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-800/60">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Free Daily Limit (Files/Day)</label>
+            <input type="number" id="free_daily_limit" value="{{ config.free_daily_limit }}" min="1" max="500"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-emerald-400 font-bold focus:outline-none focus-ring">
+            <span class="text-[10px] text-slate-500 mt-1 block">Daily limit for non-premium users</span>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pro Batch Limit (Files at Once)</label>
+            <input type="number" id="pro_batch_limit" value="{{ config.pro_batch_limit }}" min="1" max="100"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-fuchsia-400 font-bold focus:outline-none focus-ring">
+            <span class="text-[10px] text-slate-500 mt-1 block">Maximum batch files for Pro members</span>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Max Single File Size (MB)</label>
+            <input type="number" id="max_file_size_mb" value="{{ config.max_file_size_mb }}" min="1" max="200"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-cyan-400 font-bold focus:outline-none focus-ring">
+            <span class="text-[10px] text-slate-500 mt-1 block">Maximum upload file size limit</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. HOW IT WORKS (3 STEPS) -->
+    <div id="sec-steps" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 grid place-items-center text-indigo-400">
+            <i class="fa-solid fa-list-ol text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">2. How It Works (3-Step Guide)</h2>
+            <p class="text-xs text-slate-400">Feeds HowTo structured schema for Google search rich snippets and user guide</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Heading</label>
+            <input type="text" id="how_it_works_title" value="{{ config.how_it_works_title }}" placeholder="How It Works in 3 Easy Steps"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subheading</label>
+            <input type="text" id="how_it_works_subheading" value="{{ config.how_it_works_subheading }}" placeholder="Subtitle description..."
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+          <!-- Step 1 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 font-bold text-xs grid place-items-center">1</span>
+              <span class="text-xs font-bold text-slate-200">Step 1</span>
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Title</label>
+              <input type="text" id="step_1_title" value="{{ config.step_1_title }}" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Description</label>
+              <textarea id="step_1_desc" rows="3" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.step_1_desc }}</textarea>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 font-bold text-xs grid place-items-center">2</span>
+              <span class="text-xs font-bold text-slate-200">Step 2</span>
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Title</label>
+              <input type="text" id="step_2_title" value="{{ config.step_2_title }}" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Description</label>
+              <textarea id="step_2_desc" rows="3" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.step_2_desc }}</textarea>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs grid place-items-center">3</span>
+              <span class="text-xs font-bold text-slate-200">Step 3</span>
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Title</label>
+              <input type="text" id="step_3_title" value="{{ config.step_3_title }}" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-400 mb-1">Description</label>
+              <textarea id="step_3_desc" rows="3" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.step_3_desc }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. WHY AXOM AI (6 BENEFIT CARDS) -->
+    <div id="sec-benefits" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-emerald-400">
+            <i class="fa-solid fa-shield-halved text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">3. Why Axom AI (6 Value Cards)</h2>
+            <p class="text-xs text-slate-400">Controls the 6 highlight cards explaining advantages over alternatives</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Heading</label>
+            <input type="text" id="why_title" value="{{ config.why_title }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subheading</label>
+            <input type="text" id="why_subheading" value="{{ config.why_subheading }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+          <!-- Card 1 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2.5">
+            <span class="text-xs font-bold text-purple-400 block">Benefit Card 1</span>
+            <input type="text" id="benefit_1_title" value="{{ config.benefit_1_title }}" placeholder="Title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <textarea id="benefit_1_desc" rows="3" placeholder="Description" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.benefit_1_desc }}</textarea>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2.5">
+            <span class="text-xs font-bold text-purple-400 block">Benefit Card 2</span>
+            <input type="text" id="benefit_2_title" value="{{ config.benefit_2_title }}" placeholder="Title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <textarea id="benefit_2_desc" rows="3" placeholder="Description" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.benefit_2_desc }}</textarea>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2.5">
+            <span class="text-xs font-bold text-purple-400 block">Benefit Card 3</span>
+            <input type="text" id="benefit_3_title" value="{{ config.benefit_3_title }}" placeholder="Title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <textarea id="benefit_3_desc" rows="3" placeholder="Description" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.benefit_3_desc }}</textarea>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2.5">
+            <span class="text-xs font-bold text-purple-400 block">Benefit Card 4</span>
+            <input type="text" id="benefit_4_title" value="{{ config.benefit_4_title }}" placeholder="Title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <textarea id="benefit_4_desc" rows="3" placeholder="Description" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.benefit_4_desc }}</textarea>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2.5">
+            <span class="text-xs font-bold text-purple-400 block">Benefit Card 5</span>
+            <input type="text" id="benefit_5_title" value="{{ config.benefit_5_title }}" placeholder="Title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <textarea id="benefit_5_desc" rows="3" placeholder="Description" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.benefit_5_desc }}</textarea>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2.5">
+            <span class="text-xs font-bold text-purple-400 block">Benefit Card 6</span>
+            <input type="text" id="benefit_6_title" value="{{ config.benefit_6_title }}" placeholder="Title" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <textarea id="benefit_6_desc" rows="3" placeholder="Description" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.benefit_6_desc }}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. COMPARISON MATRIX -->
+    <div id="sec-comparison" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center text-fuchsia-400">
+            <i class="fa-solid fa-table-columns text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">4. Comparison Matrix</h2>
+            <p class="text-xs text-slate-400">Controls head-to-head comparison table against alternative converters</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Comparison Badge</label>
+            <input type="text" id="comparison_badge" value="{{ config.comparison_badge }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Comparison Title</label>
+            <input type="text" id="comparison_title" value="{{ config.comparison_title }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Comparison Subheading</label>
+            <input type="text" id="comparison_subheading" value="{{ config.comparison_subheading }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold text-slate-300">Comparison Table Rows (JSON)</label>
+            <span class="text-[10px] text-slate-400 font-mono">feature, axom, other, paid, axom_check, other_check</span>
+          </div>
+          <textarea id="comparison_matrix_json" rows="8" class="w-full font-mono text-xs px-4 py-3 bg-slate-950 border border-slate-700/80 rounded-xl text-emerald-400 focus:outline-none focus-ring leading-relaxed">{{ config.comparison_matrix_json }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. TECHNICAL SPECIFICATIONS -->
+    <div id="sec-specs" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400">
+            <i class="fa-solid fa-microchip text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">5. Technical Specifications</h2>
+            <p class="text-xs text-slate-400">Displays verified technical specs box on the tool page</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Title</label>
+          <input type="text" id="tech_spec_title" value="{{ config.tech_spec_title }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Supported Inputs</label>
+            <input type="text" id="tech_spec_inputs" value="{{ config.tech_spec_inputs }}" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Standard Output</label>
+            <input type="text" id="tech_spec_output" value="{{ config.tech_spec_output }}" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Max File Size Limit</label>
+            <input type="text" id="tech_spec_max_size" value="{{ config.tech_spec_max_size }}" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Security / Encryption</label>
+            <input type="text" id="tech_spec_security" value="{{ config.tech_spec_security }}" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. FAQ MANAGER SECTION -->
+    <div id="sec-faqs" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 grid place-items-center text-amber-400">
+            <i class="fa-solid fa-circle-question text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">6. FAQs & AEO Answer Engine Schema</h2>
+            <p class="text-xs text-slate-400">Manage accordion FAQs and FAQPage JSON-LD schema for Google Rich Snippets & AI answers</p>
+          </div>
+        </div>
+        <button type="button" onclick="openFaqModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-md shadow-purple-600/20">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add New FAQ</span>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Section Title</label>
+            <input type="text" id="faq_section_title" value="{{ config.faq_section_title }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Section Subheading</label>
+            <input type="text" id="faq_section_subheading" value="{{ config.faq_section_subheading }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <!-- FAQs Table -->
+        <div class="rounded-xl border border-slate-800 overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900/90 text-slate-400 font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4 w-12 text-center">#</th>
+                <th class="py-3 px-4">Question & Answer Summary</th>
+                <th class="py-3 px-4 w-24 text-center">Status</th>
+                <th class="py-3 px-4 w-28 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="faqTableBody" class="divide-y divide-slate-800/80 bg-slate-950/40">
+              {% for faq in faqs %}
+              <tr id="faq-row-{{ faq.id }}" class="hover:bg-slate-800/30 transition">
+                <td class="py-3 px-4 text-center font-mono text-slate-400">{{ faq.order }}</td>
+                <td class="py-3 px-4">
+                  <div class="font-semibold text-white text-xs mb-1">{{ faq.question }}</div>
+                  <div class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">{{ faq.answer }}</div>
+                </td>
+                <td class="py-3 px-4 text-center">
+                  {% if faq.is_active %}
+                  <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Active</span>
+                  {% else %}
+                  <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400">Hidden</span>
+                  {% endif %}
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button type="button" onclick="editFaq('{{ faq.id }}', '{{ faq.question|escapejs }}', '{{ faq.answer|escapejs }}', '{{ faq.order }}', {{ faq.is_active|lower }})" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white" title="Edit FAQ">
+                      <i class="fa-solid fa-pen text-xs"></i>
+                    </button>
+                    <button type="button" onclick="deleteFaq('{{ faq.id }}')" class="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20" title="Delete FAQ">
+                      <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="py-8 text-center text-slate-500 text-xs">
+                  No FAQs found. Click "Add New FAQ" to create one.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. BOTTOM CTA BANNER -->
+    <div id="sec-cta" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 grid place-items-center text-pink-400">
+            <i class="fa-solid fa-bullhorn text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">7. Bottom Call-To-Action Banner</h2>
+            <p class="text-xs text-slate-400">Encourages conversion and exploration of other tools</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Title</label>
+            <input type="text" id="cta_title" value="{{ config.cta_title }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Description</label>
+            <input type="text" id="cta_desc" value="{{ config.cta_desc }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-300">Primary Button</label>
+            <input type="text" id="cta_btn_primary_text" value="{{ config.cta_btn_primary_text }}" placeholder="Button Text" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+            <input type="text" id="cta_btn_primary_url" value="{{ config.cta_btn_primary_url }}" placeholder="Target URL e.g. #converter" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-slate-300">Secondary Button</label>
+            <input type="text" id="cta_btn_secondary_text" value="{{ config.cta_btn_secondary_text }}" placeholder="Button Text" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+            <input type="text" id="cta_btn_secondary_url" value="{{ config.cta_btn_secondary_url }}" placeholder="Target URL e.g. https://aiaxom.co.in/tools" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. SEO, AEO & GEO METADATA -->
+    <div id="sec-seo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 grid place-items-center text-blue-400">
+            <i class="fa-solid fa-magnifying-glass-chart text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">8. SEO, AEO & GEO Search Engine Optimization</h2>
+            <p class="text-xs text-slate-400">Controls Meta Title, Description, Canonical tag, and Social Share previews for Google, Perplexity & AI Search</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Title Tag (Max 65 chars recommended)</label>
+          <input type="text" id="meta_title" value="{{ config.meta_title }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Description (Max 160 chars recommended)</label>
+          <textarea id="meta_description" rows="3" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Keywords (Comma-separated)</label>
+          <textarea id="meta_keywords" rows="3" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Canonical URL</label>
+            <input type="text" id="canonical_url" value="{{ config.canonical_url }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">OpenGraph / Twitter Image URL</label>
+            <input type="text" id="og_image_url" value="{{ config.og_image_url }}" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Save Floating Bar -->
+    <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-900/95 border border-slate-800 shadow-2xl">
+      <div class="flex items-center gap-2 text-xs text-slate-400">
+        <i class="fa-solid fa-clock-rotate-left text-fuchsia-400"></i>
+        <span>Last updated: {{ config.updated_at|date:"M d, Y H:i"|default:"Never" }}</span>
+      </div>
+      <button type="button" onclick="saveToolConfig()" class="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/30 hover:scale-[1.02] transition">
+        <i class="fa-solid fa-floppy-disk text-sm"></i>
+        <span>Save All Changes</span>
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- FAQ Modal (Add / Edit) -->
+<div id="faqModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="glass-card w-full max-w-xl rounded-2xl border border-slate-800 p-6 space-y-4 shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="faqModalTitle" class="text-sm font-bold text-white">Add New FAQ</h3>
+      <button onclick="closeFaqModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+
+    <form id="faqModalForm" onsubmit="event.preventDefault(); submitFaq();" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" id="modal_faq_id" value="">
+      
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Question</label>
+        <input type="text" id="modal_faq_question" required placeholder="e.g., How do I convert file?"
+          class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Answer</label>
+        <textarea id="modal_faq_answer" rows="4" required placeholder="Provide clear, direct answer..."
+          class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed"></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Display Order</label>
+          <input type="number" id="modal_faq_order" value="1" min="0"
+            class="w-full px-4 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Status</label>
+          <select id="modal_faq_active" class="w-full px-4 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+            <option value="true">Active (Visible)</option>
+            <option value="false">Inactive (Hidden)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+        <button type="button" onclick="closeFaqModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300">Cancel</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-md shadow-purple-600/30">Save FAQ</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const TOOL_SLUG = '{{ tool_slug }}';
+
+// Main Save Configuration
+async function saveToolConfig() {
+  const saveBtn = document.getElementById('saveTopBtn');
+  const origHtml = saveBtn.innerHTML;
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> <span>Saving...</span>';
+
+  const payload = {
+    hero_badge_text: document.getElementById('hero_badge_text').value,
+    hero_heading_prefix: document.getElementById('hero_heading_prefix').value,
+    hero_heading_highlight: document.getElementById('hero_heading_highlight').value,
+    hero_heading_suffix: document.getElementById('hero_heading_suffix').value,
+    hero_description: document.getElementById('hero_description').value,
+    free_daily_limit: document.getElementById('free_daily_limit').value,
+    pro_batch_limit: document.getElementById('pro_batch_limit').value,
+    max_file_size_mb: document.getElementById('max_file_size_mb').value,
+
+    how_it_works_title: document.getElementById('how_it_works_title').value,
+    how_it_works_subheading: document.getElementById('how_it_works_subheading').value,
+    step_1_title: document.getElementById('step_1_title').value,
+    step_1_desc: document.getElementById('step_1_desc').value,
+    step_2_title: document.getElementById('step_2_title').value,
+    step_2_desc: document.getElementById('step_2_desc').value,
+    step_3_title: document.getElementById('step_3_title').value,
+    step_3_desc: document.getElementById('step_3_desc').value,
+
+    why_title: document.getElementById('why_title').value,
+    why_subheading: document.getElementById('why_subheading').value,
+    benefit_1_title: document.getElementById('benefit_1_title').value,
+    benefit_1_desc: document.getElementById('benefit_1_desc').value,
+    benefit_2_title: document.getElementById('benefit_2_title').value,
+    benefit_2_desc: document.getElementById('benefit_2_desc').value,
+    benefit_3_title: document.getElementById('benefit_3_title').value,
+    benefit_3_desc: document.getElementById('benefit_3_desc').value,
+    benefit_4_title: document.getElementById('benefit_4_title').value,
+    benefit_4_desc: document.getElementById('benefit_4_desc').value,
+    benefit_5_title: document.getElementById('benefit_5_title').value,
+    benefit_5_desc: document.getElementById('benefit_5_desc').value,
+    benefit_6_title: document.getElementById('benefit_6_title').value,
+    benefit_6_desc: document.getElementById('benefit_6_desc').value,
+
+    comparison_badge: document.getElementById('comparison_badge').value,
+    comparison_title: document.getElementById('comparison_title').value,
+    comparison_subheading: document.getElementById('comparison_subheading').value,
+    comparison_matrix_json: document.getElementById('comparison_matrix_json').value,
+
+    tech_spec_title: document.getElementById('tech_spec_title').value,
+    tech_spec_inputs: document.getElementById('tech_spec_inputs').value,
+    tech_spec_output: document.getElementById('tech_spec_output').value,
+    tech_spec_max_size: document.getElementById('tech_spec_max_size').value,
+    tech_spec_security: document.getElementById('tech_spec_security').value,
+
+    faq_section_title: document.getElementById('faq_section_title').value,
+    faq_section_subheading: document.getElementById('faq_section_subheading').value,
+
+    cta_title: document.getElementById('cta_title').value,
+    cta_desc: document.getElementById('cta_desc').value,
+    cta_btn_primary_text: document.getElementById('cta_btn_primary_text').value,
+    cta_btn_primary_url: document.getElementById('cta_btn_primary_url').value,
+    cta_btn_secondary_text: document.getElementById('cta_btn_secondary_text').value,
+    cta_btn_secondary_url: document.getElementById('cta_btn_secondary_url').value,
+
+    meta_title: document.getElementById('meta_title').value,
+    meta_description: document.getElementById('meta_description').value,
+    meta_keywords: document.getElementById('meta_keywords').value,
+    canonical_url: document.getElementById('canonical_url').value,
+    og_image_url: document.getElementById('og_image_url').value,
+  };
+
+  try {
+    const token = getCsrfToken();
+    const res = await fetch(`/axomai-content/tools/${TOOL_SLUG}/save/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': token,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.status === 403) {
+      showToast('CSRF or Session expired (403). Please refresh page.', 'error');
+      return;
+    }
+
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseErr) {
+      console.error('Non-JSON response:', text);
+      showToast('Server returned an unexpected response.', 'error');
+      return;
+    }
+
+    if (data.success) {
+      showToast(data.message || 'Tool settings saved!', 'success');
+    } else {
+      showToast(data.error || 'Failed to save settings.', 'error');
+    }
+  } catch (err) {
+    console.error('Save error:', err);
+    showToast('Network error while saving: ' + (err.message || 'Check connection'), 'error');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = origHtml;
+  }
+}
+
+// Reliable CSRF token retriever
+function getCsrfToken() {
+  const input = document.querySelector('[name=csrfmiddlewaretoken]');
+  if (input && input.value) return input.value;
+  return getCookie('csrftoken') || '{{ csrf_token }}';
+}
+
+// Keyboard shortcut (Ctrl+S or Cmd+S)
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveToolConfig();
+  }
+});
+
+// FAQ Modal handlers
+function openFaqModal(id = '', q = '', a = '', order = 1, is_active = true) {
+  document.getElementById('modal_faq_id').value = id;
+  document.getElementById('modal_faq_question').value = q;
+  document.getElementById('modal_faq_answer').value = a;
+  document.getElementById('modal_faq_order').value = order;
+  document.getElementById('modal_faq_active').value = is_active ? 'true' : 'false';
+  document.getElementById('faqModalTitle').innerText = id ? 'Edit FAQ' : 'Add New FAQ';
+  document.getElementById('faqModal').classList.remove('hidden');
+}
+
+function closeFaqModal() {
+  document.getElementById('faqModal').classList.add('hidden');
+}
+
+function editFaq(id, q, a, order, is_active) {
+  openFaqModal(id, q, a, order, is_active);
+}
+
+async function submitFaq() {
+  const id = document.getElementById('modal_faq_id').value;
+  const question = document.getElementById('modal_faq_question').value.trim();
+  const answer = document.getElementById('modal_faq_answer').value.trim();
+  const order = document.getElementById('modal_faq_order').value;
+  const is_active = document.getElementById('modal_faq_active').value === 'true';
+
+  try {
+    const token = getCsrfToken();
+    const res = await fetch(`/axomai-content/tools/${TOOL_SLUG}/faq/save/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': token,
+      },
+      body: JSON.stringify({ id, question, answer, order, is_active }),
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      showToast('Invalid server response while saving FAQ.', 'error');
+      return;
+    }
+    if (data.success) {
+      showToast('FAQ saved successfully!', 'success');
+      closeFaqModal();
+      setTimeout(() => window.location.reload(), 600);
+    } else {
+      showToast(data.error || 'Failed to save FAQ.', 'error');
+    }
+  } catch (e) {
+    showToast('Network error while saving FAQ: ' + (e.message || ''), 'error');
+  }
+}
+
+async function deleteFaq(faqId) {
+  if (!confirm('Are you sure you want to delete this FAQ?')) return;
+  try {
+    const token = getCsrfToken();
+    const res = await fetch(`/axomai-content/tools/${TOOL_SLUG}/faq/delete/${faqId}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': token,
+      },
+    });
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      showToast('Invalid server response while deleting FAQ.', 'error');
+      return;
+    }
+    if (data.success) {
+      showToast('FAQ deleted successfully!', 'success');
+      const row = document.getElementById(`faq-row-${faqId}`);
+      if (row) row.remove();
+    } else {
+      showToast(data.error || 'Failed to delete FAQ.', 'error');
+    }
+  } catch (e) {
+    showToast('Network error while deleting FAQ: ' + (e.message || ''), 'error');
+  }
+}
+</script>
+{% endblock %}

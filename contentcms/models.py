@@ -709,5 +709,113 @@ class WordToPdfFAQ(models.Model):
         return self.question
 
 
+class ConverterToolConfig(models.Model):
+    tool_slug = models.CharField(max_length=60, unique=True, db_index=True)
+    tool_name = models.CharField(max_length=120)
+
+    # 1. Hero & Converter Parameters
+    hero_badge_text = models.CharField(
+        max_length=255, 
+        default='⚡ Free: 20 Files / Day • 👑 Pro: Batch Convert 20 Files at Once'
+    )
+    hero_heading_prefix = models.CharField(max_length=150, default='Free')
+    hero_heading_highlight = models.CharField(max_length=150, default='Converter')
+    hero_heading_suffix = models.CharField(max_length=150, default='Online')
+    hero_description = models.TextField(
+        default='Convert documents and media files quickly, securely, and with zero watermarks on Axom AI.'
+    )
+    free_daily_limit = models.IntegerField(default=20, help_text="Number of files free users can convert per day")
+    pro_batch_limit = models.IntegerField(default=20, help_text="Max files in one batch for Pro users")
+    max_file_size_mb = models.IntegerField(default=25, help_text="Max file size in MB")
+
+    # 2. How it works (3 Steps)
+    how_it_works_title = models.CharField(max_length=255, default='How It Works in 3 Easy Steps')
+    how_it_works_subheading = models.TextField(default='No complex software installation or account creation required. Fast and frictionless.')
+    step_1_title = models.CharField(max_length=150, default='Upload File')
+    step_1_desc = models.TextField(default='Drag and drop your file into the converter box above or choose it from your device.')
+    step_2_title = models.CharField(max_length=150, default='Instant Processing')
+    step_2_desc = models.TextField(default='Click Convert. Our high-fidelity conversion engine processes your files in seconds.')
+    step_3_title = models.CharField(max_length=150, default='Download Output')
+    step_3_desc = models.TextField(default='Download your clean, publication-ready output directly to your device. No watermarks, ever.')
+
+    # 3. Why Axom AI (Benefits 6 Cards)
+    why_title = models.CharField(max_length=255, default='Why Axom AI is the Superior Choice')
+    why_subheading = models.TextField(default='Engineered for students, professionals, and businesses who demand speed, fidelity, and privacy.')
+    benefit_1_title = models.CharField(max_length=150, default='Lossless Layout Fidelity')
+    benefit_1_desc = models.TextField(default='Formatting, fonts, tables, margins, and graphics remain strictly aligned without shifting pages.')
+    benefit_2_title = models.CharField(max_length=150, default='Zero Watermarks, 100% Free')
+    benefit_2_desc = models.TextField(default='No hidden subscriptions or promotional watermarks stamped on your files.')
+    benefit_3_title = models.CharField(max_length=150, default='Automatic File Purging')
+    benefit_3_desc = models.TextField(default='Files are processed securely via SSL encryption and purged automatically from server memory.')
+    benefit_4_title = models.CharField(max_length=150, default='Universal Device Support')
+    benefit_4_desc = models.TextField(default='Works seamlessly on iOS, Android, macOS, Windows, and Linux without apps or extensions.')
+    benefit_5_title = models.CharField(max_length=150, default='Sub-3-Second Speed')
+    benefit_5_desc = models.TextField(default='High-speed optimized micro-services convert standard files in less than 3 seconds.')
+    benefit_6_title = models.CharField(max_length=150, default='Multi-Format Compatibility')
+    benefit_6_desc = models.TextField(default='Handles multiple formats with automatic format detection and smart structure extraction.')
+
+    # 4. Comparison Matrix
+    comparison_badge = models.CharField(max_length=150, default='Direct Feature Comparison')
+    comparison_title = models.CharField(max_length=255, default='Axom AI vs. Traditional Converters')
+    comparison_subheading = models.TextField(default='See why users choose Axom AI over paywalled and ad-heavy alternatives.')
+    comparison_matrix_json = models.TextField(blank=True, default=DEFAULT_COMPARISON_ROWS, help_text="Custom comparison rows JSON")
+
+    # 5. Technical Specifications
+    tech_spec_title = models.CharField(max_length=255, default='Technical Specifications & Supported Standards')
+    tech_spec_inputs = models.CharField(max_length=200, default='Standard Supported Formats')
+    tech_spec_output = models.CharField(max_length=200, default='Standard Output Format')
+    tech_spec_max_size = models.CharField(max_length=100, default='25 Megabytes (MB)')
+    tech_spec_security = models.CharField(max_length=100, default='TLS 1.3 / SSL 256-bit')
+
+    # 6. FAQ Section Header
+    faq_section_title = models.CharField(max_length=255, default='Frequently Asked Questions')
+    faq_section_subheading = models.TextField(default='Got questions about conversion? Find verified answers below.')
+
+    # 7. Bottom CTA Banner
+    cta_title = models.CharField(max_length=255, default='Convert Your Files in Seconds')
+    cta_desc = models.TextField(default='Experience fast, private, and watermark-free conversions trusted by users across Assam and India.')
+    cta_btn_primary_text = models.CharField(max_length=100, default='Upload File Now')
+    cta_btn_primary_url = models.CharField(max_length=300, default='#converter')
+    cta_btn_secondary_text = models.CharField(max_length=100, default='Explore All AI & Document Tools')
+    cta_btn_secondary_url = models.CharField(max_length=300, default='https://aiaxom.co.in/tools')
+
+    # 8. SEO & Meta
+    meta_title = models.CharField(max_length=255, default='Free Converter Online | Axom AI')
+    meta_description = models.TextField(default='Convert your files online for free in seconds. 100% secure with automatic file deletion.')
+    meta_keywords = models.TextField(default='converter online, free converter, axom ai tools, assam ai converter')
+    canonical_url = models.CharField(max_length=300, default='https://aiaxom.co.in/tools/')
+    og_image_url = models.CharField(max_length=500, default='https://aiaxom.co.in/static/dist/hero/assam.avif')
+
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Converter Tool Configuration'
+        verbose_name_plural = 'Converter Tool Configurations'
+        ordering = ['tool_slug']
+
+    def __str__(self):
+        return f"{self.tool_name} ({self.tool_slug})"
+
+
+class ConverterToolFAQ(models.Model):
+    tool_config = models.ForeignKey(ConverterToolConfig, related_name='faqs', on_delete=models.CASCADE)
+    question = models.CharField(max_length=300)
+    answer = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Converter Tool FAQ'
+        verbose_name_plural = 'Converter Tool FAQs'
+
+    def __str__(self):
+        return f"[{self.tool_config.tool_slug}] {self.question}"
+
+
+
 
 

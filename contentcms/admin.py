@@ -12,6 +12,8 @@ from .models import (
     AboutPageConfig,
     WordToPdfToolConfig,
     WordToPdfFAQ,
+    ConverterToolConfig,
+    ConverterToolFAQ,
 )
 
 
@@ -84,5 +86,20 @@ class WordToPdfFAQAdmin(admin.ModelAdmin):
     list_display = ['question', 'order', 'is_active', 'updated_at']
     list_editable = ['order', 'is_active']
     search_fields = ['question', 'answer']
+
+
+@admin.register(ConverterToolConfig)
+class ConverterToolConfigAdmin(admin.ModelAdmin):
+    list_display = ['tool_name', 'tool_slug', 'hero_heading_highlight', 'free_daily_limit', 'updated_at']
+    search_fields = ['tool_name', 'tool_slug', 'meta_title', 'meta_keywords']
+
+
+@admin.register(ConverterToolFAQ)
+class ConverterToolFAQAdmin(admin.ModelAdmin):
+    list_display = ['tool_config', 'question', 'order', 'is_active', 'updated_at']
+    list_filter = ['tool_config__tool_slug', 'is_active']
+    list_editable = ['order', 'is_active']
+    search_fields = ['question', 'answer']
+
 
 

@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/cms/articles/<slug:slug>/', contentcms_api.cms_article_detail_api, name='api_cms_article_detail'),
     path('api/cms/about/', contentcms_api.cms_about_api, name='api_cms_about'),
     path('api/cms/tools/word-to-pdf/', contentcms_api.cms_word_to_pdf_api, name='api_cms_word_to_pdf'),
+    path('api/cms/tools/<slug:tool_slug>/', contentcms_api.cms_tool_detail_api, name='api_cms_tool_detail'),
     
     # Custom Admin Authentication & Dashboard Routes
     path('admin-panel/login/', knowledge_views.admin_login_view, name='admin_login'),

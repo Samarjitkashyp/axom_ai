@@ -414,18 +414,17 @@ def cms_about_api(request):
 
 
 @require_GET
-def cms_word_to_pdf_api(request):
-    """API returning all dynamic content and FAQs for Word to PDF Tool in structured JSON."""
-    cfg = WordToPdfToolConfig.objects.first()
-    if not cfg:
-        cfg = WordToPdfToolConfig.objects.create()
+def cms_tool_detail_api(request, tool_slug):
+    """Generic API returning all dynamic content and FAQs for any Converter Tool in structured JSON."""
+    from .converter_defaults import ensure_converter_tool_defaults, CONVERTER_TOOLS_METADATA
+    from .models import ConverterToolConfig, ConverterToolFAQ
 
-    # Ensure FAQs exist
-    from .views import _ensure_word_to_pdf_defaults
-    _ensure_word_to_pdf_defaults(cfg)
+    if tool_slug not in CONVERTER_TOOLS_METADATA:
+        tool_slug = 'word-to-pdf'
 
+    cfg = ensure_converter_tool_defaults(tool_slug)
     faqs = list(
-        WordToPdfFAQ.objects.filter(is_active=True)
+        ConverterToolFAQ.objects.filter(tool_config=cfg, is_active=True)
         .order_by('order', 'id')
         .values('id', 'question', 'answer', 'order')
     )
@@ -516,5 +515,12 @@ def cms_word_to_pdf_api(request):
         'og_image_url': cfg.og_image_url,
         'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
     })
+
+
+@require_GET
+def cms_word_to_pdf_api(request):
+    """API returning all dynamic content and FAQs for Word to PDF Tool in structured JSON."""
+    return cms_tool_detail_api(request, 'word-to-pdf')
+
 
 
