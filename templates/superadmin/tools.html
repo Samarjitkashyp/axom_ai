@@ -61,6 +61,96 @@
     </div>
   </div>
 
+  <!-- Canva Designer Integration Panel -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-5 space-y-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-purple-500/30 flex items-center justify-center text-lg font-extrabold text-white">
+          C
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-palette text-cyan-400"></i>
+            Canva Designer Integration
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            OAuth connection, AI design generation & user management
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        {% if canva_configured %}
+        <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> API Configured
+        </span>
+        {% else %}
+        <span class="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Not Configured
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Canva Stats Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Client ID</p>
+        <p class="text-sm font-mono text-cyan-300 mt-1">{{ canva_client_id|default:"Not set" }}</p>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Connected Users</p>
+        <p class="text-2xl font-extrabold text-purple-400 mt-1">{{ canva_user_count }}</p>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80">
+        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Design Method</p>
+        <p class="text-sm text-amber-300 mt-1 font-semibold">AI Prompt + Blank Canvas</p>
+        <p class="text-[10px] text-slate-500 mt-0.5">Canva API creates blank canvas; AI generates copyable content</p>
+      </div>
+    </div>
+
+    {% if canva_users %}
+    <!-- Connected Users Table -->
+    <div class="rounded-xl border border-slate-800/80 overflow-hidden">
+      <table class="w-full text-xs">
+        <thead class="bg-slate-900/80">
+          <tr>
+            <th class="text-left px-4 py-2.5 text-slate-400 font-semibold">User</th>
+            <th class="text-left px-4 py-2.5 text-slate-400 font-semibold">Email</th>
+            <th class="text-left px-4 py-2.5 text-slate-400 font-semibold">Connected Since</th>
+            <th class="text-left px-4 py-2.5 text-slate-400 font-semibold">Token Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cu in canva_users %}
+          <tr class="border-t border-slate-800/60 hover:bg-slate-800/30">
+            <td class="px-4 py-2.5 text-white font-medium">{{ cu.username }}</td>
+            <td class="px-4 py-2.5 text-slate-300 font-mono">{{ cu.email }}</td>
+            <td class="px-4 py-2.5 text-slate-400">{{ cu.connected_at|date:"d M Y, H:i" }}</td>
+            <td class="px-4 py-2.5">
+              {% if cu.is_expired %}
+              <span class="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-semibold">Expired</span>
+              {% else %}
+              <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold">Active</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- Info Box -->
+    <div class="p-3.5 rounded-xl bg-indigo-500/5 border border-indigo-500/15 text-xs text-slate-400 leading-relaxed">
+      <p class="font-semibold text-indigo-300 mb-1"><i class="fa-solid fa-circle-info text-[10px] mr-1"></i> How Canva Designer works:</p>
+      <ul class="space-y-1 ml-4 list-disc">
+        <li><strong class="text-slate-300">Design tab:</strong> User picks a preset type (Poster, Instagram Post, etc.) → blank Canva design opens</li>
+        <li><strong class="text-slate-300">Design by Prompt tab:</strong> User types a prompt → Gemini AI picks design type & generates content (heading, subheading, body, colors) → blank Canva design created + AI content shown with copy buttons</li>
+        <li><strong class="text-amber-300/80">Limitation:</strong> Canva Connect API can only create blank canvases. To get pre-filled templates like ChatGPT's Canva plugin, you need Canva Pro + Brand Templates (Autofill API) or Canva Plugin Partner access</li>
+      </ul>
+    </div>
+  </div>
+
   <!-- Section 1: Action Header, Search & Filter Tabs -->
   <div class="glass-card rounded-2xl border border-slate-800/80 p-5 space-y-4">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
