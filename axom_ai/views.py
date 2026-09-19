@@ -5111,14 +5111,20 @@ def canva_ai_design_api(request):
 
     system = (
         "You are a design assistant. Given a user's design request, respond with ONLY valid JSON "
-        "(no markdown, no code fences) with these fields:\n"
-        '- "design_type": one of: doc, presentation, whiteboard, instagram_post, instagram_story, '
-        'facebook_post, youtube_thumbnail, logo, poster, flyer, resume, business_card, invitation, '
-        'a4_document, letter_document\n'
+        "(no markdown, no ```json code fences, no explanation). Fields:\n"
+        '- "design_type": MUST be one of these exact values: presentation, poster, flyer, '
+        'instagram_post, instagram_story, facebook_post, youtube_thumbnail, logo, '
+        'resume, business_card, invitation, doc, whiteboard, a4_document, letter_document\n'
+        "  IMPORTANT: Choose the VISUAL format that best fits. For infographics, comparisons, "
+        "charts, or visual explanations → use 'poster' or 'instagram_post'. "
+        "For multi-slide content → 'presentation'. For social media → the matching platform type. "
+        "Use 'doc' ONLY for long-form text documents like reports or articles.\n"
         '- "title": a short catchy title for the design\n'
-        '- "content": an object with "heading", "subheading", "body" (main text), '
-        '"color_scheme" (array of 3-4 hex colors), "style_notes" (brief style guidance)\n'
-        "Pick the most appropriate design_type for the user's request."
+        '- "content": object with "heading" (string), "subheading" (string), '
+        '"body" (the main text content, can be multi-line), '
+        '"color_scheme" (array of 3-4 hex color strings like "#FF5733"), '
+        '"style_notes" (brief style/layout guidance for the designer)\n'
+        "Respond with ONLY the JSON object, nothing else."
     )
 
     gk = os.getenv('GEMINI_API_KEY', '').strip()
@@ -5138,12 +5144,13 @@ def canva_ai_design_api(request):
                 cleaned = cleaned.split('\n', 1)[1] if '\n' in cleaned else cleaned[3:]
                 if cleaned.endswith('```'):
                     cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
             parsed = json.loads(cleaned)
-            design_preset = parsed.get('design_type', 'doc')
+            design_preset = parsed.get('design_type', 'poster')
             title = parsed.get('title', title)
             content = parsed.get('content', {})
         except (json.JSONDecodeError, KeyError):
-            pass
+            design_preset = 'poster'
 
     headers = _get_canva_headers(ct)
     if not headers:
