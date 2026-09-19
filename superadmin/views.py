@@ -932,23 +932,6 @@ def tools_page(request):
     inactive_count = tools.filter(is_active=False).count()
     categories = [c[0] for c in AITool.CATEGORY_CHOICES]
 
-    from .models import CanvaToken
-    from django.utils import timezone
-    canva_tokens = CanvaToken.objects.select_related('user').all()
-    canva_users = []
-    for ct in canva_tokens:
-        canva_users.append({
-            'username': ct.user.username,
-            'email': ct.user.email,
-            'connected_at': ct.created_at,
-            'expires_at': ct.expires_at,
-            'is_expired': ct.expires_at < timezone.now(),
-        })
-
-    import os
-    canva_client_id = os.getenv('CANVA_CLIENT_ID', '')
-    canva_configured = bool(canva_client_id and os.getenv('CANVA_CLIENT_SECRET', ''))
-
     return render(request, 'superadmin/tools.html', {
         'active': 'tools',
         'tools': tools,
@@ -956,10 +939,6 @@ def tools_page(request):
         'active_count': active_count,
         'inactive_count': inactive_count,
         'categories': categories,
-        'canva_configured': canva_configured,
-        'canva_client_id': canva_client_id[:8] + '...' if canva_client_id else '',
-        'canva_users': canva_users,
-        'canva_user_count': len(canva_users),
     })
 
 

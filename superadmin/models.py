@@ -208,6 +208,7 @@ class AITool(models.Model):
         ('OCR', 'OCR'),
         ('AI Tools', 'AI Tools'),
         ('Edit', 'Edit'),
+        ('Design', 'Design'),
     ]
 
     slug = models.CharField(max_length=64, unique=True, db_index=True)

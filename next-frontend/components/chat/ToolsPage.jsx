@@ -309,7 +309,7 @@ export default function ToolsPage({
       onOpenBgRemover?.();
       return;
     }
-    if (t.canva) {
+    if (t.canva || t.id === 'canva' || t.slug === 'canva') {
       onOpenCanva?.();
       return;
     }
