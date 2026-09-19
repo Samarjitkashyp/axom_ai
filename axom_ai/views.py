@@ -7,6 +7,7 @@ import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.http import require_POST
 from django.conf import settings
 from knowledge.utils import search_knowledge_base, find_instant_answer, semantic_find_answer
 
