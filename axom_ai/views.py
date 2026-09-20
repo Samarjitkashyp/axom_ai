@@ -5260,14 +5260,15 @@ def video_download_info_api(request):
     url, err = _vd_validate_url(raw_url)
     if err:
         return JsonResponse({'error': err}, status=400)
+    is_youtube = 'youtube.com' in url or 'youtu.be' in url
     try:
-        result = subprocess.run(
-            [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
-             '--no-warnings', '--socket-timeout', '20', '--no-check-certificates',
-             '--remote-components', 'ejs:github',
-             '--extractor-args', 'youtube:player_client=mweb'] + _YT_COOKIE_ARGS + [url],
-            capture_output=True, text=True, timeout=45,
-        )
+        cmd = [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
+               '--no-warnings', '--socket-timeout', '20', '--no-check-certificates',
+               '--remote-components', 'ejs:github']
+        if is_youtube:
+            cmd += ['--extractor-args', 'youtube:player_client=mweb'] + _YT_COOKIE_ARGS
+        cmd.append(url)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Unknown error'
             return JsonResponse({'error': f'Could not fetch video info: {stderr}'}, status=400)
@@ -5289,7 +5290,7 @@ def video_download_info_api(request):
             fsize = f.get('filesize') or f.get('filesize_approx') or 0
             if fsize and fsize > _VD_MAX_SIZE_MB * 1024 * 1024:
                 continue
-            key = f'{h}_{ext}_{has_audio}'
+            key = f'{h}_{ext}'
             if key in seen:
                 continue
             seen.add(key)
@@ -5298,7 +5299,7 @@ def video_download_info_api(request):
                 'label': label,
                 'ext': ext,
                 'height': h or 0,
-                'has_audio': has_audio,
+                'has_audio': True,
                 'filesize': fsize,
             })
         formats.sort(key=lambda x: x['height'], reverse=True)
@@ -5333,18 +5334,21 @@ def video_download_stream_api(request):
         return JsonResponse({'error': err}, status=400)
     if not re.match(r'^[a-zA-Z0-9_\-+]+$', str(format_id)):
         return JsonResponse({'error': 'Invalid format ID'}, status=400)
+    is_youtube = 'youtube.com' in url or 'youtu.be' in url
+    dl_format = f'{format_id}+bestaudio/best' if format_id != 'best' else 'best'
     tmpdir = tempfile.mkdtemp(prefix='vd_')
     try:
         cmd = [
-            _YT_DLP, '-f', str(format_id), '--no-playlist',
+            _YT_DLP, '-f', dl_format, '--no-playlist',
             '--socket-timeout', '20', '--no-check-certificates',
             '--remote-components', 'ejs:github',
-            '--extractor-args', 'youtube:player_client=mweb',
+            '--merge-output-format', 'mp4',
             '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
-            ] + _YT_COOKIE_ARGS + [
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
-            url
         ]
+        if is_youtube:
+            cmd += ['--extractor-args', 'youtube:player_client=mweb'] + _YT_COOKIE_ARGS
+        cmd.append(url)
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Download failed'
