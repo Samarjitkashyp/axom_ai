@@ -5202,7 +5202,7 @@ _VD_ALLOWED_DOMAINS = {
     'bilibili.com', 'www.bilibili.com',
 }
 
-_VD_MAX_SIZE_MB = 100
+_VD_MAX_SIZE_MB = 500
 _YT_DLP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'venv', 'bin', 'yt-dlp')
 if not os.path.isfile(_YT_DLP):
     _YT_DLP = 'yt-dlp'
