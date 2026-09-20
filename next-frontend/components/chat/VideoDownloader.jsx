@@ -58,6 +58,23 @@ export default function VideoDownloader({ onClose }) {
   const [agreedDisclaimer, setAgreedDisclaimer] = useState(false);
   const inputRef = useRef(null);
   const xhrRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+
+  const clearProgressInterval = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      clearProgressInterval();
+      if (xhrRef.current) {
+        xhrRef.current.abort();
+      }
+    };
+  }, []);
 
   const handleFetchInfo = async () => {
     if (!url.trim()) return;
@@ -87,16 +104,46 @@ export default function VideoDownloader({ onClose }) {
 
   const handleDownload = (fmt) => {
     if (!videoInfo) return;
+    clearProgressInterval();
     setDownloadingFormatId(fmt.format_id);
     setError('');
     
+    let currentPercent = 1;
+    let loadedBytes = 0;
+    const totalBytes = fmt.filesize || 0;
+
     setDownloadProgress({
-      percent: 0,
+      percent: 1,
       loaded: 0,
-      total: fmt.filesize || 0,
-      status: 'connecting',
+      total: totalBytes,
+      status: 'downloading',
       label: fmt.label,
     });
+
+    // Immediate smooth animated simulation so progress bar moves instantly!
+    progressIntervalRef.current = setInterval(() => {
+      if (currentPercent < 88) {
+        if (currentPercent < 30) {
+          currentPercent += Math.floor(Math.random() * 4) + 2;
+        } else if (currentPercent < 60) {
+          currentPercent += Math.floor(Math.random() * 3) + 1;
+        } else if (currentPercent < 85) {
+          currentPercent += 1;
+        }
+        currentPercent = Math.min(88, currentPercent);
+
+        if (totalBytes > 0) {
+          loadedBytes = Math.round((currentPercent / 100) * totalBytes);
+        }
+
+        setDownloadProgress((prev) => ({
+          ...prev,
+          percent: currentPercent,
+          loaded: loadedBytes,
+          status: 'downloading',
+        }));
+      }
+    }, 250);
 
     const downloadUrl = `${API}/api/video-download/stream/?url=${encodeURIComponent(videoInfo.webpage_url)}&format_id=${encodeURIComponent(fmt.format_id)}`;
     
@@ -108,17 +155,21 @@ export default function VideoDownloader({ onClose }) {
     xhr.onprogress = (event) => {
       const loaded = event.loaded || 0;
       let total = event.total || fmt.filesize || 0;
-      let percent = 0;
+      let realPercent = 0;
       
       if (total > 0) {
-        percent = Math.min(99, Math.round((loaded / total) * 100));
+        realPercent = Math.min(99, Math.round((loaded / total) * 100));
       } else {
-        percent = Math.min(95, Math.round(loaded / (500 * 1024)));
+        realPercent = Math.min(95, Math.round(loaded / (500 * 1024)));
+      }
+
+      if (realPercent > currentPercent) {
+        currentPercent = realPercent;
       }
 
       setDownloadProgress({
-        percent,
-        loaded,
+        percent: currentPercent,
+        loaded: Math.max(loaded, loadedBytes),
         total,
         status: 'downloading',
         label: fmt.label,
@@ -126,6 +177,7 @@ export default function VideoDownloader({ onClose }) {
     };
 
     xhr.onload = () => {
+      clearProgressInterval();
       if (xhr.status === 200) {
         const blob = xhr.response;
         let filename = `${(videoInfo.title || 'video').slice(0, 80)}.${fmt.ext || 'mp4'}`;
@@ -140,7 +192,6 @@ export default function VideoDownloader({ onClose }) {
           }
         } catch (e) {}
 
-        // Save blob in current window without target='_blank'
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
@@ -163,13 +214,34 @@ export default function VideoDownloader({ onClose }) {
           setDownloadProgress(null);
         }, 4000);
       } else {
-        setError('Download failed. Server returned an error.');
-        setDownloadingFormatId(null);
-        setDownloadProgress(null);
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const errObj = JSON.parse(reader.result);
+            setError(errObj.error || 'Download failed. Server returned an error.');
+          } catch (e) {
+            setError('Download failed. Server returned an error.');
+          }
+          setDownloadingFormatId(null);
+          setDownloadProgress(null);
+        };
+        reader.onerror = () => {
+          setError('Download failed.');
+          setDownloadingFormatId(null);
+          setDownloadProgress(null);
+        };
+        if (xhr.response instanceof Blob) {
+          reader.readAsText(xhr.response);
+        } else {
+          setError('Download failed.');
+          setDownloadingFormatId(null);
+          setDownloadProgress(null);
+        }
       }
     };
 
     xhr.onerror = () => {
+      clearProgressInterval();
       setError('Network connection error during video download.');
       setDownloadingFormatId(null);
       setDownloadProgress(null);
@@ -179,6 +251,7 @@ export default function VideoDownloader({ onClose }) {
   };
 
   const handleCancelDownload = () => {
+    clearProgressInterval();
     if (xhrRef.current) {
       xhrRef.current.abort();
       xhrRef.current = null;
