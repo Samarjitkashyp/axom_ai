@@ -51,10 +51,11 @@ cd "$APP_DIR"
 echo ">>> [5/8] Python venv + dependencies..."
 python3 -m venv venv
 source venv/bin/activate
-pip install --upgrade pip
+pip install --upgrade pip yt-dlp
 pip install -r requirements.txt
 
-echo ">>> [6/8] Write production .env..."
+echo ">>> [6/8] Write production .env (if not present)..."
+if [ ! -f .env ]; then
 cat > .env <<EOF
 SECRET_KEY=${SECRET_KEY}
 DEBUG=False
@@ -67,6 +68,9 @@ DB_PORT=5432
 GEMINI_API_KEY=${GEMINI_API_KEY}
 USE_LOCAL_LLM=False
 EOF
+else
+  echo ".env file already exists. Preserving existing environment keys."
+fi
 
 echo ">>> [7/8] Migrate + collect static files..."
 python manage.py migrate --noinput

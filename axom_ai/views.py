@@ -5409,6 +5409,8 @@ def _yt_cookie_tmp():
     else:
         possible_paths = [
             os.getenv('YT_COOKIES_FILE'),
+            '/home/admin/config/yt_cookies.txt',
+            '/home/admin/yt_cookies.txt',
             _YT_COOKIES,
             os.path.expanduser('~/config/yt_cookies.txt'),
             os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'yt_cookies.txt'),
@@ -5442,7 +5444,17 @@ def _run_ytdlp_command(base_cmd, url, is_youtube, cookie_tmp, timeout=45):
         cmd.append(url)
         return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
 
-    last_res = None
+    # 1. Try standard yt-dlp client first (with cookies if available)
+    cmd_default = list(base_cmd)
+    if cookie_tmp:
+        cmd_default += ['--cookies', cookie_tmp]
+    cmd_default.append(url)
+    res = subprocess.run(cmd_default, capture_output=True, text=True, timeout=timeout)
+    if res.returncode == 0:
+        return res
+    last_res = res
+
+    # 2. Try alternative client sets if default fails due to bot/auth detection
     for client_set in _YT_CLIENT_SETS:
         cmd = list(base_cmd) + [
             '--extractor-args', f'youtube:player_client={client_set}',
@@ -5457,7 +5469,7 @@ def _run_ytdlp_command(base_cmd, url, is_youtube, cookie_tmp, timeout=45):
             return res
 
         stderr = res.stderr or ''
-        if any(err_kw in stderr for err_kw in ['Sign in to confirm', 'GetPOT', 'bot', 'Bot', '402', '403']):
+        if any(err_kw in stderr for err_kw in ['Sign in to confirm', 'GetPOT', 'bot', 'Bot', '402', '403', '429', 'cookies', 'Cookies', 'confirm you']):
             continue
         else:
             return res
@@ -5528,7 +5540,7 @@ def video_download_info_api(request):
             except OSError: pass
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Unknown error'
-            if 'Sign in to confirm' in stderr or 'GetPOT' in stderr:
+            if any(kw in stderr for kw in ['Sign in to confirm', 'GetPOT', 'bot', 'Bot', 'cookies', 'Cookies', '402', '403', '429', 'confirm you']):
                 err_msg = 'YouTube bot verification is active for this video on the server IP. Server owner: Place a valid Netscape formatted yt_cookies.txt file in the server directory or set YT_COOKIES_CONTENT in .env.'
             else:
                 err_msg = f'Could not fetch video info: {stderr}'
@@ -5622,7 +5634,7 @@ def video_download_stream_api(request):
             except OSError: pass
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Download failed'
-            if 'Sign in to confirm' in stderr or 'GetPOT' in stderr:
+            if any(kw in stderr for kw in ['Sign in to confirm', 'GetPOT', 'bot', 'Bot', 'cookies', 'Cookies', '402', '403', '429', 'confirm you']):
                 err_msg = 'YouTube bot verification is active on the server IP. Server owner: Place a valid Netscape formatted yt_cookies.txt file in the server directory or set YT_COOKIES_CONTENT in .env.'
             else:
                 err_msg = f'Download failed: {stderr}'
