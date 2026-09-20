@@ -5392,7 +5392,7 @@ if not os.path.isfile(_YT_DLP):
     else:
         _YT_DLP = 'yt-dlp'
 
-_YT_COOKIES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'yt_cookies.txt')
+_YT_COOKIES = os.path.expanduser('~/config/yt_cookies.txt')
 
 _YT_CLIENT_SETS = [
     'android_vr,mweb,web_embedded,tv,ios',
@@ -5410,8 +5410,8 @@ def _yt_cookie_tmp():
         possible_paths = [
             os.getenv('YT_COOKIES_FILE'),
             _YT_COOKIES,
+            os.path.expanduser('~/config/yt_cookies.txt'),
             os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'yt_cookies.txt'),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'yt_cookies.txt'),
             '/etc/yt_cookies.txt',
         ]
         for p in possible_paths:
