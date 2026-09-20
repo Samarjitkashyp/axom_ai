@@ -863,112 +863,292 @@ def about_page_view(request):
 
 
 def robots_txt_view(request):
-    """Serve SEO & AI-crawler optimized robots.txt directly from Django."""
+    """Subdomain-aware robots.txt with AEO/GEO/SEO + security hardening."""
     from django.http import HttpResponse
-    content = """User-agent: *
+
+    host = request.get_host().split(':')[0].lower()
+
+    # admin, user, content subdomains — block everything from all crawlers
+    if host in ('admin.aiaxom.co.in', 'user.aiaxom.co.in', 'content.aiaxom.co.in'):
+        content = "User-agent: *\nDisallow: /\n"
+        return HttpResponse(content, content_type="text/plain; charset=utf-8")
+
+    # chat.aiaxom.co.in — allow homepage only, block APIs
+    if host == 'chat.aiaxom.co.in':
+        content = """User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin-panel/
+Disallow: /media/
+Disallow: /static/admin/
+
+Sitemap: https://chat.aiaxom.co.in/sitemap.xml
+Host: https://chat.aiaxom.co.in
+"""
+        return HttpResponse(content.strip(), content_type="text/plain; charset=utf-8")
+
+    # Main domain: aiaxom.co.in / www.aiaxom.co.in
+    content = """# ===================================================================
+# robots.txt — aiaxom.co.in
+# SEO + AEO (Answer Engine Optimization) + GEO (Generative Engine Optimization)
+# ===================================================================
+
+User-agent: *
+Allow: /
+Allow: /about/
+Allow: /faq/
+Allow: /blog/
+Allow: /tools/
+
+# --- Security: block all sensitive paths ---
+Disallow: /admin/
 Disallow: /admin-panel/
 Disallow: /axomai-admin/
 Disallow: /axomai-user/
 Disallow: /axomai-content/
 Disallow: /api/
+Disallow: /media/avatars/
+Disallow: /media/documents/
+Disallow: /static/admin/
+Disallow: /*.json$
+Disallow: /*.env$
+Disallow: /*?*sort=
+Disallow: /*?*page=
+Disallow: /*?*filter=
+Disallow: /*?*session=
+Disallow: /*?*token=
+Disallow: /*?*key=
+Disallow: /*?*password=
+Disallow: /*?*login=
 
-# Explicitly allow top AI search bots & LLM crawlers for GEO
+# --- AEO/GEO: Explicitly welcome AI search & LLM crawlers ---
 User-agent: GPTBot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /admin-panel/
+Disallow: /axomai-admin/
+Disallow: /axomai-user/
+Disallow: /axomai-content/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: Googlebot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: Bytespider
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: CCBot
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
 User-agent: cohere-ai
 Allow: /
+Disallow: /api/
+Disallow: /admin/
 
+User-agent: YouBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Meta-ExternalAgent
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# --- Block known malicious / scraper bots ---
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: MegaIndex.ru
+Disallow: /
+
+User-agent: Sogou
+Disallow: /
+
+User-agent: BacklinkCrawler
+Disallow: /
+
+User-agent: magpie-crawler
+Disallow: /
+
+# --- Security: block common attack/probe paths ---
+Disallow: /wp-admin/
+Disallow: /wp-login.php
+Disallow: /wp-content/
+Disallow: /wp-includes/
+Disallow: /.env
+Disallow: /.git/
+Disallow: /cgi-bin/
+Disallow: /phpmyadmin/
+Disallow: /xmlrpc.php
+
+# --- Crawl-delay for polite non-Google bots ---
+User-agent: *
+Crawl-delay: 2
+
+# --- Sitemaps ---
 Sitemap: https://aiaxom.co.in/sitemap.xml
+Sitemap: https://chat.aiaxom.co.in/sitemap.xml
 Host: https://aiaxom.co.in
 """
     return HttpResponse(content.strip(), content_type="text/plain; charset=utf-8")
 
 
 def sitemap_xml_view(request):
-    """Serve dynamic XML sitemap including Homepage, About, FAQ, Blog and Articles."""
+    """Subdomain-aware sitemap: index on main domain, individual sitemaps per subdomain."""
+    from django.http import HttpResponse
+    from django.utils import timezone
+
+    host = request.get_host().split(':')[0].lower()
+    now_str = timezone.now().strftime('%Y-%m-%d')
+
+    # admin, user, content subdomains — no sitemap (blocked in robots.txt)
+    if host in ('admin.aiaxom.co.in', 'user.aiaxom.co.in', 'content.aiaxom.co.in'):
+        return HttpResponse(status=404)
+
+    # chat.aiaxom.co.in — minimal sitemap with just the chat homepage
+    if host == 'chat.aiaxom.co.in':
+        xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://chat.aiaxom.co.in/</loc>
+    <lastmod>{now_str}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>"""
+        return HttpResponse(xml, content_type="application/xml; charset=utf-8")
+
+    # Main domain: aiaxom.co.in — serve a sitemap index pointing to child sitemaps
+    if request.path == '/sitemap.xml':
+        xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://aiaxom.co.in/sitemap-pages.xml</loc>
+    <lastmod>{now_str}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://aiaxom.co.in/sitemap-blog.xml</loc>
+    <lastmod>{now_str}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://aiaxom.co.in/sitemap-tools.xml</loc>
+    <lastmod>{now_str}</lastmod>
+  </sitemap>
+</sitemapindex>"""
+        return HttpResponse(xml, content_type="application/xml; charset=utf-8")
+
+    return HttpResponse(status=404)
+
+
+def sitemap_pages_xml_view(request):
+    """Sitemap for static pages on the main domain."""
+    from django.http import HttpResponse
+    from django.utils import timezone
+    now_str = timezone.now().strftime('%Y-%m-%d')
+
+    pages = [
+        ('https://aiaxom.co.in/', 'daily', '1.0'),
+        ('https://aiaxom.co.in/about/', 'weekly', '0.9'),
+        ('https://aiaxom.co.in/faq/', 'weekly', '0.8'),
+        ('https://aiaxom.co.in/blog/', 'daily', '0.9'),
+    ]
+    urls = []
+    for loc, freq, prio in pages:
+        urls.append(f'  <url>\n    <loc>{loc}</loc>\n    <lastmod>{now_str}</lastmod>\n    <changefreq>{freq}</changefreq>\n    <priority>{prio}</priority>\n  </url>')
+
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(urls) + '\n</urlset>'
+    return HttpResponse(xml, content_type="application/xml; charset=utf-8")
+
+
+def sitemap_blog_xml_view(request):
+    """Sitemap for published blog/insight articles."""
     from django.http import HttpResponse
     from django.utils import timezone
     from contentcms.models import InsightArticle
     now_str = timezone.now().strftime('%Y-%m-%d')
-    
-    xml = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-        '  <url>',
-        '    <loc>https://aiaxom.co.in/</loc>',
-        f'    <lastmod>{now_str}</lastmod>',
-        '    <changefreq>daily</changefreq>',
-        '    <priority>1.0</priority>',
-        '  </url>',
-        '  <url>',
-        '    <loc>https://aiaxom.co.in/about/</loc>',
-        f'    <lastmod>{now_str}</lastmod>',
-        '    <changefreq>weekly</changefreq>',
-        '    <priority>0.95</priority>',
-        '  </url>',
-        '  <url>',
-        '    <loc>https://aiaxom.co.in/faq/</loc>',
-        f'    <lastmod>{now_str}</lastmod>',
-        '    <changefreq>weekly</changefreq>',
-        '    <priority>0.90</priority>',
-        '  </url>',
-        '  <url>',
-        '    <loc>https://aiaxom.co.in/blog/</loc>',
-        f'    <lastmod>{now_str}</lastmod>',
-        '    <changefreq>daily</changefreq>',
-        '    <priority>0.90</priority>',
-        '  </url>',
-    ]
-    
+
+    urls = []
     try:
-        articles = InsightArticle.objects.filter(is_published=True).order_by('-published_at')
-        for art in articles:
+        for art in InsightArticle.objects.filter(is_published=True).order_by('-published_at'):
             pub_date = art.published_at.strftime('%Y-%m-%d') if art.published_at else now_str
-            xml.extend([
-                '  <url>',
-                f'    <loc>https://aiaxom.co.in/blog/{art.slug}/</loc>',
-                f'    <lastmod>{pub_date}</lastmod>',
-                '    <changefreq>monthly</changefreq>',
-                '    <priority>0.80</priority>',
-                '  </url>',
-            ])
+            urls.append(f'  <url>\n    <loc>https://aiaxom.co.in/blog/{art.slug}/</loc>\n    <lastmod>{pub_date}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>')
     except Exception:
         pass
 
-    xml.append('</urlset>')
-    return HttpResponse('\n'.join(xml), content_type="application/xml; charset=utf-8")
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(urls) + '\n</urlset>'
+    return HttpResponse(xml, content_type="application/xml; charset=utf-8")
+
+
+def sitemap_tools_xml_view(request):
+    """Sitemap for converter tool pages."""
+    from django.http import HttpResponse
+    from django.utils import timezone
+    from contentcms.models import ConverterToolConfig
+    now_str = timezone.now().strftime('%Y-%m-%d')
+
+    urls = []
+    try:
+        for tool in ConverterToolConfig.objects.all().order_by('tool_slug'):
+            urls.append(f'  <url>\n    <loc>https://aiaxom.co.in/tools/{tool.tool_slug}/</loc>\n    <lastmod>{now_str}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>')
+    except Exception:
+        pass
+
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(urls) + '\n</urlset>'
+    return HttpResponse(xml, content_type="application/xml; charset=utf-8")
 
 
 @ensure_csrf_cookie
@@ -5203,19 +5383,86 @@ _VD_ALLOWED_DOMAINS = {
 }
 
 _VD_MAX_SIZE_MB = 500
-_YT_DLP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'venv', 'bin', 'yt-dlp')
+_BASE_VENV = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'venv')
+_YT_DLP = os.path.join(_BASE_VENV, 'bin', 'yt-dlp')
 if not os.path.isfile(_YT_DLP):
-    _YT_DLP = 'yt-dlp'
+    win_yt = os.path.join(_BASE_VENV, 'Scripts', 'yt-dlp.exe')
+    if os.path.isfile(win_yt):
+        _YT_DLP = win_yt
+    else:
+        _YT_DLP = 'yt-dlp'
+
 _YT_COOKIES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'yt_cookies.txt')
-import shutil as _shutil
+
+_YT_CLIENT_SETS = [
+    'android_vr,mweb,web_embedded,tv,ios',
+    'mweb,android,web_creator,tv',
+    'tv_embedded,web_embedded,android_vr',
+    'ios,mweb,tv,web_creator,android',
+]
 
 def _yt_cookie_tmp():
-    if not os.path.isfile(_YT_COOKIES):
+    content = None
+    env_content = os.getenv('YT_COOKIES_CONTENT')
+    if env_content:
+        content = env_content
+    else:
+        possible_paths = [
+            os.getenv('YT_COOKIES_FILE'),
+            _YT_COOKIES,
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'yt_cookies.txt'),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'yt_cookies.txt'),
+            '/etc/yt_cookies.txt',
+        ]
+        for p in possible_paths:
+            if p and os.path.isfile(p):
+                try:
+                    with open(p, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                    if content and len(content.strip()) > 0:
+                        break
+                except Exception:
+                    pass
+    if not content:
         return None
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.txt', prefix='ytcook_')
-    tmp.close()
-    _shutil.copy2(_YT_COOKIES, tmp.name)
-    return tmp.name
+    try:
+        content = content.replace('#HttpOnly_', '')
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.txt', prefix='ytcook_')
+        tmp.write(content.encode('utf-8'))
+        tmp.close()
+        return tmp.name
+    except Exception:
+        return None
+
+def _run_ytdlp_command(base_cmd, url, is_youtube, cookie_tmp, timeout=45):
+    if not is_youtube:
+        cmd = list(base_cmd)
+        if cookie_tmp:
+            cmd += ['--cookies', cookie_tmp]
+        cmd.append(url)
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+
+    last_res = None
+    for client_set in _YT_CLIENT_SETS:
+        cmd = list(base_cmd) + [
+            '--extractor-args', f'youtube:player_client={client_set}',
+        ]
+        if cookie_tmp:
+            cmd += ['--cookies', cookie_tmp]
+        cmd.append(url)
+
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        last_res = res
+        if res.returncode == 0:
+            return res
+
+        stderr = res.stderr or ''
+        if any(err_kw in stderr for err_kw in ['Sign in to confirm', 'GetPOT', 'bot', 'Bot', '402', '403']):
+            continue
+        else:
+            return res
+
+    return last_res
 
 def _vd_validate_url(url):
     if not url or not isinstance(url, str):
@@ -5274,18 +5521,17 @@ def video_download_info_api(request):
         cmd = [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
                '--no-warnings', '--socket-timeout', '20', '--no-check-certificates',
                '--remote-components', 'ejs:github']
-        if is_youtube:
-            cmd += ['--extractor-args', 'youtube:player_client=mweb']
-            if cookie_tmp:
-                cmd += ['--cookies', cookie_tmp]
-        cmd.append(url)
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
+        result = _run_ytdlp_command(cmd, url, is_youtube, cookie_tmp, timeout=45)
         if cookie_tmp:
             try: os.unlink(cookie_tmp)
             except OSError: pass
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Unknown error'
-            return JsonResponse({'error': f'Could not fetch video info: {stderr}'}, status=400)
+            if 'Sign in to confirm' in stderr or 'GetPOT' in stderr:
+                err_msg = 'YouTube bot verification is active for this video on the server IP. Server owner: Place a valid Netscape formatted yt_cookies.txt file in the server directory or set YT_COOKIES_CONTENT in .env.'
+            else:
+                err_msg = f'Could not fetch video info: {stderr}'
+            return JsonResponse({'error': err_msg}, status=400)
         info = json.loads(result.stdout)
         formats = []
         seen = set()
@@ -5332,17 +5578,24 @@ def video_download_info_api(request):
 
 
 @csrf_exempt
-@require_POST
 def video_download_stream_api(request):
     ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
-    if not _vd_check_rate(ip, 5, 60):
+    if not _vd_check_rate(ip, 10, 60):
         return JsonResponse({'error': 'Too many requests. Please wait a minute.'}, status=429)
-    try:
-        body = json.loads(request.body)
-    except Exception:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    raw_url = body.get('url', '')
-    format_id = body.get('format_id', 'best')
+    raw_url = ''
+    format_id = 'best'
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            raw_url = body.get('url', '')
+            format_id = body.get('format_id', 'best')
+        except Exception:
+            raw_url = request.POST.get('url', '')
+            format_id = request.POST.get('format_id', 'best')
+    else:
+        raw_url = request.GET.get('url', '')
+        format_id = request.GET.get('format_id', 'best')
+
     url, err = _vd_validate_url(raw_url)
     if err:
         return JsonResponse({'error': err}, status=400)
@@ -5361,18 +5614,17 @@ def video_download_stream_api(request):
             '--max-filesize', f'{_VD_MAX_SIZE_MB}M',
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
         ]
-        if is_youtube:
-            cmd += ['--extractor-args', 'youtube:player_client=mweb']
-            if cookie_tmp:
-                cmd += ['--cookies', cookie_tmp]
-        cmd.append(url)
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        result = _run_ytdlp_command(cmd, url, is_youtube, cookie_tmp, timeout=300)
         if cookie_tmp:
             try: os.unlink(cookie_tmp)
             except OSError: pass
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Download failed'
-            return JsonResponse({'error': stderr}, status=400)
+            if 'Sign in to confirm' in stderr or 'GetPOT' in stderr:
+                err_msg = 'YouTube bot verification is active on the server IP. Server owner: Place a valid Netscape formatted yt_cookies.txt file in the server directory or set YT_COOKIES_CONTENT in .env.'
+            else:
+                err_msg = f'Download failed: {stderr}'
+            return JsonResponse({'error': err_msg}, status=400)
         files = glob_mod.glob(os.path.join(tmpdir, '*'))
         if not files:
             return JsonResponse({'error': 'No file was downloaded'}, status=500)
@@ -5404,7 +5656,8 @@ def video_download_stream_api(request):
 
         response = StreamingHttpResponse(file_stream(), content_type='application/octet-stream')
         response['Content-Disposition'] = f'attachment; filename="{safe_name}"'
-        response['Content-Length'] = fsize
+        response['Content-Length'] = str(fsize)
+        response['Access-Control-Expose-Headers'] = 'Content-Disposition, Content-Length'
         return response
     except subprocess.TimeoutExpired:
         import shutil
