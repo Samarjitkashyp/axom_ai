@@ -5501,6 +5501,7 @@ def _vd_check_rate(ip, limit=10, window=60):
     return True
 
 
+@_tool_cors_view
 @csrf_exempt
 @require_POST
 def video_download_info_api(request):
@@ -5577,6 +5578,7 @@ def video_download_info_api(request):
         return JsonResponse({'error': str(e)[:200]}, status=500)
 
 
+@_tool_cors_view
 @csrf_exempt
 def video_download_stream_api(request):
     ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
