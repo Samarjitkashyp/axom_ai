@@ -5345,7 +5345,7 @@ def video_download_stream_api(request):
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
             url
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Download failed'
             return JsonResponse({'error': stderr}, status=400)
@@ -5356,7 +5356,7 @@ def video_download_stream_api(request):
         fsize = os.path.getsize(filepath)
         if fsize > _VD_MAX_SIZE_MB * 1024 * 1024:
             os.remove(filepath)
-            return JsonResponse({'error': f'File too large (>{_VD_MAX_SIZE_MB}MB)'}, status=400)
+            return JsonResponse({'error': 'This video exceeds 500 MB. We cannot provide a download option for videos larger than 500 MB.'}, status=400)
         filename = os.path.basename(filepath)
         safe_name = re.sub(r'[^\w\s\-\.]', '', filename)[:100] or 'video.mp4'
 
