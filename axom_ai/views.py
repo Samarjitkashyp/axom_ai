@@ -5207,7 +5207,15 @@ _YT_DLP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 if not os.path.isfile(_YT_DLP):
     _YT_DLP = 'yt-dlp'
 _YT_COOKIES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'yt_cookies.txt')
-_YT_COOKIE_ARGS = ['--cookies', _YT_COOKIES] if os.path.isfile(_YT_COOKIES) else []
+import shutil as _shutil
+
+def _yt_cookie_tmp():
+    if not os.path.isfile(_YT_COOKIES):
+        return None
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.txt', prefix='ytcook_')
+    tmp.close()
+    _shutil.copy2(_YT_COOKIES, tmp.name)
+    return tmp.name
 
 def _vd_validate_url(url):
     if not url or not isinstance(url, str):
@@ -5261,14 +5269,20 @@ def video_download_info_api(request):
     if err:
         return JsonResponse({'error': err}, status=400)
     is_youtube = 'youtube.com' in url or 'youtu.be' in url
+    cookie_tmp = _yt_cookie_tmp() if is_youtube else None
     try:
         cmd = [_YT_DLP, '--no-download', '--dump-json', '--no-playlist',
                '--no-warnings', '--socket-timeout', '20', '--no-check-certificates',
                '--remote-components', 'ejs:github']
         if is_youtube:
-            cmd += ['--extractor-args', 'youtube:player_client=mweb'] + _YT_COOKIE_ARGS
+            cmd += ['--extractor-args', 'youtube:player_client=mweb']
+            if cookie_tmp:
+                cmd += ['--cookies', cookie_tmp]
         cmd.append(url)
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
+        if cookie_tmp:
+            try: os.unlink(cookie_tmp)
+            except OSError: pass
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Unknown error'
             return JsonResponse({'error': f'Could not fetch video info: {stderr}'}, status=400)
@@ -5337,6 +5351,7 @@ def video_download_stream_api(request):
     is_youtube = 'youtube.com' in url or 'youtu.be' in url
     dl_format = f'{format_id}+bestaudio/best' if format_id != 'best' else 'best'
     tmpdir = tempfile.mkdtemp(prefix='vd_')
+    cookie_tmp = _yt_cookie_tmp() if is_youtube else None
     try:
         cmd = [
             _YT_DLP, '-f', dl_format, '--no-playlist',
@@ -5347,9 +5362,14 @@ def video_download_stream_api(request):
             '-o', os.path.join(tmpdir, '%(title).80s.%(ext)s'),
         ]
         if is_youtube:
-            cmd += ['--extractor-args', 'youtube:player_client=mweb'] + _YT_COOKIE_ARGS
+            cmd += ['--extractor-args', 'youtube:player_client=mweb']
+            if cookie_tmp:
+                cmd += ['--cookies', cookie_tmp]
         cmd.append(url)
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        if cookie_tmp:
+            try: os.unlink(cookie_tmp)
+            except OSError: pass
         if result.returncode != 0:
             stderr = result.stderr[:300] if result.stderr else 'Download failed'
             return JsonResponse({'error': stderr}, status=400)
