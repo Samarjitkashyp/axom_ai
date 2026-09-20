@@ -5426,7 +5426,7 @@ def _yt_cookie_tmp():
     if not content:
         return None
     try:
-        content = content.replace('#HttpOnly_', '')
+        # Keep #HttpOnly_ prefix — yt-dlp expects it
         tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.txt', prefix='ytcook_')
         tmp.write(content.encode('utf-8'))
         tmp.close()
