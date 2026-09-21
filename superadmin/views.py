@@ -759,6 +759,39 @@ def save_settings_api(request):
 
 
 @superuser_required
+@require_POST
+def refresh_sitemap_api(request):
+    """Trigger Next.js sitemap regeneration by touching the sitemap route and purging Cloudflare cache."""
+    results = {}
+    try:
+        r = requests.get('https://aiaxom.co.in/sitemap.xml', timeout=10,
+                         headers={'Cache-Control': 'no-cache', 'Pragma': 'no-cache'})
+        results['sitemap_status'] = r.status_code
+        results['url_count'] = r.text.count('<loc>') if r.ok else 0
+    except Exception as e:
+        results['sitemap_status'] = f'error: {e}'
+
+    cf_token = os.getenv('CLOUDFLARE_API_TOKEN', '')
+    cf_zone = os.getenv('CLOUDFLARE_ZONE_ID', '')
+    if cf_token and cf_zone:
+        try:
+            cr = requests.post(
+                f'https://api.cloudflare.com/client/v4/zones/{cf_zone}/purge_cache',
+                headers={'Authorization': f'Bearer {cf_token}', 'Content-Type': 'application/json'},
+                json={'files': ['https://aiaxom.co.in/sitemap.xml']},
+                timeout=10,
+            )
+            results['cf_purge'] = 'success' if cr.ok else cr.text[:200]
+        except Exception as e:
+            results['cf_purge'] = f'error: {e}'
+    else:
+        results['cf_purge'] = 'skipped (no CF credentials)'
+
+    _log_audit(request, "SITEMAP_REFRESH", "Sitemap", f"URLs: {results.get('url_count', '?')}, CF purge: {results.get('cf_purge', '?')}")
+    return JsonResponse({'success': True, 'message': f"Sitemap refreshed — {results.get('url_count', '?')} URLs found.", 'details': results})
+
+
+@superuser_required
 def api_health_check(request):
     """Checks external API health with a 60-second cache to prevent quota draining."""
     cache_key = "admin_api_health_cache"
