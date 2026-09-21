@@ -417,6 +417,17 @@ export const ALL_TOOLS = [
     desc: 'Create and edit vector graphics — shapes, text, freehand drawing with layers, zoom, grid and SVG/PNG/JPG export.',
   },
 
+  // YouTube Video Downloader
+  {
+    id: 'youtubedownloader',
+    name: 'YouTube Video Downloader',
+    cat: 'AI Tools',
+    icon: ArrowDownToLine,
+    youtubedownloader: true,
+    hint: 'YouTube videos in multiple qualities',
+    desc: 'Download YouTube videos in 360p, 480p, 720p, 1080p and more — fast, direct streaming to your device.',
+  },
+
   // Video Downloader
   {
     id: 'videodownloader',
@@ -424,8 +435,8 @@ export const ALL_TOOLS = [
     cat: 'AI Tools',
     icon: ArrowDownToLine,
     videodownloader: true,
-    hint: 'YouTube, Facebook, Instagram, TikTok & more',
-    desc: 'Download videos from YouTube, Facebook, Instagram, TikTok, Twitter/X, Reddit, Vimeo and 14+ platforms instantly.',
+    hint: 'Facebook, Instagram, TikTok & more',
+    desc: 'Download videos from Facebook, Instagram, TikTok, Twitter/X, Reddit, Vimeo and 13+ platforms instantly.',
   },
 
   // Interactive Canvas Editor

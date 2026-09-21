@@ -19,7 +19,6 @@ import {
 const API = process.env.NEXT_PUBLIC_API_BASE || 'https://aiaxom.co.in';
 
 const SUPPORTED_SITES = [
-  { name: 'YouTube', color: '#FF0000' },
   { name: 'Facebook', color: '#1877F2' },
   { name: 'Instagram', color: '#E4405F' },
   { name: 'TikTok', color: '#000000' },
@@ -338,7 +337,7 @@ export default function VideoDownloader({ onClose }) {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleFetchInfo()}
-                placeholder="Paste video URL from YouTube, Instagram, Facebook, TikTok..."
+                placeholder="Paste video URL from Instagram, Facebook, TikTok, Twitter..."
                 className="vd-input"
               />
             </div>
