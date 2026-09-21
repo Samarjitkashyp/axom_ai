@@ -527,6 +527,21 @@ export async function getImageToPdfCMS(): Promise<ImageToPdfCMSData | null> {
   }
 }
 
+export type PptToPdfCMSData = WordToPdfCMSData;
+
+export async function getPptToPdfCMS(): Promise<PptToPdfCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/tools/ppt-to-pdf/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch PPT to PDF CMS data:', err);
+    return null;
+  }
+}
+
 export type PdfToJpgCMSData = WordToPdfCMSData;
 
 export async function getPdfToJpgCMS(): Promise<PdfToJpgCMSData | null> {

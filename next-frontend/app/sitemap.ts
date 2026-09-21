@@ -1,52 +1,114 @@
 import { MetadataRoute } from 'next';
 import { getArticlesCMS } from '../lib/api';
-import fs from 'fs';
-import path from 'path';
-
-function discoverToolSlugs(): string[] {
-  try {
-    const toolsDir = path.join(process.cwd(), 'app', 'tools');
-    return fs.readdirSync(toolsDir, { withFileTypes: true })
-      .filter(d => d.isDirectory() && fs.existsSync(path.join(toolsDir, d.name, 'page.tsx')))
-      .map(d => d.name);
-  } catch {
-    return [];
-  }
-}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://aiaxom.co.in';
-  const now = new Date();
 
   const routes: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
-    { url: `${baseUrl}/about/`, lastModified: now, changeFrequency: 'weekly', priority: 0.95 },
-    { url: `${baseUrl}/use-cases/`, lastModified: now, changeFrequency: 'daily', priority: 0.95 },
-    { url: `${baseUrl}/pricing/`, lastModified: now, changeFrequency: 'daily', priority: 0.95 },
-    { url: `${baseUrl}/blog/`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/faq/`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
-    { url: `${baseUrl}/contact/`, lastModified: now, changeFrequency: 'weekly', priority: 0.90 },
-    { url: `${baseUrl}/privacy/`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
-    { url: `${baseUrl}/terms/`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
-    { url: `${baseUrl}/tools`, lastModified: now, changeFrequency: 'daily', priority: 0.95 },
-  ];
-
-  const toolSlugs = discoverToolSlugs();
-  for (const slug of toolSlugs) {
-    routes.push({
-      url: `${baseUrl}/tools/${slug}/`,
-      lastModified: now,
+    {
+      url: `${baseUrl}/`,
+      lastModified: new Date(),
       changeFrequency: 'daily',
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/about/`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/use-cases/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/pricing/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/blog/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/faq/`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/contact/`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
       priority: 0.90,
-    });
-  }
+    },
+    {
+      url: `${baseUrl}/privacy/`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/terms/`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/tools`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/tools/word-to-pdf/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/tools/pdf-to-word/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/tools/image-to-pdf/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/tools/pdf-to-jpg/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/tools/pdf-to-png/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/tools/image-format-converter/`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+  ];
 
   try {
     const { articles } = await getArticlesCMS();
     articles.forEach((article) => {
       routes.push({
         url: `${baseUrl}/blog/${article.slug}/`,
-        lastModified: new Date(article.published_at || now),
+        lastModified: new Date(article.published_at || new Date()),
         changeFrequency: 'weekly',
         priority: 0.8,
       });
