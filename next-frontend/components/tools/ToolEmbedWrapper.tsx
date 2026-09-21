@@ -1,17 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, type ComponentType } from 'react';
 
 interface ToolEmbedWrapperProps {
   children: (props: { onClose: () => void }) => React.ReactNode;
   buttonLabel?: string;
 }
 
-/**
- * Wraps a modal-style tool component so it can be embedded in a dedicated page.
- * Shows a "Use Tool" button; clicking it opens the tool full-screen.
- * The tool's onClose navigates back or hides it.
- */
 export default function ToolEmbedWrapper({ children, buttonLabel = 'Use This Tool Now — Free' }: ToolEmbedWrapperProps) {
   const [isOpen, setIsOpen] = useState(false);
 

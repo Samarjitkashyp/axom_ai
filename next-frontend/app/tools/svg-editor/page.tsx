@@ -3,8 +3,7 @@ import type { Metadata } from 'next';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
 import { toolData } from '../../../lib/toolData/svg-editor';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
-import ToolEmbedWrapper from '../../../components/tools/ToolEmbedWrapper';
-import SvgEditor from '../../../components/chat/SvgEditor';
+import ToolEmbedClient from '../../../components/tools/ToolEmbedClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,9 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function SvgEditorPage() {
   return (
     <ToolPageTemplate data={toolData}>
-      <ToolEmbedWrapper buttonLabel="Open SVG Editor — Free">
-        {({ onClose }) => <SvgEditor onClose={onClose} />}
-      </ToolEmbedWrapper>
+      <ToolEmbedClient toolKey="svg-editor" buttonLabel="Open SVG Editor — Free" />
     </ToolPageTemplate>
   );
 }

@@ -2,8 +2,7 @@ import { Metadata } from 'next';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
 import { toolData } from '../../../lib/toolData/ai-image-finder';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
-import ToolEmbedWrapper from '../../../components/tools/ToolEmbedWrapper';
-import ImageFinder from '../../../components/chat/ImageFinder';
+import ToolEmbedClient from '../../../components/tools/ToolEmbedClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,9 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function AiImageFinderPage() {
   return (
     <ToolPageTemplate data={toolData}>
-      <ToolEmbedWrapper buttonLabel="Find Stock Images — Free">
-        {({ onClose }) => <ImageFinder onClose={onClose} />}
-      </ToolEmbedWrapper>
+      <ToolEmbedClient toolKey="ai-image-finder" buttonLabel="Find Stock Images — Free" />
     </ToolPageTemplate>
   );
 }
