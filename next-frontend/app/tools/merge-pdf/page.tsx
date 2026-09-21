@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import toolData from '../../../lib/toolData/merge-pdf';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
-import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
+import InlineToolEmbed from '../../../components/tools/InlineToolEmbed';
 import {
   Zap, Shield, Layers, GripVertical, GraduationCap, Briefcase,
   Building2, Scale, Monitor, Smartphone,
@@ -40,7 +40,7 @@ export default function MergePdfPage() {
 
   return (
     <ToolPageTemplate data={data}>
-      <ToolWorkspaceEmbed tool={toolConfig} />
+      <InlineToolEmbed tool={toolConfig} />
     </ToolPageTemplate>
   );
 }

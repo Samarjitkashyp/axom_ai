@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
 import { toolData } from '../../../lib/toolData/chat-with-pdf';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
-import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
+import InlineToolEmbed from '../../../components/tools/InlineToolEmbed';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,7 @@ const TOOL_CONFIG = {
 export default function ChatWithPdfPage() {
   return (
     <ToolPageTemplate data={toolData}>
-      <ToolWorkspaceEmbed tool={TOOL_CONFIG} />
+      <InlineToolEmbed tool={TOOL_CONFIG} />
     </ToolPageTemplate>
   );
 }

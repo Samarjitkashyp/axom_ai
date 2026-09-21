@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import { toolData } from '../../../lib/toolData/unlock-pdf';
-import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
+import InlineToolEmbed from '../../../components/tools/InlineToolEmbed';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,7 @@ const TOOL_CONFIG = {
 export default function UnlockPdfPage() {
   return (
     <ToolPageTemplate data={toolData}>
-      <ToolWorkspaceEmbed tool={TOOL_CONFIG} />
+      <InlineToolEmbed tool={TOOL_CONFIG} />
     </ToolPageTemplate>
   );
 }
