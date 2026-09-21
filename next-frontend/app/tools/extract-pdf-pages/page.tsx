@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import toolData from '../../../lib/toolData/extract-pdf-pages';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
+import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
 import {
   Zap, Shield, ListFilter, FileOutput, GraduationCap, Briefcase,
   Building2, Scale, Monitor, Smartphone,
@@ -32,5 +33,14 @@ export default function ExtractPdfPagesPage() {
     ],
   };
 
-  return <ToolPageTemplate data={data} />;
+  const toolConfig = {
+    id: 'extract', name: 'Extract Pages', cat: 'Organize',
+    accept: '.pdf', hint: 'PDF', ep: 'ai', op: 'extract', param: 'pages',
+  };
+
+  return (
+    <ToolPageTemplate data={data}>
+      <ToolWorkspaceEmbed tool={toolConfig} />
+    </ToolPageTemplate>
+  );
 }

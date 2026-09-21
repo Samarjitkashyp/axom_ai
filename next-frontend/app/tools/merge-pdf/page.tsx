@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import toolData from '../../../lib/toolData/merge-pdf';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
+import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
 import {
   Zap, Shield, Layers, GripVertical, GraduationCap, Briefcase,
   Building2, Scale, Monitor, Smartphone,
@@ -32,5 +33,14 @@ export default function MergePdfPage() {
     ],
   };
 
-  return <ToolPageTemplate data={data} />;
+  const toolConfig = {
+    id: 'merge', name: 'Merge PDF', cat: 'Organize',
+    accept: '.pdf', hint: 'PDF', multi: true, ep: 'ai', op: 'merge',
+  };
+
+  return (
+    <ToolPageTemplate data={data}>
+      <ToolWorkspaceEmbed tool={toolConfig} />
+    </ToolPageTemplate>
+  );
 }

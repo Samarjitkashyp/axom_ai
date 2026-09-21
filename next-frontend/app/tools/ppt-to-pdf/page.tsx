@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import toolData from '../../../lib/toolData/ppt-to-pdf';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
+import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
 import {
   Zap, Shield, Globe, Layers, GraduationCap, Briefcase,
   Building2, Scale, Monitor, Smartphone,
@@ -32,5 +33,14 @@ export default function PptToPdfPage() {
     ],
   };
 
-  return <ToolPageTemplate data={data} />;
+  const toolConfig = {
+    id: 'ppt2pdf', name: 'PPT → PDF', cat: 'Office',
+    accept: '.pptx,.ppt,.odp', hint: 'PPTX, PPT, ODP', ep: 'convert', target: 'pdf',
+  };
+
+  return (
+    <ToolPageTemplate data={data}>
+      <ToolWorkspaceEmbed tool={toolConfig} />
+    </ToolPageTemplate>
+  );
 }

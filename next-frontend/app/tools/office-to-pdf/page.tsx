@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import toolData from '../../../lib/toolData/office-to-pdf';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
+import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
 import {
   Zap, Shield, Globe, FileText, GraduationCap, Code2,
   Building2, BookOpen, Monitor, Smartphone,
@@ -32,5 +33,15 @@ export default function OfficeToPdfPage() {
     ],
   };
 
-  return <ToolPageTemplate data={data} />;
+  const toolConfig = {
+    id: 'office2pdf', name: 'Office → PDF', cat: 'Office',
+    accept: '.docx,.doc,.pptx,.ppt,.xlsx,.xls,.odt,.odp,.ods,.rtf,.txt,.csv,.html',
+    hint: 'DOC, PPT, XLS, ODT, etc.', ep: 'convert', target: 'pdf',
+  };
+
+  return (
+    <ToolPageTemplate data={data}>
+      <ToolWorkspaceEmbed tool={toolConfig} />
+    </ToolPageTemplate>
+  );
 }

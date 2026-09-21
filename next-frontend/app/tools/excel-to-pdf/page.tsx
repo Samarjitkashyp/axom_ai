@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import toolData from '../../../lib/toolData/excel-to-pdf';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
+import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
 import {
   Zap, Shield, Globe, Table, GraduationCap, Briefcase,
   Building2, Calculator, Monitor, Smartphone,
@@ -32,5 +33,14 @@ export default function ExcelToPdfPage() {
     ],
   };
 
-  return <ToolPageTemplate data={data} />;
+  const toolConfig = {
+    id: 'excel2pdf', name: 'Excel → PDF', cat: 'Office',
+    accept: '.xlsx,.xls,.csv,.ods', hint: 'XLSX, XLS, CSV, ODS', ep: 'convert', target: 'pdf',
+  };
+
+  return (
+    <ToolPageTemplate data={data}>
+      <ToolWorkspaceEmbed tool={toolConfig} />
+    </ToolPageTemplate>
+  );
 }

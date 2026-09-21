@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import toolData from '../../../lib/toolData/split-pdf';
 import { buildToolMetadata } from '../../../lib/toolPageTypes';
 import ToolPageTemplate from '../../../components/tools/ToolPageTemplate';
+import ToolWorkspaceEmbed from '../../../components/tools/ToolWorkspaceEmbed';
 import {
   Zap, Shield, Scissors, Download, GraduationCap, Briefcase,
   Building2, Scale, Monitor, Smartphone,
@@ -32,5 +33,14 @@ export default function SplitPdfPage() {
     ],
   };
 
-  return <ToolPageTemplate data={data} />;
+  const toolConfig = {
+    id: 'split', name: 'Split PDF', cat: 'Organize',
+    accept: '.pdf', hint: 'PDF', ep: 'ai', op: 'split',
+  };
+
+  return (
+    <ToolPageTemplate data={data}>
+      <ToolWorkspaceEmbed tool={toolConfig} />
+    </ToolPageTemplate>
+  );
 }

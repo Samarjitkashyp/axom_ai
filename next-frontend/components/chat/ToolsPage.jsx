@@ -252,81 +252,29 @@ export default function ToolsPage({
       router.push('/tools/image-format-converter');
       return;
     }
-    if (t.editor) {
-      onOpenEditor?.();
+    // Route map: tool id → dedicated page slug
+    const TOOL_ROUTES = {
+      edit: 'edit-pdf', sign: 'sign-pdf',
+      compress: 'compress-pdf', video_compress: 'video-compressor',
+      wmremove: 'remove-watermark',
+      imagegen: 'ai-image-generator', imagefinder: 'ai-image-finder',
+      videofinder: 'ai-video-finder', diagramgen: 'ai-diagram-generator',
+      summarize: 'summarize', svgeditor: 'svg-editor',
+      qrgen: 'qr-code-generator', palettegen: 'color-palette-generator',
+      screenshot2code: 'screenshot-to-code', memegen: 'meme-generator',
+      bgremover: 'background-remover',
+      youtubedownloader: 'youtube-video-downloader',
+      videodownloader: 'video-downloader',
+      merge: 'merge-pdf', split: 'split-pdf', extract: 'extract-pdf-pages',
+      watermark: 'watermark-pdf', protect: 'protect-pdf', unlock: 'unlock-pdf',
+      ocr: 'ocr-pdf', chatpdf: 'chat-with-pdf', translatepdf: 'translate-pdf',
+      ppt2pdf: 'ppt-to-pdf', excel2pdf: 'excel-to-pdf', office2pdf: 'office-to-pdf',
+    };
+    const slug = TOOL_ROUTES[t.id];
+    if (slug) {
+      router.push(`/tools/${slug}`);
       return;
     }
-    if (t.compressor) {
-      onOpenCompressor?.();
-      return;
-    }
-    if (t.videocompressor) {
-      onOpenVideoCompressor?.();
-      return;
-    }
-    if (t.wmeditor) {
-      onOpenWmRemover?.();
-      return;
-    }
-    if (t.imagegen) {
-      onOpenImageGen?.();
-      return;
-    }
-    if (t.imagefinder) {
-      onOpenImageFinder?.();
-      return;
-    }
-    if (t.videofinder) {
-      onOpenVideoFinder?.();
-      return;
-    }
-    if (t.diagramgen) {
-      onOpenDiagramGen?.();
-      return;
-    }
-    if (t.summarizer) {
-      onOpenSummarizer?.();
-      return;
-    }
-    if (t.svgeditor) {
-      onOpenSvgEditor?.();
-      return;
-    }
-    if (t.qrgen) {
-      onOpenQrGen?.();
-      return;
-    }
-    if (t.palettegen) {
-      onOpenPaletteGen?.();
-      return;
-    }
-    if (t.screenshot2code) {
-      onOpenScreenshot2Code?.();
-      return;
-    }
-    if (t.memegen) {
-      onOpenMemeGen?.();
-      return;
-    }
-    if (t.bgremover) {
-      onOpenBgRemover?.();
-      return;
-    }
-    if (t.canva || t.id === 'canva' || t.slug === 'canva') {
-      onOpenCanva?.();
-      return;
-    }
-    if (t.youtubedownloader) {
-      onOpenYouTubeDownloader?.();
-      return;
-    }
-    if (t.videodownloader) {
-      onOpenVideoDownloader?.();
-      return;
-    }
-    resetRunner();
-    setActiveTool(t);
-    if (t.param === 'lang') setAngle('assamese');
   };
 
   const closeRunner = () => {
