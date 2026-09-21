@@ -32,6 +32,22 @@ function formatSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+const FREE_DAILY_LIMIT = 20;
+const USAGE_KEY_PREFIX = 'axom_ytdl_usage_';
+
+function getTodayKey() {
+  const d = new Date();
+  return `${USAGE_KEY_PREFIX}${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getDailyUsage() {
+  try { return parseInt(localStorage.getItem(getTodayKey()) || '0', 10); } catch { return 0; }
+}
+
+function incrementDailyUsage() {
+  try { const c = getDailyUsage() + 1; localStorage.setItem(getTodayKey(), String(c)); return c; } catch { return 0; }
+}
+
 export default function YouTubeDownloader({ onClose }) {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,9 +56,12 @@ export default function YouTubeDownloader({ onClose }) {
   const [error, setError] = useState('');
   const [videoInfo, setVideoInfo] = useState(null);
   const [agreedDisclaimer, setAgreedDisclaimer] = useState(false);
+  const [dailyUsed, setDailyUsed] = useState(0);
   const inputRef = useRef(null);
   const xhrRef = useRef(null);
   const progressIntervalRef = useRef(null);
+
+  React.useEffect(() => { setDailyUsed(getDailyUsage()); }, []);
 
   const clearProgressInterval = () => {
     if (progressIntervalRef.current) {
@@ -96,6 +115,10 @@ export default function YouTubeDownloader({ onClose }) {
 
   const handleDownload = (fmt) => {
     if (!videoInfo) return;
+    if (getDailyUsage() >= FREE_DAILY_LIMIT) {
+      setError(`Daily free limit reached (${FREE_DAILY_LIMIT}/day). Upgrade to Pro for unlimited downloads.`);
+      return;
+    }
     clearProgressInterval();
     setDownloadingFormatId(fmt.format_id);
     setError('');
@@ -192,6 +215,9 @@ export default function YouTubeDownloader({ onClose }) {
         link.remove();
         setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
 
+        const used = incrementDailyUsage();
+        setDailyUsed(used);
+
         setDownloadProgress({
           percent: 100,
           loaded: blob.size,
@@ -270,6 +296,13 @@ export default function YouTubeDownloader({ onClose }) {
             <X size={18} />
           </button>
         </div>
+
+        {dailyUsed > 0 && (
+          <div className="ytd-usage-bar">
+            <span>Daily free downloads: {dailyUsed}/{FREE_DAILY_LIMIT}</span>
+            {dailyUsed >= FREE_DAILY_LIMIT && <span style={{ color: '#ef4444', fontWeight: 600 }}>Limit reached</span>}
+          </div>
+        )}
 
         <div className="ytd-body">
           {/* Disclaimer */}
@@ -497,6 +530,13 @@ export default function YouTubeDownloader({ onClose }) {
           height: 3px; width: 100%;
           background: linear-gradient(90deg, #ff0000, #cc0000, #ff4444);
           animation: ytdGlowPulse 3s ease-in-out infinite;
+        }
+
+        .ytd-usage-bar {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 8px 24px; background: rgba(255,255,255,0.04);
+          font-size: 13px; color: rgba(255,255,255,0.6);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
         }
 
         .ytd-header {

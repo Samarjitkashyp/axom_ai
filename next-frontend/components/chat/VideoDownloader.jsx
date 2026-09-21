@@ -47,17 +47,36 @@ function formatSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+const VD_FREE_DAILY_LIMIT = 20;
+const VD_USAGE_KEY_PREFIX = 'axom_vdl_usage_';
+
+function getVdTodayKey() {
+  const d = new Date();
+  return `${VD_USAGE_KEY_PREFIX}${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getVdDailyUsage() {
+  try { return parseInt(localStorage.getItem(getVdTodayKey()) || '0', 10); } catch { return 0; }
+}
+
+function incrementVdDailyUsage() {
+  try { const c = getVdDailyUsage() + 1; localStorage.setItem(getVdTodayKey(), String(c)); return c; } catch { return 0; }
+}
+
 export default function VideoDownloader({ onClose }) {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [downloadingFormatId, setDownloadingFormatId] = useState(null);
-  const [downloadProgress, setDownloadProgress] = useState(null); // { percent, loaded, total, status, label }
+  const [downloadProgress, setDownloadProgress] = useState(null);
   const [error, setError] = useState('');
   const [videoInfo, setVideoInfo] = useState(null);
   const [agreedDisclaimer, setAgreedDisclaimer] = useState(false);
+  const [dailyUsed, setDailyUsed] = useState(0);
   const inputRef = useRef(null);
   const xhrRef = useRef(null);
   const progressIntervalRef = useRef(null);
+
+  React.useEffect(() => { setDailyUsed(getVdDailyUsage()); }, []);
 
   const clearProgressInterval = () => {
     if (progressIntervalRef.current) {
@@ -103,6 +122,10 @@ export default function VideoDownloader({ onClose }) {
 
   const handleDownload = (fmt) => {
     if (!videoInfo) return;
+    if (getVdDailyUsage() >= VD_FREE_DAILY_LIMIT) {
+      setError(`Daily free limit reached (${VD_FREE_DAILY_LIMIT}/day). Upgrade to Pro for unlimited downloads.`);
+      return;
+    }
     clearProgressInterval();
     setDownloadingFormatId(fmt.format_id);
     setError('');
@@ -200,6 +223,9 @@ export default function VideoDownloader({ onClose }) {
         link.remove();
         setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
 
+        const used = incrementVdDailyUsage();
+        setDailyUsed(used);
+
         setDownloadProgress({
           percent: 100,
           loaded: blob.size,
@@ -280,6 +306,13 @@ export default function VideoDownloader({ onClose }) {
             <X size={18} />
           </button>
         </div>
+
+        {dailyUsed > 0 && (
+          <div className="vd-usage-bar">
+            <span>Daily free downloads: {dailyUsed}/{VD_FREE_DAILY_LIMIT}</span>
+            {dailyUsed >= VD_FREE_DAILY_LIMIT && <span style={{ color: '#ef4444', fontWeight: 600 }}>Limit reached</span>}
+          </div>
+        )}
 
         <div className="vd-body">
           {/* Disclaimer Box */}
@@ -566,6 +599,13 @@ export default function VideoDownloader({ onClose }) {
           width: 100%;
           background: linear-gradient(90deg, #7c3aed, #ec4899, #3b82f6);
           animation: vdGlowPulse 3s ease-in-out infinite;
+        }
+
+        .vd-usage-bar {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 8px 24px; background: rgba(255,255,255,0.04);
+          font-size: 13px; color: rgba(255,255,255,0.6);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
         }
 
         .vd-header {
