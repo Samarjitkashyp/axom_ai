@@ -98,8 +98,8 @@ sudo systemctl restart axom
 
 # Fix YouTube cookies file permissions after deploy
 if [ -f "$HOME/config/yt_cookies.txt" ]; then
-  chmod 644 "$HOME/config/yt_cookies.txt"
-  chown $(whoami):$(whoami) "$HOME/config/yt_cookies.txt"
+  chmod 644 /home/admin/config/yt_cookies.txt
+  chown admin:admin /home/admin/config/yt_cookies.txt
   echo ">>> YouTube cookies file permissions fixed."
 fi
 
