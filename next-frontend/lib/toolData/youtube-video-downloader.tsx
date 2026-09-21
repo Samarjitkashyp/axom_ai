@@ -78,7 +78,7 @@ export const toolData: ToolPageData = {
     'youtube mp4 download free',
   ],
   breadcrumbName: 'YouTube Video Downloader',
-  heroBadgeText: 'Free YouTube Downloader -- Fast Direct Streaming',
+  heroBadgeText: '⚡ Free: 20 Downloads / Day • 🛡️ No Signup Required • 🚀 Fast Direct Streaming',
   heroHeadingPrefix: 'Free',
   heroHeadingHighlight: 'YouTube Video Downloader',
   heroHeadingSuffix: 'Online',

@@ -80,7 +80,7 @@ export const toolData: ToolPageData = {
     'tumblr video downloader',
   ],
   breadcrumbName: 'Video Downloader',
-  heroBadgeText: 'Free Multi-Platform Video Downloader -- 13+ Sites Supported',
+  heroBadgeText: '⚡ Free: 20 Downloads / Day • 🛡️ No Signup Required • 🌐 13+ Sites Supported',
   heroHeadingPrefix: 'Free',
   heroHeadingHighlight: 'Video Downloader',
   heroHeadingSuffix: 'for 13+ Platforms',
