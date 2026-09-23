@@ -185,6 +185,21 @@ export interface LandingCMSData {
     is_active: boolean;
   } | null;
   logos: PartnerLogo[];
+  entity_profile?: {
+    badge_text: string;
+    verified_text: string;
+    heading: string;
+    description: string;
+    attr1_label: string;
+    attr1_value: string;
+    attr2_label: string;
+    attr2_value: string;
+    attr3_label: string;
+    attr3_value: string;
+    attr4_label: string;
+    attr4_value: string;
+    active: boolean;
+  };
   explore: {
     badge: string;
     title_prefix: string;

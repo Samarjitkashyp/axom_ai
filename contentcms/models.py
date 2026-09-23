@@ -47,6 +47,31 @@ class SiteHeroConfig(models.Model):
     insights_view_all_text = models.CharField(max_length=100, default='View all articles')
     insights_view_all_url = models.CharField(max_length=300, default='#')
     insights_section_active = models.BooleanField(default=True)
+    entity_badge_text = models.CharField(max_length=150, default="Assam's Sovereign AI Entity Profile")
+    entity_verified_text = models.CharField(max_length=100, default='Official Verified Platform')
+    entity_heading = models.CharField(max_length=250, default='What is Axom AI? (Assam AI Definition & Architecture)')
+    entity_description = models.TextField(
+        default=(
+            '<strong>Axom AI</strong> (stylized as <strong>AI Axom</strong>, Assamese: '
+            '<strong class="font-assamese">অসম এআই</strong>, also commonly referred to as '
+            '<strong>Assam AI</strong>) is Assam\'s flagship indigenous artificial intelligence '
+            'platform headquartered in Guwahati, Assam, India. Founded by AI researcher '
+            '<strong>Samarjit Kashyap</strong>, the platform delivers authentic Assamese Large '
+            'Language Model (LLM) reasoning, scanned document OCR, 20+ file utilities, generative '
+            'image synthesis, and live web search for students, researchers, businesses, and '
+            'creators across Northeast India.'
+        ),
+        help_text='HTML allowed (e.g. <strong>bold</strong>) — rendered as-is on the homepage.'
+    )
+    entity_attr1_label = models.CharField(max_length=100, default='Headquarters')
+    entity_attr1_value = models.CharField(max_length=200, default='Guwahati, Assam (781001)')
+    entity_attr2_label = models.CharField(max_length=100, default='Languages Supported')
+    entity_attr2_value = models.CharField(max_length=200, default='Assamese, English, Hindi')
+    entity_attr3_label = models.CharField(max_length=100, default='Core Architecture')
+    entity_attr3_value = models.CharField(max_length=200, default='Assamese RAG & IndicTrans2')
+    entity_attr4_label = models.CharField(max_length=100, default='Pricing in India')
+    entity_attr4_value = models.CharField(max_length=200, default='₹0 Free Tier • UPI via Razorpay')
+    entity_section_active = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
 

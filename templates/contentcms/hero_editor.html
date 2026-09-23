@@ -234,6 +234,95 @@
     </div>
   </div>
 
+  <!-- Entity Profile / "What is Axom AI?" Box -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-id-card-clip text-purple-400"></i>
+          Entity Profile Box ("What is Axom AI?")
+        </h2>
+        <p class="text-xs text-slate-400">AEO/GEO answer box shown right below the Partner Logos strip on the homepage</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="entity_active" class="sr-only peer" {% if hero.entity_section_active %}checked{% endif %}>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Active</span>
+      </label>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Top-Left Badge Text</label>
+        <input type="text" id="entity_badge_text" value="{{ hero.entity_badge_text }}"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Top-Right "Verified" Text</label>
+        <input type="text" id="entity_verified_text" value="{{ hero.entity_verified_text }}"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading</label>
+      <input type="text" id="entity_heading" value="{{ hero.entity_heading }}"
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Description</label>
+      <textarea id="entity_description" rows="5"
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-purple-500">{{ hero.entity_description }}</textarea>
+      <p class="text-[11px] text-slate-500 mt-1.5"><i class="fa-solid fa-circle-info text-purple-400 mr-1"></i>HTML allowed for bold text, e.g. <code class="text-purple-300">&lt;strong&gt;Axom AI&lt;/strong&gt;</code></p>
+    </div>
+
+    <!-- Attribute Grid (4 cards) -->
+    <div class="space-y-3 p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+      <div class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-table-cells text-fuchsia-400"></i>
+        Attribute Cards (4)
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="block text-xs text-slate-400">Card 1 Label / Value</label>
+          <input type="text" id="entity_attr1_label" value="{{ hero.entity_attr1_label }}" placeholder="Label"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+          <input type="text" id="entity_attr1_value" value="{{ hero.entity_attr1_value }}" placeholder="Value"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+        <div class="space-y-2">
+          <label class="block text-xs text-slate-400">Card 2 Label / Value</label>
+          <input type="text" id="entity_attr2_label" value="{{ hero.entity_attr2_label }}" placeholder="Label"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+          <input type="text" id="entity_attr2_value" value="{{ hero.entity_attr2_value }}" placeholder="Value"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+        <div class="space-y-2">
+          <label class="block text-xs text-slate-400">Card 3 Label / Value</label>
+          <input type="text" id="entity_attr3_label" value="{{ hero.entity_attr3_label }}" placeholder="Label"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+          <input type="text" id="entity_attr3_value" value="{{ hero.entity_attr3_value }}" placeholder="Value"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+        <div class="space-y-2">
+          <label class="block text-xs text-slate-400">Card 4 Label / Value</label>
+          <input type="text" id="entity_attr4_label" value="{{ hero.entity_attr4_label }}" placeholder="Label"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+          <input type="text" id="entity_attr4_value" value="{{ hero.entity_attr4_value }}" placeholder="Value"
+            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none">
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row justify-end pt-4 border-t border-slate-800">
+      <button onclick="saveEntityProfile()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 text-white font-semibold rounded-xl text-sm shadow-xl shadow-fuchsia-600/25 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        Publish Entity Profile Changes Live
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <!-- Modal for Logo Add/Edit (File Upload) -->
@@ -334,6 +423,41 @@ async function saveHero() {
     }
   } catch (err) {
     showToast('Network error while saving hero', 'error');
+  }
+}
+
+async function saveEntityProfile() {
+  const payload = {
+    entity_section_active: document.getElementById('entity_active').checked,
+    entity_badge_text: document.getElementById('entity_badge_text').value,
+    entity_verified_text: document.getElementById('entity_verified_text').value,
+    entity_heading: document.getElementById('entity_heading').value,
+    entity_description: document.getElementById('entity_description').value,
+    entity_attr1_label: document.getElementById('entity_attr1_label').value,
+    entity_attr1_value: document.getElementById('entity_attr1_value').value,
+    entity_attr2_label: document.getElementById('entity_attr2_label').value,
+    entity_attr2_value: document.getElementById('entity_attr2_value').value,
+    entity_attr3_label: document.getElementById('entity_attr3_label').value,
+    entity_attr3_value: document.getElementById('entity_attr3_value').value,
+    entity_attr4_label: document.getElementById('entity_attr4_label').value,
+    entity_attr4_value: document.getElementById('entity_attr4_value').value,
+    is_active: document.getElementById('hero_active').checked,
+  };
+
+  try {
+    const res = await fetch('/axomai-content/hero/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Entity profile updated successfully!', 'success');
+    } else {
+      showToast(data.error || 'Failed to save entity profile', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while saving entity profile', 'error');
   }
 }
 

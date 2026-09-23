@@ -200,6 +200,7 @@ export default async function HomePage() {
 
   const hero = cms?.hero;
   const logos = cms?.logos || [];
+  const entity = cms?.entity_profile;
   const explore = cms?.explore;
   const testimonialsHeader = cms?.testimonials_header;
   const testimonials = testimonialsHeader?.items || [];
@@ -431,58 +432,59 @@ export default async function HomePage() {
         )}
 
         {/* ==================== AEO DIRECT ANSWER & ENTITY PROFILE BOX ==================== */}
-        <section className="py-14 relative bg-[#04060d] border-b border-white/5">
-          <div className="max-w-5xl mx-auto px-5">
-            <div className="p-6 sm:p-9 rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-950/30 via-slate-900/80 to-black shadow-2xl backdrop-blur-md">
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider">
-                  <Globe className="w-3.5 h-3.5" /> Assam&apos;s Sovereign AI Entity Profile
-                </div>
-                <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
-                  <CheckCircle2 size={14} /> Official Verified Platform
-                </span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
-                What is Axom AI? (Assam AI Definition &amp; Architecture)
-              </h2>
-
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed mb-6">
-                <strong>Axom AI</strong> (stylized as <strong>AI Axom</strong>, Assamese:{' '}
-                <strong className="font-assamese">অসম এআই</strong>, also commonly referred to as{' '}
-                <strong>Assam AI</strong>) is Assam&apos;s flagship indigenous artificial intelligence
-                platform headquartered in Guwahati, Assam, India. Founded by AI researcher{' '}
-                <strong>Samarjit Kashyap</strong>, the platform delivers authentic Assamese Large Language
-                Model (LLM) reasoning, scanned document OCR, 20+ file utilities, generative image
-                synthesis, and live web search for students, researchers, businesses, and creators
-                across Northeast India.
-              </p>
-
-              {/* Entity Attribute Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-4 border-t border-white/10">
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Headquarters</div>
-                  <div className="text-white font-semibold flex items-center gap-1">
-                    <MapPin size={12} className="text-fuchsia-400 shrink-0" />
-                    <span>Guwahati, Assam (781001)</span>
+        {entity?.active !== false && (
+          <section className="py-14 relative bg-[#04060d] border-b border-white/5">
+            <div className="max-w-5xl mx-auto px-5">
+              <div className="p-6 sm:p-9 rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-950/30 via-slate-900/80 to-black shadow-2xl backdrop-blur-md">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider">
+                    <Globe className="w-3.5 h-3.5" />
+                    {entity?.badge_text || "Assam's Sovereign AI Entity Profile"}
                   </div>
+                  <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                    <CheckCircle2 size={14} /> {entity?.verified_text || 'Official Verified Platform'}
+                  </span>
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Languages Supported</div>
-                  <div className="text-white font-semibold">Assamese, English, Hindi</div>
-                </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Core Architecture</div>
-                  <div className="text-white font-semibold">Assamese RAG &amp; IndicTrans2</div>
-                </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">Pricing in India</div>
-                  <div className="text-emerald-400 font-semibold">₹0 Free Tier • UPI via Razorpay</div>
+
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+                  {entity?.heading || 'What is Axom AI? (Assam AI Definition & Architecture)'}
+                </h2>
+
+                <p
+                  className="text-xs sm:text-sm text-slate-200 leading-relaxed mb-6"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      entity?.description ||
+                      "Axom AI is Assam's flagship indigenous artificial intelligence platform headquartered in Guwahati, Assam, India.",
+                  }}
+                />
+
+                {/* Entity Attribute Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-4 border-t border-white/10">
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">{entity?.attr1_label || 'Headquarters'}</div>
+                    <div className="text-white font-semibold flex items-center gap-1">
+                      <MapPin size={12} className="text-fuchsia-400 shrink-0" />
+                      <span>{entity?.attr1_value || 'Guwahati, Assam (781001)'}</span>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">{entity?.attr2_label || 'Languages Supported'}</div>
+                    <div className="text-white font-semibold">{entity?.attr2_value || 'Assamese, English, Hindi'}</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">{entity?.attr3_label || 'Core Architecture'}</div>
+                    <div className="text-white font-semibold">{entity?.attr3_value || 'Assamese RAG & IndicTrans2'}</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="text-gray-400 text-[10px] uppercase font-bold tracking-wider mb-1">{entity?.attr4_label || 'Pricing in India'}</div>
+                    <div className="text-emerald-400 font-semibold">{entity?.attr4_value || '₹0 Free Tier • UPI via Razorpay'}</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ==================== AI IN ASSAM: REGIONAL IMPACT ==================== */}
         <section className="py-20 md:py-28 relative bg-[#06060b] border-b border-white/5">
