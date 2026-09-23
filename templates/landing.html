@@ -267,7 +267,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     "cta_secondary_url": "{{ cms.hero.cta_secondary_url|default:'#tools'|escapejs }}",
     "trust_badge_1": "{{ cms.hero.trust_badge_1|default:'No credit card required'|escapejs }}",
     "trust_badge_2": "{{ cms.hero.trust_badge_2|default:'Fast & secure'|escapejs }}",
-    "trust_badge_3": "{{ cms.hero.trust_badge_3|default:'Accessible for everyone'|escapejs }}",
     "logo_strip_headline": "{{ cms.logo_strip_headline|default:'Built with the best'|escapejs }}",
     "logo_strip_active": {{ cms.logo_strip_active|default:True|yesno:"true,false" }}
   },
@@ -687,7 +686,6 @@ function Hero() {
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-gray-400">
           <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> {h.trust_badge_1 || "No credit card required"}</div>
           <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> {h.trust_badge_2 || "Fast & secure"}</div>
-          <div className="flex items-center gap-1.5"><ICheck c="w-4 h-4 text-fuchsia-400"/> {h.trust_badge_3 || "Accessible for everyone"}</div>
         </div>
 
         <div className="mt-14 flex justify-center">
