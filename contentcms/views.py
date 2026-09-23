@@ -140,7 +140,6 @@ def save_hero_api(request):
         hero.cta_secondary_url = data.get('cta_secondary_url', hero.cta_secondary_url)
         hero.trust_badge_1 = data.get('trust_badge_1', hero.trust_badge_1)
         hero.trust_badge_2 = data.get('trust_badge_2', hero.trust_badge_2)
-        hero.trust_badge_3 = data.get('trust_badge_3', hero.trust_badge_3)
         hero.logo_strip_headline = data.get('logo_strip_headline', hero.logo_strip_headline)
         if 'logo_strip_active' in data:
             hero.logo_strip_active = bool(data.get('logo_strip_active'))
