@@ -6,7 +6,6 @@ import {
   ArrowRight,
   ShieldCheck,
   Zap,
-  Lock,
   Bot,
   PenTool,
   Image as ImageIcon,
@@ -362,7 +361,7 @@ export default async function HomePage() {
 
             {/* Keyword-Rich H1 Headline */}
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08] mb-6">
-              Axom AI — <br className="hidden sm:inline" />
+              {hero?.main_heading_prefix || 'Axom AI —'} <br className="hidden sm:inline" />
               <span className="gradient-text">
                 {hero?.main_heading_highlight || "Assam's Indigenous AI Platform"}
               </span>
@@ -402,10 +401,6 @@ export default async function HomePage() {
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-fuchsia-400" />
                 <span>{hero?.trust_badge_2 || 'Sub-second Indian Edge compute'}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-fuchsia-400" />
-                <span>DPDP Act 2023 Compliant</span>
               </div>
             </div>
           </div>
