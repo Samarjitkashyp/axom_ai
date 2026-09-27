@@ -218,7 +218,7 @@ def users_page(request):
     user_stats = {}
     for uid in page_user_ids:
         records = UsageRecord.objects.filter(user_id=uid)
-        tokens_count = records.aggregate(total=Sum('tokens_used'))['total'] or 0
+        tokens_count = records.count()
         img_count = records.filter(action_type='image').count()
         chats_count = ChatSession.objects.filter(user_id=uid).count()
         user_stats[uid] = {
