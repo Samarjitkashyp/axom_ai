@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST
 from payments.models import Payment, UserPlan, PLAN_CATALOG
 from knowledge.models import KnowledgeDocument, KnowledgeChunk, QAPair, ChatSession, ChatMessage, UnansweredQuery, Feedback
 from userpanel.models import SupportTicket, TicketReply, UsageRecord, InAppNotification
-from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission, LanguageRule, AITool
+from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission, LanguageRule, AITool, UserTag, UserCustomQuota
 
 
 def _is_super(u):
@@ -173,9 +173,10 @@ def users_page(request):
     q = request.GET.get('q', '').strip()
     plan_filter = request.GET.get('plan', '').strip()
     status_filter = request.GET.get('status', '').strip()
+    tag_filter = request.GET.get('tag', '').strip()
     sort_by = request.GET.get('sort', '-date_joined')
 
-    users_qs = User.objects.select_related('plan').all()
+    users_qs = User.objects.select_related('plan').prefetch_related('tags', 'custom_quota').all()
 
     if q:
         users_qs = users_qs.filter(
@@ -198,17 +199,68 @@ def users_page(request):
         else:
             users_qs = users_qs.filter(plan__plan=plan_filter, plan__status='active')
 
-    users_qs = users_qs.order_by(sort_by)
+    if tag_filter:
+        users_qs = users_qs.filter(tags__tag_name=tag_filter)
+
+    valid_sorts = ['-date_joined', 'date_joined', 'username', '-last_login']
+    if sort_by not in valid_sorts:
+        sort_by = '-date_joined'
+
+    users_qs = users_qs.order_by(sort_by).distinct()
 
     paginator = Paginator(users_qs, 20)
     page_number = request.GET.get('page', 1)
     users_page_obj = paginator.get_page(page_number)
 
+    page_user_ids = [u.id for u in users_page_obj]
+
+    # Pre-fetch stats for current page users
+    user_stats = {}
+    for uid in page_user_ids:
+        records = UsageRecord.objects.filter(user_id=uid)
+        tokens_count = records.aggregate(total=Sum('tokens_used'))['total'] or 0
+        img_count = records.filter(action_type='image').count()
+        chats_count = ChatSession.objects.filter(user_id=uid).count()
+        user_stats[uid] = {
+            'tokens': tokens_count,
+            'chats': chats_count,
+            'images': img_count,
+        }
+
+    # Permissions map
+    perms_map = {}
+    for sp in SubdomainPermission.objects.filter(user_id__in=page_user_ids):
+        perms_map[sp.user_id] = {'admin': sp.admin_access, 'content': sp.content_access, 'bot': sp.bot_access}
+
+    # Tags map
+    tags_map = {}
+    for tag in UserTag.objects.filter(user_id__in=page_user_ids):
+        if tag.user_id not in tags_map:
+            tags_map[tag.user_id] = []
+        tags_map[tag.user_id].append({'id': tag.id, 'name': tag.tag_name, 'color': tag.color})
+
+    # Quota overrides map
+    quotas_map = {}
+    for cq in UserCustomQuota.objects.filter(user_id__in=page_user_ids):
+        quotas_map[cq.user_id] = {
+            'chat': cq.chat_per_day,
+            'images': cq.images_per_day,
+            'searches': cq.searches_per_day,
+            'pdf': cq.pdf_per_day,
+        }
+
+    # All distinct tags in database for filter dropdown
+    all_tags = list(UserTag.objects.values_list('tag_name', flat=True).distinct())
     plans_list = list(PLAN_CATALOG.keys())
 
-    perms_map = {}
-    for sp in SubdomainPermission.objects.filter(user__in=[u.id for u in users_page_obj]):
-        perms_map[sp.user_id] = {'admin': sp.admin_access, 'content': sp.content_access, 'bot': sp.bot_access}
+    # Attach computed stats onto user objects for easy template access
+    for u in users_page_obj:
+        st = user_stats.get(u.id, {'tokens': 0, 'chats': 0, 'images': 0})
+        u.stat_tokens = st['tokens']
+        u.stat_chats = st['chats']
+        u.stat_images = st['images']
+        u.tag_list = tags_map.get(u.id, [])
+        u.custom_q = quotas_map.get(u.id, None)
 
     context = {
         'active': 'users',
@@ -216,10 +268,14 @@ def users_page(request):
         'q': q,
         'plan_filter': plan_filter,
         'status_filter': status_filter,
+        'tag_filter': tag_filter,
         'sort_by': sort_by,
         'plans_list': plans_list,
+        'all_tags': all_tags,
         'total_count': users_qs.count(),
         'perms_map': json.dumps(perms_map),
+        'tags_map': json.dumps(tags_map),
+        'quotas_map': json.dumps(quotas_map),
     }
     return render(request, 'superadmin/users.html', context)
 
@@ -230,6 +286,85 @@ def user_action_api(request):
     try:
         data = json.loads(request.body)
         action = data.get('action')
+
+        # Handle Bulk Actions
+        if action == 'bulk_action':
+            bulk_type = data.get('bulk_type')
+            user_ids = data.get('user_ids', [])
+            if not user_ids:
+                return JsonResponse({'success': False, 'error': 'No users selected.'}, status=400)
+
+            target_users = User.objects.filter(id__in=user_ids)
+
+            if bulk_type == 'activate':
+                count = target_users.update(is_active=True)
+                _log_audit(request, "BULK_USER_ACTIVATE", f"{count} users", f"User IDs: {user_ids}")
+                return JsonResponse({'success': True, 'message': f'Successfully activated {count} users.'})
+
+            elif bulk_type == 'deactivate':
+                safe_users = target_users.exclude(id=request.user.id).exclude(is_superuser=True)
+                count = safe_users.update(is_active=False)
+                _log_audit(request, "BULK_USER_DEACTIVATE", f"{count} users", f"User IDs: {user_ids}")
+                return JsonResponse({'success': True, 'message': f'Successfully deactivated {count} users.'})
+
+            elif bulk_type == 'delete':
+                safe_users = target_users.exclude(id=request.user.id).exclude(is_superuser=True)
+                count = safe_users.count()
+                safe_users.delete()
+                _log_audit(request, "BULK_USER_DELETE", f"{count} users", f"User IDs: {user_ids}")
+                return JsonResponse({'success': True, 'message': f'Permanently deleted {count} users.'})
+
+            elif bulk_type == 'change_plan':
+                new_plan_key = data.get('plan_key', 'free')
+                duration_days = int(data.get('duration_days', 30))
+                now = timezone.now()
+                expires_at = now + timedelta(days=duration_days)
+
+                for u in target_users:
+                    if new_plan_key == 'free':
+                        if hasattr(u, 'plan'):
+                            u.plan.status = 'expired'
+                            u.plan.save()
+                    else:
+                        up, _ = UserPlan.objects.get_or_create(user=u, defaults={'plan': new_plan_key, 'started_at': now, 'expires_at': expires_at, 'status': 'active'})
+                        up.plan = new_plan_key
+                        up.started_at = now
+                        up.expires_at = expires_at
+                        up.status = 'active'
+                        up.save()
+
+                _log_audit(request, "BULK_PLAN_CHANGE", f"{target_users.count()} users", f"Assigned {new_plan_key}")
+                return JsonResponse({'success': True, 'message': f'Updated plan to {new_plan_key} for {target_users.count()} users.'})
+
+            elif bulk_type == 'gift_days':
+                days = int(data.get('days', 7))
+                now = timezone.now()
+                for u in target_users:
+                    if hasattr(u, 'plan') and u.plan.is_active():
+                        u.plan.expires_at += timedelta(days=days)
+                        u.plan.save()
+                    else:
+                        UserPlan.objects.create(user=u, plan='starter_monthly', started_at=now, expires_at=now + timedelta(days=days), status='active')
+
+                _log_audit(request, "BULK_GIFT_DAYS", f"{target_users.count()} users", f"Gifted +{days} days")
+                return JsonResponse({'success': True, 'message': f'Gifted +{days} days to {target_users.count()} users.'})
+
+            elif bulk_type == 'add_tag':
+                tag_name = data.get('tag_name', '').strip()
+                color = data.get('color', 'indigo')
+                if not tag_name:
+                    return JsonResponse({'success': False, 'error': 'Tag name required.'}, status=400)
+                added = 0
+                for u in target_users:
+                    _, created = UserTag.objects.get_or_create(user=u, tag_name=tag_name, defaults={'color': color})
+                    if created:
+                        added += 1
+                _log_audit(request, "BULK_ADD_TAG", f"{target_users.count()} users", f"Added tag {tag_name}")
+                return JsonResponse({'success': True, 'message': f'Added tag "{tag_name}" to {added} users.'})
+
+            return JsonResponse({'success': False, 'error': 'Unknown bulk action.'}, status=400)
+
+        # Single User Actions
         user_id = data.get('user_id')
         user = get_object_or_404(User, id=user_id)
 
@@ -237,7 +372,6 @@ def user_action_api(request):
         if user == request.user and action in ['toggle_status', 'delete']:
             return JsonResponse({'success': False, 'error': 'Cannot deactivate or delete current logged-in super admin.'}, status=400)
 
-        # Protect against removing the only remaining active superuser
         if user.is_superuser and action in ['toggle_status', 'delete']:
             remaining_supers = User.objects.filter(is_superuser=True, is_active=True).exclude(id=user.id).count()
             if remaining_supers < 1:
@@ -317,6 +451,44 @@ def user_action_api(request):
             _log_audit(request, "USER_PERMISSIONS", f"User: {user.username}",
                        f"admin={admin_access}, content={content_access}, bot={bot_access}")
             return JsonResponse({'success': True, 'message': f'Permissions updated for {user.username}.'})
+
+        elif action == 'add_tag':
+            tag_name = data.get('tag_name', '').strip()
+            color = data.get('color', 'indigo')
+            if not tag_name:
+                return JsonResponse({'success': False, 'error': 'Tag name cannot be empty.'}, status=400)
+            tag, created = UserTag.objects.get_or_create(user=user, tag_name=tag_name, defaults={'color': color})
+            if not created and tag.color != color:
+                tag.color = color
+                tag.save()
+            _log_audit(request, "USER_ADD_TAG", f"User: {user.username}", f"Added tag {tag_name}")
+            return JsonResponse({'success': True, 'message': f'Tag "{tag_name}" added.', 'tag': {'id': tag.id, 'name': tag.tag_name, 'color': tag.color}})
+
+        elif action == 'remove_tag':
+            tag_id = data.get('tag_id')
+            tag_name = data.get('tag_name')
+            if tag_id:
+                UserTag.objects.filter(user=user, id=tag_id).delete()
+            elif tag_name:
+                UserTag.objects.filter(user=user, tag_name=tag_name).delete()
+            _log_audit(request, "USER_REMOVE_TAG", f"User: {user.username}", f"Removed tag {tag_name or tag_id}")
+            return JsonResponse({'success': True, 'message': 'Tag removed.'})
+
+        elif action == 'set_custom_quota':
+            chat_per_day = int(data.get('chat_per_day', -1))
+            images_per_day = int(data.get('images_per_day', -1))
+            searches_per_day = int(data.get('searches_per_day', -1))
+            pdf_per_day = int(data.get('pdf_per_day', -1))
+
+            cq, _ = UserCustomQuota.objects.get_or_create(user=user)
+            cq.chat_per_day = chat_per_day
+            cq.images_per_day = images_per_day
+            cq.searches_per_day = searches_per_day
+            cq.pdf_per_day = pdf_per_day
+            cq.save()
+            _log_audit(request, "USER_QUOTA_OVERRIDE", f"User: {user.username}",
+                       f"chat={chat_per_day}, images={images_per_day}, searches={searches_per_day}")
+            return JsonResponse({'success': True, 'message': f'Custom quota override saved for {user.username}.'})
 
         elif action == 'delete':
             username = user.username

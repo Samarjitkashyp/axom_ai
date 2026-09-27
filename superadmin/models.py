@@ -267,3 +267,39 @@ class CanvaToken(models.Model):
     @property
     def is_expired(self):
         return timezone.now() >= self.expires_at
+
+
+class UserTag(models.Model):
+    """Custom tags/labels assigned to users by Superadmin."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='tags'
+    )
+    tag_name = models.CharField(max_length=32, db_index=True)
+    color = models.CharField(max_length=20, default='indigo')  # indigo, emerald, amber, rose, cyan, fuchsia, purple
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'tag_name')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.tag_name}"
+
+
+class UserCustomQuota(models.Model):
+    """Per-user daily quota overrides set by Superadmin."""
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='custom_quota'
+    )
+    chat_per_day = models.IntegerField(default=-1, help_text="-1 to use plan default, -2 for unlimited, or specific number")
+    images_per_day = models.IntegerField(default=-1, help_text="-1 to use plan default, -2 for unlimited, or specific number")
+    searches_per_day = models.IntegerField(default=-1, help_text="-1 to use plan default, -2 for unlimited, or specific number")
+    pdf_per_day = models.IntegerField(default=-1, help_text="-1 to use plan default, -2 for unlimited, or specific number")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Quota override for {self.user.username}"
+

@@ -195,13 +195,24 @@ def _get_user_limits(user):
         img_limit = int(SystemSetting.get_setting('daily_image_limit_free', '3'))
         search_limit = int(SystemSetting.get_setting('daily_search_limit_free', '5'))
 
+    chat_limit = -1
+    # Check for per-user custom quota override set by Superadmin
+    if hasattr(user, 'custom_quota') and user.custom_quota:
+        cq = user.custom_quota
+        if cq.images_per_day != -1:
+            img_limit = -1 if cq.images_per_day == -2 else cq.images_per_day
+        if cq.searches_per_day != -1:
+            search_limit = -1 if cq.searches_per_day == -2 else cq.searches_per_day
+        if cq.chat_per_day != -1:
+            chat_limit = -1 if cq.chat_per_day == -2 else cq.chat_per_day
+
     return {
         'plan_name': plan_name,
         'is_active': is_active_plan,
         'plan_obj': plan_obj,
         'img_limit': img_limit,
         'search_limit': search_limit,
-        'chat_limit': -1,
+        'chat_limit': chat_limit,
     }
 
 
