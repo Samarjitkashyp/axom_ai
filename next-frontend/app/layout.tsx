@@ -23,7 +23,17 @@ export const metadata: Metadata = {
     'Assamese ChatGPT',
     'AI in Assam',
     'Assam AI startup',
-    'Northeast India AI'
+    'Northeast India AI',
+    'ai in assam',
+    'assam ai',
+    'axom ai',
+    'NE india ai',
+    'northeast india ai',
+    'guwahati ai',
+    'assam',
+    'guwahati',
+    'assam chat',
+    'artificial inteligence in assam'
   ],
   authors: [{ name: 'Axom AI', url: 'https://aiaxom.co.in' }],
   creator: 'Axom AI',
