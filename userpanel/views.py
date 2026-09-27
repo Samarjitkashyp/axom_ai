@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from payments.models import Payment, UserPlan, PLAN_CATALOG
-from superadmin.models import CustomPlanOverride, SystemSetting, CouponCode
+from superadmin.models import CustomPlanOverride, SystemSetting, CouponCode, UserCustomQuota
 from knowledge.models import ChatSession, ChatMessage
 from .models import UserProfile, SupportTicket, TicketReply, UsageRecord, InAppNotification
 
@@ -169,7 +169,7 @@ def _get_user_limits(user):
     now = timezone.now()
     plan_name = "free"
     is_active_plan = False
-    plan_obj = getattr(user, 'plan', None) if hasattr(user, 'plan') else None
+    plan_obj = UserPlan.objects.filter(user=user).first()
 
     if plan_obj and plan_obj.is_active():
         plan_name = plan_obj.plan
@@ -197,8 +197,8 @@ def _get_user_limits(user):
 
     chat_limit = -1
     # Check for per-user custom quota override set by Superadmin
-    if hasattr(user, 'custom_quota') and user.custom_quota:
-        cq = user.custom_quota
+    cq = UserCustomQuota.objects.filter(user=user).first()
+    if cq:
         if cq.images_per_day != -1:
             img_limit = -1 if cq.images_per_day == -2 else cq.images_per_day
         if cq.searches_per_day != -1:
@@ -390,9 +390,10 @@ def cancel_subscription_api(request):
         data = json.loads(request.body)
         reason = data.get('reason', 'User requested cancellation')
 
-        if hasattr(request.user, 'plan'):
-            request.user.plan.status = 'expired'
-            request.user.plan.save()
+        user_plan = UserPlan.objects.filter(user=request.user).first()
+        if user_plan:
+            user_plan.status = 'expired'
+            user_plan.save()
 
         InAppNotification.objects.create(
             user=request.user,
@@ -695,9 +696,10 @@ def delete_account_api(request):
         user.save()
 
         # Expire plan
-        if hasattr(user, 'plan'):
-            user.plan.status = 'expired'
-            user.plan.save()
+        user_plan = UserPlan.objects.filter(user=user).first()
+        if user_plan:
+            user_plan.status = 'expired'
+            user_plan.save()
 
         logout(request)
         return JsonResponse({'success': True, 'message': 'Account deactivated successfully.'})
