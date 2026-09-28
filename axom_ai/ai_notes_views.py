@@ -200,24 +200,83 @@ def _extract_from_txt(path):
     }
 
 
+def _openai_generate_notes(system_prompt, user_prompt, timeout=60):
+    """
+    Tier 1: OpenAI chat completion (gpt-4o-mini with fallback to gpt-4o).
+    """
+    key = os.getenv('OPENAI_API_KEY', '').strip()
+    if not key:
+        return None
+
+    models_to_try = ['gpt-4o-mini', 'gpt-4o']
+    for model in models_to_try:
+        try:
+            res = http_session.post(
+                'https://api.openai.com/v1/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {key}',
+                    'Content-Type': 'application/json',
+                },
+                json={
+                    'model': model,
+                    'messages': [
+                        {'role': 'system', 'content': system_prompt},
+                        {'role': 'user', 'content': user_prompt},
+                    ],
+                    'temperature': 0.3,
+                },
+                timeout=timeout,
+            )
+            if res.status_code == 200:
+                data = res.json()
+                txt = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+                if txt and len(txt.strip()) > 50:
+                    return txt.strip()
+            else:
+                logger.warning("OpenAI model %s failed with status %d: %s", model, res.status_code, res.text[:200])
+        except Exception as e:
+            logger.warning("OpenAI %s exception: %s", model, e)
+            continue
+    return None
+
+
 def _call_ai_engine(system_prompt, user_prompt, timeout=75):
     """
-    Calls Groq first with 70B model, fallback to Google Gemini.
+    Strict Priority Chain:
+      1. OpenAI (Primary: gpt-4o-mini / gpt-4o)
+      2. Google Gemini (Secondary: gemini-2.5-flash / gemini-1.5-flash)
+      3. Groq (Tertiary: llama-3.3-70b-versatile ultra-fast safety net)
     """
-    out = _groq_generate(system_prompt, user_prompt, timeout=timeout)
-    if out and len(out.strip()) > 50:
-        return out.strip()
+    # 1. Tier 1: OpenAI
+    try:
+        openai_out = _openai_generate_notes(system_prompt, user_prompt, timeout=timeout)
+        if openai_out and len(openai_out.strip()) > 50:
+            return openai_out.strip()
+    except Exception as e:
+        logger.warning("Tier 1 OpenAI error: %s", e)
 
+    # 2. Tier 2: Google Gemini
     gk = os.getenv('GEMINI_API_KEY', '').strip()
     if gk:
-        gemini_out = _gemini_generate(
-            gk,
-            system_prompt,
-            user_prompt,
-            ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest'],
-        )
-        if gemini_out and len(gemini_out.strip()) > 50:
-            return gemini_out.strip()
+        try:
+            gemini_out = _gemini_generate(
+                gk,
+                system_prompt,
+                user_prompt,
+                ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest'],
+            )
+            if gemini_out and len(gemini_out.strip()) > 50:
+                return gemini_out.strip()
+        except Exception as e:
+            logger.warning("Tier 2 Gemini error: %s", e)
+
+    # 3. Tier 3: Groq
+    try:
+        groq_out = _groq_generate(system_prompt, user_prompt, timeout=timeout)
+        if groq_out and len(groq_out.strip()) > 50:
+            return groq_out.strip()
+    except Exception as e:
+        logger.warning("Tier 3 Groq error: %s", e)
 
     return None
 
