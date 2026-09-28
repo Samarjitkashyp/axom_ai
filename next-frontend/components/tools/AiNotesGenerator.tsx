@@ -87,6 +87,52 @@ interface QuestionItem {
   model_answer: string;
 }
 
+// Helper: Format bold and page references inline
+function formatInlineText(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*|\[Page\s+\d+\]|\(Page\s+\d+\))/gi);
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={idx} className="font-semibold text-white">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (/^\[Page\s+\d+\]$/i.test(part) || /^\(Page\s+\d+\)$/i.test(part)) {
+      return (
+        <span
+          key={idx}
+          className="inline-flex items-center px-1.5 py-0.5 mx-1 rounded-md text-[11px] font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30 select-none shadow-sm"
+        >
+          📄 {part.replace(/[[\]()]/g, '')}
+        </span>
+      );
+    }
+    return part;
+  });
+}
+
+// Helper: Client TOC extractor
+function extractClientToc(md: string): TocItem[] {
+  const items: TocItem[] = [];
+  const lines = md.split('\n');
+  let count = 1;
+  for (const l of lines) {
+    const match = l.match(/^(#{1,3})\s+(.+)$/);
+    if (match) {
+      const hashes = match[1];
+      const title = match[2].replace(/[*_`#]/g, '').trim();
+      items.push({
+        id: `sec-${count}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        title,
+        level: hashes.length,
+      });
+      count++;
+    }
+  }
+  return items;
+}
+
 export default function AiNotesGenerator() {
   // Mode: student vs teacher
   const [mode, setMode] = useState<'student' | 'teacher'>('student');
@@ -380,27 +426,6 @@ export default function AiNotesGenerator() {
     }
   };
 
-  // Helper: Client TOC extractor
-  const extractClientToc = (md: string): TocItem[] => {
-    const items: TocItem[] = [];
-    const lines = md.split('\n');
-    let count = 1;
-    for (const l of lines) {
-      const match = l.match(/^(#{1,3})\s+(.+)$/);
-      if (match) {
-        const hashes = match[1];
-        const title = match[2].replace(/[*_`#]/g, '').trim();
-        items.push({
-          id: `sec-${count}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-          title,
-          level: hashes.length,
-        });
-        count++;
-      }
-    }
-    return items;
-  };
-
   // Refine Action Handler
   const handleRefineAction = async (action: string, targetLanguage?: string) => {
     setIsRefining(true);
@@ -671,32 +696,6 @@ export default function AiNotesGenerator() {
 
     return elements;
   }, [notesMarkdown]);
-
-  // Format bold and page references inline
-  const formatInlineText = (text: string) => {
-    // Regex for bold **text** and page references [Page X] or (Page X)
-    const parts = text.split(/(\*\*.*?\*\*|\[Page\s+\d+\]|\(Page\s+\d+\))/gi);
-    return parts.map((part, idx) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return (
-          <strong key={idx} className="font-semibold text-white">
-            {part.slice(2, -2)}
-          </strong>
-        );
-      }
-      if (/^\[Page\s+\d+\]$/i.test(part) || /^\(Page\s+\d+\)$/i.test(part)) {
-        return (
-          <span
-            key={idx}
-            className="inline-flex items-center px-1.5 py-0.5 mx-1 rounded-md text-[11px] font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30 select-none shadow-sm"
-          >
-            📄 {part.replace(/[[\]()]/g, '')}
-          </span>
-        );
-      }
-      return part;
-    });
-  };
 
   return (
     <div className="w-full max-w-6xl mx-auto">
