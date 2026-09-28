@@ -202,41 +202,78 @@ def _extract_from_txt(path):
 
 def _openai_generate_notes(system_prompt, user_prompt, timeout=60):
     """
-    Tier 1: OpenAI chat completion (gpt-4o-mini with fallback to gpt-4o).
+    Tier 1: OpenAI chat completion with cascading model hierarchy.
+    Rule: Strongest model is tried FIRST (e.g. gpt-4o), and only if rate-limited
+    or exhausted, step-by-step cascades down to secondary models (o3-mini, gpt-4o-mini).
+    Only when ALL OpenAI models are exhausted does it return None to trigger Gemini.
     """
     key = os.getenv('OPENAI_API_KEY', '').strip()
     if not key:
         return None
 
-    models_to_try = ['gpt-4o-mini', 'gpt-4o']
+    # Priority order: Strongest model first -> next models in step-by-step cascade
+    models_to_try = [
+        'gpt-4o',          # 1. Strongest flagship reasoning & pedagogical model
+        'o3-mini',         # 2. High-reasoning STEM & math model
+        'gpt-4o-mini',     # 3. High-speed efficient model
+    ]
+
+    # Also dynamically query active models from model_router if configured
+    try:
+        from model_router.models import ModelProvider
+        router_models = list(
+            ModelProvider.objects.filter(is_active=True)
+            .order_by('priority')
+            .values_list('model_id', flat=True)
+        )
+        for m_id in router_models:
+            if m_id not in models_to_try:
+                models_to_try.append(m_id)
+    except Exception:
+        pass
+
     for model in models_to_try:
         try:
+            payload = {
+                'model': model,
+                'messages': [
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': user_prompt},
+                ],
+            }
+            # Reasoning models (like o-series) may not support custom temperature
+            if not model.startswith('o1') and not model.startswith('o3') and not model.startswith('o4'):
+                payload['temperature'] = 0.3
+
             res = http_session.post(
                 'https://api.openai.com/v1/chat/completions',
                 headers={
                     'Authorization': f'Bearer {key}',
                     'Content-Type': 'application/json',
                 },
-                json={
-                    'model': model,
-                    'messages': [
-                        {'role': 'system', 'content': system_prompt},
-                        {'role': 'user', 'content': user_prompt},
-                    ],
-                    'temperature': 0.3,
-                },
+                json=payload,
                 timeout=timeout,
             )
             if res.status_code == 200:
                 data = res.json()
                 txt = data.get('choices', [{}])[0].get('message', {}).get('content', '')
                 if txt and len(txt.strip()) > 50:
+                    logger.info("Successfully generated notes using OpenAI model: %s", model)
                     return txt.strip()
             else:
-                logger.warning("OpenAI model %s failed with status %d: %s", model, res.status_code, res.text[:200])
+                logger.warning(
+                    "OpenAI model '%s' failed (HTTP %d). Cascading to next OpenAI model...",
+                    model, res.status_code
+                )
         except Exception as e:
-            logger.warning("OpenAI %s exception: %s", model, e)
+            logger.warning(
+                "OpenAI model '%s' error: %s. Cascading to next OpenAI model...",
+                model, e
+            )
             continue
+
+    # All OpenAI models exhausted or failed
+    logger.warning("All OpenAI models exhausted. Falling back to Tier 2 (Google Gemini)...")
     return None
 
 
