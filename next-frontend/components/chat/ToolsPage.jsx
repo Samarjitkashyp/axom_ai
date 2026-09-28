@@ -48,6 +48,7 @@ import {
   Laugh,
   Wrench,
   Shapes,
+  GraduationCap,
 } from 'lucide-react';
 import { ALL_TOOLS, TOOL_CATEGORIES } from './utils/toolsData';
 import { getCsrfToken } from './utils/security';
@@ -85,6 +86,7 @@ const ICON_MAP = {
   Laugh,
   Wrench,
   Shapes,
+  GraduationCap,
 };
 
 export default function ToolsPage({
@@ -268,6 +270,7 @@ export default function ToolsPage({
       merge: 'merge-pdf', split: 'split-pdf', extract: 'extract-pdf-pages',
       watermark: 'watermark-pdf', protect: 'protect-pdf', unlock: 'unlock-pdf',
       ocr: 'ocr-pdf', chatpdf: 'chat-with-pdf', translatepdf: 'translate-pdf',
+      'ai-notes-generator': 'ai-notes-generator', notesgen: 'ai-notes-generator',
       ppt2pdf: 'ppt-to-pdf', excel2pdf: 'excel-to-pdf', office2pdf: 'office-to-pdf',
     };
     const slug = TOOL_ROUTES[t.id];

@@ -6,6 +6,7 @@ from django.views.static import serve
 from . import views
 import knowledge.views as knowledge_views
 import contentcms.api_views as contentcms_api
+from . import ai_notes_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +27,8 @@ urlpatterns = [
     path('tools', views.home_view, name='tools_no_slash'),
     path('tools/word-to-pdf/', views.home_view, name='tools_word_to_pdf'),
     path('tools/word-to-pdf', views.home_view, name='tools_word_to_pdf_no_slash'),
+    path('tools/ai-notes-generator/', views.home_view, name='tools_ai_notes_generator'),
+    path('tools/ai-notes-generator', views.home_view, name='tools_ai_notes_generator_no_slash'),
     path('upgrade/', views.home_view, name='upgrade'),
     path('upgrade', views.home_view, name='upgrade_no_slash'),
     path('subscription/', views.home_view, name='subscription'),
@@ -83,6 +86,12 @@ urlpatterns = [
     path('api/stock-videos/', views.search_stock_videos_api, name='search_stock_videos_api'),
     path('api/download-stock-video/', views.download_stock_video_api, name='download_stock_video_api'),
     path('api/summarize/', views.summarize_api, name='summarize_api'),
+    path('api/ai-notes/analyze/', ai_notes_views.ai_notes_analyze_api, name='ai_notes_analyze_api'),
+    path('api/ai-notes/generate/', ai_notes_views.ai_notes_generate_api, name='ai_notes_generate_api'),
+    path('api/ai-notes/refine/', ai_notes_views.ai_notes_refine_api, name='ai_notes_refine_api'),
+    path('api/ai-notes/ask/', ai_notes_views.ai_notes_ask_api, name='ai_notes_ask_api'),
+    path('api/ai-notes/study-tools/', ai_notes_views.ai_notes_study_tools_api, name='ai_notes_study_tools_api'),
+    path('api/ai-notes/export-docx/', ai_notes_views.ai_notes_export_docx_api, name='ai_notes_export_docx_api'),
     path('api/tools/', views.tools_api_view, name='tools_api'),
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),

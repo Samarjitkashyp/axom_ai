@@ -27,6 +27,7 @@ import {
   Code,
   Laugh,
   ArrowDownToLine,
+  GraduationCap,
 } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
@@ -279,6 +280,15 @@ export const ALL_TOOLS = [
   },
 
   // AI Tools
+  {
+    id: 'ai-notes-generator',
+    name: 'AI Notes Generator',
+    cat: 'AI Tools',
+    icon: GraduationCap,
+    badge: 'NEW',
+    hint: 'PDF · DOCX · TXT · pasted text',
+    desc: 'Turn your PDF, textbook chapter, or study material into clear, structured notes with AI.',
+  },
   {
     id: 'chatpdf',
     name: 'Chat with PDF',
