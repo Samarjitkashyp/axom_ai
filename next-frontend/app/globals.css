@@ -325,15 +325,20 @@ body.light-theme * {
 .blog-rich-content p {
   margin-bottom: 1.5rem;
 }
-.blog-rich-content a {
+.blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]) {
   color: #c084fc;
   text-decoration: underline;
   text-underline-offset: 3px;
   font-weight: 500;
   transition: color 0.2s;
 }
-.blog-rich-content a:hover {
+.blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]):hover {
   color: #f472b6;
+}
+.blog-rich-content a[class*="btn"],
+.blog-rich-content a[class*="bg-"],
+.blog-rich-content a[class*="rounded"] {
+  text-decoration: none !important;
 }
 .blog-rich-content strong, .blog-rich-content b {
   color: #ffffff;
@@ -605,4 +610,91 @@ body.light-theme * {
 .blog-rich-content .final-thoughts p:last-child,
 .blog-rich-content .final-box p:last-child {
   margin-bottom: 0;
+}
+
+/* --- High-Converting Glowing Blog CTA Box & Button --- */
+.blog-rich-content .blog-cta-box,
+.blog-rich-content .cta-box {
+  margin: 3.5rem 0 2rem;
+  padding: 3rem 2rem;
+  background: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.28) 0%, rgba(30, 27, 75, 0.75) 50%, rgba(10, 15, 30, 0.95) 100%);
+  border: 1px solid rgba(217, 70, 239, 0.4);
+  border-radius: 28px;
+  text-align: center;
+  box-shadow: 0 25px 60px -15px rgba(168, 85, 247, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+
+.blog-rich-content .blog-cta-box::before,
+.blog-rich-content .cta-box::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 350px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%);
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+.blog-rich-content .blog-cta-box h3,
+.blog-rich-content .cta-box h3 {
+  font-size: 1.85rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #f5d0fe 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.blog-rich-content .blog-cta-box p,
+.blog-rich-content .cta-box p {
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  max-width: 580px;
+  margin: 0 auto 1.75rem;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+.blog-rich-content .blog-cta-btn,
+.blog-rich-content .cta-btn,
+.blog-rich-content a.blog-cta-btn,
+.blog-rich-content a.cta-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+  padding: 0.95rem 2.5rem !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 40%, #ec4899 100%) !important;
+  color: #ffffff !important;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  box-shadow: 0 10px 30px -5px rgba(168, 85, 247, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 1;
+}
+
+.blog-rich-content .blog-cta-btn:hover,
+.blog-rich-content .cta-btn:hover,
+.blog-rich-content a.blog-cta-btn:hover,
+.blog-rich-content a.cta-btn:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 20px 40px -5px rgba(236, 72, 153, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
 }

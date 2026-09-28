@@ -467,15 +467,12 @@ article_html = """
   Whether you are studying for your Class 10 board exams, preparing for competitive state civil services, or mastering complex university engineering modules, the Axom AI Notes Generator is your personal 24/7 academic study companion.
 </p>
 
-<div class="my-10 p-8 rounded-3xl bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-slate-900/80 border border-purple-500/40 text-center shadow-2xl">
-  <h3 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Ready to Turn Your Study Material into Master Notes?</h3>
-  <p class="text-slate-300 max-w-xl mx-auto mb-6 text-sm sm:text-base">
+<div class="blog-cta-box">
+  <h3>Ready to Turn Your Study Material into Master Notes?</h3>
+  <p>
     Upload your chapter, PDF, or syllabus now and generate structured study notes, flashcards, and quizzes in seconds.
   </p>
-  <a
-    href="/tools/ai-notes-generator"
-    class="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-base shadow-lg shadow-purple-600/30 transition-all hover:scale-105"
-  >
+  <a href="/tools/ai-notes-generator" class="blog-cta-btn">
     <span>Try AI Notes Generator Free</span>
     <span>→</span>
   </a>
