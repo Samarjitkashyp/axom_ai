@@ -87,22 +87,45 @@ interface QuestionItem {
   model_answer: string;
 }
 
-// Helper: Format bold and page references inline
+// Helper: Format bold, code, italics, and page references inline
 function formatInlineText(text: string) {
-  const parts = text.split(/(\*\*.*?\*\*|\[Page\s+\d+\]|\(Page\s+\d+\))/gi);
+  // Regex to match:
+  // 1. **bold**
+  // 2. `inline code`
+  // 3. [Page X] or (Page X) or (Pages X-Y)
+  // 4. *italic*
+  const parts = text.split(/(\*\*.*?\*\*|`.*?`|\[Pages?\s+[\d\-–\s]+\]|\(Pages?\s+[\d\-–\s]+\)|\*[^*\n]+\*)/gi);
   return parts.map((part, idx) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
+    if (!part) return null;
+    if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
       return (
         <strong key={idx} className="font-semibold text-white">
           {part.slice(2, -2)}
         </strong>
       );
     }
-    if (/^\[Page\s+\d+\]$/i.test(part) || /^\(Page\s+\d+\)$/i.test(part)) {
+    if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
+      return (
+        <code
+          key={idx}
+          className="px-1.5 py-0.5 mx-0.5 rounded bg-purple-500/20 text-purple-200 font-mono text-xs border border-purple-500/30"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    if (part.startsWith('*') && part.endsWith('*') && part.length >= 2 && !part.slice(1, -1).includes('*')) {
+      return (
+        <em key={idx} className="italic text-purple-200/90 font-normal">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    if (/^[\[\(]Pages?\s+[\d\-–\s]+[\]\)]$/i.test(part)) {
       return (
         <span
           key={idx}
-          className="inline-flex items-center px-1.5 py-0.5 mx-1 rounded-md text-[11px] font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30 select-none shadow-sm"
+          className="inline-flex items-center px-1.5 py-0.5 mx-1 rounded-md text-[11px] font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30 select-none shadow-sm whitespace-nowrap"
         >
           📄 {part.replace(/[[\]()]/g, '')}
         </span>
@@ -118,14 +141,43 @@ function extractClientToc(md: string): TocItem[] {
   const lines = md.split('\n');
   let count = 1;
   for (const l of lines) {
-    const match = l.match(/^(#{1,3})\s+(.+)$/);
-    if (match) {
-      const hashes = match[1];
-      const title = match[2].replace(/[*_`#]/g, '').trim();
+    const trimmed = l.trim();
+    if (!trimmed) continue;
+
+    // 1. Markdown headings (#, ##, ###)
+    const hashMatch = trimmed.match(/^(#{1,3})\s+(.+)$/);
+    if (hashMatch) {
+      const hashes = hashMatch[1];
+      const title = hashMatch[2].replace(/[*_`#]/g, '').trim();
       items.push({
         id: `sec-${count}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
         title,
         level: hashes.length,
+      });
+      count++;
+      continue;
+    }
+
+    // 2. Numbered sections like 1. Reading Comprehension or 1.1 General Tips
+    const numMatch = trimmed.match(/^(\d+(\.\d+)?)\s+([A-Z].+)$/);
+    if (numMatch && numMatch[3].length < 70) {
+      const level = numMatch[2] ? 3 : 2;
+      const title = `${numMatch[1]} ${numMatch[3].replace(/[*_`#]/g, '').trim()}`;
+      items.push({
+        id: `sec-${count}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        title,
+        level,
+      });
+      count++;
+      continue;
+    }
+
+    // 3. Standalone major sections
+    if (trimmed === 'Executive Concept Summary' || trimmed === 'Timeline (Key Dates)') {
+      items.push({
+        id: `sec-${count}-${trimmed.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        title: trimmed,
+        level: 2,
       });
       count++;
     }
@@ -592,12 +644,129 @@ export default function AiNotesGenerator() {
     const elements: React.ReactNode[] = [];
     let secIdx = 1;
 
+    const isTableRow = (l: string) => {
+      const t = l.trim();
+      return t.length > 0 && t.includes('|') && (t.match(/\|/g) || []).length >= 2;
+    };
+
+    const isSeparator = (rowStr: string) => {
+      return /^\|?(\s*:?-{2,}:?\s*\|?)+$/.test(rowStr.trim());
+    };
+
+    const splitRow = (rowStr: string) => {
+      let clean = rowStr.trim();
+      if (clean.startsWith('|')) clean = clean.substring(1);
+      if (clean.endsWith('|')) clean = clean.substring(0, clean.length - 1);
+      return clean.split('|').map((c) => c.trim());
+    };
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const trimmed = line.trim();
 
       if (!trimmed) {
-        elements.push(<div key={`spacer-${i}`} className="h-3" />);
+        elements.push(<div key={`spacer-${i}`} className="h-2" />);
+        continue;
+      }
+
+      // Horizontal dividers (---, ***, ___)
+      if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
+        elements.push(
+          <div key={`hr-${i}`} className="my-6 sm:my-8 border-t border-purple-500/20" />
+        );
+        continue;
+      }
+
+      // Markdown Tables (| Header | Header | ... |)
+      if (isTableRow(trimmed)) {
+        const tableLines: string[] = [];
+        let j = i;
+        while (j < lines.length) {
+          const curTrimmed = lines[j].trim();
+          if (isTableRow(curTrimmed)) {
+            tableLines.push(curTrimmed);
+            j++;
+          } else if (curTrimmed === '') {
+            // Lookahead: is the next non-empty line also a table row?
+            let nextK = j + 1;
+            while (nextK < lines.length && lines[nextK].trim() === '') {
+              nextK++;
+            }
+            if (nextK < lines.length && isTableRow(lines[nextK].trim())) {
+              j = nextK;
+            } else {
+              break;
+            }
+          } else {
+            break;
+          }
+        }
+        i = j - 1; // Advance outer loop
+
+        const sepIndex = tableLines.findIndex(isSeparator);
+        let headers: string[] = [];
+        const dataRows: string[][] = [];
+
+        if (sepIndex > 0) {
+          headers = splitRow(tableLines[0]);
+          for (let r = sepIndex + 1; r < tableLines.length; r++) {
+            if (!isSeparator(tableLines[r])) {
+              dataRows.push(splitRow(tableLines[r]));
+            }
+          }
+        } else if (tableLines.length > 1) {
+          headers = splitRow(tableLines[0]);
+          for (let r = 1; r < tableLines.length; r++) {
+            if (!isSeparator(tableLines[r])) {
+              dataRows.push(splitRow(tableLines[r]));
+            }
+          }
+        } else {
+          dataRows.push(splitRow(tableLines[0]));
+        }
+
+        elements.push(
+          <div
+            key={`table-${i}`}
+            className="my-6 overflow-hidden rounded-2xl border border-purple-500/25 bg-slate-950/60 shadow-xl backdrop-blur-md"
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                {headers.length > 0 && (
+                  <thead>
+                    <tr className="border-b border-purple-500/30 bg-gradient-to-r from-purple-950/80 via-indigo-950/70 to-slate-900/90">
+                      {headers.map((h, hIdx) => (
+                        <th
+                          key={hIdx}
+                          className="px-4 sm:px-6 py-3.5 font-bold text-purple-200 tracking-wider uppercase whitespace-nowrap"
+                        >
+                          {formatInlineText(h)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                )}
+                <tbody className="divide-y divide-white/5">
+                  {dataRows.map((row, rIdx) => (
+                    <tr
+                      key={rIdx}
+                      className="hover:bg-purple-500/10 transition-colors duration-150 even:bg-white/[0.02]"
+                    >
+                      {row.map((cell, cIdx) => (
+                        <td
+                          key={cIdx}
+                          className="px-4 sm:px-6 py-3 text-slate-300 leading-relaxed align-top"
+                        >
+                          {formatInlineText(cell)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
         continue;
       }
 
@@ -643,6 +812,158 @@ export default function AiNotesGenerator() {
               {isExam && <span>⭐</span>}
               <span>{titleText}</span>
             </h3>
+          </div>
+        );
+        continue;
+      }
+
+      // Numbered Subsection: 1.1 General Tips, 1.2 Passage 1...
+      const subMatch = trimmed.match(/^(\d+\.\d+(\.\d+)?)\s+(.*)$/);
+      if (subMatch) {
+        const num = subMatch[1];
+        const title = subMatch[3];
+        const slug = `sec-${secIdx}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        secIdx++;
+        elements.push(
+          <div key={`sub-${i}`} id={slug} className="pt-6 pb-1 scroll-mt-24">
+            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2.5">
+              <span className="px-2.5 py-0.5 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold">
+                {num}
+              </span>
+              <span>{formatInlineText(title)}</span>
+            </h3>
+          </div>
+        );
+        continue;
+      }
+
+      // Major Section: 1. Reading Comprehension Strategies, 2. Vocabulary & Spelling
+      const secMatch = trimmed.match(/^(\d+)\.\s+([A-Z].*)$/);
+      if (secMatch && (secMatch[2].length < 60 || !secMatch[2].endsWith('.'))) {
+        const num = secMatch[1];
+        const title = secMatch[2];
+        const slug = `sec-${secIdx}-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        secIdx++;
+        elements.push(
+          <div key={`sec-${i}`} id={slug} className="pt-8 pb-2 border-b border-purple-500/20 scroll-mt-24">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-indigo-200 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white text-sm font-bold flex items-center justify-center shadow-lg shadow-purple-600/30">
+                {num}
+              </span>
+              <span>{formatInlineText(title)}</span>
+            </h2>
+          </div>
+        );
+        continue;
+      }
+
+      // Standalone Title: Executive Concept Summary, Timeline (Key Dates)
+      if (trimmed === 'Executive Concept Summary' || trimmed === 'Timeline (Key Dates)') {
+        const slug = `sec-${secIdx}-${trimmed.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        secIdx++;
+        elements.push(
+          <div key={`head-${i}`} id={slug} className="pt-6 pb-2 border-b border-purple-500/20 scroll-mt-24">
+            <h2 className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-white to-indigo-300 flex items-center gap-2">
+              <span className="w-2 h-6 bg-gradient-to-b from-purple-500 to-indigo-500 rounded-full inline-block shrink-0" />
+              <span>{trimmed}</span>
+            </h2>
+          </div>
+        );
+        continue;
+      }
+
+      // Isolated Single Digits: 1, 2, 3 followed by text
+      const digitOnly = trimmed.match(/^(\d+)$/);
+      if (digitOnly && i + 1 < lines.length) {
+        let nextIdx = i + 1;
+        while (nextIdx < lines.length && lines[nextIdx].trim() === '') {
+          nextIdx++;
+        }
+        if (nextIdx < lines.length && !lines[nextIdx].trim().startsWith('#') && !lines[nextIdx].trim().startsWith('|')) {
+          const nextContent = lines[nextIdx].trim();
+          elements.push(
+            <div
+              key={`numcard-${i}`}
+              className="flex items-start gap-3 my-2.5 p-3 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-purple-500/30 transition text-slate-200 text-sm sm:text-base"
+            >
+              <span className="w-7 h-7 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-purple-600/30">
+                {digitOnly[1]}
+              </span>
+              <div className="flex-1 leading-relaxed">{formatInlineText(nextContent)}</div>
+            </div>
+          );
+          i = nextIdx;
+          continue;
+        }
+      }
+
+      // Callouts: Key Idea / Key Takeaway
+      if (trimmed.startsWith('Key Idea:') || trimmed.startsWith('Key Takeaway:')) {
+        elements.push(
+          <div
+            key={`callout-${i}`}
+            className="my-4 p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-200 text-sm sm:text-base leading-relaxed flex items-start gap-3 shadow-lg"
+          >
+            <span className="text-xl shrink-0">💡</span>
+            <div className="flex-1">
+              <strong className="text-emerald-300 font-semibold block mb-0.5">Key Idea</strong>
+              {formatInlineText(trimmed.replace(/^Key (Idea|Takeaway):\s*/i, ''))}
+            </div>
+          </div>
+        );
+        continue;
+      }
+
+      // Callout: Moral
+      if (trimmed.startsWith('Moral:')) {
+        elements.push(
+          <div
+            key={`moral-${i}`}
+            className="my-4 p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 text-indigo-200 text-sm sm:text-base leading-relaxed flex items-start gap-3 shadow-lg"
+          >
+            <span className="text-xl shrink-0">⚖️</span>
+            <div className="flex-1">
+              <strong className="text-indigo-300 font-semibold block mb-0.5">Moral</strong>
+              {formatInlineText(trimmed.replace(/^Moral:\s*/i, ''))}
+            </div>
+          </div>
+        );
+        continue;
+      }
+
+      // Callout: Study / Reading / Exam Tip
+      if (
+        trimmed.startsWith('Reading tip:') ||
+        trimmed.startsWith('Tip:') ||
+        trimmed.startsWith('Exam Tip:')
+      ) {
+        elements.push(
+          <div
+            key={`tip-${i}`}
+            className="my-4 p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-amber-200 text-sm sm:text-base leading-relaxed flex items-start gap-3 shadow-lg"
+          >
+            <span className="text-xl shrink-0">📌</span>
+            <div className="flex-1">
+              <strong className="text-amber-300 font-semibold block mb-0.5">Study Tip</strong>
+              {formatInlineText(trimmed.replace(/^(Reading tip|Tip|Exam Tip):\s*/i, ''))}
+            </div>
+          </div>
+        );
+        continue;
+      }
+
+      // Callout: Brief Summary
+      if (trimmed.startsWith('Brief Summary –') || trimmed.startsWith('Brief Summary:')) {
+        elements.push(
+          <div
+            key={`sum-${i}`}
+            className="my-4 p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/25 text-purple-200 text-sm sm:text-base leading-relaxed flex items-start gap-3 shadow-lg"
+          >
+            <span className="text-xl shrink-0">📝</span>
+            <div className="flex-1">
+              <strong className="text-purple-300 font-semibold block mb-0.5">Summary</strong>
+              {formatInlineText(trimmed.replace(/^Brief Summary\s*[–:]\s*/i, ''))}
+            </div>
           </div>
         );
         continue;
@@ -724,6 +1045,29 @@ export default function AiNotesGenerator() {
           #printable-notes-area p,
           #printable-notes-area li {
             color: black !important;
+          }
+          #printable-notes-area table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 16px 0 !important;
+          }
+          #printable-notes-area th,
+          #printable-notes-area td {
+            border: 1px solid #333 !important;
+            padding: 8px 12px !important;
+            color: black !important;
+            text-align: left !important;
+          }
+          #printable-notes-area th {
+            background-color: #f2f2f2 !important;
+            font-weight: bold !important;
+          }
+          #printable-notes-area tr {
+            page-break-inside: avoid !important;
+          }
+          #printable-notes-area hr {
+            border-color: #ccc !important;
+            margin: 16px 0 !important;
           }
           .no-print {
             display: none !important;
