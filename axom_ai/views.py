@@ -206,8 +206,86 @@ def _purify_assamese_with_grammar(text: str) -> str:
     text = re.sub(r'\bমই\s+ভাল\s+আছো\b', 'মই ভাল আছোঁ', text)
     text = re.sub(r'\bমই\s+আছো\b', 'মই আছোঁ', text)
 
+    # 11. Bengali vocabulary & spelling corrections (LLM token contamination fixes)
+    text = re.sub(r'\bবোঝায়\b', 'বুজায়', text)
+    text = re.sub(r'\bবোঝা\b', 'বুজা', text)
+    text = re.sub(r'\bব্যবহাৰ\b', 'ব্যৱহাৰ', text)
+    text = re.sub(r'\bব্যবসা\b', 'ব্যৱসায়', text)
+    text = re.sub(r'\bব্যবস্থা\b', 'ব্যৱস্থা', text)
+    text = re.sub(r'\bব্যবহার\b', 'ব্যৱহাৰ', text)
+    text = re.sub(r'\bব্যবহারিক\b', 'ব্যৱহাৰিক', text)
+    text = re.sub(r'\bব্যবহৃত\b', 'ব্যৱহৃত', text)
+    text = re.sub(r'\bহচ্ছে\b', 'হৈছে', text)
+    text = re.sub(r'\bহবে\b', 'হ’ব', text)
+    text = re.sub(r'\bকরছে\b', 'কৰিছে', text)
+    text = re.sub(r'\bকরবে\b', 'কৰিব', text)
+    text = re.sub(r'\bকরতে\b', 'কৰিবলৈ', text)
+    text = re.sub(r'\bকরা\b', 'কৰা', text)
+    text = re.sub(r'\bবলতে\b', 'ক’বলৈ', text)
+    text = re.sub(r'\bবলা\b', 'কোৱা', text)
+    text = re.sub(r'\bজানা\b', 'জনা', text)
+    text = re.sub(r'\bজানতে\b', 'জানিবলৈ', text)
+    text = re.sub(r'\bদেখে\b', 'চাই', text)
+    text = re.sub(r'\bদেখতে\b', 'চাবলৈ', text)
+    text = re.sub(r'\bএয়াত\b', 'ইয়াত', text)
+    text = re.sub(r'\bযিবিলাকৰ\b', 'যিবোৰৰ', text)
+    text = re.sub(r'\bপৃথকে\s+পৃথকে\b', 'পৃথকভাৱে', text)
+    text = re.sub(r'\bফ্ৰেমৱৰ্ঙ\b', 'ফ্ৰেমৱৰ্ক', text)
+    text = re.sub(r'\bছুটিৰে\s+ভাষা\s+মডেল\b', 'বৃহৎ ভাষা মডেল (LLM)', text)
+    text = re.sub(r'\bবহুপৰিমান\b', 'বিপুল পৰিমাণৰ', text)
+    text = re.sub(r'\bবহুপৰিমাণ\b', 'বিপুল পৰিমাণৰ', text)
+    text = re.sub(r'\bদুখন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)\b', r'দুটা \1', text)
+    text = re.sub(r'\bতিনিখন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)\b', r'তিনিটা \1', text)
+    text = re.sub(r'(\d+)\s*খন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)\b', r'\1 টা \2', text)
+
     # Tidy spacing
     text = re.sub(r'[ \t]{2,}', ' ', text)
+    # Sanitize rival AI brands
+    text = _sanitize_brand_mentions(text)
+    return text
+
+
+def _sanitize_brand_mentions(text: str) -> str:
+    """
+    Brand Safety Filter: Ensures competitor AI assistants (ChatGPT, OpenAI, Gemini, Claude, Copilot, etc.)
+    are never recommended or advertised, seamlessly redirecting AI assistance mentions to Axom AI.
+    """
+    if not text:
+        return text
+
+    # 1. Assamese competitor assistance patterns:
+    text = re.sub(
+        r'(?:বা\s+)?(?:ChatGPT|Chat\s*GPT|OpenAI|Gemini|Google\s*Gemini|Claude(?:\s*AI)?|Copilot)\s*ৰ\s*সহায়\s*(?:ল[’\']?ব|লব|লওক)\s*পাৰে',
+        'Axom AI ৰ সহায় ল’ব পাৰে',
+        text, flags=re.IGNORECASE
+    )
+    text = re.sub(
+        r'\bবা\s+(?:ChatGPT|Chat\s*GPT|Google\s*Gemini|Gemini|Claude(?:\s*AI)?)\b',
+        'বা Axom AI',
+        text, flags=re.IGNORECASE
+    )
+    text = re.sub(r'\b(?:ChatGPT|Chat\s*GPT)\b', 'Axom AI', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bGoogle\s*Gemini\b', 'Axom AI', text, flags=re.IGNORECASE)
+
+    # 2. English competitor assistance patterns:
+    text = re.sub(
+        r'\b(?:ask|consult|use|check\s+with)\s+(?:ChatGPT|Chat\s*GPT|OpenAI|Gemini|Claude(?:\s*AI)?|Copilot)\b',
+        'ask me (Axom AI)',
+        text, flags=re.IGNORECASE
+    )
+    text = re.sub(
+        r'\b(?:ChatGPT|Chat\s*GPT|Google\s*Gemini|Claude(?:\s*AI)?)\s+can\s+help\b',
+        'Axom AI can help',
+        text, flags=re.IGNORECASE
+    )
+
+    # 3. Hinglish competitor assistance patterns:
+    text = re.sub(
+        r'\b(?:ChatGPT|Gemini|Claude)\s*(?:se|par)\s*(?:pooch|madad|help)\b',
+        'Axom AI se pooch',
+        text, flags=re.IGNORECASE
+    )
+
     return text
 
 
@@ -1241,11 +1319,16 @@ def chat_api_view(request):
     try:
         data = json.loads(request.body.decode('utf-8'))
         prompt = data.get('prompt', '').strip()
+        client_id = data.get('client_id') or data.get('session_id') or ''
         web_search = data.get('web_search', False)
-        client_id = str(data.get('session_id', '') or '')
-        # Axom AI is Assamese-only: every reply is in Assamese, whatever the
-        # user typed in (English/Hindi/Hinglish) and whatever the client sends.
-        language = 'assamese'
+        # Support language selection: default to 'assamese'
+        raw_lang = str(data.get('language') or 'assamese').lower().strip()
+        if raw_lang in ('english', 'en'):
+            language = 'english'
+        elif raw_lang in ('hinglish', 'hi', 'hindi'):
+            language = 'hinglish'
+        else:
+            language = 'assamese'
         history = data.get('history', [])
         if not isinstance(history, list):
             history = []
@@ -1264,17 +1347,110 @@ def chat_api_view(request):
     # -----------------------------------------------------------------------
     # Fast path: a bare greeting ("hi", "hlw", "namaskar", "নমস্কাৰ" …) skips
     # the 114k-row semantic search AND any LLM call — returns a native
-    # Assamese greeting instantly. Also side-steps STRICT_KB_MODE, which
-    # would otherwise reply "don't know" for a friendly hello.
+    # greeting instantly. Also side-steps STRICT_KB_MODE.
     # -----------------------------------------------------------------------
     if _is_greeting(prompt):
         import random
-        reply = random.choice(_GREETING_REPLIES)
+        if language == 'english':
+            reply = random.choice([
+                "Hello! How can I help you today?",
+                "Hi there! Welcome to Axom AI. What can I do for you?",
+                "Greetings! How may I assist you today?",
+            ])
+        elif language == 'hinglish':
+            reply = random.choice([
+                "Namaste! Main aapki kya madad kar sakta hoon?",
+                "Hello ji! Kaise madad karu aaj?",
+                "Namaskar! Axom AI me aapka swagat hai. Kya janana chahte hain?",
+            ])
+        else:
+            reply = random.choice(_GREETING_REPLIES)
         _save_chat(request, client_id, prompt, reply)
         return JsonResponse({
             'response': reply, 'from_database': False, 'source_docs': [],
             'web_search': False, 'sources': [], 'engine': 'greeting',
         })
+
+    # -----------------------------------------------------------------------
+    # INTENT CLASSIFICATION VIA OPENAI — Check if user wants image generation
+    # User rule: "user ki intent samjne ke liye open ai ka use karo, sirf
+    # agar bolta he image generate ka tabhi gemini ka use karo chat me"
+    # -----------------------------------------------------------------------
+    attached_img = data.get('attached_image') or ''
+    has_attached_img = bool(data.get('has_attached_image') or attached_img)
+    attached_img_b64 = None
+    attached_img_mime = 'image/jpeg'
+    if attached_img:
+        if attached_img.startswith('data:'):
+            hdr, _, b64_part = attached_img.partition(',')
+            if ':' in hdr and ';' in hdr:
+                attached_img_mime = hdr.split(':')[1].split(';')[0]
+            attached_img_b64 = b64_part
+        else:
+            attached_img_b64 = attached_img
+
+    attached_pdf = data.get('attached_pdf') or ''
+    attached_filename = data.get('attached_filename') or 'document.pdf'
+    if attached_pdf and not attached_img_b64:
+        try:
+            import base64
+            import fitz
+            if attached_pdf.startswith('data:'):
+                _, _, pdf_b64 = attached_pdf.partition(',')
+            else:
+                pdf_b64 = attached_pdf
+            pdf_bytes = base64.b64decode(pdf_b64)
+            doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+            extracted_text = ""
+            for p in doc:
+                extracted_text += p.get_text() + "\n"
+
+            # If the PDF has readable text, add to prompt
+            if len(extracted_text.strip()) > 60:
+                prompt += f"\n\n[Attached PDF Document Content ({attached_filename})]:\n{extracted_text[:6000]}"
+            elif len(doc) > 0:
+                # Scanned or screenshot PDF (e.g. screencapture-*.pdf) -> Render page 1 as high-res PNG for Vision!
+                page = doc.load_page(0)
+                pix = page.get_pixmap(dpi=150)
+                attached_img_b64 = base64.b64encode(pix.tobytes("png")).decode('ascii')
+                attached_img_mime = 'image/png'
+                has_attached_img = True
+            doc.close()
+        except Exception as e:
+            logger.warning(f"Error processing attached PDF: {e}")
+
+    if not web_search:
+        is_image_intent, visual_prompt = _detect_image_intent_with_openai(prompt, has_image=has_attached_img)
+        if is_image_intent:
+            img_data_uri, img_err = _generate_image_core(
+                visual_prompt or prompt,
+                quality='normal',
+                ref_image_b64=attached_img_b64,
+                ref_image_mime=attached_img_mime,
+            )
+            if img_data_uri:
+                resp_text = (
+                    f"আপোনাৰ অনুৰোধ অনুসৰি প্ৰস্তুত কৰা ছবিখন:\n\n**বিৱৰণ:** *{prompt}*"
+                    if language == 'assamese'
+                    else (
+                        f"Aapke anurodh ke anusaar banayi gayi tasveer:\n\n**Description:** *{prompt}*"
+                        if language == 'hinglish'
+                        else f"Here is the image generated based on your request:\n\n**Prompt:** *{prompt}*"
+                    )
+                )
+                _save_chat(request, client_id, prompt, resp_text)
+                return JsonResponse({
+                    'response': resp_text,
+                    'image': img_data_uri,
+                    'image_url': img_data_uri,
+                    'image_prompt': visual_prompt or prompt,
+                    'image_engine': 'Axom AI',
+                    'model': 'Axom AI',
+                    'engine': 'Axom AI',
+                    'is_image_response': True,
+                    'from_database': False,
+                    'web_search': False,
+                })
 
     # -----------------------------------------------------------------------
     # WEB SEARCH FAST PATH — Google Custom Search API (with Tavily fallback).
@@ -1395,7 +1571,7 @@ def chat_api_view(request):
         # Assamese safety layer — if the response has too much English/Hindi,
         # rewrite it in proper Assamese while keeping facts and formatting.
         indic_chars = sum(1 for ch in answer if 'ঀ' <= ch <= '৿')
-        if indic_chars < max(20, int(len(answer) * 0.25)):
+        if language == 'assamese' and indic_chars < max(20, int(len(answer) * 0.25)):
             asm_fix_sys = (
                 "Rewrite the following text COMPLETELY in natural, authentic "
                 "Assamese (অসমীয়া script). EVERY word must be in Assamese script "
@@ -1416,20 +1592,19 @@ def chat_api_view(request):
             if asm and asm.strip():
                 answer = asm.strip()
 
-        # Belt-and-suspenders: strip any inline citation markers the model
-        # slipped in despite the prompt — [1], [1,2], [1][2], (1), (Source 1),
-        # ¹²³ superscript digits, and stray "Source 1 :" / "(source 1)" tags.
+        # Belt-and-suspenders: strip any inline citation markers
         answer = re.sub(r'\[\s*(?:source\s*)?\d+(?:\s*[,;]\s*\d+)*\s*\](?:\s*\[\s*\d+\s*\])*',
                         '', answer, flags=re.IGNORECASE)
         answer = re.sub(r'\(\s*(?:source|src|ref)\.?\s*\d+\s*\)', '', answer,
                         flags=re.IGNORECASE)
         answer = re.sub(r'[⁰¹²³⁴-⁹]+', '', answer)
-        # Tidy up any double spaces / stray "  ." left behind.
         answer = re.sub(r'\s+([।.,;:!?])', r'\1', answer)
         answer = re.sub(r'[^\S\n]{2,}', ' ', answer).strip()
 
-        # RAG Grammar Purity Layer: Guarantee zero Bengali/Hindi loanwords, correct classifiers & terms
-        answer = _purify_assamese_with_grammar(answer)
+        if language == 'assamese':
+            answer = _purify_assamese_with_grammar(answer)
+        else:
+            answer = _sanitize_brand_mentions(answer)
 
         _websearch_daily_incr(ws_ip)
         _save_chat(request, client_id, prompt, answer)
@@ -1447,47 +1622,77 @@ def chat_api_view(request):
             'remaining_today': max(0, daily_cap - (ws_used + 1)),
         })
 
-    # Language the user picked for the reply.
-    LANG_LABEL = {
-        'english': 'English',
-        'hinglish': 'Hinglish (Hindi written in Roman/English letters)',
-        'assamese': 'the Assamese language using Assamese script (অসমীয়া)',
-    }
-    target_lang = LANG_LABEL.get(language, LANG_LABEL['hinglish'])
-
-    # 1. System prompt — general-purpose AI assistant (ChatGPT style).
+    # 1. System prompt — general-purpose AI assistant (Axom AI).
     today = datetime.now().strftime('%A, %d %B %Y')
-    system_instruction = (
-        f"Today's date is {today}. You are Axom AI — a friendly, knowledgeable, and highly capable "
-        "AI assistant that can help with ANY topic: science, math, coding, history, geography, "
-        "health, technology, education, current affairs, creative writing, and everything else — "
-        "just like ChatGPT. You have special expertise in Assam and Northeast India, but you are "
-        "NOT limited to Assam topics. Answer ANY question the user asks, thoroughly and helpfully. "
-        "ALWAYS reply in natural, native, everyday Assamese using correct Assamese script (অসমীয়া) and "
-        "grammar — the way an educated Assamese person actually speaks. "
-        "Users may write in Roman Assamese (e.g. 'Bihu kunuba hoi?'), Hindi, Hinglish, or English — "
-        "understand all of these, but ALWAYS reply in Assamese script. "
-        "Do NOT write English words in Assamese script: greet with নমস্কাৰ (never হ্যালো/হাই), "
-        "say ধন্যবাদ (never থেংক ইউ). "
-        "CRITICAL SCRIPT RULE: You MUST use Assamese ৰ (U+09F0), NEVER Bengali র (U+09B0). "
-        "Examples: কৰ (not কর), ধৰ্ম (not ধর্ম), পূৰ্ণ (not পূর্ণ), সংৰক্ষণ (not সংরক্ষণ), পৰিচালনা (not পরিচালনা). "
-        "Never use Bengali vocabulary or grammar — use a simpler Assamese word instead. "
-        "When knowledge-base context is provided, synthesize it into a clear, natural conversational "
-        "answer — do not copy-paste or dump raw text. Prefer that context and base your answer on it. "
-        "When NO knowledge-base context is provided, answer from your own knowledge like ChatGPT would — "
-        "give detailed, informative, helpful answers. NEVER say you don't know or can't answer. "
-        "FORMATTING RULES:\n"
-        "- Use ### headings (in Assamese) to organize topics.\n"
-        "- Use **bold** for key terms, names, dates, and important facts.\n"
-        "- Use - bullet lists when listing multiple items.\n"
-        "- Use blank lines between paragraphs and sections.\n"
-        "- Keep each section focused on one topic.\n"
-        "- Do NOT dump everything in one big block.\n"
-        "- Do NOT use markdown tables (| column | format) — use bullet lists or numbered lists instead.\n"
-        "- Use '।' (Assamese full stop) at end of sentences.\n"
-        "IMPORTANT: Never invent specific facts — names of people or officials, who currently holds a "
-        "post, dates, or statistics. If you are not sure, say so honestly in Assamese instead of guessing."
-    ) + _get_language_rules_block()
+    base_intro = (
+        f"Today's date is {today}. You are Axom AI (অসম এআই) — a premier, friendly, knowledgeable, and highly capable "
+        "AI assistant created to help users with ANY topic: science, math, coding, programming, history, geography, "
+        "health, technology, education, current affairs, creative writing, and everything else. "
+        "You have special expertise in Assam and Northeast India, but you are a world-class AI capable of answering "
+        "ANY question thoroughly, accurately, and helpfully. "
+        "\n\nSTRICT BRAND IDENTITY RULES (CRITICAL):\n"
+        "1. You are Axom AI. NEVER refer to yourself as ChatGPT, OpenAI, Google Gemini, Claude, or any other AI.\n"
+        "2. NEVER recommend, promote, or direct the user to rival AI assistants (ChatGPT, OpenAI, Gemini, Claude, Copilot, Perplexity, etc.).\n"
+        "3. When offering further assistance or recommending places for coding help or doubts, ALWAYS recommend yourself: "
+        "'আপুনি মোক (Axom AI) সুধিব পাৰে' / 'You can ask me (Axom AI) anytime' alongside standard programming resources like Stack Overflow or official docs. "
+        "NEVER say 'ChatGPT ৰ সহায় ল’ব পাৰে' or suggest another AI.\n\n"
+    )
+
+    if language == 'english':
+        lang_instruction = (
+            "ALWAYS reply in natural, articulate, clear, and comprehensive English. "
+            "Explain concepts thoroughly, accurately, and helpfully with high pedagogical quality. "
+            "VISION & MULTIMODAL RULE: When an image or document is attached, carefully inspect its visual content, diagram, text, and structure. Directly explain, analyze, or solve what the user is asking about the image.\n"
+            "BRAND RULE: Never recommend ChatGPT, Gemini, or Claude. Always refer to yourself as Axom AI.\n"
+            "FORMATTING & STRUCTURE RULES (STRICT - CHATGPT LEVEL):\n"
+            "- Always structure responses cleanly with markdown:\n"
+            "  * Use ### for all section headings (e.g. ### Key Features of Python, ### Common Uses of Python, ### Example Code).\n"
+            "  * Use bullet points with bold titles (e.g. - **Simple and Easy to Learn:** Explanation) for readability.\n"
+            "  * CODE FORMATTING: Whenever providing code examples, ALWAYS enclose code in standard triple-backtick markdown blocks with the language tag on the first line (e.g. ```python\\n# comment\\n...\\n```). NEVER use double backticks (``), NEVER omit the language tag, and always include valid comments (# in Python) and proper indentation.\n"
+            "  * Use markdown tables (| Col 1 | Col 2 |) when comparing features, libraries, or frameworks.\n"
+            "  * Keep clean paragraph spacing with blank lines between sections.\n"
+            "IMPORTANT: Never invent specific facts. If you are not sure, say so honestly."
+        )
+    elif language == 'hinglish':
+        lang_instruction = (
+            "ALWAYS reply in natural, fluent Hinglish (Hindi written in Roman/English alphabet) that is easy and friendly to understand. "
+            "VISION & MULTIMODAL RULE: Jab koi image ya photo attach ho, toh use dhyan se dekhkar usme kya hai, text kya hai, aur user ke sawal ka poora aur sahi jawab dein.\n"
+            "BRAND RULE: Kabhi bhi ChatGPT, Gemini ya Claude ka naam na lein. Hamesha bole 'Aap mujhse (Axom AI) pooch sakte hain'.\n"
+            "FORMATTING & STRUCTURE RULES (STRICT):\n"
+            "- Clean markdown formatting use karein:\n"
+            "  * Topics ke liye ### headings use karein (e.g. ### Key Features, ### Example Code).\n"
+            "  * Points ke liye bullet lists with bold terms use karein (e.g. - **Feature:** Details).\n"
+            "  * CODE FORMATTING: Code dete waqt hamesha standard triple backticks use karein with language identifier (e.g. ```python\\n# comment\\n...\\n```). Kabhi bhi double backticks (``) mat use karein.\n"
+            "  * Comparisons ke liye markdown tables (| Col 1 | Col 2 |) use karein.\n"
+            "IMPORTANT: Never invent specific facts. If you are not sure, say so honestly."
+        )
+    else:  # 'assamese' (default)
+        lang_instruction = (
+            "ALWAYS reply in natural, authentic, everyday Assamese using correct Assamese script (অসমীয়া) and "
+            "grammar — the way an educated, articulate Assamese speaker actually speaks and writes. "
+            "Users may write in Roman Assamese (e.g. 'Bihu kunuba hoi?'), Hindi, Hinglish, or English — "
+            "understand all of these, but ALWAYS reply in fluent, idiomatic Assamese script.\n"
+            "CRITICAL ASSAMESE VOCABULARY & GRAMMAR RULES:\n"
+            "1. NEVER use Bengali words or verb conjugations: use বুজায় (NEVER বোঝায়), ব্যৱহাৰ (NEVER ব্যবহাৰ), "
+            "কৰিছে (NEVER করছে), হ'ব (NEVER হবে), হৈছে (NEVER হচ্ছে), কোৱা (NEVER বলা), কৰা (NEVER করা), জানিবলৈ (NEVER জানতে), "
+            "ইয়াত (NEVER এয়াত), যিবোৰৰ (NEVER যিবিলাকৰ), পৃথকভাৱে (NEVER পৃথকে পৃথকে).\n"
+            "2. ALWAYS use Assamese ৰ (U+09F0) and ৱ (U+09F1). NEVER use Bengali র (U+09B0).\n"
+            "3. Use correct Assamese classifiers: for words/concepts/models use 'দুটা' or 'তিনিটা' (NEVER use 'দুখন শব্দ' — 'খন' is only for flat objects like পথাৰ, কাগজ, নদী).\n"
+            "4. Translate technical concepts naturally: Large Language Model is 'বৃহৎ ভাষা মডেল (Large Language Model - LLM)', "
+            "Big Data is 'বিগ ডাটা (Big Data)', Framework is 'ফ্ৰেমৱৰ্ক (Framework)'.\n"
+            "5. Greet with নমস্কাৰ (never হ্যালো/হাই), say ধন্যবাদ (never থেংক ইউ).\n"
+            "6. BRAND RULE: Never recommend or mention ChatGPT, Gemini, or Claude. Always say 'আপুনি মোক (Axom AI) সুধিব পাৰে'.\n"
+            "7. FORMATTING & CODE RULES:\n"
+            "- Use ### headings (in Assamese) to organize topics clearly.\n"
+            "- Use **bold** for key terms, definitions, and important facts.\n"
+            "- Use - bullet points with bold prefixes (e.g. - **মূল বৈশিষ্ট্য:** বিৱৰণ).\n"
+            "- CODE FORMATTING: Always enclose code in proper ```python ... ``` triple backticks with language tags.\n"
+            "- Use blank lines between sections for clean readability.\n"
+            "- Use '।' (Assamese danda) at the end of sentences.\n"
+            "8. Never invent specific facts. If unsure, say so honestly in polite Assamese.\n"
+        )
+
+    system_instruction = base_intro + lang_instruction
 
     # 2. KB search skipped — go directly to GPT (ChatGPT style).
     #    KB data is insufficient; GPT provides faster, better answers for all topics.
@@ -1522,7 +1727,7 @@ def chat_api_view(request):
 
     # 5. Ollama local model skipped — GPT gives much better answers.
 
-    # 6. FALLBACK ENGINE: Google Gemini (also the primary engine for web_search).
+    # 6. Primary and Fallback Engines
     api_key = os.getenv('GEMINI_API_KEY')
     if not api_key:
         if custom_context:
@@ -1533,11 +1738,11 @@ def chat_api_view(request):
             })
         return JsonResponse({'error': 'Local model unavailable and Gemini API key is not configured on the server.'}, status=500)
 
-    # Model IDs verified as available for this API key via ListModels + a live
-    # generateContent probe, ordered fastest-first (lite flash models first).
-    # NOTE: gemini-1.5/2.0/2.5 are NOT offered on this key ("no longer available
-    # to new users"), so only the confirmed-working 3.x flash models are listed.
+    # Gemini Candidate models strictly conforming to GEMINI.md:
     candidate_models = [
+        'gemini-flash-latest',
+        'gemini-2.5-flash',
+        'gemini-1.5-flash',
         'gemini-3.5-flash-lite',
         'gemini-flash-lite-latest',
         'gemini-3.5-flash',
@@ -1545,19 +1750,26 @@ def chat_api_view(request):
     ]
 
     def _purify_stream(gen):
-        """Wrap a text-chunk generator so every chunk passes through
-        _purify_assamese_with_grammar (Bengali র→ৰ, vocab fixes, etc.)."""
+        """Wrap text-chunk generator: purify Assamese if language is Assamese, and sanitize rival brands."""
         for chunk in gen:
-            yield _purify_assamese_with_grammar(chunk)
+            if language == 'assamese':
+                yield _purify_assamese_with_grammar(chunk)
+            else:
+                yield _sanitize_brand_mentions(chunk)
 
-    # 6a. PRIMARY: OpenAI free-tier model rotation — streams through up to 17
-    #     models (9 mini/nano + 8 large) using daily free quotas before paid Luna.
+    # -------------------------------------------------------------------------
+    # Tier 1 (Streaming): OpenAI model cascade (gpt-4o -> o3-mini -> gpt-4o-mini)
+    # -------------------------------------------------------------------------
     if not web_search:
         try:
             from model_router.router import openai_stream
+            def _on_done_save(txt):
+                saved = _purify_assamese_with_grammar(txt) if language == 'assamese' else txt
+                _save_chat(request, client_id, prompt, saved)
             oai_gen, oai_model = openai_stream(
                 system_instruction, final_prompt,
-                on_done=lambda txt: _save_chat(request, client_id, prompt, _purify_assamese_with_grammar(txt)))
+                image_b64=attached_img_b64, image_mime=attached_img_mime,
+                on_done=_on_done_save)
             if oai_gen is not None:
                 sresp = StreamingHttpResponse(_purify_stream(oai_gen), content_type='text/plain; charset=utf-8')
                 sresp['X-Engine'] = f'openai:{oai_model}'
@@ -1570,33 +1782,26 @@ def chat_api_view(request):
         except Exception:
             pass
 
-    # 6b. FALLBACK 1: Groq streaming — fast and free.
-    if GROQ_API_KEY and not web_search:
-        gstream = _groq_stream_response(
-            system_instruction, final_prompt,
-            lambda txt: _save_chat(request, client_id, prompt, _purify_assamese_with_grammar(txt)))
-        if gstream is not None:
-            sresp = StreamingHttpResponse(_purify_stream(gstream), content_type='text/plain; charset=utf-8')
-            sresp['X-Engine'] = 'groq'
-            sresp['X-From-Database'] = 'true' if custom_context else 'false'
-            sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
-            sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
-            sresp['Cache-Control'] = 'no-cache'
-            sresp['X-Accel-Buffering'] = 'no'
-            return sresp
-
-    # 6c. STREAM the general/RAG answer from Gemini so the first words reach the
-    #     user immediately (feels fast). web_search stays non-streaming below —
-    #     it needs the grounding metadata (sources) that arrives at the end.
+    # -------------------------------------------------------------------------
+    # Tier 2 (Streaming): Google Gemini Fallback
+    # -------------------------------------------------------------------------
     if not web_search:
         for model_id in candidate_models:
             try:
                 s_url = (f"https://generativelanguage.googleapis.com/v1beta/models/"
                          f"{model_id}:streamGenerateContent?alt=sse&key={api_key}")
+                g_parts = [{"text": final_prompt}]
+                if attached_img_b64:
+                    g_parts.append({
+                        "inlineData": {
+                            "mimeType": attached_img_mime,
+                            "data": attached_img_b64
+                        }
+                    })
                 g_res = http_session.post(
                     s_url,
                     json={
-                        "contents": [{"parts": [{"text": final_prompt}]}],
+                        "contents": [{"parts": g_parts}],
                         "systemInstruction": {"parts": [{"text": system_instruction}]},
                     },
                     stream=True, timeout=30,
@@ -1623,15 +1828,22 @@ def chat_api_view(request):
                             for cand in obj.get('candidates', []):
                                 for part in cand.get('content', {}).get('parts', []):
                                     if part.get('text'):
-                                        purified = _purify_assamese_with_grammar(part['text'])
-                                        acc.append(purified)
-                                        yield purified
+                                        chunk = part['text']
+                                        if language == 'assamese':
+                                            chunk = _purify_assamese_with_grammar(chunk)
+                                        else:
+                                            chunk = _sanitize_brand_mentions(chunk)
+                                        acc.append(chunk)
+                                        yield chunk
                     finally:
                         resp.close()
-                        _save_chat(request, client_id, prompt, ''.join(acc))
+                        try:
+                            _save_chat(request, client_id, prompt, ''.join(acc))
+                        except Exception:
+                            pass
 
                 sresp = StreamingHttpResponse(gemini_stream(), content_type='text/plain; charset=utf-8')
-                sresp['X-Engine'] = 'gemini'
+                sresp['X-Engine'] = f'gemini:{model_id}'
                 sresp['X-From-Database'] = 'true' if custom_context else 'false'
                 sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
                 sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
@@ -1639,20 +1851,43 @@ def chat_api_view(request):
                 sresp['X-Accel-Buffering'] = 'no'
                 return sresp
             g_res.close()
-        # streaming failed for all models — fall through to the non-streaming loop
+
+    # -------------------------------------------------------------------------
+    # Tier 3 (Streaming): Groq Cloud Ultra-Fast Safety Net
+    # -------------------------------------------------------------------------
+    if GROQ_API_KEY and not web_search:
+        def _on_groq_save(txt):
+            saved = _purify_assamese_with_grammar(txt) if language == 'assamese' else txt
+            _save_chat(request, client_id, prompt, saved)
+        gstream = _groq_stream_response(system_instruction, final_prompt, _on_groq_save)
+        if gstream is not None:
+            sresp = StreamingHttpResponse(_purify_stream(gstream), content_type='text/plain; charset=utf-8')
+            sresp['X-Engine'] = 'groq'
+            sresp['X-From-Database'] = 'true' if custom_context else 'false'
+            sresp['X-Source-Docs'] = json.dumps(source_docs, ensure_ascii=True)
+            sresp['X-Source'] = json.dumps(kb_source) if kb_source else ''
+            sresp['Cache-Control'] = 'no-cache'
+            sresp['X-Accel-Buffering'] = 'no'
+            return sresp
 
     last_error = ""
 
-    # ── Non-streaming fallbacks: OpenAI → Groq → Gemini ──
+    # -------------------------------------------------------------------------
+    # NON-STREAMING CASCADE: Tier 1 OpenAI -> Tier 2 Gemini -> Tier 3 Groq
+    # -------------------------------------------------------------------------
 
-    # Non-streaming OpenAI fallback
+    # 1. Non-streaming OpenAI (Tier 1)
     if not web_search:
         try:
             from model_router.router import openai_generate
-            oai_text, oai_model = openai_generate(system_instruction, final_prompt)
+            oai_text, oai_model = openai_generate(
+                system_instruction, final_prompt,
+                image_b64=attached_img_b64, image_mime=attached_img_mime)
             if oai_text:
                 if language == 'assamese':
                     oai_text = _purify_assamese_with_grammar(oai_text)
+                else:
+                    oai_text = _sanitize_brand_mentions(oai_text)
                 _save_chat(request, client_id, prompt, oai_text)
                 return JsonResponse({
                     'response': oai_text,
@@ -1666,34 +1901,23 @@ def chat_api_view(request):
         except Exception as err:
             last_error = str(err)
 
-    # Non-streaming Groq fallback
-    if GROQ_API_KEY and not web_search:
-        groq_text = _groq_generate(system_instruction, final_prompt)
-        if groq_text:
-            if language == 'assamese':
-                groq_text = _purify_assamese_with_grammar(groq_text)
-            _save_chat(request, client_id, prompt, groq_text)
-            return JsonResponse({
-                'response': groq_text,
-                'from_database': bool(custom_context),
-                'source_docs': source_docs,
-                'web_search': web_search,
-                'sources': [],
-                'engine': 'groq',
-                'source': kb_source,
-            })
-
-    # Non-streaming Gemini fallback (also handles web_search grounding)
+    # 2. Non-streaming Gemini fallback (Tier 2 - also handles web_search grounding)
     for model_id in candidate_models:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}"
             headers = {'Content-Type': 'application/json'}
+            g_parts_ns = [{"text": final_prompt}]
+            if attached_img_b64:
+                g_parts_ns.append({
+                    "inlineData": {
+                        "mimeType": attached_img_mime,
+                        "data": attached_img_b64
+                    }
+                })
             payload = {
                 "contents": [
                     {
-                        "parts": [
-                            {"text": final_prompt}
-                        ]
+                        "parts": g_parts_ns
                     }
                 ],
                 "systemInstruction": {
@@ -1761,6 +1985,8 @@ def chat_api_view(request):
 
                     if language == 'assamese':
                         response_text = _purify_assamese_with_grammar(response_text)
+                    else:
+                        response_text = _sanitize_brand_mentions(response_text)
                     _save_chat(request, client_id, prompt, response_text)
                     return JsonResponse({
                         'response': response_text,
@@ -1768,7 +1994,7 @@ def chat_api_view(request):
                         'source_docs': source_docs,
                         'web_search': web_search,
                         'sources': sources,
-                        'engine': 'gemini',
+                        'engine': f'gemini:{model_id}',
                         'source': kb_source,
                     })
 
@@ -1777,6 +2003,25 @@ def chat_api_view(request):
         except Exception as err:
             last_error = str(err)
             continue
+
+    # 3. Non-streaming Groq fallback (Tier 3 - Safety Net)
+    if GROQ_API_KEY and not web_search:
+        groq_text = _groq_generate(system_instruction, final_prompt)
+        if groq_text:
+            if language == 'assamese':
+                groq_text = _purify_assamese_with_grammar(groq_text)
+            else:
+                groq_text = _sanitize_brand_mentions(groq_text)
+            _save_chat(request, client_id, prompt, groq_text)
+            return JsonResponse({
+                'response': groq_text,
+                'from_database': bool(custom_context),
+                'source_docs': source_docs,
+                'web_search': web_search,
+                'sources': [],
+                'engine': 'groq',
+                'source': kb_source,
+            })
 
     # Fast Fallback: If API fails or is rate-limited, return database context if available!
     if custom_context:
@@ -1788,7 +2033,7 @@ def chat_api_view(request):
 
     if 'Quota exceeded' in last_error or '429' in last_error:
         return JsonResponse({
-            'error': 'Google Gemini API Rate Limit reached for Free Tier. Please retry in a minute.'
+            'error': 'AI Rate Limit reached for Free Tier. Please retry in a minute.'
         }, status=429)
 
     return JsonResponse({'error': f"API Error: {last_error}"}, status=400)
@@ -2909,8 +3154,15 @@ def _gemini_generate_image(prompt, model, timeout=90, ref_image_b64=None, ref_im
     When ref_image_b64 is provided, sends the reference image alongside the
     text prompt so Gemini can edit/transform it (ChatGPT-style image editing).
     Returns (PIL.Image, model_id) on success, or (None, error_string) on failure."""
-    if not _GEMINI_IMG_API_KEY:
-        return None, 'Gemini image key not configured (GEMINI_IMAGE_API_KEY)'
+    keys_to_try = []
+    if _GEMINI_IMG_API_KEY:
+        keys_to_try.append(_GEMINI_IMG_API_KEY)
+    fallback_gk = os.getenv('GEMINI_API_KEY', '').strip()
+    if fallback_gk and fallback_gk not in keys_to_try:
+        keys_to_try.append(fallback_gk)
+
+    if not keys_to_try:
+        return None, 'Gemini image key not configured (GEMINI_IMAGE_API_KEY / GEMINI_API_KEY)'
     try:
         from PIL import Image as _PILImage
         import io as _io
@@ -2934,32 +3186,36 @@ def _gemini_generate_image(prompt, model, timeout=90, ref_image_b64=None, ref_im
         "contents": [{"parts": parts}],
         "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]},
     }
-    try:
-        r = http_session.post(
-            url,
-            headers={
-                'Content-Type': 'application/json',
-                'x-goog-api-key': _GEMINI_IMG_API_KEY,
-            },
-            json=body, timeout=timeout,
-        )
-        if r.status_code != 200:
-            return None, f'Gemini HTTP {r.status_code}: {r.text[:200]}'
-        data = r.json()
-        cands = data.get('candidates') or []
-        for c in cands:
-            cparts = (c.get('content') or {}).get('parts') or []
-            for p in cparts:
-                inline = p.get('inlineData') or p.get('inline_data') or {}
-                b64 = inline.get('data') or ''
-                mime = inline.get('mimeType') or inline.get('mime_type') or ''
-                if b64 and 'image' in mime:
-                    raw = _b64.b64decode(b64)
-                    img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
-                    return img, f'gemini/{model}'
-        return None, 'Gemini returned no image (likely safety-blocked or text-only)'
-    except Exception as e:
-        return None, str(e)[:300]
+    last_err = None
+    for api_k in keys_to_try:
+        try:
+            r = http_session.post(
+                url,
+                headers={
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': api_k,
+                },
+                json=body, timeout=timeout,
+            )
+            if r.status_code != 200:
+                last_err = f'Gemini HTTP {r.status_code}: {r.text[:200]}'
+                continue
+            data = r.json()
+            cands = data.get('candidates') or []
+            for c in cands:
+                cparts = (c.get('content') or {}).get('parts') or []
+                for p in cparts:
+                    inline = p.get('inlineData') or p.get('inline_data') or {}
+                    b64 = inline.get('data') or ''
+                    mime = inline.get('mimeType') or inline.get('mime_type') or ''
+                    if b64 and 'image' in mime:
+                        raw = _b64.b64decode(b64)
+                        img = _PILImage.open(_io.BytesIO(raw)).convert('RGB')
+                        return img, f'gemini/{model}'
+            last_err = 'Gemini returned no image (likely safety-blocked or text-only)'
+        except Exception as e:
+            last_err = str(e)[:300]
+    return None, last_err or 'Gemini image generation failed'
 
 
 def _cloudflare_generate_image(prompt, width, height, model=None, timeout=60):
@@ -3117,6 +3373,69 @@ def _translate_prompt_for_image(prompt, has_ref_image=False):
         return prompt, False
     out = out.strip().strip('"').strip("'").strip()
     return out or prompt, bool(out and out != prompt)
+
+
+def _detect_image_intent_with_openai(prompt, has_image=False):
+    """Use OpenAI (per user rule) to understand the user's intent.
+    Determines if the user wants to generate, draw, or edit an image.
+    Returns: (is_image: bool, image_prompt: str)"""
+    if not prompt or not prompt.strip():
+        return False, ""
+
+    clean_p = prompt.strip()
+    visual_cues = (
+        'image', 'photo', 'picture', 'draw', 'generate', 'paint', 'sketch', 'illustration',
+        'chobi', 'chabi', 'ছৱি', 'ছবি', 'ফটো', 'আঁকা', 'ৰং', 'বনাও', 'চিত্র', 'চিহ্ন',
+        'wallpaper', 'background', 'extract', 'portrait', 'scenery', 'scene', 'art',
+        'tasveer', 'banao', 'dekhao', 'dikhaye'
+    )
+    lower = clean_p.lower()
+    has_cue = any(c in lower for c in visual_cues)
+
+    # If no image attached and no visual words at all, fast return False
+    if not has_image and not has_cue:
+        return False, ""
+
+    system = (
+        "You are an AI intent classifier for Axom AI. "
+        "Determine if the user wants to GENERATE, DRAW, CREATE, or EDIT an image/artwork/photo. "
+        "CRITICAL RULES:\n"
+        "1. If the user asks a factual question, asks to solve a problem, or asks to explain/read an image, set is_image to false.\n"
+        "2. If the user wants a new picture/photo/artwork generated, or wants an attached image edited/background extracted, set is_image to true.\n"
+        "3. If is_image is true, formulate a rich, highly descriptive English visual prompt (under 60 words) suitable for a text-to-image model.\n"
+        "4. Reply with a valid JSON object ONLY: {\"is_image\": true, \"prompt\": \"English visual description\"} or {\"is_image\": false, \"prompt\": \"\"}."
+    )
+
+    user_msg = f"[Attached reference image: {'YES' if has_image else 'NO'}]\nUser request: {clean_p}"
+
+    try:
+        from model_router.router import openai_generate
+        out, _ = openai_generate(system, user_msg, timeout=10)
+        if out and out.strip():
+            raw = out.strip()
+            if '```json' in raw:
+                raw = raw.split('```json')[1].split('```')[0].strip()
+            elif '```' in raw:
+                raw = raw.split('```')[1].split('```')[0].strip()
+            start = raw.find('{')
+            end = raw.rfind('}')
+            if start != -1 and end != -1:
+                parsed = json.loads(raw[start:end+1])
+                is_img = bool(parsed.get('is_image'))
+                img_prompt = str(parsed.get('prompt') or '').strip()
+                if is_img:
+                    return True, img_prompt or clean_p
+                return False, ""
+    except Exception as e:
+        logger.warning(f"OpenAI intent detection failed: {e}")
+
+    # Fallback heuristic if OpenAI is unreachable
+    if has_image and any(k in lower for k in ('extract', 'background', 'edit', 'ছৱি', 'ছবি', 'উলিয়া')):
+        return True, clean_p
+    if any(k in lower for k in ('generate image', 'draw', 'make an image', 'ছবি বনোৱা', 'ছৱি আঁকা', 'photo banao')):
+        return True, clean_p
+
+    return False, ""
 
 
 def _imggen_key(ip, device=''):
@@ -3449,6 +3768,62 @@ def profile_avatar_api(request):
     return _apply_cross_subdomain_cors(request, resp)
 
 
+def _generate_image_core(prompt, quality='normal', width=1024, height=1024, ref_image_b64=None, ref_image_mime=None):
+    """Core image generation engine:
+    1. Gemini Image Models (primary)
+    2. Cloudflare Workers AI FLUX (safety net)
+    3. Pollinations.ai (backup)
+    Returns (img_data_uri, error_str)."""
+    import io, base64
+    from PIL import Image as _PILImage
+
+    width = max(256, min(1536, (int(width) // 8) * 8))
+    height = max(256, min(1536, (int(height) // 8) * 8))
+    quality = quality if quality in ('normal', 'extreme') else 'normal'
+
+    gemini_model = _GEMINI_IMG_MODEL_NORMAL
+    display_model_name = 'Gemini 2.5 Flash Image'
+    cf_safety_model = _CF_MODEL_FLUX_SCHNELL
+    poll_safety_model = 'flux'
+
+    pil_img = None
+    tried_errors = []
+
+    # 1. Primary: Gemini AI Studio (with auto-fallback to backup key)
+    if _GEMINI_IMG_API_KEY or os.getenv('GEMINI_API_KEY'):
+        img, info = _gemini_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT, ref_image_b64=ref_image_b64, ref_image_mime=ref_image_mime)
+        if img is not None:
+            pil_img = img
+        else:
+            tried_errors.append(f'Gemini ({gemini_model}): {info}')
+
+    # 2. Safety net: Cloudflare Workers AI FLUX
+    if pil_img is None and _CF_API_TOKEN and _CF_ACCOUNT_ID:
+        cf_img, cf_info = _cloudflare_generate_image(
+            prompt, width, height, model=cf_safety_model, timeout=_IMGGEN_TIMEOUT)
+        if cf_img is not None:
+            pil_img = cf_img
+        else:
+            tried_errors.append(f'Cloudflare ({cf_safety_model}): {cf_info}')
+
+    # 3. Final safety net: Pollinations.ai
+    if pil_img is None:
+        pl_img, pl_info = _pollinations_generate_image(
+            prompt, width, height, model=poll_safety_model, timeout=_IMGGEN_TIMEOUT)
+        if pl_img is not None:
+            pil_img = pl_img
+        else:
+            tried_errors.append(f'Pollinations ({poll_safety_model}): {pl_info}')
+
+    if pil_img is None:
+        return None, 'Image generation failed. ' + ' | '.join(tried_errors)
+
+    buf = io.BytesIO()
+    pil_img.save(buf, format='PNG', optimize=True)
+    b64 = base64.b64encode(buf.getvalue()).decode('ascii')
+    return f'data:image/png;base64,{b64}', None
+
+
 @csrf_exempt
 def generate_image_api(request):
     """
@@ -3647,6 +4022,15 @@ def generate_image_api(request):
             engine_model = f'{display_model_name} (Cloudflare fallback)'
         else:
             tried_errors.append(f'Cloudflare ({cf_safety_model}): {cf_info}')
+            if cf_safety_model != _CF_MODEL_FLUX_SCHNELL:
+                cf_img2, cf_info2 = _cloudflare_generate_image(
+                    prompt, width, height, model=_CF_MODEL_FLUX_SCHNELL, timeout=_IMGGEN_TIMEOUT)
+                if cf_img2 is not None:
+                    pil_img = cf_img2
+                    engine = 'cloudflare'
+                    engine_model = f'{display_model_name} (Cloudflare FLUX fallback)'
+                else:
+                    tried_errors.append(f'Cloudflare ({_CF_MODEL_FLUX_SCHNELL}): {cf_info2}')
 
     # Final safety net: Pollinations.ai
     if pil_img is None:
@@ -3672,12 +4056,14 @@ def generate_image_api(request):
     buf = io.BytesIO()
     pil_img.save(buf, format='PNG', optimize=True)
     b64 = base64.b64encode(buf.getvalue()).decode('ascii')
+    img_data_uri = f'data:image/png;base64,{b64}'
     return JsonResponse({
         'success': True,
-        'image': f'data:image/png;base64,{b64}',
-        'model': engine,
-        'model_id': engine_model,
-        'engine': engine,
+        'image': img_data_uri,
+        'image_url': img_data_uri,
+        'model': 'Axom AI',
+        'model_id': 'Axom AI',
+        'engine': 'Axom AI',
         'width': pil_img.size[0],
         'height': pil_img.size[1],
         'ms': int((time.time() - t0) * 1000),

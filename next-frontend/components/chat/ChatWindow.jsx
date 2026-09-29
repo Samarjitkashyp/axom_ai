@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle,
   FileText, Mic, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
-  ExternalLink, Loader2, Sparkles, FileUp, Wrench
+  ExternalLink, Loader2, Sparkles, FileUp, Wrench, Languages, ChevronDown,
+  X, MessageSquare, Image as ImageIcon
 } from 'lucide-react';
 import { formatMarkdown } from './utils/format';
 import { getCsrfToken } from './utils/security';
@@ -32,6 +33,8 @@ export default function ChatWindow({
   const [isLoading, setIsLoading] = useState(false);
   const [isConvertingDoc, setIsConvertingDoc] = useState(false);
   const [convertingFileName, setConvertingFileName] = useState('');
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isDraggingDoc, setIsDraggingDoc] = useState(false);
   const [streamingText, setStreamingText] = useState(null);
   const [streamingSources, setStreamingSources] = useState([]);
@@ -40,8 +43,35 @@ export default function ChatWindow({
   const [copiedMessageIndex, setCopiedMessageIndex] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [remainingSearches, setRemainingSearches] = useState(null);
-  // Axom AI is Assamese-only: replies are always in Assamese regardless of input language.
-  const [language] = useState('assamese');
+  // Language selection: default to Assamese
+  const [language, setLanguage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('axom_chat_language') || 'assamese';
+    }
+    return 'assamese';
+  });
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const langMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(e.target)) {
+        setIsLangMenuOpen(false);
+      }
+    };
+    if (isLangMenuOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isLangMenuOpen]);
+
+  const handleLanguageChange = (newLang) => {
+    setLanguage(newLang);
+    setIsLangMenuOpen(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('axom_chat_language', newLang);
+    }
+  };
 
   // Progressive ChatGPT-style search status step timer
   useEffect(() => {
@@ -66,12 +96,12 @@ export default function ChatWindow({
   const langCode = () =>
     (language === 'english' ? 'en-IN' : language === 'assamese' ? 'as-IN' : 'hi-IN');
 
-  const handleDocUpload = async (file) => {
+  const handleFileSelect = (file) => {
     if (!file) return;
-    const allowed = ['.docx', '.doc', '.txt', '.rtf', '.md'];
+    const allowed = ['.docx', '.doc', '.txt', '.rtf', '.md', '.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif'];
     const ext = '.' + file.name.split('.').pop().toLowerCase();
     if (!allowed.includes(ext)) {
-      setErrorMsg(`Unsupported file type: ${ext}. Please upload a .docx, .doc, or .txt file.`);
+      setErrorMsg(`Unsupported file type: ${ext}. Please upload a document (.docx, .pdf, .txt) or image (.png, .jpg, .webp).`);
       return;
     }
     if (file.size > 25 * 1024 * 1024) {
@@ -80,14 +110,74 @@ export default function ChatWindow({
     }
 
     setErrorMsg(null);
+    const isImg = file.type.startsWith('image/') || ['.png', '.jpg', '.jpeg', '.webp', '.gif'].includes(ext);
+    const fileObj = {
+      file,
+      name: file.name,
+      size: file.size,
+      ext,
+      isImage: isImg,
+      preview: null,
+      textSnippet: '',
+    };
+
+    if (isImg || ext === '.pdf') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAttachedFile((prev) => (prev ? { ...prev, preview: e.target?.result } : null));
+      };
+      reader.readAsDataURL(file);
+    }
+    if (ext === '.txt' || ext === '.md') {
+      file.text().then((txt) => {
+        setAttachedFile((prev) => (prev ? { ...prev, textSnippet: txt.slice(0, 5000) } : null));
+      }).catch(() => {});
+    } else if (ext === '.docx' || ext === '.pdf') {
+      const fd = new FormData();
+      fd.append('file', file);
+      fetch('/api/ai-notes/analyze/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfToken() || '' },
+        body: fd,
+      }).then((r) => r.json()).then((d) => {
+        if (d && d.sample_text) {
+          setAttachedFile((prev) => (prev ? { ...prev, textSnippet: d.sample_text } : null));
+        }
+      }).catch(() => {});
+    }
+
+    setAttachedFile(fileObj);
+    if (docFileInputRef.current) docFileInputRef.current.value = '';
+  };
+
+  const handleClearAttachedFile = () => {
+    setAttachedFile(null);
+    if (docFileInputRef.current) docFileInputRef.current.value = '';
+  };
+
+  const handleExecuteConvertDoc = async (fileToUse) => {
+    const file = fileToUse || attachedFile?.file;
+    if (!file) return;
+
+    setErrorMsg(null);
     setIsConvertingDoc(true);
     setConvertingFileName(file.name);
+    setAttachedFile(null);
+
+    const fileMeta = {
+      attached_file: {
+        name: file.name,
+        size: file.size,
+        isImage: false,
+        ext: '.' + file.name.split('.').pop().toLowerCase(),
+      }
+    };
 
     let sessionId = currentSession?.id;
     if (!sessionId) {
-      sessionId = onSendMessage(`📄 Convert Document: ${file.name}`);
+      sessionId = onSendMessage(`📄 Convert Document: ${file.name}`, fileMeta);
     } else {
-      onAddMessage(sessionId, 'user', `📄 Convert Document: ${file.name}`);
+      onAddMessage(sessionId, 'user', `📄 Convert Document: ${file.name}`, 'Axom AI', fileMeta);
     }
 
     const formData = new FormData();
@@ -111,7 +201,7 @@ export default function ChatWindow({
         sessionId,
         'assistant',
         `আপোনাৰ নথিপত্ৰখন (**${data.original_name}**) সফলতাৰে PDF লৈ ৰূপান্তৰ কৰা হৈছে। তলৰ বুটামৰ পৰা আপুনি PDF ডাউনলোড বা প্ৰিভিউ কৰিব পাৰে:`,
-        'Doc to PDF Converter',
+        'Axom AI',
         {
           doc_conversion: data,
         }
@@ -123,6 +213,107 @@ export default function ChatWindow({
       setConvertingFileName('');
       if (docFileInputRef.current) docFileInputRef.current.value = '';
     }
+  };
+
+  const handleExecuteGeminiImage = async (customPrompt) => {
+    const promptToUse = (customPrompt || inputText).trim();
+    if (!promptToUse && !attachedFile?.isImage) {
+      setInputText('A beautiful landscape in Assam');
+      textareaRef.current?.focus();
+      return;
+    }
+
+    const finalPrompt = promptToUse || (attachedFile?.isImage ? 'Enhance and stylize this image in ultra-high quality' : 'A beautiful realistic scene');
+
+    setIsGeneratingImage(true);
+    setIsLoading(true);
+    setErrorMsg(null);
+
+    const currentFile = attachedFile;
+    const fileMeta = currentFile ? {
+      attached_file: {
+        name: currentFile.name,
+        size: currentFile.size,
+        isImage: currentFile.isImage,
+        preview: currentFile.preview,
+        ext: currentFile.ext,
+      }
+    } : {};
+
+    let sessionId = currentSession?.id;
+    const userPromptDisplay = `🎨 Generate Image: ${finalPrompt}`;
+    if (!sessionId) {
+      sessionId = onSendMessage(userPromptDisplay, fileMeta);
+    } else {
+      onAddMessage(sessionId, 'user', userPromptDisplay, 'Axom AI', fileMeta);
+    }
+
+    setAttachedFile(null);
+    setInputText('');
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+
+    try {
+      let res;
+      if (currentFile?.isImage) {
+        const formData = new FormData();
+        formData.append('prompt', finalPrompt);
+        formData.append('quality', 'normal');
+        formData.append('width', '1024');
+        formData.append('height', '1024');
+        formData.append('image', currentFile.file);
+
+        res = await fetch('/api/generate-image/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCsrfToken() || '' },
+          body: formData,
+        });
+      } else {
+        res = await fetch('/api/generate-image/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken() || '',
+          },
+          body: JSON.stringify({
+            prompt: finalPrompt,
+            quality: 'normal',
+            width: 1024,
+            height: 1024,
+          }),
+        });
+      }
+
+      const data = await res.json();
+      const imgData = data?.image || data?.image_url;
+      if (!res.ok || !data.success || !imgData) {
+        throw new Error(data.error || 'Failed to generate image.');
+      }
+
+      onAddMessage(
+        sessionId,
+        'assistant',
+        `আপোনাৰ অনুৰোধ অনুসৰি প্ৰস্তুত কৰা ছবিখন:\n\n**বিৱৰণ:** *${finalPrompt}*`,
+        'Axom AI',
+        {
+          image: imgData,
+          image_url: imgData,
+          image_engine: 'Axom AI',
+          image_prompt: finalPrompt,
+        }
+      );
+    } catch (err) {
+      setErrorMsg(`Image generation error: ${err.message}`);
+    } finally {
+      setIsGeneratingImage(false);
+      setIsLoading(false);
+      if (docFileInputRef.current) docFileInputRef.current.value = '';
+    }
+  };
+
+  const handleExecuteSummarize = () => {
+    if (!attachedFile) return;
+    const summaryPrompt = `Please provide a clear, comprehensive summary and key takeaways of the attached file: "${attachedFile.name}".`;
+    handleSendWithText(summaryPrompt);
   };
 
   const handleDragOver = (e) => {
@@ -142,7 +333,7 @@ export default function ChatWindow({
     e.stopPropagation();
     setIsDraggingDoc(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleDocUpload(e.dataTransfer.files[0]);
+      handleFileSelect(e.dataTransfer.files[0]);
     }
   };
 
@@ -200,21 +391,41 @@ export default function ChatWindow({
   const abortControllerRef = useRef(null);
   const mainBodyRef = useRef(null);
   const textareaRef = useRef(null);
+  const isUserScrolledUpRef = useRef(false);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
 
-  // Auto-scroll to bottom when messages change or streaming updates
-  const scrollToBottom = () => {
+  // Check if user has scrolled away from the bottom (ChatGPT-style scroll detection)
+  const handleScroll = () => {
+    if (!mainBodyRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = mainBodyRef.current;
+    const isAwayFromBottom = scrollHeight - scrollTop - clientHeight > 100;
+    isUserScrolledUpRef.current = isAwayFromBottom;
+    setShowScrollBottom(isAwayFromBottom);
+  };
+
+  // Smart auto-scroll: follows stream ONLY if user hasn't scrolled up to read earlier text
+  const scrollToBottom = (force = false) => {
     if (mainBodyRef.current) {
-      mainBodyRef.current.scrollTop = mainBodyRef.current.scrollHeight;
+      if (force || !isUserScrolledUpRef.current) {
+        mainBodyRef.current.scrollTop = mainBodyRef.current.scrollHeight;
+      }
     }
   };
 
   useEffect(() => {
     if (currentSession?.messages?.length > 0 || streamingText !== null || isLoading) {
-      scrollToBottom();
+      scrollToBottom(false);
     } else if (mainBodyRef.current) {
       mainBodyRef.current.scrollTop = 0;
     }
   }, [currentSession?.messages, streamingText, isLoading, errorMsg]);
+
+  // When switching chat sessions, reset scroll to bottom
+  useEffect(() => {
+    isUserScrolledUpRef.current = false;
+    setShowScrollBottom(false);
+    scrollToBottom(true);
+  }, [currentSession?.id]);
 
   // Clean up abort controller on unmount
   useEffect(() => {
@@ -248,7 +459,14 @@ export default function ChatWindow({
 
   const handleSend = async () => {
     const text = inputText.trim();
-    if (!text || isLoading) return;
+    if ((!text && !attachedFile) || isLoading || isConvertingDoc || isGeneratingImage) return;
+
+    handleSendWithText(text);
+  };
+
+  const handleSendWithText = async (textToSend) => {
+    const text = (textToSend !== undefined ? textToSend : inputText).trim();
+    if (!text && !attachedFile) return;
 
     if (remainingWords <= 0 && !user.isAuthenticated) {
       setInputText('');
@@ -261,27 +479,58 @@ export default function ChatWindow({
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setErrorMsg(null);
 
+    const currentFile = attachedFile;
+    const fileMeta = currentFile ? {
+      attached_file: {
+        name: currentFile.name,
+        size: currentFile.size,
+        isImage: currentFile.isImage,
+        preview: currentFile.preview,
+        ext: currentFile.ext,
+      }
+    } : {};
+    setAttachedFile(null);
+
+    let fullPrompt = text;
+    let userDisplayPrompt = text;
+
+    if (currentFile) {
+      if (!userDisplayPrompt) {
+        userDisplayPrompt = currentFile.isImage ? `📷 ${currentFile.name}` : `📎 ${currentFile.name}`;
+      }
+      if (currentFile.isImage) {
+        fullPrompt = text ? text : 'Please inspect this image, read any visible text, and explain what is depicted in detail.';
+      } else if (currentFile.textSnippet) {
+        fullPrompt = `${fullPrompt ? fullPrompt + '\n\n' : ''}[Attached Document: ${currentFile.name}]\nDocument Content:\n${currentFile.textSnippet.slice(0, 4500)}`;
+      } else {
+        fullPrompt = `${fullPrompt ? fullPrompt + '\n\n' : ''}[Attached Document: ${currentFile.name}]`;
+      }
+    }
+
     // Calculate prompt words and deduct
-    const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
+    const wordCount = (userDisplayPrompt || 'file').split(/\s+/).filter(w => w.length > 0).length;
     deductWords(wordCount);
 
     // If no active session, trigger creation on parent
     let sessionId = currentSession?.id;
     if (!sessionId) {
-      sessionId = onSendMessage(text);
+      sessionId = onSendMessage(userDisplayPrompt, fileMeta);
     } else {
-      onAddMessage(sessionId, 'user', text);
+      onAddMessage(sessionId, 'user', userDisplayPrompt, 'Axom AI', fileMeta);
     }
 
     if (webSearch) {
       setIsWebSearching(true);
-      setCurrentSearchQuery(text);
+      setCurrentSearchQuery(userDisplayPrompt);
       setSearchPhase(0);
     } else {
       setIsWebSearching(false);
       setCurrentSearchQuery('');
       setSearchPhase(0);
     }
+    isUserScrolledUpRef.current = false;
+    setShowScrollBottom(false);
+    scrollToBottom(true);
     setIsLoading(true);
 
     // Cancel any previous requests
@@ -299,13 +548,17 @@ export default function ChatWindow({
         },
         signal: abortControllerRef.current.signal,
         body: JSON.stringify({
-          prompt: text,
+          prompt: fullPrompt,
           web_search: webSearch,
           session_id: sessionId,
           language,
           history: (currentSession?.messages || [])
             .slice(-20)
             .map((m) => ({ role: m.role, text: m.text })),
+          attached_image: currentFile?.isImage && currentFile.preview ? currentFile.preview : null,
+          has_attached_image: !!(currentFile?.isImage),
+          attached_pdf: currentFile?.ext === '.pdf' && currentFile.preview ? currentFile.preview : null,
+          attached_filename: currentFile?.name || null,
         }),
       });
 
@@ -372,6 +625,19 @@ export default function ChatWindow({
         }
       }
       setIsWebSearching(false);
+
+      // --- Instant AI Image Response (when OpenAI detects user requested image generation) ---
+      if (res.ok && data && (data.image || data.image_url)) {
+        setIsLoading(false);
+        setStreamingText(null);
+        onAddMessage(sessionId, 'assistant', data.response, 'Axom AI', {
+          image: data.image || data.image_url,
+          image_url: data.image || data.image_url,
+          image_engine: 'Axom AI',
+          image_prompt: data.image_prompt || userDisplayPrompt,
+        });
+        return;
+      }
 
       if (res.ok && data && data.response) {
         if (typeof data.remaining_today === 'number') {
@@ -461,15 +727,15 @@ export default function ChatWindow({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Hidden file input for document attachment */}
+      {/* Hidden file input for document and image attachments */}
       <input
         type="file"
         ref={docFileInputRef}
         style={{ display: 'none' }}
-        accept=".docx,.doc,.txt,.rtf,.md"
+        accept=".docx,.doc,.txt,.rtf,.md,.pdf,.png,.jpg,.jpeg,.webp,.gif"
         onChange={(e) => {
           if (e.target.files && e.target.files[0]) {
-            handleDocUpload(e.target.files[0]);
+            handleFileSelect(e.target.files[0]);
           }
         }}
       />
@@ -479,8 +745,8 @@ export default function ChatWindow({
         <div className="drag-doc-overlay">
           <div className="drag-doc-content">
             <FileUp size={48} className="bounce-icon" />
-            <h3>Drop your document here</h3>
-            <p>Convert .docx, .doc, or .txt to formatted PDF</p>
+            <h3>Drop your file or image here</h3>
+            <p>Ask questions, summarize, convert to PDF, or generate imagery with AI</p>
           </div>
         </div>
       )}
@@ -492,7 +758,7 @@ export default function ChatWindow({
             <Menu size={20} />
           </button>
           <div className="model-selector-pill">
-            <span className="model-name-text">Axom 2.0 Pro</span>
+            <span className="model-name-text">Axom AI</span>
             <span className="model-badge">Assam AI</span>
           </div>
         </div>
@@ -512,7 +778,7 @@ export default function ChatWindow({
       </header>
 
       {/* Dashboard Body / Dynamic Chat View Container */}
-      <div className="main-body" id="mainBody" ref={mainBodyRef}>
+      <div className="main-body" id="mainBody" ref={mainBodyRef} onScroll={handleScroll}>
         {!currentSession || currentSession.messages.length === 0 ? (
           /* Initial Welcome / Hero View */
           <div className="hero-container" id="heroContainer">
@@ -554,7 +820,37 @@ export default function ChatWindow({
               <div key={index} className={`message-bubble ${msg.role === 'user' ? 'user' : 'assistant'}`}>
                 {msg.role === 'user' ? (
                   <>
-                    <div className="msg-body">{msg.text}</div>
+                    <div className="msg-body">
+                      {msg.attached_file && (
+                        <div className="user-attached-file-box">
+                          {msg.attached_file.isImage && msg.attached_file.preview ? (
+                            <div className="user-attached-img-wrap">
+                              <img
+                                src={msg.attached_file.preview}
+                                alt={msg.attached_file.name || 'Attached image'}
+                                className="user-attached-img-thumb"
+                              />
+                              <span className="user-attached-img-name">{msg.attached_file.name}</span>
+                            </div>
+                          ) : (
+                            <div className="user-attached-doc-badge">
+                              <FileText size={18} className="user-doc-icon" />
+                              <div className="user-doc-details">
+                                <span className="user-doc-name">{msg.attached_file.name}</span>
+                                {msg.attached_file.size ? (
+                                  <span className="user-doc-size">
+                                    {msg.attached_file.size / 1024 < 1024
+                                      ? `${(msg.attached_file.size / 1024).toFixed(1)} KB`
+                                      : `${(msg.attached_file.size / (1024 * 1024)).toFixed(1)} MB`}
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div>{msg.text}</div>
+                    </div>
                     <div className="msg-avatar">{user.username ? user.username.substring(0, 2).toUpperCase() : 'US'}</div>
                   </>
                 ) : (
@@ -563,7 +859,7 @@ export default function ChatWindow({
                     <div className="msg-body" style={{ position: 'relative', width: '100%' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)' }}>{msg.model || 'Axom AI'}</span>
+                          <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)' }}>Axom AI</span>
                           {msg.from_database && (
                             <span style={{ display: 'inline-block', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
                               📁 Database Match
@@ -681,6 +977,45 @@ export default function ChatWindow({
                         </div>
                       )}
 
+                      {/* Interactive Generated / Attached Image Result Card */}
+                      {(msg.image_url || msg.image) && (
+                        <div className="chat-image-result-card">
+                          <img
+                            src={msg.image_url || msg.image}
+                            alt={msg.image_prompt || 'Generated with Axom AI'}
+                            loading="lazy"
+                          />
+                          <div className="chat-image-footer">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Sparkles size={14} style={{ color: '#ec4899' }} />
+                              <span style={{ fontSize: '0.74rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                                Axom AI
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <a
+                                href={msg.image_url || msg.image}
+                                download={`axom-ai-${Date.now()}.png`}
+                                className="btn-download-image-card"
+                              >
+                                <Download size={13} />
+                                <span>Download</span>
+                              </a>
+                              <a
+                                href={msg.image_url || msg.image}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-preview-pdf-card"
+                                style={{ padding: '6px 10px', fontSize: '0.74rem' }}
+                                title="Open full image"
+                              >
+                                <ExternalLink size={13} />
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Feedback (👍 / 👎) — helps improve the knowledge base */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
                         {feedbackGiven[index] ? (
@@ -771,7 +1106,7 @@ export default function ChatWindow({
                 <div className="msg-body" style={{ position: 'relative', width: '100%' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)' }}>{streamingModel}</span>
+                      <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)' }}>Axom AI</span>
                       {streamingFromDb && (
                         <span style={{ display: 'inline-block', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
                           📁 Database Match
@@ -880,14 +1215,146 @@ export default function ChatWindow({
       </div>
 
       {/* Bottom Floating Chat Input Area */}
-      <div className="chat-input-area">
+      <div className="chat-input-area" style={{ position: 'relative' }}>
+        {/* Floating Scroll to Bottom button (ChatGPT style) */}
+        {showScrollBottom && (
+          <button
+            type="button"
+            className="btn-scroll-bottom"
+            onClick={() => {
+              isUserScrolledUpRef.current = false;
+              setShowScrollBottom(false);
+              if (mainBodyRef.current) {
+                mainBodyRef.current.scrollTo({ top: mainBodyRef.current.scrollHeight, behavior: 'smooth' });
+              }
+            }}
+            title="Scroll to bottom"
+            style={{
+              position: 'absolute',
+              top: '-46px',
+              right: '32px',
+              zIndex: 50,
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'var(--bg-card, #1a1a2e)',
+              border: '1px solid var(--border-color, rgba(255,255,255,0.18))',
+              color: 'var(--text-primary, #ffffff)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <ChevronDown size={18} />
+          </button>
+        )}
         <div className="input-card">
+          {/* Attached File Preview & Action Banner */}
+          {attachedFile && (
+            <div className="attached-file-banner">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                  {attachedFile.isImage && attachedFile.preview ? (
+                    <img
+                      src={attachedFile.preview}
+                      alt="preview"
+                      style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color)' }}
+                    />
+                  ) : (
+                    <div style={{ width: 40, height: 40, borderRadius: '8px', background: 'rgba(168, 85, 247, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc', flexShrink: 0 }}>
+                      <FileText size={20} />
+                    </div>
+                  )}
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '280px' }}>
+                      {attachedFile.name}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.isImage ? 'Image' : 'Document'}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleClearAttachedFile}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', borderRadius: '50%', display: 'flex', alignItems: 'center' }}
+                  title="Remove attached file"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Quick Action Chips: ONLY shown when user has NOT asked/typed a question */}
+              {!inputText.trim() && (
+                <>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '2px' }}>
+                    এই ফাইলটোৰ সৈতে আপুনি কি কৰিব বিচাৰে? (Choose an action or type a message below)
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', paddingTop: '2px' }}>
+                    {/* 1. Ask / Chat */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInputText(`Explain what is in this file (${attachedFile.name})`);
+                        textareaRef.current?.focus();
+                      }}
+                      className="file-action-chip"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(59, 130, 246, 0.15)', border: '1px solid rgba(59, 130, 246, 0.3)', color: '#60a5fa', cursor: 'pointer', fontWeight: 600 }}
+                    >
+                      <MessageSquare size={13} />
+                      <span>Ask / Chat</span>
+                    </button>
+
+                    {/* 2. Summarize */}
+                    <button
+                      type="button"
+                      onClick={handleExecuteSummarize}
+                      className="file-action-chip"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', color: '#c084fc', cursor: 'pointer', fontWeight: 600 }}
+                    >
+                      <FileText size={13} />
+                      <span>Summarize & Notes</span>
+                    </button>
+
+                    {/* 3. Image Generation / Editing */}
+                    <button
+                      type="button"
+                      onClick={() => handleExecuteGeminiImage()}
+                      className="file-action-chip"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(236, 72, 153, 0.15)', border: '1px solid rgba(236, 72, 153, 0.3)', color: '#f472b6', cursor: 'pointer', fontWeight: 600 }}
+                    >
+                      <Sparkles size={13} />
+                      <span>{attachedFile.isImage ? 'AI Image Edit' : 'Generate Image'}</span>
+                    </button>
+
+                    {/* 4. Convert to PDF (Only for document files) */}
+                    {!attachedFile.isImage && (
+                      <button
+                        type="button"
+                        onClick={() => handleExecuteConvertDoc()}
+                        className="file-action-chip"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        <Download size={13} />
+                        <span>Convert to PDF</span>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           <div className="input-row">
             <button
               type="button"
               className="btn-attach"
               onClick={() => docFileInputRef.current?.click()}
-              title="Attach document (.docx, .doc, .txt)"
+              title="Attach document or image"
             >
               <Paperclip size={18} />
             </button>
@@ -897,17 +1364,122 @@ export default function ChatWindow({
               value={inputText}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Message Axom AI..."
+              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : "Message Axom AI..."}
               rows={1}
-              disabled={isLoading || isConvertingDoc}
+              disabled={isLoading || isConvertingDoc || isGeneratingImage}
             />
           </div>
           <div className="input-controls-row">
             <div className="controls-left">
-              <div className="lang-selector" title="Replies are always in Assamese">
-                <span className="lang-btn active" style={{ cursor: 'default' }}>
-                  ⇄ Reply in অসমীয়া
-                </span>
+              {/* Language Switcher Dropdown */}
+              <div ref={langMenuRef} style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className="lang-btn active"
+                  onClick={() => setIsLangMenuOpen((v) => !v)}
+                  title="Choose response language (Default: Assamese)"
+                  aria-haspopup="true"
+                  aria-expanded={isLangMenuOpen}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}
+                >
+                  <Languages size={13} style={{ color: '#e879f9' }} />
+                  <span>
+                    {language === 'assamese' && 'অসমীয়া (Default)'}
+                    {language === 'english' && 'English'}
+                    {language === 'hinglish' && 'Hinglish'}
+                  </span>
+                  <ChevronDown
+                    size={11}
+                    style={{
+                      transform: isLangMenuOpen ? 'rotate(180deg)' : 'none',
+                      transition: 'transform 0.15s ease',
+                    }}
+                  />
+                </button>
+
+                {isLangMenuOpen && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 'calc(100% + 6px)',
+                      left: 0,
+                      background: 'var(--bg-card, #12131f)',
+                      border: '1px solid var(--border-color, rgba(255,255,255,0.12))',
+                      borderRadius: '10px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+                      padding: '4px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '2px',
+                      minWidth: '150px',
+                      zIndex: 100,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleLanguageChange('assamese')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '6px 10px',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        background: language === 'assamese' ? 'rgba(232, 121, 249, 0.15)' : 'transparent',
+                        color: language === 'assamese' ? '#e879f9' : 'var(--text-primary, #fff)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <span>অসমীয়া (Default)</span>
+                      {language === 'assamese' && <Check size={12} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLanguageChange('english')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '6px 10px',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        background: language === 'english' ? 'rgba(232, 121, 249, 0.15)' : 'transparent',
+                        color: language === 'english' ? '#e879f9' : 'var(--text-primary, #fff)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <span>English</span>
+                      {language === 'english' && <Check size={12} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLanguageChange('hinglish')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '6px 10px',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        background: language === 'hinglish' ? 'rgba(232, 121, 249, 0.15)' : 'transparent',
+                        color: language === 'hinglish' ? '#e879f9' : 'var(--text-primary, #fff)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <span>Hinglish</span>
+                      {language === 'hinglish' && <Check size={12} />}
+                    </button>
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -941,12 +1513,12 @@ export default function ChatWindow({
             <div className="controls-right">
               <button
                 type="button"
-                className={`btn-send-message ${inputText.trim() && !isLoading ? 'active' : ''}`}
+                className={`btn-send-message ${(inputText.trim() || attachedFile) && !isLoading && !isGeneratingImage ? 'active' : ''}`}
                 onClick={handleSend}
-                disabled={isLoading || isConvertingDoc || !inputText.trim()}
+                disabled={isLoading || isConvertingDoc || isGeneratingImage || (!inputText.trim() && !attachedFile)}
                 title="Send Message"
               >
-                {isLoading ? <Loader2 size={16} className="spin-icon" /> : <Send size={15} />}
+                {isLoading || isGeneratingImage ? <Loader2 size={16} className="spin-icon" /> : <Send size={15} />}
               </button>
             </div>
           </div>

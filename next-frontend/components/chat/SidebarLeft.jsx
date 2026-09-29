@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Plus, MessageSquare, LogOut,
-  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText, X, Wrench
+  MoreVertical, Pin, PinOff, Trash2, Settings as SettingsIcon, FileText, X, Wrench, GraduationCap
 } from 'lucide-react';
 
 const RECENT_LIMIT = 15;
@@ -142,6 +142,39 @@ export default function SidebarLeft({
           <span className="btn-text">New Chat</span>
           <span className="shortcut-badge">Ctrl+K</span>
         </button>
+        <a
+          className="sidebar-tools-btn"
+          href="https://aiaxom.co.in/tools/ai-notes-generator"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => {
+            if (window.innerWidth <= 850) onCloseSidebar?.();
+          }}
+          title="AI Notes Generator — Create High-Scoring Study Notes from PDFs & Books"
+          style={{
+            textDecoration: 'none',
+            background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(168, 85, 247, 0.08))',
+            border: '1px solid rgba(236, 72, 153, 0.3)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <GraduationCap size={15} style={{ color: '#f472b6' }} />
+            <span>AI Notes Gen</span>
+          </div>
+          <span
+            style={{
+              fontSize: '0.62rem',
+              fontWeight: 800,
+              padding: '1px 6px',
+              borderRadius: '9999px',
+              background: 'linear-gradient(135deg, #ec4899, #a855f7)',
+              color: '#fff',
+              letterSpacing: '0.04em',
+            }}
+          >
+            NEW ⭐
+          </span>
+        </a>
         <a
           className="sidebar-tools-btn"
           href="https://aiaxom.co.in/tools"

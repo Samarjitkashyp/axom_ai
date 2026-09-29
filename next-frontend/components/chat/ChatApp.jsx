@@ -325,9 +325,9 @@ export default function ChatApp() {
     setLoginModalState((prev) => ({ ...prev, isOpen: false }));
   };
 
-  const handleSendMessage = (text) => {
+  const handleSendMessage = (text, extra = {}) => {
     const newSessionId = startNewSession(text);
-    addMessageToSession(newSessionId, 'user', text);
+    addMessageToSession(newSessionId, 'user', text, 'Axom AI', extra);
     return newSessionId;
   };
 

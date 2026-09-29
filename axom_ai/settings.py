@@ -203,4 +203,13 @@ CELERY_TASK_TIME_LIMIT = 600  # 10 min hard limit
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB
 
+# --- Cross-Subdomain Auth & Session Cookies (*.aiaxom.co.in) ---
+SESSION_COOKIE_DOMAIN = '.aiaxom.co.in' if not DEBUG else None
+CSRF_COOKIE_DOMAIN = '.aiaxom.co.in' if not DEBUG else None
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+
 
