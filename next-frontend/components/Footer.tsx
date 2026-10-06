@@ -187,7 +187,7 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
   const socials = footer?.social_links && footer.social_links.length > 0 ? footer.social_links : DEFAULT_SOCIALS;
 
   return (
-    <footer className="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-black/80 mt-20 relative">
+    <footer className="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-[#07111f] mt-20 relative">
       <div className="max-w-7xl mx-auto px-5">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand Col */}

@@ -13,13 +13,13 @@ if (typeof window !== 'undefined' && pdfjsLib?.GlobalWorkerOptions) { pdfjsLib.G
 
 const DISPLAY_W = 760;                 // page render width in CSS px
 const COLORS = ['#111827', '#dc2626', '#2563eb', '#16a34a', '#f59e0b', '#ffffff'];
-const BG_COLORS = ['#fde047', '#bbf7d0', '#bfdbfe', '#fbcfe8', '#111827'];
+const BG_COLORS = ['#fde047', '#bbf7d0', '#bfdbfe', '#fde68a', '#111827'];
 
 const fmtBtn = (active) => ({
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
   width: '30px', height: '28px', borderRadius: '7px', cursor: 'pointer',
   border: '1px solid var(--border-color)',
-  background: active ? 'var(--accent-purple, #8b5cf6)' : 'transparent',
+  background: active ? 'var(--accent-purple, #10b981)' : 'transparent',
   color: active ? '#fff' : 'var(--text-secondary)',
 });
 
@@ -56,7 +56,7 @@ function SignaturePad({ onDone, onCancel }) {
         <div style={{ display: 'flex', gap: '8px', marginTop: '14px', justifyContent: 'flex-end' }}>
           <button onClick={() => { const c = ref.current; c.getContext('2d').clearRect(0, 0, c.width, c.height); }} style={btnStyle('#e5e7eb', '#111827')}>Clear</button>
           <button onClick={onCancel} style={btnStyle('#e5e7eb', '#111827')}>Cancel</button>
-          <button onClick={() => onDone(ref.current.toDataURL('image/png'))} style={btnStyle('#8b5cf6', '#fff')}>Add</button>
+          <button onClick={() => onDone(ref.current.toDataURL('image/png'))} style={btnStyle('#10b981', '#fff')}>Add</button>
         </div>
       </div>
     </div>
@@ -271,7 +271,7 @@ export default function PdfEditor({ onClose }) {
         {pages.length > 0 && TOOLS.map((t) => (
           <button key={t.k} title={t.label}
             onClick={() => { if (t.k === 'sign') { setShowSign(true); } else if (t.k === 'image') { imgInputRef.current?.click(); } else setTool(t.k); }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, border: '1px solid var(--border-color)', background: tool === t.k ? 'var(--accent-purple, #8b5cf6)' : 'transparent', color: tool === t.k ? '#fff' : 'var(--text-secondary)', flexShrink: 0 }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '7px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, border: '1px solid var(--border-color)', background: tool === t.k ? 'var(--accent-purple, #10b981)' : 'transparent', color: tool === t.k ? '#fff' : 'var(--text-secondary)', flexShrink: 0 }}>
             <t.icon size={14} /> {t.label}
           </button>
         ))}
@@ -287,7 +287,7 @@ export default function PdfEditor({ onClose }) {
         {pages.length > 0 && (
           <>
             <button onClick={deleteSelected} disabled={!selectedId} title="Delete selected" style={{ ...btnStyle('transparent', 'var(--text-secondary)'), border: '1px solid var(--border-color)', opacity: selectedId ? 1 : 0.5 }}><Trash2 size={14} /></button>
-            <button onClick={exportPdf} disabled={exporting} style={{ ...btnStyle('var(--accent-purple, #8b5cf6)', '#fff'), display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <button onClick={exportPdf} disabled={exporting} style={{ ...btnStyle('var(--accent-purple, #10b981)', '#fff'), display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
               {exporting ? <Loader2 size={14} className="spin-icon" /> : <Download size={14} />} Download
             </button>
           </>
@@ -343,15 +343,15 @@ export default function PdfEditor({ onClose }) {
                 <input key={el.id} value={el.text}
                   onChange={(ev) => setElements((els) => els.map((x) => x.id === el.id ? { ...x, text: ev.target.value } : x))}
                   onMouseDown={(ev) => onElemMouseDown(ev, el)}
-                  style={{ position: 'absolute', left: el.x, top: el.y, fontSize: el.size, color: el.color, fontWeight: el.bold ? 700 : 400, fontStyle: el.italic ? 'italic' : 'normal', border: selectedId === el.id ? '1px dashed #8b5cf6' : '1px solid transparent', background: el.bg && el.bg !== 'transparent' ? el.bg : 'transparent', outline: 'none', fontFamily: 'Helvetica, Arial, sans-serif', minWidth: '40px', cursor: 'move', padding: '0 2px' }} />
+                  style={{ position: 'absolute', left: el.x, top: el.y, fontSize: el.size, color: el.color, fontWeight: el.bold ? 700 : 400, fontStyle: el.italic ? 'italic' : 'normal', border: selectedId === el.id ? '1px dashed #10b981' : '1px solid transparent', background: el.bg && el.bg !== 'transparent' ? el.bg : 'transparent', outline: 'none', fontFamily: 'Helvetica, Arial, sans-serif', minWidth: '40px', cursor: 'move', padding: '0 2px' }} />
               ) : (
-                <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.w, height: el.h, outline: selectedId === el.id ? '1px dashed #8b5cf6' : 'none' }}>
+                <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.w, height: el.h, outline: selectedId === el.id ? '1px dashed #10b981' : 'none' }}>
                   <img src={el.dataUrl} alt="" draggable={false}
                     onMouseDown={(ev) => onElemMouseDown(ev, el)}
                     style={{ width: '100%', height: '100%', cursor: 'move', display: 'block' }} />
                   {selectedId === el.id && (
                     <div onMouseDown={(ev) => startResize(ev, el)} title="Drag to resize"
-                      style={{ position: 'absolute', right: -7, bottom: -7, width: 14, height: 14, background: '#8b5cf6', borderRadius: '50%', cursor: 'nwse-resize', border: '2px solid #fff' }} />
+                      style={{ position: 'absolute', right: -7, bottom: -7, width: 14, height: 14, background: '#10b981', borderRadius: '50%', cursor: 'nwse-resize', border: '2px solid #fff' }} />
                   )}
                 </div>
               )

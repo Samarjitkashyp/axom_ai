@@ -143,8 +143,8 @@ export default function SubscriptionPage({
       yearlyPrice: 399, // billed ₹4,788/yr
       monthlyWords: '250,000 words',
       popular: true,
-      color: '#c084fc',
-      bgGradient: 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.15))',
+      color: '#34d399',
+      bgGradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(245, 158, 11, 0.15))',
       icon: Crown,
       buttonText: 'Upgrade to Pro',
       features: [
@@ -279,7 +279,7 @@ export default function SubscriptionPage({
       name: 'Axom AI',
       description: `${order.plan_label} · ${order.days} days access`,
       prefill: { name: order.user_name, email: order.user_email },
-      theme: { color: checkoutPlan.color || '#c084fc' },
+      theme: { color: checkoutPlan.color || '#34d399' },
       modal: {
         ondismiss: () => {
           if (checkoutStatus === 'processing') setCheckoutStatus('idle');
@@ -332,8 +332,8 @@ export default function SubscriptionPage({
               <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#sub_sparkle_grad)" />
               <defs>
                 <linearGradient id="sub_sparkle_grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#C084FC" />
-                  <stop offset="1" stopColor="#E879F9" />
+                  <stop stopColor="#34d399" />
+                  <stop offset="1" stopColor="#fbbf24" />
                 </linearGradient>
               </defs>
             </svg>

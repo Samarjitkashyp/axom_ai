@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 const COLORS = [
-  '#111827', '#dc2626', '#2563eb', '#16a34a', '#f59e0b', '#8b5cf6',
-  '#ec4899', '#06b6d4', '#f97316', '#ffffff', '#6b7280', 'transparent',
+  '#111827', '#dc2626', '#2563eb', '#16a34a', '#f59e0b', '#10b981',
+  '#f59e0b', '#06b6d4', '#f97316', '#ffffff', '#6b7280', 'transparent',
 ];
 const STROKE_WIDTHS = [1, 2, 3, 5, 8, 12];
 const FONT_SIZES = [12, 14, 16, 20, 24, 32, 48, 64, 80];
@@ -515,7 +515,7 @@ export default function SvgEditor({ onClose }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
             {COLORS.map((c) => (
               <button key={c} onClick={() => { onChange(c); setShow(false); }}
-                style={{ width: 28, height: 28, borderRadius: 6, border: c === value ? '2px solid #8b5cf6' : '1px solid #444',
+                style={{ width: 28, height: 28, borderRadius: 6, border: c === value ? '2px solid #10b981' : '1px solid #444',
                   background: c === 'transparent' ? 'repeating-conic-gradient(#ccc 0% 25%, transparent 0% 50%) 50%/8px 8px' : c, cursor: 'pointer' }} />
             ))}
           </div>
@@ -533,7 +533,7 @@ export default function SvgEditor({ onClose }) {
         <div style={S.container}>
           <div style={S.topBar}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <PenTool size={20} style={{ color: '#8b5cf6' }} />
+              <PenTool size={20} style={{ color: '#10b981' }} />
               <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#fff' }}>SVG Editor</span>
               <span style={{ color: '#888', fontSize: '0.8rem' }}>— Draw, edit & export vector graphics</span>
             </div>
@@ -543,12 +543,12 @@ export default function SvgEditor({ onClose }) {
             <div style={S.landingCards}>
               {/* Upload SVG */}
               <div
-                style={{ ...S.landingCard, borderColor: dragActive ? '#8b5cf6' : '#333' }}
+                style={{ ...S.landingCard, borderColor: dragActive ? '#10b981' : '#333' }}
                 onClick={() => landingFileRef.current?.click()}
                 onDragEnter={handleLandingDrag} onDragOver={handleLandingDrag}
                 onDragLeave={handleLandingDrag} onDrop={handleLandingDrop}
               >
-                <div style={S.landingIcon}><UploadCloud size={44} style={{ color: '#8b5cf6' }} /></div>
+                <div style={S.landingIcon}><UploadCloud size={44} style={{ color: '#10b981' }} /></div>
                 <h3 style={S.landingTitle}>Upload SVG</h3>
                 <p style={S.landingDesc}>Upload an existing SVG file to edit its colors, shapes, sizes and more</p>
                 <span style={S.landingHint}>Drag & drop or click to browse</span>
@@ -576,7 +576,7 @@ export default function SvgEditor({ onClose }) {
         {/* Top Bar */}
         <div style={S.topBar}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <PenTool size={20} style={{ color: '#8b5cf6' }} />
+            <PenTool size={20} style={{ color: '#10b981' }} />
             <span style={{ fontWeight: 700, fontSize: '1.05rem', color: '#fff' }}>SVG Editor</span>
             <span style={{ color: '#888', fontSize: '0.8rem' }}>— Draw, edit & export vector graphics</span>
           </div>
@@ -605,7 +605,7 @@ export default function SvgEditor({ onClose }) {
           <button onClick={() => setZoomLevel(zoom - 25)} style={S.smBtn}><ZoomOut size={14} /></button>
           <span style={{ color: '#aaa', fontSize: '0.78rem', minWidth: 40, textAlign: 'center' }}>{zoom}%</span>
           <button onClick={() => setZoomLevel(zoom + 25)} style={S.smBtn}><ZoomIn size={14} /></button>
-          <button onClick={() => setShowGrid(!showGrid)} style={{ ...S.smBtn, background: showGrid ? 'rgba(139,92,246,0.3)' : 'transparent' }} title="Grid"><Grid3X3 size={14} /></button>
+          <button onClick={() => setShowGrid(!showGrid)} style={{ ...S.smBtn, background: showGrid ? 'rgba(16,185,129,0.3)' : 'transparent' }} title="Grid"><Grid3X3 size={14} /></button>
         </div>
 
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -623,7 +623,7 @@ export default function SvgEditor({ onClose }) {
             <button onClick={() => fileRef.current?.click()} style={S.toolBtn} title="Import SVG"><UploadCloud size={18} /></button>
             <button onClick={() => imgRef.current?.click()} style={S.toolBtn} title="Add Image"><ImageIcon size={18} /></button>
             <div style={{ flex: 1 }} />
-            <button onClick={() => { setShowLayers(!showLayers); syncLayers(); }} style={{ ...S.toolBtn, background: showLayers ? 'rgba(139,92,246,0.3)' : 'transparent' }} title="Layers"><Layers size={18} /></button>
+            <button onClick={() => { setShowLayers(!showLayers); syncLayers(); }} style={{ ...S.toolBtn, background: showLayers ? 'rgba(16,185,129,0.3)' : 'transparent' }} title="Layers"><Layers size={18} /></button>
           </div>
 
           {/* Canvas */}
@@ -710,7 +710,7 @@ export default function SvgEditor({ onClose }) {
                 {layersList.map((l, i) => (
                   <div key={i} onClick={() => { fabricRef.current?.setActiveObject(l.obj); fabricRef.current?.renderAll(); }}
                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', borderRadius: 6, cursor: 'pointer',
-                      background: fabricRef.current?.getActiveObject() === l.obj ? 'rgba(139,92,246,0.2)' : 'transparent', marginBottom: 2 }}>
+                      background: fabricRef.current?.getActiveObject() === l.obj ? 'rgba(16,185,129,0.2)' : 'transparent', marginBottom: 2 }}>
                     <span style={{ flex: 1, fontSize: '0.78rem', color: '#ccc', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {l.name}
                     </span>
@@ -732,7 +732,7 @@ export default function SvgEditor({ onClose }) {
 
 function TBtn({ icon: Icon, id, label, active, set }) {
   return (
-    <button onClick={() => set(id)} style={{ ...S.toolBtn, background: active === id ? 'rgba(139,92,246,0.3)' : 'transparent', color: active === id ? '#c084fc' : '#aaa' }} title={label}>
+    <button onClick={() => set(id)} style={{ ...S.toolBtn, background: active === id ? 'rgba(16,185,129,0.3)' : 'transparent', color: active === id ? '#34d399' : '#aaa' }} title={label}>
       <Icon size={18} />
     </button>
   );
@@ -771,9 +771,9 @@ const S = {
     background: '#111118', cursor: 'pointer', transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
     textAlign: 'center',
   },
-  landingIcon: { width: 80, height: 80, borderRadius: '50%', background: 'rgba(139,92,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  landingIcon: { width: 80, height: 80, borderRadius: '50%', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   landingTitle: { color: '#fff', fontSize: '1.2rem', fontWeight: 700, margin: 0 },
   landingDesc: { color: '#888', fontSize: '0.88rem', margin: 0, lineHeight: 1.5 },
   landingHint: { color: '#666', fontSize: '0.78rem' },
-  landingBadge: { display: 'inline-block', padding: '4px 14px', borderRadius: 20, background: 'rgba(139,92,246,0.15)', color: '#8b5cf6', fontSize: '0.78rem', fontWeight: 600 },
+  landingBadge: { display: 'inline-block', padding: '4px 14px', borderRadius: 20, background: 'rgba(16,185,129,0.15)', color: '#10b981', fontSize: '0.78rem', fontWeight: 600 },
 };

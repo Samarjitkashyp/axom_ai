@@ -101,7 +101,7 @@ function VideoCard({ video, onSelect, onQuickDownload }) {
         backgroundColor: '#0f172a',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         boxShadow: isHovered
-          ? '0 12px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.4)'
+          ? '0 12px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(20, 184, 166, 0.4)'
           : '0 4px 12px rgba(0, 0, 0, 0.25)',
         transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
         cursor: 'pointer',
@@ -178,7 +178,7 @@ function VideoCard({ video, onSelect, onQuickDownload }) {
               padding: '3px 8px',
               borderRadius: 6,
               background: video.highest_quality?.includes('4K')
-                ? 'linear-gradient(135deg, #ef4444 0%, #ec4899 100%)'
+                ? 'linear-gradient(135deg, #ef4444 0%, #f59e0b 100%)'
                 : 'rgba(15, 23, 42, 0.82)',
               border: '1px solid rgba(255, 255, 255, 0.15)',
               color: '#ffffff',
@@ -274,7 +274,7 @@ function VideoCard({ video, onSelect, onQuickDownload }) {
               padding: '6px 10px',
               borderRadius: 8,
               border: 'none',
-              background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
+              background: 'linear-gradient(135deg, #0d9488 0%, #3b82f6 100%)',
               color: '#ffffff',
               fontSize: '0.72rem',
               fontWeight: 600,
@@ -391,7 +391,7 @@ function VideoLightboxModal({ video, onClose }) {
                 width: 32,
                 height: 32,
                 borderRadius: 8,
-                background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #10b981 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -493,7 +493,7 @@ function VideoLightboxModal({ video, onClose }) {
                     width: 38,
                     height: 38,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #6366f1, #3b82f6)',
+                    background: 'linear-gradient(135deg, #14b8a6, #3b82f6)',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
@@ -514,7 +514,7 @@ function VideoLightboxModal({ video, onClose }) {
                       href={video.user.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ fontSize: '0.74rem', color: '#818cf8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}
+                      style={{ fontSize: '0.74rem', color: '#2dd4bf', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}
                     >
                       View Profile on Pexels <ExternalLink size={11} />
                     </a>
@@ -541,8 +541,8 @@ function VideoLightboxModal({ video, onClose }) {
                         justifyContent: 'space-between',
                         padding: '9px 12px',
                         borderRadius: 10,
-                        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-                        border: isSelected ? '1px solid rgba(99, 102, 241, 0.5)' : '1px solid rgba(255, 255, 255, 0.06)',
+                        backgroundColor: isSelected ? 'rgba(20, 184, 166, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                        border: isSelected ? '1px solid rgba(20, 184, 166, 0.5)' : '1px solid rgba(255, 255, 255, 0.06)',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
@@ -553,7 +553,7 @@ function VideoLightboxModal({ video, onClose }) {
                             width: 14,
                             height: 14,
                             borderRadius: '50%',
-                            border: isSelected ? '4px solid #6366f1' : '2px solid rgba(255, 255, 255, 0.25)',
+                            border: isSelected ? '4px solid #14b8a6' : '2px solid rgba(255, 255, 255, 0.25)',
                             backgroundColor: isSelected ? '#ffffff' : 'transparent',
                           }}
                         />
@@ -581,7 +581,7 @@ function VideoLightboxModal({ video, onClose }) {
                   padding: '12px',
                   borderRadius: 10,
                   border: 'none',
-                  background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%)',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #10b981 50%, #3b82f6 100%)',
                   color: '#ffffff',
                   fontSize: '0.86rem',
                   fontWeight: 700,
@@ -590,7 +590,7 @@ function VideoLightboxModal({ video, onClose }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: 8,
-                  boxShadow: '0 4px 16px rgba(236, 72, 153, 0.35)',
+                  boxShadow: '0 4px 16px rgba(245, 158, 11, 0.35)',
                 }}
               >
                 {isDownloading ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Download size={16} />}
@@ -785,11 +785,11 @@ export default function VideoFinder({ onClose }) {
               width: 38,
               height: 38,
               borderRadius: 10,
-              background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%)',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #10b981 50%, #3b82f6 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(236, 72, 153, 0.35)',
+              boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)',
             }}
           >
             <Video size={20} color="#ffffff" />
@@ -805,9 +805,9 @@ export default function VideoFinder({ onClose }) {
                   fontWeight: 700,
                   padding: '2px 8px',
                   borderRadius: 12,
-                  background: 'rgba(236, 72, 153, 0.15)',
-                  border: '1px solid rgba(236, 72, 153, 0.3)',
-                  color: '#f472b6',
+                  background: 'rgba(245, 158, 11, 0.15)',
+                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  color: '#fbbf24',
                   textTransform: 'uppercase',
                 }}
               >
@@ -932,9 +932,9 @@ export default function VideoFinder({ onClose }) {
                 style={{
                   padding: '4px 10px',
                   borderRadius: 8,
-                  border: isSelected ? '1px solid #8b5cf6' : '1px solid rgba(255, 255, 255, 0.08)',
-                  background: isSelected ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.04)',
-                  color: isSelected ? '#c4b5fd' : '#94a3b8',
+                  border: isSelected ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
+                  background: isSelected ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                  color: isSelected ? '#6ee7b7' : '#94a3b8',
                   fontSize: '0.74rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -961,9 +961,9 @@ export default function VideoFinder({ onClose }) {
                 style={{
                   padding: '4px 10px',
                   borderRadius: 8,
-                  border: isSelected ? '1px solid #ec4899' : '1px solid rgba(255, 255, 255, 0.08)',
-                  background: isSelected ? 'rgba(236, 72, 153, 0.2)' : 'rgba(255, 255, 255, 0.04)',
-                  color: isSelected ? '#f472b6' : '#94a3b8',
+                  border: isSelected ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.08)',
+                  background: isSelected ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                  color: isSelected ? '#fbbf24' : '#94a3b8',
                   fontSize: '0.74rem',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -1000,7 +1000,7 @@ export default function VideoFinder({ onClose }) {
         }}
       >
         <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginRight: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Sparkles size={12} color="#ec4899" /> Trending:
+          <Sparkles size={12} color="#f59e0b" /> Trending:
         </span>
         {QUICK_TAGS.map((tag) => {
           const isActive = activeSearch.toLowerCase() === tag.toLowerCase();
@@ -1012,9 +1012,9 @@ export default function VideoFinder({ onClose }) {
               style={{
                 padding: '4px 11px',
                 borderRadius: 20,
-                border: isActive ? '1px solid #ec4899' : '1px solid rgba(255, 255, 255, 0.08)',
-                background: isActive ? 'rgba(236, 72, 153, 0.18)' : 'rgba(255, 255, 255, 0.03)',
-                color: isActive ? '#f472b6' : '#cbd5e1',
+                border: isActive ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.08)',
+                background: isActive ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255, 255, 255, 0.03)',
+                color: isActive ? '#fbbf24' : '#cbd5e1',
                 fontSize: '0.74rem',
                 fontWeight: 500,
                 cursor: 'pointer',
@@ -1087,7 +1087,7 @@ export default function VideoFinder({ onClose }) {
                 padding: '8px 18px',
                 borderRadius: 8,
                 border: 'none',
-                background: '#4f46e5',
+                background: '#0d9488',
                 color: '#ffffff',
                 fontSize: '0.78rem',
                 fontWeight: 600,

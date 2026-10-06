@@ -30,20 +30,20 @@ const COLOR_CATEGORIES = [
   },
   {
     category: 'Soft Pastels',
-    colors: ['#fef3c7', '#d1fae5', '#dbeafe', '#ede9fe', '#fce7f3', '#ffedd5'],
+    colors: ['#fef3c7', '#d1fae5', '#dbeafe', '#d1fae5', '#fef3c7', '#ffedd5'],
   },
   {
     category: 'Vibrant & Brand',
-    colors: ['#ef4444', '#f97316', '#eab308', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'],
+    colors: ['#ef4444', '#f97316', '#eab308', '#10b981', '#06b6d4', '#3b82f6', '#10b981', '#f59e0b'],
   },
 ];
 
 const GRADIENT_PRESETS = [
-  { label: 'Sunset Glow', value: 'linear-gradient(135deg, #f97316, #ec4899)' },
+  { label: 'Sunset Glow', value: 'linear-gradient(135deg, #f97316, #f59e0b)' },
   { label: 'Ocean Depths', value: 'linear-gradient(135deg, #0284c7, #06b6d4)' },
   { label: 'Emerald Aurora', value: 'linear-gradient(135deg, #059669, #10b981)' },
-  { label: 'Cosmic Violet', value: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
-  { label: 'Midnight Slate', value: 'linear-gradient(135deg, #0f172a, #312e81)' },
+  { label: 'Cosmic Violet', value: 'linear-gradient(135deg, #10b981, #f59e0b)' },
+  { label: 'Midnight Slate', value: 'linear-gradient(135deg, #0f172a, #134e4a)' },
   { label: 'Golden Hour', value: 'linear-gradient(135deg, #f59e0b, #ef4444)' },
   { label: 'Silk Rose', value: 'linear-gradient(135deg, #f43f5e, #fda4af)' },
   { label: 'Nordic Ice', value: 'linear-gradient(135deg, #e0f2fe, #bae6fd)' },
@@ -85,14 +85,14 @@ const NEON_COLORS = [
 const PROMO_BADGES = [
   { id: 'none', label: 'None', text: '' },
   { id: 'sale_50', label: 'SALE 50% OFF', text: 'SALE 50% OFF', bg: '#ef4444', color: '#fff' },
-  { id: 'new_arrival', label: 'NEW ARRIVAL', text: '★ NEW ARRIVAL ★', bg: '#8b5cf6', color: '#fff' },
+  { id: 'new_arrival', label: 'NEW ARRIVAL', text: '★ NEW ARRIVAL ★', bg: '#10b981', color: '#fff' },
   { id: 'bestseller', label: 'BESTSELLER', text: '🔥 BESTSELLER', bg: '#f59e0b', color: '#000' },
   { id: 'verified', label: 'VERIFIED QUALITY', text: '✓ 100% VERIFIED', bg: '#10b981', color: '#fff' },
   { id: 'exclusive', label: 'EXCLUSIVE', text: '💎 EXCLUSIVE', bg: '#06b6d4', color: '#fff' },
 ];
 
 const STICKER_COLORS = [
-  '#ffffff', '#facc15', '#22d3ee', '#ec4899', '#10b981', '#a855f7', '#000000'
+  '#ffffff', '#facc15', '#22d3ee', '#f59e0b', '#10b981', '#10b981', '#000000'
 ];
 
 const CHECKER_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='10' height='10' fill='%23222638'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%23222638'/%3E%3Crect x='10' width='10' height='10' fill='%23171926'/%3E%3Crect y='10' width='10' height='10' fill='%23171926'/%3E%3C/svg%3E")`;
@@ -241,7 +241,7 @@ export default function BackgroundRemover({ onClose }) {
   const [mirrorReflection, setMirrorReflection] = useState(false);
   const [autoPadding, setAutoPadding] = useState(false); // 15% marketplace padding
   const [circularDp, setCircularDp] = useState(false);
-  const [circularBorderColor, setCircularBorderColor] = useState('#ec4899');
+  const [circularBorderColor, setCircularBorderColor] = useState('#f59e0b');
   const [circularBorderWidth, setCircularBorderWidth] = useState(6);
 
   // ── Watermark & Promotional Badges ────────────────────────────
@@ -503,15 +503,15 @@ export default function BackgroundRemover({ onClose }) {
         const p = GRADIENT_PRESETS.find((g) => g.value === bgGradient);
         const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
         if (p?.label === 'Sunset Glow') {
-          grad.addColorStop(0, '#f97316'); grad.addColorStop(1, '#ec4899');
+          grad.addColorStop(0, '#f97316'); grad.addColorStop(1, '#f59e0b');
         } else if (p?.label === 'Ocean Depths') {
           grad.addColorStop(0, '#0284c7'); grad.addColorStop(1, '#06b6d4');
         } else if (p?.label === 'Emerald Aurora') {
           grad.addColorStop(0, '#059669'); grad.addColorStop(1, '#10b981');
         } else if (p?.label === 'Cosmic Violet') {
-          grad.addColorStop(0, '#8b5cf6'); grad.addColorStop(1, '#ec4899');
+          grad.addColorStop(0, '#10b981'); grad.addColorStop(1, '#f59e0b');
         } else if (p?.label === 'Midnight Slate') {
-          grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#312e81');
+          grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#134e4a');
         } else if (p?.label === 'Golden Hour') {
           grad.addColorStop(0, '#f59e0b'); grad.addColorStop(1, '#ef4444');
         } else if (p?.label === 'Silk Rose') {
@@ -1588,7 +1588,7 @@ export default function BackgroundRemover({ onClose }) {
     >
       <style>{`
         .bgr-header { display:flex; align-items:center; justify-content:space-between; padding:10px 18px; background:#0f111a; border-bottom:1px solid #1e2235; min-height:54px; }
-        .bgr-title { font-size:16px; font-weight:700; background:linear-gradient(135deg,#ec4899,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+        .bgr-title { font-size:16px; font-weight:700; background:linear-gradient(135deg,#f59e0b,#10b981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; display:flex; align-items:center; gap:8px; white-space:nowrap; }
         .bgr-body { display:flex; flex:1; overflow:hidden; }
         .bgr-main { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#0b0d14; position:relative; }
         .bgr-sidebar { width:370px; background:#0f111a; border-left:1px solid #1e2235; display:flex; flex-direction:column; overflow-y:auto; }
@@ -1596,22 +1596,22 @@ export default function BackgroundRemover({ onClose }) {
         .bgr-sidebar-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#94a3b8; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
         .bgr-drop { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; overflow:hidden; position:relative; }
         .bgr-drop-zone { border:2px dashed #2a2f45; border-radius:18px; width:100%; max-width:680px; min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; cursor:pointer; transition:all .2s; background:rgba(255,255,255,.015); padding:24px; text-align:center; }
-        .bgr-drop-zone:hover { border-color:#ec4899; background:rgba(236,72,153,.04); }
+        .bgr-drop-zone:hover { border-color:#f59e0b; background:rgba(245,158,11,.04); }
         .bgr-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:all .2s; }
-        .bgr-btn-primary { background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff; width:100%; justify-content:center; box-shadow:0 4px 14px rgba(236,72,153,.3); }
+        .bgr-btn-primary { background:linear-gradient(135deg,#f59e0b,#10b981); color:#fff; width:100%; justify-content:center; box-shadow:0 4px 14px rgba(245,158,11,.3); }
         .bgr-btn-primary:hover { opacity:.92; transform:translateY(-1px); }
         .bgr-btn-primary:disabled { opacity:.4; cursor:not-allowed; transform:none; }
-        .bgr-btn-secondary { background:rgba(236,72,153,.12); color:#f472b6; border:1px solid rgba(236,72,153,.3); }
-        .bgr-btn-secondary:hover { background:rgba(236,72,153,.2); }
+        .bgr-btn-secondary { background:rgba(245,158,11,.12); color:#fbbf24; border:1px solid rgba(245,158,11,.3); }
+        .bgr-btn-secondary:hover { background:rgba(245,158,11,.2); }
         .bgr-btn-icon { padding:7px; border-radius:8px; border:1px solid #23283c; background:#141724; color:#cbd5e1; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:all .15s; }
-        .bgr-btn-icon:hover { background:#1e2338; border-color:#ec4899; color:#fff; }
+        .bgr-btn-icon:hover { background:#1e2338; border-color:#f59e0b; color:#fff; }
         .bgr-compare { position:relative; width:100%; height:100%; overflow:hidden; border-radius:12px; cursor:col-resize; user-select:none; }
         .bgr-compare img { position:absolute; top:50%; left:50%; object-fit:contain; max-width:100%; max-height:100%; pointer-events:none; }
-        .bgr-slider-line { position:absolute; top:0; bottom:0; width:2px; background:#ec4899; z-index:10; transform:translateX(-50%); pointer-events:none; box-shadow:0 0 8px rgba(236,72,153,.8); }
-        .bgr-slider-handle { position:absolute; top:50%; width:34px; height:34px; border-radius:50%; background:#ec4899; border:3px solid #fff; z-index:11; transform:translate(-50%,-50%); cursor:col-resize; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,.6); }
+        .bgr-slider-line { position:absolute; top:0; bottom:0; width:2px; background:#f59e0b; z-index:10; transform:translateX(-50%); pointer-events:none; box-shadow:0 0 8px rgba(245,158,11,.8); }
+        .bgr-slider-handle { position:absolute; top:50%; width:34px; height:34px; border-radius:50%; background:#f59e0b; border:3px solid #fff; z-index:11; transform:translate(-50%,-50%); cursor:col-resize; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,.6); }
         .bgr-label { position:absolute; top:12px; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; z-index:5; pointer-events:none; backdrop-filter:blur(6px); }
         .bgr-label-orig { left:12px; background:rgba(0,0,0,.7); color:#e2e8f0; border:1px solid rgba(255,255,255,.1); }
-        .bgr-label-result { right:12px; background:rgba(236,72,153,.85); color:#fff; box-shadow:0 2px 8px rgba(236,72,153,.4); }
+        .bgr-label-result { right:12px; background:rgba(245,158,11,.85); color:#fff; box-shadow:0 2px 8px rgba(245,158,11,.4); }
         .bgr-tabs { display:flex; gap:4px; padding:6px 14px; background:#0f111a; border-bottom:1px solid #1e2235; align-items:center; }
         .bgr-tab { padding:6px 12px; font-size:12px; font-weight:600; border-radius:6px; border:none; background:none; color:#94a3b8; cursor:pointer; transition:all .2s; }
         .bgr-tab:hover { color:#fff; background:rgba(255,255,255,.05); }
@@ -1620,16 +1620,16 @@ export default function BackgroundRemover({ onClose }) {
         .bgr-color-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-bottom:6px; }
         .bgr-color-swatch { width:100%; aspect-ratio:1; border-radius:6px; border:2px solid transparent; cursor:pointer; transition:all .15s; position:relative; }
         .bgr-color-swatch:hover { transform:scale(1.15); z-index:2; }
-        .bgr-color-swatch.active { border-color:#ec4899; box-shadow:0 0 0 2px rgba(236,72,153,.5); transform:scale(1.1); }
+        .bgr-color-swatch.active { border-color:#f59e0b; box-shadow:0 0 0 2px rgba(245,158,11,.5); transform:scale(1.1); }
         .bgr-grad-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
         .bgr-grad-swatch { aspect-ratio:2.6; border-radius:8px; border:2px solid transparent; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; overflow:hidden; }
         .bgr-grad-swatch span { font-size:10px; font-weight:700; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.8); padding:0 4px; }
         .bgr-grad-swatch:hover { transform:scale(1.03); }
-        .bgr-grad-swatch.active { border-color:#ec4899; box-shadow:0 0 0 2px rgba(236,72,153,.5); }
+        .bgr-grad-swatch.active { border-color:#f59e0b; box-shadow:0 0 0 2px rgba(245,158,11,.5); }
         .bgr-mode-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
         .bgr-mode-btn { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; transition:all .15s; border:1px solid #23283c; background:#141724; color:#cbd5e1; }
-        .bgr-mode-btn:hover { border-color:rgba(236,72,153,.4); background:#181c2d; color:#fff; }
-        .bgr-mode-btn.active { border-color:#ec4899; background:rgba(236,72,153,.12); color:#f472b6; }
+        .bgr-mode-btn:hover { border-color:rgba(245,158,11,.4); background:#181c2d; color:#fff; }
+        .bgr-mode-btn.active { border-color:#f59e0b; background:rgba(245,158,11,.12); color:#fbbf24; }
         .bgr-result-only { width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:12px; position:relative; }
         .bgr-result-only img { max-width:100%; max-height:100%; object-fit:contain; }
         .bgr-side-by-side { display:grid; grid-template-columns:1fr 1fr; width:100%; height:100%; gap:12px; padding:12px; }
@@ -1645,23 +1645,23 @@ export default function BackgroundRemover({ onClose }) {
         /* Format Pills */
         .bgr-format-pills { display:flex; background:#141724; padding:3px; border-radius:8px; border:1px solid #23283c; gap:4px; }
         .bgr-format-pill { flex:1; text-align:center; padding:7px 4px; border-radius:6px; border:none; cursor:pointer; font-size:12px; font-weight:700; background:transparent; color:#94a3b8; transition:all .15s; }
-        .bgr-format-pill.active { background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff; box-shadow:0 2px 8px rgba(236,72,153,.3); }
+        .bgr-format-pill.active { background:linear-gradient(135deg,#f59e0b,#10b981); color:#fff; box-shadow:0 2px 8px rgba(245,158,11,.3); }
 
         /* Mode Switcher Pill in Header */
         .bgr-appmode-switcher { display:flex; background:#141724; border:1px solid #23283c; border-radius:8px; padding:3px; gap:4px; }
         .bgr-appmode-btn { padding:5px 12px; border-radius:6px; border:none; background:transparent; font-size:12px; font-weight:700; color:#94a3b8; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .15s; }
-        .bgr-appmode-btn.active { background:linear-gradient(135deg,#ec4899,#8b5cf6); color:#fff; box-shadow:0 2px 6px rgba(236,72,153,.3); }
+        .bgr-appmode-btn.active { background:linear-gradient(135deg,#f59e0b,#10b981); color:#fff; box-shadow:0 2px 6px rgba(245,158,11,.3); }
 
         /* Horizontal Studio Sub-Tabs */
         .bgr-subtabs-bar { display:flex; background:#0b0d14; border-bottom:1px solid #1e2235; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
         .bgr-subtabs-bar::-webkit-scrollbar { display:none; }
         .bgr-subtab-btn { flex:none; padding:10px 11px; border:none; background:transparent; font-size:11px; font-weight:700; cursor:pointer; color:#94a3b8; display:flex; align-items:center; gap:5px; border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap; }
-        .bgr-subtab-btn.active { color:#ec4899; background:#141724; border-bottom-color:#ec4899; }
+        .bgr-subtab-btn.active { color:#f59e0b; background:#141724; border-bottom-color:#f59e0b; }
 
         /* Interactive Touch-up Canvas */
         .bgr-brush-stage { position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:crosshair; user-select:none; }
         .bgr-brush-canvas { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
-        .bgr-brush-cursor-circle { position:absolute; pointer-events:none; border:2px solid #ec4899; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 8px rgba(236,72,153,.6); }
+        .bgr-brush-cursor-circle { position:absolute; pointer-events:none; border:2px solid #f59e0b; border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 8px rgba(245,158,11,.6); }
 
         /* Toast Popup */
         .bgr-toast { position:fixed; bottom:70px; left:50%; transform:translateX(-50%); background:#10b981; color:#fff; padding:8px 18px; border-radius:20px; font-size:12px; font-weight:700; z-index:10000; box-shadow:0 4px 16px rgba(0,0,0,.5); display:flex; align-items:center; gap:8px; animation:bgr-fadein .2s ease; }
@@ -1670,7 +1670,7 @@ export default function BackgroundRemover({ onClose }) {
         /* Bulk Queue Grid */
         .bgr-bulk-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px; width:100%; max-height:100%; overflow-y:auto; padding:16px; }
         .bgr-bulk-card { background:#141724; border:1px solid #23283c; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; position:relative; transition:all .2s; }
-        .bgr-bulk-card:hover { border-color:#ec4899; }
+        .bgr-bulk-card:hover { border-color:#f59e0b; }
         .bgr-bulk-thumb { width:100%; aspect-ratio:1; background:#0b0d14; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
         .bgr-bulk-thumb img { width:100%; height:100%; object-fit:contain; }
 
@@ -1717,7 +1717,7 @@ export default function BackgroundRemover({ onClose }) {
       <div className="bgr-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span className="bgr-title">
-            <Scissors size={18} style={{ color: '#ec4899' }} /> Axom Studio
+            <Scissors size={18} style={{ color: '#f59e0b' }} /> Axom Studio
           </span>
 
           {/* Single Studio vs Batch/Bulk Mode */}
@@ -1733,7 +1733,7 @@ export default function BackgroundRemover({ onClose }) {
               onClick={() => setAppMode('bulk')}
             >
               <FolderArchive size={13} /> Batch Mode (Bulk)
-              <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 4, background: '#ec4899', color: '#fff', marginLeft: 2 }}>NEW</span>
+              <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 4, background: '#f59e0b', color: '#fff', marginLeft: 2 }}>NEW</span>
             </button>
           </div>
         </div>
@@ -1792,7 +1792,7 @@ export default function BackgroundRemover({ onClose }) {
                   height: 64,
                   borderRadius: '50%',
                   background: '#fff',
-                  border: '4px solid #ec4899',
+                  border: '4px solid #f59e0b',
                   cursor: 'pointer',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.6)',
                 }}
@@ -1830,7 +1830,7 @@ export default function BackgroundRemover({ onClose }) {
 
               <button
                 className="bgr-btn bgr-btn-primary"
-                style={{ width: 'auto', background: 'linear-gradient(135deg,#ec4899,#8b5cf6)' }}
+                style={{ width: 'auto', background: 'linear-gradient(135deg,#f59e0b,#10b981)' }}
                 onClick={runBulkProcessing}
                 disabled={isBulkProcessing || bulkQueue.filter((i) => i.status === 'pending').length === 0}
               >
@@ -1891,7 +1891,7 @@ export default function BackgroundRemover({ onClose }) {
                     width: 76,
                     height: 76,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, rgba(6,182,212,.15), rgba(139,92,246,.15))',
+                    background: 'linear-gradient(135deg, rgba(6,182,212,.15), rgba(16,185,129,.15))',
                     border: '1px solid rgba(6,182,212,.3)',
                     display: 'flex',
                     alignItems: 'center',
@@ -1911,7 +1911,7 @@ export default function BackgroundRemover({ onClose }) {
                     Process automatically and download all cutouts in a single ZIP file
                   </p>
                 </div>
-                <button className="bgr-btn bgr-btn-primary" style={{ width: 'auto', background: 'linear-gradient(135deg,#06b6d4,#8b5cf6)' }}>
+                <button className="bgr-btn bgr-btn-primary" style={{ width: 'auto', background: 'linear-gradient(135deg,#06b6d4,#10b981)' }}>
                   <Upload size={16} /> Select Multiple Images
                 </button>
               </div>
@@ -1929,7 +1929,7 @@ export default function BackgroundRemover({ onClose }) {
                         </span>
                       )}
                       {item.status === 'processing' && (
-                        <span style={{ background: '#ec4899', color: '#fff', borderRadius: 4, padding: '2px 6px', fontSize: 10, fontWeight: 700 }}>
+                        <span style={{ background: '#f59e0b', color: '#fff', borderRadius: 4, padding: '2px 6px', fontSize: 10, fontWeight: 700 }}>
                           Processing...
                         </span>
                       )}
@@ -1964,7 +1964,7 @@ export default function BackgroundRemover({ onClose }) {
                         </button>
                         <button
                           className="bgr-btn bgr-btn-icon"
-                          style={{ flex: 1, padding: 4, fontSize: 10, color: '#ec4899' }}
+                          style={{ flex: 1, padding: 4, fontSize: 10, color: '#f59e0b' }}
                           onClick={() => openBulkItemInStudio(item)}
                           title="Open in Studio"
                         >
@@ -2003,14 +2003,14 @@ export default function BackgroundRemover({ onClose }) {
                   width: 76,
                   height: 76,
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(236,72,153,.15), rgba(139,92,246,.15))',
-                  border: '1px solid rgba(236,72,153,.3)',
+                  background: 'linear-gradient(135deg, rgba(245,158,11,.15), rgba(16,185,129,.15))',
+                  border: '1px solid rgba(245,158,11,.3)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Scissors size={34} style={{ color: '#ec4899' }} />
+                <Scissors size={34} style={{ color: '#f59e0b' }} />
               </div>
               <div style={{ textAlign: 'center' }}>
                 <p style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#f1f5f9' }}>
@@ -2033,7 +2033,7 @@ export default function BackgroundRemover({ onClose }) {
                   style={{
                     width: 'auto',
                     padding: '10px 24px',
-                    background: 'linear-gradient(135deg,#ec4899,#8b5cf6)',
+                    background: 'linear-gradient(135deg,#f59e0b,#10b981)',
                   }}
                 >
                   <Upload size={16} /> Select Image
@@ -2128,7 +2128,7 @@ export default function BackgroundRemover({ onClose }) {
                       setActiveTabGroup('touchup');
                     }}
                   >
-                    <Paintbrush size={13} style={{ marginRight: 5, verticalAlign: 'middle', color: '#ec4899' }} /> Touch-Up Brush
+                    <Paintbrush size={13} style={{ marginRight: 5, verticalAlign: 'middle', color: '#f59e0b' }} /> Touch-Up Brush
                   </button>
                   <button
                     className={`bgr-tab ${tab === 'original' ? 'active' : ''}`}
@@ -2162,7 +2162,7 @@ export default function BackgroundRemover({ onClose }) {
                   <div className="bgr-progress">
                     <div style={{ width: 80, height: 80 }}>
                       <svg width="80" height="80" viewBox="0 0 80 80" className="bgr-spinner">
-                        <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(236,72,153,.15)" strokeWidth="6" />
+                        <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(245,158,11,.15)" strokeWidth="6" />
                         <circle
                           cx="40"
                           cy="40"
@@ -2176,8 +2176,8 @@ export default function BackgroundRemover({ onClose }) {
                         />
                         <defs>
                           <linearGradient id="bgr-grad" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#ec4899" />
-                            <stop offset="100%" stopColor="#8b5cf6" />
+                            <stop offset="0%" stopColor="#f59e0b" />
+                            <stop offset="100%" stopColor="#10b981" />
                           </linearGradient>
                         </defs>
                       </svg>
@@ -2252,8 +2252,8 @@ export default function BackgroundRemover({ onClose }) {
                     {/* Optional Passport Alignment Overlay */}
                     {showPassportGuide && (
                       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ width: '48%', height: '62%', border: '2px dashed rgba(236,72,153,0.7)', borderRadius: '50% 50% 45% 45%', position: 'relative' }}>
-                          <span style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', fontSize: 10, fontWeight: 700, color: '#ec4899', background: 'rgba(0,0,0,0.6)', padding: '2px 6px', borderRadius: 4 }}>
+                        <div style={{ width: '48%', height: '62%', border: '2px dashed rgba(245,158,11,0.7)', borderRadius: '50% 50% 45% 45%', position: 'relative' }}>
+                          <span style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', fontSize: 10, fontWeight: 700, color: '#f59e0b', background: 'rgba(0,0,0,0.6)', padding: '2px 6px', borderRadius: 4 }}>
                             Face & Eye Line
                           </span>
                         </div>
@@ -2376,7 +2376,7 @@ export default function BackgroundRemover({ onClose }) {
                   <div className="bgr-sidebar-section">
                     <div className="bgr-sidebar-title">
                       <span>Extraction Precision</span>
-                      <ShieldCheck size={13} style={{ color: '#ec4899' }} />
+                      <ShieldCheck size={13} style={{ color: '#f59e0b' }} />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                       <button
@@ -2508,7 +2508,7 @@ export default function BackgroundRemover({ onClose }) {
                             step="0.05"
                             value={subjectScale}
                             onChange={(e) => setSubjectScale(Number(e.target.value))}
-                            style={{ width: '100%', accentColor: '#ec4899', cursor: 'pointer' }}
+                            style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                           />
                         </div>
 
@@ -2523,7 +2523,7 @@ export default function BackgroundRemover({ onClose }) {
                             max="160"
                             value={subjectPosX}
                             onChange={(e) => setSubjectPosX(Number(e.target.value))}
-                            style={{ width: '100%', accentColor: '#8b5cf6', cursor: 'pointer' }}
+                            style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer' }}
                           />
                         </div>
 
@@ -2538,7 +2538,7 @@ export default function BackgroundRemover({ onClose }) {
                             max="160"
                             value={subjectPosY}
                             onChange={(e) => setSubjectPosY(Number(e.target.value))}
-                            style={{ width: '100%', accentColor: '#8b5cf6', cursor: 'pointer' }}
+                            style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer' }}
                           />
                         </div>
 
@@ -2620,7 +2620,7 @@ export default function BackgroundRemover({ onClose }) {
                   <div className="bgr-sidebar-section">
                     <div className="bgr-sidebar-title">
                       <span>3D Studio Podiums & Stands</span>
-                      <Box size={14} style={{ color: '#ec4899' }} />
+                      <Box size={14} style={{ color: '#f59e0b' }} />
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                       {PODIUM_PRESETS.map((p) => (
@@ -2653,7 +2653,7 @@ export default function BackgroundRemover({ onClose }) {
                           type="checkbox"
                           checked={floorShadow}
                           onChange={(e) => setFloorShadow(e.target.checked)}
-                          style={{ width: 16, height: 16, accentColor: '#ec4899', cursor: 'pointer' }}
+                          style={{ width: 16, height: 16, accentColor: '#f59e0b', cursor: 'pointer' }}
                         />
                       </div>
 
@@ -2666,7 +2666,7 @@ export default function BackgroundRemover({ onClose }) {
                           type="checkbox"
                           checked={mirrorReflection}
                           onChange={(e) => setMirrorReflection(e.target.checked)}
-                          style={{ width: 16, height: 16, accentColor: '#ec4899', cursor: 'pointer' }}
+                          style={{ width: 16, height: 16, accentColor: '#f59e0b', cursor: 'pointer' }}
                         />
                       </div>
 
@@ -2679,7 +2679,7 @@ export default function BackgroundRemover({ onClose }) {
                           type="checkbox"
                           checked={autoPadding}
                           onChange={(e) => setAutoPadding(e.target.checked)}
-                          style={{ width: 16, height: 16, accentColor: '#ec4899', cursor: 'pointer' }}
+                          style={{ width: 16, height: 16, accentColor: '#f59e0b', cursor: 'pointer' }}
                         />
                       </div>
 
@@ -2692,7 +2692,7 @@ export default function BackgroundRemover({ onClose }) {
                           type="checkbox"
                           checked={circularDp}
                           onChange={(e) => setCircularDp(e.target.checked)}
-                          style={{ width: 16, height: 16, accentColor: '#ec4899', cursor: 'pointer' }}
+                          style={{ width: 16, height: 16, accentColor: '#f59e0b', cursor: 'pointer' }}
                         />
                       </div>
                     </div>
@@ -2735,7 +2735,7 @@ export default function BackgroundRemover({ onClose }) {
                           step="0.05"
                           value={watermarkOpacity}
                           onChange={(e) => setWatermarkOpacity(Number(e.target.value))}
-                          style={{ width: '100%', accentColor: '#ec4899', cursor: 'pointer' }}
+                          style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                         />
                       </div>
                     )}
@@ -2853,7 +2853,7 @@ export default function BackgroundRemover({ onClose }) {
                             max="80"
                             value={sunDistance}
                             onChange={(e) => setSunDistance(Number(e.target.value))}
-                            style={{ width: '100%', accentColor: '#8b5cf6', cursor: 'pointer' }}
+                            style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer' }}
                           />
                         </div>
                       </div>
@@ -2913,7 +2913,7 @@ export default function BackgroundRemover({ onClose }) {
                           max="40"
                           value={contrast}
                           onChange={(e) => setContrast(Number(e.target.value))}
-                          style={{ width: '100%', accentColor: '#8b5cf6', cursor: 'pointer' }}
+                          style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer' }}
                         />
                       </div>
 
@@ -2943,7 +2943,7 @@ export default function BackgroundRemover({ onClose }) {
                   <div className="bgr-sidebar-section">
                     <div className="bgr-sidebar-title">
                       <span>Typography & Price Tag</span>
-                      <Type size={14} style={{ color: '#ec4899' }} />
+                      <Type size={14} style={{ color: '#f59e0b' }} />
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -3005,7 +3005,7 @@ export default function BackgroundRemover({ onClose }) {
                               max="90"
                               value={textPosY}
                               onChange={(e) => setTextPosY(Number(e.target.value))}
-                              style={{ width: '100%', accentColor: '#ec4899', cursor: 'pointer' }}
+                              style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                             />
                           </div>
                         </>
@@ -3205,9 +3205,9 @@ export default function BackgroundRemover({ onClose }) {
                           style={{
                             padding: '7px 4px',
                             borderRadius: 6,
-                            border: aspectRatio === ar.id ? '1px solid #ec4899' : '1px solid #23283c',
-                            background: aspectRatio === ar.id ? 'rgba(236,72,153,.15)' : '#141724',
-                            color: aspectRatio === ar.id ? '#f472b6' : '#94a3b8',
+                            border: aspectRatio === ar.id ? '1px solid #f59e0b' : '1px solid #23283c',
+                            background: aspectRatio === ar.id ? 'rgba(245,158,11,.15)' : '#141724',
+                            color: aspectRatio === ar.id ? '#fbbf24' : '#94a3b8',
                             fontSize: 10,
                             fontWeight: 700,
                             cursor: 'pointer',
@@ -3228,7 +3228,7 @@ export default function BackgroundRemover({ onClose }) {
                         type="checkbox"
                         checked={stickerEnabled}
                         onChange={(e) => setStickerEnabled(e.target.checked)}
-                        style={{ width: 16, height: 16, accentColor: '#ec4899', cursor: 'pointer' }}
+                        style={{ width: 16, height: 16, accentColor: '#f59e0b', cursor: 'pointer' }}
                       />
                     </div>
                     {stickerEnabled && (
@@ -3243,7 +3243,7 @@ export default function BackgroundRemover({ onClose }) {
                           max="24"
                           value={stickerWidth}
                           onChange={(e) => setStickerWidth(Number(e.target.value))}
-                          style={{ width: '100%', accentColor: '#ec4899', cursor: 'pointer' }}
+                          style={{ width: '100%', accentColor: '#f59e0b', cursor: 'pointer' }}
                         />
                       </div>
                     )}
@@ -3352,10 +3352,10 @@ export default function BackgroundRemover({ onClose }) {
                   style={{
                     background:
                       exportFormat === 'webp'
-                        ? 'linear-gradient(135deg,#06b6d4,#8b5cf6)'
+                        ? 'linear-gradient(135deg,#06b6d4,#10b981)'
                         : exportFormat === 'jpeg'
-                        ? 'linear-gradient(135deg,#f59e0b,#ec4899)'
-                        : 'linear-gradient(135deg,#ec4899,#8b5cf6)',
+                        ? 'linear-gradient(135deg,#f59e0b,#f59e0b)'
+                        : 'linear-gradient(135deg,#f59e0b,#10b981)',
                   }}
                 >
                   <Download size={15} /> Download as .{exportFormat === 'jpeg' ? 'jpg' : exportFormat.toUpperCase()} ({targetKbMode === 'auto' ? estimatedSizes[exportFormat] || 'Full Res' : `< ${targetKbMode} KB`})
@@ -3375,7 +3375,7 @@ export default function BackgroundRemover({ onClose }) {
                     fontSize: 10,
                     fontWeight: 700,
                     cursor: 'pointer',
-                    background: exportFormat === 'png' ? '#ec4899' : 'transparent',
+                    background: exportFormat === 'png' ? '#f59e0b' : 'transparent',
                     color: exportFormat === 'png' ? '#fff' : '#94a3b8',
                   }}
                 >
@@ -3423,10 +3423,10 @@ export default function BackgroundRemover({ onClose }) {
                   fontSize: 12,
                   background:
                     exportFormat === 'webp'
-                      ? 'linear-gradient(135deg,#06b6d4,#8b5cf6)'
+                      ? 'linear-gradient(135deg,#06b6d4,#10b981)'
                       : exportFormat === 'jpeg'
-                      ? 'linear-gradient(135deg,#f59e0b,#ec4899)'
-                      : 'linear-gradient(135deg,#ec4899,#8b5cf6)',
+                      ? 'linear-gradient(135deg,#f59e0b,#f59e0b)'
+                      : 'linear-gradient(135deg,#f59e0b,#10b981)',
                 }}
               >
                 <Download size={14} /> Download .{exportFormat === 'jpeg' ? 'jpg' : exportFormat.toUpperCase()} ({targetKbMode === 'auto' ? estimatedSizes[exportFormat] || '' : `< ${targetKbMode} KB`})

@@ -39,7 +39,7 @@ const ORIENTATIONS = [
 ];
 
 const COLOR_FILTERS = [
-  { id: '', label: 'Any Color', bg: 'linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6)' },
+  { id: '', label: 'Any Color', bg: 'linear-gradient(135deg, #f59e0b, #10b981, #3b82f6)' },
   { id: 'black', label: 'Black', bg: '#09090b' },
   { id: 'white', label: 'White', bg: '#f4f4f5' },
   { id: 'red', label: 'Red', bg: '#ef4444' },
@@ -48,8 +48,8 @@ const COLOR_FILTERS = [
   { id: 'green', label: 'Green', bg: '#22c55e' },
   { id: 'turquoise', label: 'Teal', bg: '#14b8a6' },
   { id: 'blue', label: 'Blue', bg: '#3b82f6' },
-  { id: 'violet', label: 'Purple', bg: '#a855f7' },
-  { id: 'pink', label: 'Pink', bg: '#ec4899' },
+  { id: 'violet', label: 'Purple', bg: '#10b981' },
+  { id: 'pink', label: 'Pink', bg: '#f59e0b' },
 ];
 
 export default function ImageFinder({ onClose }) {
@@ -262,7 +262,7 @@ export default function ImageFinder({ onClose }) {
             {activeFilterCount > 0 && (
               <span
                 style={{
-                  background: '#a855f7',
+                  background: '#10b981',
                   color: '#fff',
                   borderRadius: 10,
                   padding: '1px 6px',
@@ -418,7 +418,7 @@ export default function ImageFinder({ onClose }) {
             <span>Trending &amp; Curated Free High-Resolution Photos</span>
           )}
           {totalResults > 0 && (
-            <span style={{ marginLeft: 8, color: '#c084fc', fontWeight: 700 }}>
+            <span style={{ marginLeft: 8, color: '#34d399', fontWeight: 700 }}>
               ({totalResults.toLocaleString()} photos)
             </span>
           )}
@@ -493,7 +493,7 @@ export default function ImageFinder({ onClose }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#a855f7',
+                color: '#10b981',
                 marginBottom: 16,
               }}
             >
@@ -749,7 +749,7 @@ export default function ImageFinder({ onClose }) {
                           name="downloadRes"
                           checked={downloadFormat === fmt.id}
                           onChange={() => setDownloadFormat(fmt.id)}
-                          style={{ accentColor: '#a855f7' }}
+                          style={{ accentColor: '#10b981' }}
                         />
                       </div>
                     ))}

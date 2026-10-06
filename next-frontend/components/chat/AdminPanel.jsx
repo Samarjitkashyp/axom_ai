@@ -249,7 +249,7 @@ export default function AdminPanel({ onBackToChat }) {
           </div>
 
           {uploadProgress && (
-            <div style={{ padding: '12px 16px', background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '10px', fontSize: '0.85rem', color: 'var(--accent-pink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ padding: '12px 16px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '10px', fontSize: '0.85rem', color: 'var(--accent-pink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="typing-dots">{uploadProgress}</span>
             </div>
           )}

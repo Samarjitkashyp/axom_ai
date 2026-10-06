@@ -111,8 +111,8 @@ export default function SidebarLeft({
             <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" fill="url(#sparkle_grad)" />
             <defs>
               <linearGradient id="sparkle_grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#C084FC" />
-                <stop offset="1" stopColor="#E879F9" />
+                <stop stopColor="#34d399" />
+                <stop offset="1" stopColor="#fbbf24" />
               </linearGradient>
             </defs>
           </svg>
@@ -153,12 +153,12 @@ export default function SidebarLeft({
           title="AI Notes Generator — Create High-Scoring Study Notes from PDFs & Books"
           style={{
             textDecoration: 'none',
-            background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(168, 85, 247, 0.08))',
-            border: '1px solid rgba(236, 72, 153, 0.3)',
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(16, 185, 129, 0.08))',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <GraduationCap size={15} style={{ color: '#f472b6' }} />
+            <GraduationCap size={15} style={{ color: '#fbbf24' }} />
             <span>AI Notes Gen</span>
           </div>
           <span
@@ -167,7 +167,7 @@ export default function SidebarLeft({
               fontWeight: 800,
               padding: '1px 6px',
               borderRadius: '9999px',
-              background: 'linear-gradient(135deg, #ec4899, #a855f7)',
+              background: 'linear-gradient(135deg, #f59e0b, #10b981)',
               color: '#fff',
               letterSpacing: '0.04em',
             }}
@@ -187,7 +187,7 @@ export default function SidebarLeft({
           style={{ textDecoration: 'none' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Wrench size={15} style={{ color: '#c084fc' }} />
+            <Wrench size={15} style={{ color: '#34d399' }} />
             <span>Tools & Studio</span>
           </div>
           <span className="tools-badge">{toolsCount}</span>
@@ -269,7 +269,7 @@ export default function SidebarLeft({
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #4f46e5, #06b6d4)',
+                  background: 'linear-gradient(135deg, #0d9488, #06b6d4)',
                   color: '#fff',
                   fontWeight: 600,
                   fontSize: '0.85rem',
@@ -343,10 +343,10 @@ export default function SidebarLeft({
             }}
             style={{
               width: '100%', height: '36px', borderRadius: '10px',
-              background: 'linear-gradient(135deg, #c084fc, #e879f9)',
-              color: '#06060b', fontWeight: 700, fontSize: '0.80rem',
+              background: 'linear-gradient(135deg, #34d399, #fbbf24)',
+              color: '#0b1220', fontWeight: 700, fontSize: '0.80rem',
               border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-              transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(192, 132, 252, 0.3)'
+              transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(52, 211, 153, 0.3)'
             }}
           >
             <span>Sign In / Register</span>

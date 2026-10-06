@@ -487,7 +487,7 @@ export default function VideoDownloader({ onClose }) {
               {/* Formats List */}
               <div className="vd-formats-container">
                 <div className="vd-formats-label">
-                  <Sparkles size={13} color="#a78bfa" />
+                  <Sparkles size={13} color="#34d399" />
                   <span>SELECT QUALITY & DOWNLOAD</span>
                 </div>
                 <div className="vd-formats-list">
@@ -591,13 +591,13 @@ export default function VideoDownloader({ onClose }) {
           max-height: 92vh;
           overflow-y: auto;
           border: 1px solid rgba(255, 255, 255, 0.1);
-          box-shadow: 0 25px 65px rgba(0, 0, 0, 0.6), 0 0 30px rgba(124, 58, 237, 0.15);
+          box-shadow: 0 25px 65px rgba(0, 0, 0, 0.6), 0 0 30px rgba(5, 150, 105, 0.15);
         }
 
         .vd-glow-bar {
           height: 3px;
           width: 100%;
-          background: linear-gradient(90deg, #7c3aed, #ec4899, #3b82f6);
+          background: linear-gradient(90deg, #059669, #f59e0b, #3b82f6);
           animation: vdGlowPulse 3s ease-in-out infinite;
         }
 
@@ -626,11 +626,11 @@ export default function VideoDownloader({ onClose }) {
           width: 44px;
           height: 44px;
           border-radius: 12px;
-          background: linear-gradient(135deg, #7c3aed, #ec4899);
+          background: linear-gradient(135deg, #059669, #f59e0b);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+          box-shadow: 0 4px 15px rgba(5, 150, 105, 0.4);
           flex-shrink: 0;
         }
 
@@ -720,7 +720,7 @@ export default function VideoDownloader({ onClose }) {
         }
 
         .vd-checkbox {
-          accent-color: #7c3aed;
+          accent-color: #059669;
           width: 18px;
           height: 18px;
           cursor: pointer;
@@ -778,8 +778,8 @@ export default function VideoDownloader({ onClose }) {
         }
 
         .vd-input-wrapper:focus-within {
-          border-color: #7c3aed;
-          box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+          border-color: #059669;
+          box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
         }
 
         .vd-link-icon {
@@ -799,7 +799,7 @@ export default function VideoDownloader({ onClose }) {
         }
 
         .vd-fetch-btn {
-          background: linear-gradient(135deg, #7c3aed, #6d28d9);
+          background: linear-gradient(135deg, #059669, #047857);
           border: none;
           border-radius: 12px;
           padding: 0 22px;
@@ -811,14 +811,14 @@ export default function VideoDownloader({ onClose }) {
           align-items: center;
           gap: 8px;
           transition: all 0.2s ease;
-          box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+          box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
           flex-shrink: 0;
           min-height: 46px;
         }
 
         .vd-fetch-btn:hover:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+          box-shadow: 0 6px 20px rgba(5, 150, 105, 0.45);
         }
 
         .vd-fetch-btn:disabled {
@@ -851,12 +851,12 @@ export default function VideoDownloader({ onClose }) {
 
         /* Percentage Progress Card Styles */
         .vd-progress-card {
-          background: rgba(124, 58, 237, 0.1);
-          border: 1px solid rgba(124, 58, 237, 0.35);
+          background: rgba(5, 150, 105, 0.1);
+          border: 1px solid rgba(5, 150, 105, 0.35);
           border-radius: 16px;
           padding: 16px 18px;
           margin-bottom: 18px;
-          box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+          box-shadow: 0 8px 25px rgba(5, 150, 105, 0.15);
           transition: all 0.3s ease;
         }
 
@@ -880,7 +880,7 @@ export default function VideoDownloader({ onClose }) {
         }
 
         .vd-icon-zap {
-          color: #a78bfa;
+          color: #34d399;
           animation: vdPulse 1.2s infinite;
         }
 
@@ -907,13 +907,13 @@ export default function VideoDownloader({ onClose }) {
         }
 
         .vd-percent-badge {
-          background: linear-gradient(135deg, #7c3aed, #ec4899);
+          background: linear-gradient(135deg, #059669, #f59e0b);
           color: #ffffff;
           font-size: 13px;
           font-weight: 800;
           padding: 4px 12px;
           border-radius: 20px;
-          box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
+          box-shadow: 0 2px 10px rgba(5, 150, 105, 0.4);
         }
 
         .vd-progress-card.completed .vd-percent-badge {
@@ -949,7 +949,7 @@ export default function VideoDownloader({ onClose }) {
 
         .vd-progress-bar-fill {
           height: 100%;
-          background: linear-gradient(90deg, #7c3aed, #ec4899, #3b82f6);
+          background: linear-gradient(90deg, #059669, #f59e0b, #3b82f6);
           border-radius: 6px;
           transition: width 0.25s ease-out;
           position: relative;
@@ -1034,7 +1034,7 @@ export default function VideoDownloader({ onClose }) {
           display: flex;
           align-items: center;
           gap: 6px;
-          color: #a78bfa;
+          color: #34d399;
           font-size: 11px;
           font-weight: 700;
           letter-spacing: 0.05em;
@@ -1069,12 +1069,12 @@ export default function VideoDownloader({ onClose }) {
 
         .vd-format-row:hover {
           background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(124, 58, 237, 0.3);
+          border-color: rgba(5, 150, 105, 0.3);
         }
 
         .vd-format-row.is-downloading {
-          border-color: #7c3aed;
-          background: rgba(124, 58, 237, 0.08);
+          border-color: #059669;
+          background: rgba(5, 150, 105, 0.08);
         }
 
         .vd-format-left {
@@ -1085,7 +1085,7 @@ export default function VideoDownloader({ onClose }) {
         }
 
         .vd-format-icon {
-          color: #a78bfa;
+          color: #34d399;
           flex-shrink: 0;
         }
 
@@ -1127,7 +1127,7 @@ export default function VideoDownloader({ onClose }) {
         }
 
         .vd-download-btn {
-          background: linear-gradient(135deg, #7c3aed, #6d28d9);
+          background: linear-gradient(135deg, #059669, #047857);
           border: none;
           border-radius: 10px;
           padding: 8px 18px;
@@ -1139,17 +1139,17 @@ export default function VideoDownloader({ onClose }) {
           align-items: center;
           gap: 6px;
           transition: all 0.2s ease;
-          box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+          box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
           flex-shrink: 0;
         }
 
         .vd-download-btn:hover:not(:disabled) {
           transform: scale(1.03);
-          box-shadow: 0 6px 18px rgba(124, 58, 237, 0.4);
+          box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4);
         }
 
         .vd-download-btn.active-dl {
-          background: rgba(124, 58, 237, 0.4);
+          background: rgba(5, 150, 105, 0.4);
           box-shadow: none;
         }
 
@@ -1159,7 +1159,7 @@ export default function VideoDownloader({ onClose }) {
           left: 0;
           right: 0;
           height: 2px;
-          background: linear-gradient(90deg, #7c3aed, #ec4899, #3b82f6);
+          background: linear-gradient(90deg, #059669, #f59e0b, #3b82f6);
           animation: vdShimmer 1.5s infinite linear;
         }
 

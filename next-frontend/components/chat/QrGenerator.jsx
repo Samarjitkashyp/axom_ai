@@ -46,10 +46,10 @@ const MODES = [
 
 const PRESETS = [
   { fg: '#0F172A', bg: '#FFFFFF', label: 'Classic Dark', desc: 'High contrast black & white' },
-  { fg: '#4338CA', bg: '#EEF2FF', label: 'Axom Indigo', desc: 'Modern tech blue' },
+  { fg: '#0f766e', bg: '#f0fdfa', label: 'Axom Indigo', desc: 'Modern tech blue' },
   { fg: '#065F46', bg: '#ECFDF5', label: 'Emerald Mint', desc: 'Fresh organic green' },
   { fg: '#9F1239', bg: '#FFF1F2', label: 'Sunset Crimson', desc: 'Warm vivid red' },
-  { fg: '#6B21A8', bg: '#FAF5FF', label: 'Royal Violet', desc: 'Deep luxury purple' },
+  { fg: '#065f46', bg: '#ecfdf5', label: 'Royal Violet', desc: 'Deep luxury purple' },
   { fg: '#C2410C', bg: '#FFF7ED', label: 'Amber Flame', desc: 'Dynamic warm orange' },
   { fg: '#0E7490', bg: '#ECFEFF', label: 'Ocean Cyan', desc: 'Cool arctic cyan' },
   { fg: '#D97706', bg: '#18181B', label: 'Gold & Charcoal', desc: 'Sleek luxury dark mode' },
@@ -252,7 +252,7 @@ export default function QrGenerator({ onClose }) {
         drawRoundedRect(ctx, pos, pos, logoDimension, logoDimension, 8);
 
         ctx.fillStyle = bgColor;
-        ctx.font = `bold ${Math.round(logoDimension * 0.45)}px Inter, system-ui, sans-serif`;
+        ctx.font = `bold ${Math.round(logoDimension * 0.45)}px Plus Jakarta Sans, system-ui, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
@@ -284,7 +284,7 @@ export default function QrGenerator({ onClose }) {
         drawRoundedRect(fCtx, 16, 12, targetSize - 32, 40, 8);
 
         fCtx.fillStyle = bgColor;
-        fCtx.font = 'bold 16px Inter, system-ui, sans-serif';
+        fCtx.font = 'bold 16px Plus Jakarta Sans, system-ui, sans-serif';
         fCtx.textAlign = 'center';
         fCtx.textBaseline = 'middle';
         fCtx.fillText('SCAN ME', targetSize / 2, 32);
@@ -431,7 +431,7 @@ export default function QrGenerator({ onClose }) {
         <header style={styles.topBar}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={styles.headerIconBadge}>
-              <QrCode size={20} style={{ color: '#8B5CF6' }} />
+              <QrCode size={20} style={{ color: '#10b981' }} />
             </div>
             <div>
               <div style={styles.headerTitle}>QR Code Studio Pro</div>
@@ -741,8 +741,8 @@ export default function QrGenerator({ onClose }) {
                       }}
                       style={{
                         ...styles.presetCard,
-                        borderColor: isSelected ? '#8B5CF6' : '#2D3748',
-                        background: isSelected ? 'rgba(139, 92, 246, 0.12)' : '#1A202C',
+                        borderColor: isSelected ? '#10b981' : '#2D3748',
+                        background: isSelected ? 'rgba(16, 185, 129, 0.12)' : '#1A202C',
                       }}
                     >
                       <div style={styles.swatchPair}>
@@ -823,9 +823,9 @@ export default function QrGenerator({ onClose }) {
                       }}
                       style={{
                         ...styles.logoChip,
-                        borderColor: isSel ? '#8B5CF6' : '#2D3748',
-                        background: isSel ? 'rgba(139, 92, 246, 0.2)' : '#1A202C',
-                        color: isSel ? '#C084FC' : '#94A3B8',
+                        borderColor: isSel ? '#10b981' : '#2D3748',
+                        background: isSel ? 'rgba(16, 185, 129, 0.2)' : '#1A202C',
+                        color: isSel ? '#34d399' : '#94A3B8',
                       }}
                     >
                       {b.icon && <b.icon size={13} />}
@@ -864,9 +864,9 @@ export default function QrGenerator({ onClose }) {
                   onClick={() => setFrameStyle('none')}
                   style={{
                     ...styles.frameChip,
-                    borderColor: frameStyle === 'none' ? '#8B5CF6' : '#2D3748',
-                    background: frameStyle === 'none' ? 'rgba(139,92,246,0.2)' : '#1A202C',
-                    color: frameStyle === 'none' ? '#C084FC' : '#94A3B8',
+                    borderColor: frameStyle === 'none' ? '#10b981' : '#2D3748',
+                    background: frameStyle === 'none' ? 'rgba(16,185,129,0.2)' : '#1A202C',
+                    color: frameStyle === 'none' ? '#34d399' : '#94A3B8',
                   }}
                 >
                   No Frame
@@ -876,9 +876,9 @@ export default function QrGenerator({ onClose }) {
                   onClick={() => setFrameStyle('scanme')}
                   style={{
                     ...styles.frameChip,
-                    borderColor: frameStyle === 'scanme' ? '#8B5CF6' : '#2D3748',
-                    background: frameStyle === 'scanme' ? 'rgba(139,92,246,0.2)' : '#1A202C',
-                    color: frameStyle === 'scanme' ? '#C084FC' : '#94A3B8',
+                    borderColor: frameStyle === 'scanme' ? '#10b981' : '#2D3748',
+                    background: frameStyle === 'scanme' ? 'rgba(16,185,129,0.2)' : '#1A202C',
+                    color: frameStyle === 'scanme' ? '#34d399' : '#94A3B8',
                   }}
                 >
                   "SCAN ME" Header Card
@@ -898,7 +898,7 @@ export default function QrGenerator({ onClose }) {
                   step={20}
                   value={size}
                   onChange={(e) => setSize(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#8B5CF6', cursor: 'pointer' }}
+                  style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer' }}
                 />
               </div>
             </div>
@@ -947,7 +947,7 @@ export default function QrGenerator({ onClose }) {
             <div style={styles.inspectorBox}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94A3B8' }}>Camera will scan:</span>
-                <span style={{ fontSize: '0.72rem', color: '#8B5CF6', fontWeight: 600 }}>{mode.toUpperCase()}</span>
+                <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 600 }}>{mode.toUpperCase()}</span>
               </div>
               <div style={styles.payloadTextSnippet}>
                 {payloadString}
@@ -996,7 +996,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+    fontFamily: 'Plus Jakarta Sans, system-ui, -apple-system, sans-serif',
   },
   toast: {
     position: 'fixed',
@@ -1039,8 +1039,8 @@ const styles = {
     width: 36,
     height: 36,
     borderRadius: 10,
-    background: 'rgba(139, 92, 246, 0.15)',
-    border: '1px solid rgba(139, 92, 246, 0.3)',
+    background: 'rgba(16, 185, 129, 0.15)',
+    border: '1px solid rgba(16, 185, 129, 0.3)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1151,8 +1151,8 @@ const styles = {
     fontSize: '0.7rem',
     padding: '2px 8px',
     borderRadius: 99,
-    background: 'rgba(139, 92, 246, 0.15)',
-    color: '#C084FC',
+    background: 'rgba(16, 185, 129, 0.15)',
+    color: '#34d399',
     fontWeight: 500,
   },
   inputLabel: {
@@ -1358,13 +1358,13 @@ const styles = {
     gap: 8,
     padding: '11px 18px',
     borderRadius: 10,
-    background: '#8B5CF6',
+    background: '#10b981',
     border: 'none',
     color: '#FFFFFF',
     fontWeight: 600,
     fontSize: '0.9rem',
     cursor: 'pointer',
-    boxShadow: '0 4px 14px rgba(139, 92, 246, 0.4)',
+    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
     transition: 'all 0.15s ease',
   },
   secondaryExportBtn: {

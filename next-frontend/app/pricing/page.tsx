@@ -238,7 +238,7 @@ export default async function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#030712] text-slate-800 dark:text-slate-100 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
       {/* Inject Structured Data */}
       <script
         type="application/ld+json"
@@ -262,7 +262,7 @@ export default async function PricingPage() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative pt-28 pb-14 sm:pt-36 sm:pb-20 overflow-hidden border-b border-white/5">
+        <section className="relative pt-28 pb-14 sm:pt-36 sm:pb-20 overflow-hidden border-b border-emerald-900/10 dark:border-white/5">
           {/* Ambient Glows */}
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-emerald-600/20 via-teal-500/15 to-transparent blur-[120px] pointer-events-none rounded-full" />
           <div className="absolute top-20 right-10 w-96 h-96 bg-cyan-500/10 blur-[100px] pointer-events-none rounded-full" />
@@ -271,52 +271,52 @@ export default async function PricingPage() {
             {/* Breadcrumb Bar */}
             <nav
               aria-label="Breadcrumb"
-              className="flex items-center gap-2 text-xs text-slate-400 mb-8 max-w-max mx-auto px-3.5 py-1.5 rounded-full bg-slate-900/60 border border-white/10 backdrop-blur"
+              className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 mb-8 max-w-max mx-auto px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 backdrop-blur"
             >
-              <Link href="/" className="hover:text-white transition">
+              <Link href="/" className="hover:text-emerald-950 dark:hover:text-white transition">
                 Home
               </Link>
-              <ChevronRight size={12} className="text-slate-500" />
-              <span className="text-emerald-400 font-medium">Pricing</span>
+              <ChevronRight size={12} className="text-slate-600 dark:text-slate-500" />
+              <span className="text-emerald-700 dark:text-emerald-400 font-medium">Pricing</span>
             </nav>
 
             {/* Headline */}
             <div className="text-center max-w-3xl mx-auto mb-10">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-5">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-5">
                 <Sparkles size={14} /> Simple, Transparent Pricing in INR (₹)
               </div>
 
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-[1.15] mb-5">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.15] mb-5">
                 Affordable AI for Everyone in{' '}
-                <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-600 dark:from-emerald-400 via-teal-600 dark:via-teal-300 to-cyan-600 dark:to-cyan-400 bg-clip-text text-transparent">
                   Assam &amp; India
                 </span>
               </h1>
 
-              <p className="text-sm sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
+              <p className="text-sm sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
                 Choose a plan tailored to your workflow. Start completely free with zero credit card,
                 or unlock flagship AI intelligence, scanned Assamese OCR, and 20+ document utilities.
               </p>
             </div>
 
             {/* AEO Direct Answer Summary Box */}
-            <div className="max-w-4xl mx-auto p-5 sm:p-6 rounded-2xl bg-slate-900/90 border border-emerald-500/30 shadow-xl shadow-emerald-950/20 backdrop-blur-md mb-12">
+            <div className="max-w-4xl mx-auto p-5 sm:p-6 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-emerald-500/30 shadow-xl shadow-emerald-950/20 backdrop-blur-md mb-12">
               <div className="flex items-start gap-3.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
                   <IndianRupee size={18} />
                 </div>
-                <div className="space-y-1.5 text-xs sm:text-sm text-slate-300">
-                  <div className="font-bold text-white text-sm sm:text-base flex items-center gap-2">
+                <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                  <div className="font-bold text-emerald-950 dark:text-white text-sm sm:text-base flex items-center gap-2">
                     <span>Axom AI Pricing at a Glance</span>
-                    <span className="text-[10px] uppercase font-extrabold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">
+                    <span className="text-[10px] uppercase font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded">
                       Zero Foreign Markups
                     </span>
                   </div>
                   <p className="leading-relaxed">
-                    <strong className="text-white">Free (₹0/mo)</strong> gives you 5,000 words/mo with Llama 3 8B.
-                    {' '}<strong className="text-white">Starter (₹199/mo or ₹159 billed yearly)</strong> provides 50,000 words with GPT-4o Mini &amp; PDF editing.
-                    {' '}<strong className="text-white">Pro (₹499/mo or ₹399 billed yearly)</strong> unlocks 250,000 words, Claude 3.5 Sonnet, Llama 70B, Assamese OCR &amp; Voice mode.
-                    {' '}<strong className="text-white">Business (₹1,499/mo or ₹1,199 billed yearly)</strong> includes 1,000,000 words, 5 team seats, custom knowledge bases &amp; REST APIs.
+                    <strong className="text-emerald-950 dark:text-white">Free (₹0/mo)</strong> gives you 5,000 words/mo with Llama 3 8B.
+                    {' '}<strong className="text-emerald-950 dark:text-white">Starter (₹199/mo or ₹159 billed yearly)</strong> provides 50,000 words with GPT-4o Mini &amp; PDF editing.
+                    {' '}<strong className="text-emerald-950 dark:text-white">Pro (₹499/mo or ₹399 billed yearly)</strong> unlocks 250,000 words, Claude 3.5 Sonnet, Llama 70B, Assamese OCR &amp; Voice mode.
+                    {' '}<strong className="text-emerald-950 dark:text-white">Business (₹1,499/mo or ₹1,199 billed yearly)</strong> includes 1,000,000 words, 5 team seats, custom knowledge bases &amp; REST APIs.
                   </p>
                 </div>
               </div>
@@ -328,38 +328,38 @@ export default async function PricingPage() {
         </section>
 
         {/* Feature Comparison Table Section */}
-        <section className="py-20 sm:py-28 relative border-b border-white/5 bg-[#040914]/80">
+        <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/80 dark:bg-[#040914]/80">
           <div className="max-w-7xl mx-auto px-5">
             <div className="text-center max-w-3xl mx-auto mb-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 text-xs font-bold uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4">
                 <Zap size={14} /> Full Plan Comparison
               </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
+              <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
                 Compare Every Feature Side-by-Side
               </h2>
-              <p className="text-sm sm:text-base text-slate-400">
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
                 Detailed breakdown of models, tools, limits, and enterprise capabilities across all Axom AI tiers.
               </p>
             </div>
 
             {/* Table Container */}
-            <div className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/60 shadow-2xl backdrop-blur-md">
+            <div className="overflow-x-auto rounded-2xl border border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-2xl backdrop-blur-md">
               <table className="w-full text-left border-collapse min-w-[700px]">
                 <thead>
-                  <tr className="border-b border-white/10 bg-slate-950/80">
-                    <th className="p-4 sm:p-5 text-sm font-bold text-slate-300 w-2/5">
+                  <tr className="border-b border-emerald-900/15 dark:border-white/10 bg-white/80 dark:bg-slate-950/80">
+                    <th className="p-4 sm:p-5 text-sm font-bold text-slate-700 dark:text-slate-300 w-2/5">
                       Features &amp; Capabilities
                     </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-300 w-[15%]">
+                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-700 dark:text-slate-300 w-[15%]">
                       Free (₹0)
                     </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-300 w-[15%]">
+                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-700 dark:text-slate-300 w-[15%]">
                       Starter (₹199)
                     </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-emerald-400 w-[15%] bg-emerald-500/10 border-x border-emerald-500/20">
+                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-emerald-700 dark:text-emerald-400 w-[15%] bg-emerald-500/10 border-x border-emerald-500/20">
                       Pro (₹499) ★
                     </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-300 w-[15%]">
+                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-700 dark:text-slate-300 w-[15%]">
                       Business (₹1,499)
                     </th>
                   </tr>
@@ -368,10 +368,10 @@ export default async function PricingPage() {
                   {COMPARISON_CATEGORIES.map((cat, cIdx) => (
                     <React.Fragment key={cIdx}>
                       {/* Category Row */}
-                      <tr className="bg-white/[0.02] border-y border-white/10">
+                      <tr className="bg-white/[0.02] border-y border-emerald-900/15 dark:border-white/10">
                         <td
                           colSpan={5}
-                          className="p-3.5 px-5 text-xs font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/5"
+                          className="p-3.5 px-5 text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/5"
                         >
                           {cat.category}
                         </td>
@@ -381,17 +381,17 @@ export default async function PricingPage() {
                       {cat.items.map((item, iIdx) => (
                         <tr
                           key={iIdx}
-                          className="border-b border-white/5 hover:bg-white/[0.02] transition"
+                          className="border-b border-emerald-900/10 dark:border-white/5 hover:bg-white/[0.02] transition"
                         >
-                          <td className="p-4 px-5 text-xs sm:text-sm font-medium text-slate-200">
+                          <td className="p-4 px-5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
                             {item.feature}
                           </td>
 
                           {/* Free */}
-                          <td className="p-4 text-center text-xs sm:text-sm text-slate-400">
+                          <td className="p-4 text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                             {typeof item.free === 'boolean' ? (
                               item.free ? (
-                                <Check size={16} className="text-emerald-400 mx-auto" />
+                                <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
                               ) : (
                                 <X size={15} className="text-slate-600 mx-auto opacity-50" />
                               )
@@ -401,10 +401,10 @@ export default async function PricingPage() {
                           </td>
 
                           {/* Starter */}
-                          <td className="p-4 text-center text-xs sm:text-sm text-slate-300">
+                          <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                             {typeof item.starter === 'boolean' ? (
                               item.starter ? (
-                                <Check size={16} className="text-emerald-400 mx-auto" />
+                                <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
                               ) : (
                                 <X size={15} className="text-slate-600 mx-auto opacity-50" />
                               )
@@ -414,23 +414,23 @@ export default async function PricingPage() {
                           </td>
 
                           {/* Pro (Highlighted) */}
-                          <td className="p-4 text-center text-xs sm:text-sm font-semibold text-emerald-300 bg-emerald-500/5 border-x border-emerald-500/20">
+                          <td className="p-4 text-center text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/5 border-x border-emerald-500/20">
                             {typeof item.pro === 'boolean' ? (
                               item.pro ? (
-                                <Check size={18} className="text-emerald-400 mx-auto stroke-[2.5]" />
+                                <Check size={18} className="text-emerald-700 dark:text-emerald-400 mx-auto stroke-[2.5]" />
                               ) : (
                                 <X size={15} className="text-slate-600 mx-auto opacity-50" />
                               )
                             ) : (
-                              <span className="font-bold text-white">{item.pro}</span>
+                              <span className="font-bold text-emerald-950 dark:text-white">{item.pro}</span>
                             )}
                           </td>
 
                           {/* Business */}
-                          <td className="p-4 text-center text-xs sm:text-sm text-slate-300">
+                          <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                             {typeof item.business === 'boolean' ? (
                               item.business ? (
-                                <Check size={16} className="text-teal-400 mx-auto" />
+                                <Check size={16} className="text-teal-700 dark:text-teal-400 mx-auto" />
                               ) : (
                                 <X size={15} className="text-slate-600 mx-auto opacity-50" />
                               )
@@ -447,14 +447,14 @@ export default async function PricingPage() {
             </div>
 
             {/* Bottom Note */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mt-6 text-xs text-slate-400 px-2">
+            <div className="flex flex-wrap items-center justify-between gap-4 mt-6 text-xs text-slate-600 dark:text-slate-400 px-2">
               <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-emerald-400" />
+                <ShieldCheck size={16} className="text-emerald-700 dark:text-emerald-400" />
                 <span>All prices in INR. Taxes calculated at checkout according to Indian GST regulations.</span>
               </div>
               <a
                 href="https://chat.aiaxom.co.in/upgrade"
-                className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition"
+                className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold flex items-center gap-1 transition"
               >
                 <span>Upgrade in 30 Seconds</span>
                 <ChevronRight size={14} />
@@ -464,52 +464,52 @@ export default async function PricingPage() {
         </section>
 
         {/* Payment Methods & Indian Trust Section */}
-        <section className="py-16 sm:py-24 relative border-b border-white/5 bg-[#030712]">
+        <section className="py-16 sm:py-24 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#030712]">
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {/* Box 1: Razorpay & UPI */}
-              <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/60 border border-white/10 hover:border-emerald-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-5">
+              <div className="p-6 sm:p-8 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 transition">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-5">
                   <CreditCard size={20} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">100% Indian Payment Methods</h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                <h3 className="text-lg font-bold text-emerald-950 dark:text-white mb-2">100% Indian Payment Methods</h3>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
                   Pay seamlessly with Google Pay, PhonePe, Paytm, BHIM UPI, RuPay, Visa, MasterCard, and Netbanking from 50+ Indian banks.
                 </p>
-                <div className="flex flex-wrap gap-2 text-[11px] font-bold text-slate-400">
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/5">UPI Autopay</span>
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/5">RuPay</span>
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/5">Razorpay Secured</span>
+                <div className="flex flex-wrap gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                  <span className="px-2 py-1 rounded bg-white/70 dark:bg-white/5 border border-emerald-900/10 dark:border-white/5">UPI Autopay</span>
+                  <span className="px-2 py-1 rounded bg-white/70 dark:bg-white/5 border border-emerald-900/10 dark:border-white/5">RuPay</span>
+                  <span className="px-2 py-1 rounded bg-white/70 dark:bg-white/5 border border-emerald-900/10 dark:border-white/5">Razorpay Secured</span>
                 </div>
               </div>
 
               {/* Box 2: GST Invoices */}
-              <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/60 border border-white/10 hover:border-teal-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center mb-5">
+              <div className="p-6 sm:p-8 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-teal-500/30 transition">
+                <div className="w-10 h-10 rounded-xl bg-teal-500/15 text-teal-700 dark:text-teal-400 flex items-center justify-center mb-5">
                   <FileCheck size={20} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">GST Compliant Invoicing</h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                <h3 className="text-lg font-bold text-emerald-950 dark:text-white mb-2">GST Compliant Invoicing</h3>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
                   Add your company GSTIN during checkout to receive automated tax invoices for full Input Tax Credit (ITC) claiming.
                 </p>
-                <div className="flex flex-wrap gap-2 text-[11px] font-bold text-slate-400">
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/5">Instant PDF Invoices</span>
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/5">B2B Friendly</span>
+                <div className="flex flex-wrap gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                  <span className="px-2 py-1 rounded bg-white/70 dark:bg-white/5 border border-emerald-900/10 dark:border-white/5">Instant PDF Invoices</span>
+                  <span className="px-2 py-1 rounded bg-white/70 dark:bg-white/5 border border-emerald-900/10 dark:border-white/5">B2B Friendly</span>
                 </div>
               </div>
 
               {/* Box 3: Cancel Anytime */}
-              <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/60 border border-white/10 hover:border-cyan-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center mb-5">
+              <div className="p-6 sm:p-8 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-cyan-500/30 transition">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center mb-5">
                   <RefreshCw size={20} />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">Cancel Anytime with 1 Click</h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+                <h3 className="text-lg font-bold text-emerald-950 dark:text-white mb-2">Cancel Anytime with 1 Click</h3>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
                   No hidden phone calls or dark patterns. Upgrade, downgrade, or cancel your subscription instantly from your settings dashboard.
                 </p>
-                <div className="flex flex-wrap gap-2 text-[11px] font-bold text-slate-400">
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/5">Zero Lock-in</span>
-                  <span className="px-2 py-1 rounded bg-white/5 border border-white/5">Immediate Downgrade</span>
+                <div className="flex flex-wrap gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                  <span className="px-2 py-1 rounded bg-white/70 dark:bg-white/5 border border-emerald-900/10 dark:border-white/5">Zero Lock-in</span>
+                  <span className="px-2 py-1 rounded bg-white/70 dark:bg-white/5 border border-emerald-900/10 dark:border-white/5">Immediate Downgrade</span>
                 </div>
               </div>
             </div>
@@ -517,29 +517,29 @@ export default async function PricingPage() {
         </section>
 
         {/* Student & Academic Discount + Enterprise Custom LLMs */}
-        <section className="py-16 sm:py-20 relative border-b border-white/5 bg-gradient-to-b from-[#040914] to-[#030712]">
+        <section className="py-16 sm:py-20 relative border-b border-emerald-900/10 dark:border-white/5 bg-gradient-to-b from-[#f0fdf4] dark:from-[#040914] to-[#f0fdf4] dark:to-[#030712]">
           <div className="max-w-6xl mx-auto px-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
               {/* Student Card */}
-              <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900/80 to-emerald-950/30 border border-emerald-500/30 shadow-xl flex flex-col justify-between">
+              <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-emerald-100/30 dark:to-emerald-950/30 border border-emerald-500/30 shadow-xl flex flex-col justify-between">
                 <div>
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mb-6">
                     <GraduationCap size={24} />
                   </div>
-                  <div className="inline-block px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3">
+                  <div className="inline-block px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3">
                     Education &amp; Research
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+                  <h3 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
                     Student &amp; Academic Rebates
                   </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed mb-6">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
                     Are you a student preparing for APSC, UPSC, Assam Police, or studying at Gauhati University, Cotton University, Tezpur University, or IIT Guwahati? We provide special educational subsidies and group lab licensing across Assam.
                   </p>
                 </div>
                 <div>
                   <a
                     href="mailto:support@aiaxom.co.in?subject=Student%20Discount%20Inquiry%20-%20Axom%20AI"
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-300 hover:text-emerald-200 transition"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200 transition"
                   >
                     <span>Request Student Discount</span>
                     <ArrowRight size={14} />
@@ -548,25 +548,25 @@ export default async function PricingPage() {
               </div>
 
               {/* Enterprise Card */}
-              <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900/80 to-teal-950/30 border border-teal-500/30 shadow-xl flex flex-col justify-between">
+              <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-teal-100/30 dark:to-teal-950/30 border border-teal-500/30 shadow-xl flex flex-col justify-between">
                 <div>
-                  <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-300 flex items-center justify-center mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-700 dark:text-teal-300 flex items-center justify-center mb-6">
                     <Building size={24} />
                   </div>
-                  <div className="inline-block px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 text-xs font-bold uppercase tracking-wider mb-3">
+                  <div className="inline-block px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-3">
                     Enterprises &amp; Government
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-3">
+                  <h3 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
                     Custom LLM &amp; Sovereign AI
                   </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed mb-6">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
                     Need on-premise private deployment, customized RAG knowledge bases for regional government departments, news agencies, or bank compliant Assamese document pipelines? Our Guwahati engineering team builds turnkey solutions.
                   </p>
                 </div>
                 <div>
                   <a
                     href="mailto:support@aiaxom.co.in?subject=Enterprise%20and%20Government%20Inquiry%20-%20Axom%20AI"
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-teal-300 hover:text-teal-200 transition"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-teal-700 dark:text-teal-300 hover:text-teal-800 dark:hover:text-teal-200 transition"
                   >
                     <span>Talk to Enterprise Sales</span>
                     <ArrowRight size={14} />
@@ -578,16 +578,16 @@ export default async function PricingPage() {
         </section>
 
         {/* Pricing FAQs */}
-        <section className="py-20 sm:py-28 relative border-b border-white/5 bg-[#030712]">
+        <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#030712]">
           <div className="max-w-4xl mx-auto px-5">
             <div className="text-center max-w-2xl mx-auto mb-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4">
                 <HelpCircle size={14} /> Pricing FAQ
               </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight mb-4">
+              <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
                 Frequently Asked Questions
               </h2>
-              <p className="text-sm sm:text-base text-slate-400">
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
                 Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.
               </p>
             </div>
@@ -597,18 +597,18 @@ export default async function PricingPage() {
         </section>
 
         {/* Bottom CTA Banner */}
-        <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-b from-[#040914] to-[#02050b]">
+        <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-b from-[#f0fdf4] dark:from-[#040914] to-[#f0fdf4] dark:to-[#02050b]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12)_0,transparent_70%)] pointer-events-none" />
 
           <div className="max-w-4xl mx-auto px-5 text-center relative z-10">
-            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-6">
+            <h2 className="text-3xl sm:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-6">
               Experience the Future of{' '}
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-600 dark:from-emerald-400 to-teal-600 dark:to-teal-300 bg-clip-text text-transparent">
                 Assamese AI
               </span>{' '}
               Today
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl mx-auto mb-8">
+            <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed max-w-xl mx-auto mb-8">
               Join thousands of students, researchers, lawyers, and businesses across Assam.
               Get started with 5,000 free words—no credit card required.
             </p>
@@ -623,23 +623,23 @@ export default async function PricingPage() {
               </a>
               <a
                 href="https://chat.aiaxom.co.in/upgrade"
-                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-sm sm:text-base border border-white/10 transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-4 rounded-xl bg-emerald-900/5 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 text-emerald-950 dark:text-white font-bold text-sm sm:text-base border border-emerald-900/15 dark:border-white/10 transition-all flex items-center justify-center gap-2"
               >
                 <span>Upgrade to Pro (₹399/mo)</span>
               </a>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-xs text-slate-400">
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-xs text-slate-600 dark:text-slate-400">
               <span className="flex items-center gap-1.5">
-                <Check size={14} className="text-emerald-400" />
+                <Check size={14} className="text-emerald-700 dark:text-emerald-400" />
                 No Credit Card Required
               </span>
               <span className="flex items-center gap-1.5">
-                <Check size={14} className="text-emerald-400" />
+                <Check size={14} className="text-emerald-700 dark:text-emerald-400" />
                 UPI &amp; RuPay Accepted
               </span>
               <span className="flex items-center gap-1.5">
-                <Check size={14} className="text-emerald-400" />
+                <Check size={14} className="text-emerald-700 dark:text-emerald-400" />
                 Cancel Anytime
               </span>
             </div>

@@ -866,7 +866,7 @@ export default function ChatWindow({
                             </span>
                           )}
                           {msg.doc_conversion && (
-                            <span style={{ display: 'inline-block', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', color: '#c084fc', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
+                            <span style={{ display: 'inline-block', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
                               📄 PDF Converted
                             </span>
                           )}
@@ -987,7 +987,7 @@ export default function ChatWindow({
                           />
                           <div className="chat-image-footer">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <Sparkles size={14} style={{ color: '#ec4899' }} />
+                              <Sparkles size={14} style={{ color: '#f59e0b' }} />
                               <span style={{ fontSize: '0.74rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                                 Axom AI
                               </span>
@@ -1264,7 +1264,7 @@ export default function ChatWindow({
                       style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color)' }}
                     />
                   ) : (
-                    <div style={{ width: 40, height: 40, borderRadius: '8px', background: 'rgba(168, 85, 247, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c084fc', flexShrink: 0 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399', flexShrink: 0 }}>
                       <FileText size={20} />
                     </div>
                   )}
@@ -1314,7 +1314,7 @@ export default function ChatWindow({
                       type="button"
                       onClick={handleExecuteSummarize}
                       className="file-action-chip"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', color: '#c084fc', cursor: 'pointer', fontWeight: 600 }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', cursor: 'pointer', fontWeight: 600 }}
                     >
                       <FileText size={13} />
                       <span>Summarize & Notes</span>
@@ -1325,7 +1325,7 @@ export default function ChatWindow({
                       type="button"
                       onClick={() => handleExecuteGeminiImage()}
                       className="file-action-chip"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(236, 72, 153, 0.15)', border: '1px solid rgba(236, 72, 153, 0.3)', color: '#f472b6', cursor: 'pointer', fontWeight: 600 }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fbbf24', cursor: 'pointer', fontWeight: 600 }}
                     >
                       <Sparkles size={13} />
                       <span>{attachedFile.isImage ? 'AI Image Edit' : 'Generate Image'}</span>
@@ -1382,7 +1382,7 @@ export default function ChatWindow({
                   aria-expanded={isLangMenuOpen}
                   style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}
                 >
-                  <Languages size={13} style={{ color: '#e879f9' }} />
+                  <Languages size={13} style={{ color: '#fbbf24' }} />
                   <span>
                     {language === 'assamese' && 'অসমীয়া (Default)'}
                     {language === 'english' && 'English'}
@@ -1425,8 +1425,8 @@ export default function ChatWindow({
                         padding: '6px 10px',
                         fontSize: '0.78rem',
                         fontWeight: 600,
-                        background: language === 'assamese' ? 'rgba(232, 121, 249, 0.15)' : 'transparent',
-                        color: language === 'assamese' ? '#e879f9' : 'var(--text-primary, #fff)',
+                        background: language === 'assamese' ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
+                        color: language === 'assamese' ? '#fbbf24' : 'var(--text-primary, #fff)',
                         border: 'none',
                         borderRadius: '6px',
                         cursor: 'pointer',
@@ -1446,8 +1446,8 @@ export default function ChatWindow({
                         padding: '6px 10px',
                         fontSize: '0.78rem',
                         fontWeight: 600,
-                        background: language === 'english' ? 'rgba(232, 121, 249, 0.15)' : 'transparent',
-                        color: language === 'english' ? '#e879f9' : 'var(--text-primary, #fff)',
+                        background: language === 'english' ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
+                        color: language === 'english' ? '#fbbf24' : 'var(--text-primary, #fff)',
                         border: 'none',
                         borderRadius: '6px',
                         cursor: 'pointer',
@@ -1467,8 +1467,8 @@ export default function ChatWindow({
                         padding: '6px 10px',
                         fontSize: '0.78rem',
                         fontWeight: 600,
-                        background: language === 'hinglish' ? 'rgba(232, 121, 249, 0.15)' : 'transparent',
-                        color: language === 'hinglish' ? '#e879f9' : 'var(--text-primary, #fff)',
+                        background: language === 'hinglish' ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
+                        color: language === 'hinglish' ? '#fbbf24' : 'var(--text-primary, #fff)',
                         border: 'none',
                         borderRadius: '6px',
                         cursor: 'pointer',

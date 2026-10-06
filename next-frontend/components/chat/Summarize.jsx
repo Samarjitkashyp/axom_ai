@@ -171,11 +171,11 @@ export default function Summarize({ onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 60,
-        background: 'var(--bg-main, #0b0b14)',
+        background: 'var(--bg-main, #0b1220)',
         color: 'var(--text-primary, #f8fafc)',
         overflow: 'auto',
         // Belt-and-suspenders: opaque even if a token ever resolves wrong.
-        backgroundColor: 'var(--bg-main, #0b0b14)',
+        backgroundColor: 'var(--bg-main, #0b1220)',
       }}
     >
       {/* Top bar */}
@@ -183,7 +183,7 @@ export default function Summarize({ onClose }) {
         style={{
           position: 'sticky',
           top: 0,
-          background: 'var(--bg-main, #0b0b14)',
+          background: 'var(--bg-main, #0b1220)',
           borderBottom: '1px solid var(--border-color, rgba(255,255,255,0.08))',
           padding: '12px 20px',
           display: 'flex',
@@ -201,7 +201,7 @@ export default function Summarize({ onClose }) {
           Back
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
-          <Sparkles size={18} style={{ color: 'var(--accent-pink, #ec4899)' }} />
+          <Sparkles size={18} style={{ color: 'var(--accent-pink, #f59e0b)' }} />
           <div style={{ fontWeight: 600, fontSize: 15 }}>Summarize</div>
           <div style={{ fontSize: 12, opacity: 0.6 }}>
             · PDF / DOCX / TXT / pasted text
@@ -255,7 +255,7 @@ export default function Summarize({ onClose }) {
             style={{
               border: `2px dashed ${
                 dragActive
-                  ? 'var(--accent-pink, #ec4899)'
+                  ? 'var(--accent-pink, #f59e0b)'
                   : 'var(--border-color, rgba(255,255,255,0.08))'
               }`,
               borderRadius: 10,
@@ -263,7 +263,7 @@ export default function Summarize({ onClose }) {
               textAlign: 'center',
               cursor: 'pointer',
               background: dragActive
-                ? 'rgba(236, 72, 153, 0.06)'
+                ? 'rgba(245, 158, 11, 0.06)'
                 : 'var(--bg-card, #131326)',
               transition: 'all 150ms ease',
             }}
@@ -583,9 +583,9 @@ const pill = (active) => ({
   gap: 6,
   padding: '7px 12px',
   borderRadius: 999,
-  border: `1px solid ${active ? 'var(--accent-pink, #ec4899)' : 'var(--border-color, rgba(255,255,255,0.08))'}`,
-  background: active ? 'rgba(236, 72, 153, 0.10)' : 'transparent',
-  color: active ? 'var(--accent-pink, #ec4899)' : 'var(--text-primary, #f8fafc)',
+  border: `1px solid ${active ? 'var(--accent-pink, #f59e0b)' : 'var(--border-color, rgba(255,255,255,0.08))'}`,
+  background: active ? 'rgba(245, 158, 11, 0.10)' : 'transparent',
+  color: active ? 'var(--accent-pink, #f59e0b)' : 'var(--text-primary, #f8fafc)',
   fontSize: 13,
   fontWeight: 500,
   cursor: 'pointer',
@@ -598,7 +598,7 @@ const btn = (variant) => {
       display: 'inline-flex',
       alignItems: 'center',
       gap: 8,
-      background: 'var(--accent-pink, #ec4899)',
+      background: 'var(--accent-pink, #f59e0b)',
       color: '#fff',
       border: 'none',
       borderRadius: 8,

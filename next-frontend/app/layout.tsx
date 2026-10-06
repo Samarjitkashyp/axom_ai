@@ -3,8 +3,14 @@ import './globals.css';
 
 const GTM_ID = 'GTM-K4N88ZBR';
 
+// AXOMAI-LIGHT: the site follows the OS theme (light is the Axomai Browser look). The tools and the chat keep their dark look.
+const THEME_JS = `(function(){try{var h=document.documentElement,q=window.matchMedia('(prefers-color-scheme: dark)');function app(){return /^\\/(tools|chat)(\\/|$)/.test(location.pathname)}h.classList.toggle('dark',app()||q.matches);q.addEventListener('change',function(e){if(!app())h.classList.toggle('dark',e.matches)})}catch(e){}})();`;
+
 export const viewport: Viewport = {
-  themeColor: '#06060b',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f0fdf4' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b1220' },
+  ],
   width: 'device-width',
   initialScale: 1,
 };
@@ -90,12 +96,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en-IN" className="scroll-smooth">
+    <html lang="en-IN" className="scroll-smooth" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_JS }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Noto+Serif+Bengali:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Noto+Sans+Bengali:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
         <link
