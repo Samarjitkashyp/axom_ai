@@ -12,7 +12,7 @@ import { TOOL_CATEGORIES } from './utils/toolsData';
 
 if (typeof window !== 'undefined' && pdfjsLib?.GlobalWorkerOptions) { pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version || '4.10.38'}/build/pdf.worker.min.mjs`; }
 
-const themeFor = (cat) => TOOL_CATEGORIES.find((c) => c.id === cat) || { color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' };
+const themeFor = (cat) => TOOL_CATEGORIES.find((c) => c.id === cat) || { color: '#10b981', bg: 'rgba(16,185,129,0.12)' };
 const fmtSize = (b) => b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
 
 /**

@@ -140,8 +140,8 @@ const COLOR_HUES = [
   { name: 'Green', hex: '#10B981' },
   { name: 'Cyan', hex: '#06B6D4' },
   { name: 'Blue', hex: '#3B82F6' },
-  { name: 'Purple', hex: '#8B5CF6' },
-  { name: 'Pink', hex: '#EC4899' },
+  { name: 'Purple', hex: '#10b981' },
+  { name: 'Pink', hex: '#f59e0b' },
   { name: 'Dark', hex: '#1E293B' },
   { name: 'Light', hex: '#F1F5F9' },
 ];
@@ -474,11 +474,11 @@ export default function ColorPaletteGen({ onClose }) {
 
     // Header Branding
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 24px Inter, system-ui, sans-serif';
+    ctx.font = 'bold 24px Plus Jakarta Sans, system-ui, sans-serif';
     ctx.fillText('COLOR HUNT', 40, 52);
 
     ctx.fillStyle = '#9CA3AF';
-    ctx.font = '16px Inter, system-ui, sans-serif';
+    ctx.font = '16px Plus Jakarta Sans, system-ui, sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(palette.name || 'Axom Palette', width - 40, 52);
     ctx.textAlign = 'left';
@@ -515,7 +515,7 @@ export default function ColorPaletteGen({ onClose }) {
 
     // Footer
     ctx.fillStyle = '#6B7280';
-    ctx.font = '14px Inter, system-ui, sans-serif';
+    ctx.font = '14px Plus Jakarta Sans, system-ui, sans-serif';
     ctx.fillText('Curated on Axom AI · https://colorhunt.co', 40, height - 35);
 
     const a = document.createElement('a');
@@ -760,7 +760,7 @@ export default function ColorPaletteGen({ onClose }) {
                     onClick={() => setSelectedHue(null)}
                     style={{
                       ...styles.hueDot,
-                      background: 'linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6)',
+                      background: 'linear-gradient(135deg, #EF4444, #F59E0B, #10B981, #3B82F6, #10b981)',
                       border: !selectedHue ? '2px solid #FFFFFF' : '2px solid transparent',
                     }}
                     title="All Colors"
@@ -1664,7 +1664,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+    fontFamily: 'Plus Jakarta Sans, system-ui, -apple-system, sans-serif',
   },
   toast: {
     position: 'fixed',

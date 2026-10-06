@@ -373,7 +373,7 @@ export default async function WordToPdfPage() {
       {/* Global Shared Header / Navbar */}
       <Navbar />
 
-      <main className="min-h-screen bg-[#06060b] text-slate-200 relative overflow-hidden pt-28 pb-20">
+      <main className="min-h-screen bg-[#0b1220] text-slate-200 relative overflow-hidden pt-28 pb-20">
         {/* Background glow effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
           <div className="absolute top-10 left-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-[120px]" />

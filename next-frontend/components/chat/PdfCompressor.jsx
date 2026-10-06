@@ -83,7 +83,7 @@ export default function PdfCompressor({ onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'var(--bg-primary, #0b0b12)', zIndex: 60, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderBottom: '1px solid var(--border-color)' }}>
-        <Minimize2 size={18} style={{ color: 'var(--accent-purple, #8b5cf6)' }} />
+        <Minimize2 size={18} style={{ color: 'var(--accent-purple, #10b981)' }} />
         <strong style={{ color: 'var(--text-primary)' }}>Compress PDF</strong>
         <div style={{ flex: 1 }} />
         <button onClick={onClose} title="Close" style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', borderRadius: '8px', padding: '7px 9px', cursor: 'pointer' }}><X size={16} /></button>
@@ -96,7 +96,7 @@ export default function PdfCompressor({ onClose }) {
             onDragOver={(e) => e.preventDefault()}
             onDragLeave={() => setDragActive(false)}
             onDrop={(e) => { e.preventDefault(); setDragActive(false); if (e.dataTransfer.files?.[0]) pickFile(e.dataTransfer.files[0]); }}
-            style={{ cursor: 'pointer', border: `2px dashed ${dragActive ? 'var(--accent-purple,#8b5cf6)' : 'var(--border-color)'}`, borderRadius: '16px', padding: '54px 70px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            style={{ cursor: 'pointer', border: `2px dashed ${dragActive ? 'var(--accent-purple,#10b981)' : 'var(--border-color)'}`, borderRadius: '16px', padding: '54px 70px', textAlign: 'center', color: 'var(--text-secondary)' }}>
             <input ref={inputRef} type="file" accept=".pdf" style={{ display: 'none' }} onChange={(e) => pickFile(e.target.files?.[0])} />
             {loading ? <><Loader2 size={36} className="spin-icon" /><h3>Opening…</h3></>
               : <><UploadCloud size={40} /><h3 style={{ margin: '12px 0 4px' }}>Choose a PDF to compress</h3><p style={{ fontSize: '0.84rem' }}>Drag & drop or click to browse (up to 100 MB)</p></>}
@@ -120,8 +120,8 @@ export default function PdfCompressor({ onClose }) {
                 <h3 style={{ color: 'var(--text-primary)', margin: '0 0 12px' }}>Compression level</h3>
                 {LEVELS.map((l) => (
                   <label key={l.k} onClick={() => setLevel(l.k)}
-                    style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '12px', marginBottom: '8px', borderRadius: '10px', cursor: 'pointer', border: `1px solid ${level === l.k ? 'var(--accent-purple,#8b5cf6)' : 'var(--border-color)'}`, background: level === l.k ? 'rgba(139,92,246,0.08)' : 'transparent' }}>
-                    <span style={{ width: 16, height: 16, marginTop: '2px', borderRadius: '50%', border: `4px solid ${level === l.k ? 'var(--accent-purple,#8b5cf6)' : 'var(--border-color)'}`, flexShrink: 0 }} />
+                    style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '12px', marginBottom: '8px', borderRadius: '10px', cursor: 'pointer', border: `1px solid ${level === l.k ? 'var(--accent-purple,#10b981)' : 'var(--border-color)'}`, background: level === l.k ? 'rgba(16,185,129,0.08)' : 'transparent' }}>
+                    <span style={{ width: 16, height: 16, marginTop: '2px', borderRadius: '50%', border: `4px solid ${level === l.k ? 'var(--accent-purple,#10b981)' : 'var(--border-color)'}`, flexShrink: 0 }} />
                     <span>
                       <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{l.name}{l.tag && <span style={{ fontSize: '0.68rem', color: '#16a34a', marginLeft: '6px', fontWeight: 700 }}>{l.tag}</span>}</span>
                       <span style={{ display: 'block', fontSize: '0.76rem', color: 'var(--text-muted)', marginTop: '2px' }}>{l.desc}</span>
@@ -130,7 +130,7 @@ export default function PdfCompressor({ onClose }) {
                 ))}
                 {errorMsg && <div className="converter-error-box" style={{ marginTop: '8px' }}>{errorMsg}</div>}
                 <button onClick={compress} disabled={busy}
-                  style={{ width: '100%', marginTop: '12px', padding: '12px', borderRadius: '10px', border: 'none', background: 'var(--accent-purple, #8b5cf6)', color: '#fff', fontWeight: 700, cursor: busy ? 'default' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  style={{ width: '100%', marginTop: '12px', padding: '12px', borderRadius: '10px', border: 'none', background: 'var(--accent-purple, #10b981)', color: '#fff', fontWeight: 700, cursor: busy ? 'default' : 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   {busy ? <><Loader2 size={16} className="spin-icon" /> Compressing…</> : <>Compress PDF</>}
                 </button>
                 <button onClick={reset} style={{ width: '100%', marginTop: '8px', padding: '9px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer' }}>Choose another file</button>
@@ -147,7 +147,7 @@ export default function PdfCompressor({ onClose }) {
                   <div>Reduced by: <b style={{ color: '#16a34a' }}>{reduction}%</b></div>
                 </div>
                 {reduction === 0 && <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '8px' }}>This PDF was already well-optimised, so little could be saved.</div>}
-                <button onClick={download} style={{ width: '100%', marginTop: '14px', padding: '11px', borderRadius: '10px', border: 'none', background: 'var(--accent-purple, #8b5cf6)', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <button onClick={download} style={{ width: '100%', marginTop: '14px', padding: '11px', borderRadius: '10px', border: 'none', background: 'var(--accent-purple, #10b981)', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                   <Download size={16} /> Download
                 </button>
                 <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>

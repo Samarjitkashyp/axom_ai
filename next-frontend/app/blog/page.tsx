@@ -45,7 +45,7 @@ export default async function BlogPage() {
   ]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#06060b] text-[#e5e7eb]">
+    <div className="min-h-screen flex flex-col justify-between bg-[#f0fdf4] dark:bg-[#0b1220] text-emerald-950 dark:text-[#e5e7eb]">
       <Navbar header={landingData?.header} />
 
       <main className="flex-1 pt-20">

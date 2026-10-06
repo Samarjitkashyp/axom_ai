@@ -302,7 +302,7 @@ export default function ImageGenerator({ onClose }) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Sparkles size={18} style={{ color: '#a78bfa' }} />
+          <Sparkles size={18} style={{ color: '#34d399' }} />
           <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>Image Generation</span>
 
           <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.04)', padding: 2, borderRadius: 10, marginLeft: 12 }}>
@@ -330,8 +330,8 @@ export default function ImageGenerator({ onClose }) {
                 padding: '5px 14px',
                 borderRadius: 8,
                 border: 'none',
-                background: modelKey === 'extreme' ? 'rgba(167,139,250,0.2)' : 'transparent',
-                color: modelKey === 'extreme' ? '#c4b5fd' : '#71717a',
+                background: modelKey === 'extreme' ? 'rgba(52,211,153,0.2)' : 'transparent',
+                color: modelKey === 'extreme' ? '#6ee7b7' : '#71717a',
                 fontSize: '0.78rem',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -354,9 +354,9 @@ export default function ImageGenerator({ onClose }) {
                 fontWeight: 700,
                 padding: '4px 10px',
                 borderRadius: 14,
-                background: 'rgba(167,139,250,0.15)',
-                border: '1px solid rgba(167,139,250,0.3)',
-                color: '#c4b5fd',
+                background: 'rgba(52,211,153,0.15)',
+                border: '1px solid rgba(52,211,153,0.3)',
+                color: '#6ee7b7',
               }}
             >
               <Flame size={11} /> PRO
@@ -435,12 +435,12 @@ export default function ImageGenerator({ onClose }) {
                   width: 56,
                   height: 56,
                   borderRadius: 16,
-                  background: 'linear-gradient(135deg, #a78bfa 0%, #818cf8 100%)',
+                  background: 'linear-gradient(135deg, #34d399 0%, #2dd4bf 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#fff',
-                  boxShadow: '0 8px 32px rgba(167,139,250,0.3)',
+                  boxShadow: '0 8px 32px rgba(52,211,153,0.3)',
                   marginBottom: 20,
                 }}
               >
@@ -472,8 +472,8 @@ export default function ImageGenerator({ onClose }) {
                       maxWidth: '80%',
                       padding: '12px 18px',
                       borderRadius: '20px 20px 4px 20px',
-                      background: 'rgba(167,139,250,0.12)',
-                      border: '1px solid rgba(167,139,250,0.25)',
+                      background: 'rgba(52,211,153,0.12)',
+                      border: '1px solid rgba(52,211,153,0.25)',
                       color: '#e4e4e7',
                       fontSize: '0.92rem',
                       lineHeight: 1.55,
@@ -509,7 +509,7 @@ export default function ImageGenerator({ onClose }) {
                     width: 30,
                     height: 30,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #a78bfa 0%, #818cf8 100%)',
+                    background: 'linear-gradient(135deg, #34d399 0%, #2dd4bf 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -528,13 +528,13 @@ export default function ImageGenerator({ onClose }) {
                         padding: '20px 18px',
                         borderRadius: 16,
                         background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(167,139,250,0.2)',
+                        border: '1px solid rgba(52,211,153,0.2)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 14,
                       }}
                     >
-                      <Loader2 size={22} className="animate-spin" style={{ color: '#a78bfa', flexShrink: 0 }} />
+                      <Loader2 size={22} className="animate-spin" style={{ color: '#34d399', flexShrink: 0 }} />
                       <div>
                         <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#e4e4e7' }}>
                           Creating your image... ({elapsed}s)
@@ -562,7 +562,7 @@ export default function ImageGenerator({ onClose }) {
                           style={{
                             display: 'inline-block',
                             marginTop: 8,
-                            color: '#a78bfa',
+                            color: '#34d399',
                             fontWeight: 700,
                             textDecoration: 'underline',
                           }}
@@ -659,9 +659,9 @@ export default function ImageGenerator({ onClose }) {
                             style={{
                               padding: '5px 12px',
                               borderRadius: 8,
-                              background: 'rgba(167,139,250,0.15)',
-                              border: '1px solid rgba(167,139,250,0.3)',
-                              color: '#c4b5fd',
+                              background: 'rgba(52,211,153,0.15)',
+                              border: '1px solid rgba(52,211,153,0.3)',
+                              color: '#6ee7b7',
                               fontSize: '0.76rem',
                               fontWeight: 700,
                               cursor: 'pointer',
@@ -716,9 +716,9 @@ export default function ImageGenerator({ onClose }) {
                   fontSize: '0.74rem',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  background: aspectKey === a.id ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.03)',
-                  border: aspectKey === a.id ? '1px solid rgba(167,139,250,0.35)' : '1px solid rgba(255,255,255,0.06)',
-                  color: aspectKey === a.id ? '#c4b5fd' : '#71717a',
+                  background: aspectKey === a.id ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.03)',
+                  border: aspectKey === a.id ? '1px solid rgba(52,211,153,0.35)' : '1px solid rgba(255,255,255,0.06)',
+                  color: aspectKey === a.id ? '#6ee7b7' : '#71717a',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -769,7 +769,7 @@ export default function ImageGenerator({ onClose }) {
                     <X size={9} />
                   </button>
                 </div>
-                <span style={{ fontSize: '0.74rem', color: '#a78bfa' }}>Edit this image with your prompt</span>
+                <span style={{ fontSize: '0.74rem', color: '#34d399' }}>Edit this image with your prompt</span>
               </div>
             )}
 
@@ -783,9 +783,9 @@ export default function ImageGenerator({ onClose }) {
                   width: 34,
                   height: 34,
                   borderRadius: '50%',
-                  background: refImage ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.05)',
-                  border: refImage ? '1px solid rgba(167,139,250,0.3)' : '1px solid rgba(255,255,255,0.06)',
-                  color: refImage ? '#a78bfa' : '#71717a',
+                  background: refImage ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.05)',
+                  border: refImage ? '1px solid rgba(52,211,153,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                  color: refImage ? '#34d399' : '#71717a',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -836,7 +836,7 @@ export default function ImageGenerator({ onClose }) {
                   height: 34,
                   borderRadius: '50%',
                   background: prompt.trim() && !generating
-                    ? 'linear-gradient(135deg, #a78bfa 0%, #818cf8 100%)'
+                    ? 'linear-gradient(135deg, #34d399 0%, #2dd4bf 100%)'
                     : 'rgba(255,255,255,0.06)',
                   border: 'none',
                   color: prompt.trim() && !generating ? '#fff' : '#52525b',
@@ -846,7 +846,7 @@ export default function ImageGenerator({ onClose }) {
                   cursor: prompt.trim() && !generating ? 'pointer' : 'not-allowed',
                   flexShrink: 0,
                   transition: 'all 0.2s ease',
-                  boxShadow: prompt.trim() && !generating ? '0 2px 10px rgba(167,139,250,0.3)' : 'none',
+                  boxShadow: prompt.trim() && !generating ? '0 2px 10px rgba(52,211,153,0.3)' : 'none',
                 }}
                 title="Generate"
               >

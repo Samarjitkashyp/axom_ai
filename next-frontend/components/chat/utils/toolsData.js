@@ -34,13 +34,13 @@ export const TOOL_CATEGORIES = [
   { id: 'all', name: 'All Tools' },
   { id: 'Convert', name: 'Convert', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.12)' },
   { id: 'Office', name: 'Office', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
-  { id: 'Organize', name: 'Organize', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.12)' },
+  { id: 'Organize', name: 'Organize', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
   { id: 'Optimize', name: 'Optimize', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
   { id: 'Security', name: 'Security', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)' },
   { id: 'OCR', name: 'OCR', color: '#eab308', bg: 'rgba(234, 179, 8, 0.12)' },
-  { id: 'AI Tools', name: 'AI Tools', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.12)' },
+  { id: 'AI Tools', name: 'AI Tools', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
   { id: 'Edit', name: 'Edit', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.12)' },
-  { id: 'Design', name: 'Design', color: '#7b2ff7', bg: 'rgba(123, 47, 247, 0.12)' },
+  { id: 'Design', name: 'Design', color: '#059669', bg: 'rgba(5, 150, 105, 0.12)' },
 ];
 
 export const ALL_TOOLS = [

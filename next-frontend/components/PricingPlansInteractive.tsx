@@ -11,14 +11,14 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
     <div>
       {/* Monthly / Yearly Billing Toggle */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12 sm:mb-16">
-        <div className="inline-flex items-center p-1.5 rounded-full bg-slate-900/90 border border-white/10 shadow-xl backdrop-blur-md">
+        <div className="inline-flex items-center p-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md">
           <button
             type="button"
             onClick={() => setYearly(false)}
             className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
               !yearly
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-white'
             }`}
           >
             Monthly Billing
@@ -29,17 +29,17 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
             className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
               yearly
                 ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:text-white'
             }`}
           >
             <span>Yearly Billing</span>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-400/20 border border-emerald-400/30 text-[10px] font-extrabold text-emerald-300">
+            <span className="px-2 py-0.5 rounded-full bg-emerald-400/20 border border-emerald-400/30 text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300">
               Save 20%
             </span>
           </button>
         </div>
-        <span className="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1.5">
-          <ShieldCheck size={14} className="text-emerald-400" />
+        <span className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+          <ShieldCheck size={14} className="text-emerald-700 dark:text-emerald-400" />
           Cancel or switch anytime. No long-term lock-in.
         </span>
       </div>
@@ -55,8 +55,8 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
               key={plan.id}
               className={`relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 ${
                 isPro
-                  ? 'bg-gradient-to-b from-emerald-950/40 via-slate-900/90 to-slate-950 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-900/30 ring-1 ring-emerald-500/30 lg:-translate-y-2'
-                  : 'bg-slate-900/60 hover:bg-slate-900/80 border border-white/10 hover:border-white/20'
+                  ? 'bg-gradient-to-b from-emerald-100/40 dark:from-emerald-950/40 via-white/90 dark:via-slate-900/90 to-emerald-50 dark:to-slate-950 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-900/30 ring-1 ring-emerald-500/30 lg:-translate-y-2'
+                  : 'bg-white/70 dark:bg-slate-900/60 hover:bg-white/80 dark:hover:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-900/25 dark:hover:border-white/20'
               }`}
             >
               {isPro && (
@@ -72,38 +72,38 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
                   <span
                     className={`text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md ${
                       isPro
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-white/5 text-slate-400 border border-white/5'
+                        ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
+                        : 'bg-white/70 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-emerald-900/10 dark:border-white/5'
                     }`}
                   >
                     {plan.badge}
                   </span>
                   {plan.monthlyWords && (
-                    <span className="text-[11px] font-semibold text-teal-300 bg-teal-500/10 px-2 py-0.5 rounded">
+                    <span className="text-[11px] font-semibold text-teal-700 dark:text-teal-300 bg-teal-500/10 px-2 py-0.5 rounded">
                       {plan.monthlyWords}
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-2xl font-black text-white tracking-tight mb-2">{plan.name}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed mb-6 min-h-[40px]">{plan.desc}</p>
+                <h3 className="text-2xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">{plan.name}</h3>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6 min-h-[40px]">{plan.desc}</p>
 
                 {/* Price Display */}
-                <div className="mb-6 p-4 rounded-2xl bg-black/30 border border-white/5">
+                <div className="mb-6 p-4 rounded-2xl bg-emerald-900/5 dark:bg-black/30 border border-emerald-900/10 dark:border-white/5">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">₹{price}</span>
-                    <span className="text-xs text-slate-400 font-medium">/ month</span>
+                    <span className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight">₹{price}</span>
+                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">/ month</span>
                   </div>
                   {yearly && plan.monthlyPrice > 0 ? (
-                    <div className="text-[11px] text-emerald-400 font-medium mt-1">
+                    <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-1">
                       Billed ₹{(plan.yearlyPrice * 12).toLocaleString('en-IN')} / year (Saved 20%)
                     </div>
                   ) : plan.monthlyPrice > 0 ? (
-                    <div className="text-[11px] text-slate-500 font-medium mt-1">
+                    <div className="text-[11px] text-slate-600 dark:text-slate-500 font-medium mt-1">
                       Billed monthly • GST input credit eligible
                     </div>
                   ) : (
-                    <div className="text-[11px] text-emerald-400/90 font-medium mt-1">
+                    <div className="text-[11px] text-emerald-700/90 dark:text-emerald-400/90 font-medium mt-1">
                       100% Free Forever • No Card Needed
                     </div>
                   )}
@@ -116,8 +116,8 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
                     isPro
                       ? 'bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 shadow-lg shadow-emerald-500/25'
                       : plan.monthlyPrice === 0
-                      ? 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
-                      : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
+                      ? 'bg-emerald-900/5 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/20 text-white border border-emerald-900/15 dark:border-white/10'
+                      : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40'
                   }`}
                 >
                   <span>{plan.ctaText}</span>
@@ -127,13 +127,13 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
                 {/* Features list */}
                 <div className="space-y-4">
                   <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3">
                       Included in {plan.name}:
                     </div>
-                    <ul className="space-y-2.5 text-xs text-slate-300">
+                    <ul className="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
                       {plan.features.map((feat, i) => (
                         <li key={i} className="flex items-start gap-2.5">
-                          <Check size={15} className="text-emerald-400 shrink-0 mt-0.5" />
+                          <Check size={15} className="text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
                           <span className="leading-snug">{feat}</span>
                         </li>
                       ))}
@@ -141,11 +141,11 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
                   </div>
 
                   {plan.notIncluded && plan.notIncluded.length > 0 && (
-                    <div className="pt-3 border-t border-white/5">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    <div className="pt-3 border-t border-emerald-900/10 dark:border-white/5">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-500 mb-2">
                         Not included:
                       </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-500">
+                      <ul className="space-y-1.5 text-[11px] text-slate-600 dark:text-slate-500">
                         {plan.notIncluded.map((feat, i) => (
                           <li key={i} className="flex items-start gap-2 opacity-70">
                             <X size={13} className="text-slate-600 shrink-0 mt-0.5" />

@@ -776,7 +776,7 @@ export default function VideoCompressor({ onClose, isPro = false }) {
                           padding: '2px 8px',
                           borderRadius: '6px',
                           background: videoMeta.isVertical ? 'rgba(225, 48, 108, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                          color: videoMeta.isVertical ? '#f472b6' : '#60a5fa',
+                          color: videoMeta.isVertical ? '#fbbf24' : '#60a5fa',
                           fontWeight: 600,
                           fontSize: '0.76rem',
                           border: `1px solid ${videoMeta.isVertical ? 'rgba(225, 48, 108, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,

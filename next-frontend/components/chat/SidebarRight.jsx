@@ -44,16 +44,16 @@ export default function SidebarRight({
       <div className="promo-card" style={{
         background: hasActivePlan
           ? 'linear-gradient(135deg, rgba(34,197,94,0.18), rgba(59,130,246,0.10))'
-          : 'linear-gradient(135deg, rgba(147,51,234,0.15), rgba(236,72,153,0.10))',
+          : 'linear-gradient(135deg, rgba(5,150,105,0.15), rgba(245,158,11,0.10))',
         border: hasActivePlan
           ? '1px solid rgba(34,197,94,0.35)'
-          : '1px solid rgba(147,51,234,0.30)',
+          : '1px solid rgba(5,150,105,0.30)',
       }}>
         <div className="promo-header">
           <div className="promo-gem-icon">
             {hasActivePlan
               ? <Crown size={22} color="#22c55e" />
-              : <Zap size={22} color="#a855f7" />
+              : <Zap size={22} color="#10b981" />
             }
           </div>
           <div className="promo-title-area">
@@ -89,8 +89,8 @@ export default function SidebarRight({
             <svg className="gauge-svg" viewBox="0 0 100 100">
               <defs>
                 <linearGradient id="gauge_grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor={hasActivePlan ? '#22c55e' : '#a855f7'} />
-                  <stop offset="100%" stopColor={hasActivePlan ? '#3b82f6' : '#ec4899'} />
+                  <stop offset="0%" stopColor={hasActivePlan ? '#22c55e' : '#10b981'} />
+                  <stop offset="100%" stopColor={hasActivePlan ? '#3b82f6' : '#f59e0b'} />
                 </linearGradient>
               </defs>
               <circle className="gauge-bg" cx="50" cy="50" r="38" strokeWidth="8"></circle>

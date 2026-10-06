@@ -170,36 +170,36 @@ export default function MemeGenerator({ onClose }) {
     }}>
       <style>{`
         .mg-header { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:var(--bg-secondary, #111118); border-bottom:1px solid var(--border, #2a2a35); }
-        .mg-title { font-size:18px; font-weight:700; background:linear-gradient(135deg,#a855f7,#ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .mg-title { font-size:18px; font-weight:700; background:linear-gradient(135deg,#10b981,#f59e0b); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
         .mg-body { display:flex; flex:1; overflow:hidden; }
         .mg-sidebar { width:320px; background:var(--bg-secondary, #111118); border-right:1px solid var(--border, #2a2a35); display:flex; flex-direction:column; overflow-y:auto; }
         .mg-tabs { display:flex; border-bottom:1px solid var(--border, #2a2a35); }
         .mg-tab { flex:1; padding:10px; text-align:center; cursor:pointer; font-size:13px; font-weight:600; border:none; background:none; color:var(--text-secondary, #888); transition:all .2s; }
-        .mg-tab.active { color:#a855f7; border-bottom:2px solid #a855f7; }
+        .mg-tab.active { color:#10b981; border-bottom:2px solid #10b981; }
         .mg-canvas-area { flex:1; display:flex; align-items:center; justify-content:center; padding:20px; background:var(--bg-primary, #0a0a0f); overflow:auto; }
         .mg-canvas-area canvas { max-width:100%; max-height:100%; border-radius:8px; box-shadow:0 4px 24px rgba(0,0,0,.4); }
         .mg-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:var(--text-secondary, #888); }
         .mg-tmpl-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:12px; }
         .mg-tmpl { border-radius:8px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:all .2s; position:relative; }
-        .mg-tmpl:hover, .mg-tmpl.sel { border-color:#a855f7; transform:scale(1.02); }
+        .mg-tmpl:hover, .mg-tmpl.sel { border-color:#10b981; transform:scale(1.02); }
         .mg-tmpl img { width:100%; height:90px; object-fit:cover; display:block; }
         .mg-tmpl span { display:block; text-align:center; font-size:11px; padding:4px; background:rgba(0,0,0,.6); color:#fff; }
         .mg-section { padding:12px 16px; }
         .mg-section h4 { font-size:12px; text-transform:uppercase; color:var(--text-secondary, #888); margin:0 0 8px; letter-spacing:.5px; }
         .mg-input { width:100%; padding:8px 12px; border-radius:6px; border:1px solid var(--border, #2a2a35); background:var(--bg-primary, #0a0a0f); color:var(--text-primary, #e0e0e0); font-size:14px; outline:none; }
-        .mg-input:focus { border-color:#a855f7; }
+        .mg-input:focus { border-color:#10b981; }
         .mg-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
         .mg-color { width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:all .15s; }
         .mg-color:hover, .mg-color.sel { border-color:#fff; transform:scale(1.15); }
         .mg-select { padding:6px 10px; border-radius:6px; border:1px solid var(--border, #2a2a35); background:var(--bg-primary, #0a0a0f); color:var(--text-primary, #e0e0e0); font-size:13px; outline:none; flex:1; }
         .mg-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:6px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:all .2s; }
         .mg-btn-icon { padding:6px; border-radius:6px; border:1px solid var(--border, #2a2a35); background:none; color:var(--text-primary, #e0e0e0); cursor:pointer; transition:all .15s; }
-        .mg-btn-icon:hover { background:rgba(168,85,247,.15); border-color:#a855f7; }
-        .mg-btn-icon.active { background:rgba(168,85,247,.25); border-color:#a855f7; color:#a855f7; }
+        .mg-btn-icon:hover { background:rgba(16,185,129,.15); border-color:#10b981; }
+        .mg-btn-icon.active { background:rgba(16,185,129,.25); border-color:#10b981; color:#10b981; }
         .mg-upload-zone { border:2px dashed var(--border, #2a2a35); border-radius:10px; padding:24px; text-align:center; cursor:pointer; transition:all .2s; margin:12px; }
-        .mg-upload-zone:hover { border-color:#a855f7; background:rgba(168,85,247,.05); }
+        .mg-upload-zone:hover { border-color:#10b981; background:rgba(16,185,129,.05); }
         .mg-slider { -webkit-appearance:none; width:100%; height:4px; border-radius:2px; background:var(--border, #2a2a35); outline:none; }
-        .mg-slider::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:#a855f7; cursor:pointer; }
+        .mg-slider::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:#10b981; cursor:pointer; }
         @media (max-width:768px) {
           .mg-body { flex-direction:column; }
           .mg-sidebar { width:100%; max-height:45vh; }
@@ -213,7 +213,7 @@ export default function MemeGenerator({ onClose }) {
         <div style={{ display: 'flex', gap: 8 }}>
           {loadedImg && (
             <>
-              <button className="mg-btn" style={{ background: '#a855f7', color: '#fff' }} onClick={downloadMeme}>
+              <button className="mg-btn" style={{ background: '#10b981', color: '#fff' }} onClick={downloadMeme}>
                 <Download size={16} /> Download
               </button>
               <button className="mg-btn-icon" onClick={resetAll} title="Reset"><RotateCcw size={16} /></button>
@@ -235,7 +235,7 @@ export default function MemeGenerator({ onClose }) {
           {tab === 'templates' && (
             <>
               <div className="mg-upload-zone" onClick={() => fileInputRef.current?.click()}>
-                <Upload size={28} style={{ color: '#a855f7', marginBottom: 6 }} />
+                <Upload size={28} style={{ color: '#10b981', marginBottom: 6 }} />
                 <p style={{ margin: 0, fontSize: 13 }}>Upload your own image</p>
                 <p style={{ margin: '4px 0 0', fontSize: 11, color: '#666' }}>PNG, JPG, WebP</p>
                 <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleCustomUpload} />

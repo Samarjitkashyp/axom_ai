@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './chat.css';
+import ForceDark from '../ForceDark';
 
 export const metadata: Metadata = {
   title: 'Axom AI Workspace — Intelligent AI Chat, Tools & Studio',
@@ -11,5 +12,10 @@ export default function ChatLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <ForceDark />
+      {children}
+    </>
+  );
 }

@@ -205,7 +205,7 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
                     {TOOLS.filter((t) => t.cat === cat).map((t) => (
                       <button key={t.id} onClick={() => pickTool(t)} className="tool-grid-card"
                         style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '11px 12px', borderRadius: '10px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.02))', color: 'var(--text-primary)', cursor: 'pointer', textAlign: 'left' }}>
-                        <t.icon size={17} style={{ color: 'var(--accent-purple, #8b5cf6)', flexShrink: 0 }} />
+                        <t.icon size={17} style={{ color: 'var(--accent-purple, #10b981)', flexShrink: 0 }} />
                         <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{t.name}</span>
                       </button>
                     ))}
@@ -287,7 +287,7 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
 
               {files.length > 0 && !isRunning && (
                 <button className="btn-convert-another" onClick={runTool} disabled={!canRun}
-                  style={{ marginTop: '14px', width: '100%', opacity: canRun ? 1 : 0.5, background: 'var(--accent-purple, #8b5cf6)', color: '#fff', border: 'none', padding: '11px', borderRadius: '10px', fontWeight: 600, cursor: canRun ? 'pointer' : 'not-allowed' }}>
+                  style={{ marginTop: '14px', width: '100%', opacity: canRun ? 1 : 0.5, background: 'var(--accent-purple, #10b981)', color: '#fff', border: 'none', padding: '11px', borderRadius: '10px', fontWeight: 600, cursor: canRun ? 'pointer' : 'not-allowed' }}>
                   Run {tool.name}
                 </button>
               )}

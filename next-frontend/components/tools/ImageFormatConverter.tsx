@@ -300,7 +300,7 @@ export default function ImageFormatConverter({
     <div className="w-full max-w-4xl mx-auto">
       {/* Tool Container Box with Glowing Border */}
       <div className="relative rounded-3xl p-1 bg-gradient-to-b from-fuchsia-500/30 via-purple-600/20 to-slate-900/40 shadow-2xl shadow-purple-950/40">
-        <div className="relative rounded-[22px] bg-[#0c0d16]/95 backdrop-blur-xl p-5 sm:p-8 md:p-10 border border-white/5">
+        <div className="relative rounded-[22px] bg-[#0d1626]/95 backdrop-blur-xl p-5 sm:p-8 md:p-10 border border-white/5">
 
           {/* Header Title inside Widget & Mode Selector */}
           <div className="text-center mb-6">
@@ -686,7 +686,7 @@ export default function ImageFormatConverter({
           onClick={() => setShowUpgradeModal(false)}
         >
           <div
-            className="relative w-full max-w-md my-auto rounded-3xl bg-[#0e0f1c] border border-amber-500/40 p-6 sm:p-8 shadow-2xl shadow-black/80 text-center"
+            className="relative w-full max-w-md my-auto rounded-3xl bg-[#0f1a2b] border border-amber-500/40 p-6 sm:p-8 shadow-2xl shadow-black/80 text-center"
             onClick={(e) => e.stopPropagation()}
           >
             <button

@@ -146,7 +146,7 @@ class DiagramErrorBoundary extends React.Component {
               <button
                 type="button"
                 onClick={() => this.setState({ hasError: false, error: null })}
-                style={{ padding: '8px 18px', borderRadius: 8, background: '#4f46e5', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.82rem' }}
+                style={{ padding: '8px 18px', borderRadius: 8, background: '#0d9488', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.82rem' }}
               >
                 Try Again
               </button>
@@ -241,15 +241,15 @@ function DiagramGeneratorInner({ onClose }) {
         themeVariables: {
           darkMode: theme !== 'neutral',
           background: theme === 'dark' ? '#0b0f19' : theme === 'forest' ? '#064e3b' : theme === 'base' ? '#1e1b4b' : '#1e293b',
-          primaryColor: '#6366f1',
+          primaryColor: '#14b8a6',
           primaryTextColor: '#f8fafc',
-          primaryBorderColor: '#818cf8',
+          primaryBorderColor: '#2dd4bf',
           lineColor: '#94a3b8',
-          secondaryColor: '#ec4899',
+          secondaryColor: '#f59e0b',
           tertiaryColor: '#1e293b',
           textColor: '#e2e8f0',
           fontSize: '14px',
-          fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+          fontFamily: 'Plus Jakarta Sans, system-ui, -apple-system, sans-serif',
         },
         securityLevel: 'strict',
       });
@@ -425,7 +425,7 @@ function DiagramGeneratorInner({ onClose }) {
           left: '-10%',
           width: '450px',
           height: '450px',
-          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(0,0,0,0) 70%)',
+          background: 'radial-gradient(circle, rgba(20, 184, 166, 0.12) 0%, rgba(0,0,0,0) 70%)',
           pointerEvents: 'none',
         }}
       />
@@ -462,11 +462,11 @@ function DiagramGeneratorInner({ onClose }) {
               width: isMobile ? 32 : 38,
               height: isMobile ? 32 : 38,
               borderRadius: 9,
-              background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 50%, #06b6d4 100%)',
+              background: 'linear-gradient(135deg, #14b8a6 0%, #3b82f6 50%, #06b6d4 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)',
+              boxShadow: '0 4px 14px rgba(20, 184, 166, 0.35)',
               flexShrink: 0,
             }}
           >
@@ -484,9 +484,9 @@ function DiagramGeneratorInner({ onClose }) {
                     fontWeight: 700,
                     padding: '2px 8px',
                     borderRadius: 12,
-                    background: 'rgba(99, 102, 241, 0.15)',
-                    border: '1px solid rgba(99, 102, 241, 0.3)',
-                    color: '#a5b4fc',
+                    background: 'rgba(20, 184, 166, 0.15)',
+                    border: '1px solid rgba(20, 184, 166, 0.3)',
+                    color: '#5eead4',
                     textTransform: 'uppercase',
                   }}
                 >
@@ -518,7 +518,7 @@ function DiagramGeneratorInner({ onClose }) {
               color: '#cbd5e1',
             }}
           >
-            <Zap size={13} color={quotaInfo.is_paid ? '#facc15' : '#818cf8'} />
+            <Zap size={13} color={quotaInfo.is_paid ? '#facc15' : '#2dd4bf'} />
             <span style={{ fontWeight: 600, color: '#f8fafc' }}>
               {quotaInfo.is_paid
                 ? 'Unlimited'
@@ -545,7 +545,7 @@ function DiagramGeneratorInner({ onClose }) {
                   padding: '4px 9px',
                   borderRadius: 6,
                   border: 'none',
-                  background: activeTab === 'preview' ? '#4f46e5' : 'transparent',
+                  background: activeTab === 'preview' ? '#0d9488' : 'transparent',
                   color: activeTab === 'preview' ? '#ffffff' : '#94a3b8',
                   fontSize: '0.74rem',
                   fontWeight: 600,
@@ -564,7 +564,7 @@ function DiagramGeneratorInner({ onClose }) {
                   padding: '4px 9px',
                   borderRadius: 6,
                   border: 'none',
-                  background: activeTab === 'split' ? '#4f46e5' : 'transparent',
+                  background: activeTab === 'split' ? '#0d9488' : 'transparent',
                   color: activeTab === 'split' ? '#ffffff' : '#94a3b8',
                   fontSize: '0.74rem',
                   fontWeight: 600,
@@ -583,7 +583,7 @@ function DiagramGeneratorInner({ onClose }) {
                   padding: '4px 9px',
                   borderRadius: 6,
                   border: 'none',
-                  background: activeTab === 'code' ? '#4f46e5' : 'transparent',
+                  background: activeTab === 'code' ? '#0d9488' : 'transparent',
                   color: activeTab === 'code' ? '#ffffff' : '#94a3b8',
                   fontSize: '0.74rem',
                   fontWeight: 600,
@@ -608,7 +608,7 @@ function DiagramGeneratorInner({ onClose }) {
                   padding: '5px 10px',
                   borderRadius: 7,
                   border: 'none',
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)',
+                  background: 'linear-gradient(135deg, #0d9488 0%, #3b82f6 100%)',
                   color: '#ffffff',
                   fontSize: '0.74rem',
                   fontWeight: 600,
@@ -800,7 +800,7 @@ function DiagramGeneratorInner({ onClose }) {
                   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 }}
               >
-                <Palette size={13} color="#818cf8" style={{ marginLeft: 2 }} />
+                <Palette size={13} color="#2dd4bf" style={{ marginLeft: 2 }} />
                 {THEME_OPTIONS.map(t => (
                   <button
                     key={t.id}
@@ -810,7 +810,7 @@ function DiagramGeneratorInner({ onClose }) {
                       padding: '2px 7px',
                       borderRadius: 5,
                       border: 'none',
-                      background: selectedTheme === t.id ? '#4f46e5' : 'transparent',
+                      background: selectedTheme === t.id ? '#0d9488' : 'transparent',
                       color: selectedTheme === t.id ? '#ffffff' : '#94a3b8',
                       fontSize: '0.7rem',
                       fontWeight: 600,
@@ -845,14 +845,14 @@ function DiagramGeneratorInner({ onClose }) {
                       width: 52,
                       height: 52,
                       borderRadius: 15,
-                      background: 'rgba(99, 102, 241, 0.15)',
-                      border: '1px solid rgba(99, 102, 241, 0.3)',
+                      background: 'rgba(20, 184, 166, 0.15)',
+                      border: '1px solid rgba(20, 184, 166, 0.3)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <Loader2 size={26} color="#818cf8" style={{ animation: 'spin 1s linear infinite' }} />
+                    <Loader2 size={26} color="#2dd4bf" style={{ animation: 'spin 1s linear infinite' }} />
                   </div>
                   <div>
                     <h3 style={{ margin: 0, fontSize: '0.94rem', fontWeight: 600, color: '#f1f5f9' }}>
@@ -917,9 +917,9 @@ function DiagramGeneratorInner({ onClose }) {
                         gap: 5,
                         padding: '4px 12px',
                         borderRadius: 20,
-                        background: 'rgba(99, 102, 241, 0.12)',
-                        border: '1px solid rgba(99, 102, 241, 0.25)',
-                        color: '#a5b4fc',
+                        background: 'rgba(20, 184, 166, 0.12)',
+                        border: '1px solid rgba(20, 184, 166, 0.25)',
+                        color: '#5eead4',
                         fontSize: '0.74rem',
                         fontWeight: 600,
                         marginBottom: 10,
@@ -973,7 +973,7 @@ function DiagramGeneratorInner({ onClose }) {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             fontSize: '0.7rem',
-                            color: '#818cf8',
+                            color: '#2dd4bf',
                             fontWeight: 600,
                           }}
                         >
@@ -1013,7 +1013,7 @@ function DiagramGeneratorInner({ onClose }) {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Code2 size={14} color="#818cf8" />
+                <Code2 size={14} color="#2dd4bf" />
                 <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e2e8f0' }}>Mermaid Code Editor</span>
               </div>
               <button
@@ -1051,9 +1051,9 @@ function DiagramGeneratorInner({ onClose }) {
                   fontFamily: 'Consolas, Monaco, "Courier New", monospace',
                   fontSize: '0.76rem',
                   lineHeight: 1.48,
-                  color: '#c7d2fe',
+                  color: '#99f6e4',
                   backgroundColor: 'rgba(11, 15, 25, 0.85)',
-                  border: '1px solid rgba(99, 102, 241, 0.25)',
+                  border: '1px solid rgba(20, 184, 166, 0.25)',
                   borderRadius: 8,
                   outline: 'none',
                   resize: 'none',
@@ -1195,13 +1195,13 @@ function DiagramGeneratorInner({ onClose }) {
               background:
                 !prompt.trim() || generating
                   ? 'rgba(255, 255, 255, 0.08)'
-                  : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #06b6d4 100%)',
+                  : 'linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #06b6d4 100%)',
               color: !prompt.trim() || generating ? '#64748b' : '#ffffff',
               fontSize: isMobile ? '0.82rem' : '0.86rem',
               fontWeight: 700,
               cursor: !prompt.trim() || generating ? 'not-allowed' : 'pointer',
               flexShrink: 0,
-              boxShadow: !prompt.trim() || generating ? 'none' : '0 4px 14px rgba(99, 102, 241, 0.35)',
+              boxShadow: !prompt.trim() || generating ? 'none' : '0 4px 14px rgba(20, 184, 166, 0.35)',
             }}
           >
             {generating ? (

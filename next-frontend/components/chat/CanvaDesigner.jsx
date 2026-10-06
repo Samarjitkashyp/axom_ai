@@ -201,7 +201,7 @@ export default function CanvaDesigner({ onClose }) {
     flex: 1, padding: '10px 0', border: 'none', borderRadius: 8,
     fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-    background: active ? 'linear-gradient(135deg, #00c4cc, #7b2ff7)' : 'rgba(255,255,255,0.04)',
+    background: active ? 'linear-gradient(135deg, #00c4cc, #059669)' : 'rgba(255,255,255,0.04)',
     color: active ? '#fff' : '#94a3b8',
   });
 
@@ -225,7 +225,7 @@ export default function CanvaDesigner({ onClose }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               width: 36, height: 36, borderRadius: 10,
-              background: 'linear-gradient(135deg, #00c4cc 0%, #7b2ff7 50%, #ff6f61 100%)',
+              background: 'linear-gradient(135deg, #00c4cc 0%, #059669 50%, #ff6f61 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 18, fontWeight: 800, color: '#fff',
             }}>C</div>
@@ -265,7 +265,7 @@ export default function CanvaDesigner({ onClose }) {
             }}>
               <div style={{
                 width: 80, height: 80, borderRadius: 20,
-                background: 'linear-gradient(135deg, #00c4cc 0%, #7b2ff7 50%, #ff6f61 100%)',
+                background: 'linear-gradient(135deg, #00c4cc 0%, #059669 50%, #ff6f61 100%)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 36, fontWeight: 800, color: '#fff',
               }}>C</div>
@@ -276,10 +276,10 @@ export default function CanvaDesigner({ onClose }) {
                 Create presentations, social media posts, logos, posters and more — right inside Axom AI Tools.
               </p>
               <button onClick={handleConnect} style={{
-                background: 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
+                background: 'linear-gradient(135deg, #00c4cc, #059669)',
                 border: 'none', borderRadius: 12, padding: '14px 36px',
                 color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(123,47,247,0.3)',
+                boxShadow: '0 4px 20px rgba(5,150,105,0.3)',
               }}>
                 Connect with Canva
               </button>
@@ -289,7 +289,7 @@ export default function CanvaDesigner({ onClose }) {
           {/* Loading */}
           {connected === null && (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-              <Loader2 size={28} style={{ color: '#7b2ff7', animation: 'spin 1s linear infinite' }} />
+              <Loader2 size={28} style={{ color: '#059669', animation: 'spin 1s linear infinite' }} />
             </div>
           )}
 
@@ -300,9 +300,9 @@ export default function CanvaDesigner({ onClose }) {
               <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
                 <button onClick={() => { setShowNewDesign(!showNewDesign); setAiResult(null); setPresetResult(null); }} style={{
                   background: showNewDesign
-                    ? 'rgba(123,47,247,0.25)'
-                    : 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
-                  border: showNewDesign ? '1px solid rgba(123,47,247,0.5)' : 'none',
+                    ? 'rgba(5,150,105,0.25)'
+                    : 'linear-gradient(135deg, #00c4cc, #059669)',
+                  border: showNewDesign ? '1px solid rgba(5,150,105,0.5)' : 'none',
                   borderRadius: 10, padding: '10px 20px',
                   color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', gap: 6,
@@ -396,8 +396,8 @@ export default function CanvaDesigner({ onClose }) {
                             }}
                             onMouseEnter={(e) => {
                               if (!creating) {
-                                e.currentTarget.style.background = 'rgba(123,47,247,0.15)';
-                                e.currentTarget.style.borderColor = 'rgba(123,47,247,0.4)';
+                                e.currentTarget.style.background = 'rgba(5,150,105,0.15)';
+                                e.currentTarget.style.borderColor = 'rgba(5,150,105,0.4)';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -413,7 +413,7 @@ export default function CanvaDesigner({ onClose }) {
                       {creating && (
                         <div style={{
                           display: 'flex', alignItems: 'center', gap: 8,
-                          color: '#7b2ff7', fontSize: 12, marginTop: 12,
+                          color: '#059669', fontSize: 12, marginTop: 12,
                         }}>
                           <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
                           Creating design in Canva...
@@ -436,7 +436,7 @@ export default function CanvaDesigner({ onClose }) {
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
-                              background: 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
+                              background: 'linear-gradient(135deg, #00c4cc, #059669)',
                               border: 'none', borderRadius: 8, padding: '8px 16px',
                               color: '#fff', fontSize: 12, fontWeight: 600,
                               textDecoration: 'none',
@@ -485,7 +485,7 @@ export default function CanvaDesigner({ onClose }) {
                             style={{
                               alignSelf: 'flex-end',
                               background: aiPrompt.trim()
-                                ? 'linear-gradient(135deg, #00c4cc, #7b2ff7)'
+                                ? 'linear-gradient(135deg, #00c4cc, #059669)'
                                 : 'rgba(255,255,255,0.06)',
                               border: 'none', borderRadius: 10, padding: '10px 16px',
                               color: '#fff', cursor: aiGenerating || !aiPrompt.trim() ? 'not-allowed' : 'pointer',
@@ -507,7 +507,7 @@ export default function CanvaDesigner({ onClose }) {
                       {aiGenerating && (
                         <div style={{
                           display: 'flex', flexDirection: 'column', alignItems: 'center',
-                          gap: 10, padding: 30, color: '#7b2ff7',
+                          gap: 10, padding: 30, color: '#059669',
                         }}>
                           <Loader2 size={28} style={{ animation: 'spin 1s linear infinite' }} />
                           <span style={{ fontSize: 13 }}>AI is designing your template...</span>
@@ -516,15 +516,15 @@ export default function CanvaDesigner({ onClose }) {
 
                       {aiResult && !aiResult.error && (
                         <div style={{
-                          marginTop: 16, background: 'rgba(123,47,247,0.08)',
-                          border: '1px solid rgba(123,47,247,0.2)', borderRadius: 12, padding: 16,
+                          marginTop: 16, background: 'rgba(5,150,105,0.08)',
+                          border: '1px solid rgba(5,150,105,0.2)', borderRadius: 12, padding: 16,
                         }}>
                           <div style={{
                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                             marginBottom: 12,
                           }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <Sparkles size={16} style={{ color: '#a78bfa' }} />
+                              <Sparkles size={16} style={{ color: '#34d399' }} />
                               <span style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 700 }}>
                                 Design Created!
                               </span>
@@ -535,7 +535,7 @@ export default function CanvaDesigner({ onClose }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{
-                                  background: 'linear-gradient(135deg, #00c4cc, #7b2ff7)',
+                                  background: 'linear-gradient(135deg, #00c4cc, #059669)',
                                   border: 'none', borderRadius: 8, padding: '8px 16px',
                                   color: '#fff', fontSize: 12, fontWeight: 600,
                                   textDecoration: 'none',
@@ -550,7 +550,7 @@ export default function CanvaDesigner({ onClose }) {
                           <div style={{
                             color: '#94a3b8', fontSize: 11, marginBottom: 12,
                           }}>
-                            Type: <span style={{ color: '#a78bfa' }}>{aiResult.ai_design_type}</span>
+                            Type: <span style={{ color: '#34d399' }}>{aiResult.ai_design_type}</span>
                           </div>
 
                           {/* AI Generated Content — copy to use in Canva */}
@@ -643,7 +643,7 @@ export default function CanvaDesigner({ onClose }) {
               {/* Designs grid */}
               {loading ? (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
-                  <Loader2 size={24} style={{ color: '#7b2ff7', animation: 'spin 1s linear infinite' }} />
+                  <Loader2 size={24} style={{ color: '#059669', animation: 'spin 1s linear infinite' }} />
                 </div>
               ) : designs.length === 0 ? (
                 <div style={{
@@ -697,10 +697,10 @@ export default function CanvaDesigner({ onClose }) {
                               target="_blank"
                               rel="noopener noreferrer"
                               style={{
-                                flex: 1, background: 'rgba(123,47,247,0.15)',
-                                border: '1px solid rgba(123,47,247,0.3)',
+                                flex: 1, background: 'rgba(5,150,105,0.15)',
+                                border: '1px solid rgba(5,150,105,0.3)',
                                 borderRadius: 6, padding: '6px 0',
-                                color: '#a78bfa', fontSize: 11, fontWeight: 600,
+                                color: '#34d399', fontSize: 11, fontWeight: 600,
                                 textDecoration: 'none', textAlign: 'center',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                               }}

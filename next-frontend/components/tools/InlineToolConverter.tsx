@@ -268,7 +268,7 @@ export default function InlineToolConverter({
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="relative rounded-3xl p-1 bg-gradient-to-b from-fuchsia-500/30 via-purple-600/20 to-slate-900/40 shadow-2xl shadow-purple-950/40">
-        <div className="relative rounded-[22px] bg-[#0c0d16]/95 backdrop-blur-xl p-5 sm:p-8 md:p-10 border border-white/5">
+        <div className="relative rounded-[22px] bg-[#0d1626]/95 backdrop-blur-xl p-5 sm:p-8 md:p-10 border border-white/5">
 
           {/* Header */}
           <div className="text-center mb-6">
@@ -504,7 +504,7 @@ export default function InlineToolConverter({
       {/* Upgrade Modal */}
       {showUpgradeModal && mounted && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md p-4 flex items-center justify-center" onClick={() => setShowUpgradeModal(false)}>
-          <div className="relative w-full max-w-md rounded-3xl bg-[#0e0f1c] border border-amber-500/40 p-6 sm:p-8 shadow-2xl text-center" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-md rounded-3xl bg-[#0f1a2b] border border-amber-500/40 p-6 sm:p-8 shadow-2xl text-center" onClick={e => e.stopPropagation()}>
             <button onClick={() => setShowUpgradeModal(false)} className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white rounded-full bg-white/10 hover:bg-white/20 transition"><X size={18} /></button>
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500/20 to-purple-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mx-auto mb-4"><Crown size={32} /></div>
             <h3 className="text-xl font-bold text-white mb-2">Unlock Pro Batch Mode</h3>

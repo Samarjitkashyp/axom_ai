@@ -376,7 +376,7 @@ export default function ChatApp() {
   if (currentView === 'admin') {
     if (user.isLoaded && !user.isStaff) {
       return (
-        <div className="min-h-screen bg-[#0b0b14] flex flex-col items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-[#0b1220] flex flex-col items-center justify-center p-6 text-center">
           <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 grid place-items-center text-rose-400 mb-4">
             <i className="fa-solid fa-shield-halved text-2xl"></i>
           </div>

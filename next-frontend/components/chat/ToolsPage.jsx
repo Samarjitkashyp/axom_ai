@@ -395,11 +395,11 @@ export default function ToolsPage({
 
   const getCategoryTheme = (catName) => {
     const found = TOOL_CATEGORIES.find((c) => c.id === catName);
-    return found || { color: '#a855f7', bg: 'rgba(168, 85, 247, 0.12)' };
+    return found || { color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' };
   };
 
   return (
-    <div className="tools-page min-h-screen flex flex-col bg-[#06060b] text-gray-100">
+    <div className="tools-page min-h-screen flex flex-col bg-[#0b1220] text-gray-100">
       {/* GLOBAL REUSABLE NAVBAR */}
       <Navbar onBackToChat={onBackToChat} />
 
