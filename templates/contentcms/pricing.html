@@ -7,79 +7,103 @@
 {% block content %}
 <div class="space-y-10 max-w-6xl">
 
-  <!-- Section 0: Pricing Header & Visibility Settings -->
+  <!-- Section 1: Pricing Hero Section & Headline Settings -->
   <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
       <div>
         <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-sliders text-fuchsia-400"></i>
-          Pricing Section Headline & Visibility
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+          1. Pricing Hero Section & Headline Settings
         </h2>
-        <p class="text-xs text-slate-400">Configure main section title, yearly discount badge, and visibility on the landing page</p>
+        <p class="text-xs text-slate-400">Dynamically controls the Hero section at the top of <strong>/pricing</strong> page and <strong>/#pricing</strong> section</p>
       </div>
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="checkbox" id="pricing_sec_active" class="sr-only peer" {% if hero.pricing_section_active %}checked{% endif %}>
-        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-fuchsia-600"></div>
-        <span class="ml-3 text-xs font-semibold text-slate-300">Visible on Landing Page</span>
+        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+        <span class="ml-3 text-xs font-semibold text-slate-300">Visible on Live Site</span>
       </label>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Pill Badge</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-tag text-amber-400 text-[11px]"></i>
+          Hero Pill Badge
+        </label>
         <input type="text" id="pricing_badge" value="{{ hero.pricing_badge|default:'Pricing' }}" placeholder="Pricing"
-          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+        <p class="text-[10px] text-slate-500 mt-1">Badge above the main title (e.g. <code>Pricing</code>)</p>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Prefix)</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-heading text-slate-400 text-[11px]"></i>
+          Heading (Prefix)
+        </label>
         <input type="text" id="pricing_prefix" value="{{ hero.pricing_title_prefix|default:'Simple,' }}" placeholder="Simple,"
-          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+        <p class="text-[10px] text-slate-500 mt-1">Plain bold text (e.g. <code>Simple,</code>)</p>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading (Highlight Gradient)</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-palette text-amber-400 text-[11px]"></i>
+          Heading (Highlight Gradient)
+        </label>
         <input type="text" id="pricing_highlight" value="{{ hero.pricing_title_highlight|default:'Transparent Pricing' }}" placeholder="Transparent Pricing"
-          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+        <p class="text-[10px] text-slate-500 mt-1">Golden gradient text (e.g. <code>Transparent Pricing</code>)</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subheading</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-paragraph text-slate-400 text-[11px]"></i>
+          Hero Subheading / Description
+        </label>
         <input type="text" id="pricing_subheading" value="{{ hero.pricing_subheading|default:'Choose a plan that fits your needs. Upgrade or cancel anytime.' }}" placeholder="Choose a plan that fits your needs."
-          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+        <p class="text-[10px] text-slate-500 mt-1">Paragraph under the hero heading</p>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Yearly Discount Tag Text</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-percent text-emerald-400 text-[11px]"></i>
+          Yearly Discount Tag Text
+        </label>
         <input type="text" id="pricing_discount" value="{{ hero.pricing_yearly_discount_badge|default:'Save 20%' }}" placeholder="Save 20%"
-          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+        <p class="text-[10px] text-slate-500 mt-1">Badge beside the Yearly Billing switch (e.g. <code>Save 20%</code>)</p>
       </div>
     </div>
 
     <div>
-      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pricing Footer Note (GST & Gateway text)</label>
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved text-emerald-400 text-[11px]"></i>
+        Pricing Footer Note (GST & Gateway text)
+      </label>
       <input type="text" id="pricing_footer" value="{{ hero.pricing_footer_note|default:'All prices in INR (includes GST). Secure Razorpay checkout — UPI · Cards · Netbanking · Wallets.' }}"
-        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
+        class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+      <p class="text-[10px] text-slate-500 mt-1">Legal / GST assurance note displayed beneath the cards & table</p>
     </div>
 
     <div class="pt-2 flex flex-col sm:flex-row justify-end">
-      <button onclick="savePricingHeader()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+      <button onclick="savePricingHeader()" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-amber-500 via-amber-600 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition">
         <i class="fa-solid fa-floppy-disk"></i>
-        Save Header Settings
+        Save Hero & Header Settings
       </button>
     </div>
   </div>
 
-  <!-- Section 1: Pricing Plans Cards Grid -->
+  <!-- Section 2: Pricing Plans Cards Grid -->
   <div class="space-y-4">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-tags text-fuchsia-400"></i>
-          Subscription Plans & Tiers ({{ plans|length }})
+          <i class="fa-solid fa-tags text-amber-400"></i>
+          2. Subscription Plans & Tiers ({{ plans|length }})
         </h2>
         <p class="text-xs text-slate-400">Manage individual pricing tiers displayed in the 4-column grid</p>
       </div>
-      <button onclick="openPricingPlanModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+      <button onclick="openPricingPlanModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-500 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 transition">
         <i class="fa-solid fa-plus"></i>
         Add New Pricing Plan
       </button>
