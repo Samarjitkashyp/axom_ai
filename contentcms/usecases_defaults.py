@@ -9,6 +9,7 @@ DEFAULT_SECTORS = [
         'text_color': 'text-fuchsia-700 dark:text-fuchsia-400',
         'border_color': 'border-fuchsia-500/30',
         'title': 'Students, Schools & Higher Education',
+        'short_title': 'Students',
         'tagline': 'Personalized 24/7 bilingual tutoring in Assamese and English',
         'description': 'Overcoming textbook and language barriers for school and university students across Assam. Axom AI transforms education by explaining complex STEM and humanities concepts in natural Assamese or English, breaking down step-by-step problem solutions, and generating practice quizzes aligned with SEBA, AHSEC, and CBSE curricula.',
         'capabilities_raw': (
@@ -31,6 +32,7 @@ DEFAULT_SECTORS = [
         'text_color': 'text-amber-700 dark:text-amber-400',
         'border_color': 'border-amber-500/30',
         'title': 'APSC, UPSC & Assam Govt Job Aspirants',
+        'short_title': 'APSC & Aspirants',
         'tagline': 'Deep Assam General Knowledge, History, and Mains answer writing',
         'description': 'Engineered for aspirants preparing for APSC Combined Competitive Examination (CCE), Assam Police, ADRE, and national civil services. Axom AI delivers authoritative historical context (Ahom kingdom, Sukapha, Lachit Borphukan, modern Assam), regional geography, Assam budget analysis, and real-time current affairs synthesis from local publications.',
         'capabilities_raw': (
@@ -53,6 +55,7 @@ DEFAULT_SECTORS = [
         'text_color': 'text-emerald-700 dark:text-emerald-400',
         'border_color': 'border-emerald-500/30',
         'title': 'Local Businesses, MSMEs & Startups',
+        'short_title': 'Local Businesses',
         'tagline': 'Automate regional customer support, marketing, and operations',
         'description': 'Empowering tea garden producers, handloom artisans, local retail chains, and Guwahati startups to scale. Axom AI enables businesses to communicate fluently with 15M+ Assamese speakers, create bilingual digital marketing campaigns, draft customer proposals, and process documents effortlessly.',
         'capabilities_raw': (
@@ -75,6 +78,7 @@ DEFAULT_SECTORS = [
         'text_color': 'text-blue-700 dark:text-blue-400',
         'border_color': 'border-blue-500/30',
         'title': 'Legal Practitioners, Land Records & Administration',
+        'short_title': 'Legal Practitioners',
         'tagline': 'Complex revenue document parsing and bilingual legal drafting',
         'description': 'Assam’s legal and administrative framework involves unique terminology and bilingual records. Axom AI assists advocates, legal clerks, revenue officials, and citizens in understanding complex land records (Chitha, Jamabandi, Pattas), analyzing government circulars, and drafting legal notices with precision.',
         'capabilities_raw': (
@@ -97,6 +101,7 @@ DEFAULT_SECTORS = [
         'text_color': 'text-rose-700 dark:text-rose-400',
         'border_color': 'border-rose-500/30',
         'title': 'Healthcare Professionals & Medical Outreach',
+        'short_title': 'Healthcare',
         'tagline': 'Democratizing vital health information across linguistic lines',
         'description': 'Bridging communication barriers between doctors, healthcare staff, and rural patients. Axom AI translates technical clinical instructions, prescriptions, and public health guidelines into simple, empathetic colloquial Assamese that patients and families can easily follow.',
         'capabilities_raw': (
@@ -119,6 +124,7 @@ DEFAULT_SECTORS = [
         'text_color': 'text-violet-700 dark:text-violet-400',
         'border_color': 'border-violet-500/30',
         'title': 'Journalists, Writers & Content Creators',
+        'short_title': 'Journalists & Creators',
         'tagline': 'High-speed Assamese journalism, scriptwriting, and cultural art',
         'description': 'Empowering the creative voice of Northeast India. Journalists, digital media channels, YouTubers, authors, and poets utilize Axom AI to write breaking news copy, brainstorm narrative arcs, refine Assamese poetic meter, and generate culturally authentic AI imagery featuring Assamese motifs, traditional attire, and landscapes.',
         'capabilities_raw': (
@@ -141,6 +147,7 @@ DEFAULT_SECTORS = [
         'text_color': 'text-cyan-700 dark:text-cyan-400',
         'border_color': 'border-cyan-500/30',
         'title': 'Software Developers, Engineers & Tech Startups',
+        'short_title': 'Developers',
         'tagline': 'Full-stack code generation, Indic NLP, and edge computing',
         'description': 'Accelerating software innovation in Guwahati and across Northeast India. Software engineers and startups leverage Axom AI’s coding suite for generating Python, JavaScript, TypeScript, Go, and SQL code, debugging complex stack traces, building regional NLP pipelines, and integrating document automation APIs.',
         'capabilities_raw': (
@@ -229,6 +236,7 @@ def ensure_usecases_defaults():
                 text_color=s['text_color'],
                 border_color=s['border_color'],
                 title=s['title'],
+                short_title=s.get('short_title', s['title'].split(',')[0]),
                 tagline=s['tagline'],
                 description=s['description'],
                 capabilities_raw=s['capabilities_raw'],
@@ -238,6 +246,12 @@ def ensure_usecases_defaults():
                 order=s['order'],
                 is_active=True,
             )
+    else:
+        # Backfill short_title if empty
+        defaults_map = {s['sector_id']: s.get('short_title', s['title'].split(',')[0]) for s in DEFAULT_SECTORS}
+        for sec in UseCaseSector.objects.filter(short_title=''):
+            sec.short_title = defaults_map.get(sec.sector_id, sec.title.split(',')[0])
+            sec.save(update_fields=['short_title'])
 
     # Seed FAQs if none exist
     if UseCaseFAQ.objects.count() == 0:

@@ -2899,6 +2899,8 @@ def save_usecase_sector_api(request):
             sector.border_color = data.get('border_color', '').strip()
         if 'title' in data:
             sector.title = data.get('title', '').strip()
+        if 'short_title' in data:
+            sector.short_title = data.get('short_title', '').strip()
         if 'tagline' in data:
             sector.tagline = data.get('tagline', '').strip()
         if 'description' in data:

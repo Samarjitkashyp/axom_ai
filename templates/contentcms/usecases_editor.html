@@ -247,6 +247,15 @@
         </button>
       </div>
 
+      <!-- Quick Jump Navigation Sync Note -->
+      <div class="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 flex items-start gap-2.5">
+        <i class="fa-solid fa-link text-fuchsia-400 text-sm mt-0.5 shrink-0"></i>
+        <div>
+          <strong class="text-white font-semibold">Top Quick Jump Navigation Pill Bar:</strong>
+          The pill navigation buttons at the top of the live page (e.g. <span class="text-fuchsia-300 font-mono">Students</span>, <span class="text-fuchsia-300 font-mono">APSC</span>, <span class="text-fuchsia-300 font-mono">Local Businesses</span>, etc.) automatically generate from each Sector card below. You can customize the exact <strong>Short Pill Label</strong>, unique slug ID (<span class="text-fuchsia-300 font-mono">#id</span>), icon, and display order for every sector.
+        </div>
+      </div>
+
       <!-- Sector Header Texts -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
@@ -272,7 +281,8 @@
           <thead>
             <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-800">
               <th class="p-3 font-semibold">Order</th>
-              <th class="p-3 font-semibold">Sector Title & ID</th>
+              <th class="p-3 font-semibold">Sector Card Title</th>
+              <th class="p-3 font-semibold">Quick Jump Pill (#ID)</th>
               <th class="p-3 font-semibold">Badge</th>
               <th class="p-3 font-semibold">Impact Metric</th>
               <th class="p-3 font-semibold">Status</th>
@@ -285,7 +295,14 @@
               <td class="p-3 font-mono text-slate-400">{{ s.order }}</td>
               <td class="p-3">
                 <div class="font-bold text-white">{{ s.title }}</div>
-                <div class="text-[10px] text-fuchsia-400 font-mono">#{{ s.sector_id }}</div>
+                <div class="text-[11px] text-slate-400 truncate max-w-xs">{{ s.tagline }}</div>
+              </td>
+              <td class="p-3">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-800 border border-fuchsia-500/30 text-fuchsia-300 text-[11px] font-medium shadow-sm">
+                  <i class="fa-solid fa-hashtag text-[9px] text-fuchsia-400"></i>
+                  <span>{{ s.short_title|default:s.title }}</span>
+                  <span class="text-[9px] text-slate-400 font-mono">({{ s.sector_id }})</span>
+                </span>
               </td>
               <td class="p-3">
                 <span class="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] text-slate-300">{{ s.badge }}</span>
@@ -297,17 +314,17 @@
                 </button>
               </td>
               <td class="p-3 text-right space-x-2">
-                <button type="button" onclick="editSectorModal({{ s.id }}, '{{ s.sector_id|escapejs }}', '{{ s.badge|escapejs }}', '{{ s.icon_name|escapejs }}', '{{ s.color_gradient|escapejs }}', '{{ s.text_color|escapejs }}', '{{ s.border_color|escapejs }}', '{{ s.title|escapejs }}', '{{ s.tagline|escapejs }}', '{{ s.description|escapejs }}', '{{ s.capabilities_raw|escapejs }}', '{{ s.impact_metric|escapejs }}', '{{ s.cta_text|escapejs }}', '{{ s.cta_url|escapejs }}', {{ s.order }}, {{ s.is_active|lower }})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition">
+                <button type="button" onclick="editSectorModal({{ s.id }}, '{{ s.sector_id|escapejs }}', '{{ s.short_title|escapejs }}', '{{ s.badge|escapejs }}', '{{ s.icon_name|escapejs }}', '{{ s.color_gradient|escapejs }}', '{{ s.text_color|escapejs }}', '{{ s.border_color|escapejs }}', '{{ s.title|escapejs }}', '{{ s.tagline|escapejs }}', '{{ s.description|escapejs }}', '{{ s.capabilities_raw|escapejs }}', '{{ s.impact_metric|escapejs }}', '{{ s.cta_text|escapejs }}', '{{ s.cta_url|escapejs }}', {{ s.order }}, {{ s.is_active|lower }})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition" title="Edit Sector">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
-                <button type="button" onclick="deleteSector({{ s.id }})" class="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-red-200 border border-red-800/40 transition">
+                <button type="button" onclick="deleteSector({{ s.id }})" class="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-red-200 border border-red-800/40 transition" title="Delete Sector">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="6" class="p-6 text-center text-slate-500">No sectors found. Click "Add New Sector" to create one.</td>
+              <td colspan="7" class="p-6 text-center text-slate-500">No sectors found. Click "Add New Sector" to create one.</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -618,9 +635,15 @@
         </div>
       </div>
 
-      <div>
-        <label class="block font-semibold text-slate-300 mb-1">Card Title</label>
-        <input type="text" id="sector_modal_title_val" required placeholder="Students, Schools & Higher Education" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-semibold focus:outline-none focus-ring">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Full Sector Title (Card Heading)</label>
+          <input type="text" id="sector_modal_title_val" required placeholder="Students, Schools & Higher Education" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-semibold focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block font-semibold text-fuchsia-300 mb-1">Quick Jump Nav Pill Label (Top Bar)</label>
+          <input type="text" id="sector_modal_short_title" placeholder="Students" class="w-full px-3 py-2 bg-slate-950 border border-fuchsia-500/50 rounded-lg text-white font-semibold focus:outline-none focus-ring">
+        </div>
       </div>
 
       <div>
@@ -871,6 +894,7 @@
     document.getElementById('sectorModalTitle').textContent = 'Add Industry Sector';
     document.getElementById('sector_modal_id').value = '';
     document.getElementById('sector_modal_slug').value = '';
+    document.getElementById('sector_modal_short_title').value = '';
     document.getElementById('sector_modal_badge').value = '';
     document.getElementById('sector_modal_icon').value = 'GraduationCap';
     document.getElementById('sector_modal_gradient').value = 'from-fuchsia-500 to-purple-600';
@@ -886,10 +910,11 @@
     document.getElementById('sectorModal').classList.remove('hidden');
   }
 
-  function editSectorModal(id, slug, badge, icon, gradient, textColor, borderColor, title, tagline, desc, capabilities, impact, ctaText, ctaUrl, order, isActive) {
+  function editSectorModal(id, slug, shortTitle, badge, icon, gradient, textColor, borderColor, title, tagline, desc, capabilities, impact, ctaText, ctaUrl, order, isActive) {
     document.getElementById('sectorModalTitle').textContent = 'Edit Industry Sector';
     document.getElementById('sector_modal_id').value = id;
     document.getElementById('sector_modal_slug').value = slug;
+    document.getElementById('sector_modal_short_title').value = shortTitle || '';
     document.getElementById('sector_modal_badge').value = badge;
     document.getElementById('sector_modal_icon').value = icon;
     document.getElementById('sector_modal_gradient').value = gradient;
@@ -913,6 +938,7 @@
     const payload = {
       id: document.getElementById('sector_modal_id').value || null,
       sector_id: val('sector_modal_slug'),
+      short_title: val('sector_modal_short_title'),
       badge: val('sector_modal_badge'),
       icon_name: val('sector_modal_icon') || 'GraduationCap',
       color_gradient: val('sector_modal_gradient') || 'from-fuchsia-500 to-purple-600',

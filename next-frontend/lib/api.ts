@@ -437,6 +437,7 @@ export interface UseCaseSectorItem {
   textColor?: string;
   borderColor?: string;
   title: string;
+  shortTitle?: string;
   tagline: string;
   description: string;
   capabilities: string[];

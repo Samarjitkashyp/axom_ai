@@ -650,6 +650,8 @@ def cms_usecases_api(request):
             'textColor': s.text_color,
             'borderColor': s.border_color,
             'title': s.title,
+            'shortTitle': s.short_title or s.title.split(',')[0],
+            'short_title': s.short_title or s.title.split(',')[0],
             'tagline': s.tagline,
             'description': s.description,
             'capabilities': caps,

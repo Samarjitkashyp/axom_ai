@@ -1021,6 +1021,7 @@ class UseCaseSector(models.Model):
     text_color = models.CharField(max_length=150, default='text-fuchsia-700 dark:text-fuchsia-400')
     border_color = models.CharField(max_length=150, default='border-fuchsia-500/30')
     title = models.CharField(max_length=255, default='Students, Schools & Higher Education')
+    short_title = models.CharField(max_length=100, blank=True, default='', help_text='Short label for top quick jump pill bar, e.g. Students, APSC, MSMEs')
     tagline = models.CharField(max_length=255, default='Personalized 24/7 bilingual tutoring in Assamese and English')
     description = models.TextField(default='')
     capabilities_raw = models.TextField(help_text='One bullet capability per line', default='')

@@ -462,7 +462,7 @@ export default async function UseCasesPage() {
                     className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
                   >
                     <IconComponent size={15} className={sec.textColor || 'text-fuchsia-600'} />
-                    <span>{sec.title.split(',')[0]}</span>
+                    <span>{sec.shortTitle || sec.title.split(',')[0]}</span>
                   </a>
                 );
               })}
