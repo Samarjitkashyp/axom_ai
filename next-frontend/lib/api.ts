@@ -231,6 +231,10 @@ export interface LandingCMSData {
     subheading: string;
     yearly_discount_badge: string;
     footer_note: string;
+    glance_title?: string;
+    glance_badge?: string;
+    glance_text?: string;
+    glance_active?: boolean;
     active: boolean;
     plans: PricingPlan[];
   };

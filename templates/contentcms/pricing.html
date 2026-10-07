@@ -64,6 +64,57 @@
       <p class="text-[10px] text-slate-500 mt-1">Paragraph under the hero heading</p>
     </div>
 
+    <!-- Pricing at a Glance Box (Direct Answer Summary) -->
+    <div class="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-4 space-y-4">
+      <div class="flex items-center justify-between border-b border-emerald-500/20 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-emerald-300">Pricing at a Glance Summary Box</h3>
+            <p class="text-[10px] text-slate-400">Direct Answer / Summary box above the pricing plan cards</p>
+          </div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="pricing_glance_active" class="sr-only peer" {% if hero.pricing_glance_active %}checked{% endif %}>
+          <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+          <span class="ml-2 text-[11px] font-medium text-slate-300">Show Glance Box</span>
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-heading text-emerald-400 text-[11px]"></i>
+            Glance Box Title
+          </label>
+          <input type="text" id="pricing_glance_title" value="{{ hero.pricing_glance_title|default:'Axom AI Pricing at a Glance' }}" placeholder="Axom AI Pricing at a Glance"
+            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+          <p class="text-[10px] text-slate-500 mt-1">e.g. <code>Axom AI Pricing at a Glance</code></p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-certificate text-emerald-400 text-[11px]"></i>
+            Glance Box Tag / Badge
+          </label>
+          <input type="text" id="pricing_glance_badge" value="{{ hero.pricing_glance_badge|default:'Zero Foreign Markups' }}" placeholder="Zero Foreign Markups"
+            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500">
+          <p class="text-[10px] text-slate-500 mt-1">e.g. <code>Zero Foreign Markups</code></p>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-align-left text-emerald-400 text-[11px]"></i>
+          Glance Summary Content / Plan Breakdown
+        </label>
+        <textarea id="pricing_glance_text" rows="3" placeholder="Free (₹0/mo) Ideal for casual queries... Starter (₹199/mo)... Pro (₹499/mo)... Business (₹1499/mo)..."
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 leading-relaxed">{{ hero.pricing_glance_text|default:'Free (₹0/mo) Ideal for casual queries, students & basic Assamese chat. Starter (₹199/mo or ₹159 billed yearly) Perfect for researchers, creators and daily regular users. Pro (₹499/mo or ₹399 billed yearly) Unleash full power: advanced models, OCR & 20+ file tools. Business (₹1499/mo or ₹1199 billed yearly) For offices, institutions & teams needing high volume & API.' }}</textarea>
+        <p class="text-[10px] text-slate-500 mt-1">Summary breakdown shown inside the green glance box.</p>
+      </div>
+    </div>
+
     <div class="pt-2 flex flex-col sm:flex-row justify-end">
       <button onclick="savePricingHeader()" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-amber-500 via-amber-600 to-emerald-600 hover:from-amber-400 hover:to-emerald-500 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition">
         <i class="fa-solid fa-floppy-disk"></i>
@@ -299,6 +350,10 @@ async function savePricingHeader() {
     pricing_subheading: document.getElementById('pricing_subheading')?.value || 'Choose a plan that fits your needs. Upgrade or cancel anytime.',
     pricing_yearly_discount_badge: 'Save 20%',
     pricing_footer_note: 'All prices in INR (includes GST). Secure Razorpay checkout — UPI · Cards · Netbanking · Wallets.',
+    pricing_glance_title: document.getElementById('pricing_glance_title')?.value || 'Axom AI Pricing at a Glance',
+    pricing_glance_badge: document.getElementById('pricing_glance_badge')?.value || 'Zero Foreign Markups',
+    pricing_glance_text: document.getElementById('pricing_glance_text')?.value || '',
+    pricing_glance_active: document.getElementById('pricing_glance_active')?.checked ?? true,
     pricing_section_active: document.getElementById('pricing_sec_active')?.checked ?? true
   };
 

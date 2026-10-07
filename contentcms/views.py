@@ -827,10 +827,18 @@ def save_pricing_header_api(request):
         hero.pricing_subheading = data.get('pricing_subheading', hero.pricing_subheading).strip()
         hero.pricing_yearly_discount_badge = data.get('pricing_yearly_discount_badge', hero.pricing_yearly_discount_badge).strip()
         hero.pricing_footer_note = data.get('pricing_footer_note', hero.pricing_footer_note).strip()
+        if 'pricing_glance_title' in data:
+            hero.pricing_glance_title = data.get('pricing_glance_title', '').strip()
+        if 'pricing_glance_badge' in data:
+            hero.pricing_glance_badge = data.get('pricing_glance_badge', '').strip()
+        if 'pricing_glance_text' in data:
+            hero.pricing_glance_text = data.get('pricing_glance_text', '').strip()
+        if 'pricing_glance_active' in data:
+            hero.pricing_glance_active = bool(data.get('pricing_glance_active'))
         if 'pricing_section_active' in data:
             hero.pricing_section_active = bool(data.get('pricing_section_active'))
         hero.save()
-        return JsonResponse({'success': True, 'message': 'Pricing header updated successfully!'})
+        return JsonResponse({'success': True, 'message': 'Pricing header & glance settings updated successfully!'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
@@ -2242,6 +2250,10 @@ def get_landing_content_payload():
             'subheading': hero.pricing_subheading if hero else 'Choose a plan that fits your needs. Upgrade or cancel anytime.',
             'yearly_discount_badge': hero.pricing_yearly_discount_badge if hero else 'Save 20%',
             'footer_note': hero.pricing_footer_note if hero else 'All prices in INR (includes GST). Secure Razorpay checkout — UPI · Cards · Netbanking · Wallets.',
+            'glance_title': hero.pricing_glance_title if hero else 'Axom AI Pricing at a Glance',
+            'glance_badge': hero.pricing_glance_badge if hero else 'Zero Foreign Markups',
+            'glance_text': hero.pricing_glance_text if hero else '',
+            'glance_active': hero.pricing_glance_active if hero else True,
             'active': hero.pricing_section_active if hero else True,
         },
         'insights_header': {

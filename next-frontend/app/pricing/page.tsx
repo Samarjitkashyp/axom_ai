@@ -282,31 +282,39 @@ export default async function PricingPage() {
             </div>
 
             {/* AEO Direct Answer Summary Box */}
-            <div className="max-w-4xl mx-auto p-5 sm:p-6 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-emerald-500/30 shadow-xl shadow-emerald-950/20 backdrop-blur-md mb-12">
-              <div className="flex items-start gap-3.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
-                  <IndianRupee size={18} />
-                </div>
-                <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                  <div className="font-bold text-emerald-950 dark:text-white text-sm sm:text-base flex items-center gap-2">
-                    <span>Axom AI Pricing at a Glance</span>
-                    <span className="text-[10px] uppercase font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded">
-                      Zero Foreign Markups
-                    </span>
+            {(cms?.pricing_header?.glance_active !== false) && (
+              <div className="max-w-4xl mx-auto p-5 sm:p-6 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-emerald-500/30 shadow-xl shadow-emerald-950/20 backdrop-blur-md mb-12">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5">
+                    <IndianRupee size={18} />
                   </div>
-                  <p className="leading-relaxed">
-                    {plans.map((p, idx) => (
-                      <span key={p.id || idx}>
-                        <strong className="text-emerald-950 dark:text-white">
-                          {p.name} (₹{p.monthlyPrice}{p.yearlyPrice > 0 ? `/mo or ₹${p.yearlyPrice} billed yearly` : '/mo'})
-                        </strong>{' '}
-                        {p.desc || (p.monthlyWords ? `${p.monthlyWords} per month.` : '')}{' '}
-                      </span>
-                    ))}
-                  </p>
+                  <div className="space-y-1.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                    <div className="font-bold text-emerald-950 dark:text-white text-sm sm:text-base flex items-center gap-2">
+                      <span>{cms?.pricing_header?.glance_title || 'Axom AI Pricing at a Glance'}</span>
+                      {cms?.pricing_header?.glance_badge && (
+                        <span className="text-[10px] uppercase font-extrabold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded">
+                          {cms.pricing_header.glance_badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="leading-relaxed">
+                      {cms?.pricing_header?.glance_text ? (
+                        cms.pricing_header.glance_text
+                      ) : (
+                        plans.map((p, idx) => (
+                          <span key={p.id || idx}>
+                            <strong className="text-emerald-950 dark:text-white">
+                              {p.name} (₹{p.monthlyPrice}{p.yearlyPrice > 0 ? `/mo or ₹${p.yearlyPrice} billed yearly` : '/mo'})
+                            </strong>{' '}
+                            {p.desc || (p.monthlyWords ? `${p.monthlyWords} per month.` : '')}{' '}
+                          </span>
+                        ))
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Interactive Pricing Cards */}
             <PricingPlansInteractive

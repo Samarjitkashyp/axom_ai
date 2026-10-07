@@ -383,6 +383,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     "subheading": "{{ cms.pricing_header.subheading|default:'Choose a plan that fits your needs. Upgrade or cancel anytime.'|escapejs }}",
     "yearly_discount_badge": "{{ cms.pricing_header.yearly_discount_badge|default:'Save 20%'|escapejs }}",
     "footer_note": "{{ cms.pricing_header.footer_note|default:'All prices in INR (includes GST). Secure Razorpay checkout — UPI · Cards · Netbanking · Wallets.'|escapejs }}",
+    "glance_title": "{{ cms.pricing_header.glance_title|default:'Axom AI Pricing at a Glance'|escapejs }}",
+    "glance_badge": "{{ cms.pricing_header.glance_badge|default:'Zero Foreign Markups'|escapejs }}",
+    "glance_text": "{{ cms.pricing_header.glance_text|default:''|escapejs }}",
+    "glance_active": {{ cms.pricing_header.glance_active|default:True|yesno:"true,false" }},
     "active": {{ cms.pricing_header.active|default:True|yesno:"true,false" }}
   },
   "pricing_plans": [
