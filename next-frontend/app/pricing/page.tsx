@@ -263,33 +263,21 @@ export default async function PricingPage() {
           <div className="absolute top-20 right-10 w-96 h-96 bg-cyan-500/10 blur-[100px] pointer-events-none rounded-full" />
 
           <div className="max-w-7xl mx-auto px-5 relative z-10">
-            {/* Breadcrumb Bar */}
-            <nav
-              aria-label="Breadcrumb"
-              className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 mb-8 max-w-max mx-auto px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 backdrop-blur"
-            >
-              <Link href="/" className="hover:text-emerald-950 dark:hover:text-white transition">
-                Home
-              </Link>
-              <ChevronRight size={12} className="text-slate-600 dark:text-slate-500" />
-              <span className="text-emerald-700 dark:text-emerald-400 font-medium">Pricing</span>
-            </nav>
-
             {/* Headline */}
             <div className="text-center max-w-3xl mx-auto mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fef9c3] dark:bg-amber-950/40 border border-[#fde047] dark:border-amber-700/50 text-[#854d0e] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-4">
-                <Sparkles size={13} className="text-amber-600" /> Pricing
+                <Sparkles size={13} className="text-amber-600" /> {cms?.pricing_header?.badge || 'Pricing'}
               </div>
 
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15] mb-4">
-                Simple,{' '}
+                {cms?.pricing_header?.title_prefix || 'Simple,'}{' '}
                 <span className="bg-gradient-to-r from-[#d97706] via-[#b45309] to-[#92400e] dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
-                  Transparent Pricing
+                  {cms?.pricing_header?.title_highlight || 'Transparent Pricing'}
                 </span>
               </h1>
 
               <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto font-normal">
-                Choose a plan that fits your needs. Upgrade or cancel anytime.
+                {cms?.pricing_header?.subheading || 'Choose a plan that fits your needs. Upgrade or cancel anytime.'}
               </p>
             </div>
 
@@ -307,10 +295,14 @@ export default async function PricingPage() {
                     </span>
                   </div>
                   <p className="leading-relaxed">
-                    <strong className="text-emerald-950 dark:text-white">Free (₹0/mo)</strong> gives you 5,000 words/mo with Llama 3 8B.
-                    {' '}<strong className="text-emerald-950 dark:text-white">Starter (₹199/mo or ₹159 billed yearly)</strong> provides 50,000 words with GPT-4o Mini &amp; PDF editing.
-                    {' '}<strong className="text-emerald-950 dark:text-white">Pro (₹499/mo or ₹399 billed yearly)</strong> unlocks 250,000 words, Claude 3.5 Sonnet, Llama 70B, Assamese OCR &amp; Voice mode.
-                    {' '}<strong className="text-emerald-950 dark:text-white">Business (₹1,499/mo or ₹1,199 billed yearly)</strong> includes 1,000,000 words, 5 team seats, custom knowledge bases &amp; REST APIs.
+                    {plans.map((p, idx) => (
+                      <span key={p.id || idx}>
+                        <strong className="text-emerald-950 dark:text-white">
+                          {p.name} (₹{p.monthlyPrice}{p.yearlyPrice > 0 ? `/mo or ₹${p.yearlyPrice} billed yearly` : '/mo'})
+                        </strong>{' '}
+                        {p.desc || (p.monthlyWords ? `${p.monthlyWords} per month.` : '')}{' '}
+                      </span>
+                    ))}
                   </p>
                 </div>
               </div>
@@ -344,18 +336,18 @@ export default async function PricingPage() {
                     <th className="p-4 sm:p-5 text-sm font-bold text-slate-700 dark:text-slate-300 w-2/5">
                       Features &amp; Capabilities
                     </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-700 dark:text-slate-300 w-[15%]">
-                      Free (₹0)
-                    </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-700 dark:text-slate-300 w-[15%]">
-                      Starter (₹199)
-                    </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-emerald-700 dark:text-emerald-400 w-[15%] bg-emerald-500/10 border-x border-emerald-500/20">
-                      Pro (₹499) ★
-                    </th>
-                    <th className="p-4 sm:p-5 text-center text-sm font-extrabold text-slate-700 dark:text-slate-300 w-[15%]">
-                      Business (₹1,499)
-                    </th>
+                    {plans.map((p) => (
+                      <th
+                        key={p.id}
+                        className={`p-4 sm:p-5 text-center text-sm ${
+                          p.popular
+                            ? 'font-extrabold text-emerald-700 dark:text-emerald-400 w-[15%] bg-emerald-500/10 border-x border-emerald-500/20'
+                            : 'font-extrabold text-slate-700 dark:text-slate-300 w-[15%]'
+                        }`}
+                      >
+                        {p.name} (₹{p.monthlyPrice}){p.popular ? ' ★' : ''}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
@@ -444,10 +436,10 @@ export default async function PricingPage() {
             <div className="flex flex-wrap items-center justify-between gap-4 mt-6 text-xs text-slate-600 dark:text-slate-400 px-2">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-emerald-700 dark:text-emerald-400" />
-                <span>All prices in INR. Taxes calculated at checkout according to Indian GST regulations.</span>
+                <span>{cms?.pricing_header?.footer_note || 'All prices in INR. Taxes calculated at checkout according to Indian GST regulations.'}</span>
               </div>
               <a
-                href="https://chat.aiaxom.co.in/upgrade"
+                href={plans.find((p) => p.popular)?.ctaUrl || 'https://chat.aiaxom.co.in/upgrade'}
                 className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold flex items-center gap-1 transition"
               >
                 <span>Upgrade in 30 Seconds</span>
