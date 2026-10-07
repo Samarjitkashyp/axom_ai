@@ -1,46 +1,43 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, Check, X, ShieldCheck, Zap, ArrowRight } from 'lucide-react';
+import { Check, ShieldCheck } from 'lucide-react';
 import { DETAILED_PLANS, DetailedPlan } from './pricingData';
 
+const ICON_MAP: Record<string, string> = {
+  free: 'fa-solid fa-sparkles text-slate-400',
+  starter: 'fa-solid fa-bolt text-sky-500',
+  pro: 'fa-solid fa-crown text-amber-500',
+  business: 'fa-solid fa-building text-amber-600',
+};
+
 export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { plans?: DetailedPlan[] }) {
-  const [yearly, setYearly] = useState(true);
+  const [yearly, setYearly] = useState(false);
 
   return (
     <div>
       {/* Monthly / Yearly Billing Toggle */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12 sm:mb-16">
-        <div className="inline-flex items-center p-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md">
-          <button
-            type="button"
-            onClick={() => setYearly(false)}
-            className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
-              !yearly
-                ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'text-slate-600 dark:text-slate-400 hover:text-white'
+      <div className="flex items-center justify-center gap-3 mb-14">
+        <span className={`text-xs sm:text-sm font-semibold transition-colors ${!yearly ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
+          Monthly Billing
+        </span>
+        <button
+          onClick={() => setYearly(!yearly)}
+          role="switch"
+          aria-checked={yearly}
+          className="w-14 h-7 rounded-full bg-[#cfe9dc] dark:bg-slate-800 border border-[#a7f3d0] dark:border-slate-700 relative p-1 transition-colors focus:outline-none"
+        >
+          <div
+            className={`w-5 h-5 rounded-full bg-[#10b981] transition-transform ${
+              yearly ? 'translate-x-7' : 'translate-x-0'
             }`}
-          >
-            Monthly Billing
-          </button>
-          <button
-            type="button"
-            onClick={() => setYearly(true)}
-            className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
-              yearly
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                : 'text-slate-600 dark:text-slate-400 hover:text-white'
-            }`}
-          >
-            <span>Yearly Billing</span>
-            <span className="px-2 py-0.5 rounded-full bg-emerald-400/20 border border-emerald-400/30 text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300">
-              Save 20%
-            </span>
-          </button>
-        </div>
-        <span className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-          <ShieldCheck size={14} className="text-emerald-700 dark:text-emerald-400" />
-          Cancel or switch anytime. No long-term lock-in.
+          />
+        </button>
+        <span className={`text-xs sm:text-sm font-semibold flex items-center gap-2 transition-colors ${yearly ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
+          Yearly Billing
+          <span className="px-2 py-0.5 rounded-full bg-[#fef3c7] dark:bg-amber-950/60 border border-[#fde68a] dark:border-amber-700/50 text-[10px] font-bold text-[#92400e] dark:text-amber-300">
+            Save 20%
+          </span>
         </span>
       </div>
 
@@ -49,62 +46,56 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
         {plans.map((plan) => {
           const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
           const isPro = plan.popular;
+          const planKey = (plan.id || plan.name).toLowerCase();
+          const defaultIcon = ICON_MAP[planKey] || 'fa-solid fa-sparkles text-slate-400';
 
           return (
             <div
               key={plan.id}
-              className={`relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 ${
+              className={`relative rounded-2xl p-7 transition-all flex flex-col justify-between ${
                 isPro
-                  ? 'bg-gradient-to-b from-emerald-100/40 dark:from-emerald-950/40 via-white/90 dark:via-slate-900/90 to-emerald-50 dark:to-slate-950 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-900/30 ring-1 ring-emerald-500/30 lg:-translate-y-2'
-                  : 'bg-white/70 dark:bg-slate-900/60 hover:bg-white/80 dark:hover:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-900/25 dark:hover:border-white/20'
+                  ? 'border-2 border-[#fcd34d] dark:border-[#10b981] shadow-xl bg-gradient-to-b from-[#fefce8]/60 via-white to-[#fefce8]/30 dark:from-[#064e3b]/30 dark:via-[#0b1220] dark:to-[#0b1220] scale-[1.02] z-10'
+                  : 'bg-white dark:bg-[#0b1220] border border-[#e2e8f0] dark:border-[#1f2f46] shadow-sm hover:shadow-md'
               }`}
             >
               {isPro && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 text-slate-950 text-[11px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1">
-                  <Zap size={12} className="fill-slate-950" />
-                  {plan.badge}
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#10b981] text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
+                  ★ MOST POPULAR
                 </div>
               )}
 
               <div>
-                {/* Header & Badge */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span
-                    className={`text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md ${
-                      isPro
-                        ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
-                        : 'bg-white/70 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-emerald-900/10 dark:border-white/5'
-                    }`}
-                  >
-                    {plan.badge}
+                {/* Header Tag / Badge */}
+                <div className="flex items-center gap-1.5 text-xs mb-2">
+                  <i className={defaultIcon} />
+                  <span className={`font-semibold ${isPro ? 'text-amber-700 dark:text-amber-400 font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
+                    {plan.badge || (isPro ? '★ Most Popular' : plan.name)}
                   </span>
-                  {plan.monthlyWords && (
-                    <span className="text-[11px] font-semibold text-teal-700 dark:text-teal-300 bg-teal-500/10 px-2 py-0.5 rounded">
-                      {plan.monthlyWords}
-                    </span>
-                  )}
                 </div>
 
-                <h3 className="text-2xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">{plan.name}</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6 min-h-[40px]">{plan.desc}</p>
+                <div className="text-2xl font-black text-[#0f172a] dark:text-white mb-2 tracking-tight">
+                  {plan.name}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 min-h-[36px] leading-relaxed">
+                  {plan.desc}
+                </p>
 
                 {/* Price Display */}
-                <div className="mb-6 p-4 rounded-2xl bg-emerald-900/5 dark:bg-black/30 border border-emerald-900/10 dark:border-white/5">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight">₹{price}</span>
-                    <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">/ month</span>
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black text-[#0f172a] dark:text-white tracking-tight">
+                      ₹{price}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">/ month</span>
                   </div>
-                  {yearly && plan.monthlyPrice > 0 ? (
-                    <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-1">
-                      Billed ₹{(plan.yearlyPrice * 12).toLocaleString('en-IN')} / year (Saved 20%)
+                  {plan.monthlyWords && (
+                    <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-semibold">
+                      {plan.monthlyWords} / month
                     </div>
-                  ) : plan.monthlyPrice > 0 ? (
-                    <div className="text-[11px] text-slate-600 dark:text-slate-500 font-medium mt-1">
-                      Billed monthly • GST input credit eligible
-                    </div>
-                  ) : (
-                    <div className="text-[11px] text-emerald-700/90 dark:text-emerald-400/90 font-medium mt-1">
-                      100% Free Forever • No Card Needed
+                  )}
+                  {yearly && plan.monthlyPrice > 0 && (
+                    <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-0.5 font-medium">
+                      Billed ₹{plan.yearlyPrice * 12} yearly
                     </div>
                   )}
                 </div>
@@ -112,50 +103,27 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
                 {/* CTA Button */}
                 <a
                   href={plan.ctaUrl}
-                  className={`w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-center transition-all duration-200 flex items-center justify-center gap-2 mb-8 ${
+                  className={`block text-center py-2.5 px-4 rounded-full text-xs font-bold mb-8 transition ${
                     isPro
-                      ? 'bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 shadow-lg shadow-emerald-500/25'
-                      : plan.monthlyPrice === 0
-                      ? 'bg-emerald-900/5 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/20 text-white border border-emerald-900/15 dark:border-white/10'
-                      : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40'
+                      ? 'bg-gradient-to-r from-[#fbbf24] via-[#34d399] to-[#10b981] hover:brightness-105 text-[#064e3b] font-black shadow-lg shadow-emerald-500/25'
+                      : 'border border-[#cbd5e1] hover:border-[#10b981] bg-[#f8fafc] hover:bg-[#ecfdf5] text-slate-800 dark:bg-white/5 dark:border-white/10 dark:text-white dark:hover:bg-white/10'
                   }`}
                 >
-                  <span>{plan.ctaText}</span>
-                  <ArrowRight size={14} />
+                  {plan.ctaText}
                 </a>
 
-                {/* Features list */}
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-3">
-                      Included in {plan.name}:
-                    </div>
-                    <ul className="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
-                      {plan.features.map((feat, i) => (
-                        <li key={i} className="flex items-start gap-2.5">
-                          <Check size={15} className="text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
-                          <span className="leading-snug">{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {plan.notIncluded && plan.notIncluded.length > 0 && (
-                    <div className="pt-3 border-t border-emerald-900/10 dark:border-white/5">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-500 mb-2">
-                        Not included:
-                      </div>
-                      <ul className="space-y-1.5 text-[11px] text-slate-600 dark:text-slate-500">
-                        {plan.notIncluded.map((feat, i) => (
-                          <li key={i} className="flex items-start gap-2 opacity-70">
-                            <X size={13} className="text-slate-600 shrink-0 mt-0.5" />
-                            <span className="line-through">{feat}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                {/* Features List */}
+                <div className="text-[11px] uppercase font-bold tracking-wider text-slate-600 dark:text-slate-400 mb-3">
+                  INCLUDED FEATURES:
                 </div>
+                <ul className="space-y-3 text-xs">
+                  {plan.features.map((feat, j) => (
+                    <li key={j} className="flex items-start gap-2.5 text-slate-700 dark:text-slate-300">
+                      <Check className="w-4 h-4 text-amber-500 dark:text-emerald-400 mt-0.5 shrink-0" />
+                      <span className="leading-snug">{feat}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           );

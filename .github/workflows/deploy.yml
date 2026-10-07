@@ -3,10 +3,7 @@ name: CI/CD
 # Runs on every push/PR to main. On a push to main, if tests pass, it
 # automatically deploys to the Lightsail server over SSH.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   # ---------------------------------------------------------------- CI (tests)

@@ -277,20 +277,19 @@ export default async function PricingPage() {
 
             {/* Headline */}
             <div className="text-center max-w-3xl mx-auto mb-10">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-5">
-                <Sparkles size={14} /> Simple, Transparent Pricing in INR (₹)
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fef9c3] dark:bg-amber-950/40 border border-[#fde047] dark:border-amber-700/50 text-[#854d0e] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-4">
+                <Sparkles size={13} className="text-amber-600" /> Pricing
               </div>
 
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.15] mb-5">
-                Affordable AI for Everyone in{' '}
-                <span className="bg-gradient-to-r from-emerald-600 dark:from-emerald-400 via-teal-600 dark:via-teal-300 to-cyan-600 dark:to-cyan-400 bg-clip-text text-transparent">
-                  Assam &amp; India
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15] mb-4">
+                Simple,{' '}
+                <span className="bg-gradient-to-r from-[#d97706] via-[#b45309] to-[#92400e] dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
+                  Transparent Pricing
                 </span>
               </h1>
 
-              <p className="text-sm sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
-                Choose a plan tailored to your workflow. Start completely free with zero credit card,
-                or unlock flagship AI intelligence, scanned Assamese OCR, and 20+ document utilities.
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto font-normal">
+                Choose a plan that fits your needs. Upgrade or cancel anytime.
               </p>
             </div>
 
