@@ -37,6 +37,7 @@ urlpatterns = [
     path('testimonials/delete/<int:testimonial_id>/', views.delete_testimonial_api, name='delete_testimonial_api'),
     path('pricing/', views.pricing_page, name='pricing_page'),
     path('pricing/header/save/', views.save_pricing_header_api, name='save_pricing_header_api'),
+    path('pricing/cards/save/', views.save_pricing_extra_cards_api, name='save_pricing_extra_cards_api'),
     path('pricing/save/', views.save_pricing_plan_api, name='save_pricing_plan_api'),
     path('pricing/toggle/<int:plan_id>/', views.toggle_pricing_plan_api, name='toggle_pricing_plan_api'),
     path('pricing/delete/<int:plan_id>/', views.delete_pricing_plan_api, name='delete_pricing_plan_api'),

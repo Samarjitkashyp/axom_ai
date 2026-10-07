@@ -248,6 +248,56 @@ def cms_landing_api(request):
                 for cat in PricingComparisonCategory.objects.filter(is_active=True).prefetch_related('rows').order_by('order', 'id')
             ]
         },
+        'pricing_trust_cards': {
+            'active': hero.pricing_trust_cards_active if hero else True,
+            'card1': {
+                'title': hero.pricing_trust_card1_title if hero else '100% Indian Payment Methods',
+                'desc': hero.pricing_trust_card1_desc if hero else 'Pay seamlessly with Google Pay, PhonePe, Paytm, BHIM UPI, RuPay, Visa, MasterCard, and Netbanking from 50+ Indian banks.',
+                'tags': [t.strip() for t in (hero.pricing_trust_card1_tags if hero else 'UPI Autopay, RuPay, Razorpay Secured').split(',') if t.strip()],
+                'tags_raw': hero.pricing_trust_card1_tags if hero else 'UPI Autopay, RuPay, Razorpay Secured',
+                'icon': hero.pricing_trust_card1_icon if hero else 'fa-solid fa-credit-card',
+            },
+            'card2': {
+                'title': hero.pricing_trust_card2_title if hero else 'GST Compliant Invoicing',
+                'desc': hero.pricing_trust_card2_desc if hero else 'Add your company GSTIN during checkout to receive automated tax invoices for full Input Tax Credit (ITC) claiming.',
+                'tags': [t.strip() for t in (hero.pricing_trust_card2_tags if hero else 'Instant PDF Invoices, B2B Friendly').split(',') if t.strip()],
+                'tags_raw': hero.pricing_trust_card2_tags if hero else 'Instant PDF Invoices, B2B Friendly',
+                'icon': hero.pricing_trust_card2_icon if hero else 'fa-solid fa-file-invoice-dollar',
+            },
+            'card3': {
+                'title': hero.pricing_trust_card3_title if hero else 'Cancel Anytime with 1 Click',
+                'desc': hero.pricing_trust_card3_desc if hero else 'No hidden phone calls or dark patterns. Upgrade, downgrade, or cancel your subscription instantly from your settings dashboard.',
+                'tags': [t.strip() for t in (hero.pricing_trust_card3_tags if hero else 'Zero Lock-in, Immediate Downgrade').split(',') if t.strip()],
+                'tags_raw': hero.pricing_trust_card3_tags if hero else 'Zero Lock-in, Immediate Downgrade',
+                'icon': hero.pricing_trust_card3_icon if hero else 'fa-solid fa-rotate-left',
+            },
+        },
+        'pricing_callouts': {
+            'active': hero.pricing_callouts_active if hero else True,
+            'student': {
+                'badge': hero.pricing_student_badge if hero else 'Education & Research',
+                'title': hero.pricing_student_title if hero else 'Student & Academic Rebates',
+                'desc': hero.pricing_student_desc if hero else 'Are you a student preparing for APSC, UPSC, Assam Police, or studying at Gauhati University, Cotton University, Tezpur University, or IIT Guwahati? We provide special educational subsidies and group lab licensing across Assam.',
+                'btn_text': hero.pricing_student_btn_text if hero else 'Request Student Discount',
+                'btn_url': hero.pricing_student_btn_url if hero else 'mailto:support@aiaxom.co.in?subject=Student%20Discount%20Inquiry%20-%20Axom%20AI',
+            },
+            'enterprise': {
+                'badge': hero.pricing_enterprise_badge if hero else 'Enterprises & Government',
+                'title': hero.pricing_enterprise_title if hero else 'Custom LLM & Sovereign AI',
+                'desc': hero.pricing_enterprise_desc if hero else 'Need on-premise private deployment, customized RAG knowledge bases for regional government departments, news agencies, or bank compliant Assamese document pipelines? Our Guwahati engineering team builds turnkey solutions.',
+                'btn_text': hero.pricing_enterprise_btn_text if hero else 'Talk to Enterprise Sales',
+                'btn_url': hero.pricing_enterprise_btn_url if hero else 'mailto:support@aiaxom.co.in?subject=Enterprise%20and%20Government%20Inquiry%20-%20Axom%20AI',
+            },
+        },
+        'pricing_bottom_cta': {
+            'active': hero.pricing_bottom_cta_active if hero else True,
+            'heading': hero.pricing_bottom_cta_heading if hero else 'Experience the Future of Assamese AI',
+            'subheading': hero.pricing_bottom_cta_subheading if hero else 'Join thousands of students, researchers, creators and businesses across Assam accelerating their workflow with Axom AI.',
+            'primary_btn_text': hero.pricing_bottom_cta_primary_text if hero else 'Start Chatting Free',
+            'primary_btn_url': hero.pricing_bottom_cta_primary_url if hero else 'https://chat.aiaxom.co.in/',
+            'secondary_btn_text': hero.pricing_bottom_cta_secondary_text if hero else 'Explore 20+ Tools',
+            'secondary_btn_url': hero.pricing_bottom_cta_secondary_url if hero else 'https://aiaxom.co.in/tools',
+        },
         'insights_header': {
             'badge': hero.insights_badge if hero else 'Insights',
             'title_prefix': hero.insights_title_prefix if hero else 'Learn, Explore &',

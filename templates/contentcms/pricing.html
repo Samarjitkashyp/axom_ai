@@ -396,6 +396,269 @@
     </div>
   </div>
 
+  <!-- SECTION 4: Indian Payment Methods & Security Trust Cards -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">4. Trust & Indian Payment Security Cards</h2>
+          <p class="text-xs text-slate-400">The 3 feature boxes below the comparison table (UPI, GST Invoices, 1-Click Cancel)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <label class="inline-flex items-center cursor-pointer gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+          <input type="checkbox" id="pricing_trust_cards_active" class="w-4 h-4 rounded text-emerald-500 bg-slate-800 border-slate-700 focus:ring-emerald-500" {% if hero.pricing_trust_cards_active %}checked{% endif %}>
+          <span class="text-xs font-semibold text-emerald-400">Section Active</span>
+        </label>
+        <button onclick="savePricingExtraCards()" class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Save Extra Cards</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Card 1 -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-credit-card"></i> Card 1 (Payment)
+          </span>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Title</label>
+          <input type="text" id="card1_title" value="{{ hero.pricing_trust_card1_title|default:'100% Indian Payment Methods' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Description</label>
+          <textarea id="card1_desc" rows="3" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">{{ hero.pricing_trust_card1_desc|default:'Pay seamlessly with Google Pay, PhonePe, Paytm, BHIM UPI, RuPay, Visa, MasterCard, and Netbanking from 50+ Indian banks.' }}</textarea>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Badges / Tags (Comma separated)</label>
+          <input type="text" id="card1_tags" value="{{ hero.pricing_trust_card1_tags|default:'UPI Autopay, RuPay, Razorpay Secured' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">FontAwesome Icon Class</label>
+          <input type="text" id="card1_icon" value="{{ hero.pricing_trust_card1_icon|default:'fa-solid fa-credit-card' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-teal-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Card 2 (GST & Tax)
+          </span>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Title</label>
+          <input type="text" id="card2_title" value="{{ hero.pricing_trust_card2_title|default:'GST Compliant Invoicing' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Description</label>
+          <textarea id="card2_desc" rows="3" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">{{ hero.pricing_trust_card2_desc|default:'Add your company GSTIN during checkout to receive automated tax invoices for full Input Tax Credit (ITC) claiming.' }}</textarea>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Badges / Tags (Comma separated)</label>
+          <input type="text" id="card2_tags" value="{{ hero.pricing_trust_card2_tags|default:'Instant PDF Invoices, B2B Friendly' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">FontAwesome Icon Class</label>
+          <input type="text" id="card2_icon" value="{{ hero.pricing_trust_card2_icon|default:'fa-solid fa-file-invoice-dollar' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-left"></i> Card 3 (Cancel Policy)
+          </span>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Title</label>
+          <input type="text" id="card3_title" value="{{ hero.pricing_trust_card3_title|default:'Cancel Anytime with 1 Click' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Description</label>
+          <textarea id="card3_desc" rows="3" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-cyan-500">{{ hero.pricing_trust_card3_desc|default:'No hidden phone calls or dark patterns. Upgrade, downgrade, or cancel your subscription instantly from your settings dashboard.' }}</textarea>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Badges / Tags (Comma separated)</label>
+          <input type="text" id="card3_tags" value="{{ hero.pricing_trust_card3_tags|default:'Zero Lock-in, Immediate Downgrade' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">FontAwesome Icon Class</label>
+          <input type="text" id="card3_icon" value="{{ hero.pricing_trust_card3_icon|default:'fa-solid fa-rotate-left' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-cyan-500">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Student & Enterprise Special Callout Cards -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">5. Student & Enterprise Special Callout Cards</h2>
+          <p class="text-xs text-slate-400">Two dedicated banner cards for educational rebates and corporate sovereign AI solutions</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <label class="inline-flex items-center cursor-pointer gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+          <input type="checkbox" id="pricing_callouts_active" class="w-4 h-4 rounded text-purple-500 bg-slate-800 border-slate-700 focus:ring-purple-500" {% if hero.pricing_callouts_active %}checked{% endif %}>
+          <span class="text-xs font-semibold text-purple-400">Section Active</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Student Card -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-emerald-500/20 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-graduation-cap"></i> Student & Academic Card
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Badge Tag</label>
+            <input type="text" id="student_badge" value="{{ hero.pricing_student_badge|default:'Education & Research' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Headline Title</label>
+            <input type="text" id="student_title" value="{{ hero.pricing_student_title|default:'Student & Academic Rebates' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Description</label>
+          <textarea id="student_desc" rows="3" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">{{ hero.pricing_student_desc|default:'Are you a student preparing for APSC, UPSC, Assam Police, or studying at Gauhati University, Cotton University, Tezpur University, or IIT Guwahati? We provide special educational subsidies and group lab licensing across Assam.' }}</textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Button Text</label>
+            <input type="text" id="student_btn_text" value="{{ hero.pricing_student_btn_text|default:'Request Student Discount' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Action URL / Mailto</label>
+            <input type="text" id="student_btn_url" value="{{ hero.pricing_student_btn_url|default:'mailto:support@aiaxom.co.in?subject=Student%20Discount%20Inquiry%20-%20Axom%20AI' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Enterprise Card -->
+      <div class="p-5 rounded-2xl bg-slate-900/80 border border-teal-500/20 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-xs font-bold text-teal-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-building"></i> Enterprise & Sovereign AI Card
+          </span>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Badge Tag</label>
+            <input type="text" id="enterprise_badge" value="{{ hero.pricing_enterprise_badge|default:'Enterprises & Government' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Headline Title</label>
+            <input type="text" id="enterprise_title" value="{{ hero.pricing_enterprise_title|default:'Custom LLM & Sovereign AI' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-[11px] mb-1">Description</label>
+          <textarea id="enterprise_desc" rows="3" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">{{ hero.pricing_enterprise_desc|default:'Need on-premise private deployment, customized RAG knowledge bases for regional government departments, news agencies, or bank compliant Assamese document pipelines? Our Guwahati engineering team builds turnkey solutions.' }}</textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Button Text</label>
+            <input type="text" id="enterprise_btn_text" value="{{ hero.pricing_enterprise_btn_text|default:'Talk to Enterprise Sales' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 text-[11px] mb-1">Action URL / Mailto</label>
+            <input type="text" id="enterprise_btn_url" value="{{ hero.pricing_enterprise_btn_url|default:'mailto:support@aiaxom.co.in?subject=Enterprise%20and%20Government%20Inquiry%20-%20Axom%20AI' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Bottom Call-to-Action (CTA) Banner -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-bullhorn"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">6. Bottom Call-to-Action (CTA) Banner</h2>
+          <p class="text-xs text-slate-400">Configure headline and conversion buttons at the bottom of the pricing page</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <label class="inline-flex items-center cursor-pointer gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+          <input type="checkbox" id="pricing_bottom_cta_active" class="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-700 focus:ring-amber-500" {% if hero.pricing_bottom_cta_active %}checked{% endif %}>
+          <span class="text-xs font-semibold text-amber-400">Banner Active</span>
+        </label>
+        <button onclick="savePricingExtraCards()" class="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Save Extra Cards &amp; CTA</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 text-xs mb-1">Heading</label>
+          <input type="text" id="bottom_cta_heading" value="{{ hero.pricing_bottom_cta_heading|default:'Experience the Future of Assamese AI Today' }}" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 text-xs mb-1">Subheading</label>
+          <input type="text" id="bottom_cta_subheading" value="{{ hero.pricing_bottom_cta_subheading|default:'Join thousands of students, researchers, lawyers, and businesses across Assam. Get started with 5,000 free words—no credit card required.' }}" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-amber-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800/80">
+        <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt"></i> Primary Action Button
+          </span>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button Text</label>
+              <input type="text" id="bottom_cta_primary_text" value="{{ hero.pricing_bottom_cta_primary_text|default:'Start Free (₹0)' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button URL</label>
+              <input type="text" id="bottom_cta_primary_url" value="{{ hero.pricing_bottom_cta_primary_url|default:'https://chat.aiaxom.co.in/' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+          <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Secondary Action Button
+          </span>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button Text</label>
+              <input type="text" id="bottom_cta_secondary_text" value="{{ hero.pricing_bottom_cta_secondary_text|default:'Upgrade to Pro (₹399/mo)' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button URL</label>
+              <input type="text" id="bottom_cta_secondary_url" value="{{ hero.pricing_bottom_cta_secondary_url|default:'https://chat.aiaxom.co.in/' }}" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs focus:outline-none focus:border-amber-500">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Comparison Category Modal -->
@@ -998,6 +1261,63 @@ async function toggleComparisonRow(id) {
     }
   } catch (err) {
     showToast('Error toggling row', 'error');
+  }
+}
+
+async function savePricingExtraCards() {
+  const payload = {
+    pricing_trust_cards_active: document.getElementById('pricing_trust_cards_active')?.checked ?? true,
+    card1_title: document.getElementById('card1_title')?.value || '',
+    card1_desc: document.getElementById('card1_desc')?.value || '',
+    card1_tags: document.getElementById('card1_tags')?.value || '',
+    card1_icon: document.getElementById('card1_icon')?.value || '',
+
+    card2_title: document.getElementById('card2_title')?.value || '',
+    card2_desc: document.getElementById('card2_desc')?.value || '',
+    card2_tags: document.getElementById('card2_tags')?.value || '',
+    card2_icon: document.getElementById('card2_icon')?.value || '',
+
+    card3_title: document.getElementById('card3_title')?.value || '',
+    card3_desc: document.getElementById('card3_desc')?.value || '',
+    card3_tags: document.getElementById('card3_tags')?.value || '',
+    card3_icon: document.getElementById('card3_icon')?.value || '',
+
+    pricing_callouts_active: document.getElementById('pricing_callouts_active')?.checked ?? true,
+    student_badge: document.getElementById('student_badge')?.value || '',
+    student_title: document.getElementById('student_title')?.value || '',
+    student_desc: document.getElementById('student_desc')?.value || '',
+    student_btn_text: document.getElementById('student_btn_text')?.value || '',
+    student_btn_url: document.getElementById('student_btn_url')?.value || '',
+
+    enterprise_badge: document.getElementById('enterprise_badge')?.value || '',
+    enterprise_title: document.getElementById('enterprise_title')?.value || '',
+    enterprise_desc: document.getElementById('enterprise_desc')?.value || '',
+    enterprise_btn_text: document.getElementById('enterprise_btn_text')?.value || '',
+    enterprise_btn_url: document.getElementById('enterprise_btn_url')?.value || '',
+
+    pricing_bottom_cta_active: document.getElementById('pricing_bottom_cta_active')?.checked ?? true,
+    bottom_cta_heading: document.getElementById('bottom_cta_heading')?.value || '',
+    bottom_cta_subheading: document.getElementById('bottom_cta_subheading')?.value || '',
+    bottom_cta_primary_text: document.getElementById('bottom_cta_primary_text')?.value || '',
+    bottom_cta_primary_url: document.getElementById('bottom_cta_primary_url')?.value || '',
+    bottom_cta_secondary_text: document.getElementById('bottom_cta_secondary_text')?.value || '',
+    bottom_cta_secondary_url: document.getElementById('bottom_cta_secondary_url')?.value || ''
+  };
+
+  try {
+    const res = await fetch('/axomai-content/pricing/cards/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error || 'Failed to save feature cards & CTA', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving feature cards & CTA', 'error');
   }
 }
 </script>

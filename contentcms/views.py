@@ -1014,6 +1014,62 @@ def save_pricing_header_api(request):
 
 @content_admin_required
 @require_POST
+def save_pricing_extra_cards_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        hero, _ = SiteHeroConfig.objects.get_or_create(id=1)
+
+        # Trust Cards
+        if 'pricing_trust_cards_active' in data:
+            hero.pricing_trust_cards_active = bool(data.get('pricing_trust_cards_active'))
+        if 'card1_title' in data: hero.pricing_trust_card1_title = data.get('card1_title', '').strip()
+        if 'card1_desc' in data: hero.pricing_trust_card1_desc = data.get('card1_desc', '').strip()
+        if 'card1_tags' in data: hero.pricing_trust_card1_tags = data.get('card1_tags', '').strip()
+        if 'card1_icon' in data: hero.pricing_trust_card1_icon = data.get('card1_icon', '').strip()
+
+        if 'card2_title' in data: hero.pricing_trust_card2_title = data.get('card2_title', '').strip()
+        if 'card2_desc' in data: hero.pricing_trust_card2_desc = data.get('card2_desc', '').strip()
+        if 'card2_tags' in data: hero.pricing_trust_card2_tags = data.get('card2_tags', '').strip()
+        if 'card2_icon' in data: hero.pricing_trust_card2_icon = data.get('card2_icon', '').strip()
+
+        if 'card3_title' in data: hero.pricing_trust_card3_title = data.get('card3_title', '').strip()
+        if 'card3_desc' in data: hero.pricing_trust_card3_desc = data.get('card3_desc', '').strip()
+        if 'card3_tags' in data: hero.pricing_trust_card3_tags = data.get('card3_tags', '').strip()
+        if 'card3_icon' in data: hero.pricing_trust_card3_icon = data.get('card3_icon', '').strip()
+
+        # Student & Enterprise Callout Cards
+        if 'pricing_callouts_active' in data:
+            hero.pricing_callouts_active = bool(data.get('pricing_callouts_active'))
+        if 'student_badge' in data: hero.pricing_student_badge = data.get('student_badge', '').strip()
+        if 'student_title' in data: hero.pricing_student_title = data.get('student_title', '').strip()
+        if 'student_desc' in data: hero.pricing_student_desc = data.get('student_desc', '').strip()
+        if 'student_btn_text' in data: hero.pricing_student_btn_text = data.get('student_btn_text', '').strip()
+        if 'student_btn_url' in data: hero.pricing_student_btn_url = data.get('student_btn_url', '').strip()
+
+        if 'enterprise_badge' in data: hero.pricing_enterprise_badge = data.get('enterprise_badge', '').strip()
+        if 'enterprise_title' in data: hero.pricing_enterprise_title = data.get('enterprise_title', '').strip()
+        if 'enterprise_desc' in data: hero.pricing_enterprise_desc = data.get('enterprise_desc', '').strip()
+        if 'enterprise_btn_text' in data: hero.pricing_enterprise_btn_text = data.get('enterprise_btn_text', '').strip()
+        if 'enterprise_btn_url' in data: hero.pricing_enterprise_btn_url = data.get('enterprise_btn_url', '').strip()
+
+        # Bottom CTA Banner
+        if 'pricing_bottom_cta_active' in data:
+            hero.pricing_bottom_cta_active = bool(data.get('pricing_bottom_cta_active'))
+        if 'bottom_cta_heading' in data: hero.pricing_bottom_cta_heading = data.get('bottom_cta_heading', '').strip()
+        if 'bottom_cta_subheading' in data: hero.pricing_bottom_cta_subheading = data.get('bottom_cta_subheading', '').strip()
+        if 'bottom_cta_primary_text' in data: hero.pricing_bottom_cta_primary_text = data.get('bottom_cta_primary_text', '').strip()
+        if 'bottom_cta_primary_url' in data: hero.pricing_bottom_cta_primary_url = data.get('bottom_cta_primary_url', '').strip()
+        if 'bottom_cta_secondary_text' in data: hero.pricing_bottom_cta_secondary_text = data.get('bottom_cta_secondary_text', '').strip()
+        if 'bottom_cta_secondary_url' in data: hero.pricing_bottom_cta_secondary_url = data.get('bottom_cta_secondary_url', '').strip()
+
+        hero.save()
+        return JsonResponse({'success': True, 'message': 'Pricing extra feature cards saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
 def save_pricing_plan_api(request):
     try:
         data = json.loads(request.body.decode('utf-8'))
@@ -2462,6 +2518,56 @@ def get_landing_content_payload():
             'active': hero.pricing_section_active if hero else True,
         },
         'pricing_comparison': pricing_comparison,
+        'pricing_trust_cards': {
+            'active': hero.pricing_trust_cards_active if hero else True,
+            'card1': {
+                'title': hero.pricing_trust_card1_title if hero else '100% Indian Payment Methods',
+                'desc': hero.pricing_trust_card1_desc if hero else 'Pay seamlessly with Google Pay, PhonePe, Paytm, BHIM UPI, RuPay, Visa, MasterCard, and Netbanking from 50+ Indian banks.',
+                'tags': [t.strip() for t in (hero.pricing_trust_card1_tags if hero else 'UPI Autopay, RuPay, Razorpay Secured').split(',') if t.strip()],
+                'tags_raw': hero.pricing_trust_card1_tags if hero else 'UPI Autopay, RuPay, Razorpay Secured',
+                'icon': hero.pricing_trust_card1_icon if hero else 'fa-solid fa-credit-card',
+            },
+            'card2': {
+                'title': hero.pricing_trust_card2_title if hero else 'GST Compliant Invoicing',
+                'desc': hero.pricing_trust_card2_desc if hero else 'Add your company GSTIN during checkout to receive automated tax invoices for full Input Tax Credit (ITC) claiming.',
+                'tags': [t.strip() for t in (hero.pricing_trust_card2_tags if hero else 'Instant PDF Invoices, B2B Friendly').split(',') if t.strip()],
+                'tags_raw': hero.pricing_trust_card2_tags if hero else 'Instant PDF Invoices, B2B Friendly',
+                'icon': hero.pricing_trust_card2_icon if hero else 'fa-solid fa-file-invoice-dollar',
+            },
+            'card3': {
+                'title': hero.pricing_trust_card3_title if hero else 'Cancel Anytime with 1 Click',
+                'desc': hero.pricing_trust_card3_desc if hero else 'No hidden phone calls or dark patterns. Upgrade, downgrade, or cancel your subscription instantly from your settings dashboard.',
+                'tags': [t.strip() for t in (hero.pricing_trust_card3_tags if hero else 'Zero Lock-in, Immediate Downgrade').split(',') if t.strip()],
+                'tags_raw': hero.pricing_trust_card3_tags if hero else 'Zero Lock-in, Immediate Downgrade',
+                'icon': hero.pricing_trust_card3_icon if hero else 'fa-solid fa-rotate-left',
+            },
+        },
+        'pricing_callouts': {
+            'active': hero.pricing_callouts_active if hero else True,
+            'student': {
+                'badge': hero.pricing_student_badge if hero else 'Education & Research',
+                'title': hero.pricing_student_title if hero else 'Student & Academic Rebates',
+                'desc': hero.pricing_student_desc if hero else 'Are you a student preparing for APSC, UPSC, Assam Police, or studying at Gauhati University, Cotton University, Tezpur University, or IIT Guwahati? We provide special educational subsidies and group lab licensing across Assam.',
+                'btn_text': hero.pricing_student_btn_text if hero else 'Request Student Discount',
+                'btn_url': hero.pricing_student_btn_url if hero else 'mailto:support@aiaxom.co.in?subject=Student%20Discount%20Inquiry%20-%20Axom%20AI',
+            },
+            'enterprise': {
+                'badge': hero.pricing_enterprise_badge if hero else 'Enterprises & Government',
+                'title': hero.pricing_enterprise_title if hero else 'Custom LLM & Sovereign AI',
+                'desc': hero.pricing_enterprise_desc if hero else 'Need on-premise private deployment, customized RAG knowledge bases for regional government departments, news agencies, or bank compliant Assamese document pipelines? Our Guwahati engineering team builds turnkey solutions.',
+                'btn_text': hero.pricing_enterprise_btn_text if hero else 'Talk to Enterprise Sales',
+                'btn_url': hero.pricing_enterprise_btn_url if hero else 'mailto:support@aiaxom.co.in?subject=Enterprise%20and%20Government%20Inquiry%20-%20Axom%20AI',
+            },
+        },
+        'pricing_bottom_cta': {
+            'active': hero.pricing_bottom_cta_active if hero else True,
+            'heading': hero.pricing_bottom_cta_heading if hero else 'Experience the Future of Assamese AI',
+            'subheading': hero.pricing_bottom_cta_subheading if hero else 'Join thousands of students, researchers, creators and businesses across Assam accelerating their workflow with Axom AI.',
+            'primary_btn_text': hero.pricing_bottom_cta_primary_text if hero else 'Start Chatting Free',
+            'primary_btn_url': hero.pricing_bottom_cta_primary_url if hero else 'https://chat.aiaxom.co.in/',
+            'secondary_btn_text': hero.pricing_bottom_cta_secondary_text if hero else 'Explore 20+ Tools',
+            'secondary_btn_url': hero.pricing_bottom_cta_secondary_url if hero else 'https://aiaxom.co.in/tools',
+        },
         'insights_header': {
             'badge': hero.insights_badge if hero else 'Insights',
             'title_prefix': hero.insights_title_prefix if hero else 'Learn, Explore &',
