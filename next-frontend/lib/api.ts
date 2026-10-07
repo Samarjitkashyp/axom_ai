@@ -238,6 +238,26 @@ export interface LandingCMSData {
     active: boolean;
     plans: PricingPlan[];
   };
+  pricing_comparison?: {
+    badge: string;
+    title: string;
+    subheading: string;
+    active: boolean;
+    categories: Array<{
+      id: number;
+      category: string;
+      order: number;
+      items: Array<{
+        id: number;
+        feature: string;
+        free: boolean | string;
+        starter: boolean | string;
+        pro: boolean | string;
+        business: boolean | string;
+        order: number;
+      }>;
+    }>;
+  };
   insights_header: {
     badge: string;
     title_prefix: string;

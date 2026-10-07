@@ -325,123 +325,127 @@ export default async function PricingPage() {
         </section>
 
         {/* Feature Comparison Table Section */}
-        <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/80 dark:bg-[#040914]/80">
-          <div className="max-w-7xl mx-auto px-5">
-            <div className="text-center max-w-3xl mx-auto mb-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4">
-                <Zap size={14} /> Full Plan Comparison
+        {(cms?.pricing_comparison?.active !== false) && (
+          <section id="comparison" className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/80 dark:bg-[#040914]/80">
+            <div className="max-w-7xl mx-auto px-5">
+              <div className="text-center max-w-3xl mx-auto mb-14">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4">
+                  <Zap size={14} /> {cms?.pricing_comparison?.badge || 'Full Plan Comparison'}
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
+                  {cms?.pricing_comparison?.title || 'Compare Every Feature Side-by-Side'}
+                </h2>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+                  {cms?.pricing_comparison?.subheading || 'Detailed breakdown of models, tools, limits, and enterprise capabilities across all Axom AI tiers.'}
+                </p>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-                Compare Every Feature Side-by-Side
-              </h2>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-                Detailed breakdown of models, tools, limits, and enterprise capabilities across all Axom AI tiers.
-              </p>
-            </div>
 
-            {/* Table Container */}
-            <div className="overflow-x-auto rounded-2xl border border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-2xl backdrop-blur-md">
-              <table className="w-full text-left border-collapse min-w-[700px]">
-                <thead>
-                  <tr className="border-b border-emerald-900/15 dark:border-white/10 bg-white/80 dark:bg-slate-950/80">
-                    <th className="p-4 sm:p-5 text-sm font-bold text-slate-700 dark:text-slate-300 w-2/5">
-                      Features &amp; Capabilities
-                    </th>
-                    {plans.map((p) => (
-                      <th
-                        key={p.id}
-                        className={`p-4 sm:p-5 text-center text-sm ${
-                          p.popular
-                            ? 'font-extrabold text-emerald-700 dark:text-emerald-400 w-[15%] bg-emerald-500/10 border-x border-emerald-500/20'
-                            : 'font-extrabold text-slate-700 dark:text-slate-300 w-[15%]'
-                        }`}
-                      >
-                        {p.name} (₹{p.monthlyPrice}){p.popular ? ' ★' : ''}
+              {/* Table Container */}
+              <div className="overflow-x-auto rounded-2xl border border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-2xl backdrop-blur-md">
+                <table className="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="border-b border-emerald-900/15 dark:border-white/10 bg-white/80 dark:bg-slate-950/80">
+                      <th className="p-4 sm:p-5 text-sm font-bold text-slate-700 dark:text-slate-300 w-2/5">
+                        Features &amp; Capabilities
                       </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARISON_CATEGORIES.map((cat, cIdx) => (
-                    <React.Fragment key={cIdx}>
-                      {/* Category Row */}
-                      <tr className="bg-white/[0.02] border-y border-emerald-900/15 dark:border-white/10">
-                        <td
-                          colSpan={5}
-                          className="p-3.5 px-5 text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/5"
+                      {plans.map((p) => (
+                        <th
+                          key={p.id}
+                          className={`p-4 sm:p-5 text-center text-sm ${
+                            p.popular
+                              ? 'font-extrabold text-emerald-700 dark:text-emerald-400 w-[15%] bg-emerald-500/10 border-x border-emerald-500/20'
+                              : 'font-extrabold text-slate-700 dark:text-slate-300 w-[15%]'
+                          }`}
                         >
-                          {cat.category}
-                        </td>
-                      </tr>
-
-                      {/* Items */}
-                      {cat.items.map((item, iIdx) => (
-                        <tr
-                          key={iIdx}
-                          className="border-b border-emerald-900/10 dark:border-white/5 hover:bg-white/[0.02] transition"
-                        >
-                          <td className="p-4 px-5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
-                            {item.feature}
-                          </td>
-
-                          {/* Free */}
-                          <td className="p-4 text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                            {typeof item.free === 'boolean' ? (
-                              item.free ? (
-                                <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
-                              ) : (
-                                <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                              )
-                            ) : (
-                              <span>{item.free}</span>
-                            )}
-                          </td>
-
-                          {/* Starter */}
-                          <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                            {typeof item.starter === 'boolean' ? (
-                              item.starter ? (
-                                <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
-                              ) : (
-                                <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                              )
-                            ) : (
-                              <span>{item.starter}</span>
-                            )}
-                          </td>
-
-                          {/* Pro (Highlighted) */}
-                          <td className="p-4 text-center text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/5 border-x border-emerald-500/20">
-                            {typeof item.pro === 'boolean' ? (
-                              item.pro ? (
-                                <Check size={18} className="text-emerald-700 dark:text-emerald-400 mx-auto stroke-[2.5]" />
-                              ) : (
-                                <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                              )
-                            ) : (
-                              <span className="font-bold text-emerald-950 dark:text-white">{item.pro}</span>
-                            )}
-                          </td>
-
-                          {/* Business */}
-                          <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                            {typeof item.business === 'boolean' ? (
-                              item.business ? (
-                                <Check size={16} className="text-teal-700 dark:text-teal-400 mx-auto" />
-                              ) : (
-                                <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                              )
-                            ) : (
-                              <span>{item.business}</span>
-                            )}
+                          {p.name} (₹{p.monthlyPrice}){p.popular ? ' ★' : ''}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(cms?.pricing_comparison?.categories && cms.pricing_comparison.categories.length > 0
+                      ? cms.pricing_comparison.categories
+                      : COMPARISON_CATEGORIES
+                    ).map((cat: any, cIdx: number) => (
+                      <React.Fragment key={cat.id || cIdx}>
+                        {/* Category Row */}
+                        <tr className="bg-white/[0.02] border-y border-emerald-900/15 dark:border-white/10">
+                          <td
+                            colSpan={5}
+                            className="p-3.5 px-5 text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/5"
+                          >
+                            {cat.category}
                           </td>
                         </tr>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+
+                        {/* Items */}
+                        {cat.items.map((item: any, iIdx: number) => (
+                          <tr
+                            key={item.id || iIdx}
+                            className="border-b border-emerald-900/10 dark:border-white/5 hover:bg-white/[0.02] transition"
+                          >
+                            <td className="p-4 px-5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
+                              {item.feature}
+                            </td>
+
+                            {/* Free */}
+                            <td className="p-4 text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                              {typeof item.free === 'boolean' ? (
+                                item.free ? (
+                                  <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
+                                ) : (
+                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
+                                )
+                              ) : (
+                                <span>{item.free}</span>
+                              )}
+                            </td>
+
+                            {/* Starter */}
+                            <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                              {typeof item.starter === 'boolean' ? (
+                                item.starter ? (
+                                  <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
+                                ) : (
+                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
+                                )
+                              ) : (
+                                <span>{item.starter}</span>
+                              )}
+                            </td>
+
+                            {/* Pro (Highlighted) */}
+                            <td className="p-4 text-center text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/5 border-x border-emerald-500/20">
+                              {typeof item.pro === 'boolean' ? (
+                                item.pro ? (
+                                  <Check size={18} className="text-emerald-700 dark:text-emerald-400 mx-auto stroke-[2.5]" />
+                                ) : (
+                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
+                                )
+                              ) : (
+                                <span className="font-bold text-emerald-950 dark:text-white">{item.pro}</span>
+                              )}
+                            </td>
+
+                            {/* Business */}
+                            <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                              {typeof item.business === 'boolean' ? (
+                                item.business ? (
+                                  <Check size={16} className="text-teal-700 dark:text-teal-400 mx-auto" />
+                                ) : (
+                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
+                                )
+                              ) : (
+                                <span>{item.business}</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
             {/* Bottom Note */}
             <div className="flex flex-wrap items-center justify-between gap-4 mt-6 text-xs text-slate-600 dark:text-slate-400 px-2">
@@ -459,6 +463,7 @@ export default async function PricingPage() {
             </div>
           </div>
         </section>
+        )}
 
         {/* Payment Methods & Indian Trust Section */}
         <section className="py-16 sm:py-24 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#030712]">

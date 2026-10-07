@@ -30,6 +30,8 @@ from .models import (
     FAQPageConfig,
     SiteSEOSetting,
     LandingPricingPlan,
+    PricingComparisonCategory,
+    PricingComparisonRow,
     HeaderSettings,
     HeaderNavItem,
     HeaderMegaMenuItem,
@@ -804,15 +806,182 @@ def delete_faq_api(request, faq_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+def _ensure_default_pricing_comparison_data():
+    if PricingComparisonCategory.objects.exists():
+        return
+    
+    defaults = [
+        {
+            'category': 'Core AI Models & Intelligence',
+            'order': 1,
+            'items': [
+                { 'feature': 'Monthly Word Quota', 'free': '5,000 words', 'starter': '50,000 words', 'pro': '250,000 words', 'business': '1,000,000 words (1M)', 'order': 1 },
+                { 'feature': 'Basic AI Models (Llama 8B, Gemma 2)', 'free': 'true', 'starter': 'true', 'pro': 'true', 'business': 'true', 'order': 2 },
+                { 'feature': 'Flagship Models (Claude 3.5 Sonnet, Llama 70B)', 'free': 'false', 'starter': 'false', 'pro': 'true', 'business': 'true', 'order': 3 },
+                { 'feature': 'Native Assamese Fine-Tuning & Nuance', 'free': 'true', 'starter': 'true', 'pro': 'true', 'business': 'true', 'order': 4 },
+                { 'feature': 'Real-Time Web Search & Citations', 'free': 'Standard', 'starter': 'Fast', 'pro': 'Ultra-Fast', 'business': 'Instant Priority', 'order': 5 },
+            ],
+        },
+        {
+            'category': 'Document & Tool Utilities',
+            'order': 2,
+            'items': [
+                { 'feature': 'Daily Document Conversions', 'free': '5 files / day', 'starter': '50 files / mo', 'pro': 'Unlimited', 'business': 'Unlimited', 'order': 1 },
+                { 'feature': 'PDF to Word & Word to PDF Tools', 'free': 'Standard', 'starter': 'Full Access', 'pro': 'Full Access', 'business': 'Full Access', 'order': 2 },
+                { 'feature': 'Image Format Converter (JPG, PNG, WebP)', 'free': '20 files / day', 'starter': 'Unlimited', 'pro': 'Batch Mode (20 files)', 'business': 'Batch Mode', 'order': 3 },
+                { 'feature': 'Smart OCR (Scanned Assamese/English Docs)', 'free': 'false', 'starter': 'false', 'pro': 'true', 'business': 'true', 'order': 4 },
+                { 'feature': 'Interactive Ask-PDF Document Assistant', 'free': 'false', 'starter': 'Up to 10 MB', 'pro': 'Up to 25 MB', 'business': 'Up to 100 MB', 'order': 5 },
+            ],
+        },
+        {
+            'category': 'Creative & Multimodal Suites',
+            'order': 3,
+            'items': [
+                { 'feature': 'AI Image Generation (FLUX & Imagen)', 'free': '3 images / day', 'starter': '25 images / mo', 'pro': '100 images / mo', 'business': 'Unlimited', 'order': 1 },
+                { 'feature': 'Speech Voice Mode (Assamese Audio)', 'free': 'false', 'starter': 'false', 'pro': 'true', 'business': 'true', 'order': 2 },
+                { 'feature': 'Chat History Export (PDF & DOCX)', 'free': 'false', 'starter': 'true', 'pro': 'true', 'business': 'true', 'order': 3 },
+            ],
+        },
+        {
+            'category': 'Security, Team & Enterprise',
+            'order': 4,
+            'items': [
+                { 'feature': 'Data Residency in India (DPDP Act 2023)', 'free': 'true', 'starter': 'true', 'pro': 'true', 'business': 'true', 'order': 1 },
+                { 'feature': 'Team Member Seats', 'free': '1 user', 'starter': '1 user', 'pro': '1 user', 'business': 'Up to 5 users', 'order': 2 },
+                { 'feature': 'Custom Knowledge Base (RAG) Indexing', 'free': 'false', 'starter': 'false', 'pro': 'false', 'business': 'true', 'order': 3 },
+                { 'feature': 'Dedicated REST API Keys', 'free': 'false', 'starter': 'false', 'pro': 'false', 'business': 'true', 'order': 4 },
+                { 'feature': 'GST Invoicing & Input Tax Credit', 'free': 'false', 'starter': 'true', 'pro': 'true', 'business': 'true', 'order': 5 },
+                { 'feature': 'Customer Support SLA', 'free': 'Community', 'starter': 'Email Support', 'pro': '24/7 Priority WhatsApp', 'business': 'Dedicated Account Manager', 'order': 6 },
+            ],
+        },
+    ]
+
+    for cat_data in defaults:
+        cat = PricingComparisonCategory.objects.create(name=cat_data['category'], order=cat_data['order'])
+        for itm in cat_data['items']:
+            PricingComparisonRow.objects.create(
+                category=cat,
+                feature_name=itm['feature'],
+                free_val=itm['free'],
+                starter_val=itm['starter'],
+                pro_val=itm['pro'],
+                business_val=itm['business'],
+                order=itm['order']
+            )
+
+
 @content_admin_required
 def pricing_page(request):
+    _ensure_default_pricing_comparison_data()
     hero, _ = SiteHeroConfig.objects.get_or_create(id=1)
     plans = LandingPricingPlan.objects.all().order_by('order', 'id')
+    comparison_categories = PricingComparisonCategory.objects.prefetch_related('rows').all().order_by('order', 'id')
     return render(request, 'contentcms/pricing.html', {
         'active': 'pricing',
         'hero': hero,
         'plans': plans,
+        'comparison_categories': comparison_categories,
     })
+
+
+@content_admin_required
+@require_POST
+def save_pricing_comparison_header_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        hero, _ = SiteHeroConfig.objects.get_or_create(id=1)
+        if 'badge' in data:
+            hero.pricing_comparison_badge = data.get('badge', '').strip()
+        if 'title' in data:
+            hero.pricing_comparison_title = data.get('title', '').strip()
+        if 'subheading' in data:
+            hero.pricing_comparison_subheading = data.get('subheading', '').strip()
+        if 'active' in data:
+            hero.pricing_comparison_active = bool(data.get('active'))
+        hero.save()
+        return JsonResponse({'success': True, 'message': 'Comparison table header settings updated!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_pricing_comparison_category_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        cid = data.get('id')
+        cat = get_object_or_404(PricingComparisonCategory, id=cid) if cid else PricingComparisonCategory()
+        name = data.get('name', '').strip()
+        if not name:
+            return JsonResponse({'success': False, 'error': 'Category name is required'}, status=400)
+        cat.name = name
+        cat.order = int(data.get('order', 0))
+        cat.is_active = bool(data.get('is_active', True))
+        cat.save()
+        return JsonResponse({'success': True, 'message': 'Comparison category saved successfully!', 'id': cat.id})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_pricing_comparison_category_api(request, category_id):
+    try:
+        cat = get_object_or_404(PricingComparisonCategory, id=category_id)
+        cat.delete()
+        return JsonResponse({'success': True, 'message': 'Comparison category deleted successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_pricing_comparison_row_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        rid = data.get('id')
+        row = get_object_or_404(PricingComparisonRow, id=rid) if rid else PricingComparisonRow()
+        cat_id = data.get('category_id')
+        if cat_id:
+            row.category = get_object_or_404(PricingComparisonCategory, id=cat_id)
+        feature_name = data.get('feature_name', '').strip()
+        if not feature_name:
+            return JsonResponse({'success': False, 'error': 'Feature name is required'}, status=400)
+        row.feature_name = feature_name
+        row.free_val = data.get('free_val', 'true').strip()
+        row.starter_val = data.get('starter_val', 'true').strip()
+        row.pro_val = data.get('pro_val', 'true').strip()
+        row.business_val = data.get('business_val', 'true').strip()
+        row.order = int(data.get('order', 0))
+        row.is_active = bool(data.get('is_active', True))
+        row.save()
+        return JsonResponse({'success': True, 'message': 'Comparison feature row saved successfully!', 'id': row.id})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_pricing_comparison_row_api(request, row_id):
+    try:
+        row = get_object_or_404(PricingComparisonRow, id=row_id)
+        row.delete()
+        return JsonResponse({'success': True, 'message': 'Comparison feature row deleted.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_pricing_comparison_row_api(request, row_id):
+    try:
+        row = get_object_or_404(PricingComparisonRow, id=row_id)
+        row.is_active = not row.is_active
+        row.save()
+        status_text = "Active (Visible on frontend)" if row.is_active else "Inactive (Hidden from frontend)"
+        return JsonResponse({'success': True, 'is_active': row.is_active, 'message': f"Feature '{row.feature_name}' is now {status_text}."})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
 @content_admin_required
@@ -2216,6 +2385,42 @@ def get_landing_content_payload():
 
     seo = SiteSEOSetting.objects.first()
 
+    comparison_cats_qs = PricingComparisonCategory.objects.filter(is_active=True).prefetch_related('rows').order_by('order', 'id')
+    comparison_categories = []
+    for cat in comparison_cats_qs:
+        rows = []
+        for r in cat.rows.filter(is_active=True).order_by('order', 'id'):
+            def _parse_val(v):
+                if v.lower() == 'true':
+                    return True
+                elif v.lower() == 'false':
+                    return False
+                return v
+
+            rows.append({
+                'id': r.id,
+                'feature': r.feature_name,
+                'free': _parse_val(r.free_val),
+                'starter': _parse_val(r.starter_val),
+                'pro': _parse_val(r.pro_val),
+                'business': _parse_val(r.business_val),
+                'order': r.order,
+            })
+        comparison_categories.append({
+            'id': cat.id,
+            'category': cat.name,
+            'order': cat.order,
+            'items': rows
+        })
+
+    pricing_comparison = {
+        'badge': hero.pricing_comparison_badge if hero else 'Full Plan Comparison',
+        'title': hero.pricing_comparison_title if hero else 'Compare Every Feature Side-by-Side',
+        'subheading': hero.pricing_comparison_subheading if hero else 'Detailed breakdown of models, tools, limits, and enterprise capabilities across all Axom AI tiers.',
+        'active': hero.pricing_comparison_active if hero else True,
+        'categories': comparison_categories,
+    }
+
     return {
         'hero': hero,
         'banner': banner,
@@ -2256,6 +2461,7 @@ def get_landing_content_payload():
             'glance_active': hero.pricing_glance_active if hero else True,
             'active': hero.pricing_section_active if hero else True,
         },
+        'pricing_comparison': pricing_comparison,
         'insights_header': {
             'badge': hero.insights_badge if hero else 'Insights',
             'title_prefix': hero.insights_title_prefix if hero else 'Learn, Explore &',

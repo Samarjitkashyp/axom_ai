@@ -6,9 +6,10 @@ from .models import (
     SiteHeroConfig, PartnerLogo, AnnouncementBanner,
     InsightArticle, LandingFeature, LandingUseCase,
     Testimonial, LandingFAQ, FAQPageConfig, SiteSEOSetting, LandingPricingPlan,
+    PricingComparisonCategory, PricingComparisonRow,
     HeaderSettings, HeaderNavItem, HeaderMegaMenuItem,
     FooterSettings, FooterColumn, FooterColumnLink, FooterSocialLink,
-    AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ, DEFAULT_COMPARISON_ROWS
+    AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ
 )
 
 
@@ -220,6 +221,32 @@ def cms_landing_api(request):
             'glance_active': hero.pricing_glance_active if hero else True,
             'active': hero.pricing_section_active if hero else True,
             'plans': pricing_plans,
+        },
+        'pricing_comparison': {
+            'badge': hero.pricing_comparison_badge if hero else 'Full Plan Comparison',
+            'title': hero.pricing_comparison_title if hero else 'Compare Every Feature Side-by-Side',
+            'subheading': hero.pricing_comparison_subheading if hero else 'Detailed breakdown of models, tools, limits, and enterprise capabilities across all Axom AI tiers.',
+            'active': hero.pricing_comparison_active if hero else True,
+            'categories': [
+                {
+                    'id': cat.id,
+                    'category': cat.name,
+                    'order': cat.order,
+                    'items': [
+                        {
+                            'id': r.id,
+                            'feature': r.feature_name,
+                            'free': True if r.free_val.lower() == 'true' else (False if r.free_val.lower() == 'false' else r.free_val),
+                            'starter': True if r.starter_val.lower() == 'true' else (False if r.starter_val.lower() == 'false' else r.starter_val),
+                            'pro': True if r.pro_val.lower() == 'true' else (False if r.pro_val.lower() == 'false' else r.pro_val),
+                            'business': True if r.business_val.lower() == 'true' else (False if r.business_val.lower() == 'false' else r.business_val),
+                            'order': r.order,
+                        }
+                        for r in cat.rows.filter(is_active=True).order_by('order', 'id')
+                    ]
+                }
+                for cat in PricingComparisonCategory.objects.filter(is_active=True).prefetch_related('rows').order_by('order', 'id')
+            ]
         },
         'insights_header': {
             'badge': hero.insights_badge if hero else 'Insights',

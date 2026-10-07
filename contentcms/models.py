@@ -46,6 +46,10 @@ class SiteHeroConfig(models.Model):
         blank=True
     )
     pricing_glance_active = models.BooleanField(default=True)
+    pricing_comparison_badge = models.CharField(max_length=100, default='Full Plan Comparison')
+    pricing_comparison_title = models.CharField(max_length=200, default='Compare Every Feature Side-by-Side')
+    pricing_comparison_subheading = models.TextField(default='Detailed breakdown of models, tools, limits, and enterprise capabilities across all Axom AI tiers.')
+    pricing_comparison_active = models.BooleanField(default=True)
     pricing_section_active = models.BooleanField(default=True)
     insights_badge = models.CharField(max_length=100, default='Insights')
     insights_title_prefix = models.CharField(max_length=200, default='Learn, Explore &')
@@ -455,6 +459,39 @@ class LandingPricingPlan(models.Model):
         if not self.features_list:
             return []
         return [f.strip() for f in self.features_list.split('\n') if f.strip()]
+
+
+class PricingComparisonCategory(models.Model):
+    name = models.CharField(max_length=150, help_text='e.g. Core AI Models & Intelligence')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Pricing Comparison Category'
+        verbose_name_plural = 'Pricing Comparison Categories'
+
+    def __str__(self):
+        return self.name
+
+
+class PricingComparisonRow(models.Model):
+    category = models.ForeignKey(PricingComparisonCategory, on_delete=models.CASCADE, related_name='rows')
+    feature_name = models.CharField(max_length=200, help_text='e.g. Monthly Word Quota')
+    free_val = models.CharField(max_length=150, default='true', help_text="Can be 'true', 'false', or text like '5,000 words'")
+    starter_val = models.CharField(max_length=150, default='true')
+    pro_val = models.CharField(max_length=150, default='true')
+    business_val = models.CharField(max_length=150, default='true')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Pricing Comparison Row'
+        verbose_name_plural = 'Pricing Comparison Rows'
+
+    def __str__(self):
+        return f"{self.category.name} -> {self.feature_name}"
 
 
 class HeaderSettings(models.Model):

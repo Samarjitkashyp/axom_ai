@@ -40,6 +40,12 @@ urlpatterns = [
     path('pricing/save/', views.save_pricing_plan_api, name='save_pricing_plan_api'),
     path('pricing/toggle/<int:plan_id>/', views.toggle_pricing_plan_api, name='toggle_pricing_plan_api'),
     path('pricing/delete/<int:plan_id>/', views.delete_pricing_plan_api, name='delete_pricing_plan_api'),
+    path('pricing/comparison/header/save/', views.save_pricing_comparison_header_api, name='save_pricing_comparison_header_api'),
+    path('pricing/comparison/category/save/', views.save_pricing_comparison_category_api, name='save_pricing_comparison_category_api'),
+    path('pricing/comparison/category/delete/<int:category_id>/', views.delete_pricing_comparison_category_api, name='delete_pricing_comparison_category_api'),
+    path('pricing/comparison/row/save/', views.save_pricing_comparison_row_api, name='save_pricing_comparison_row_api'),
+    path('pricing/comparison/row/delete/<int:row_id>/', views.delete_pricing_comparison_row_api, name='delete_pricing_comparison_row_api'),
+    path('pricing/comparison/row/toggle/<int:row_id>/', views.toggle_pricing_comparison_row_api, name='toggle_pricing_comparison_row_api'),
     
     # Standalone Pages: About Us Page Manager
     path('pages/about/', views.about_editor, name='about_editor'),
