@@ -402,7 +402,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       "yearlyPrice": {{ p.yearlyPrice|default:0 }},
       "monthlyWords": "{{ p.monthlyWords|default:''|escapejs }}",
       "cta": "{{ p.cta|default:'Upgrade'|escapejs }}",
-      "href": "{{ p.href|default:'https://chat.aiaxom.co.in/upgrade'|escapejs }}",
+      "href": "{{ p.href|default:'https://chat.aiaxom.co.in/'|escapejs }}",
       "featured": {{ p.featured|yesno:"true,false" }},
       "features": [
         {% for f in p.features %}
@@ -440,7 +440,7 @@ try {
 }
 
 const CHAT_URL = "https://chat.aiaxom.co.in/";
-const UPGRADE_URL = "https://chat.aiaxom.co.in/upgrade";
+const UPGRADE_URL = "https://chat.aiaxom.co.in/";
 
 // ─────── ICONS ───────
 const I = ({ p, c = "w-5 h-5" }) => (

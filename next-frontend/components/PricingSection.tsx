@@ -6,7 +6,7 @@ import { Sparkles, Check, ArrowRight } from 'lucide-react';
 import { PricingPlan } from '@/lib/api';
 
 const CHAT_URL = 'https://chat.aiaxom.co.in/';
-const UPGRADE_URL = 'https://chat.aiaxom.co.in/upgrade';
+const UPGRADE_URL = 'https://chat.aiaxom.co.in/';
 
 interface PricingSectionProps {
   header: {

@@ -142,7 +142,7 @@ export default async function PricingPage() {
             monthlyWords: p.monthlyWords || fallback?.monthlyWords || '',
             popular: Boolean(p.featured),
             ctaText: p.cta || fallback?.ctaText || 'Get Started',
-            ctaUrl: p.href || fallback?.ctaUrl || 'https://chat.aiaxom.co.in/upgrade',
+            ctaUrl: p.href || fallback?.ctaUrl || 'https://chat.aiaxom.co.in',
             features: p.features && p.features.length > 0 ? p.features : fallback?.features || [],
             notIncluded: fallback?.notIncluded || [],
           };
@@ -448,18 +448,9 @@ export default async function PricingPage() {
               </div>
 
             {/* Bottom Note */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mt-6 text-xs text-slate-600 dark:text-slate-400 px-2">
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-emerald-700 dark:text-emerald-400" />
-                <span>{cms?.pricing_header?.footer_note || 'All prices in INR. Taxes calculated at checkout according to Indian GST regulations.'}</span>
-              </div>
-              <a
-                href={plans.find((p) => p.popular)?.ctaUrl || 'https://chat.aiaxom.co.in/upgrade'}
-                className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold flex items-center gap-1 transition"
-              >
-                <span>Upgrade in 30 Seconds</span>
-                <ChevronRight size={14} />
-              </a>
+            <div className="flex items-center gap-2 mt-6 text-xs text-slate-600 dark:text-slate-400 px-2">
+              <ShieldCheck size={16} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <span>{cms?.pricing_header?.footer_note || 'All prices in INR. Taxes calculated at checkout according to Indian GST regulations.'}</span>
             </div>
           </div>
         </section>
@@ -624,7 +615,7 @@ export default async function PricingPage() {
                 <ArrowRight size={16} />
               </a>
               <a
-                href="https://chat.aiaxom.co.in/upgrade"
+                href="https://chat.aiaxom.co.in/"
                 className="w-full sm:w-auto px-8 py-4 rounded-xl bg-emerald-900/5 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 text-emerald-950 dark:text-white font-bold text-sm sm:text-base border border-emerald-900/15 dark:border-white/10 transition-all flex items-center justify-center gap-2"
               >
                 <span>Upgrade to Pro (₹399/mo)</span>

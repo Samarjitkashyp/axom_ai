@@ -56,7 +56,7 @@ export const DETAILED_PLANS: DetailedPlan[] = [
     monthlyWords: '50,000 words',
     popular: false,
     ctaText: 'Upgrade to Starter',
-    ctaUrl: 'https://chat.aiaxom.co.in/upgrade',
+    ctaUrl: 'https://chat.aiaxom.co.in',
     features: [
       '50,000 words per month',
       '2x Faster response speed',
@@ -83,7 +83,7 @@ export const DETAILED_PLANS: DetailedPlan[] = [
     monthlyWords: '250,000 words',
     popular: true,
     ctaText: 'Upgrade to Pro',
-    ctaUrl: 'https://chat.aiaxom.co.in/upgrade',
+    ctaUrl: 'https://chat.aiaxom.co.in',
     features: [
       '250,000 words per month',
       'Ultra-fast GPU Compute (Zero Queue)',
@@ -109,7 +109,7 @@ export const DETAILED_PLANS: DetailedPlan[] = [
     monthlyWords: '1,000,000 words',
     popular: false,
     ctaText: 'Upgrade to Business',
-    ctaUrl: 'https://chat.aiaxom.co.in/upgrade',
+    ctaUrl: 'https://chat.aiaxom.co.in',
     features: [
       '1,000,000 words per month (1M words)',
       'Up to 5 Team member seats included',
