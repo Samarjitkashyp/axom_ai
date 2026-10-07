@@ -44,6 +44,7 @@ from .models import (
     WordToPdfFAQ,
     ConverterToolConfig,
     ConverterToolFAQ,
+    PricingFAQ,
 )
 from .converter_defaults import (
     CONVERTER_TOOLS_METADATA,
@@ -870,17 +871,85 @@ def _ensure_default_pricing_comparison_data():
             )
 
 
+DEFAULT_PRICING_FAQS = [
+    {
+        'question': 'How much does Axom AI cost in Indian Rupees (INR)?',
+        'answer': 'Axom AI offers four straightforward plans: Free (₹0/month), Starter (₹199/month, or ₹159/mo yearly), Pro (₹499/month, or ₹399/mo yearly), and Business (₹1,499/month, or ₹1,199/mo yearly). All prices are in Indian Rupees (INR) with no hidden conversion or overseas transaction charges.',
+        'order': 1,
+    },
+    {
+        'question': 'Is Axom AI free to use?',
+        'answer': 'Yes! Axom AI provides a permanently free tier that includes 5,000 words per month, basic Assamese chat, standard document conversions (up to 5 per day), and web chat history retention for 30 days. No credit card is required to sign up.',
+        'order': 2,
+    },
+    {
+        'question': 'What payment methods are supported on Axom AI?',
+        'answer': 'We accept all major Indian payment methods via Razorpay: UPI (Google Pay, PhonePe, Paytm, BHIM), Debit and Credit Cards (RuPay, Visa, MasterCard), Net Banking across 50+ Indian banks, and digital wallets. Transactions are protected by 256-bit SSL encryption.',
+        'order': 3,
+    },
+    {
+        'question': 'How does the monthly word quota work in Axom AI?',
+        'answer': 'Each prompt and AI response in Assamese, English, or Hindi counts toward your monthly quota. The counter resets automatically on the 1st of every calendar month. You can check your live remaining word balance anytime in your account dashboard.',
+        'order': 4,
+    },
+    {
+        'question': 'Can I cancel or change my plan anytime?',
+        'answer': 'Yes, absolutely! There are no long-term contracts or lock-ins. You can upgrade, downgrade, or cancel your subscription at any time with a single click from your Account Settings. If you cancel, your premium benefits remain active until the end of your paid billing period.',
+        'order': 5,
+    },
+    {
+        'question': 'Do you offer GST invoices for businesses and companies in India?',
+        'answer': 'Yes. On all paid plans (Starter, Pro, and Business), you can enter your company name and GSTIN at checkout or in your Billing Settings to receive automated, GST-compliant tax invoices for input tax credit claims.',
+        'order': 6,
+    },
+    {
+        'question': 'What is the advantage of Axom AI Pro compared to OpenAI ChatGPT Plus?',
+        'answer': 'ChatGPT Plus costs approximately ₹2,000/month ($20 USD) plus international transaction fees and lacks deep regional Assamese fine-tuning. Axom AI Pro costs just ₹499/month, supports native Assamese idioms, local payment via UPI, and includes 20+ integrated document conversion tools, Assamese OCR, and sub-second Indian edge cloud latency.',
+        'order': 7,
+    },
+    {
+        'question': 'Are there discounts for students, educators, and schools in Assam?',
+        'answer': 'Yes! We offer special educational programs and group subsidies for students and educational institutions across Assam and the Northeast. Reach out to support@aiaxom.co.in with your institutional email or student ID to unlock academic pricing.',
+        'order': 8,
+    },
+    {
+        'question': 'What happens if I reach my monthly word limit?',
+        'answer': 'If you exhaust your monthly quota before the 1st of the month, you can either upgrade to a higher tier with instant prorated activation or top up your quota without losing existing chats and settings.',
+        'order': 9,
+    },
+    {
+        'question': 'Is API access included in the pricing plans?',
+        'answer': 'Yes. The Business plan includes dedicated REST API keys with high rate limits, allowing developers, agencies, and enterprises to integrate Axom AI’s Assamese LLM and OCR capabilities directly into their web and mobile applications.',
+        'order': 10,
+    },
+]
+
+
+def _ensure_default_pricing_faqs():
+    if PricingFAQ.objects.count() == 0:
+        for itm in DEFAULT_PRICING_FAQS:
+            PricingFAQ.objects.create(
+                question=itm['question'],
+                answer=itm['answer'],
+                order=itm['order'],
+                is_active=True
+            )
+
+
 @content_admin_required
 def pricing_page(request):
     _ensure_default_pricing_comparison_data()
+    _ensure_default_pricing_faqs()
     hero, _ = SiteHeroConfig.objects.get_or_create(id=1)
     plans = LandingPricingPlan.objects.all().order_by('order', 'id')
     comparison_categories = PricingComparisonCategory.objects.prefetch_related('rows').all().order_by('order', 'id')
+    pricing_faqs = PricingFAQ.objects.all().order_by('order', 'id')
     return render(request, 'contentcms/pricing.html', {
         'active': 'pricing',
         'hero': hero,
         'plans': plans,
         'comparison_categories': comparison_categories,
+        'pricing_faqs': pricing_faqs,
     })
 
 
@@ -1127,6 +1196,71 @@ def toggle_pricing_plan_api(request, plan_id):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_pricing_faq_header_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        hero, _ = SiteHeroConfig.objects.get_or_create(id=1)
+        if 'badge' in data: hero.pricing_faq_badge = data.get('badge', '').strip()
+        if 'title' in data: hero.pricing_faq_title = data.get('title', '').strip()
+        if 'subheading' in data: hero.pricing_faq_subheading = data.get('subheading', '').strip()
+        if 'active' in data: hero.pricing_faq_active = bool(data.get('active'))
+        hero.save()
+        return JsonResponse({'success': True, 'message': 'Pricing FAQ header settings saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_pricing_faq_item_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        faq_id = data.get('id')
+        faq = get_object_or_404(PricingFAQ, id=faq_id) if faq_id else PricingFAQ()
+        question = data.get('question', '').strip()
+        answer = data.get('answer', '').strip()
+        if not question:
+            return JsonResponse({'success': False, 'error': 'Question is required.'}, status=400)
+        if not answer:
+            return JsonResponse({'success': False, 'error': 'Answer is required.'}, status=400)
+        faq.question = question
+        faq.answer = answer
+        faq.order = int(data.get('order', 0))
+        if 'is_active' in data:
+            faq.is_active = bool(data.get('is_active'))
+        faq.save()
+        return JsonResponse({'success': True, 'message': 'Pricing FAQ question saved successfully!', 'id': faq.id})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_pricing_faq_item_api(request, faq_id):
+    try:
+        faq = get_object_or_404(PricingFAQ, id=faq_id)
+        faq.delete()
+        return JsonResponse({'success': True, 'message': 'Pricing FAQ question deleted successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_pricing_faq_active_api(request, faq_id):
+    try:
+        faq = get_object_or_404(PricingFAQ, id=faq_id)
+        faq.is_active = not faq.is_active
+        faq.save()
+        status_text = "Active (Visible on frontend)" if faq.is_active else "Inactive (Hidden from frontend)"
+        return JsonResponse({'success': True, 'is_active': faq.is_active, 'message': f"Question status is now {status_text}."})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
 
 
 @content_admin_required
@@ -2567,6 +2701,16 @@ def get_landing_content_payload():
             'primary_btn_url': hero.pricing_bottom_cta_primary_url if hero else 'https://chat.aiaxom.co.in/',
             'secondary_btn_text': hero.pricing_bottom_cta_secondary_text if hero else 'Explore 20+ Tools',
             'secondary_btn_url': hero.pricing_bottom_cta_secondary_url if hero else 'https://aiaxom.co.in/tools',
+        },
+        'pricing_faqs': {
+            'badge': hero.pricing_faq_badge if hero else 'Pricing FAQ',
+            'title': hero.pricing_faq_title if hero else 'Frequently Asked Questions',
+            'subheading': hero.pricing_faq_subheading if hero else 'Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.',
+            'active': hero.pricing_faq_active if hero else True,
+            'items': [
+                {'id': f.id, 'q': f.question, 'a': f.answer, 'order': f.order}
+                for f in PricingFAQ.objects.filter(is_active=True).order_by('order', 'id')
+            ]
         },
         'insights_header': {
             'badge': hero.insights_badge if hero else 'Insights',

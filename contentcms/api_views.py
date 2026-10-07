@@ -9,7 +9,7 @@ from .models import (
     PricingComparisonCategory, PricingComparisonRow,
     HeaderSettings, HeaderNavItem, HeaderMegaMenuItem,
     FooterSettings, FooterColumn, FooterColumnLink, FooterSocialLink,
-    AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ
+    AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ, PricingFAQ
 )
 
 
@@ -297,6 +297,16 @@ def cms_landing_api(request):
             'primary_btn_url': hero.pricing_bottom_cta_primary_url if hero else 'https://chat.aiaxom.co.in/',
             'secondary_btn_text': hero.pricing_bottom_cta_secondary_text if hero else 'Explore 20+ Tools',
             'secondary_btn_url': hero.pricing_bottom_cta_secondary_url if hero else 'https://aiaxom.co.in/tools',
+        },
+        'pricing_faqs': {
+            'badge': hero.pricing_faq_badge if hero else 'Pricing FAQ',
+            'title': hero.pricing_faq_title if hero else 'Frequently Asked Questions',
+            'subheading': hero.pricing_faq_subheading if hero else 'Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.',
+            'active': hero.pricing_faq_active if hero else True,
+            'items': [
+                {'id': f.id, 'q': f.question, 'a': f.answer, 'order': f.order}
+                for f in PricingFAQ.objects.filter(is_active=True).order_by('order', 'id')
+            ]
         },
         'insights_header': {
             'badge': hero.insights_badge if hero else 'Insights',

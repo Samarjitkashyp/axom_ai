@@ -14,6 +14,7 @@ from .models import (
     WordToPdfFAQ,
     ConverterToolConfig,
     ConverterToolFAQ,
+    PricingFAQ,
 )
 
 
@@ -100,6 +101,14 @@ class ConverterToolFAQAdmin(admin.ModelAdmin):
     list_filter = ['tool_config__tool_slug', 'is_active']
     list_editable = ['order', 'is_active']
     search_fields = ['question', 'answer']
+
+
+@admin.register(PricingFAQ)
+class PricingFAQAdmin(admin.ModelAdmin):
+    list_display = ['question', 'order', 'is_active', 'updated_at']
+    list_editable = ['order', 'is_active']
+    search_fields = ['question', 'answer']
+
 
 
 

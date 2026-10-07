@@ -91,6 +91,13 @@ class SiteHeroConfig(models.Model):
     pricing_bottom_cta_primary_url = models.CharField(max_length=300, default='https://chat.aiaxom.co.in/')
     pricing_bottom_cta_secondary_text = models.CharField(max_length=100, default='Explore 20+ Tools')
     pricing_bottom_cta_secondary_url = models.CharField(max_length=300, default='https://aiaxom.co.in/tools')
+
+    # Pricing FAQs Header & Section Settings
+    pricing_faq_badge = models.CharField(max_length=100, default='Pricing FAQ')
+    pricing_faq_title = models.CharField(max_length=200, default='Frequently Asked Questions')
+    pricing_faq_subheading = models.TextField(default='Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.')
+    pricing_faq_active = models.BooleanField(default=True)
+
     insights_badge = models.CharField(max_length=100, default='Insights')
     insights_title_prefix = models.CharField(max_length=200, default='Learn, Explore &')
     insights_title_highlight = models.CharField(max_length=200, default='Stay Updated')
@@ -530,8 +537,21 @@ class PricingComparisonRow(models.Model):
         verbose_name = 'Pricing Comparison Row'
         verbose_name_plural = 'Pricing Comparison Rows'
 
+class PricingFAQ(models.Model):
+    question = models.CharField(max_length=300)
+    answer = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Pricing FAQ'
+        verbose_name_plural = 'Pricing FAQs'
+
     def __str__(self):
-        return f"{self.category.name} -> {self.feature_name}"
+        return self.question
 
 
 class HeaderSettings(models.Model):

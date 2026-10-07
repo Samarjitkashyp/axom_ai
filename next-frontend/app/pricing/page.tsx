@@ -177,11 +177,16 @@ export default async function PricingPage() {
     },
   };
 
+  const faqList =
+    cms?.pricing_faqs?.items && cms.pricing_faqs.items.length > 0
+      ? cms.pricing_faqs.items
+      : PRICING_FAQS;
+
   // FAQ Schema for Search Engines & AEO
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: PRICING_FAQS.map((faq) => ({
+    mainEntity: faqList.map((faq: any) => ({
       '@type': 'Question',
       name: faq.q,
       acceptedAnswer: {
@@ -610,23 +615,25 @@ export default async function PricingPage() {
         )}
 
         {/* Pricing FAQs */}
-        <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#030712]">
-          <div className="max-w-4xl mx-auto px-5">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4">
-                <HelpCircle size={14} /> Pricing FAQ
+        {(cms?.pricing_faqs?.active !== false) && (
+          <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#030712]">
+            <div className="max-w-4xl mx-auto px-5">
+              <div className="text-center max-w-2xl mx-auto mb-14">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4">
+                  <HelpCircle size={14} /> {cms?.pricing_faqs?.badge || 'Pricing FAQ'}
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
+                  {cms?.pricing_faqs?.title || 'Frequently Asked Questions'}
+                </h2>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+                  {cms?.pricing_faqs?.subheading || 'Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.'}
+                </p>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
-                Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.
-              </p>
-            </div>
 
-            <PricingFaq />
-          </div>
-        </section>
+              <PricingFaq faqs={faqList} />
+            </div>
+          </section>
+        )}
 
         {/* Bottom CTA Banner */}
         {(cms?.pricing_bottom_cta?.active !== false) && (

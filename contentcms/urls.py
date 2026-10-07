@@ -47,6 +47,10 @@ urlpatterns = [
     path('pricing/comparison/row/save/', views.save_pricing_comparison_row_api, name='save_pricing_comparison_row_api'),
     path('pricing/comparison/row/delete/<int:row_id>/', views.delete_pricing_comparison_row_api, name='delete_pricing_comparison_row_api'),
     path('pricing/comparison/row/toggle/<int:row_id>/', views.toggle_pricing_comparison_row_api, name='toggle_pricing_comparison_row_api'),
+    path('pricing/faq/header/save/', views.save_pricing_faq_header_api, name='save_pricing_faq_header_api'),
+    path('pricing/faq/save/', views.save_pricing_faq_item_api, name='save_pricing_faq_item_api'),
+    path('pricing/faq/delete/<int:faq_id>/', views.delete_pricing_faq_item_api, name='delete_pricing_faq_item_api'),
+    path('pricing/faq/toggle/<int:faq_id>/', views.toggle_pricing_faq_active_api, name='toggle_pricing_faq_active_api'),
     
     # Standalone Pages: About Us Page Manager
     path('pages/about/', views.about_editor, name='about_editor'),

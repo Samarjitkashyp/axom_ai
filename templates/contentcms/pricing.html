@@ -659,6 +659,154 @@
     </div>
   </div>
 
+  <!-- SECTION 7: Pricing Page FAQs Manager -->
+  <div class="glass-card rounded-2xl p-6 border border-slate-800 space-y-6">
+    <!-- Header & Action Row -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-circle-question"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">7. Pricing Frequently Asked Questions (FAQ)</h2>
+          <p class="text-xs text-slate-400">Manage accordion FAQ questions displayed on the Pricing page ({{ pricing_faqs|length }} Total)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <label class="inline-flex items-center cursor-pointer gap-2 bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-700/50">
+          <input type="checkbox" id="pricing_faq_active" class="w-4 h-4 rounded text-purple-500 bg-slate-800 border-slate-700 focus:ring-purple-500" {% if hero.pricing_faq_active %}checked{% endif %}>
+          <span class="text-xs font-semibold text-purple-400">Section Active</span>
+        </label>
+        <button onclick="savePricingFaqHeader()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold rounded-xl text-xs transition flex items-center gap-1.5">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Save FAQ Header</span>
+        </button>
+        <button onclick="openAddPricingFaqModal()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i>
+          <span>Add FAQ Question</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- FAQ Header Settings Form -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-slate-300 font-semibold text-xs mb-1">Badge Tag</label>
+        <input type="text" id="pricing_faq_badge" value="{{ hero.pricing_faq_badge|default:'Pricing FAQ' }}" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500">
+      </div>
+      <div class="md:col-span-2">
+        <label class="block text-slate-300 font-semibold text-xs mb-1">Headline Title</label>
+        <input type="text" id="pricing_faq_title" value="{{ hero.pricing_faq_title|default:'Frequently Asked Questions' }}" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500">
+      </div>
+      <div class="md:col-span-3">
+        <label class="block text-slate-300 font-semibold text-xs mb-1">Subheading Description</label>
+        <input type="text" id="pricing_faq_subheading" value="{{ hero.pricing_faq_subheading|default:'Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.' }}" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500">
+      </div>
+    </div>
+
+    <!-- Pricing FAQs Questions List -->
+    <div class="space-y-3 pt-2">
+      <div class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+        <span>Questions &amp; Answers List</span>
+        <span class="text-slate-500 font-normal">Click edit to modify or toggle active status</span>
+      </div>
+
+      <div class="glass-card rounded-2xl border border-slate-800/80 overflow-hidden divide-y divide-slate-800/60" id="pricing-faqs-container">
+        {% for f in pricing_faqs %}
+        <div class="p-4 sm:p-5 flex flex-col md:flex-row md:items-start justify-between gap-4 hover:bg-slate-900/40 transition" id="faq_item_row_{{ f.id }}">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/15 text-purple-400 border border-purple-500/20 font-mono">
+                #{{ forloop.counter }}
+              </span>
+              <span class="text-[10px] text-slate-500 font-mono">Order: {{ f.order }}</span>
+            </div>
+            <h3 class="text-sm font-bold text-white mb-1 leading-snug">{{ f.question }}</h3>
+            <p class="text-xs text-slate-400 leading-relaxed">{{ f.answer }}</p>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800/60 justify-end">
+            <!-- Active Toggle Button -->
+            <button onclick="togglePricingFaqActive({{ f.id }}, this)" id="faq_status_badge_{{ f.id }}" title="Toggle Active status" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition flex items-center gap-1.5 {% if f.is_active %}bg-emerald-950/40 border-emerald-500/30 text-emerald-400 hover:bg-emerald-900/50{% else %}bg-slate-800/80 border-slate-700 text-slate-400 hover:text-white{% endif %}">
+              <span class="w-1.5 h-1.5 rounded-full {% if f.is_active %}bg-emerald-400{% else %}bg-slate-400{% endif %}"></span>
+              <span class="text-[11px]">{% if f.is_active %}Active{% else %}Hidden{% endif %}</span>
+            </button>
+
+            <!-- Edit Button -->
+            <button onclick="openEditPricingFaqModal({{ f.id }}, '{{ f.question|escapejs }}', '{{ f.answer|escapejs }}', {{ f.order }}, {{ f.is_active|yesno:'true,false' }})" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="Edit Question">
+              <i class="fa-solid fa-pen text-xs"></i>
+            </button>
+
+            <!-- Delete Button -->
+            <button onclick="deletePricingFaqItem({{ f.id }})" class="p-2 rounded-lg bg-rose-950/30 hover:bg-rose-900/50 text-rose-400 hover:text-rose-300 border border-rose-900/40 transition" title="Delete Question">
+              <i class="fa-solid fa-trash text-xs"></i>
+            </button>
+          </div>
+        </div>
+        {% empty %}
+        <div class="p-10 text-center text-slate-500 text-xs">
+          <i class="fa-solid fa-circle-question text-2xl text-slate-600 mb-2 block"></i>
+          No FAQ questions found. Click "Add FAQ Question" above to create one.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Pricing FAQ Modal (Add / Edit) -->
+<div id="pricingFaqModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this) closePricingFaqModal()">
+  <div class="glass-card max-w-2xl w-full rounded-2xl border border-slate-700 shadow-2xl p-6 space-y-5 animate-scale-up" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="pricingFaqModalTitle" class="text-sm font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-circle-question text-purple-400"></i>
+        Add FAQ Question
+      </h3>
+      <button onclick="closePricingFaqModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white grid place-items-center text-xs transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <input type="hidden" id="modal_pricing_faq_id" value="">
+
+    <div class="space-y-4 text-xs">
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1.5">Question Text *</label>
+        <input type="text" id="modal_pricing_faq_question" placeholder="e.g., How much does Axom AI cost in Indian Rupees (INR)?"
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500">
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1.5">Answer Text *</label>
+        <textarea id="modal_pricing_faq_answer" rows="5" placeholder="Detailed answer explanation..."
+          class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 leading-relaxed"></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 pt-1">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1.5">Display Order</label>
+          <input type="number" id="modal_pricing_faq_order" value="0" min="0"
+            class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500">
+        </div>
+        <div class="flex items-center pt-5">
+          <label class="inline-flex items-center cursor-pointer gap-2 bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-800 w-full">
+            <input type="checkbox" id="modal_pricing_faq_active" checked class="w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-slate-800 border-slate-700">
+            <span class="text-xs font-semibold text-slate-200">Active / Visible</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+      <button onclick="closePricingFaqModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-xs transition">
+        Cancel
+      </button>
+      <button onclick="submitPricingFaqItem()" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs shadow-md transition">
+        Save FAQ Question
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Comparison Category Modal -->
@@ -1318,6 +1466,134 @@ async function savePricingExtraCards() {
     }
   } catch (err) {
     showToast('Error saving feature cards & CTA', 'error');
+  }
+}
+
+// -------------------------------------------------------------
+// Pricing FAQ Handlers
+// -------------------------------------------------------------
+async function savePricingFaqHeader() {
+  const payload = {
+    badge: document.getElementById('pricing_faq_badge')?.value || 'Pricing FAQ',
+    title: document.getElementById('pricing_faq_title')?.value || 'Frequently Asked Questions',
+    subheading: document.getElementById('pricing_faq_subheading')?.value || 'Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.',
+    active: document.getElementById('pricing_faq_active')?.checked ?? true
+  };
+
+  try {
+    const res = await fetch('/axomai-content/pricing/faq/header/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+    } else {
+      showToast(data.error || 'Failed to save FAQ header', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving FAQ header', 'error');
+  }
+}
+
+function openAddPricingFaqModal() {
+  document.getElementById('pricingFaqModalTitle').innerText = 'Add FAQ Question';
+  document.getElementById('modal_pricing_faq_id').value = '';
+  document.getElementById('modal_pricing_faq_question').value = '';
+  document.getElementById('modal_pricing_faq_answer').value = '';
+  document.getElementById('modal_pricing_faq_order').value = '0';
+  document.getElementById('modal_pricing_faq_active').checked = true;
+  document.getElementById('pricingFaqModal').classList.remove('hidden');
+}
+
+function openEditPricingFaqModal(id, question, answer, order, isActive) {
+  document.getElementById('pricingFaqModalTitle').innerText = 'Edit FAQ Question';
+  document.getElementById('modal_pricing_faq_id').value = id;
+  document.getElementById('modal_pricing_faq_question').value = question;
+  document.getElementById('modal_pricing_faq_answer').value = answer;
+  document.getElementById('modal_pricing_faq_order').value = order;
+  document.getElementById('modal_pricing_faq_active').checked = isActive;
+  document.getElementById('pricingFaqModal').classList.remove('hidden');
+}
+
+function closePricingFaqModal() {
+  document.getElementById('pricingFaqModal').classList.add('hidden');
+}
+
+async function submitPricingFaqItem() {
+  const question = document.getElementById('modal_pricing_faq_question').value.trim();
+  const answer = document.getElementById('modal_pricing_faq_answer').value.trim();
+
+  if (!question) {
+    showToast('Question text is required', 'error');
+    return;
+  }
+  if (!answer) {
+    showToast('Answer text is required', 'error');
+    return;
+  }
+
+  const payload = {
+    id: document.getElementById('modal_pricing_faq_id').value || null,
+    question: question,
+    answer: answer,
+    order: parseInt(document.getElementById('modal_pricing_faq_order').value || 0),
+    is_active: document.getElementById('modal_pricing_faq_active').checked
+  };
+
+  try {
+    const res = await fetch('/axomai-content/pricing/faq/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to save question', 'error');
+    }
+  } catch (err) {
+    showToast('Error saving question', 'error');
+  }
+}
+
+async function deletePricingFaqItem(id) {
+  if (!confirm('Are you sure you want to delete this FAQ question?')) return;
+  try {
+    const res = await fetch(`/axomai-content/pricing/faq/delete/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to delete question', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting question', 'error');
+  }
+}
+
+async function togglePricingFaqActive(id, btn) {
+  try {
+    const res = await fetch(`/axomai-content/pricing/faq/toggle/${id}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => location.reload(), 400);
+    } else {
+      showToast(data.error || 'Failed to toggle status', 'error');
+    }
+  } catch (err) {
+    showToast('Error toggling status', 'error');
   }
 }
 </script>
