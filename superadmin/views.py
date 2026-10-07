@@ -883,6 +883,39 @@ def analytics_page(request):
     return render(request, 'superadmin/analytics.html', context)
 
 
+BOT_CLEANUP_MODES = ('off', 'dry_run', 'on')
+BOT_CLEANUP_REPORT = os.getenv('BOT_CLEANUP_REPORT', '/home/admin/axomai-bot/cleanup_report.json')
+
+
+def _validate_bot_cleanup(data):
+    """Error text for a bad bot clean-up setting, else None. Normalises bot_cleanup_days in place (a whole number, at least 3)."""
+    if 'bot_cleanup_mode' in data and data['bot_cleanup_mode'] not in BOT_CLEANUP_MODES:
+        return "Bot clean-up mode must be one of: off, dry_run, on."
+    if 'bot_cleanup_days' in data:
+        try:
+            data['bot_cleanup_days'] = str(max(3, int(str(data['bot_cleanup_days']).strip())))
+        except (TypeError, ValueError):
+            return "Bot clean-up days must be a whole number."
+    return None
+
+
+def _bot_cleanup_report():
+    """What the crawler bot's last backup clean-up did (or would do), for the settings page; None if it has not run yet."""
+    try:
+        with open(BOT_CLEANUP_REPORT, encoding='utf-8') as f:
+            r = json.load(f)
+        items = r.get('deleted') if r.get('mode') == 'on' else r.get('would_delete')
+        items = items or []
+        return {
+            'at': r.get('at', ''), 'mode': r.get('mode', ''), 'days': r.get('days', ''), 'is_dry': r.get('mode') != 'on',
+            'count': len(items), 'kept': r.get('kept', 0), 'freed_mb': round((r.get('freed_bytes') or 0) / 1e6, 1),
+            'errors': r.get('errors') or [],
+            'items': [{'name': i.get('name', ''), 'age_days': i.get('age_days', ''), 'mb': round((i.get('size') or 0) / 1e6, 1)} for i in items[:12]],
+        }
+    except Exception:
+        return None
+
+
 @superuser_required
 def settings_page(request):
     settings_dict = {
@@ -893,6 +926,8 @@ def settings_page(request):
         'announcement_banner': SystemSetting.get_setting('announcement_banner', ''),
         'daily_image_limit_free': SystemSetting.get_setting('daily_image_limit_free', '5'),
         'daily_search_limit_free': SystemSetting.get_setting('daily_search_limit_free', '5'),
+        'bot_cleanup_mode': SystemSetting.get_setting('bot_cleanup_mode', 'off'),
+        'bot_cleanup_days': SystemSetting.get_setting('bot_cleanup_days', '7'),
     }
 
     def _mask(k):
@@ -913,6 +948,7 @@ def settings_page(request):
         'settings': settings_dict,
         'api_status': api_status,
         'audit_logs': audit_logs,
+        'bot_cleanup_report': _bot_cleanup_report(),
     }
     return render(request, 'superadmin/settings.html', context)
 
@@ -922,6 +958,9 @@ def settings_page(request):
 def save_settings_api(request):
     try:
         data = json.loads(request.body)
+        problem = _validate_bot_cleanup(data)
+        if problem:
+            return JsonResponse({'success': False, 'error': problem}, status=400)
         for k, v in data.items():
             SystemSetting.set_setting(k, v)
         _log_audit(request, "SYSTEM_SETTINGS_UPDATE", "System Settings", f"Updated keys: {', '.join(data.keys())}")
