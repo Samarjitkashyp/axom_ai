@@ -121,7 +121,33 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PricingPage() {
-  const cms = await getLandingCMS().catch(() => ({}));
+  const cms = await getLandingCMS().catch(() => ({} as any));
+
+  // Dynamically map plans from Django CMS (content.aiaxom.co.in/axomai-content/pricing/) with fallback to DETAILED_PLANS
+  const plans: DetailedPlan[] =
+    cms?.pricing_header?.plans && cms.pricing_header.plans.length > 0
+      ? cms.pricing_header.plans.map((p: any) => {
+          const fallback = DETAILED_PLANS.find(
+            (d) =>
+              d.id.toLowerCase() === (p.id || '').toLowerCase() ||
+              d.name.toLowerCase() === (p.name || '').toLowerCase()
+          );
+          return {
+            id: p.id || fallback?.id || 'plan',
+            name: p.name || fallback?.name || 'Plan',
+            badge: p.badge || fallback?.badge || (p.featured ? '⭐ Most Popular' : ''),
+            desc: p.desc || fallback?.desc || '',
+            monthlyPrice: Number(p.monthlyPrice) || 0,
+            yearlyPrice: Number(p.yearlyPrice) || 0,
+            monthlyWords: p.monthlyWords || fallback?.monthlyWords || '',
+            popular: Boolean(p.featured),
+            ctaText: p.cta || fallback?.ctaText || 'Get Started',
+            ctaUrl: p.href || fallback?.ctaUrl || 'https://chat.aiaxom.co.in/upgrade',
+            features: p.features && p.features.length > 0 ? p.features : fallback?.features || [],
+            notIncluded: fallback?.notIncluded || [],
+          };
+        })
+      : DETAILED_PLANS;
 
   // SoftwareApplication with AggregateOffer Schema
   const softwareAppSchema = {
@@ -136,49 +162,18 @@ export default async function PricingPage() {
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: 'INR',
-      lowPrice: '0',
-      highPrice: '1499',
-      offerCount: '4',
-      offers: [
-        {
-          '@type': 'Offer',
-          name: 'Axom AI Free Plan',
-          price: '0',
-          priceCurrency: 'INR',
-          billingDuration: 'P1M',
-          description: '5,000 words per month, standard Assamese AI chat, 5 document conversions per day.',
-          url: 'https://chat.aiaxom.co.in/',
-        },
-        {
-          '@type': 'Offer',
-          name: 'Axom AI Starter Plan',
-          price: '199',
-          priceCurrency: 'INR',
-          billingDuration: 'P1M',
-          description: '50,000 words per month, fast GPT-4o Mini & Gemma 2, PDF editor, priority support.',
-          url: 'https://chat.aiaxom.co.in/upgrade',
-        },
-        {
-          '@type': 'Offer',
-          name: 'Axom AI Pro Plan',
-          price: '499',
-          priceCurrency: 'INR',
-          billingDuration: 'P1M',
-          description:
-            '250,000 words per month, Claude 3.5 Sonnet, Llama 3.3 70B, Smart OCR, 20+ PDF tools, Voice mode.',
-          url: 'https://chat.aiaxom.co.in/upgrade',
-        },
-        {
-          '@type': 'Offer',
-          name: 'Axom AI Business Plan',
-          price: '1499',
-          priceCurrency: 'INR',
-          billingDuration: 'P1M',
-          description:
-            '1,000,000 words per month, 5 team seats, dedicated REST API keys, custom RAG knowledge base, GST invoice.',
-          url: 'https://chat.aiaxom.co.in/upgrade',
-        },
-      ],
+      lowPrice: String(Math.min(...plans.map((p) => p.monthlyPrice))),
+      highPrice: String(Math.max(...plans.map((p) => p.monthlyPrice))),
+      offerCount: String(plans.length),
+      offers: plans.map((p) => ({
+        '@type': 'Offer',
+        name: `Axom AI ${p.name} Plan`,
+        price: String(p.monthlyPrice),
+        priceCurrency: 'INR',
+        billingDuration: 'P1M',
+        description: p.desc || `${p.monthlyWords} per month`,
+        url: p.ctaUrl,
+      })),
     },
   };
 
@@ -258,7 +253,7 @@ export default async function PricingPage() {
       />
 
       {/* Global Navbar */}
-      <Navbar />
+      <Navbar header={cms?.header} />
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -323,7 +318,7 @@ export default async function PricingPage() {
             </div>
 
             {/* Interactive Pricing Cards */}
-            <PricingPlansInteractive />
+            <PricingPlansInteractive plans={plans} />
           </div>
         </section>
 
@@ -648,7 +643,7 @@ export default async function PricingPage() {
       </main>
 
       {/* Global Footer */}
-      <Footer />
+      <Footer footer={cms?.footer} seo={cms?.seo} />
     </div>
   );
 }
