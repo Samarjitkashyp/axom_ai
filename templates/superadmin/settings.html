@@ -59,6 +59,37 @@
           </label>
         </div>
 
+        <!-- Crawler bot: automatic clean-up of old backups -->
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div class="font-bold text-white">Bot backup clean-up</div>
+          <div class="text-slate-400 text-[11px] mb-3">Automatically removes old backups of the crawler bot (the newest backup of every kind is always kept; the only copy of a kind stays 4 times longer). Live data, crawled data and site profiles are never touched. Runs about once a day.</div>
+          <div class="flex flex-wrap items-center gap-3">
+            <select id="botCleanupMode" class="bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2 text-xs">
+              <option value="off" {% if settings.bot_cleanup_mode == 'off' %}selected{% endif %}>Off</option>
+              <option value="dry_run" {% if settings.bot_cleanup_mode == 'dry_run' %}selected{% endif %}>Preview only (nothing is deleted)</option>
+              <option value="on" {% if settings.bot_cleanup_mode == 'on' %}selected{% endif %}>On (delete old backups)</option>
+            </select>
+            <label class="text-slate-300 flex items-center gap-2">Older than
+              <input type="number" id="botCleanupDays" min="3" max="365" value="{{ settings.bot_cleanup_days }}" class="w-20 bg-slate-800 border border-slate-700 text-white rounded-lg px-2 py-2 text-xs"> days
+            </label>
+          </div>
+          {% if bot_cleanup_report %}
+          <div class="mt-3 text-[11px] text-slate-400">
+            Last run: <span class="text-slate-200">{{ bot_cleanup_report.at }}</span> &middot;
+            {% if bot_cleanup_report.is_dry %}preview: <span class="text-amber-300">{{ bot_cleanup_report.count }} would be deleted</span>{% else %}<span class="text-emerald-300">{{ bot_cleanup_report.count }} deleted</span>{% endif %}
+            ({{ bot_cleanup_report.freed_mb }} MB) &middot; {{ bot_cleanup_report.kept }} kept
+            {% if bot_cleanup_report.errors %}<div class="text-rose-400 mt-1">{{ bot_cleanup_report.errors|length }} error(s): {{ bot_cleanup_report.errors.0 }}</div>{% endif %}
+            {% if bot_cleanup_report.items %}
+            <ul class="mt-2 space-y-0.5 font-mono">
+              {% for i in bot_cleanup_report.items %}<li>{{ i.name }} &middot; {{ i.age_days }} d &middot; {{ i.mb }} MB</li>{% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="mt-3 text-[11px] text-slate-500">No clean-up has run yet. After you choose Preview or On and save, the bot checks within an hour and shows the result here.</div>
+          {% endif %}
+        </div>
+
         <!-- Global Announcement Banner -->
         <div class="pt-2">
           <label class="block font-bold text-white mb-1.5">Global Announcement Banner (Broadcast to all users)</label>
@@ -196,7 +227,9 @@
       image_gen_enabled: document.getElementById('flagImageGen').checked,
       pdf_ai_enabled: document.getElementById('flagPdfAi').checked,
       maintenance_mode: document.getElementById('flagMaintenance').checked,
-      announcement_banner: document.getElementById('announcementBanner').value.trim()
+      announcement_banner: document.getElementById('announcementBanner').value.trim(),
+      bot_cleanup_mode: document.getElementById('botCleanupMode').value,
+      bot_cleanup_days: document.getElementById('botCleanupDays').value
     };
     try {
       const res = await fetch('/axomai-admin/settings/save/', {
