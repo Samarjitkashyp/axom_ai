@@ -66,6 +66,16 @@ urlpatterns = [
     path('pages/use-cases/faq/delete/<int:faq_id>/', views.delete_usecase_faq_api, name='delete_usecase_faq_api'),
     path('pages/use-cases/faq/toggle/<int:faq_id>/', views.toggle_usecase_faq_api, name='toggle_usecase_faq_api'),
 
+    # Standalone Pages: Contact Us Page Manager
+    path('pages/contact/', views.contact_editor, name='contact_editor'),
+    path('pages/contact/save/', views.save_contact_page_api, name='save_contact_page_api'),
+    path('pages/contact/channel/save/', views.save_contact_channel_api, name='save_contact_channel_api'),
+    path('pages/contact/channel/delete/<int:channel_id>/', views.delete_contact_channel_api, name='delete_contact_channel_api'),
+    path('pages/contact/channel/toggle/<int:channel_id>/', views.toggle_contact_channel_api, name='toggle_contact_channel_api'),
+    path('pages/contact/faq/save/', views.save_contact_faq_api, name='save_contact_faq_api'),
+    path('pages/contact/faq/delete/<int:faq_id>/', views.delete_contact_faq_api, name='delete_contact_faq_api'),
+    path('pages/contact/faq/toggle/<int:faq_id>/', views.toggle_contact_faq_api, name='toggle_contact_faq_api'),
+
     # Standalone Pages: FAQ Page Manager
     path('pages/faq/', views.faq_manager_page, name='faq_manager_page'),
     path('pages/faq/config/save/', views.save_faq_page_config_api, name='save_faq_page_config_api'),

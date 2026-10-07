@@ -1060,6 +1060,136 @@ class UseCaseFAQ(models.Model):
         return self.question
 
 
+# ==============================================================================
+# CONTACT US PAGE CONFIGURATION (Standalone Page)
+# ==============================================================================
+
+class ContactPageConfig(models.Model):
+    # 1. Hero Section
+    hero_badge_text = models.CharField(max_length=150, default='Official Help Desk & Regional Headquarters')
+    hero_title_prefix = models.CharField(max_length=200, default='Get in Touch with')
+    hero_title_highlight = models.CharField(max_length=150, default='Axom AI')
+    hero_subtitle = models.TextField(default='Have a question about Assamese AI models, need help with your account quota, or exploring an enterprise deployment? Our engineering team in Guwahati is here to assist you.')
+
+    # 2. AEO Direct Answer Summary Box
+    aeo_badge = models.CharField(max_length=150, default='Direct Answer • Official Contact Information')
+    aeo_how_to_contact_title = models.CharField(max_length=150, default='How to contact Axom AI:')
+    aeo_description = models.TextField(default='You can contact Axom AI customer care and technical support by emailing support@aiaxom.co.in or by using the verified contact form below. Axom AI is headquartered in Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001). Standard response times for general queries, billing, and API support are within 4–12 business hours (Monday–Saturday: 9:00 AM – 7:00 PM IST).')
+    primary_support_email = models.CharField(max_length=150, default='support@aiaxom.co.in')
+    founder_email = models.CharField(max_length=150, default='samarjitkashyp@gmail.com')
+
+    # 3. Channels Section Heading
+    channels_badge = models.CharField(max_length=150, default='Direct Response Channels')
+    channels_title = models.CharField(max_length=200, default='Choose Your Dedicated Support Department')
+
+    # 4. Form Section Headings
+    form_title = models.CharField(max_length=200, default='Send an Official Message')
+    form_subtitle = models.CharField(max_length=255, default='Directly logged with our Guwahati headquarters & customer care desk')
+
+    # 5. Guwahati Headquarters & Office Factsheet
+    office_title = models.CharField(max_length=200, default='Guwahati Headquarters')
+    office_subtitle = models.CharField(max_length=255, default='Indigenous Artificial Intelligence Lab, Assam')
+    office_location = models.CharField(max_length=255, default='Guwahati, Kamrup Metropolitan, Assam, India • PIN: 781001')
+    office_hours = models.CharField(max_length=200, default='Monday – Saturday: 9:00 AM – 7:00 PM IST')
+    office_hours_note = models.CharField(max_length=200, default='(Automated cloud APIs & AI services operate 24/7/365)')
+    office_languages = models.CharField(max_length=255, default='English, অসমীয়া (Assamese), हिंदी (Hindi)')
+    office_sla_text = models.CharField(max_length=100, default='Average SLA: < 4h')
+    security_compliance_title = models.CharField(max_length=200, default='Enterprise Security & DPDP Act 2023 Compliant')
+    security_compliance_desc = models.TextField(default='All messages, documents, and technical inquiries submitted through Axom AI are protected with 256-bit TLS encryption. Uploaded files are isolated and never retained for public training without explicit organizational consent.')
+
+    # 6. Audience Breakdown: Who We Help (4 Pillars)
+    audience_badge = models.CharField(max_length=150, default='Audience Solutions')
+    audience_title = models.CharField(max_length=200, default='Who Can Reach Out to Axom AI?')
+    audience_subtitle = models.CharField(max_length=255, default='Dedicated support channels tailored for students, enterprises, creators, and developers')
+
+    audience_1_icon = models.CharField(max_length=80, default='Sparkles')
+    audience_1_title = models.CharField(max_length=150, default='Students & Job Aspirants')
+    audience_1_desc = models.TextField(default='Assistance with APSC, UPSC, Assamese literature research, essay formulation, and subsidized student accounts.')
+
+    audience_2_icon = models.CharField(max_length=80, default='Briefcase')
+    audience_2_title = models.CharField(max_length=150, default='Assam MSMEs & Businesses')
+    audience_2_desc = models.TextField(default='Bilingual customer care chatbots, Assamese invoice extraction, marketing copy, and multi-user business plans.')
+
+    audience_3_icon = models.CharField(max_length=80, default='Code2')
+    audience_3_title = models.CharField(max_length=150, default='Developers & Engineers')
+    audience_3_desc = models.TextField(default='API tokens, webhooks, fine-tuned IndicTrans2 Assamese translation endpoints, and high-concurrency rate limits.')
+
+    audience_4_icon = models.CharField(max_length=80, default='Building')
+    audience_4_title = models.CharField(max_length=150, default='Govt & Cultural Bodies')
+    audience_4_desc = models.TextField(default='Digitization and OCR for ancient Assamese manuscripts (সাঁচিপাত), archives, and institutional AI partnerships.')
+
+    # 7. FAQ Section Headings
+    faq_badge = models.CharField(max_length=150, default='Frequently Asked Questions')
+    faq_title = models.CharField(max_length=200, default='Common Questions About Contacting Us')
+    faq_subtitle = models.CharField(max_length=255, default='Direct answers to popular questions regarding support, response times, and partnerships')
+
+    # 8. Bottom Fast Assistance Card
+    bottom_cta_badge = models.CharField(max_length=150, default='Instant AI Support')
+    bottom_cta_heading = models.CharField(max_length=200, default='Need Instant Answers Right Now?')
+    bottom_cta_subheading = models.TextField(default='You can immediately query our AI directly in English or Assamese. For live conversational support, launch the Axom AI web application.')
+    bottom_cta_primary_btn_text = models.CharField(max_length=100, default='Launch Axom AI Chat')
+    bottom_cta_primary_btn_url = models.CharField(max_length=300, default='https://chat.aiaxom.co.in/')
+    bottom_cta_secondary_btn_text = models.CharField(max_length=100, default='Browse Full FAQ Knowledgebase')
+    bottom_cta_secondary_btn_url = models.CharField(max_length=300, default='/faq')
+
+    # 9. SEO & Meta
+    meta_title = models.CharField(max_length=255, default='Contact Axom AI — Customer Support, Business Enquiries & Guwahati Office')
+    meta_description = models.TextField(default='Contact Axom AI for customer support, report technical issues, explore enterprise partnerships, or request API integrations. Headquartered in Guwahati, Assam, with rapid 4–12h response.')
+    meta_keywords = models.TextField(default='Axom AI contact, Axom AI contact us, contact Axom AI, Axom AI support, Axom AI customer support, Axom AI help, Axom AI customer service, Axom AI support team, contact AI support, AI support Assam, AI company contact Assam, Axom AI office, Axom AI Guwahati, Axom AI Assam, AI company Assam, AI platform Assam')
+    og_image_url = models.CharField(max_length=500, default='https://aiaxom.co.in/static/dist/hero/assam.avif')
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Contact Page Configuration'
+        verbose_name_plural = 'Contact Page Configuration'
+
+    def __str__(self):
+        return "Contact Page Configuration"
+
+
+class ContactChannelItem(models.Model):
+    page_config = models.ForeignKey(ContactPageConfig, related_name='channels', on_delete=models.CASCADE, null=True, blank=True)
+    channel_id = models.CharField(max_length=100, default='customer-support', help_text='Unique slug e.g. customer-support, business-partnerships')
+    title = models.CharField(max_length=200, default='Customer & Account Support')
+    badge = models.CharField(max_length=100, default='Fastest Response')
+    email = models.CharField(max_length=150, default='support@aiaxom.co.in')
+    desc = models.TextField(default='Assistance with account access, word quotas, subscription upgrades, payments via UPI/Cards, and billing inquiries.')
+    turnaround = models.CharField(max_length=150, default='Avg response < 4 business hours')
+    icon_name = models.CharField(max_length=80, default='HelpCircle', help_text='Lucide icon name (HelpCircle, Briefcase, Code2, Mail, ShieldCheck, MessageSquare)')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Contact Channel'
+        verbose_name_plural = 'Contact Channels'
+
+    def __str__(self):
+        return f"{self.title} ({self.email})"
+
+
+class ContactFAQItem(models.Model):
+    page_config = models.ForeignKey(ContactPageConfig, related_name='faqs', on_delete=models.CASCADE, null=True, blank=True)
+    question = models.CharField(max_length=350)
+    answer = models.TextField()
+    category = models.CharField(max_length=150, default='General & Support')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Contact FAQ'
+        verbose_name_plural = 'Contact FAQs'
+
+    def __str__(self):
+        return self.question
+
+
 
 
 

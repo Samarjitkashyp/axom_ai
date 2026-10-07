@@ -18,6 +18,9 @@ from .models import (
     UseCasesPageConfig,
     UseCaseSector,
     UseCaseFAQ,
+    ContactPageConfig,
+    ContactChannelItem,
+    ContactFAQItem,
 )
 
 
@@ -130,6 +133,26 @@ class UseCaseFAQAdmin(admin.ModelAdmin):
     list_display = ['question', 'order', 'is_active', 'updated_at']
     list_editable = ['order', 'is_active']
     search_fields = ['question', 'answer']
+
+
+@admin.register(ContactPageConfig)
+class ContactPageConfigAdmin(admin.ModelAdmin):
+    list_display = ['hero_title_highlight', 'hero_badge_text', 'primary_support_email', 'updated_at']
+
+
+@admin.register(ContactChannelItem)
+class ContactChannelItemAdmin(admin.ModelAdmin):
+    list_display = ['title', 'channel_id', 'badge', 'email', 'order', 'is_active', 'updated_at']
+    list_editable = ['order', 'is_active']
+    search_fields = ['title', 'channel_id', 'email', 'desc']
+
+
+@admin.register(ContactFAQItem)
+class ContactFAQItemAdmin(admin.ModelAdmin):
+    list_display = ['question', 'category', 'order', 'is_active', 'updated_at']
+    list_editable = ['order', 'is_active']
+    search_fields = ['question', 'answer', 'category']
+
 
 
 

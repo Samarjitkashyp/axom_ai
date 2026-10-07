@@ -706,3 +706,102 @@ export async function getImageFormatCMS(): Promise<ImageFormatCMSData | null> {
   }
 }
 
+export interface ContactChannelCMSItem {
+  id: number;
+  channelId: string;
+  title: string;
+  badge: string;
+  email: string;
+  desc: string;
+  turnaround: string;
+  iconName: string;
+  order: number;
+}
+
+export interface ContactFaqCMSItem {
+  id: number;
+  question: string;
+  answer: string;
+  category?: string;
+  order: number;
+}
+
+export interface ContactCMSData {
+  hero_badge_text?: string;
+  hero_title_prefix?: string;
+  hero_title_highlight?: string;
+  hero_subtitle?: string;
+
+  aeo_badge?: string;
+  aeo_how_to_contact_title?: string;
+  aeo_description?: string;
+  primary_support_email?: string;
+  founder_email?: string;
+
+  channels_badge?: string;
+  channels_title?: string;
+  channels?: ContactChannelCMSItem[];
+
+  form_title?: string;
+  form_subtitle?: string;
+
+  office_title?: string;
+  office_subtitle?: string;
+  office_location?: string;
+  office_hours?: string;
+  office_hours_note?: string;
+  office_languages?: string;
+  office_sla_text?: string;
+  security_compliance_title?: string;
+  security_compliance_desc?: string;
+
+  audience_badge?: string;
+  audience_title?: string;
+  audience_subtitle?: string;
+  audience_1_icon?: string;
+  audience_1_title?: string;
+  audience_1_desc?: string;
+  audience_2_icon?: string;
+  audience_2_title?: string;
+  audience_2_desc?: string;
+  audience_3_icon?: string;
+  audience_3_title?: string;
+  audience_3_desc?: string;
+  audience_4_icon?: string;
+  audience_4_title?: string;
+  audience_4_desc?: string;
+
+  faq_badge?: string;
+  faq_title?: string;
+  faq_subtitle?: string;
+  faqs?: ContactFaqCMSItem[];
+
+  bottom_cta_badge?: string;
+  bottom_cta_heading?: string;
+  bottom_cta_subheading?: string;
+  bottom_cta_primary_btn_text?: string;
+  bottom_cta_primary_btn_url?: string;
+  bottom_cta_secondary_btn_text?: string;
+  bottom_cta_secondary_btn_url?: string;
+
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  og_image_url?: string;
+  updated_at?: string;
+}
+
+export async function getContactCMS(): Promise<ContactCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/contact/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch Contact CMS data:', err);
+    return null;
+  }
+}
+
+

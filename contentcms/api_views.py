@@ -10,9 +10,11 @@ from .models import (
     HeaderSettings, HeaderNavItem, HeaderMegaMenuItem,
     FooterSettings, FooterColumn, FooterColumnLink, FooterSocialLink,
     AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ, PricingFAQ,
-    UseCasesPageConfig, UseCaseSector, UseCaseFAQ
+    UseCasesPageConfig, UseCaseSector, UseCaseFAQ,
+    ContactPageConfig, ContactChannelItem, ContactFAQItem
 )
 from .usecases_defaults import ensure_usecases_defaults
+from .contact_defaults import ensure_contact_defaults
 
 
 @require_GET
@@ -730,6 +732,115 @@ def cms_usecases_api(request):
         'og_image_url': cfg.og_image_url,
         'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
     })
+
+
+@require_GET
+def cms_contact_api(request):
+    """API returning all dynamic content, department channels, and FAQs for Contact Us Page in structured JSON."""
+    cfg = ensure_contact_defaults()
+    channels_qs = ContactChannelItem.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+    faqs_qs = ContactFAQItem.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+
+    channels_data = [
+        {
+            'id': ch.channel_id,
+            'db_id': ch.id,
+            'title': ch.title,
+            'badge': ch.badge,
+            'email': ch.email,
+            'desc': ch.desc,
+            'turnaround': ch.turnaround,
+            'iconName': ch.icon_name,
+            'order': ch.order,
+        }
+        for ch in channels_qs
+    ]
+
+    faqs_data = [
+        {
+            'id': f.id,
+            'question': f.question,
+            'answer': f.answer,
+            'category': f.category,
+            'order': f.order,
+        }
+        for f in faqs_qs
+    ]
+
+    return JsonResponse({
+        # Hero Section
+        'hero_badge_text': cfg.hero_badge_text,
+        'hero_title_prefix': cfg.hero_title_prefix,
+        'hero_title_highlight': cfg.hero_title_highlight,
+        'hero_subtitle': cfg.hero_subtitle,
+
+        # AEO Direct Answer Summary Box
+        'aeo_badge': cfg.aeo_badge,
+        'aeo_how_to_contact_title': cfg.aeo_how_to_contact_title,
+        'aeo_description': cfg.aeo_description,
+        'primary_support_email': cfg.primary_support_email,
+        'founder_email': cfg.founder_email,
+
+        # Channels Section
+        'channels_badge': cfg.channels_badge,
+        'channels_title': cfg.channels_title,
+        'channels': channels_data,
+
+        # Form Section
+        'form_title': cfg.form_title,
+        'form_subtitle': cfg.form_subtitle,
+
+        # Office Factsheet & Guwahati HQ
+        'office_title': cfg.office_title,
+        'office_subtitle': cfg.office_subtitle,
+        'office_location': cfg.office_location,
+        'office_hours': cfg.office_hours,
+        'office_hours_note': cfg.office_hours_note,
+        'office_languages': cfg.office_languages,
+        'office_sla_text': cfg.office_sla_text,
+        'security_compliance_title': cfg.security_compliance_title,
+        'security_compliance_desc': cfg.security_compliance_desc,
+
+        # Audience Breakdown: Who We Help (4 Pillars)
+        'audience_badge': cfg.audience_badge,
+        'audience_title': cfg.audience_title,
+        'audience_subtitle': cfg.audience_subtitle,
+        'audience_1_icon': cfg.audience_1_icon,
+        'audience_1_title': cfg.audience_1_title,
+        'audience_1_desc': cfg.audience_1_desc,
+        'audience_2_icon': cfg.audience_2_icon,
+        'audience_2_title': cfg.audience_2_title,
+        'audience_2_desc': cfg.audience_2_desc,
+        'audience_3_icon': cfg.audience_3_icon,
+        'audience_3_title': cfg.audience_3_title,
+        'audience_3_desc': cfg.audience_3_desc,
+        'audience_4_icon': cfg.audience_4_icon,
+        'audience_4_title': cfg.audience_4_title,
+        'audience_4_desc': cfg.audience_4_desc,
+
+        # FAQ Section
+        'faq_badge': cfg.faq_badge,
+        'faq_title': cfg.faq_title,
+        'faq_subtitle': cfg.faq_subtitle,
+        'faqs': faqs_data,
+
+        # Bottom Assistance Card
+        'bottom_cta_badge': cfg.bottom_cta_badge,
+        'bottom_cta_heading': cfg.bottom_cta_heading,
+        'bottom_cta_subheading': cfg.bottom_cta_subheading,
+        'bottom_cta_primary_btn_text': cfg.bottom_cta_primary_btn_text,
+        'bottom_cta_primary_btn_url': cfg.bottom_cta_primary_btn_url,
+        'bottom_cta_secondary_btn_text': cfg.bottom_cta_secondary_btn_text,
+        'bottom_cta_secondary_btn_url': cfg.bottom_cta_secondary_btn_url,
+
+        # SEO & Meta
+        'meta_title': cfg.meta_title,
+        'meta_description': cfg.meta_description,
+        'meta_keywords': cfg.meta_keywords,
+        'og_image_url': cfg.og_image_url,
+        'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
+    })
+
 
 
 

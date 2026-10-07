@@ -1,0 +1,1217 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}Contact Us Page Management — Axom AI CMS{% endblock %}
+{% block page_title %}Contact Us Page Editor{% endblock %}
+{% block page_subtitle %}Manage live content, AEO direct answer card, 4 department channels, office factsheet, audience pillars, FAQs, and SEO meta tags for https://aiaxom.co.in/contact{% endblock %}
+
+{% block extra_head %}
+<style>
+  .focus-ring:focus {
+    border-color: #d946ef !important;
+    box-shadow: 0 0 15px rgba(217, 70, 239, 0.25) !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 pb-12">
+
+  <!-- Top Action & Navigation Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="/axomai-content/" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+      </a>
+      <div>
+        <div class="text-xs text-slate-400">Standalone Page Configuration</div>
+        <div class="text-sm font-bold text-white flex items-center gap-2">
+          <span>Contact Us Page (aiaxom.co.in/contact)</span>
+          <span class="text-[10px] bg-fuchsia-500/20 text-fuchsia-300 px-2 py-0.5 rounded-full border border-fuchsia-500/30">AEO + Dynamic Channels</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2.5">
+      <a href="https://aiaxom.co.in/contact/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-arrow-up-right-from-square text-fuchsia-400 text-xs"></i>
+        <span>View Live Contact Page</span>
+      </a>
+
+      <button id="saveTopBtn" type="button" onclick="saveContactConfig()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/25 transition hover:scale-[1.02]">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save Changes</span>
+        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[9px] bg-black/30 rounded border border-white/20 text-fuchsia-200">Ctrl+S</kbd>
+      </button>
+    </div>
+  </div>
+
+  <form id="contactPageForm" onsubmit="event.preventDefault(); saveContactConfig();" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- 1. HERO HEADER SECTION -->
+    <div id="sec-hero" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center text-fuchsia-400">
+            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">1. Hero Section & Main Headings</h2>
+            <p class="text-xs text-slate-400">Controls the top badge, H1 title headline, and subtitle</p>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-slate-400">Above-the-fold</span>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Eyebrow Badge Text</label>
+          <input type="text" id="hero_badge_text" value="{{ config.hero_badge_text|default:'Official Help Desk & Regional Headquarters' }}" placeholder="Top badge text"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Prefix</label>
+            <input type="text" id="hero_title_prefix" value="{{ config.hero_title_prefix|default:'Get in Touch with' }}" placeholder="Prefix"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Highlighted Keyword (Gradient)</label>
+            <input type="text" id="hero_title_highlight" value="{{ config.hero_title_highlight|default:'Axom AI' }}" placeholder="Highlight"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-fuchsia-500/40 rounded-xl text-xs text-fuchsia-300 font-semibold focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hero Descriptive Subtitle</label>
+          <textarea id="hero_subtitle" rows="3" placeholder="Hero subtitle description..."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.hero_subtitle|default:'Have a question about Assamese AI models, need help with your account quota, or exploring an enterprise deployment? Our engineering team in Guwahati is here to assist you.' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. AEO DIRECT ANSWER BOX -->
+    <div id="sec-aeo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400">
+            <i class="fa-solid fa-compass text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">2. AEO Direct Answer Summary Box</h2>
+            <p class="text-xs text-slate-400">Targeted for AI Answer Engines (Perplexity, ChatGPT Search, Google AI Overviews)</p>
+          </div>
+        </div>
+        <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">AEO / GEO</span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">AEO Badge Text</label>
+            <input type="text" id="aeo_badge" value="{{ config.aeo_badge|default:'Direct Answer • Official Contact Information' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">AEO Title</label>
+            <input type="text" id="aeo_how_to_contact_title" value="{{ config.aeo_how_to_contact_title|default:'How to contact Axom AI:' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">AEO Direct Answer Paragraph</label>
+          <textarea id="aeo_description" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.aeo_description|default:'You can contact Axom AI customer care and technical support by emailing support@aiaxom.co.in or by using the verified contact form below. Axom AI is headquartered in Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001). Standard response times for general queries, billing, and API support are within 4–12 business hours (Monday–Saturday: 9:00 AM – 7:00 PM IST).' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Primary Support Email</label>
+            <input type="email" id="primary_support_email" value="{{ config.primary_support_email|default:'support@aiaxom.co.in' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Founder / Escalation Email</label>
+            <input type="email" id="founder_email" value="{{ config.founder_email|default:'samarjitkashyp@gmail.com' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. DEPARTMENT CHANNELS SECTION -->
+    <div id="sec-channels" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 grid place-items-center text-indigo-400">
+            <i class="fa-solid fa-headset text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">3. Direct Department Channels Grid</h2>
+            <p class="text-xs text-slate-400">Manage 4 Core Support Channels (Support, Business, Devs, Security)</p>
+          </div>
+        </div>
+        <button type="button" onclick="openChannelModal()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add Channel</span>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Badge</label>
+            <input type="text" id="channels_badge" value="{{ config.channels_badge|default:'Direct Response Channels' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Title</label>
+            <input type="text" id="channels_title" value="{{ config.channels_title|default:'Choose Your Dedicated Support Department' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <!-- Channels List Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 mt-4">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase text-[10px] font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Channel Title & Badge</th>
+                <th class="py-3 px-4">Slug / ID</th>
+                <th class="py-3 px-4">Email</th>
+                <th class="py-3 px-4">Turnaround</th>
+                <th class="py-3 px-4 text-center">Status</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+              {% for ch in channels %}
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4">
+                  <div class="font-semibold text-white flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                    <span>{{ ch.title }}</span>
+                  </div>
+                  <div class="text-[11px] text-fuchsia-300 mt-0.5">{{ ch.badge }}</div>
+                </td>
+                <td class="py-3 px-4 font-mono text-[11px] text-slate-400">{{ ch.channel_id }}</td>
+                <td class="py-3 px-4 text-slate-300 font-mono text-[11px]">{{ ch.email }}</td>
+                <td class="py-3 px-4 text-slate-400 text-[11px]">{{ ch.turnaround }}</td>
+                <td class="py-3 px-4 text-center">
+                  <button type="button" onclick="toggleChannelStatus('{{ ch.id }}')"
+                    class="px-2.5 py-1 rounded-full text-[10px] font-semibold border transition {% if ch.is_active %}bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20{% else %}bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700{% endif %}">
+                    {% if ch.is_active %}Active{% else %}Hidden{% endif %}
+                  </button>
+                </td>
+                <td class="py-3 px-4 text-right space-x-2">
+                  <button type="button" onclick="editChannelModal('{{ ch.id }}', '{{ ch.channel_id|escapejs }}', '{{ ch.title|escapejs }}', '{{ ch.badge|escapejs }}', '{{ ch.email|escapejs }}', '{{ ch.desc|escapejs }}', '{{ ch.turnaround|escapejs }}', '{{ ch.icon_name|escapejs }}', '{{ ch.order }}', {{ ch.is_active|yesno:'true,false' }})"
+                    class="text-indigo-400 hover:text-indigo-300 font-medium transition text-xs">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                  </button>
+                  <button type="button" onclick="deleteChannel('{{ ch.id }}')"
+                    class="text-red-400 hover:text-red-300 font-medium transition text-xs ml-2">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="py-6 text-center text-slate-500">No channels configured. Click "Add Channel" above to add your first department channel.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. CONTACT FORM SECTION -->
+    <div id="sec-form" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 grid place-items-center text-pink-400">
+            <i class="fa-solid fa-envelope text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">4. Contact Form Section</h2>
+            <p class="text-xs text-slate-400">Configure headings and subtitle above the interactive contact form</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Form Title</label>
+          <input type="text" id="form_title" value="{{ config.form_title|default:'Send an Official Message' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Form Subtitle</label>
+          <input type="text" id="form_subtitle" value="{{ config.form_subtitle|default:'Directly logged with our Guwahati headquarters & customer care desk' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. GUWAHATI HEADQUARTERS FACTSHEET & ENTERPRISE SECURITY -->
+    <div id="sec-office" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-emerald-400">
+            <i class="fa-solid fa-building text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">5. Guwahati Headquarters Factsheet & Security Card</h2>
+            <p class="text-xs text-slate-400">Location, working hours, language support, SLA, and DPDP Act 2023 compliance</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Office Title</label>
+            <input type="text" id="office_title" value="{{ config.office_title|default:'Guwahati Headquarters' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Office Subtitle</label>
+            <input type="text" id="office_subtitle" value="{{ config.office_subtitle|default:'Indigenous Artificial Intelligence Lab, Assam' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Physical Address / Location</label>
+          <input type="text" id="office_location" value="{{ config.office_location|default:'Guwahati, Kamrup Metropolitan, Assam, India • PIN: 781001' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Operating Hours</label>
+            <input type="text" id="office_hours" value="{{ config.office_hours|default:'Monday – Saturday: 9:00 AM – 7:00 PM IST' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Operating Hours Subtext</label>
+            <input type="text" id="office_hours_note" value="{{ config.office_hours_note|default:'(Automated cloud APIs & AI services operate 24/7/365)' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Languages Supported</label>
+            <input type="text" id="office_languages" value="{{ config.office_languages|default:'English, অসমীয়া (Assamese), हिंदी (Hindi)' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Average SLA Badge Text</label>
+            <input type="text" id="office_sla_text" value="{{ config.office_sla_text|default:'Average SLA: < 4h' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Security Compliance Title</label>
+            <input type="text" id="security_compliance_title" value="{{ config.security_compliance_title|default:'Enterprise Security & DPDP Act 2023 Compliant' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Security Compliance Details</label>
+          <textarea id="security_compliance_desc" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.security_compliance_desc|default:'All messages, documents, and technical inquiries submitted through Axom AI are protected with 256-bit TLS encryption. Uploaded files are isolated and never retained for public training without explicit organizational consent.' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. AUDIENCE BREAKDOWN (4 PILLARS) -->
+    <div id="sec-audience" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 grid place-items-center text-amber-400">
+            <i class="fa-solid fa-users text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">6. Audience Breakdown: Who We Help (4 Pillars)</h2>
+            <p class="text-xs text-slate-400">Tailored assistance pillars for Students, MSMEs, Developers, and Govt bodies</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Audience Section Badge</label>
+            <input type="text" id="audience_badge" value="{{ config.audience_badge|default:'Audience Solutions' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Title</label>
+            <input type="text" id="audience_title" value="{{ config.audience_title|default:'Who Can Reach Out to Axom AI?' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Section Subtitle</label>
+            <input type="text" id="audience_subtitle" value="{{ config.audience_subtitle|default:'Dedicated support channels tailored for students, enterprises, creators, and developers' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <!-- Pillar 1: Students -->
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-3">
+            <div class="text-xs font-bold text-amber-300 flex items-center gap-2">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>Pillar 1: Students & Aspirants</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+                <input type="text" id="audience_1_icon" value="{{ config.audience_1_icon|default:'Sparkles' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+                <input type="text" id="audience_1_title" value="{{ config.audience_1_title|default:'Students & Job Aspirants' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+              <textarea id="audience_1_desc" rows="2" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">{{ config.audience_1_desc|default:'Assistance with APSC, UPSC, Assamese literature research, essay formulation, and subsidized student accounts.' }}</textarea>
+            </div>
+          </div>
+
+          <!-- Pillar 2: MSMEs & Businesses -->
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-3">
+            <div class="text-xs font-bold text-amber-300 flex items-center gap-2">
+              <i class="fa-solid fa-briefcase"></i>
+              <span>Pillar 2: Assam MSMEs & Businesses</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+                <input type="text" id="audience_2_icon" value="{{ config.audience_2_icon|default:'Briefcase' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+                <input type="text" id="audience_2_title" value="{{ config.audience_2_title|default:'Assam MSMEs & Businesses' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+              <textarea id="audience_2_desc" rows="2" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">{{ config.audience_2_desc|default:'Bilingual customer care chatbots, Assamese invoice extraction, marketing copy, and multi-user business plans.' }}</textarea>
+            </div>
+          </div>
+
+          <!-- Pillar 3: Developers -->
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-3">
+            <div class="text-xs font-bold text-amber-300 flex items-center gap-2">
+              <i class="fa-solid fa-code"></i>
+              <span>Pillar 3: Developers & Engineers</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+                <input type="text" id="audience_3_icon" value="{{ config.audience_3_icon|default:'Code2' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+                <input type="text" id="audience_3_title" value="{{ config.audience_3_title|default:'Developers & Engineers' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+              <textarea id="audience_3_desc" rows="2" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">{{ config.audience_3_desc|default:'API tokens, webhooks, fine-tuned IndicTrans2 Assamese translation endpoints, and high-concurrency rate limits.' }}</textarea>
+            </div>
+          </div>
+
+          <!-- Pillar 4: Govt & Cultural Bodies -->
+          <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-3">
+            <div class="text-xs font-bold text-amber-300 flex items-center gap-2">
+              <i class="fa-solid fa-building-columns"></i>
+              <span>Pillar 4: Govt & Cultural Bodies</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+                <input type="text" id="audience_4_icon" value="{{ config.audience_4_icon|default:'Building' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+                <input type="text" id="audience_4_title" value="{{ config.audience_4_title|default:'Govt & Cultural Bodies' }}"
+                  class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+              <textarea id="audience_4_desc" rows="2" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">{{ config.audience_4_desc|default:'Digitization and OCR for ancient Assamese manuscripts (সাঁচিপাত), archives, and institutional AI partnerships.' }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. FAQ SECTION -->
+    <div id="sec-faqs" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400">
+            <i class="fa-solid fa-circle-question text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">7. Frequently Asked Questions (Accordion)</h2>
+            <p class="text-xs text-slate-400">Full CRUD for all 12+ contact & customer support FAQs</p>
+          </div>
+        </div>
+        <button type="button" onclick="openFaqModal()" class="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add Question</span>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Badge Text</label>
+            <input type="text" id="faq_badge" value="{{ config.faq_badge|default:'Frequently Asked Questions' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Section Title</label>
+            <input type="text" id="faq_title" value="{{ config.faq_title|default:'Common Questions About Contacting Us' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Subtitle</label>
+            <input type="text" id="faq_subtitle" value="{{ config.faq_subtitle|default:'Direct answers to popular questions regarding support, response times, and partnerships' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <!-- FAQs List Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/60 mt-4">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase text-[10px] font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4"># Order</th>
+                <th class="py-3 px-4">Question</th>
+                <th class="py-3 px-4">Category</th>
+                <th class="py-3 px-4 text-center">Status</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60">
+              {% for f in faqs %}
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-mono text-slate-400">{{ f.order }}</td>
+                <td class="py-3 px-4">
+                  <div class="font-semibold text-white">{{ f.question }}</div>
+                  <div class="text-slate-400 line-clamp-1 text-[11px] mt-0.5">{{ f.answer }}</div>
+                </td>
+                <td class="py-3 px-4 text-cyan-300 text-[11px]">{{ f.category }}</td>
+                <td class="py-3 px-4 text-center">
+                  <button type="button" onclick="toggleFaqStatus('{{ f.id }}')"
+                    class="px-2.5 py-1 rounded-full text-[10px] font-semibold border transition {% if f.is_active %}bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20{% else %}bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700{% endif %}">
+                    {% if f.is_active %}Active{% else %}Hidden{% endif %}
+                  </button>
+                </td>
+                <td class="py-3 px-4 text-right space-x-2">
+                  <button type="button" onclick="editFaqModal('{{ f.id }}', '{{ f.question|escapejs }}', '{{ f.answer|escapejs }}', '{{ f.category|escapejs }}', '{{ f.order }}', {{ f.is_active|yesno:'true,false' }})"
+                    class="text-cyan-400 hover:text-cyan-300 font-medium transition text-xs">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                  </button>
+                  <button type="button" onclick="deleteFaq('{{ f.id }}')"
+                    class="text-red-400 hover:text-red-300 font-medium transition text-xs ml-2">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-500">No FAQs added yet. Click "Add Question" above to add your first FAQ.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. BOTTOM FAST ASSISTANCE CARD -->
+    <div id="sec-cta" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 grid place-items-center text-violet-400">
+            <i class="fa-solid fa-bolt text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">8. Bottom Fast Assistance Call-to-Action</h2>
+            <p class="text-xs text-slate-400">Banner guiding users to live AI chat or the global knowledgebase</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Badge Text</label>
+            <input type="text" id="bottom_cta_badge" value="{{ config.bottom_cta_badge|default:'Instant AI Support' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Headline</label>
+            <input type="text" id="bottom_cta_heading" value="{{ config.bottom_cta_heading|default:'Need Instant Answers Right Now?' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Subheading</label>
+          <textarea id="bottom_cta_subheading" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.bottom_cta_subheading|default:'You can immediately query our AI directly in English or Assamese. For live conversational support, launch the Axom AI web application.' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-3 p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+            <div class="text-xs font-semibold text-fuchsia-300">Primary Button (Gradient)</div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button Text</label>
+              <input type="text" id="bottom_cta_primary_btn_text" value="{{ config.bottom_cta_primary_btn_text|default:'Launch Axom AI Chat' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button URL</label>
+              <input type="text" id="bottom_cta_primary_btn_url" value="{{ config.bottom_cta_primary_btn_url|default:'https://chat.aiaxom.co.in/' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+            </div>
+          </div>
+
+          <div class="space-y-3 p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+            <div class="text-xs font-semibold text-slate-300">Secondary Button (Outline)</div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button Text</label>
+              <input type="text" id="bottom_cta_secondary_btn_text" value="{{ config.bottom_cta_secondary_btn_text|default:'Browse Full FAQ Knowledgebase' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Button URL</label>
+              <input type="text" id="bottom_cta_secondary_btn_url" value="{{ config.bottom_cta_secondary_btn_url|default:'/faq' }}"
+                class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus-ring">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. SEO & METADATA -->
+    <div id="sec-seo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 grid place-items-center text-blue-400">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">9. SEO & Generative Search Metadata</h2>
+            <p class="text-xs text-slate-400">Optimize Contact Page for Google Search, AI Snippets, and Social Cards</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Title (Browser Tab & Google)</label>
+          <input type="text" id="meta_title" value="{{ config.meta_title|default:'Contact Axom AI — Customer Support, Business Enquiries & Guwahati Office' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Description</label>
+          <textarea id="meta_description" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description|default:'Contact Axom AI for customer support, report technical issues, explore enterprise partnerships, or request API integrations. Headquartered in Guwahati, Assam, with rapid 4–12h response.' }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Keywords (Comma separated)</label>
+          <textarea id="meta_keywords" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords|default:'Axom AI contact, Axom AI contact us, contact Axom AI, Axom AI support, Axom AI customer support, Axom AI help, Axom AI customer service, Axom AI support team, contact AI support, AI support Assam, AI company contact Assam, Axom AI office, Axom AI Guwahati, Axom AI Assam, AI company Assam, AI platform Assam' }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">OpenGraph / Twitter Share Image URL</label>
+          <input type="text" id="og_image_url" value="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Sticky Save Bar -->
+    <div class="sticky bottom-4 z-20 flex items-center justify-between p-4 bg-slate-950/90 backdrop-blur-md rounded-2xl border border-slate-800 shadow-2xl">
+      <div class="text-xs text-slate-400">
+        Changes will be updated instantly on the live website.
+      </div>
+      <button id="saveBottomBtn" type="button" onclick="saveContactConfig()" class="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/30 transition hover:scale-[1.02]">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save All Settings</span>
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- ============================================================================== -->
+<!-- MODAL 1: ADD / EDIT DEPARTMENT CHANNEL -->
+<!-- ============================================================================== -->
+<div id="channelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
+  <div class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-950/60">
+      <h3 id="channelModalTitle" class="text-sm font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-headset text-indigo-400"></i>
+        <span>Add Department Channel</span>
+      </h3>
+      <button type="button" onclick="closeChannelModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+
+    <form id="channelModalForm" onsubmit="event.preventDefault(); saveChannelFromModal();" class="p-6 space-y-4">
+      <input type="hidden" id="channel_modal_id" value="">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Channel Slug / Unique ID</label>
+          <input type="text" id="channel_modal_slug" placeholder="e.g. customer-support"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Badge Text</label>
+          <input type="text" id="channel_modal_badge" placeholder="e.g. Fastest Response"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Channel Title</label>
+          <input type="text" id="channel_modal_title" placeholder="e.g. Customer & Account Support"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Destination Email</label>
+          <input type="email" id="channel_modal_email" placeholder="e.g. support@aiaxom.co.in"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Description</label>
+        <textarea id="channel_modal_desc" rows="3" placeholder="What queries this channel covers..."
+          class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Turnaround Time</label>
+          <input type="text" id="channel_modal_turnaround" placeholder="e.g. Avg response < 4h"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Lucide Icon Name</label>
+          <input type="text" id="channel_modal_icon" placeholder="HelpCircle, Briefcase, Code2, ShieldCheck"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Sort Order</label>
+          <input type="number" id="channel_modal_order" value="1"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <input type="checkbox" id="channel_modal_active" checked class="rounded bg-slate-950 border-slate-700 text-fuchsia-600 focus:ring-fuchsia-500">
+        <label for="channel_modal_active" class="text-xs text-slate-300 cursor-pointer">Active (Visible on contact page)</label>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <button type="button" onclick="closeChannelModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition">
+          Cancel
+        </button>
+        <button id="saveChannelModalBtn" type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-xs transition">
+          Save Channel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- MODAL 2: ADD / EDIT FAQ -->
+<!-- ============================================================================== -->
+<div id="faqModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm hidden">
+  <div class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-950/60">
+      <h3 id="faqModalTitle" class="text-sm font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-circle-question text-cyan-400"></i>
+        <span>Add Contact FAQ</span>
+      </h3>
+      <button type="button" onclick="closeFaqModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+
+    <form id="faqModalForm" onsubmit="event.preventDefault(); saveFaqFromModal();" class="p-6 space-y-4">
+      <input type="hidden" id="faq_modal_id" value="">
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Question</label>
+        <input type="text" id="faq_modal_question" placeholder="e.g. What is the typical response time for support tickets?"
+          class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Answer</label>
+        <textarea id="faq_modal_answer" rows="4" placeholder="Detailed clear answer..."
+          class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Category</label>
+          <input type="text" id="faq_modal_category" value="General & Support" placeholder="e.g. General & Support, Billing, Technical"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Sort Order</label>
+          <input type="number" id="faq_modal_order" value="1"
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <input type="checkbox" id="faq_modal_active" checked class="rounded bg-slate-950 border-slate-700 text-fuchsia-600 focus:ring-fuchsia-500">
+        <label for="faq_modal_active" class="text-xs text-slate-300 cursor-pointer">Active (Visible in accordion)</label>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <button type="button" onclick="closeFaqModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition">
+          Cancel
+        </button>
+        <button id="saveFaqModalBtn" type="submit" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-xl text-xs transition">
+          Save FAQ
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Safe field value getter
+  function val(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  // Safe CSRF token retriever
+  function getCsrfToken() {
+    const el = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (el && el.value) return el.value;
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    return match ? match[1] : '';
+  }
+
+  // Keyboard shortcut Ctrl+S / Cmd+S
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveContactConfig();
+    }
+  });
+
+  // Save full contact page configuration
+  async function saveContactConfig() {
+    const btnTop = document.getElementById('saveTopBtn');
+    const btnBottom = document.getElementById('saveBottomBtn');
+
+    if (btnTop) {
+      btnTop.disabled = true;
+      btnTop.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Saving...';
+    }
+    if (btnBottom) {
+      btnBottom.disabled = true;
+      btnBottom.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Saving...';
+    }
+
+    const payload = {
+      // 1. Hero
+      hero_badge_text: val('hero_badge_text'),
+      hero_title_prefix: val('hero_title_prefix'),
+      hero_title_highlight: val('hero_title_highlight'),
+      hero_subtitle: val('hero_subtitle'),
+
+      // 2. AEO
+      aeo_badge: val('aeo_badge'),
+      aeo_how_to_contact_title: val('aeo_how_to_contact_title'),
+      aeo_description: val('aeo_description'),
+      primary_support_email: val('primary_support_email'),
+      founder_email: val('founder_email'),
+
+      // 3. Channels
+      channels_badge: val('channels_badge'),
+      channels_title: val('channels_title'),
+
+      // 4. Form
+      form_title: val('form_title'),
+      form_subtitle: val('form_subtitle'),
+
+      // 5. Office Factsheet
+      office_title: val('office_title'),
+      office_subtitle: val('office_subtitle'),
+      office_location: val('office_location'),
+      office_hours: val('office_hours'),
+      office_hours_note: val('office_hours_note'),
+      office_languages: val('office_languages'),
+      office_sla_text: val('office_sla_text'),
+      security_compliance_title: val('security_compliance_title'),
+      security_compliance_desc: val('security_compliance_desc'),
+
+      // 6. Audience Breakdown (4 Pillars)
+      audience_badge: val('audience_badge'),
+      audience_title: val('audience_title'),
+      audience_subtitle: val('audience_subtitle'),
+
+      audience_1_icon: val('audience_1_icon'),
+      audience_1_title: val('audience_1_title'),
+      audience_1_desc: val('audience_1_desc'),
+
+      audience_2_icon: val('audience_2_icon'),
+      audience_2_title: val('audience_2_title'),
+      audience_2_desc: val('audience_2_desc'),
+
+      audience_3_icon: val('audience_3_icon'),
+      audience_3_title: val('audience_3_title'),
+      audience_3_desc: val('audience_3_desc'),
+
+      audience_4_icon: val('audience_4_icon'),
+      audience_4_title: val('audience_4_title'),
+      audience_4_desc: val('audience_4_desc'),
+
+      // 7. FAQ Section Headings
+      faq_badge: val('faq_badge'),
+      faq_title: val('faq_title'),
+      faq_subtitle: val('faq_subtitle'),
+
+      // 8. Bottom CTA
+      bottom_cta_badge: val('bottom_cta_badge'),
+      bottom_cta_heading: val('bottom_cta_heading'),
+      bottom_cta_subheading: val('bottom_cta_subheading'),
+      bottom_cta_primary_btn_text: val('bottom_cta_primary_btn_text'),
+      bottom_cta_primary_btn_url: val('bottom_cta_primary_btn_url'),
+      bottom_cta_secondary_btn_text: val('bottom_cta_secondary_btn_text'),
+      bottom_cta_secondary_btn_url: val('bottom_cta_secondary_btn_url'),
+
+      // 9. SEO & Meta
+      meta_title: val('meta_title'),
+      meta_description: val('meta_description'),
+      meta_keywords: val('meta_keywords'),
+      og_image_url: val('og_image_url'),
+    };
+
+    try {
+      const res = await fetch('/axomai-content/pages/contact/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken(),
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (btnTop) {
+        btnTop.disabled = false;
+        btnTop.innerHTML = '<i class="fa-solid fa-floppy-disk text-xs"></i><span>Save Changes</span><kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[9px] bg-black/30 rounded border border-white/20 text-fuchsia-200">Ctrl+S</kbd>';
+      }
+      if (btnBottom) {
+        btnBottom.disabled = false;
+        btnBottom.innerHTML = '<i class="fa-solid fa-floppy-disk text-xs"></i><span>Save All Settings</span>';
+      }
+
+      if (data.success) {
+        if (typeof showToast === 'function') {
+          showToast('Contact Page configuration saved successfully!', 'success');
+        } else {
+          alert('Success: ' + (data.message || 'Saved successfully!'));
+        }
+      } else {
+        if (typeof showToast === 'function') {
+          showToast(data.error || 'Failed to save settings', 'error');
+        } else {
+          alert('Error: ' + (data.error || 'Failed to save settings'));
+        }
+      }
+    } catch (err) {
+      if (btnTop) {
+        btnTop.disabled = false;
+        btnTop.innerHTML = '<i class="fa-solid fa-floppy-disk text-xs"></i><span>Save Changes</span>';
+      }
+      if (btnBottom) {
+        btnBottom.disabled = false;
+        btnBottom.innerHTML = '<i class="fa-solid fa-floppy-disk text-xs"></i><span>Save All Settings</span>';
+      }
+      console.error(err);
+      if (typeof showToast === 'function') {
+        showToast('Network error while saving settings.', 'error');
+      } else {
+        alert('Network error while saving settings.');
+      }
+    }
+  }
+
+  // ==========================================
+  // CHANNEL MODAL FUNCTIONS
+  // ==========================================
+  function openChannelModal() {
+    document.getElementById('channelModalTitle').textContent = 'Add Department Channel';
+    document.getElementById('channel_modal_id').value = '';
+    document.getElementById('channel_modal_slug').value = '';
+    document.getElementById('channel_modal_title').value = '';
+    document.getElementById('channel_modal_badge').value = '';
+    document.getElementById('channel_modal_email').value = '';
+    document.getElementById('channel_modal_desc').value = '';
+    document.getElementById('channel_modal_turnaround').value = '';
+    document.getElementById('channel_modal_icon').value = 'HelpCircle';
+    document.getElementById('channel_modal_order').value = '1';
+    document.getElementById('channel_modal_active').checked = true;
+    document.getElementById('channelModal').classList.remove('hidden');
+  }
+
+  function editChannelModal(id, slug, title, badge, email, desc, turnaround, icon, order, isActive) {
+    document.getElementById('channelModalTitle').textContent = 'Edit Department Channel';
+    document.getElementById('channel_modal_id').value = id;
+    document.getElementById('channel_modal_slug').value = slug;
+    document.getElementById('channel_modal_title').value = title;
+    document.getElementById('channel_modal_badge').value = badge;
+    document.getElementById('channel_modal_email').value = email;
+    document.getElementById('channel_modal_desc').value = desc;
+    document.getElementById('channel_modal_turnaround').value = turnaround;
+    document.getElementById('channel_modal_icon').value = icon;
+    document.getElementById('channel_modal_order').value = order;
+    document.getElementById('channel_modal_active').checked = isActive;
+    document.getElementById('channelModal').classList.remove('hidden');
+  }
+
+  function closeChannelModal() {
+    document.getElementById('channelModal').classList.add('hidden');
+  }
+
+  async function saveChannelFromModal() {
+    const payload = {
+      id: document.getElementById('channel_modal_id').value || null,
+      channel_id: val('channel_modal_slug'),
+      title: val('channel_modal_title'),
+      badge: val('channel_modal_badge'),
+      email: val('channel_modal_email'),
+      desc: val('channel_modal_desc'),
+      turnaround: val('channel_modal_turnaround'),
+      icon_name: val('channel_modal_icon'),
+      order: val('channel_modal_order') || 1,
+      is_active: document.getElementById('channel_modal_active').checked,
+    };
+
+    const btn = document.getElementById('saveChannelModalBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+    try {
+      const res = await fetch('/axomai-content/pages/contact/channel/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken(),
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Channel'; }
+
+      if (data.success) {
+        closeChannelModal();
+        if (typeof showToast === 'function') {
+          showToast('Channel saved successfully!', 'success');
+        }
+        setTimeout(() => window.location.reload(), 400);
+      } else {
+        if (typeof showToast === 'function') {
+          showToast(data.error || 'Failed to save channel', 'error');
+        } else {
+          alert('Error: ' + (data.error || 'Failed to save channel'));
+        }
+      }
+    } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Channel'; }
+      console.error(err);
+      if (typeof showToast === 'function') {
+        showToast('Network error while saving channel.', 'error');
+      } else {
+        alert('Network error while saving channel.');
+      }
+    }
+  }
+
+  async function toggleChannelStatus(id) {
+    try {
+      const res = await fetch(`/axomai-content/pages/contact/channel/toggle/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfToken() }
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast(data.message, 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function deleteChannel(id) {
+    if (!confirm('Are you sure you want to delete this channel?')) return;
+    try {
+      const res = await fetch(`/axomai-content/pages/contact/channel/delete/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfToken() }
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast('Channel deleted', 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ==========================================
+  // FAQ MODAL FUNCTIONS
+  // ==========================================
+  function openFaqModal() {
+    document.getElementById('faqModalTitle').textContent = 'Add Contact FAQ';
+    document.getElementById('faq_modal_id').value = '';
+    document.getElementById('faq_modal_question').value = '';
+    document.getElementById('faq_modal_answer').value = '';
+    document.getElementById('faq_modal_category').value = 'General & Support';
+    document.getElementById('faq_modal_order').value = '1';
+    document.getElementById('faq_modal_active').checked = true;
+    document.getElementById('faqModal').classList.remove('hidden');
+  }
+
+  function editFaqModal(id, q, a, cat, order, isActive) {
+    document.getElementById('faqModalTitle').textContent = 'Edit Contact FAQ';
+    document.getElementById('faq_modal_id').value = id;
+    document.getElementById('faq_modal_question').value = q;
+    document.getElementById('faq_modal_answer').value = a;
+    document.getElementById('faq_modal_category').value = cat || 'General & Support';
+    document.getElementById('faq_modal_order').value = order;
+    document.getElementById('faq_modal_active').checked = isActive;
+    document.getElementById('faqModal').classList.remove('hidden');
+  }
+
+  function closeFaqModal() {
+    document.getElementById('faqModal').classList.add('hidden');
+  }
+
+  async function saveFaqFromModal() {
+    const payload = {
+      id: document.getElementById('faq_modal_id').value || null,
+      question: val('faq_modal_question'),
+      answer: val('faq_modal_answer'),
+      category: val('faq_modal_category') || 'General & Support',
+      order: val('faq_modal_order') || 1,
+      is_active: document.getElementById('faq_modal_active').checked,
+    };
+
+    const btn = document.getElementById('saveFaqModalBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+    try {
+      const res = await fetch('/axomai-content/pages/contact/faq/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken(),
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (btn) { btn.disabled = false; btn.textContent = 'Save FAQ'; }
+
+      if (data.success) {
+        closeFaqModal();
+        if (typeof showToast === 'function') {
+          showToast('FAQ saved successfully!', 'success');
+        }
+        setTimeout(() => window.location.reload(), 400);
+      } else {
+        if (typeof showToast === 'function') {
+          showToast(data.error || 'Failed to save FAQ', 'error');
+        } else {
+          alert('Error: ' + (data.error || 'Failed to save FAQ'));
+        }
+      }
+    } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Save FAQ'; }
+      console.error(err);
+      if (typeof showToast === 'function') {
+        showToast('Network error while saving FAQ.', 'error');
+      } else {
+        alert('Network error while saving FAQ.');
+      }
+    }
+  }
+
+  async function toggleFaqStatus(id) {
+    try {
+      const res = await fetch(`/axomai-content/pages/contact/faq/toggle/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfToken() }
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast(data.message, 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function deleteFaq(id) {
+    if (!confirm('Are you sure you want to delete this FAQ?')) return;
+    try {
+      const res = await fetch(`/axomai-content/pages/contact/faq/delete/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCsrfToken() }
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast('FAQ deleted', 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+</script>
+{% endblock %}

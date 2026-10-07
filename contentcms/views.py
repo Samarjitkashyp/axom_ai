@@ -48,6 +48,9 @@ from .models import (
     UseCasesPageConfig,
     UseCaseSector,
     UseCaseFAQ,
+    ContactPageConfig,
+    ContactChannelItem,
+    ContactFAQItem,
 )
 from .converter_defaults import (
     CONVERTER_TOOLS_METADATA,
@@ -58,6 +61,11 @@ from .usecases_defaults import (
     DEFAULT_SECTORS,
     DEFAULT_USECASES_FAQS,
     ensure_usecases_defaults,
+)
+from .contact_defaults import (
+    DEFAULT_CONTACT_CHANNELS,
+    DEFAULT_CONTACT_FAQS,
+    ensure_contact_defaults,
 )
 
 
@@ -3008,4 +3016,288 @@ def toggle_usecase_faq_api(request, faq_id):
         return JsonResponse({'success': True, 'is_active': faq.is_active, 'message': f"Question is now {status_text}."})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+# ==============================================================================
+# CONTACT US PAGE MANAGEMENT (contentcms)
+# ==============================================================================
+
+@content_admin_required
+def contact_editor(request):
+    """Dynamic Contact Us Page Editor for Content CMS."""
+    config = ensure_contact_defaults()
+    channels = ContactChannelItem.objects.filter(page_config=config).order_by('order', 'id')
+    faqs = ContactFAQItem.objects.filter(page_config=config).order_by('order', 'id')
+
+    return render(request, 'contentcms/contact_editor.html', {
+        'active': 'pages_contact',
+        'config': config,
+        'channels': channels,
+        'faqs': faqs,
+    })
+
+
+@content_admin_required
+@require_POST
+def save_contact_page_api(request):
+    """AJAX API to save all dynamic configuration fields for the Contact Us Page."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_contact_defaults()
+
+        # 1. Hero Section
+        if 'hero_badge_text' in data:
+            config.hero_badge_text = data.get('hero_badge_text', '').strip()
+        if 'hero_title_prefix' in data:
+            config.hero_title_prefix = data.get('hero_title_prefix', '').strip()
+        if 'hero_title_highlight' in data:
+            config.hero_title_highlight = data.get('hero_title_highlight', '').strip()
+        if 'hero_subtitle' in data:
+            config.hero_subtitle = data.get('hero_subtitle', '').strip()
+
+        # 2. AEO Direct Answer Summary Box
+        if 'aeo_badge' in data:
+            config.aeo_badge = data.get('aeo_badge', '').strip()
+        if 'aeo_how_to_contact_title' in data:
+            config.aeo_how_to_contact_title = data.get('aeo_how_to_contact_title', '').strip()
+        if 'aeo_description' in data:
+            config.aeo_description = data.get('aeo_description', '').strip()
+        if 'primary_support_email' in data:
+            config.primary_support_email = data.get('primary_support_email', '').strip()
+        if 'founder_email' in data:
+            config.founder_email = data.get('founder_email', '').strip()
+
+        # 3. Channels Section Heading
+        if 'channels_badge' in data:
+            config.channels_badge = data.get('channels_badge', '').strip()
+        if 'channels_title' in data:
+            config.channels_title = data.get('channels_title', '').strip()
+
+        # 4. Form Section Headings
+        if 'form_title' in data:
+            config.form_title = data.get('form_title', '').strip()
+        if 'form_subtitle' in data:
+            config.form_subtitle = data.get('form_subtitle', '').strip()
+
+        # 5. Guwahati Headquarters & Office Factsheet
+        if 'office_title' in data:
+            config.office_title = data.get('office_title', '').strip()
+        if 'office_subtitle' in data:
+            config.office_subtitle = data.get('office_subtitle', '').strip()
+        if 'office_location' in data:
+            config.office_location = data.get('office_location', '').strip()
+        if 'office_hours' in data:
+            config.office_hours = data.get('office_hours', '').strip()
+        if 'office_hours_note' in data:
+            config.office_hours_note = data.get('office_hours_note', '').strip()
+        if 'office_languages' in data:
+            config.office_languages = data.get('office_languages', '').strip()
+        if 'office_sla_text' in data:
+            config.office_sla_text = data.get('office_sla_text', '').strip()
+        if 'security_compliance_title' in data:
+            config.security_compliance_title = data.get('security_compliance_title', '').strip()
+        if 'security_compliance_desc' in data:
+            config.security_compliance_desc = data.get('security_compliance_desc', '').strip()
+
+        # 6. Audience Breakdown: Who We Help (4 Pillars)
+        if 'audience_badge' in data:
+            config.audience_badge = data.get('audience_badge', '').strip()
+        if 'audience_title' in data:
+            config.audience_title = data.get('audience_title', '').strip()
+        if 'audience_subtitle' in data:
+            config.audience_subtitle = data.get('audience_subtitle', '').strip()
+
+        if 'audience_1_icon' in data:
+            config.audience_1_icon = data.get('audience_1_icon', '').strip()
+        if 'audience_1_title' in data:
+            config.audience_1_title = data.get('audience_1_title', '').strip()
+        if 'audience_1_desc' in data:
+            config.audience_1_desc = data.get('audience_1_desc', '').strip()
+
+        if 'audience_2_icon' in data:
+            config.audience_2_icon = data.get('audience_2_icon', '').strip()
+        if 'audience_2_title' in data:
+            config.audience_2_title = data.get('audience_2_title', '').strip()
+        if 'audience_2_desc' in data:
+            config.audience_2_desc = data.get('audience_2_desc', '').strip()
+
+        if 'audience_3_icon' in data:
+            config.audience_3_icon = data.get('audience_3_icon', '').strip()
+        if 'audience_3_title' in data:
+            config.audience_3_title = data.get('audience_3_title', '').strip()
+        if 'audience_3_desc' in data:
+            config.audience_3_desc = data.get('audience_3_desc', '').strip()
+
+        if 'audience_4_icon' in data:
+            config.audience_4_icon = data.get('audience_4_icon', '').strip()
+        if 'audience_4_title' in data:
+            config.audience_4_title = data.get('audience_4_title', '').strip()
+        if 'audience_4_desc' in data:
+            config.audience_4_desc = data.get('audience_4_desc', '').strip()
+
+        # 7. FAQ Section Headings
+        if 'faq_badge' in data:
+            config.faq_badge = data.get('faq_badge', '').strip()
+        if 'faq_title' in data:
+            config.faq_title = data.get('faq_title', '').strip()
+        if 'faq_subtitle' in data:
+            config.faq_subtitle = data.get('faq_subtitle', '').strip()
+
+        # 8. Bottom Fast Assistance Card
+        if 'bottom_cta_badge' in data:
+            config.bottom_cta_badge = data.get('bottom_cta_badge', '').strip()
+        if 'bottom_cta_heading' in data:
+            config.bottom_cta_heading = data.get('bottom_cta_heading', '').strip()
+        if 'bottom_cta_subheading' in data:
+            config.bottom_cta_subheading = data.get('bottom_cta_subheading', '').strip()
+        if 'bottom_cta_primary_btn_text' in data:
+            config.bottom_cta_primary_btn_text = data.get('bottom_cta_primary_btn_text', '').strip()
+        if 'bottom_cta_primary_btn_url' in data:
+            config.bottom_cta_primary_btn_url = data.get('bottom_cta_primary_btn_url', '').strip()
+        if 'bottom_cta_secondary_btn_text' in data:
+            config.bottom_cta_secondary_btn_text = data.get('bottom_cta_secondary_btn_text', '').strip()
+        if 'bottom_cta_secondary_btn_url' in data:
+            config.bottom_cta_secondary_btn_url = data.get('bottom_cta_secondary_btn_url', '').strip()
+
+        # 9. SEO & Meta
+        if 'meta_title' in data:
+            config.meta_title = data.get('meta_title', '').strip()
+        if 'meta_description' in data:
+            config.meta_description = data.get('meta_description', '').strip()
+        if 'meta_keywords' in data:
+            config.meta_keywords = data.get('meta_keywords', '').strip()
+        if 'og_image_url' in data:
+            config.og_image_url = data.get('og_image_url', '').strip()
+
+        config.save()
+        return JsonResponse({'success': True, 'message': 'Contact Us page configuration saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_contact_channel_api(request):
+    """AJAX API to create or update a Contact Department Channel card."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_contact_defaults()
+        channel_id_val = data.get('id')
+
+        if channel_id_val:
+            channel = get_object_or_404(ContactChannelItem, id=channel_id_val)
+        else:
+            channel = ContactChannelItem(page_config=config)
+
+        if 'channel_id' in data:
+            channel.channel_id = data.get('channel_id', '').strip().lower().replace(' ', '-')
+        if 'title' in data:
+            channel.title = data.get('title', '').strip()
+        if 'badge' in data:
+            channel.badge = data.get('badge', '').strip()
+        if 'email' in data:
+            channel.email = data.get('email', '').strip()
+        if 'desc' in data:
+            channel.desc = data.get('desc', '').strip()
+        if 'turnaround' in data:
+            channel.turnaround = data.get('turnaround', '').strip()
+        if 'icon_name' in data:
+            channel.icon_name = data.get('icon_name', '').strip()
+        if 'order' in data:
+            try:
+                channel.order = int(data.get('order', 0))
+            except (ValueError, TypeError):
+                pass
+        if 'is_active' in data:
+            channel.is_active = bool(data.get('is_active', True))
+
+        channel.page_config = config
+        channel.save()
+        return JsonResponse({'success': True, 'id': channel.id, 'message': 'Contact Channel saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_contact_channel_api(request, channel_id):
+    """AJAX API to delete a Contact Department Channel card."""
+    try:
+        channel = get_object_or_404(ContactChannelItem, id=channel_id)
+        channel.delete()
+        return JsonResponse({'success': True, 'message': 'Channel removed successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_contact_channel_api(request, channel_id):
+    """AJAX API to toggle visibility of a contact channel."""
+    try:
+        channel = get_object_or_404(ContactChannelItem, id=channel_id)
+        channel.is_active = not channel.is_active
+        channel.save()
+        status_text = "Active (Visible)" if channel.is_active else "Inactive (Hidden)"
+        return JsonResponse({'success': True, 'is_active': channel.is_active, 'message': f"Channel is now {status_text}."})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_contact_faq_api(request):
+    """AJAX API to create or update a Contact FAQ item."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_contact_defaults()
+        faq_id = data.get('id')
+
+        if faq_id:
+            faq = get_object_or_404(ContactFAQItem, id=faq_id)
+        else:
+            faq = ContactFAQItem(page_config=config)
+
+        faq.question = data.get('question', '').strip()
+        faq.answer = data.get('answer', '').strip()
+        faq.category = data.get('category', 'General & Support').strip()
+        try:
+            faq.order = int(data.get('order', 0))
+        except (ValueError, TypeError):
+            pass
+        if 'is_active' in data:
+            faq.is_active = bool(data.get('is_active', True))
+
+        faq.page_config = config
+        faq.save()
+        return JsonResponse({'success': True, 'id': faq.id, 'message': 'FAQ saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_contact_faq_api(request, faq_id):
+    """AJAX API to delete a Contact FAQ item."""
+    try:
+        faq = get_object_or_404(ContactFAQItem, id=faq_id)
+        faq.delete()
+        return JsonResponse({'success': True, 'message': 'FAQ removed successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_contact_faq_api(request, faq_id):
+    """AJAX API to toggle visibility of a Contact FAQ."""
+    try:
+        faq = get_object_or_404(ContactFAQItem, id=faq_id)
+        faq.is_active = not faq.is_active
+        faq.save()
+        status_text = "Active (Visible)" if faq.is_active else "Inactive (Hidden)"
+        return JsonResponse({'success': True, 'is_active': faq.is_active, 'message': f"Question is now {status_text}."})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
 

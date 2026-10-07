@@ -2,10 +2,28 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, HelpCircle, Sparkles } from 'lucide-react';
-import { CONTACT_FAQS } from './contactData';
+import { CONTACT_FAQS, ContactFaq } from './contactData';
 
-export default function ContactFaqInteractive() {
-  const [openId, setOpenId] = useState<string | null>(CONTACT_FAQS[0]?.id || null);
+interface ContactFaqInteractiveProps {
+  faqs?: Array<{
+    id?: string | number;
+    question: string;
+    answer: string;
+    category?: string;
+  }>;
+}
+
+export default function ContactFaqInteractive({ faqs }: ContactFaqInteractiveProps) {
+  const faqList = (faqs && faqs.length > 0)
+    ? faqs.map((f, i) => ({
+        id: String(f.id ?? `faq-${i}`),
+        question: f.question,
+        answer: f.answer,
+        category: f.category || 'General & Support',
+      }))
+    : CONTACT_FAQS;
+
+  const [openId, setOpenId] = useState<string | null>(faqList[0]?.id || null);
 
   const toggle = (id: string) => {
     setOpenId((prev) => (prev === id ? null : id));
@@ -13,7 +31,7 @@ export default function ContactFaqInteractive() {
 
   return (
     <div className="space-y-3">
-      {CONTACT_FAQS.map((faq, index) => {
+      {faqList.map((faq, index) => {
         const isOpen = openId === faq.id;
         return (
           <div
@@ -66,3 +84,4 @@ export default function ContactFaqInteractive() {
     </div>
   );
 }
+
