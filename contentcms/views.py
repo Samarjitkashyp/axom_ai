@@ -45,11 +45,19 @@ from .models import (
     ConverterToolConfig,
     ConverterToolFAQ,
     PricingFAQ,
+    UseCasesPageConfig,
+    UseCaseSector,
+    UseCaseFAQ,
 )
 from .converter_defaults import (
     CONVERTER_TOOLS_METADATA,
     CONVERTER_TOOLS_DEFAULTS,
     ensure_converter_tool_defaults,
+)
+from .usecases_defaults import (
+    DEFAULT_SECTORS,
+    DEFAULT_USECASES_FAQS,
+    ensure_usecases_defaults,
 )
 
 
@@ -2729,3 +2737,273 @@ def get_landing_content_payload():
         'faqs': home_faqs,
         'seo': seo,
     }
+
+
+# ==============================================================================
+# USE CASES PAGE MANAGEMENT (contentcms)
+# ==============================================================================
+
+@content_admin_required
+def usecases_editor(request):
+    """Dynamic Use Cases Page Editor for Content CMS."""
+    config = ensure_usecases_defaults()
+    sectors = UseCaseSector.objects.filter(page_config=config).order_by('order', 'id')
+    faqs = UseCaseFAQ.objects.filter(page_config=config).order_by('order', 'id')
+
+    return render(request, 'contentcms/usecases_editor.html', {
+        'active': 'pages_usecases',
+        'config': config,
+        'sectors': sectors,
+        'faqs': faqs,
+    })
+
+
+@content_admin_required
+@require_POST
+def save_usecases_page_api(request):
+    """AJAX API to save all dynamic fields for the Use Cases Page."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_usecases_defaults()
+
+        # 1. Hero Section
+        if 'hero_badge_text' in data:
+            config.hero_badge_text = data.get('hero_badge_text', '').strip()
+        if 'hero_heading_prefix' in data:
+            config.hero_heading_prefix = data.get('hero_heading_prefix', '').strip()
+        if 'hero_heading_highlight' in data:
+            config.hero_heading_highlight = data.get('hero_heading_highlight', '').strip()
+        if 'hero_heading_suffix' in data:
+            config.hero_heading_suffix = data.get('hero_heading_suffix', '').strip()
+        if 'hero_subtitle' in data:
+            config.hero_subtitle = data.get('hero_subtitle', '').strip()
+
+        # 2. AEO Direct Answer Box
+        if 'aeo_badge' in data:
+            config.aeo_badge = data.get('aeo_badge', '').strip()
+        if 'aeo_title' in data:
+            config.aeo_title = data.get('aeo_title', '').strip()
+        if 'aeo_description' in data:
+            config.aeo_description = data.get('aeo_description', '').strip()
+        if 'aeo_point1' in data:
+            config.aeo_point1 = data.get('aeo_point1', '').strip()
+        if 'aeo_point2' in data:
+            config.aeo_point2 = data.get('aeo_point2', '').strip()
+        if 'aeo_point3' in data:
+            config.aeo_point3 = data.get('aeo_point3', '').strip()
+
+        # 3. Impact Metrics (4 Stats)
+        if 'stat_1_val' in data:
+            config.stat_1_val = data.get('stat_1_val', '').strip()
+        if 'stat_1_label' in data:
+            config.stat_1_label = data.get('stat_1_label', '').strip()
+        if 'stat_2_val' in data:
+            config.stat_2_val = data.get('stat_2_val', '').strip()
+        if 'stat_2_label' in data:
+            config.stat_2_label = data.get('stat_2_label', '').strip()
+        if 'stat_3_val' in data:
+            config.stat_3_val = data.get('stat_3_val', '').strip()
+        if 'stat_3_label' in data:
+            config.stat_3_label = data.get('stat_3_label', '').strip()
+        if 'stat_4_val' in data:
+            config.stat_4_val = data.get('stat_4_val', '').strip()
+        if 'stat_4_label' in data:
+            config.stat_4_label = data.get('stat_4_label', '').strip()
+
+        # 4. Section Headings
+        if 'sectors_badge' in data:
+            config.sectors_badge = data.get('sectors_badge', '').strip()
+        if 'sectors_title' in data:
+            config.sectors_title = data.get('sectors_title', '').strip()
+        if 'sectors_subtitle' in data:
+            config.sectors_subtitle = data.get('sectors_subtitle', '').strip()
+
+        if 'comparison_badge' in data:
+            config.comparison_badge = data.get('comparison_badge', '').strip()
+        if 'comparison_title' in data:
+            config.comparison_title = data.get('comparison_title', '').strip()
+        if 'comparison_subtitle' in data:
+            config.comparison_subtitle = data.get('comparison_subtitle', '').strip()
+
+        if 'authority_badge' in data:
+            config.authority_badge = data.get('authority_badge', '').strip()
+        if 'authority_title' in data:
+            config.authority_title = data.get('authority_title', '').strip()
+        if 'authority_description' in data:
+            config.authority_description = data.get('authority_description', '').strip()
+
+        if 'faq_badge' in data:
+            config.faq_badge = data.get('faq_badge', '').strip()
+        if 'faq_title' in data:
+            config.faq_title = data.get('faq_title', '').strip()
+        if 'faq_subtitle' in data:
+            config.faq_subtitle = data.get('faq_subtitle', '').strip()
+
+        # 5. Bottom CTA Banner
+        if 'cta_badge' in data:
+            config.cta_badge = data.get('cta_badge', '').strip()
+        if 'cta_heading' in data:
+            config.cta_heading = data.get('cta_heading', '').strip()
+        if 'cta_subheading' in data:
+            config.cta_subheading = data.get('cta_subheading', '').strip()
+        if 'cta_primary_btn_text' in data:
+            config.cta_primary_btn_text = data.get('cta_primary_btn_text', '').strip()
+        if 'cta_primary_btn_url' in data:
+            config.cta_primary_btn_url = data.get('cta_primary_btn_url', '').strip()
+        if 'cta_secondary_btn_text' in data:
+            config.cta_secondary_btn_text = data.get('cta_secondary_btn_text', '').strip()
+        if 'cta_secondary_btn_url' in data:
+            config.cta_secondary_btn_url = data.get('cta_secondary_btn_url', '').strip()
+
+        # 6. SEO & Meta
+        if 'meta_title' in data:
+            config.meta_title = data.get('meta_title', '').strip()
+        if 'meta_description' in data:
+            config.meta_description = data.get('meta_description', '').strip()
+        if 'meta_keywords' in data:
+            config.meta_keywords = data.get('meta_keywords', '').strip()
+        if 'og_image_url' in data:
+            config.og_image_url = data.get('og_image_url', '').strip()
+
+        config.save()
+        return JsonResponse({'success': True, 'message': 'Use Cases page configuration saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_usecase_sector_api(request):
+    """AJAX API to create or update an Industry Sector card."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_usecases_defaults()
+        sector_id_val = data.get('id')
+
+        if sector_id_val:
+            sector = get_object_or_404(UseCaseSector, id=sector_id_val)
+        else:
+            sector = UseCaseSector(page_config=config)
+
+        if 'sector_id' in data:
+            sector.sector_id = data.get('sector_id', '').strip().lower().replace(' ', '-')
+        if 'badge' in data:
+            sector.badge = data.get('badge', '').strip()
+        if 'icon_name' in data:
+            sector.icon_name = data.get('icon_name', '').strip()
+        if 'color_gradient' in data:
+            sector.color_gradient = data.get('color_gradient', '').strip()
+        if 'text_color' in data:
+            sector.text_color = data.get('text_color', '').strip()
+        if 'border_color' in data:
+            sector.border_color = data.get('border_color', '').strip()
+        if 'title' in data:
+            sector.title = data.get('title', '').strip()
+        if 'tagline' in data:
+            sector.tagline = data.get('tagline', '').strip()
+        if 'description' in data:
+            sector.description = data.get('description', '').strip()
+        if 'capabilities_raw' in data:
+            sector.capabilities_raw = data.get('capabilities_raw', '').strip()
+        if 'impact_metric' in data:
+            sector.impact_metric = data.get('impact_metric', '').strip()
+        if 'cta_text' in data:
+            sector.cta_text = data.get('cta_text', '').strip()
+        if 'cta_url' in data:
+            sector.cta_url = data.get('cta_url', '').strip()
+        if 'order' in data:
+            try:
+                sector.order = int(data.get('order', 0))
+            except (ValueError, TypeError):
+                pass
+        if 'is_active' in data:
+            sector.is_active = bool(data.get('is_active', True))
+
+        sector.page_config = config
+        sector.save()
+        return JsonResponse({'success': True, 'id': sector.id, 'message': 'Sector saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_usecase_sector_api(request, sector_id):
+    """AJAX API to delete an Industry Sector card."""
+    try:
+        sector = get_object_or_404(UseCaseSector, id=sector_id)
+        sector.delete()
+        return JsonResponse({'success': True, 'message': 'Sector removed successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_usecase_sector_api(request, sector_id):
+    """AJAX API to toggle visibility of a sector."""
+    try:
+        sector = get_object_or_404(UseCaseSector, id=sector_id)
+        sector.is_active = not sector.is_active
+        sector.save()
+        status_text = "Active (Visible)" if sector.is_active else "Inactive (Hidden)"
+        return JsonResponse({'success': True, 'is_active': sector.is_active, 'message': f"Sector is now {status_text}."})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_usecase_faq_api(request):
+    """AJAX API to create or update a Use Case FAQ item."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_usecases_defaults()
+        faq_id = data.get('id')
+
+        if faq_id:
+            faq = get_object_or_404(UseCaseFAQ, id=faq_id)
+        else:
+            faq = UseCaseFAQ(page_config=config)
+
+        faq.question = data.get('question', '').strip()
+        faq.answer = data.get('answer', '').strip()
+        try:
+            faq.order = int(data.get('order', 0))
+        except (ValueError, TypeError):
+            pass
+        if 'is_active' in data:
+            faq.is_active = bool(data.get('is_active', True))
+
+        faq.page_config = config
+        faq.save()
+        return JsonResponse({'success': True, 'id': faq.id, 'message': 'FAQ saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_usecase_faq_api(request, faq_id):
+    """AJAX API to delete a Use Case FAQ item."""
+    try:
+        faq = get_object_or_404(UseCaseFAQ, id=faq_id)
+        faq.delete()
+        return JsonResponse({'success': True, 'message': 'FAQ removed successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_usecase_faq_api(request, faq_id):
+    """AJAX API to toggle visibility of a Use Case FAQ."""
+    try:
+        faq = get_object_or_404(UseCaseFAQ, id=faq_id)
+        faq.is_active = not faq.is_active
+        faq.save()
+        status_text = "Active (Visible)" if faq.is_active else "Inactive (Hidden)"
+        return JsonResponse({'success': True, 'is_active': faq.is_active, 'message': f"Question is now {status_text}."})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+

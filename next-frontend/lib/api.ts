@@ -428,6 +428,100 @@ export async function getAboutCMS(): Promise<AboutCMSData | null> {
   }
 }
 
+export interface UseCaseSectorItem {
+  id: string;
+  db_id?: number;
+  badge: string;
+  icon: string;
+  color: string;
+  textColor?: string;
+  borderColor?: string;
+  title: string;
+  tagline: string;
+  description: string;
+  capabilities: string[];
+  impactMetric: string;
+  ctaText: string;
+  ctaUrl: string;
+  order?: number;
+}
+
+export interface UseCaseFaqItemCMS {
+  id?: number;
+  q: string;
+  a: string;
+  order?: number;
+}
+
+export interface UseCasesCMSData {
+  hero_badge_text?: string;
+  hero_heading_prefix?: string;
+  hero_heading_highlight?: string;
+  hero_heading_suffix?: string;
+  hero_subtitle?: string;
+
+  aeo_badge?: string;
+  aeo_title?: string;
+  aeo_description?: string;
+  aeo_point1?: string;
+  aeo_point2?: string;
+  aeo_point3?: string;
+
+  stat_1_val?: string;
+  stat_1_label?: string;
+  stat_2_val?: string;
+  stat_2_label?: string;
+  stat_3_val?: string;
+  stat_3_label?: string;
+  stat_4_val?: string;
+  stat_4_label?: string;
+
+  sectors_badge?: string;
+  sectors_title?: string;
+  sectors_subtitle?: string;
+  sectors?: UseCaseSectorItem[];
+
+  comparison_badge?: string;
+  comparison_title?: string;
+  comparison_subtitle?: string;
+
+  authority_badge?: string;
+  authority_title?: string;
+  authority_description?: string;
+
+  faq_badge?: string;
+  faq_title?: string;
+  faq_subtitle?: string;
+  faqs?: UseCaseFaqItemCMS[];
+
+  cta_badge?: string;
+  cta_heading?: string;
+  cta_subheading?: string;
+  cta_primary_btn_text?: string;
+  cta_primary_btn_url?: string;
+  cta_secondary_btn_text?: string;
+  cta_secondary_btn_url?: string;
+
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  og_image_url?: string;
+}
+
+export async function getUseCasesCMS(): Promise<UseCasesCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/use-cases/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch Use Cases CMS data:', err);
+    return null;
+  }
+}
+
+
 export interface ComparisonMatrixRow {
   feature: string;
   axom: string;

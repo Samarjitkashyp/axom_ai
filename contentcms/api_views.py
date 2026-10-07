@@ -9,8 +9,10 @@ from .models import (
     PricingComparisonCategory, PricingComparisonRow,
     HeaderSettings, HeaderNavItem, HeaderMegaMenuItem,
     FooterSettings, FooterColumn, FooterColumnLink, FooterSocialLink,
-    AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ, PricingFAQ
+    AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ, PricingFAQ,
+    UseCasesPageConfig, UseCaseSector, UseCaseFAQ
 )
+from .usecases_defaults import ensure_usecases_defaults
 
 
 @require_GET
@@ -627,6 +629,106 @@ def cms_tool_detail_api(request, tool_slug):
 def cms_word_to_pdf_api(request):
     """API returning all dynamic content and FAQs for Word to PDF Tool in structured JSON."""
     return cms_tool_detail_api(request, 'word-to-pdf')
+
+
+@require_GET
+def cms_usecases_api(request):
+    """API returning all dynamic content, sectors, and FAQs for Use Cases Page in structured JSON."""
+    cfg = ensure_usecases_defaults()
+    sectors_qs = UseCaseSector.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+    faqs_qs = UseCaseFAQ.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+
+    sectors_data = []
+    for s in sectors_qs:
+        caps = [c.strip() for c in s.capabilities_raw.split('\n') if c.strip()]
+        sectors_data.append({
+            'id': s.sector_id,
+            'db_id': s.id,
+            'badge': s.badge,
+            'icon': s.icon_name,
+            'color': s.color_gradient,
+            'textColor': s.text_color,
+            'borderColor': s.border_color,
+            'title': s.title,
+            'tagline': s.tagline,
+            'description': s.description,
+            'capabilities': caps,
+            'impactMetric': s.impact_metric,
+            'ctaText': s.cta_text,
+            'ctaUrl': s.cta_url,
+            'order': s.order,
+        })
+
+    faqs_data = [
+        {'id': f.id, 'q': f.question, 'a': f.answer, 'order': f.order}
+        for f in faqs_qs
+    ]
+
+    return JsonResponse({
+        # Hero Section
+        'hero_badge_text': cfg.hero_badge_text,
+        'hero_heading_prefix': cfg.hero_heading_prefix,
+        'hero_heading_highlight': cfg.hero_heading_highlight,
+        'hero_heading_suffix': cfg.hero_heading_suffix,
+        'hero_subtitle': cfg.hero_subtitle,
+
+        # AEO Direct Summary Box
+        'aeo_badge': cfg.aeo_badge,
+        'aeo_title': cfg.aeo_title,
+        'aeo_description': cfg.aeo_description,
+        'aeo_point1': cfg.aeo_point1,
+        'aeo_point2': cfg.aeo_point2,
+        'aeo_point3': cfg.aeo_point3,
+
+        # 4 Impact Metrics
+        'stat_1_val': cfg.stat_1_val,
+        'stat_1_label': cfg.stat_1_label,
+        'stat_2_val': cfg.stat_2_val,
+        'stat_2_label': cfg.stat_2_label,
+        'stat_3_val': cfg.stat_3_val,
+        'stat_3_label': cfg.stat_3_label,
+        'stat_4_val': cfg.stat_4_val,
+        'stat_4_label': cfg.stat_4_label,
+
+        # Sector Section
+        'sectors_badge': cfg.sectors_badge,
+        'sectors_title': cfg.sectors_title,
+        'sectors_subtitle': cfg.sectors_subtitle,
+        'sectors': sectors_data,
+
+        # Sovereign Comparison Section
+        'comparison_badge': cfg.comparison_badge,
+        'comparison_title': cfg.comparison_title,
+        'comparison_subtitle': cfg.comparison_subtitle,
+
+        # Sovereign Regional Authority
+        'authority_badge': cfg.authority_badge,
+        'authority_title': cfg.authority_title,
+        'authority_description': cfg.authority_description,
+
+        # FAQ Section
+        'faq_badge': cfg.faq_badge,
+        'faq_title': cfg.faq_title,
+        'faq_subtitle': cfg.faq_subtitle,
+        'faqs': faqs_data,
+
+        # Bottom CTA Banner
+        'cta_badge': cfg.cta_badge,
+        'cta_heading': cfg.cta_heading,
+        'cta_subheading': cfg.cta_subheading,
+        'cta_primary_btn_text': cfg.cta_primary_btn_text,
+        'cta_primary_btn_url': cfg.cta_primary_btn_url,
+        'cta_secondary_btn_text': cfg.cta_secondary_btn_text,
+        'cta_secondary_btn_url': cfg.cta_secondary_btn_url,
+
+        # SEO & Meta
+        'meta_title': cfg.meta_title,
+        'meta_description': cfg.meta_description,
+        'meta_keywords': cfg.meta_keywords,
+        'og_image_url': cfg.og_image_url,
+        'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
+    })
+
 
 
 

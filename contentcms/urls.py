@@ -56,6 +56,16 @@ urlpatterns = [
     path('pages/about/', views.about_editor, name='about_editor'),
     path('pages/about/save/', views.save_about_page_api, name='save_about_page_api'),
 
+    # Standalone Pages: Use Cases Page Manager
+    path('pages/use-cases/', views.usecases_editor, name='usecases_editor'),
+    path('pages/use-cases/save/', views.save_usecases_page_api, name='save_usecases_page_api'),
+    path('pages/use-cases/sector/save/', views.save_usecase_sector_api, name='save_usecase_sector_api'),
+    path('pages/use-cases/sector/delete/<int:sector_id>/', views.delete_usecase_sector_api, name='delete_usecase_sector_api'),
+    path('pages/use-cases/sector/toggle/<int:sector_id>/', views.toggle_usecase_sector_api, name='toggle_usecase_sector_api'),
+    path('pages/use-cases/faq/save/', views.save_usecase_faq_api, name='save_usecase_faq_api'),
+    path('pages/use-cases/faq/delete/<int:faq_id>/', views.delete_usecase_faq_api, name='delete_usecase_faq_api'),
+    path('pages/use-cases/faq/toggle/<int:faq_id>/', views.toggle_usecase_faq_api, name='toggle_usecase_faq_api'),
+
     # Standalone Pages: FAQ Page Manager
     path('pages/faq/', views.faq_manager_page, name='faq_manager_page'),
     path('pages/faq/config/save/', views.save_faq_page_config_api, name='save_faq_page_config_api'),

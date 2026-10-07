@@ -1,0 +1,1021 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}Use Cases Page Management — Axom AI CMS{% endblock %}
+{% block page_title %}Use Cases Page Editor{% endblock %}
+{% block page_subtitle %}Manage live content, AEO direct answer card, 4 impact metrics, industry sector cards, FAQs, and SEO meta tags for https://aiaxom.co.in/use-cases{% endblock %}
+
+{% block extra_head %}
+<style>
+  .focus-ring:focus {
+    border-color: #d946ef !important;
+    box-shadow: 0 0 15px rgba(217, 70, 239, 0.25) !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 pb-12">
+
+  <!-- Top Action & Navigation Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="/axomai-content/" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+      </a>
+      <div>
+        <div class="text-xs text-slate-400">Standalone Page Configuration</div>
+        <div class="text-sm font-bold text-white flex items-center gap-2">
+          <span>Use Cases Page (aiaxom.co.in/use-cases)</span>
+          <span class="text-[10px] bg-fuchsia-500/20 text-fuchsia-300 px-2 py-0.5 rounded-full border border-fuchsia-500/30">AEO + Dynamic Sectors</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2.5">
+      <a href="https://aiaxom.co.in/use-cases/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-arrow-up-right-from-square text-fuchsia-400 text-xs"></i>
+        <span>View Live Use Cases</span>
+      </a>
+
+      <button id="saveTopBtn" onclick="saveUseCasesConfig()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/25 transition">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save Changes</span>
+        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[9px] bg-black/30 rounded border border-white/20 text-fuchsia-200">Ctrl+S</kbd>
+      </button>
+    </div>
+  </div>
+
+  <form id="useCasesPageForm" onsubmit="event.preventDefault(); saveUseCasesConfig();" class="space-y-8">
+
+    <!-- 1. HERO HEADER SECTION -->
+    <div id="sec-hero" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center text-fuchsia-400">
+            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">1. Hero Section & Main Headings</h2>
+            <p class="text-xs text-slate-400">Controls the primary H1 headline, badge, and descriptive subtitle</p>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-slate-400">Above-the-fold</span>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Eyebrow Badge Text</label>
+          <input type="text" id="hero_badge_text" value="{{ config.hero_badge_text|default:'⚡ Real People • Real Impact • Sovereign Assamese AI' }}" placeholder="Top badge text"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <!-- H1 Headline 3-Part Generator -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Prefix</label>
+            <input type="text" id="hero_heading_prefix" value="{{ config.hero_heading_prefix|default:'Built for' }}" placeholder="Prefix"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Highlighted Keyword (Gradient)</label>
+            <input type="text" id="hero_heading_highlight" value="{{ config.hero_heading_highlight|default:'Real People, Real Impact' }}" placeholder="Highlight"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-fuchsia-500/40 rounded-xl text-xs text-fuchsia-300 font-semibold focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Suffix (Optional)</label>
+            <input type="text" id="hero_heading_suffix" value="{{ config.hero_heading_suffix|default:'' }}" placeholder="Suffix (optional)"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hero Descriptive Subtitle</label>
+          <textarea id="hero_subtitle" rows="3" placeholder="Hero subtitle description..."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.hero_subtitle|default:'From school classrooms in Dibrugarh to administrative offices in Dispur and tech startups in Guwahati — discover how Axom AI is driving everyday productivity, academic success, and regional empowerment across Assam and Northeast India.' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. AEO DIRECT ANSWER BOX (Generative Engine Optimization) -->
+    <div id="sec-aeo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400">
+            <i class="fa-solid fa-compass text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">2. AEO Direct Answer Summary Box</h2>
+            <p class="text-xs text-slate-400">Targeted for AI Answer Engines (Perplexity, ChatGPT Search, Google AI Overviews)</p>
+          </div>
+        </div>
+        <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">AEO / GEO</span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">AEO Badge Text</label>
+            <input type="text" id="aeo_badge" value="{{ config.aeo_badge|default:'AEO Direct Summary • Generative Engine Overview' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">AEO Question / Box Title</label>
+            <input type="text" id="aeo_title" value="{{ config.aeo_title|default:'What are the Practical Use Cases of Axom AI?' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">AEO Direct Comprehensive Answer Text</label>
+          <textarea id="aeo_description" rows="4" placeholder="Direct answer text..."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.aeo_description|default:'Axom AI is designed as a sovereign, multi-purpose artificial intelligence ecosystem specifically customized for the linguistic, cultural, and professional requirements of Assam and Northeast India. Key use cases include bilingual academic tutoring for students, APSC civil services preparation with authentic regional General Knowledge, business communication automation for regional MSMEs, bilingual land and legal record analysis, healthcare outreach translation, and full-stack code development — all delivered over low-latency Indian cloud infrastructure with 100% data sovereignty.' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Checkpoint 1</label>
+            <input type="text" id="aeo_point1" value="{{ config.aeo_point1|default:'15M+ Assamese Speakers Served' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-emerald-400 focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Checkpoint 2</label>
+            <input type="text" id="aeo_point2" value="{{ config.aeo_point2|default:'SEBA, AHSEC & APSC Aligned' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-emerald-400 focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Checkpoint 3</label>
+            <input type="text" id="aeo_point3" value="{{ config.aeo_point3|default:'DPDP Act 2023 Compliant' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-emerald-400 focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. KEY IMPACT METRICS (4 Stats) -->
+    <div id="sec-metrics" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 grid place-items-center text-indigo-400">
+            <i class="fa-solid fa-chart-simple text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">3. Impact Metrics & Real-World Stats</h2>
+            <p class="text-xs text-slate-400">4 Highlight statistics displayed below the AEO overview card</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Stat 1 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Stat 1</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Value</label>
+            <input type="text" id="stat_1_val" value="{{ config.stat_1_val|default:'15M+' }}" placeholder="15M+"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Label</label>
+            <input type="text" id="stat_1_label" value="{{ config.stat_1_label|default:'Assamese Speakers Empowered' }}" placeholder="Label"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <!-- Stat 2 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Stat 2</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Value</label>
+            <input type="text" id="stat_2_val" value="{{ config.stat_2_val|default:'30+' }}" placeholder="30+"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-fuchsia-400 focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Label</label>
+            <input type="text" id="stat_2_label" value="{{ config.stat_2_label|default:'Integrated AI & Document Tools' }}" placeholder="Label"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <!-- Stat 3 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Stat 3</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Value</label>
+            <input type="text" id="stat_3_val" value="{{ config.stat_3_val|default:'99.2%' }}" placeholder="99.2%"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-emerald-400 focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Label</label>
+            <input type="text" id="stat_3_label" value="{{ config.stat_3_label|default:'Assamese Grammatical Accuracy' }}" placeholder="Label"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <!-- Stat 4 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Stat 4</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Value</label>
+            <input type="text" id="stat_4_val" value="{{ config.stat_4_val|default:'<0.8s' }}" placeholder="<0.8s"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-cyan-400 focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Metric Label</label>
+            <input type="text" id="stat_4_label" value="{{ config.stat_4_label|default:'Domestic Indian Cloud Latency' }}" placeholder="Label"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. IN-DEPTH INDUSTRY SECTORS (CRUD) -->
+    <div id="sec-sectors" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 grid place-items-center text-amber-400">
+            <i class="fa-solid fa-shapes text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">4. Industry & Sector Deep-Dive Cards</h2>
+            <p class="text-xs text-slate-400">Manage individual deep-dive sector cards (Students, Aspirants, MSMEs, Legal, Healthcare, Creators, Developers)</p>
+          </div>
+        </div>
+        <button type="button" onclick="openSectorModal()" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20 transition">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add New Sector</span>
+        </button>
+      </div>
+
+      <!-- Sector Header Texts -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Sectors Section Badge</label>
+          <input type="text" id="sectors_badge" value="{{ config.sectors_badge|default:'In-Depth Industry Solutions' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Sectors Section Title</label>
+          <input type="text" id="sectors_title" value="{{ config.sectors_title|default:'Explore How Axom AI Powers Every Sector' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Sectors Subtitle</label>
+          <input type="text" id="sectors_subtitle" value="{{ config.sectors_subtitle|default:'Detailed breakdowns of practical workflows, problem-solving capabilities, and proven results.' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <!-- Sectors Table List -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-800">
+              <th class="p-3 font-semibold">Order</th>
+              <th class="p-3 font-semibold">Sector Title & ID</th>
+              <th class="p-3 font-semibold">Badge</th>
+              <th class="p-3 font-semibold">Impact Metric</th>
+              <th class="p-3 font-semibold">Status</th>
+              <th class="p-3 font-semibold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 bg-slate-950/40 text-slate-300">
+            {% for s in sectors %}
+            <tr class="hover:bg-slate-900/40 transition">
+              <td class="p-3 font-mono text-slate-400">{{ s.order }}</td>
+              <td class="p-3">
+                <div class="font-bold text-white">{{ s.title }}</div>
+                <div class="text-[10px] text-fuchsia-400 font-mono">#{{ s.sector_id }}</div>
+              </td>
+              <td class="p-3">
+                <span class="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] text-slate-300">{{ s.badge }}</span>
+              </td>
+              <td class="p-3 text-emerald-400 font-semibold">{{ s.impact_metric }}</td>
+              <td class="p-3">
+                <button type="button" onclick="toggleSectorStatus({{ s.id }})" class="px-2.5 py-1 rounded-full text-[10px] font-semibold transition {% if s.is_active %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
+                  {% if s.is_active %}Visible{% else %}Hidden{% endif %}
+                </button>
+              </td>
+              <td class="p-3 text-right space-x-2">
+                <button type="button" onclick="editSectorModal({{ s.id }}, '{{ s.sector_id|escapejs }}', '{{ s.badge|escapejs }}', '{{ s.icon_name|escapejs }}', '{{ s.color_gradient|escapejs }}', '{{ s.text_color|escapejs }}', '{{ s.border_color|escapejs }}', '{{ s.title|escapejs }}', '{{ s.tagline|escapejs }}', '{{ s.description|escapejs }}', '{{ s.capabilities_raw|escapejs }}', '{{ s.impact_metric|escapejs }}', '{{ s.cta_text|escapejs }}', '{{ s.cta_url|escapejs }}', {{ s.order }}, {{ s.is_active|lower }})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" onclick="deleteSector({{ s.id }})" class="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-red-200 border border-red-800/40 transition">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="p-6 text-center text-slate-500">No sectors found. Click "Add New Sector" to create one.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. SOVEREIGN COMPARISON TABLE HEADINGS -->
+    <div id="sec-comparison" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400">
+            <i class="fa-solid fa-table-columns text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">5. Sovereign Comparison Table Section</h2>
+            <p class="text-xs text-slate-400">Controls headings for the comparison matrix section</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Comparison Badge</label>
+          <input type="text" id="comparison_badge" value="{{ config.comparison_badge|default:'The Sovereign Advantage' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Comparison Title</label>
+          <input type="text" id="comparison_title" value="{{ config.comparison_title|default:'Why Axom AI is Unmatched for Assam & Regional Workflows' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Comparison Subtitle</label>
+          <input type="text" id="comparison_subtitle" value="{{ config.comparison_subtitle|default:'Comparing Axom AI against generic international chatbots and fragmented software.' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. SOVEREIGN REGIONAL AUTHORITY BOX -->
+    <div id="sec-authority" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 grid place-items-center text-blue-400">
+            <i class="fa-solid fa-globe text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">6. Assam Regional Authority Banner</h2>
+            <p class="text-xs text-slate-400">Guwahati headquarters sovereign infrastructure callout</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Authority Badge</label>
+            <input type="text" id="authority_badge" value="{{ config.authority_badge|default:'Sovereign AI for Assam & Northeast India' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Authority Title</label>
+            <input type="text" id="authority_title" value="{{ config.authority_title|default:'Built in Assam, Serving Millions Worldwide' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Authority Description Text</label>
+          <textarea id="authority_description" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.authority_description|default:'Headquartered in Guwahati, Assam, Axom AI is committed to building sovereign regional artificial intelligence infrastructure. By developing localized linguistic benchmarks and integrating domestic cloud processing, we ensure that technological advancement preserves our heritage while empowering the next generation of researchers, leaders, and entrepreneurs.' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. USE CASES FAQ SECTION (CRUD) -->
+    <div id="sec-faqs" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 grid place-items-center text-pink-400">
+            <i class="fa-solid fa-circle-question text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">7. Use Cases FAQ Accordion Manager</h2>
+            <p class="text-xs text-slate-400">Manage accordion questions and verified answers for the Use Cases page</p>
+          </div>
+        </div>
+        <button type="button" onclick="openFaqModal()" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20 transition">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add New FAQ</span>
+        </button>
+      </div>
+
+      <!-- FAQ Header Texts -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Badge</label>
+          <input type="text" id="faq_badge" value="{{ config.faq_badge|default:'Answers to Common Questions' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Title</label>
+          <input type="text" id="faq_title" value="{{ config.faq_title|default:'Frequently Asked Questions about Axom AI Use Cases' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Subtitle</label>
+          <input type="text" id="faq_subtitle" value="{{ config.faq_subtitle|default:'Got questions about how Axom AI fits your specific daily workflow or organization? Find verified answers below.' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <!-- FAQ Items Table List -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-800">
+              <th class="p-3 font-semibold">Order</th>
+              <th class="p-3 font-semibold">Question</th>
+              <th class="p-3 font-semibold">Answer Preview</th>
+              <th class="p-3 font-semibold">Status</th>
+              <th class="p-3 font-semibold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 bg-slate-950/40 text-slate-300">
+            {% for f in faqs %}
+            <tr class="hover:bg-slate-900/40 transition">
+              <td class="p-3 font-mono text-slate-400">{{ f.order }}</td>
+              <td class="p-3 font-bold text-white max-w-xs truncate">{{ f.question }}</td>
+              <td class="p-3 text-slate-400 max-w-sm truncate">{{ f.answer }}</td>
+              <td class="p-3">
+                <button type="button" onclick="toggleFaqStatus({{ f.id }})" class="px-2.5 py-1 rounded-full text-[10px] font-semibold transition {% if f.is_active %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
+                  {% if f.is_active %}Visible{% else %}Hidden{% endif %}
+                </button>
+              </td>
+              <td class="p-3 text-right space-x-2">
+                <button type="button" onclick="editFaqModal({{ f.id }}, '{{ f.question|escapejs }}', '{{ f.answer|escapejs }}', {{ f.order }}, {{ f.is_active|lower }})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" onclick="deleteFaq({{ f.id }})" class="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-red-200 border border-red-800/40 transition">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="p-6 text-center text-slate-500">No FAQ items found. Click "Add New FAQ" to create one.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 8. BOTTOM CTA BANNER -->
+    <div id="sec-cta" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-emerald-400">
+            <i class="fa-solid fa-paper-plane text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">8. Bottom Conversion Call to Action</h2>
+            <p class="text-xs text-slate-400">Card banner at the bottom of the Use Cases page</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Eyebrow Badge</label>
+            <input type="text" id="cta_badge" value="{{ config.cta_badge|default:'Get Started in 10 Seconds — No Credit Card Required' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Main Heading</label>
+            <input type="text" id="cta_heading" value="{{ config.cta_heading|default:'Experience the Impact of Sovereign AI Today' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Subheading</label>
+          <textarea id="cta_subheading" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.cta_subheading|default:'Join thousands of students, civil servants, business owners, and creators leveraging Axom AI every single day.' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Primary Button Text</label>
+            <input type="text" id="cta_primary_btn_text" value="{{ config.cta_primary_btn_text|default:'Launch AI Chat Workspace' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Primary Button URL</label>
+            <input type="text" id="cta_primary_btn_url" value="{{ config.cta_primary_btn_url|default:'https://chat.aiaxom.co.in/' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Secondary Button Text</label>
+            <input type="text" id="cta_secondary_btn_text" value="{{ config.cta_secondary_btn_text|default:'Explore All AI & Document Tools' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Secondary Button URL</label>
+            <input type="text" id="cta_secondary_btn_url" value="{{ config.cta_secondary_btn_url|default:'/tools' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. SEO & METADATA -->
+    <div id="sec-seo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 grid place-items-center text-rose-400">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">9. Search Engine & Social Media Meta (SEO / OpenGraph)</h2>
+            <p class="text-xs text-slate-400">Meta tags and canonical settings for Google, Bing, WhatsApp, and social link sharing</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Page Title (<span id="metaTitleLen">0</span> chars)</label>
+          <input type="text" id="meta_title" value="{{ config.meta_title|default:'Axom AI Use Cases — Real-World AI Solutions for Assam & India | Students, Business & Creators' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Description (<span id="metaDescLen">0</span> chars)</label>
+          <textarea id="meta_description" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description|default:'Discover how students, APSC aspirants, businesses, legal experts, healthcare pros, and creators use Axom AI across Assam & Northeast India. Native Assamese AI with real impact.' }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">SEO Keywords (Comma Separated)</label>
+          <textarea id="meta_keywords" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords|default:'Axom AI use cases, Assam AI use cases, Assamese AI applications, AI in Assam, AI for students Assam, APSC exam AI preparation, AI for Assam government jobs, AI for businesses in Assam' }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Social Share OpenGraph Image URL</label>
+          <input type="text" id="og_image_url" value="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-mono">
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Save Floating Bar -->
+    <div class="sticky bottom-4 z-30 flex items-center justify-between bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-4 rounded-2xl shadow-2xl shadow-black/60">
+      <div class="text-xs text-slate-400 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span>All changes are saved instantly to Django CMS and reflected on Next.js live.</span>
+      </div>
+      <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/30 transition">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save All Changes</span>
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+<!-- ==================== SECTOR MODAL ==================== -->
+<div id="sectorModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5 shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="sectorModalTitle" class="text-base font-bold text-white">Add Industry Sector</h3>
+      <button type="button" onclick="closeSectorModal()" class="text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-xmark text-base"></i>
+      </button>
+    </div>
+
+    <form id="sectorForm" onsubmit="event.preventDefault(); saveSectorFromModal();" class="space-y-4 text-xs">
+      <input type="hidden" id="sector_modal_id" value="">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Sector Slug ID (e.g. students, aspirants)</label>
+          <input type="text" id="sector_modal_slug" required placeholder="students" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Badge Text (e.g. Academic Excellence)</label>
+          <input type="text" id="sector_modal_badge" required placeholder="Academic Excellence" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Lucide Icon Name</label>
+          <input type="text" id="sector_modal_icon" placeholder="GraduationCap" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Color Gradient</label>
+          <input type="text" id="sector_modal_gradient" placeholder="from-fuchsia-500 to-purple-600" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Order</label>
+          <input type="number" id="sector_modal_order" value="1" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Card Title</label>
+        <input type="text" id="sector_modal_title_val" required placeholder="Students, Schools & Higher Education" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-semibold focus:outline-none focus-ring">
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Tagline</label>
+        <input type="text" id="sector_modal_tagline" placeholder="Personalized 24/7 bilingual tutoring in Assamese and English" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-fuchsia-300 focus:outline-none focus-ring">
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Detailed Description</label>
+        <textarea id="sector_modal_desc" rows="3" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring"></textarea>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Key Capabilities Checklist (One bullet per line)</label>
+        <textarea id="sector_modal_capabilities" rows="4" placeholder="Capability 1&#10;Capability 2&#10;Capability 3" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono text-[11px] focus:outline-none focus-ring"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Impact Metric</label>
+          <input type="text" id="sector_modal_impact" placeholder="40% Time Saved" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-emerald-400 font-semibold focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">CTA Button Text</label>
+          <input type="text" id="sector_modal_cta_text" placeholder="Start Studying" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">CTA Button URL</label>
+          <input type="text" id="sector_modal_cta_url" placeholder="https://chat.aiaxom.co.in/" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2">
+        <input type="checkbox" id="sector_modal_active" checked class="rounded bg-slate-950 border-slate-700 text-fuchsia-500 focus:ring-fuchsia-500">
+        <label for="sector_modal_active" class="text-slate-300">Visible on Live Use Cases Page</label>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+        <button type="button" onclick="closeSectorModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-bold transition shadow-lg shadow-fuchsia-600/20">Save Sector</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== FAQ MODAL ==================== -->
+<div id="faqModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 id="faqModalTitle" class="text-base font-bold text-white">Add Use Case FAQ</h3>
+      <button type="button" onclick="closeFaqModal()" class="text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-xmark text-base"></i>
+      </button>
+    </div>
+
+    <form id="faqForm" onsubmit="event.preventDefault(); saveFaqFromModal();" class="space-y-4 text-xs">
+      <input type="hidden" id="faq_modal_id" value="">
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Question</label>
+        <input type="text" id="faq_modal_question" required placeholder="How can students use Axom AI?" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-semibold focus:outline-none focus-ring">
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Verified Answer</label>
+        <textarea id="faq_modal_answer" rows="4" required placeholder="Students use Axom AI..." class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring leading-relaxed"></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Display Order</label>
+          <input type="number" id="faq_modal_order" value="1" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white focus:outline-none focus-ring">
+        </div>
+        <div class="flex items-center pt-5 gap-2">
+          <input type="checkbox" id="faq_modal_active" checked class="rounded bg-slate-950 border-slate-700 text-fuchsia-500 focus:ring-fuchsia-500">
+          <label for="faq_modal_active" class="text-slate-300">Visible</label>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+        <button type="button" onclick="closeFaqModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-bold transition shadow-lg shadow-fuchsia-600/20">Save Question</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  function updateCharCounts() {
+    const title = document.getElementById('meta_title');
+    const desc = document.getElementById('meta_description');
+    if (title) document.getElementById('metaTitleLen').textContent = title.value.length;
+    if (desc) document.getElementById('metaDescLen').textContent = desc.value.length;
+  }
+  document.getElementById('meta_title')?.addEventListener('input', updateCharCounts);
+  document.getElementById('meta_description')?.addEventListener('input', updateCharCounts);
+  updateCharCounts();
+
+  // Save full configuration
+  async function saveUseCasesConfig() {
+    const payload = {
+      hero_badge_text: document.getElementById('hero_badge_text').value,
+      hero_heading_prefix: document.getElementById('hero_heading_prefix').value,
+      hero_heading_highlight: document.getElementById('hero_heading_highlight').value,
+      hero_heading_suffix: document.getElementById('hero_heading_suffix').value,
+      hero_subtitle: document.getElementById('hero_subtitle').value,
+
+      aeo_badge: document.getElementById('aeo_badge').value,
+      aeo_title: document.getElementById('aeo_title').value,
+      aeo_description: document.getElementById('aeo_description').value,
+      aeo_point1: document.getElementById('aeo_point1').value,
+      aeo_point2: document.getElementById('aeo_point2').value,
+      aeo_point3: document.getElementById('aeo_point3').value,
+
+      stat_1_val: document.getElementById('stat_1_val').value,
+      stat_1_label: document.getElementById('stat_1_label').value,
+      stat_2_val: document.getElementById('stat_2_val').value,
+      stat_2_label: document.getElementById('stat_2_label').value,
+      stat_3_val: document.getElementById('stat_3_val').value,
+      stat_3_label: document.getElementById('stat_3_label').value,
+      stat_4_val: document.getElementById('stat_4_val').value,
+      stat_4_label: document.getElementById('stat_4_label').value,
+
+      sectors_badge: document.getElementById('sectors_badge').value,
+      sectors_title: document.getElementById('sectors_title').value,
+      sectors_subtitle: document.getElementById('sectors_subtitle').value,
+
+      comparison_badge: document.getElementById('comparison_badge').value,
+      comparison_title: document.getElementById('comparison_title').value,
+      comparison_subtitle: document.getElementById('comparison_subtitle').value,
+
+      authority_badge: document.getElementById('authority_badge').value,
+      authority_title: document.getElementById('authority_title').value,
+      authority_description: document.getElementById('authority_description').value,
+
+      faq_badge: document.getElementById('faq_badge').value,
+      faq_title: document.getElementById('faq_title').value,
+      faq_subtitle: document.getElementById('faq_subtitle').value,
+
+      cta_badge: document.getElementById('cta_badge').value,
+      cta_heading: document.getElementById('cta_heading').value,
+      cta_subheading: document.getElementById('cta_subheading').value,
+      cta_primary_btn_text: document.getElementById('cta_primary_btn_text').value,
+      cta_primary_btn_url: document.getElementById('cta_primary_btn_url').value,
+      cta_secondary_btn_text: document.getElementById('cta_secondary_btn_text').value,
+      cta_secondary_btn_url: document.getElementById('cta_secondary_btn_url').value,
+
+      meta_title: document.getElementById('meta_title').value,
+      meta_description: document.getElementById('meta_description').value,
+      meta_keywords: document.getElementById('meta_keywords').value,
+      og_image_url: document.getElementById('og_image_url').value,
+    };
+
+    try {
+      const res = await fetch('/axomai-content/pages/use-cases/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof showToast === 'function') {
+          showToast('Use Cases page saved successfully!', 'success');
+        } else {
+          alert('Use Cases page saved successfully!');
+        }
+      } else {
+        alert('Error: ' + (data.error || 'Failed to save settings'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while saving settings.');
+    }
+  }
+
+  // Keyboard shortcut Ctrl+S
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveUseCasesConfig();
+    }
+  });
+
+  // Sector Modal Management
+  function openSectorModal() {
+    document.getElementById('sectorModalTitle').textContent = 'Add Industry Sector';
+    document.getElementById('sector_modal_id').value = '';
+    document.getElementById('sector_modal_slug').value = '';
+    document.getElementById('sector_modal_badge').value = '';
+    document.getElementById('sector_modal_icon').value = 'GraduationCap';
+    document.getElementById('sector_modal_gradient').value = 'from-fuchsia-500 to-purple-600';
+    document.getElementById('sector_modal_order').value = '1';
+    document.getElementById('sector_modal_title_val').value = '';
+    document.getElementById('sector_modal_tagline').value = '';
+    document.getElementById('sector_modal_desc').value = '';
+    document.getElementById('sector_modal_capabilities').value = '';
+    document.getElementById('sector_modal_impact').value = '';
+    document.getElementById('sector_modal_cta_text').value = 'Get Started';
+    document.getElementById('sector_modal_cta_url').value = 'https://chat.aiaxom.co.in/';
+    document.getElementById('sector_modal_active').checked = true;
+    document.getElementById('sectorModal').classList.remove('hidden');
+  }
+
+  function editSectorModal(id, slug, badge, icon, gradient, textColor, borderColor, title, tagline, desc, capabilities, impact, ctaText, ctaUrl, order, isActive) {
+    document.getElementById('sectorModalTitle').textContent = 'Edit Industry Sector';
+    document.getElementById('sector_modal_id').value = id;
+    document.getElementById('sector_modal_slug').value = slug;
+    document.getElementById('sector_modal_badge').value = badge;
+    document.getElementById('sector_modal_icon').value = icon;
+    document.getElementById('sector_modal_gradient').value = gradient;
+    document.getElementById('sector_modal_order').value = order;
+    document.getElementById('sector_modal_title_val').value = title;
+    document.getElementById('sector_modal_tagline').value = tagline;
+    document.getElementById('sector_modal_desc').value = desc;
+    document.getElementById('sector_modal_capabilities').value = capabilities;
+    document.getElementById('sector_modal_impact').value = impact;
+    document.getElementById('sector_modal_cta_text').value = ctaText;
+    document.getElementById('sector_modal_cta_url').value = ctaUrl;
+    document.getElementById('sector_modal_active').checked = isActive;
+    document.getElementById('sectorModal').classList.remove('hidden');
+  }
+
+  function closeSectorModal() {
+    document.getElementById('sectorModal').classList.add('hidden');
+  }
+
+  async function saveSectorFromModal() {
+    const payload = {
+      id: document.getElementById('sector_modal_id').value || null,
+      sector_id: document.getElementById('sector_modal_slug').value,
+      badge: document.getElementById('sector_modal_badge').value,
+      icon_name: document.getElementById('sector_modal_icon').value,
+      color_gradient: document.getElementById('sector_modal_gradient').value,
+      order: document.getElementById('sector_modal_order').value,
+      title: document.getElementById('sector_modal_title_val').value,
+      tagline: document.getElementById('sector_modal_tagline').value,
+      description: document.getElementById('sector_modal_desc').value,
+      capabilities_raw: document.getElementById('sector_modal_capabilities').value,
+      impact_metric: document.getElementById('sector_modal_impact').value,
+      cta_text: document.getElementById('sector_modal_cta_text').value,
+      cta_url: document.getElementById('sector_modal_cta_url').value,
+      is_active: document.getElementById('sector_modal_active').checked,
+    };
+
+    try {
+      const res = await fetch('/axomai-content/pages/use-cases/sector/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        closeSectorModal();
+        window.location.reload();
+      } else {
+        alert('Error: ' + (data.error || 'Failed to save sector'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while saving sector.');
+    }
+  }
+
+  async function toggleSectorStatus(id) {
+    try {
+      const res = await fetch(`/axomai-content/pages/use-cases/sector/toggle/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken }
+      });
+      const data = await res.json();
+      if (data.success) window.location.reload();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function deleteSector(id) {
+    if (!confirm('Are you sure you want to delete this sector?')) return;
+    try {
+      const res = await fetch(`/axomai-content/pages/use-cases/sector/delete/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken }
+      });
+      const data = await res.json();
+      if (data.success) window.location.reload();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // FAQ Modal Management
+  function openFaqModal() {
+    document.getElementById('faqModalTitle').textContent = 'Add Use Case FAQ';
+    document.getElementById('faq_modal_id').value = '';
+    document.getElementById('faq_modal_question').value = '';
+    document.getElementById('faq_modal_answer').value = '';
+    document.getElementById('faq_modal_order').value = '1';
+    document.getElementById('faq_modal_active').checked = true;
+    document.getElementById('faqModal').classList.remove('hidden');
+  }
+
+  function editFaqModal(id, q, a, order, isActive) {
+    document.getElementById('faqModalTitle').textContent = 'Edit Use Case FAQ';
+    document.getElementById('faq_modal_id').value = id;
+    document.getElementById('faq_modal_question').value = q;
+    document.getElementById('faq_modal_answer').value = a;
+    document.getElementById('faq_modal_order').value = order;
+    document.getElementById('faq_modal_active').checked = isActive;
+    document.getElementById('faqModal').classList.remove('hidden');
+  }
+
+  function closeFaqModal() {
+    document.getElementById('faqModal').classList.add('hidden');
+  }
+
+  async function saveFaqFromModal() {
+    const payload = {
+      id: document.getElementById('faq_modal_id').value || null,
+      question: document.getElementById('faq_modal_question').value,
+      answer: document.getElementById('faq_modal_answer').value,
+      order: document.getElementById('faq_modal_order').value,
+      is_active: document.getElementById('faq_modal_active').checked,
+    };
+
+    try {
+      const res = await fetch('/axomai-content/pages/use-cases/faq/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        closeFaqModal();
+        window.location.reload();
+      } else {
+        alert('Error: ' + (data.error || 'Failed to save FAQ'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while saving FAQ.');
+    }
+  }
+
+  async function toggleFaqStatus(id) {
+    try {
+      const res = await fetch(`/axomai-content/pages/use-cases/faq/toggle/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken }
+      });
+      const data = await res.json();
+      if (data.success) window.location.reload();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function deleteFaq(id) {
+    if (!confirm('Are you sure you want to delete this FAQ question?')) return;
+    try {
+      const res = await fetch(`/axomai-content/pages/use-cases/faq/delete/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken }
+      });
+      const data = await res.json();
+      if (data.success) window.location.reload();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+</script>
+{% endblock %}

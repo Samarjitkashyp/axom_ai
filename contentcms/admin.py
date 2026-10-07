@@ -15,6 +15,9 @@ from .models import (
     ConverterToolConfig,
     ConverterToolFAQ,
     PricingFAQ,
+    UseCasesPageConfig,
+    UseCaseSector,
+    UseCaseFAQ,
 )
 
 
@@ -108,6 +111,26 @@ class PricingFAQAdmin(admin.ModelAdmin):
     list_display = ['question', 'order', 'is_active', 'updated_at']
     list_editable = ['order', 'is_active']
     search_fields = ['question', 'answer']
+
+
+@admin.register(UseCasesPageConfig)
+class UseCasesPageConfigAdmin(admin.ModelAdmin):
+    list_display = ['hero_heading_highlight', 'hero_badge_text', 'updated_at']
+
+
+@admin.register(UseCaseSector)
+class UseCaseSectorAdmin(admin.ModelAdmin):
+    list_display = ['title', 'sector_id', 'badge', 'order', 'is_active', 'updated_at']
+    list_editable = ['order', 'is_active']
+    search_fields = ['title', 'tagline', 'description', 'sector_id']
+
+
+@admin.register(UseCaseFAQ)
+class UseCaseFAQAdmin(admin.ModelAdmin):
+    list_display = ['question', 'order', 'is_active', 'updated_at']
+    list_editable = ['order', 'is_active']
+    search_fields = ['question', 'answer']
+
 
 
 

@@ -923,10 +923,6 @@ class ConverterToolConfig(models.Model):
         verbose_name_plural = 'Converter Tool Configurations'
         ordering = ['tool_slug']
 
-    def __str__(self):
-        return f"{self.tool_name} ({self.tool_slug})"
-
-
 class ConverterToolFAQ(models.Model):
     tool_config = models.ForeignKey(ConverterToolConfig, related_name='faqs', on_delete=models.CASCADE)
     question = models.CharField(max_length=300)
@@ -943,6 +939,125 @@ class ConverterToolFAQ(models.Model):
 
     def __str__(self):
         return f"[{self.tool_config.tool_slug}] {self.question}"
+
+
+class UseCasesPageConfig(models.Model):
+    # 1. Hero Section
+    hero_badge_text = models.CharField(max_length=255, default='⚡ Real People • Real Impact • Sovereign Assamese AI')
+    hero_heading_prefix = models.CharField(max_length=200, default='Built for')
+    hero_heading_highlight = models.CharField(max_length=200, default='Real People, Real Impact')
+    hero_heading_suffix = models.CharField(max_length=200, default='', blank=True)
+    hero_subtitle = models.TextField(default='From school classrooms in Dibrugarh to administrative offices in Dispur and tech startups in Guwahati — discover how Axom AI is driving everyday productivity, academic success, and regional empowerment across Assam and Northeast India.')
+
+    # 2. AEO Direct Answer Box
+    aeo_badge = models.CharField(max_length=200, default='AEO Direct Summary • Generative Engine Overview')
+    aeo_title = models.CharField(max_length=255, default='What are the Practical Use Cases of Axom AI?')
+    aeo_description = models.TextField(default='Axom AI is designed as a sovereign, multi-purpose artificial intelligence ecosystem specifically customized for the linguistic, cultural, and professional requirements of Assam and Northeast India. Key use cases include bilingual academic tutoring for students, APSC civil services preparation with authentic regional General Knowledge, business communication automation for regional MSMEs, bilingual land and legal record analysis, healthcare outreach translation, and full-stack code development — all delivered over low-latency Indian cloud infrastructure with 100% data sovereignty.')
+    aeo_point1 = models.CharField(max_length=200, default='15M+ Assamese Speakers Served')
+    aeo_point2 = models.CharField(max_length=200, default='SEBA, AHSEC & APSC Aligned')
+    aeo_point3 = models.CharField(max_length=200, default='DPDP Act 2023 Compliant')
+
+    # 3. Impact Metrics (4 Stats)
+    stat_1_val = models.CharField(max_length=50, default='15M+')
+    stat_1_label = models.CharField(max_length=150, default='Assamese Speakers Empowered')
+    stat_2_val = models.CharField(max_length=50, default='30+')
+    stat_2_label = models.CharField(max_length=150, default='Integrated AI & Document Tools')
+    stat_3_val = models.CharField(max_length=50, default='99.2%')
+    stat_3_label = models.CharField(max_length=150, default='Assamese Grammatical Accuracy')
+    stat_4_val = models.CharField(max_length=50, default='<0.8s')
+    stat_4_label = models.CharField(max_length=150, default='Domestic Indian Cloud Latency')
+
+    # 4. Sectors Section Headings
+    sectors_badge = models.CharField(max_length=150, default='In-Depth Industry Solutions')
+    sectors_title = models.CharField(max_length=255, default='Explore How Axom AI Powers Every Sector')
+    sectors_subtitle = models.TextField(default='Detailed breakdowns of practical workflows, problem-solving capabilities, and proven results.')
+
+    # 5. Comparison Section Headings
+    comparison_badge = models.CharField(max_length=150, default='The Sovereign Advantage')
+    comparison_title = models.CharField(max_length=255, default='Why Axom AI is Unmatched for Assam & Regional Workflows')
+    comparison_subtitle = models.TextField(default='Comparing Axom AI against generic international chatbots and fragmented software.')
+
+    # 6. Sovereign Authority Section
+    authority_badge = models.CharField(max_length=150, default='Sovereign AI for Assam & Northeast India')
+    authority_title = models.CharField(max_length=255, default='Built in Assam, Serving Millions Worldwide')
+    authority_description = models.TextField(default='Headquartered in Guwahati, Assam, Axom AI is committed to building sovereign regional artificial intelligence infrastructure. By developing localized linguistic benchmarks and integrating domestic cloud processing, we ensure that technological advancement preserves our heritage while empowering the next generation of researchers, leaders, and entrepreneurs.')
+
+    # 7. FAQ Section Headings
+    faq_badge = models.CharField(max_length=150, default='Answers to Common Questions')
+    faq_title = models.CharField(max_length=255, default='Frequently Asked Questions about Axom AI Use Cases')
+    faq_subtitle = models.TextField(default='Got questions about how Axom AI fits your specific daily workflow or organization? Find verified answers below.')
+
+    # 8. Bottom CTA Banner
+    cta_badge = models.CharField(max_length=150, default='Get Started in 10 Seconds — No Credit Card Required')
+    cta_heading = models.CharField(max_length=255, default='Experience the Impact of Sovereign AI Today')
+    cta_subheading = models.TextField(default='Join thousands of students, civil servants, business owners, and creators leveraging Axom AI every single day.')
+    cta_primary_btn_text = models.CharField(max_length=100, default='Launch AI Chat Workspace')
+    cta_primary_btn_url = models.CharField(max_length=300, default='https://chat.aiaxom.co.in/')
+    cta_secondary_btn_text = models.CharField(max_length=100, default='Explore All AI & Document Tools')
+    cta_secondary_btn_url = models.CharField(max_length=300, default='/tools')
+
+    # 9. SEO & Meta
+    meta_title = models.CharField(max_length=255, default='Axom AI Use Cases — Real-World AI Solutions for Assam & India | Students, Business & Creators')
+    meta_description = models.TextField(default='Discover how students, APSC aspirants, businesses, legal experts, healthcare pros, and creators use Axom AI across Assam & Northeast India. Native Assamese AI with real impact.')
+    meta_keywords = models.TextField(default='Axom AI use cases, Assam AI use cases, Assamese AI applications, AI in Assam, AI for students Assam, APSC exam AI preparation, AI for Assam government jobs, AI for businesses in Assam, Assamese document translator AI, Assamese legal AI, AI in healthcare Assam, AI for content creators Assamese, sovereign AI India use cases, Northeast India AI solutions')
+    og_image_url = models.CharField(max_length=500, default='https://aiaxom.co.in/static/dist/hero/assam.avif')
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Use Cases Page Configuration'
+        verbose_name_plural = 'Use Cases Page Configuration'
+
+    def __str__(self):
+        return "Use Cases Page Configuration"
+
+
+class UseCaseSector(models.Model):
+    page_config = models.ForeignKey(UseCasesPageConfig, related_name='sectors', on_delete=models.CASCADE, null=True, blank=True)
+    sector_id = models.CharField(max_length=100, default='students', help_text='Unique slug e.g. students, aspirants, businesses')
+    badge = models.CharField(max_length=150, default='Academic Excellence')
+    icon_name = models.CharField(max_length=80, default='GraduationCap', help_text='Lucide icon name (GraduationCap, BookOpen, Briefcase, Scale, Stethoscope, Palette, Code2)')
+    color_gradient = models.CharField(max_length=150, default='from-fuchsia-500 to-purple-600')
+    text_color = models.CharField(max_length=150, default='text-fuchsia-700 dark:text-fuchsia-400')
+    border_color = models.CharField(max_length=150, default='border-fuchsia-500/30')
+    title = models.CharField(max_length=255, default='Students, Schools & Higher Education')
+    tagline = models.CharField(max_length=255, default='Personalized 24/7 bilingual tutoring in Assamese and English')
+    description = models.TextField(default='')
+    capabilities_raw = models.TextField(help_text='One bullet capability per line', default='')
+    impact_metric = models.CharField(max_length=150, default='40% Time Saved in Study Preparation')
+    cta_text = models.CharField(max_length=100, default='Start Studying with AI Tutor')
+    cta_url = models.CharField(max_length=300, default='https://chat.aiaxom.co.in/')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Use Case Sector'
+        verbose_name_plural = 'Use Case Sectors'
+
+    def __str__(self):
+        return f"{self.title} ({self.sector_id})"
+
+
+class UseCaseFAQ(models.Model):
+    page_config = models.ForeignKey(UseCasesPageConfig, related_name='faqs', on_delete=models.CASCADE, null=True, blank=True)
+    question = models.CharField(max_length=350)
+    answer = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Use Case FAQ'
+        verbose_name_plural = 'Use Case FAQs'
+
+    def __str__(self):
+        return self.question
+
 
 
 
