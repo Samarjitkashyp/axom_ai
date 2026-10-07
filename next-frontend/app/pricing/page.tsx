@@ -309,7 +309,10 @@ export default async function PricingPage() {
             </div>
 
             {/* Interactive Pricing Cards */}
-            <PricingPlansInteractive plans={plans} />
+            <PricingPlansInteractive
+              plans={plans}
+              discountBadge={cms?.pricing_header?.yearly_discount_badge}
+            />
           </div>
         </section>
 

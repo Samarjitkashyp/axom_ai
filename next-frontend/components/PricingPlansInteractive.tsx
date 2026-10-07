@@ -11,7 +11,13 @@ const ICON_MAP: Record<string, string> = {
   business: 'fa-solid fa-building text-amber-600',
 };
 
-export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { plans?: DetailedPlan[] }) {
+export default function PricingPlansInteractive({
+  plans = DETAILED_PLANS,
+  discountBadge = 'Save 20%',
+}: {
+  plans?: DetailedPlan[];
+  discountBadge?: string;
+}) {
   const [yearly, setYearly] = useState(false);
 
   return (
@@ -36,7 +42,7 @@ export default function PricingPlansInteractive({ plans = DETAILED_PLANS }: { pl
         <span className={`text-xs sm:text-sm font-semibold flex items-center gap-2 transition-colors ${yearly ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500 dark:text-slate-400'}`}>
           Yearly Billing
           <span className="px-2 py-0.5 rounded-full bg-[#fef3c7] dark:bg-amber-950/60 border border-[#fde68a] dark:border-amber-700/50 text-[10px] font-bold text-[#92400e] dark:text-amber-300">
-            Save 20%
+            {discountBadge || 'Save 20%'}
           </span>
         </span>
       </div>
