@@ -534,7 +534,7 @@ export default function VideoCompressor({ onClose, isPro = false }) {
               <div style={{ flex: 1 }}>{errorMsg}</div>
               {errorMsg.includes('Pro') && (
                 <a
-                  href="/upgrade"
+                  href="https://aiaxom.co.in/pricing"
                   style={{
                     padding: '4px 10px',
                     background: '#f59e0b',
@@ -664,7 +664,7 @@ export default function VideoCompressor({ onClose, isPro = false }) {
                     <Crown size={14} /> Need 100 MB uploads & Custom 9:16 / 16:9 Orientation?
                   </span>
                   <a
-                    href="/upgrade"
+                    href="https://aiaxom.co.in/pricing"
                     style={{
                       color: '#fbbf24',
                       fontWeight: 600,
@@ -828,7 +828,7 @@ export default function VideoCompressor({ onClose, isPro = false }) {
                     </span>
                   </div>
                   <a
-                    href="/upgrade"
+                    href="https://aiaxom.co.in/pricing"
                     style={{
                       padding: '5px 12px',
                       background: '#f59e0b',

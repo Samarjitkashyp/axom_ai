@@ -170,14 +170,16 @@ export default function ChatApp() {
     }
   };
 
-  // View state: 'chat' | 'admin' | 'settings' | 'upgrade'
+  // View state: 'chat' | 'admin' | 'settings'
   const [currentView, setCurrentView] = useState(() => {
     if (typeof window === 'undefined') return 'chat';
     const path = window.location.pathname;
     if (path.startsWith('/admin-panel')) return 'admin';
-
-    if (path.startsWith('/upgrade') || path.startsWith('/subscription')) return 'upgrade';
     if (path.startsWith('/settings')) return 'settings';
+    if (path.startsWith('/upgrade') || path.startsWith('/subscription')) {
+      window.location.href = 'https://aiaxom.co.in/pricing';
+      return 'chat';
+    }
     return 'chat';
   });
 
@@ -262,7 +264,7 @@ export default function ChatApp() {
       if (path.startsWith('/admin-panel')) {
         setCurrentView('admin');
       } else if (path.startsWith('/upgrade') || path.startsWith('/subscription')) {
-        setCurrentView('upgrade');
+        window.location.href = 'https://aiaxom.co.in/pricing';
       } else if (path.startsWith('/settings')) {
         setCurrentView('settings');
       } else {
@@ -358,8 +360,7 @@ export default function ChatApp() {
   };
 
   const navigateToUpgrade = () => {
-    if (typeof window !== 'undefined') window.history.pushState(null, '', '/upgrade');
-    setCurrentView('upgrade');
+    if (typeof window !== 'undefined') window.location.href = 'https://aiaxom.co.in/pricing';
   };
 
   const navigateToSettings = () => {
@@ -430,19 +431,6 @@ export default function ChatApp() {
         activePlan={activePlan}
         onLogout={handleLogout}
         onUpgrade={navigateToUpgrade}
-      />
-    );
-  }
-
-  // Tools live on main domain (https://aiaxom.co.in/tools) — navigateToTools opens in new tab
-
-  // Render Upgrade / Subscription View (/upgrade or /subscription)
-  if (currentView === 'upgrade') {
-    return (
-      <SubscriptionPage
-        user={user}
-        onBackToChat={navigateToChat}
-        theme={theme}
       />
     );
   }

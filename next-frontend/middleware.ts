@@ -36,13 +36,25 @@ export function middleware(request: NextRequest) {
 
   // If request is on chat.aiaxom.co.in
   if (isChatSubdomain) {
+    // Redirect /upgrade, /subscription, /pricing directly to the main domain pricing page
+    if (
+      pathname === '/upgrade' ||
+      pathname.startsWith('/upgrade/') ||
+      pathname === '/subscription' ||
+      pathname.startsWith('/subscription/') ||
+      pathname === '/pricing' ||
+      pathname.startsWith('/pricing/')
+    ) {
+      return NextResponse.redirect('https://aiaxom.co.in/pricing', 308);
+    }
+
     // Redirect /tools and /tools/* to main domain (aiaxom.co.in/tools)
     if (pathname === '/tools' || pathname.startsWith('/tools/')) {
       const dest = new URL(`https://aiaxom.co.in${pathname}`);
       dest.search = request.nextUrl.search;
       return NextResponse.redirect(dest, 308);
     }
-    // Rewrite all chat paths (/, /upgrade, /settings) to the /chat catch-all
+    // Rewrite all chat paths (/, /settings) to the /chat catch-all
     const url = request.nextUrl.clone();
     url.pathname = `/chat${pathname === '/' ? '' : pathname}`;
     return NextResponse.rewrite(url);
