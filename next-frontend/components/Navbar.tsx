@@ -352,8 +352,9 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   }, [initialHeader]);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -391,10 +392,10 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
     return url;
   };
 
-  // Resolve logo strictly from CMS settings (/media/brand/logo_... or /axom-brand-logo.png)
+  // Resolve logo strictly from CMS settings or fallback to brand logo
   const rawLogo = header?.logo_image_url;
   let logoUrl = '/axom-brand-logo.png';
-  if (rawLogo && rawLogo !== '/axom-logo.png' && rawLogo !== '/axom-logo.svg') {
+  if (rawLogo && rawLogo !== '/axom-logo.png' && rawLogo !== '/axom-logo.svg' && rawLogo !== '/axom-brand-logo.png' && rawLogo !== '/logo.png') {
     if (rawLogo.startsWith('http')) {
       logoUrl = rawLogo;
     } else if (rawLogo.startsWith('/media/')) {
@@ -405,9 +406,6 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   }
 
   const logoAlt = header?.logo_alt_text || 'Axom AI — Smart. Assamese. AI For All.';
-  const logoWidth = toCssDimension(header?.logo_width, '11.25rem'); // 180px -> 11.25rem
-  const logoHeight = toCssDimension(header?.logo_height, 'auto');
-  const logoFit = (header?.logo_fit as React.CSSProperties['objectFit']) || 'contain';
   const homeHref = isChatDomain ? 'https://aiaxom.co.in/' : '/';
 
   // Dynamic Nav Items (fallback to default standard set if none configured)
@@ -482,89 +480,93 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
       <nav
         className={`fixed top-0 inset-x-0 z-40 transition-all duration-300 ${
           scrolled
-            ? 'bg-white/85 dark:bg-black/85 backdrop-blur-xl border-b border-emerald-900/15 dark:border-white/10 shadow-2xl'
-            : 'bg-white/80 dark:bg-black/60 backdrop-blur-md border-b border-emerald-900/10 dark:border-white/5'
+            ? 'bg-[#f0fdf4]/95 dark:bg-[#0b1220]/95 backdrop-blur-xl border-b border-[#cfe9dc] dark:border-[#1f2f46] shadow-[0_8px_30px_rgba(5,150,105,0.10)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.40)] py-2'
+            : 'bg-[#f0fdf4]/90 dark:bg-[#0b1220]/90 backdrop-blur-md border-b border-[#cfe9dc]/80 dark:border-[#1f2f46]/60 py-3'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-5 py-3.5 flex items-center justify-between">
-          {/* Brand Logo */}
-          <a href={homeHref} className="flex items-center gap-2 group shrink-0 py-0.5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
+          {/* Brand Logo & Name */}
+          <a
+            href={homeHref}
+            className="brand flex items-center gap-2.5 shrink-0 py-0.5 group no-underline text-[#022c22] dark:text-white font-extrabold tracking-tight"
+          >
             <img
-              src={logoUrl}
-              alt={logoAlt}
-              style={{
-                width: logoWidth,
-                height: logoHeight,
-                objectFit: logoFit,
-                maxWidth: '100%',
-                maxHeight: '3.75rem', // 60px max height constraint
-              }}
-              className="axom-logo w-auto h-auto transition-transform duration-300 group-hover:scale-105"
+              src="/axom-browser-logo.png"
+              alt="Axom AI"
+              width={40}
+              height={40}
+              className="w-[40px] h-[40px] rounded-[10px] object-contain shadow-[0_4px_12px_rgba(5,150,105,0.25)] transition-transform duration-200 group-hover:scale-105"
             />
+            <div className="flex flex-col justify-center">
+              <span className="leading-none select-none font-sans font-extrabold text-[1.2rem] sm:text-[1.28rem] tracking-tight">
+                Axom <span className="text-[#059669] dark:text-[#34d399]">AI</span>
+              </span>
+              <span className="text-[9px] sm:text-[9.5px] font-extrabold tracking-[0.12em] uppercase text-[#166534] dark:text-[#94a3b8] mt-1 leading-none select-none">
+                Smart • Assamese • AI for All
+              </span>
+            </div>
           </a>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 text-sm">
+          <div className="hidden lg:flex items-center gap-1 text-[0.92rem]">
             {navItems.map((item) => {
               const isMega = item.title.toLowerCase().includes('tool') || item.url === '/#tools';
-              const isBlog = item.url === '/blog' || item.url === '/blog/';
 
               if (isMega) {
                 return (
                   <div key={item.id} className="nav-item relative">
                     <Link
                       href={item.url}
-                      className="px-4 py-2 rounded-full text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-50 dark:hover:bg-white/5 transition inline-flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 rounded-full text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] font-bold transition inline-flex items-center gap-1.5"
                     >
                       <span>{item.title}</span>
                       <ChevronDown className="w-3.5 h-3.5 opacity-70" />
                     </Link>
-                    <div className="mega-menu w-[640px] p-3 bg-white/95 dark:bg-black/95 backdrop-blur-xl border border-emerald-900/15 dark:border-white/10 rounded-2xl shadow-2xl shadow-fuchsia-500/10 mt-2">
-                      <div className="text-[10px] uppercase tracking-widest text-fuchsia-700 dark:text-fuchsia-400 font-bold px-3 pt-2 pb-1">
+                    <div className="mega-menu w-[660px] p-3.5 bg-[linear-gradient(145deg,#ffffff_0%,#f0fdf4_45%,#e1f8eb_100%)] dark:bg-[linear-gradient(145deg,#0b1220_0%,#0f172a_50%,#111c2e_100%)] border border-[#cfe9dc] dark:border-[#1f2f46] rounded-2xl shadow-[0_22px_60px_rgba(5,150,105,0.18)] dark:shadow-[0_22px_60px_rgba(0,0,0,0.65)] mt-2">
+                      <div className="text-[10px] uppercase tracking-wider text-[#059669] dark:text-[#34d399] font-extrabold px-3 pt-1.5 pb-2">
                         Explore AI Tools
                       </div>
-                      <div className="grid grid-cols-2 gap-1">
+                      <div className="grid grid-cols-2 gap-1.5">
                         {megaItems.map((m, idx) => {
                           const IconComponent = m.icon;
                           const targetMegaUrl = resolveUrl(m.url);
                           const isMegaExternal = targetMegaUrl.startsWith('http');
+                          const itemContent = (
+                            <>
+                              <div className="mega-icon w-9 h-9 rounded-xl bg-white/90 dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] flex items-center justify-center shrink-0 text-[#059669] dark:text-[#34d399] shadow-xs">
+                                <IconComponent className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-bold text-[#022c22] dark:text-white leading-snug">{m.title}</div>
+                                <div className="text-xs text-[#5b6b66] dark:text-[#94a3b8] leading-tight mt-0.5">{m.desc}</div>
+                              </div>
+                            </>
+                          );
                           return isMegaExternal ? (
                             <a
                               key={idx}
                               href={targetMegaUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="mega-item"
+                              className="mega-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/80 dark:hover:bg-white/5 border border-transparent hover:border-[#cfe9dc]/80 dark:hover:border-[#1f2f46] transition-all"
                             >
-                              <div className="mega-icon">
-                                <IconComponent className={`w-4 h-4 ${m.color}`} />
-                              </div>
-                              <div>
-                                <div className="text-sm font-semibold text-emerald-950 dark:text-white">{m.title}</div>
-                                <div className="text-xs text-slate-600 dark:text-gray-400">{m.desc}</div>
-                              </div>
+                              {itemContent}
                             </a>
                           ) : (
                             <Link
                               key={idx}
                               href={targetMegaUrl}
-                              className="mega-item"
+                              className="mega-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/80 dark:hover:bg-white/5 border border-transparent hover:border-[#cfe9dc]/80 dark:hover:border-[#1f2f46] transition-all"
                             >
-                              <div className="mega-icon">
-                                <IconComponent className={`w-4 h-4 ${m.color}`} />
-                              </div>
-                              <div>
-                                <div className="text-sm font-semibold text-emerald-950 dark:text-white">{m.title}</div>
-                                <div className="text-xs text-slate-600 dark:text-gray-400">{m.desc}</div>
-                              </div>
+                              {itemContent}
                             </Link>
                           );
                         })}
                       </div>
-                      <div className="border-t border-emerald-900/10 dark:border-white/5 mt-2 pt-2 px-3">
+                      <div className="border-t border-[#cfe9dc] dark:border-[#1f2f46] mt-2.5 pt-2.5 px-3">
                         <Link
                           href={resolveUrl('/tools')}
-                          className="text-xs text-fuchsia-700 dark:text-fuchsia-400 font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all"
+                          className="text-xs text-[#059669] dark:text-[#34d399] hover:text-[#10b981] font-bold inline-flex items-center gap-1 hover:gap-2 transition-all"
                         >
                           Launch all tools in Axom AI <ArrowRight className="w-3 h-3" />
                         </Link>
@@ -586,8 +588,8 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                 (cleanPath === cleanTarget || (cleanTarget !== '/' && cleanPath.startsWith(cleanTarget + '/')));
 
               const linkClass = isActive
-                ? "px-4 py-2 rounded-full text-emerald-950 dark:text-white bg-fuchsia-500/20 border border-fuchsia-500/35 font-semibold transition hover:bg-fuchsia-500/30 shadow-sm"
-                : "px-4 py-2 rounded-full text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-50 dark:hover:bg-white/5 transition";
+                ? "px-3.5 py-1.5 rounded-full text-[#059669] dark:text-[#34d399] font-extrabold bg-[#ecfdf5] dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] shadow-sm transition"
+                : "px-3.5 py-1.5 rounded-full text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] font-bold transition";
 
               return isExternal ? (
                 <a
@@ -616,47 +618,47 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                 <button
                   type="button"
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-900/5 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 border border-emerald-900/20 dark:border-white/15 text-emerald-950 dark:text-white transition group cursor-pointer"
+                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#ecfdf5] dark:bg-[#111c2e] hover:bg-[#cfe9dc]/50 dark:hover:bg-[#1f2f46] border border-[#cfe9dc] dark:border-[#1f2f46] text-[#022c22] dark:text-white transition group cursor-pointer"
                 >
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#10b981] to-[#059669] text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
-                  <span className="text-sm font-semibold max-w-[130px] truncate text-slate-800 dark:text-slate-100 group-hover:text-emerald-950 dark:group-hover:text-white">
+                  <span className="text-sm font-bold max-w-[130px] truncate text-[#022c22] dark:text-white">
                     {user.name}
                   </span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-600 dark:text-slate-400 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#5b6b66] dark:text-[#94a3b8] transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-[#f0fdf4] dark:bg-[#0b1220] border border-emerald-900/20 dark:border-white/15 shadow-2xl p-2 z-50 animate-in fade-in duration-150">
-                    <div className="px-3 py-2.5 border-b border-emerald-900/15 dark:border-white/10">
-                      <div className="text-[10px] uppercase tracking-wider text-fuchsia-700 dark:text-fuchsia-400 font-bold">Signed in as</div>
-                      <div className="text-sm font-bold text-emerald-950 dark:text-white truncate mt-0.5">{user.name}</div>
-                      {user.email && <div className="text-xs text-slate-600 dark:text-slate-400 truncate mt-0.5">{user.email}</div>}
+                  <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] shadow-[0_18px_50px_rgba(5,150,105,0.15)] dark:shadow-[0_18px_50px_rgba(0,0,0,0.5)] p-2 z-50 animate-in fade-in duration-150">
+                    <div className="px-3 py-2.5 border-b border-[#cfe9dc] dark:border-[#1f2f46]">
+                      <div className="text-[10px] uppercase tracking-wider text-[#059669] dark:text-[#34d399] font-extrabold">Signed in as</div>
+                      <div className="text-sm font-bold text-[#022c22] dark:text-white truncate mt-0.5">{user.name}</div>
+                      {user.email && <div className="text-xs text-[#5b6b66] dark:text-[#94a3b8] truncate mt-0.5">{user.email}</div>}
                     </div>
 
                     <div className="py-1 space-y-0.5">
                       <a
                         href="https://chat.aiaxom.co.in/"
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-white/10 hover:text-emerald-950 dark:hover:text-white transition"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:bg-[#ecfdf5] dark:hover:bg-[#0f172a] hover:text-[#022c22] dark:hover:text-white transition"
                       >
-                        <Bot className="w-4 h-4 text-fuchsia-700 dark:text-fuchsia-400" />
+                        <Bot className="w-4 h-4 text-[#059669] dark:text-[#34d399]" />
                         <span>AI Chat Workspace</span>
                       </a>
                       <Link
                         href={resolveUrl('/tools')}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-white/10 hover:text-emerald-950 dark:hover:text-white transition"
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:bg-[#ecfdf5] dark:hover:bg-[#0f172a] hover:text-[#022c22] dark:hover:text-white transition"
                       >
-                        <Sparkles className="w-4 h-4 text-purple-700 dark:text-purple-400" />
+                        <Sparkles className="w-4 h-4 text-[#059669] dark:text-[#34d399]" />
                         <span>All AI Tools</span>
                       </Link>
                     </div>
 
-                    <div className="border-t border-emerald-900/15 dark:border-white/10 pt-1 mt-1">
+                    <div className="border-t border-[#cfe9dc] dark:border-[#1f2f46] pt-1 mt-1">
                       <button
                         type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-rose-700 dark:text-rose-400 hover:bg-rose-500/15 hover:text-rose-700 dark:hover:text-rose-300 transition text-left cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition text-left cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>Sign Out</span>
@@ -669,7 +671,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
               <button
                 type="button"
                 onClick={() => setShowAuthModal(true)}
-                className="btn-primary text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 rounded-full inline-flex items-center gap-1.5 font-semibold shadow-lg shadow-fuchsia-600/25 transition cursor-pointer"
+                className="text-xs sm:text-sm px-5 py-2 sm:py-2.5 rounded-full inline-flex items-center gap-1.5 font-extrabold text-white bg-gradient-to-r from-[#10b981] to-[#059669] dark:from-[#10b981] dark:to-[#34d399] shadow-[0_10px_26px_rgba(5,150,105,0.30)] hover:shadow-[0_14px_30px_rgba(5,150,105,0.42)] hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
                 <span>Sign in</span>
                 <ArrowRight className="w-4 h-4" />
@@ -681,7 +683,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
           <button
             onClick={() => setOpen(!open)}
             aria-label="Open menu"
-            className="lg:hidden w-10 h-10 rounded-full bg-emerald-900/5 dark:bg-white/10 border border-emerald-900/20 dark:border-white/15 grid place-items-center text-emerald-950 dark:text-white hover:bg-emerald-50 dark:hover:bg-white/15 transition"
+            className="lg:hidden w-10 h-10 rounded-full bg-[#ecfdf5] dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center text-[#022c22] dark:text-white hover:bg-[#cfe9dc]/50 dark:hover:bg-[#1f2f46] transition"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -694,7 +696,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
         onClick={() => setOpen(false)}
         aria-hidden={!open}
         style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backgroundColor: 'rgba(0, 0, 0, 0.75)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
         }}
@@ -702,36 +704,34 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
 
       {/* Slide-in Mobile Drawer */}
       <aside
-        className={`dark drawer lg:hidden ${open ? 'open' : ''}`}
+        className={`drawer lg:hidden ${open ? 'open' : ''} bg-[#f0fdf4] dark:bg-[#0b1220] border-l border-[#cfe9dc] dark:border-[#1f2f46]`}
         role="dialog"
         aria-modal="true"
         aria-label="Mobile Navigation Drawer"
-        style={{
-          backgroundColor: '#090814',
-          backgroundImage:
-            'radial-gradient(ellipse at top right, rgba(16, 185, 129, 0.18), transparent 70%), linear-gradient(180deg, #100d22 0%, #07060e 100%)',
-        }}
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-emerald-900/15 dark:border-white/10">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#cfe9dc] dark:border-[#1f2f46]">
+          <div className="flex items-center gap-2.5">
             <img
-              src={logoUrl}
-              alt={logoAlt}
-              style={{
-                width: logoWidth,
-                height: logoHeight,
-                objectFit: logoFit,
-                maxWidth: '8.75rem',
-                maxHeight: '2.5rem',
-              }}
-              className="w-auto h-auto"
+              src="/axom-browser-logo.png"
+              alt="Axom AI"
+              width={38}
+              height={38}
+              className="w-[38px] h-[38px] rounded-[10px] object-contain shadow-[0_4px_12px_rgba(5,150,105,0.25)]"
             />
+            <div className="flex flex-col justify-center">
+              <span className="font-extrabold text-[1.18rem] text-[#022c22] dark:text-white tracking-tight leading-none">
+                Axom <span className="text-[#059669] dark:text-[#34d399]">AI</span>
+              </span>
+              <span className="text-[8.5px] font-extrabold tracking-[0.10em] uppercase text-[#166534] dark:text-[#94a3b8] mt-1 leading-none">
+                Smart • Assamese • AI for All
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setOpen(false)}
             aria-label="Close menu"
-            className="w-9 h-9 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 grid place-items-center text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white transition"
+            className="w-9 h-9 rounded-full bg-[#ecfdf5] dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center text-[#022c22] dark:text-white hover:bg-[#cfe9dc]/50 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -758,16 +758,26 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
 
             const targetUrl = resolveUrl(it.url);
             const isExternal = targetUrl.startsWith('http');
+            const cleanTarget = targetUrl.replace(/\/+$/, '');
+            const cleanPath = (pathname || '').replace(/\/+$/, '');
+            const isDrawerActive =
+              cleanTarget !== '' &&
+              cleanTarget !== '#' &&
+              (cleanPath === cleanTarget || (cleanTarget !== '/' && cleanPath.startsWith(cleanTarget + '/')));
+
+            const drawerItemClass = isDrawerActive
+              ? "flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold bg-[#ecfdf5] dark:bg-[#111c2e] text-[#059669] dark:text-[#34d399] border border-[#cfe9dc] dark:border-[#1f2f46] transition"
+              : "flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition";
 
             return isExternal ? (
               <a
                 key={it.id}
                 href={targetUrl}
                 onClick={() => setOpen(false)}
-                className="drawer-item"
+                className={drawerItemClass}
               >
-                <div className="w-8 h-8 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center shrink-0">
-                  <IconComponent className="w-4 h-4 text-fuchsia-700 dark:text-fuchsia-400" />
+                <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center shrink-0 text-[#059669] dark:text-[#34d399]">
+                  <IconComponent className="w-4 h-4" />
                 </div>
                 <span>{it.title}</span>
               </a>
@@ -776,10 +786,10 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                 key={it.id}
                 href={targetUrl}
                 onClick={() => setOpen(false)}
-                className="drawer-item"
+                className={drawerItemClass}
               >
-                <div className="w-8 h-8 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center shrink-0">
-                  <IconComponent className="w-4 h-4 text-fuchsia-700 dark:text-fuchsia-400" />
+                <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center shrink-0 text-[#059669] dark:text-[#34d399]">
+                  <IconComponent className="w-4 h-4" />
                 </div>
                 <span>{it.title}</span>
               </Link>
@@ -788,40 +798,40 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
         </div>
 
         {/* Drawer Actions: Sign In / User Profile */}
-        <div className="px-5 pt-5 pb-4 border-t border-emerald-900/15 dark:border-white/10 mt-2">
+        <div className="px-5 pt-5 pb-4 border-t border-[#cfe9dc] dark:border-[#1f2f46] mt-2">
           {user?.isAuthenticated ? (
             <div className="space-y-3">
-              <div className="p-3 rounded-2xl bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-fuchsia-500 to-purple-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-md">
+              <div className="p-3 rounded-2xl bg-[#ecfdf5] dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#10b981] to-[#059669] text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-md">
                   {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-bold text-emerald-950 dark:text-white truncate">{user.name}</div>
-                  {user.email && <div className="text-xs text-slate-600 dark:text-slate-400 truncate">{user.email}</div>}
+                  <div className="text-sm font-bold text-[#022c22] dark:text-white truncate">{user.name}</div>
+                  {user.email && <div className="text-xs text-[#5b6b66] dark:text-[#94a3b8] truncate">{user.email}</div>}
                 </div>
               </div>
               <a
                 href="https://chat.aiaxom.co.in/"
                 onClick={() => setOpen(false)}
-                className="btn-primary block w-full text-center text-sm px-4 py-2.5 rounded-full font-semibold shadow-lg shadow-fuchsia-600/30"
+                className="block w-full text-center text-sm px-4 py-2.5 rounded-full font-extrabold text-white bg-gradient-to-r from-[#10b981] to-[#059669] shadow-lg shadow-emerald-600/30"
               >
                 AI Chat Workspace &rarr;
               </a>
               <button
                 type="button"
                 onClick={() => { setOpen(false); handleLogout(); }}
-                className="block w-full text-center text-xs px-4 py-2.5 rounded-full font-semibold text-rose-700 dark:text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 transition cursor-pointer"
+                className="block w-full text-center text-xs px-4 py-2.5 rounded-full font-bold text-rose-600 dark:text-rose-400 border border-rose-500/30 hover:bg-rose-500/10 transition cursor-pointer"
               >
                 Sign Out
               </button>
             </div>
           ) : (
             <div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-600 dark:text-gray-400 mb-2.5 font-semibold">Account</div>
+              <div className="text-[10px] uppercase tracking-widest text-[#059669] dark:text-[#34d399] mb-2.5 font-extrabold">Account</div>
               <button
                 type="button"
                 onClick={() => { setOpen(false); setShowAuthModal(true); }}
-                className="btn-primary block w-full text-center text-sm px-4 py-3 rounded-full font-semibold shadow-lg shadow-fuchsia-600/30 cursor-pointer"
+                className="block w-full text-center text-sm px-4 py-3 rounded-full font-extrabold text-white bg-gradient-to-r from-[#10b981] to-[#059669] shadow-lg shadow-emerald-600/30 cursor-pointer"
               >
                 Sign in with Google &rarr;
               </button>
@@ -831,37 +841,37 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
 
         {/* Assamese Footer Tagline */}
         <div className="px-5 pb-6 pt-1">
-          <p className="font-assamese text-xs text-fuchsia-700/60 dark:text-fuchsia-300/60 text-center">অসমৰ নিজা AI প্লেটফৰ্ম • AI for All</p>
+          <p className="font-assamese text-xs text-[#059669]/80 dark:text-[#34d399]/80 text-center">অসমৰ নিজা AI প্লেটফৰ্ম • AI for All</p>
         </div>
       </aside>
 
       {/* Google Authentication Modal */}
       {showAuthModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/85 dark:bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setShowAuthModal(false)}
         >
           <div
-            className="relative w-full max-w-sm rounded-3xl bg-[#f0fdf4] dark:bg-[#0b0a16] border border-emerald-900/20 dark:border-white/15 p-6 shadow-2xl shadow-fuchsia-600/20 text-center"
+            className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] p-6 shadow-[0_20px_60px_rgba(5,150,105,0.18)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.6)] text-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
             <button
               type="button"
               onClick={() => setShowAuthModal(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 grid place-items-center text-slate-600 dark:text-slate-400 hover:text-emerald-950 dark:hover:text-white transition cursor-pointer"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#ecfdf5] dark:bg-[#0f172a] hover:bg-[#cfe9dc]/50 dark:hover:bg-[#1f2f46] grid place-items-center text-[#5b6b66] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white transition cursor-pointer"
               title="Close"
             >
               <X className="w-4 h-4" />
             </button>
 
             {/* Brand Logo / Icon */}
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-fuchsia-500 to-purple-600 grid place-items-center mx-auto mb-4 shadow-lg shadow-fuchsia-500/30">
-              <Sparkles className="w-6 h-6 text-emerald-950 dark:text-white" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#10b981] to-[#059669] grid place-items-center mx-auto mb-4 shadow-lg shadow-emerald-500/30 text-white">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
 
-            <h3 className="text-lg font-bold text-emerald-950 dark:text-white tracking-tight">Sign in to Axom AI</h3>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 mb-6">
+            <h3 className="text-lg font-extrabold text-[#022c22] dark:text-white tracking-tight">Sign in to Axom AI</h3>
+            <p className="text-xs text-[#5b6b66] dark:text-[#94a3b8] mt-1 mb-6">
               Sign in with your Google account to access all AI tools and native Assamese chat.
             </p>
 
@@ -875,14 +885,14 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
             <div className="flex flex-col items-center justify-center min-h-[48px] w-full">
               <div id="navbarGoogleBtnContainer" className="w-full flex justify-center" />
               {authLoading && (
-                <div className="flex items-center gap-2 text-xs text-fuchsia-700 dark:text-fuchsia-400 mt-3 font-medium">
+                <div className="flex items-center gap-2 text-xs text-[#059669] dark:text-[#34d399] mt-3 font-semibold">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Authenticating with Google...</span>
                 </div>
               )}
             </div>
 
-            <p className="text-[11px] text-slate-600 dark:text-slate-500 mt-6">
+            <p className="text-[11px] text-[#5b6b66] dark:text-[#94a3b8] mt-6">
               Fair use policy: 1 account per user. By continuing you agree to Axom AI Terms.
             </p>
           </div>

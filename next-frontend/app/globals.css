@@ -255,7 +255,7 @@ body.light-theme * {
 /* Drawer */
 .drawer-overlay {
   position: fixed; inset: 0; z-index: 99;
-  background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.70); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   opacity: 0; pointer-events: none;
   transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -265,31 +265,24 @@ body.light-theme * {
   width: min(85vw, 340px);
   height: 100vh;
   height: 100dvh;
-  background: #090814 !important;
-  background-color: #090814 !important;
-  background-image: radial-gradient(ellipse at top right, rgba(16, 185, 129, 0.18), transparent 70%), linear-gradient(180deg, #100d22 0%, #07060e 100%) !important;
-  border-left: 1px solid rgba(52, 211, 153, 0.25);
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-  box-shadow: -25px 0 50px rgba(0, 0, 0, 0.85), -5px 0 25px rgba(52, 211, 153, 0.15);
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.15), -5px 0 25px rgba(5, 150, 105, 0.08);
   display: block;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
+.dark .drawer {
+  box-shadow: -25px 0 50px rgba(0, 0, 0, 0.85), -5px 0 25px rgba(16, 185, 129, 0.15);
+}
 .drawer.open { transform: translateX(0); }
 .drawer-item {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 14px; margin: 2px 4px; border-radius: 12px;
-  color: #e5e7eb; font-size: 15px; font-weight: 500;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 15px; font-weight: 600;
   transition: all 0.18s ease;
-}
-.drawer-item:hover, .drawer-item:active {
-  background: rgba(52, 211, 153, 0.12);
-  color: #fde68a;
-  padding-left: 18px;
 }
 
 /* Category Pill */
@@ -710,9 +703,6 @@ html:not(.dark) body { background: #f0fdf4; color: #064e3b; }
 html:not(.dark) ::-webkit-scrollbar-track { background: #f0fdf4; }
 html:not(.dark) ::-webkit-scrollbar-thumb { border-color: #f0fdf4; }
 html:not(.dark) * { scrollbar-color: #10b981 #f0fdf4; }
-
-/* the navbar logo has white lettering: make it dark on the light bar */
-html:not(.dark) .axom-logo:not(:is(.dark *)) { filter: invert(1) hue-rotate(180deg); }
 
 /* the closed mobile drawer must not cast its shadow onto the page */
 .drawer:not(.open) { box-shadow: none !important; }

@@ -187,24 +187,30 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
   const socials = footer?.social_links && footer.social_links.length > 0 ? footer.social_links : DEFAULT_SOCIALS;
 
   return (
-    <footer className="border-t border-white/5 pt-14 md:pt-16 pb-8 bg-[#07111f] mt-20 relative">
+    <footer className="border-t border-[#cfe9dc]/60 dark:border-white/5 pt-10 md:pt-12 pb-8 bg-[#07111f] relative">
       <div className="max-w-7xl mx-auto px-5">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-6 gap-8 mb-12">
           {/* Brand Col */}
-          <div className="col-span-2 md:col-span-1">
-            <a href={homeHref} className="inline-block mb-4 group">
+          <div className="col-span-2 md:col-span-2 lg:col-span-2 pr-0 md:pr-4">
+            <a
+              href={homeHref}
+              className="inline-flex items-center gap-2.5 mb-4 group no-underline text-white font-extrabold tracking-tight"
+            >
               <img
-                src={logoUrl}
-                alt="Axom AI — Smart. Assamese. AI For All."
-                style={{
-                  width: logoWidth,
-                  height: logoHeight,
-                  objectFit: logoFit,
-                  maxWidth: '100%',
-                  maxHeight: '3.75rem',
-                }}
-                className="w-auto h-auto transition-transform duration-300 group-hover:scale-105"
+                src="/axom-browser-logo.png"
+                alt="Axom AI"
+                width={40}
+                height={40}
+                className="w-[40px] h-[40px] rounded-[10px] object-contain shadow-[0_4px_12px_rgba(5,150,105,0.25)] transition-transform duration-200 group-hover:scale-105"
               />
+              <div className="flex flex-col justify-center">
+                <span className="leading-none select-none font-sans font-extrabold text-[1.2rem] text-white tracking-tight">
+                  Axom <span className="text-[#34d399]">AI</span>
+                </span>
+                <span className="text-[9px] font-extrabold tracking-[0.12em] uppercase text-[#94a3b8] mt-1 leading-none select-none">
+                  Smart • Assamese • AI for All
+                </span>
+              </div>
             </a>
             <p className="text-xs text-gray-400 leading-relaxed mb-5 whitespace-pre-line">
               {description}
@@ -227,7 +233,7 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
 
           {/* Dynamic Navigation Columns */}
           {columns.map((col, i) => (
-            <div key={(col as any).id || i}>
+            <div key={(col as any).id || i} className="col-span-1">
               <div className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-3.5">
                 {col.title}
               </div>
