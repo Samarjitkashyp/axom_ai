@@ -75,6 +75,7 @@ urlpatterns = [
     path('pages/contact/faq/save/', views.save_contact_faq_api, name='save_contact_faq_api'),
     path('pages/contact/faq/delete/<int:faq_id>/', views.delete_contact_faq_api, name='delete_contact_faq_api'),
     path('pages/contact/faq/toggle/<int:faq_id>/', views.toggle_contact_faq_api, name='toggle_contact_faq_api'),
+    path('pages/contact/upload-og-image/', views.upload_contact_og_image_api, name='upload_contact_og_image_api'),
 
     # Standalone Pages: FAQ Page Manager
     path('pages/faq/', views.faq_manager_page, name='faq_manager_page'),

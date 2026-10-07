@@ -3301,3 +3301,119 @@ def toggle_contact_faq_api(request, faq_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+@content_admin_required
+@require_POST
+def upload_contact_og_image_api(request):
+    """
+    Direct image upload for Contact Us Page OpenGraph & Twitter Social Share Card.
+    Automatically resizes, crops, and optimizes the uploaded image to 1200 x 630 pixels.
+    """
+    try:
+        uploaded_file = (
+            request.FILES.get('image') or 
+            request.FILES.get('file') or 
+            request.FILES.get('og_image')
+        )
+        if not uploaded_file:
+            return JsonResponse({'success': False, 'error': 'No image file provided for upload.'}, status=400)
+
+        # Validate file extension
+        ext = os.path.splitext(uploaded_file.name)[1].lower()
+        allowed_exts = {'.jpg', '.jpeg', '.png', '.webp', '.avif', '.jfif', '.bmp', '.tiff', '.gif'}
+        if ext not in allowed_exts:
+            return JsonResponse({
+                'success': False,
+                'error': f'Unsupported format "{ext}". Supported: JPG, PNG, WEBP, AVIF, GIF, BMP, TIFF.'
+            }, status=400)
+
+        # Max file size: 25MB
+        if uploaded_file.size > 25 * 1024 * 1024:
+            return JsonResponse({'success': False, 'error': 'File exceeds maximum upload limit of 25MB.'}, status=400)
+
+        fit_mode = (request.POST.get('fit_mode') or 'cover').strip().lower()
+
+        # Open image and normalize EXIF orientation
+        img = Image.open(uploaded_file)
+        try:
+            img = ImageOps.exif_transpose(img)
+        except Exception:
+            pass
+
+        target_w, target_h = 1200, 630
+
+        # Handle alpha channels
+        if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+            img = img.convert('RGBA')
+            bg = Image.new('RGBA', img.size, (15, 23, 42, 255))
+            bg.paste(img, mask=img.split()[3])
+            rgb_img = bg.convert('RGB')
+        else:
+            rgb_img = img.convert('RGB')
+
+        if fit_mode == 'contain':
+            canvas = Image.new('RGB', (target_w, target_h), (15, 23, 42))
+            bg_cover = ImageOps.fit(rgb_img, (target_w, target_h), method=Image.Resampling.BILINEAR)
+            bg_blurred = bg_cover.filter(ImageFilter.GaussianBlur(radius=25))
+            bg_blurred = ImageEnhance.Brightness(bg_blurred).enhance(0.5)
+            canvas.paste(bg_blurred, (0, 0))
+
+            margin = 30
+            max_inner_w = target_w - (margin * 2)
+            max_inner_h = target_h - (margin * 2)
+            orig_aspect = rgb_img.width / rgb_img.height
+
+            if orig_aspect > (max_inner_w / max_inner_h):
+                fg_w = max_inner_w
+                fg_h = int(fg_w / orig_aspect)
+            else:
+                fg_h = max_inner_h
+                fg_w = int(fg_h * orig_aspect)
+
+            fg_resized = rgb_img.resize((fg_w, fg_h), Image.Resampling.LANCZOS)
+            pos_x = (target_w - fg_w) // 2
+            pos_y = (target_h - fg_h) // 2
+            canvas.paste(fg_resized, (pos_x, pos_y))
+            final_img = canvas
+        else:
+            final_img = ImageOps.fit(
+                rgb_img,
+                (target_w, target_h),
+                method=Image.Resampling.LANCZOS,
+                centering=(0.5, 0.5)
+            )
+
+        out_buf = BytesIO()
+        final_img.save(
+            out_buf,
+            format='JPEG',
+            quality=90,
+            optimize=True,
+            progressive=True
+        )
+        file_bytes = out_buf.getvalue()
+
+        file_id = uuid.uuid4().hex[:8]
+        filename = f"cms/og_images/contact_og_{file_id}.jpg"
+        saved_rel_path = default_storage.save(filename, ContentFile(file_bytes))
+        full_url = f"https://aiaxom.co.in/media/{saved_rel_path}"
+
+        # Update ContactPageConfig immediately
+        config = ensure_contact_defaults()
+        config.og_image_url = full_url
+        config.save(update_fields=['og_image_url', 'updated_at'])
+
+        return JsonResponse({
+            'success': True,
+            'url': full_url,
+            'relative_url': f"/media/{saved_rel_path}",
+            'width': target_w,
+            'height': target_h,
+            'size_kb': round(len(file_bytes) / 1024, 1),
+            'filename': os.path.basename(saved_rel_path),
+            'message': f'Image converted to 1200×630 pixels ({round(len(file_bytes) / 1024, 1)} KB) and saved for Contact page SEO!'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Image upload failed: {str(e)}'}, status=400)
+
+
+
