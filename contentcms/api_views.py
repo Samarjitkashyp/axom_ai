@@ -338,6 +338,7 @@ def cms_landing_api(request):
             'support_button_url': faq_page_cfg.support_button_url if faq_page_cfg else 'mailto:support@aiaxom.co.in',
             'chat_button_text': faq_page_cfg.chat_button_text if faq_page_cfg else 'Ask AI Assistant',
             'chat_button_url': faq_page_cfg.chat_button_url if faq_page_cfg else 'https://chat.aiaxom.co.in/',
+            'og_image_url': faq_page_cfg.og_image_url if (faq_page_cfg and faq_page_cfg.og_image_url) else 'https://aiaxom.co.in/static/dist/hero/assam.avif',
         } if faq_page_cfg else None,
         'seo': {
             'meta_title': seo.meta_title if seo else "Axom AI — The Power of AI for Everyone",
@@ -519,6 +520,7 @@ def cms_about_api(request):
         'meta_title': cfg.meta_title,
         'meta_description': cfg.meta_description,
         'meta_keywords': cfg.meta_keywords,
+        'og_image_url': cfg.og_image_url or 'https://aiaxom.co.in/static/dist/hero/assam.avif',
         'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
     })
 

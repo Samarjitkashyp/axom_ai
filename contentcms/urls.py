@@ -55,6 +55,7 @@ urlpatterns = [
     # Standalone Pages: About Us Page Manager
     path('pages/about/', views.about_editor, name='about_editor'),
     path('pages/about/save/', views.save_about_page_api, name='save_about_page_api'),
+    path('pages/about/upload-og-image/', views.upload_about_og_image_api, name='upload_about_og_image_api'),
 
     # Standalone Pages: Use Cases Page Manager
     path('pages/use-cases/', views.usecases_editor, name='usecases_editor'),
@@ -65,6 +66,7 @@ urlpatterns = [
     path('pages/use-cases/faq/save/', views.save_usecase_faq_api, name='save_usecase_faq_api'),
     path('pages/use-cases/faq/delete/<int:faq_id>/', views.delete_usecase_faq_api, name='delete_usecase_faq_api'),
     path('pages/use-cases/faq/toggle/<int:faq_id>/', views.toggle_usecase_faq_api, name='toggle_usecase_faq_api'),
+    path('pages/use-cases/upload-og-image/', views.upload_usecases_og_image_api, name='upload_usecases_og_image_api'),
 
     # Standalone Pages: Contact Us Page Manager
     path('pages/contact/', views.contact_editor, name='contact_editor'),
@@ -84,6 +86,7 @@ urlpatterns = [
     path('pages/faq/delete/<int:faq_id>/', views.delete_faq_item_api, name='delete_faq_item_api'),
     path('pages/faq/toggle-homepage/<int:faq_id>/', views.toggle_faq_homepage_api, name='toggle_faq_homepage_api'),
     path('pages/faq/toggle-status/<int:faq_id>/', views.toggle_faq_status_api, name='toggle_faq_status_api'),
+    path('pages/faq/upload-og-image/', views.upload_faq_og_image_api, name='upload_faq_og_image_api'),
     path('faqs/save/', views.save_faq_api, name='save_faq_api'),
     path('faqs/delete/<int:faq_id>/', views.delete_faq_api, name='delete_faq_api'),
 

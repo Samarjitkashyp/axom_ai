@@ -295,6 +295,7 @@ export interface LandingCMSData {
     support_button_url?: string;
     chat_button_text?: string;
     chat_button_url?: string;
+    og_image_url?: string;
   };
   seo: {
     meta_title: string;

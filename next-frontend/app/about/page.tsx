@@ -160,7 +160,7 @@ export async function generateMetadata(): Promise<Metadata> {
     about?.meta_description ||
     "Discover Axom AI (AI Axom / অসম এআই) — Assam's flagship indigenous Artificial Intelligence platform headquartered in Guwahati. Native Assamese LLMs, OCR tools, founder Samarjit Kashyap, and sovereign AI infrastructure.";
   const canonicalUrl = 'https://aiaxom.co.in/about/';
-  const ogImage = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
+  const ogImage = about?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
     title,

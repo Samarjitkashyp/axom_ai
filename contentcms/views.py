@@ -1809,6 +1809,10 @@ def save_faq_page_config_api(request):
         config.subheading = data.get('subheading', '').strip()
         config.search_placeholder = data.get('search_placeholder', '').strip()
         config.meta_title = data.get('meta_title', 'FAQs & Help Center — Axom AI').strip()
+        if 'meta_description' in data:
+            config.meta_description = data.get('meta_description', '').strip()
+        if 'og_image_url' in data:
+            config.og_image_url = data.get('og_image_url', '').strip()
         config.support_box_title = data.get('support_box_title', 'Still have questions?').strip()
         config.support_box_desc = data.get('support_box_desc', '').strip()
         config.support_button_text = data.get('support_button_text', 'Contact Support').strip()
@@ -2047,6 +2051,8 @@ def save_about_page_api(request):
             config.meta_description = data.get('meta_description', '').strip()
         if 'meta_keywords' in data:
             config.meta_keywords = data.get('meta_keywords', '').strip()
+        if 'og_image_url' in data:
+            config.og_image_url = data.get('og_image_url', '').strip()
 
         config.save()
         return JsonResponse({'success': True, 'message': 'About Us Page settings updated successfully!'})
@@ -2329,7 +2335,7 @@ def delete_converter_tool_faq_api(request, tool_slug, faq_id):
 @require_POST
 def upload_converter_tool_og_image_api(request, tool_slug=None):
     """
-    Direct image upload for Tool SEO & Social Cards.
+    Universal image upload for Page SEO & Social Share Cards.
     Automatically resizes & converts any uploaded image to EXACT 1200 x 630 pixels
     (the universal OpenGraph / Twitter Card standard).
     """
@@ -2435,17 +2441,31 @@ def upload_converter_tool_og_image_api(request, tool_slug=None):
         # Absolute URL
         full_url = f"https://aiaxom.co.in/media/{saved_rel_path}"
 
-        # If a valid tool_slug is passed, update tool config directly
-        if resolved_slug in CONVERTER_TOOLS_METADATA:
-            tool_config = ensure_converter_tool_defaults(resolved_slug)
-            tool_config.og_image_url = full_url
-            tool_config.save(update_fields=['og_image_url', 'updated_at'])
-
-        # Also support general SEO page if requested
-        if resolved_slug == 'general-seo' or request.POST.get('is_general_seo') == 'true':
+        # Update specific models directly if known slug
+        if resolved_slug == 'about':
+            cfg = AboutPageConfig.objects.first() or AboutPageConfig.objects.create()
+            cfg.og_image_url = full_url
+            cfg.save(update_fields=['og_image_url', 'updated_at'])
+        elif resolved_slug in ('use-cases', 'usecases'):
+            cfg = ensure_usecases_defaults()
+            cfg.og_image_url = full_url
+            cfg.save(update_fields=['og_image_url', 'updated_at'])
+        elif resolved_slug == 'faq':
+            cfg = FAQPageConfig.objects.first() or FAQPageConfig.objects.create()
+            cfg.og_image_url = full_url
+            cfg.save(update_fields=['og_image_url', 'updated_at'])
+        elif resolved_slug == 'contact':
+            cfg = ensure_contact_defaults()
+            cfg.og_image_url = full_url
+            cfg.save(update_fields=['og_image_url', 'updated_at'])
+        elif resolved_slug in ('general-seo', 'seo') or request.POST.get('is_general_seo') == 'true':
             seo_setting, _ = SiteSEOSetting.objects.get_or_create(id=1)
             seo_setting.og_image_url = full_url
             seo_setting.save(update_fields=['og_image_url'])
+        elif resolved_slug in CONVERTER_TOOLS_METADATA:
+            tool_config = ensure_converter_tool_defaults(resolved_slug)
+            tool_config.og_image_url = full_url
+            tool_config.save(update_fields=['og_image_url', 'updated_at'])
 
         return JsonResponse({
             'success': True,
@@ -2460,6 +2480,31 @@ def upload_converter_tool_og_image_api(request, tool_slug=None):
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Image upload failed: {str(e)}'}, status=400)
+
+
+@content_admin_required
+@require_POST
+def upload_about_og_image_api(request):
+    return upload_converter_tool_og_image_api(request, 'about')
+
+
+@content_admin_required
+@require_POST
+def upload_usecases_og_image_api(request):
+    return upload_converter_tool_og_image_api(request, 'use-cases')
+
+
+@content_admin_required
+@require_POST
+def upload_faq_og_image_api(request):
+    return upload_converter_tool_og_image_api(request, 'faq')
+
+
+@content_admin_required
+@require_POST
+def upload_seo_og_image_api(request):
+    return upload_converter_tool_og_image_api(request, 'general-seo')
+
 
 
 # Backward-compatible aliases for Word to PDF

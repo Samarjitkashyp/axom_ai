@@ -105,11 +105,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const faqPage = landingData?.faq_page;
 
   const title =
+    faqPage?.meta_title ||
     'Axom AI FAQ — Frequently Asked Questions & Help Center | Assamese AI Support';
   const description =
+    faqPage?.meta_description ||
+    faqPage?.subheading ||
     'Get instant answers to all questions about Axom AI (Assam AI): Assamese language accuracy, AI models (Gemini, Claude, FLUX), pricing plans, UPI payments, PDF OCR, security & DPDP compliance.';
   const canonicalUrl = 'https://aiaxom.co.in/faq/';
-  const ogImage = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
+  const ogImage =
+    faqPage?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
     title,

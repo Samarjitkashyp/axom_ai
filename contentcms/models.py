@@ -334,6 +334,7 @@ class FAQPageConfig(models.Model):
     chat_button_url = models.CharField(max_length=300, default='https://chat.aiaxom.co.in')
     meta_title = models.CharField(max_length=255, default='FAQs & Help Center — Axom AI')
     meta_description = models.TextField(default='Find answers to common questions about Axom AI models, word limits, plans, and Assamese features.')
+    og_image_url = models.CharField(max_length=500, default='https://aiaxom.co.in/static/dist/hero/assam.avif')
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -420,6 +421,7 @@ class AboutPageConfig(models.Model):
     meta_title = models.CharField(max_length=255, default="About Axom AI — Assam's Premier Indigenous AI Platform & LLM Ecosystem | Assam AI")
     meta_description = models.TextField(default="Discover Axom AI (https://aiaxom.co.in) — Assam's flagship indigenous Artificial Intelligence platform. Empowering Assam with native Assamese LLMs, ChatGPT-grade reasoning, image generation, document intelligence, and regional digital innovation.")
     meta_keywords = models.TextField(default="Assam AI, AI in Assam, Axom AI, AI Assam, Artificial Intelligence in Assam, Assamese AI, Assamese ChatGPT, Assamese LLM, Guwahati AI, Northeast India AI, Axom AI about, Assam AI platform, Indic AI Assam, Indigenous AI Assam, Assam AI startup, Assamese NLP")
+    og_image_url = models.CharField(max_length=500, default='https://aiaxom.co.in/static/dist/hero/assam.avif')
 
     updated_at = models.DateTimeField(auto_now=True)
 
