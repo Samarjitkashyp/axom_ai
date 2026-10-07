@@ -37,7 +37,7 @@
         <span>View Live Use Cases</span>
       </a>
 
-      <button id="saveTopBtn" onclick="saveUseCasesConfig()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/25 transition">
+      <button id="saveTopBtn" type="button" onclick="saveUseCasesConfig()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/25 transition hover:scale-[1.02]">
         <i class="fa-solid fa-floppy-disk text-xs"></i>
         <span>Save Changes</span>
         <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[9px] bg-black/30 rounded border border-white/20 text-fuchsia-200">Ctrl+S</kbd>
@@ -46,6 +46,7 @@
   </div>
 
   <form id="useCasesPageForm" onsubmit="event.preventDefault(); saveUseCasesConfig();" class="space-y-8">
+    {% csrf_token %}
 
     <!-- 1. HERO HEADER SECTION -->
     <div id="sec-hero" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
@@ -240,7 +241,7 @@
             <p class="text-xs text-slate-400">Manage individual deep-dive sector cards (Students, Aspirants, MSMEs, Legal, Healthcare, Creators, Developers)</p>
           </div>
         </div>
-        <button type="button" onclick="openSectorModal()" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20 transition">
+        <button type="button" onclick="openSectorModal()" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20 transition hover:scale-105">
           <i class="fa-solid fa-plus text-xs"></i>
           <span>Add New Sector</span>
         </button>
@@ -395,7 +396,7 @@
             <p class="text-xs text-slate-400">Manage accordion questions and verified answers for the Use Cases page</p>
           </div>
         </div>
-        <button type="button" onclick="openFaqModal()" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20 transition">
+        <button type="button" onclick="openFaqModal()" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20 transition hover:scale-105">
           <i class="fa-solid fa-plus text-xs"></i>
           <span>Add New FAQ</span>
         </button>
@@ -563,12 +564,12 @@
     </div>
 
     <!-- Bottom Save Floating Bar -->
-    <div class="sticky bottom-4 z-30 flex items-center justify-between bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-4 rounded-2xl shadow-2xl shadow-black/60">
-      <div class="text-xs text-slate-400 flex items-center gap-2">
+    <div class="sticky bottom-4 z-30 flex items-center justify-between bg-slate-900/95 backdrop-blur-md border border-slate-700/80 p-4 rounded-2xl shadow-2xl shadow-black/80">
+      <div class="text-xs text-slate-300 flex items-center gap-2">
         <i class="fa-solid fa-circle-check text-emerald-400"></i>
         <span>All changes are saved instantly to Django CMS and reflected on Next.js live.</span>
       </div>
-      <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/30 transition">
+      <button type="button" id="saveBottomBtn" onclick="saveUseCasesConfig()" class="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/30 transition hover:scale-[1.02]">
         <i class="fa-solid fa-floppy-disk text-xs"></i>
         <span>Save All Changes</span>
       </button>
@@ -659,7 +660,7 @@
 
       <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
         <button type="button" onclick="closeSectorModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
-        <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-bold transition shadow-lg shadow-fuchsia-600/20">Save Sector</button>
+        <button type="submit" id="saveSectorModalBtn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-bold transition shadow-lg shadow-fuchsia-600/20">Save Sector</button>
       </div>
     </form>
   </div>
@@ -701,7 +702,7 @@
 
       <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
         <button type="button" onclick="closeFaqModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Cancel</button>
-        <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-bold transition shadow-lg shadow-fuchsia-600/20">Save Question</button>
+        <button type="submit" id="saveFaqModalBtn" class="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-bold transition shadow-lg shadow-fuchsia-600/20">Save Question</button>
       </div>
     </form>
   </div>
@@ -725,101 +726,141 @@
     }
     return cookieValue;
   }
-  const csrftoken = getCookie('csrftoken');
+
+  function getCsrfToken() {
+    const inputToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (inputToken && inputToken.value) return inputToken.value;
+    return getCookie('csrftoken') || '{{ csrf_token }}';
+  }
+
+  const val = (id) => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  };
 
   function updateCharCounts() {
     const title = document.getElementById('meta_title');
     const desc = document.getElementById('meta_description');
-    if (title) document.getElementById('metaTitleLen').textContent = title.value.length;
-    if (desc) document.getElementById('metaDescLen').textContent = desc.value.length;
+    const tLen = document.getElementById('metaTitleLen');
+    const dLen = document.getElementById('metaDescLen');
+    if (title && tLen) tLen.textContent = title.value.length;
+    if (desc && dLen) dLen.textContent = desc.value.length;
   }
   document.getElementById('meta_title')?.addEventListener('input', updateCharCounts);
   document.getElementById('meta_description')?.addEventListener('input', updateCharCounts);
   updateCharCounts();
 
+  function setBtnLoading(loading) {
+    const topBtn = document.getElementById('saveTopBtn');
+    const btmBtn = document.getElementById('saveBottomBtn');
+    [topBtn, btmBtn].forEach(btn => {
+      if (!btn) return;
+      if (loading) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i><span>Saving...</span>';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-floppy-disk text-xs"></i><span>Save Changes</span>';
+      }
+    });
+  }
+
   // Save full configuration
   async function saveUseCasesConfig() {
     const payload = {
-      hero_badge_text: document.getElementById('hero_badge_text').value,
-      hero_heading_prefix: document.getElementById('hero_heading_prefix').value,
-      hero_heading_highlight: document.getElementById('hero_heading_highlight').value,
-      hero_heading_suffix: document.getElementById('hero_heading_suffix').value,
-      hero_subtitle: document.getElementById('hero_subtitle').value,
+      hero_badge_text: val('hero_badge_text'),
+      hero_heading_prefix: val('hero_heading_prefix'),
+      hero_heading_highlight: val('hero_heading_highlight'),
+      hero_heading_suffix: val('hero_heading_suffix'),
+      hero_subtitle: val('hero_subtitle'),
 
-      aeo_badge: document.getElementById('aeo_badge').value,
-      aeo_title: document.getElementById('aeo_title').value,
-      aeo_description: document.getElementById('aeo_description').value,
-      aeo_point1: document.getElementById('aeo_point1').value,
-      aeo_point2: document.getElementById('aeo_point2').value,
-      aeo_point3: document.getElementById('aeo_point3').value,
+      aeo_badge: val('aeo_badge'),
+      aeo_title: val('aeo_title'),
+      aeo_description: val('aeo_description'),
+      aeo_point1: val('aeo_point1'),
+      aeo_point2: val('aeo_point2'),
+      aeo_point3: val('aeo_point3'),
 
-      stat_1_val: document.getElementById('stat_1_val').value,
-      stat_1_label: document.getElementById('stat_1_label').value,
-      stat_2_val: document.getElementById('stat_2_val').value,
-      stat_2_label: document.getElementById('stat_2_label').value,
-      stat_3_val: document.getElementById('stat_3_val').value,
-      stat_3_label: document.getElementById('stat_3_label').value,
-      stat_4_val: document.getElementById('stat_4_val').value,
-      stat_4_label: document.getElementById('stat_4_label').value,
+      stat_1_val: val('stat_1_val'),
+      stat_1_label: val('stat_1_label'),
+      stat_2_val: val('stat_2_val'),
+      stat_2_label: val('stat_2_label'),
+      stat_3_val: val('stat_3_val'),
+      stat_3_label: val('stat_3_label'),
+      stat_4_val: val('stat_4_val'),
+      stat_4_label: val('stat_4_label'),
 
-      sectors_badge: document.getElementById('sectors_badge').value,
-      sectors_title: document.getElementById('sectors_title').value,
-      sectors_subtitle: document.getElementById('sectors_subtitle').value,
+      sectors_badge: val('sectors_badge'),
+      sectors_title: val('sectors_title'),
+      sectors_subtitle: val('sectors_subtitle'),
 
-      comparison_badge: document.getElementById('comparison_badge').value,
-      comparison_title: document.getElementById('comparison_title').value,
-      comparison_subtitle: document.getElementById('comparison_subtitle').value,
+      comparison_badge: val('comparison_badge'),
+      comparison_title: val('comparison_title'),
+      comparison_subtitle: val('comparison_subtitle'),
 
-      authority_badge: document.getElementById('authority_badge').value,
-      authority_title: document.getElementById('authority_title').value,
-      authority_description: document.getElementById('authority_description').value,
+      authority_badge: val('authority_badge'),
+      authority_title: val('authority_title'),
+      authority_description: val('authority_description'),
 
-      faq_badge: document.getElementById('faq_badge').value,
-      faq_title: document.getElementById('faq_title').value,
-      faq_subtitle: document.getElementById('faq_subtitle').value,
+      faq_badge: val('faq_badge'),
+      faq_title: val('faq_title'),
+      faq_subtitle: val('faq_subtitle'),
 
-      cta_badge: document.getElementById('cta_badge').value,
-      cta_heading: document.getElementById('cta_heading').value,
-      cta_subheading: document.getElementById('cta_subheading').value,
-      cta_primary_btn_text: document.getElementById('cta_primary_btn_text').value,
-      cta_primary_btn_url: document.getElementById('cta_primary_btn_url').value,
-      cta_secondary_btn_text: document.getElementById('cta_secondary_btn_text').value,
-      cta_secondary_btn_url: document.getElementById('cta_secondary_btn_url').value,
+      cta_badge: val('cta_badge'),
+      cta_heading: val('cta_heading'),
+      cta_subheading: val('cta_subheading'),
+      cta_primary_btn_text: val('cta_primary_btn_text'),
+      cta_primary_btn_url: val('cta_primary_btn_url'),
+      cta_secondary_btn_text: val('cta_secondary_btn_text'),
+      cta_secondary_btn_url: val('cta_secondary_btn_url'),
 
-      meta_title: document.getElementById('meta_title').value,
-      meta_description: document.getElementById('meta_description').value,
-      meta_keywords: document.getElementById('meta_keywords').value,
-      og_image_url: document.getElementById('og_image_url').value,
+      meta_title: val('meta_title'),
+      meta_description: val('meta_description'),
+      meta_keywords: val('meta_keywords'),
+      og_image_url: val('og_image_url'),
     };
+
+    setBtnLoading(true);
 
     try {
       const res = await fetch('/axomai-content/pages/use-cases/save/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken,
+          'X-CSRFToken': getCsrfToken(),
         },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
+      setBtnLoading(false);
+
       if (data.success) {
         if (typeof showToast === 'function') {
-          showToast('Use Cases page saved successfully!', 'success');
+          showToast(data.message || 'Use Cases page saved successfully!', 'success');
         } else {
           alert('Use Cases page saved successfully!');
         }
       } else {
-        alert('Error: ' + (data.error || 'Failed to save settings'));
+        if (typeof showToast === 'function') {
+          showToast(data.error || 'Failed to save settings', 'error');
+        } else {
+          alert('Error: ' + (data.error || 'Failed to save settings'));
+        }
       }
     } catch (err) {
+      setBtnLoading(false);
       console.error(err);
-      alert('Network error while saving settings.');
+      if (typeof showToast === 'function') {
+        showToast('Network error while saving settings.', 'error');
+      } else {
+        alert('Network error while saving settings.');
+      }
     }
   }
 
-  // Keyboard shortcut Ctrl+S
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+  // Keyboard shortcut Ctrl+S / Cmd+S
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
       e.preventDefault();
       saveUseCasesConfig();
     }
@@ -871,40 +912,57 @@
   async function saveSectorFromModal() {
     const payload = {
       id: document.getElementById('sector_modal_id').value || null,
-      sector_id: document.getElementById('sector_modal_slug').value,
-      badge: document.getElementById('sector_modal_badge').value,
-      icon_name: document.getElementById('sector_modal_icon').value,
-      color_gradient: document.getElementById('sector_modal_gradient').value,
-      order: document.getElementById('sector_modal_order').value,
-      title: document.getElementById('sector_modal_title_val').value,
-      tagline: document.getElementById('sector_modal_tagline').value,
-      description: document.getElementById('sector_modal_desc').value,
-      capabilities_raw: document.getElementById('sector_modal_capabilities').value,
-      impact_metric: document.getElementById('sector_modal_impact').value,
-      cta_text: document.getElementById('sector_modal_cta_text').value,
-      cta_url: document.getElementById('sector_modal_cta_url').value,
+      sector_id: val('sector_modal_slug'),
+      badge: val('sector_modal_badge'),
+      icon_name: val('sector_modal_icon') || 'GraduationCap',
+      color_gradient: val('sector_modal_gradient') || 'from-fuchsia-500 to-purple-600',
+      order: val('sector_modal_order') || 1,
+      title: val('sector_modal_title_val'),
+      tagline: val('sector_modal_tagline'),
+      description: val('sector_modal_desc'),
+      capabilities_raw: val('sector_modal_capabilities'),
+      impact_metric: val('sector_modal_impact'),
+      cta_text: val('sector_modal_cta_text'),
+      cta_url: val('sector_modal_cta_url'),
       is_active: document.getElementById('sector_modal_active').checked,
     };
+
+    const btn = document.getElementById('saveSectorModalBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
     try {
       const res = await fetch('/axomai-content/pages/use-cases/sector/save/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken,
+          'X-CSRFToken': getCsrfToken(),
         },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Sector'; }
+
       if (data.success) {
         closeSectorModal();
-        window.location.reload();
+        if (typeof showToast === 'function') {
+          showToast('Sector saved successfully!', 'success');
+        }
+        setTimeout(() => window.location.reload(), 500);
       } else {
-        alert('Error: ' + (data.error || 'Failed to save sector'));
+        if (typeof showToast === 'function') {
+          showToast(data.error || 'Failed to save sector', 'error');
+        } else {
+          alert('Error: ' + (data.error || 'Failed to save sector'));
+        }
       }
     } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Sector'; }
       console.error(err);
-      alert('Network error while saving sector.');
+      if (typeof showToast === 'function') {
+        showToast('Network error while saving sector.', 'error');
+      } else {
+        alert('Network error while saving sector.');
+      }
     }
   }
 
@@ -912,10 +970,13 @@
     try {
       const res = await fetch(`/axomai-content/pages/use-cases/sector/toggle/${id}/`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken }
+        headers: { 'X-CSRFToken': getCsrfToken() }
       });
       const data = await res.json();
-      if (data.success) window.location.reload();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast(data.message, 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -926,10 +987,13 @@
     try {
       const res = await fetch(`/axomai-content/pages/use-cases/sector/delete/${id}/`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken }
+        headers: { 'X-CSRFToken': getCsrfToken() }
       });
       const data = await res.json();
-      if (data.success) window.location.reload();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast('Sector deleted', 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -963,31 +1027,48 @@
   async function saveFaqFromModal() {
     const payload = {
       id: document.getElementById('faq_modal_id').value || null,
-      question: document.getElementById('faq_modal_question').value,
-      answer: document.getElementById('faq_modal_answer').value,
-      order: document.getElementById('faq_modal_order').value,
+      question: val('faq_modal_question'),
+      answer: val('faq_modal_answer'),
+      order: val('faq_modal_order') || 1,
       is_active: document.getElementById('faq_modal_active').checked,
     };
+
+    const btn = document.getElementById('saveFaqModalBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
     try {
       const res = await fetch('/axomai-content/pages/use-cases/faq/save/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken,
+          'X-CSRFToken': getCsrfToken(),
         },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Question'; }
+
       if (data.success) {
         closeFaqModal();
-        window.location.reload();
+        if (typeof showToast === 'function') {
+          showToast('FAQ saved successfully!', 'success');
+        }
+        setTimeout(() => window.location.reload(), 500);
       } else {
-        alert('Error: ' + (data.error || 'Failed to save FAQ'));
+        if (typeof showToast === 'function') {
+          showToast(data.error || 'Failed to save FAQ', 'error');
+        } else {
+          alert('Error: ' + (data.error || 'Failed to save FAQ'));
+        }
       }
     } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Save Question'; }
       console.error(err);
-      alert('Network error while saving FAQ.');
+      if (typeof showToast === 'function') {
+        showToast('Network error while saving FAQ.', 'error');
+      } else {
+        alert('Network error while saving FAQ.');
+      }
     }
   }
 
@@ -995,10 +1076,13 @@
     try {
       const res = await fetch(`/axomai-content/pages/use-cases/faq/toggle/${id}/`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken }
+        headers: { 'X-CSRFToken': getCsrfToken() }
       });
       const data = await res.json();
-      if (data.success) window.location.reload();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast(data.message, 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -1009,10 +1093,13 @@
     try {
       const res = await fetch(`/axomai-content/pages/use-cases/faq/delete/${id}/`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken }
+        headers: { 'X-CSRFToken': getCsrfToken() }
       });
       const data = await res.json();
-      if (data.success) window.location.reload();
+      if (data.success) {
+        if (typeof showToast === 'function') showToast('FAQ deleted', 'success');
+        setTimeout(() => window.location.reload(), 400);
+      }
     } catch (err) {
       console.error(err);
     }
