@@ -741,39 +741,296 @@ html:not(.dark) .cat-btn.active {
   box-shadow: 0 0 15px rgba(245,158,11,0.2);
 }
 
-/* blog articles */
-html:not(.dark) .blog-rich-content { color: #334155; }
-html:not(.dark) .blog-rich-content h1, html:not(.dark) .blog-rich-content h4 { color: #022c22; }
-html:not(.dark) .blog-rich-content h2 { color: #b45309; }
-html:not(.dark) .blog-rich-content h3 { color: #047857; }
-html:not(.dark) .blog-rich-content strong, html:not(.dark) .blog-rich-content b { color: #022c22; }
-html:not(.dark) .blog-rich-content li { color: #334155; }
-html:not(.dark) .blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]) { color: #047857; }
-html:not(.dark) .blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]):hover { color: #b45309; }
-html:not(.dark) .blog-rich-content img { border-color: rgba(6,78,59,0.15); }
-html:not(.dark) .blog-rich-content blockquote {
-  background: linear-gradient(90deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.02) 100%);
-  color: #92400e;
-  border-top-color: rgba(6,78,59,0.08); border-bottom-color: rgba(6,78,59,0.08); border-right-color: rgba(6,78,59,0.08);
+/* =========================================================
+   UNIVERSAL BLOG & ARTICLE DESIGN SYSTEM (WordPress/CKEditor)
+   Applies automatically to all standard HTML tags from CMS
+   ========================================================= */
+
+.blog-rich-content {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: #334155;
+  transition: color 0.2s ease;
 }
-html:not(.dark) .blog-rich-content code { background: rgba(6,78,59,0.07); color: #b45309; border-color: rgba(6,78,59,0.12); }
-html:not(.dark) .blog-rich-content pre code { background: transparent; border-color: transparent; color: inherit; }
-html:not(.dark) .blog-rich-content table, html:not(.dark) .blog-rich-content .table-wrapper { border-color: #cfe9dc; }
-html:not(.dark) .blog-rich-content th, html:not(.dark) .blog-rich-content td { border-color: #cfe9dc; }
-html:not(.dark) .blog-rich-content th { background: #d1fae5; color: #022c22; }
-html:not(.dark) .blog-rich-content tr:nth-child(even) { background: rgba(6,78,59,0.03); }
-html:not(.dark) .blog-rich-content .comparison-table td, html:not(.dark) .blog-rich-content .ai-table td { color: #334155; border-bottom-color: #d9ebe2; }
-html:not(.dark) .blog-rich-content .comparison-table tr:nth-child(even) td, html:not(.dark) .blog-rich-content .ai-table tr:nth-child(even) td { background: rgba(6,78,59,0.03); }
-html:not(.dark) .blog-rich-content .comparison-table th, html:not(.dark) .blog-rich-content .ai-table th { background: #0f172a; color: #ffffff; }
-html:not(.dark) .blog-rich-content .highlight-box p, html:not(.dark) .blog-rich-content .quick-answer p { color: #334155; }
-html:not(.dark) .blog-rich-content .faq-item, html:not(.dark) .blog-rich-content .faq-item:first-of-type { border-color: #cfe9dc; }
-html:not(.dark) .blog-rich-content .faq-item h3 { color: #b45309; }
-html:not(.dark) .blog-rich-content .faq-item p { color: #475569; }
-/* the dark call-out boxes keep their own dark look and light text */
-html:not(.dark) .blog-rich-content :is(.tool-card, .innovation-card, .feature-card, .action-box, .workflow, .workflow-box, .final-thoughts, .final-box, .blog-cta-box, .cta-box) { color: #cbd5e1; }
-html:not(.dark) .blog-rich-content :is(.tool-card, .innovation-card, .feature-card, .final-thoughts, .final-box, .blog-cta-box, .cta-box) :is(h1, h2, h3, h4, strong, b) { color: #ffffff; }
-html:not(.dark) .blog-rich-content :is(.action-box) h3 { color: #fde68a; }
-html:not(.dark) .blog-rich-content :is(.workflow, .workflow-box) { color: #ffffff; }
-html:not(.dark) .blog-rich-content :is(.tool-label, .feature-label, .card-number) { color: #fde68a; }
-html:not(.dark) .blog-rich-content :is(.final-thoughts, .final-box, .blog-cta-box, .cta-box) p { color: #e2e8f0; }
-html:not(.dark) .blog-rich-content :is(.action-box) p { color: #cbd5e1; }
+
+.dark .blog-rich-content {
+  color: #cbd5e1;
+}
+
+/* Headings */
+.blog-rich-content h1,
+.blog-rich-content h2,
+.blog-rich-content h3,
+.blog-rich-content h4,
+.blog-rich-content h5,
+.blog-rich-content h6 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  scroll-margin-top: 100px;
+}
+
+.blog-rich-content h1 {
+  font-size: 2.25rem;
+  line-height: 1.25;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+  color: #0f172a;
+}
+.dark .blog-rich-content h1 {
+  color: #ffffff;
+}
+
+.blog-rich-content h2 {
+  font-size: 1.75rem;
+  line-height: 1.35;
+  margin-top: 2.75rem;
+  margin-bottom: 1rem;
+  color: #064e3b;
+  position: relative;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(6, 78, 59, 0.1);
+}
+.dark .blog-rich-content h2 {
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.blog-rich-content h3 {
+  font-size: 1.35rem;
+  line-height: 1.4;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: #0f172a;
+}
+.dark .blog-rich-content h3 {
+  color: #f1f5f9;
+}
+
+.blog-rich-content h4 {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #047857;
+}
+.dark .blog-rich-content h4 {
+  color: #34d399;
+}
+
+/* Paragraphs & Text */
+.blog-rich-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.85;
+}
+
+.blog-rich-content strong,
+.blog-rich-content b {
+  font-weight: 700;
+  color: #0f172a;
+}
+.dark .blog-rich-content strong,
+.dark .blog-rich-content b {
+  color: #ffffff;
+}
+
+.blog-rich-content em,
+.blog-rich-content i {
+  font-style: italic;
+}
+
+/* Links */
+.blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]) {
+  color: #7e22ce;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+.blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]):hover {
+  color: #9333ea;
+}
+.dark .blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]) {
+  color: #c084fc;
+}
+.dark .blog-rich-content a:not([class*="btn"]):not([class*="bg-"]):not([class*="rounded"]):hover {
+  color: #e879f9;
+}
+
+/* Lists */
+.blog-rich-content ul {
+  list-style-type: disc;
+  padding-left: 1.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.blog-rich-content ol {
+  list-style-type: decimal;
+  padding-left: 1.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.blog-rich-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.75;
+}
+.blog-rich-content li::marker {
+  color: #10b981;
+}
+.dark .blog-rich-content li::marker {
+  color: #34d399;
+}
+
+/* Blockquotes / Callout Quote Boxes */
+.blog-rich-content blockquote {
+  border-left: 4px solid #a855f7;
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.08) 0%, rgba(168, 85, 247, 0.01) 100%);
+  color: #334155;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0 16px 16px 0;
+  margin: 2rem 0;
+  font-style: italic;
+  box-shadow: 0 4px 15px -2px rgba(168, 85, 247, 0.05);
+}
+.dark .blog-rich-content blockquote {
+  border-left-color: #c084fc;
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.12) 0%, rgba(168, 85, 247, 0.02) 100%);
+  color: #e2e8f0;
+}
+.blog-rich-content blockquote p {
+  margin-bottom: 0;
+}
+
+/* Tables & CKEditor Tables */
+.blog-rich-content table,
+.blog-rich-content figure.table table,
+.blog-rich-content .table-wrapper table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2rem 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+}
+.dark .blog-rich-content table,
+.dark .blog-rich-content figure.table table,
+.dark .blog-rich-content .table-wrapper table {
+  background: #0b1120;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.blog-rich-content th {
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+}
+.dark .blog-rich-content th {
+  background: #1e293b;
+  color: #f8fafc;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.blog-rich-content td {
+  padding: 13px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.95rem;
+}
+.dark .blog-rich-content td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+}
+
+.blog-rich-content tr:last-child td {
+  border-bottom: none;
+}
+.blog-rich-content tr:nth-child(even) td {
+  background: #fafafa;
+}
+.dark .blog-rich-content tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Images & Figures */
+.blog-rich-content figure.image,
+.blog-rich-content img {
+  border-radius: 16px;
+  max-width: 100%;
+  height: auto;
+  margin: 2rem auto;
+  display: block;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.dark .blog-rich-content figure.image,
+.dark .blog-rich-content img {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.5);
+}
+
+.blog-rich-content figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: -1rem;
+  margin-bottom: 1.75rem;
+  font-style: italic;
+}
+.dark .blog-rich-content figcaption {
+  color: #94a3b8;
+}
+
+/* Code & Code Blocks */
+.blog-rich-content code:not(pre code) {
+  background: rgba(168, 85, 247, 0.1);
+  color: #7e22ce;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88em;
+  font-weight: 600;
+}
+.dark .blog-rich-content code:not(pre code) {
+  background: rgba(192, 132, 252, 0.15);
+  color: #e879f9;
+}
+
+.blog-rich-content pre {
+  background: #090d16 !important;
+  color: #e2e8f0 !important;
+  padding: 1.25rem 1.5rem !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  overflow-x: auto !important;
+  margin: 2rem 0 !important;
+  font-size: 0.9rem !important;
+  line-height: 1.7 !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4) !important;
+}
+.blog-rich-content pre code {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+}
+
+/* Dividers */
+.blog-rich-content hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+  margin: 3rem 0;
+}
+.dark .blog-rich-content hr {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
