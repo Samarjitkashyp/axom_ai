@@ -6,6 +6,8 @@ import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 import { getArticleDetailCMS, getArticlesCMS, getLandingCMS } from '../../../lib/api';
 
+import ArticleFaqAccordion from '../../../components/ArticleFaqAccordion';
+
 interface ArticlePageProps {
   params: {
     slug: string;
@@ -143,6 +145,20 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
     ],
   };
 
+  // FAQ Schema JSON-LD (if FAQs exist)
+  const faqSchema = (article.faqs && article.faqs.length > 0) ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: article.faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: (faq.answer || '').replace(/<[^>]*>?/gm, ''),
+      },
+    })),
+  } : null;
+
   return (
     <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#07090e] text-emerald-950 dark:text-white selection:bg-purple-500 selection:text-emerald-950 dark:selection:text-white flex flex-col justify-between">
       {/* Inject Structured Data */}
@@ -154,6 +170,12 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <Navbar header={landingData?.header} />
 
@@ -243,6 +265,11 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
           </article>
+
+          {/* Frequently Asked Questions Section */}
+          {article.faqs && article.faqs.length > 0 && (
+            <ArticleFaqAccordion faqs={article.faqs} />
+          )}
 
           {/* Share & Navigation Bar */}
           <div className="mt-14 pt-8 border-t border-emerald-900/15 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">

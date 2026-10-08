@@ -440,6 +440,7 @@ def cms_article_detail_api(request, slug):
             'category_label': category_labels_dict.get(article.category, article.get_category_display() or article.category),
             'excerpt': article.excerpt,
             'content': article.content,
+            'faqs': article.faqs or [],
             'read_time': article.read_time,
             'cover_image_url': article.cover_image_url or '',
             'gradient_from': article.gradient_from or '#a855f7',

@@ -167,8 +167,14 @@ export interface ArticleSummary {
   link: string;
 }
 
+export interface ArticleFAQItem {
+  question: string;
+  answer: string;
+}
+
 export interface ArticleDetail extends ArticleSummary {
   content: string;
+  faqs?: ArticleFAQItem[];
   created_at: string;
   updated_at: string;
 }
