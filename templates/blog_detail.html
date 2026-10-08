@@ -735,8 +735,8 @@
                     <span class="flex-1">{{ f.question }}</span>
                     <i class="fa-solid fa-chevron-down text-xs text-fuchsia-400 transition-transform duration-200 shrink-0"></i>
                   </button>
-                  <div class="faq-content hidden px-5 pb-5 pt-2 text-sm text-gray-300 leading-relaxed border-t border-white/5 bg-white/[0.01]">
-                    {{ f.answer|linebreaksbr }}
+                  <div class="faq-content hidden px-5 pb-5 pt-2 text-sm text-gray-300 leading-relaxed border-t border-white/5 bg-white/[0.01] [&_a]:text-fuchsia-400 [&_a]:underline [&_a:hover]:text-fuchsia-300 [&_strong]:text-white [&_b]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1">
+                    {{ f.answer|safe }}
                   </div>
                 </div>
                 {% endfor %}

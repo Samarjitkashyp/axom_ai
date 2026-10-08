@@ -541,9 +541,10 @@ def save_article_api(request):
             for item in raw_faqs:
                 if isinstance(item, dict):
                     q = str(item.get('question', '')).strip()
-                    a = str(item.get('answer', '')).strip()
-                    if q and a:
-                        clean_faqs.append({'question': q, 'answer': a})
+                    raw_a = str(item.get('answer', '')).strip()
+                    if q and raw_a:
+                        clean_a = sanitize_html(raw_a)
+                        clean_faqs.append({'question': q, 'answer': clean_a})
         article.faqs = clean_faqs
 
         article.read_time = data.get('read_time', '4 min read').strip()
