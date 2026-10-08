@@ -844,7 +844,7 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
       'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript', '|',
       'alignment', '|',
       'bulletedList', 'numberedList', 'outdent', 'indent', '|',
-      'link', 'insertImage', 'mediaEmbed', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
+      'link', 'uploadImage', 'mediaEmbed', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
       'sourceEditing', 'findAndReplace', 'selectAll'
     ],
     shouldNotGroupWhenFull: true
@@ -926,7 +926,10 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
       'imageStyle:side',
       '|',
       'linkImage'
-    ]
+    ],
+    insert: {
+      integrations: ['upload']
+    }
   },
   table: {
     contentToolbar: [
@@ -962,6 +965,7 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
   },
   removePlugins: [
     'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage',
+    'MultiLevelList', 'ExportPdf', 'ExportWord',
     'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges',
     'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments',
     'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination',
