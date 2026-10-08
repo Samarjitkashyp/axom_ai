@@ -5,7 +5,7 @@
 {% block page_subtitle %}Compose article content displayed in the "Insights & Stories" section{% endblock %}
 
 {% block extra_head %}
-<!-- Flatpickr Dark Theme Datepicker -->
+<!-- Flatpickr Modern Datepicker -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
@@ -13,11 +13,20 @@
 <script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.3/tinymce.min.js"></script>
 
 <style>
-  /* Premium Dark Glassmorphic Flatpickr */
+  /* =========================================================
+     Modern Light Theme Styling matching aiaxom.co.in
+     ========================================================= */
+  .light-content-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04) !important;
+  }
+
+  /* Flatpickr Premium Light Theme */
   .flatpickr-calendar {
-    background: #090d16 !important;
-    border: 1px solid rgba(192, 132, 252, 0.3) !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(168, 85, 247, 0.25) !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15), 0 0 20px rgba(147, 51, 234, 0.08) !important;
     border-radius: 16px !important;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
     overflow: hidden !important;
@@ -25,144 +34,47 @@
     width: 290px !important;
   }
   .flatpickr-calendar.arrowTop:after, .flatpickr-calendar.arrowTop:before {
-    border-bottom-color: #090d16 !important;
+    border-bottom-color: #ffffff !important;
   }
   .flatpickr-calendar.arrowBottom:after, .flatpickr-calendar.arrowBottom:before {
-    border-top-color: #090d16 !important;
-  }
-
-  /* =========================================================
-     TinyMCE Ultra-Premium Dark Theme Styling
-     ========================================================= */
-  .tox-tinymce {
-    border-radius: 18px !important;
-    overflow: hidden !important;
-    border: 1px solid rgba(75, 85, 99, 0.4) !important;
-    box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.08) !important;
-    transition: all 0.25s ease !important;
-  }
-  .tox-tinymce:focus-within {
-    border-color: #c084fc !important;
-    box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.8), 0 0 30px rgba(192, 132, 252, 0.25) !important;
-  }
-  .tox .tox-menubar {
-    background: #0f172a !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  }
-  .tox .tox-mbtn {
-    color: #cbd5e1 !important;
-    border-radius: 6px !important;
-  }
-  .tox .tox-mbtn:hover, .tox .tox-mbtn--active {
-    background: rgba(192, 132, 252, 0.2) !important;
-    color: #ffffff !important;
-  }
-  .tox .tox-toolbar, .tox .tox-toolbar__primary, .tox .tox-toolbar__overflow {
-    background: #090d16 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  }
-  .tox .tox-tbtn {
-    color: #cbd5e1 !important;
-    border-radius: 8px !important;
-  }
-  .tox .tox-tbtn:hover {
-    background: rgba(192, 132, 252, 0.2) !important;
-    color: #ffffff !important;
-  }
-  .tox .tox-tbtn--enabled, .tox .tox-tbtn--active {
-    background: linear-gradient(135deg, rgba(192, 38, 211, 0.35), rgba(147, 51, 234, 0.35)) !important;
-    color: #f5d0fe !important;
-    border: 1px solid rgba(217, 70, 239, 0.4) !important;
-  }
-  .tox .tox-tbtn svg {
-    fill: currentColor !important;
-  }
-  .tox .tox-statusbar {
-    background: #0f172a !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
-    color: #94a3b8 !important;
-  }
-  .tox .tox-dialog {
-    background: #090d16 !important;
-    border: 1px solid rgba(192, 132, 252, 0.35) !important;
-    border-radius: 18px !important;
-    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95) !important;
-  }
-  .tox .tox-dialog__header, .tox .tox-dialog__footer {
-    background: #0f172a !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
-  }
-  .tox .tox-dialog__title {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-  }
-  .tox .tox-dialog__body-content {
-    background: #090d16 !important;
-    color: #e2e8f0 !important;
-  }
-  .tox .tox-button {
-    border-radius: 10px !important;
-  }
-  .tox .tox-button--primary {
-    background: linear-gradient(135deg, #c026d3, #9333ea) !important;
-    border: none !important;
-  }
-  .tox .tox-menu {
-    background: #090d16 !important;
-    border: 1px solid rgba(192, 132, 252, 0.35) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
-  }
-  .tox .tox-collection__item {
-    color: #cbd5e1 !important;
-    border-radius: 6px !important;
-  }
-  .tox .tox-collection__item:hover, .tox .tox-collection__item--active {
-    background: rgba(192, 132, 252, 0.2) !important;
-    color: #ffffff !important;
-  }
-  .tox .tox-textfield, .tox .tox-selectfield {
-    background: #050811 !important;
-    border: 1px solid #334155 !important;
-    color: #ffffff !important;
-    border-radius: 8px !important;
+    border-top-color: #ffffff !important;
   }
   .flatpickr-months {
-    background: #0f172a !important;
+    background: #f8fafc !important;
     border-radius: 10px !important;
     padding: 6px 4px !important;
     margin-bottom: 8px !important;
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid #e2e8f0 !important;
   }
   .flatpickr-months .flatpickr-month {
-    color: #ffffff !important;
-    fill: #ffffff !important;
+    color: #0f172a !important;
+    fill: #0f172a !important;
     height: 30px !important;
   }
   .flatpickr-current-month {
     font-size: 13px !important;
     font-weight: 700 !important;
-    color: #f1f5f9 !important;
+    color: #0f172a !important;
     padding: 2px 0 0 0 !important;
   }
   .flatpickr-current-month .cur-month {
     font-weight: 700 !important;
-    color: #ffffff !important;
+    color: #0f172a !important;
   }
   .flatpickr-current-month input.cur-year {
     font-weight: 700 !important;
-    color: #c084fc !important;
+    color: #7c3aed !important;
   }
   .flatpickr-months .flatpickr-prev-month, 
   .flatpickr-months .flatpickr-next-month {
-    fill: #c084fc !important;
-    color: #c084fc !important;
+    fill: #7c3aed !important;
+    color: #7c3aed !important;
     padding: 4px 8px !important;
     top: 4px !important;
   }
   .flatpickr-months .flatpickr-prev-month:hover svg, 
   .flatpickr-months .flatpickr-next-month:hover svg {
-    fill: #e879f9 !important;
+    fill: #9333ea !important;
   }
   .flatpickr-weekdays {
     background: transparent !important;
@@ -170,7 +82,7 @@
     margin-bottom: 4px !important;
   }
   .flatpickr-weekday {
-    color: #c084fc !important;
+    color: #9333ea !important;
     font-weight: 700 !important;
     font-size: 10px !important;
     text-transform: uppercase !important;
@@ -186,7 +98,7 @@
     justify-content: space-around !important;
   }
   .flatpickr-day {
-    color: #e2e8f0 !important;
+    color: #334155 !important;
     border-radius: 8px !important;
     font-size: 12px !important;
     font-weight: 500 !important;
@@ -198,27 +110,126 @@
     transition: all 0.15s ease !important;
   }
   .flatpickr-day:hover, .flatpickr-day:focus {
-    background: rgba(192, 132, 252, 0.2) !important;
-    border-color: rgba(192, 132, 252, 0.5) !important;
-    color: #ffffff !important;
+    background: #f3e8ff !important;
+    border-color: #d8b4fe !important;
+    color: #7e22ce !important;
   }
   .flatpickr-day.selected, .flatpickr-day.selected:hover {
-    background: linear-gradient(135deg, #c026d3, #9333ea) !important;
-    border-color: #e879f9 !important;
+    background: linear-gradient(135deg, #9333ea, #c026d3) !important;
+    border-color: #9333ea !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    box-shadow: 0 4px 14px rgba(192, 38, 211, 0.6) !important;
+    box-shadow: 0 4px 14px rgba(147, 51, 234, 0.4) !important;
   }
   .flatpickr-day.today {
-    border-color: #c084fc !important;
-    color: #f5d0fe !important;
+    border-color: #7c3aed !important;
+    color: #7c3aed !important;
   }
   .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
-    color: #334155 !important;
+    color: #cbd5e1 !important;
   }
   .flatpickr-day.prevMonthDay:hover, .flatpickr-day.nextMonthDay:hover {
     background: transparent !important;
+    color: #94a3b8 !important;
+  }
+
+  /* =========================================================
+     TinyMCE Ultra-Clean Light Theme Styling
+     ========================================================= */
+  .tox-tinymce {
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05) !important;
+    transition: all 0.2s ease !important;
+  }
+  .tox-tinymce:focus-within {
+    border-color: #9333ea !important;
+    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.12), 0 10px 25px -5px rgba(15, 23, 42, 0.08) !important;
+  }
+  .tox .tox-menubar {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+  .tox .tox-mbtn {
+    color: #475569 !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+  }
+  .tox .tox-mbtn:hover, .tox .tox-mbtn--active {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+  .tox .tox-toolbar, .tox .tox-toolbar__primary, .tox .tox-toolbar__overflow {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+  .tox .tox-tbtn {
+    color: #334155 !important;
+    border-radius: 6px !important;
+  }
+  .tox .tox-tbtn:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+  .tox .tox-tbtn--enabled, .tox .tox-tbtn--active {
+    background: #f3e8ff !important;
+    color: #7e22ce !important;
+    border: 1px solid #d8b4fe !important;
+  }
+  .tox .tox-tbtn svg {
+    fill: currentColor !important;
+  }
+  .tox .tox-statusbar {
+    background: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
     color: #64748b !important;
+  }
+  .tox .tox-dialog {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.25) !important;
+  }
+  .tox .tox-dialog__header, .tox .tox-dialog__footer {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+  }
+  .tox .tox-dialog__title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+  }
+  .tox .tox-dialog__body-content {
+    background: #ffffff !important;
+    color: #1e293b !important;
+  }
+  .tox .tox-button {
+    border-radius: 8px !important;
+  }
+  .tox .tox-button--primary {
+    background: linear-gradient(135deg, #9333ea, #c026d3) !important;
+    border: none !important;
+    color: #ffffff !important;
+  }
+  .tox .tox-menu {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.15) !important;
+  }
+  .tox .tox-collection__item {
+    color: #334155 !important;
+    border-radius: 6px !important;
+  }
+  .tox .tox-collection__item:hover, .tox .tox-collection__item--active {
+    background: #f3e8ff !important;
+    color: #7e22ce !important;
+  }
+  .tox .tox-textfield, .tox .tox-selectfield {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    border-radius: 8px !important;
   }
 </style>
 {% endblock %}
@@ -226,45 +237,49 @@
 {% block content %}
 <div class="max-w-5xl mx-auto space-y-6">
 
+  <!-- Top Navigation & Timestamps -->
   <div class="flex items-center justify-between">
-    <a href="/axomai-content/articles/" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 font-medium transition">
+    <a href="/axomai-content/articles/" class="text-xs text-slate-400 hover:text-purple-400 flex items-center gap-1.5 font-semibold transition">
       <i class="fa-solid fa-arrow-left"></i> Back to Articles List
     </a>
     {% if article %}
     <div class="text-xs text-slate-400">
-      Last edited: <strong class="text-slate-300">{{ article.updated_at|date:"M d, Y H:i" }}</strong>
+      Last edited: <strong class="text-slate-200">{{ article.updated_at|date:"M d, Y H:i" }}</strong>
     </div>
     {% endif %}
   </div>
 
-  <!-- Main Full-Width Form Card -->
-  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-7">
+  <!-- Main Full-Width Light Content Card -->
+  <div class="light-content-card rounded-2xl p-6 sm:p-8 space-y-7">
     <input type="hidden" id="art_id" value="{{ article.id|default:'' }}">
 
     <!-- Title & Permalink -->
-    <div class="space-y-2.5">
+    <div class="space-y-3">
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Article Headline / Title <span class="text-rose-400">*</span></label>
+        <label class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center justify-between">
+          <span>Article Headline / Title <span class="text-rose-500">*</span></span>
+          <span class="text-[11px] font-normal text-slate-500">Catchy, SEO-optimized title</span>
+        </label>
         <input type="text" id="art_title" value="{{ article.title|default:'' }}" required placeholder="e.g., How Axom AI Powers Multilingual Learning in Assam..."
           oninput="handleTitleChange(this.value)"
-          class="w-full px-4 py-3.5 bg-slate-900 border border-slate-700/80 rounded-xl text-base text-white font-medium focus:outline-none focus:border-fuchsia-500 transition shadow-inner">
+          class="w-full px-4 py-3.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded-xl text-base text-slate-900 font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition shadow-sm">
       </div>
 
       <!-- Editable Permalink / URL Slug -->
-      <div class="rounded-xl bg-slate-900/60 border border-slate-800/90 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div class="flex items-center gap-2 text-xs text-slate-400 flex-1 min-w-0">
-          <span class="font-semibold text-slate-300 shrink-0 flex items-center gap-1.5">
-            <i class="fa-solid fa-link text-fuchsia-400"></i> Permalink:
+      <div class="rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2 text-xs text-slate-600 flex-1 min-w-0">
+          <span class="font-bold text-slate-800 shrink-0 flex items-center gap-1.5">
+            <i class="fa-solid fa-link text-purple-600"></i> Permalink:
           </span>
-          <span class="text-slate-500 font-mono text-[11px] shrink-0">https://aiaxom.co.in/blog/</span>
+          <span class="text-slate-400 font-mono text-[11px] shrink-0">https://aiaxom.co.in/blog/</span>
           <input type="text" id="art_slug" value="{{ article.slug|default:'' }}" placeholder="article-url-slug"
             oninput="handleSlugInput(this.value)"
-            class="flex-1 min-w-[140px] px-2.5 py-1 bg-slate-950 border border-slate-700/80 rounded-lg text-xs font-mono text-fuchsia-300 focus:outline-none focus:border-fuchsia-500 transition">
+            class="flex-1 min-w-[140px] px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-mono text-purple-700 font-semibold focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20 transition shadow-sm">
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
           <a id="art_live_link" href="https://aiaxom.co.in/blog/{{ article.slug|default:'' }}/" target="_blank"
-            class="text-xs text-fuchsia-400 hover:text-fuchsia-300 font-semibold flex items-center gap-1.5 transition {% if not article.slug %}hidden{% endif %}">
+            class="text-xs text-purple-600 hover:text-purple-700 font-bold flex items-center gap-1.5 transition {% if not article.slug %}hidden{% endif %}">
             <span>View Live Post</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
           </a>
@@ -277,31 +292,31 @@
       
       <!-- Modern Custom Category Dropdown -->
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group text-fuchsia-400"></i> Category
+        <label class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-layer-group text-purple-600"></i> Category
         </label>
         <div class="relative" id="custom_cat_dropdown">
           <input type="hidden" id="art_cat" value="{{ article.category|default:'product_update' }}">
           
           <button type="button" id="cat_dropdown_btn" onclick="toggleCatDropdown(event)"
-            class="w-full flex items-center justify-between pl-3.5 pr-3 py-2.5 bg-slate-900 border border-slate-700/80 hover:border-fuchsia-500/50 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition shadow-sm">
-            <span id="cat_selected_text" class="truncate font-medium">
+            class="w-full flex items-center justify-between pl-3.5 pr-3 py-2.5 bg-slate-50 hover:bg-white border border-slate-300 hover:border-purple-400 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition shadow-sm">
+            <span id="cat_selected_text" class="truncate font-semibold text-slate-800">
               {{ article.get_category_display|default:'Product Update' }}
             </span>
-            <i id="cat_chevron" class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ml-2 shrink-0"></i>
+            <i id="cat_chevron" class="fa-solid fa-chevron-down text-[10px] text-slate-500 transition-transform duration-200 ml-2 shrink-0"></i>
           </button>
 
           <!-- Animated Custom Popup Menu -->
-          <div id="cat_menu" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 p-1.5 bg-slate-900/95 backdrop-blur-xl border border-fuchsia-500/30 rounded-xl shadow-2xl shadow-purple-950/60 space-y-1">
+          <div id="cat_menu" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 p-1.5 bg-white border border-slate-200 rounded-xl shadow-2xl shadow-slate-900/15 space-y-1">
             {% for val, label in categories %}
             <button type="button" onclick="selectCategory('{{ val }}', '{{ label|escapejs }}')"
-              class="cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left {% if article and article.category == val or not article and forloop.first %}bg-fuchsia-600/20 text-fuchsia-300 font-semibold{% else %}text-slate-300 hover:text-white hover:bg-slate-800/80{% endif %}"
+              class="cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left {% if article and article.category == val or not article and forloop.first %}bg-purple-50 text-purple-700 font-bold{% else %}text-slate-700 hover:text-slate-900 hover:bg-slate-100{% endif %}"
               data-value="{{ val }}">
               <div class="flex items-center gap-2 truncate">
-                <span class="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shrink-0"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
                 <span class="truncate">{{ label }}</span>
               </div>
-              <i class="fa-solid fa-check text-xs text-fuchsia-400 check-icon shrink-0 {% if article and article.category == val or not article and forloop.first %}{% else %}hidden{% endif %}"></i>
+              <i class="fa-solid fa-check text-xs text-purple-600 check-icon shrink-0 {% if article and article.category == val or not article and forloop.first %}{% else %}hidden{% endif %}"></i>
             </button>
             {% endfor %}
           </div>
@@ -310,28 +325,28 @@
 
       <!-- Modern Flatpickr Calendar -->
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-          <i class="fa-solid fa-calendar-days text-fuchsia-400"></i> Published Date
+        <label class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-calendar-days text-purple-600"></i> Published Date
         </label>
         <div class="relative">
           <input type="text" id="art_date" value="{% if article %}{{ article.published_at|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}"
-            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 cursor-pointer transition">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-            <i class="fa-regular fa-calendar text-xs text-fuchsia-400"></i>
+            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-semibold focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 cursor-pointer transition shadow-sm">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-purple-600">
+            <i class="fa-regular fa-calendar text-xs"></i>
           </div>
         </div>
       </div>
 
       <!-- Estimated Read Time -->
       <div>
-        <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-          <i class="fa-solid fa-clock text-fuchsia-400"></i> Read Time
+        <label class="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-clock text-purple-600"></i> Read Time
         </label>
         <div class="relative">
           <input type="text" id="art_read_time" value="{{ article.read_time|default:'4 min read' }}" placeholder="4 min read"
-            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition">
+            class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-semibold focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition shadow-sm">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-            <i class="fa-solid fa-stopwatch text-xs text-slate-500"></i>
+            <i class="fa-solid fa-stopwatch text-xs"></i>
           </div>
         </div>
       </div>
@@ -340,41 +355,41 @@
     <!-- Excerpt (Summary for Cards) -->
     <div>
       <div class="flex items-center justify-between mb-1.5">
-        <label class="block text-xs font-semibold text-slate-300">Card Excerpt / Summary (20-30 words)</label>
-        <span id="excerpt_counter" class="text-[11px] text-slate-500">0 chars</span>
+        <label class="block text-xs font-bold text-slate-800">Card Excerpt / Summary (20-30 words)</label>
+        <span id="excerpt_counter" class="text-[11px] font-medium text-slate-400">0 chars</span>
       </div>
       <textarea id="art_excerpt" rows="2" placeholder="Brief 1-2 sentence preview that appears on the landing page card..."
         oninput="document.getElementById('excerpt_counter').innerText = `${this.value.length} chars`"
-        class="w-full px-4 py-3 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition leading-relaxed">{{ article.excerpt|default:'' }}</textarea>
+        class="w-full px-4 py-3 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition leading-relaxed shadow-sm">{{ article.excerpt|default:'' }}</textarea>
     </div>
 
     <!-- Featured Cover Image & Banner Media (Full Width Card) -->
-    <div class="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 space-y-4">
+    <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-4">
       <div class="flex items-center justify-between">
-        <label class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-          <i class="fa-solid fa-image text-fuchsia-400"></i> Featured Cover Image & Banner
+        <label class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-image text-purple-600"></i> Featured Cover Image & Banner
         </label>
-        <span class="text-[11px] text-slate-400">Used on blog cards and hero header</span>
+        <span class="text-[11px] text-slate-500">Used on blog cards and hero header</span>
       </div>
 
       <input type="hidden" id="art_cover_image" value="{{ article.cover_image_url|default:'' }}">
       <input type="file" id="featured_image_input" accept="image/*" class="hidden" onchange="uploadFeaturedImageFile(this)">
 
       <!-- Full-Width Dropzone & Preview Container -->
-      <div id="featured_img_container" class="relative group rounded-xl border-2 {% if article.cover_image_url %}border-fuchsia-500/40{% else %}border-dashed border-slate-700/80 hover:border-fuchsia-500/50{% endif %} overflow-hidden bg-slate-950/70 transition duration-200">
+      <div id="featured_img_container" class="relative group rounded-xl border-2 {% if article.cover_image_url %}border-purple-400{% else %}border-dashed border-slate-300 hover:border-purple-500{% endif %} overflow-hidden bg-white transition duration-200 shadow-sm">
         
         <!-- Image View (if present) -->
         <div id="featured_img_preview_box" class="{% if not article.cover_image_url %}hidden{% endif %} relative h-56 sm:h-64 w-full overflow-hidden">
           <img id="featured_img_preview" src="{{ article.cover_image_url|default:'' }}" alt="Featured Cover" class="w-full h-full object-cover">
           
           <!-- Hover actions overlay -->
-          <div class="absolute inset-0 bg-slate-950/75 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3 p-4 z-10">
+          <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3 p-4 z-10">
             <button type="button" onclick="document.getElementById('featured_image_input').click()" 
-              class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-fuchsia-600/30 flex items-center gap-2 transition">
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-purple-600/30 flex items-center gap-2 transition">
               <i class="fa-solid fa-arrow-up-from-bracket text-xs"></i> Change Image
             </button>
             <button type="button" onclick="removeFeaturedImage()" 
-              class="px-4 py-2 bg-rose-600/90 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold shadow-lg shadow-rose-600/30 flex items-center gap-2 transition">
+              class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-rose-600/30 flex items-center gap-2 transition">
               <i class="fa-solid fa-trash-can text-xs"></i> Remove Image
             </button>
           </div>
@@ -382,20 +397,20 @@
 
         <!-- Empty Upload Dropzone -->
         <div id="featured_img_placeholder" onclick="document.getElementById('featured_image_input').click()" 
-          class="{% if article.cover_image_url %}hidden{% endif %} cursor-pointer p-8 text-center space-y-2.5 flex flex-col items-center justify-center min-h-[160px] group-hover:bg-fuchsia-950/10 transition">
-          <div class="w-12 h-12 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-400 grid place-items-center text-lg group-hover:scale-110 group-hover:bg-fuchsia-500/20 transition duration-200">
+          class="{% if article.cover_image_url %}hidden{% endif %} cursor-pointer p-8 text-center space-y-2.5 flex flex-col items-center justify-center min-h-[160px] hover:bg-purple-50/40 transition">
+          <div class="w-12 h-12 rounded-2xl bg-purple-100 border border-purple-200 text-purple-600 grid place-items-center text-lg group-hover:scale-110 group-hover:bg-purple-200 transition duration-200 shadow-sm">
             <i class="fa-solid fa-cloud-arrow-up"></i>
           </div>
           <div>
-            <div class="text-sm font-semibold text-slate-200 group-hover:text-fuchsia-300 transition">Upload Featured Cover Image</div>
+            <div class="text-sm font-bold text-slate-800 group-hover:text-purple-700 transition">Upload Featured Cover Image</div>
             <div class="text-xs text-slate-500 mt-1">Click to browse or drag & drop (JPG, PNG, WEBP, GIF, SVG up to 15MB)</div>
           </div>
         </div>
 
         <!-- Uploading Spinner Overlay -->
-        <div id="featured_upload_spinner" class="hidden absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center gap-2.5 z-20">
-          <i class="fa-solid fa-circle-notch fa-spin text-fuchsia-400 text-2xl"></i>
-          <span class="text-xs text-fuchsia-200 font-medium">Uploading featured image...</span>
+        <div id="featured_upload_spinner" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center gap-2.5 z-20">
+          <i class="fa-solid fa-circle-notch fa-spin text-purple-600 text-2xl"></i>
+          <span class="text-xs text-purple-800 font-semibold">Uploading featured image...</span>
         </div>
       </div>
 
@@ -404,14 +419,14 @@
         <!-- External Image URL Input -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <label class="text-[11px] font-medium text-slate-400">Or Image URL</label>
-            <button type="button" onclick="applyExternalImageUrl()" class="text-[11px] text-fuchsia-400 hover:text-fuchsia-300 font-semibold transition">Apply URL</button>
+            <label class="text-[11px] font-bold text-slate-600">Or Image URL</label>
+            <button type="button" onclick="applyExternalImageUrl()" class="text-[11px] text-purple-600 hover:text-purple-700 font-bold transition">Apply URL</button>
           </div>
           <div class="relative">
             <input type="text" id="art_cover_url_input" value="{{ article.cover_image_url|default:'' }}" placeholder="https://images.unsplash.com/..." 
               oninput="handleCoverUrlInput(this.value)"
-              class="w-full pl-8 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-fuchsia-500 transition">
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-500">
+              class="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/15 transition shadow-sm">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-slate-400">
               <i class="fa-solid fa-link text-xs"></i>
             </div>
           </div>
@@ -419,15 +434,15 @@
 
         <!-- Gradient Fallback Colors -->
         <div>
-          <label class="block text-[11px] font-medium text-slate-400 mb-1.5">Fallback Gradient (When no image is set)</label>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1.5">Fallback Gradient (When no image is set)</label>
           <div class="grid grid-cols-2 gap-2">
-            <div class="flex items-center gap-2 px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg">
-              <input type="color" id="art_grad_from" value="{{ article.gradient_from|default:'#a855f7' }}" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0 shrink-0">
-              <input type="text" id="art_grad_from_txt" value="{{ article.gradient_from|default:'#a855f7' }}" oninput="syncColorFromText('from')" class="w-full bg-transparent border-0 text-[11px] font-mono text-white focus:outline-none">
+            <div class="flex items-center gap-2 px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm">
+              <input type="color" id="art_grad_from" value="{{ article.gradient_from|default:'#9333ea' }}" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0 shrink-0">
+              <input type="text" id="art_grad_from_txt" value="{{ article.gradient_from|default:'#9333ea' }}" oninput="syncColorFromText('from')" class="w-full bg-transparent border-0 text-[11px] font-mono font-semibold text-slate-800 focus:outline-none">
             </div>
-            <div class="flex items-center gap-2 px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg">
-              <input type="color" id="art_grad_to" value="{{ article.gradient_to|default:'#ec4899' }}" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0 shrink-0">
-              <input type="text" id="art_grad_to_txt" value="{{ article.gradient_to|default:'#ec4899' }}" oninput="syncColorFromText('to')" class="w-full bg-transparent border-0 text-[11px] font-mono text-white focus:outline-none">
+            <div class="flex items-center gap-2 px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg shadow-sm">
+              <input type="color" id="art_grad_to" value="{{ article.gradient_to|default:'#c026d3' }}" class="w-6 h-6 rounded cursor-pointer bg-transparent border-0 shrink-0">
+              <input type="text" id="art_grad_to_txt" value="{{ article.gradient_to|default:'#c026d3' }}" oninput="syncColorFromText('to')" class="w-full bg-transparent border-0 text-[11px] font-mono font-semibold text-slate-800 focus:outline-none">
             </div>
           </div>
         </div>
@@ -436,39 +451,39 @@
 
     <!-- Optional External Link / Read More URL -->
     <div>
-      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Optional External / Read More Link</label>
+      <label class="block text-xs font-bold text-slate-800 mb-1.5">Optional External / Read More Link</label>
       <div class="relative">
         <input type="text" id="art_link" value="{{ article.external_link|default:'' }}" placeholder="https://..."
-          class="w-full pl-9 pr-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 transition">
-        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+          class="w-full pl-9 pr-4 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded-xl text-xs text-slate-900 font-medium focus:outline-none focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition shadow-sm">
+        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
           <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
         </div>
       </div>
     </div>
 
-    <!-- Full Article Content / Story (CKEditor 5 Full Width) -->
+    <!-- Full Article Content / Story (TinyMCE Classic Editor) -->
     <div class="space-y-2">
       <div class="flex items-center justify-between">
-        <label class="block text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-          <i class="fa-solid fa-pen-nib text-fuchsia-400"></i> Full Article Story & Content (CKEditor)
+        <label class="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+          <i class="fa-solid fa-pen-nib text-purple-600"></i> Full Article Story & Content (WordPress Classic Editor)
         </label>
-        <span class="text-[11px] text-slate-400">Supports rich text, headings, code blocks, images, tables & source code</span>
+        <span class="text-[11px] text-slate-500 font-medium">Supports rich text, headings, code blocks, images, tables & source code</span>
       </div>
       <textarea id="art_content" rows="12" placeholder="Start writing your article story..."
-        class="w-full px-4 py-3 bg-slate-900 border border-slate-700/80 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-fuchsia-500 transition">{{ article.content|default:'' }}</textarea>
+        class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-purple-600 transition">{{ article.content|default:'' }}</textarea>
     </div>
 
     <!-- Status & Publishing Action Bar -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-5 border-t border-slate-800">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-5 border-t border-slate-200">
       <label class="relative inline-flex items-center cursor-pointer">
         <input type="checkbox" id="art_published" class="sr-only peer" {% if not article or article.is_published %}checked{% endif %}>
-        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-        <span class="ml-3 text-xs font-semibold text-slate-300">Publish Live on Landing & Blog Page</span>
+        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+        <span class="ml-3 text-xs font-bold text-slate-800">Publish Live on Landing & Blog Page</span>
       </label>
 
-      <button onclick="saveArticle()" class="w-full sm:w-auto px-7 py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-lg shadow-fuchsia-600/30 hover:shadow-fuchsia-600/50 transition flex items-center justify-center gap-2">
+      <button onclick="saveArticle()" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold rounded-xl text-xs shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 active:scale-[0.98] transition flex items-center justify-center gap-2">
         <i class="fa-solid fa-floppy-disk text-sm"></i>
-        Save Article
+        <span>Save Article</span>
       </button>
     </div>
 
@@ -503,10 +518,10 @@ function selectCategory(val, label) {
     const isCurrent = btn.getAttribute('data-value') === val;
     const checkIcon = btn.querySelector('.check-icon');
     if (isCurrent) {
-      btn.className = 'cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left bg-fuchsia-600/20 text-fuchsia-300 font-semibold';
+      btn.className = 'cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left bg-purple-50 text-purple-700 font-bold';
       if (checkIcon) checkIcon.classList.remove('hidden');
     } else {
-      btn.className = 'cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left text-slate-300 hover:text-white hover:bg-slate-800/80';
+      btn.className = 'cat-option-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition text-left text-slate-700 hover:text-slate-900 hover:bg-slate-100';
       if (checkIcon) checkIcon.classList.add('hidden');
     }
   });
@@ -525,7 +540,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Initialize Flatpickr Dark Theme Datepicker
+// Initialize Flatpickr Light Theme Datepicker
 flatpickr("#art_date", {
   dateFormat: "Y-m-d",
   altInput: true,
@@ -604,12 +619,12 @@ function setFeaturedImage(url) {
     previewImg.src = url;
     previewBox.classList.remove('hidden');
     placeholder.classList.add('hidden');
-    container.className = 'relative group rounded-xl border-2 border-fuchsia-500/40 overflow-hidden bg-slate-950/60 transition duration-200';
+    container.className = 'relative group rounded-xl border-2 border-purple-400 overflow-hidden bg-white transition duration-200 shadow-sm';
   } else {
     previewImg.src = '';
     previewBox.classList.add('hidden');
     placeholder.classList.remove('hidden');
-    container.className = 'relative group rounded-xl border-2 border-dashed border-slate-700/80 hover:border-fuchsia-500/50 overflow-hidden bg-slate-950/60 transition duration-200';
+    container.className = 'relative group rounded-xl border-2 border-dashed border-slate-300 hover:border-purple-500 overflow-hidden bg-white transition duration-200 shadow-sm';
   }
 }
 
@@ -630,11 +645,11 @@ function handleCoverUrlInput(url) {
     previewImg.src = url.trim();
     previewBox.classList.remove('hidden');
     placeholder.classList.add('hidden');
-    container.className = 'relative group rounded-xl border-2 border-fuchsia-500/40 overflow-hidden bg-slate-950/60 transition duration-200';
+    container.className = 'relative group rounded-xl border-2 border-purple-400 overflow-hidden bg-white transition duration-200 shadow-sm';
   } else {
     previewBox.classList.add('hidden');
     placeholder.classList.remove('hidden');
-    container.className = 'relative group rounded-xl border-2 border-dashed border-slate-700/80 hover:border-fuchsia-500/50 overflow-hidden bg-slate-950/60 transition duration-200';
+    container.className = 'relative group rounded-xl border-2 border-dashed border-slate-300 hover:border-purple-500 overflow-hidden bg-white transition duration-200 shadow-sm';
   }
 }
 
@@ -651,12 +666,7 @@ if (initialExcerpt) {
 }
 
 // -------------------------------------------------------------
-// Initialize CKEditor 5 SuperBuild with Complete Formatting
-// -------------------------------------------------------------
-let articleEditor;
-
-// -------------------------------------------------------------
-// Initialize TinyMCE 6 (WordPress Classic Editor Engine — Supercharged Free)
+// Initialize TinyMCE 6 (WordPress Classic Editor Engine — Supercharged Light)
 // -------------------------------------------------------------
 function initTinyMCE() {
   if (typeof tinymce === 'undefined') {
@@ -674,9 +684,9 @@ function initTinyMCE() {
     selector: '#art_content',
     base_url: 'https://cdn.jsdelivr.net/npm/tinymce@6.8.3',
     suffix: '.min',
-    skin: 'oxide-dark',
-    skin_url: 'https://cdn.jsdelivr.net/npm/tinymce@6.8.3/skins/ui/oxide-dark',
-    content_css: 'https://cdn.jsdelivr.net/npm/tinymce@6.8.3/skins/content/dark/content.min.css',
+    skin: 'oxide',
+    skin_url: 'https://cdn.jsdelivr.net/npm/tinymce@6.8.3/skins/ui/oxide',
+    content_css: 'https://cdn.jsdelivr.net/npm/tinymce@6.8.3/skins/content/default/content.min.css',
     height: 560,
     promotion: false,
     branding: false,
@@ -701,52 +711,53 @@ function initTinyMCE() {
         font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 15px;
         line-height: 1.85;
-        background: #090d16;
-        color: #e2e8f0;
+        background: #ffffff;
+        color: #1e293b;
         padding: 24px 28px;
       }
-      h1, h2, h3, h4 { color: #ffffff; font-weight: 700; margin-top: 1.6em; margin-bottom: 0.6em; letter-spacing: -0.02em; }
-      h1 { font-size: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
-      h2 { font-size: 1.6rem; color: #f5d0fe; border-bottom: 1px solid rgba(192,132,252,0.25); padding-bottom: 6px; }
-      h3 { font-size: 1.35rem; color: #e9d5ff; }
-      h4 { font-size: 1.15rem; color: #d8b4fe; }
+      h1, h2, h3, h4 { color: #0f172a; font-weight: 700; margin-top: 1.6em; margin-bottom: 0.6em; letter-spacing: -0.02em; }
+      h1 { font-size: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+      h2 { font-size: 1.6rem; color: #7e22ce; border-bottom: 1px solid #f3e8ff; padding-bottom: 6px; }
+      h3 { font-size: 1.35rem; color: #6b21a8; }
+      h4 { font-size: 1.15rem; color: #581c87; }
       p { margin-bottom: 1.25em; line-height: 1.85; }
       ul { list-style-type: disc !important; padding-left: 2rem !important; margin: 1.25em 0 !important; }
       ol { list-style-type: decimal !important; padding-left: 2rem !important; margin: 1.25em 0 !important; }
-      li { margin-bottom: 0.45em !important; line-height: 1.75 !important; color: #cbd5e1 !important; display: list-item !important; }
-      a { color: #c084fc; text-decoration: underline; font-weight: 600; text-underline-offset: 3px; }
-      a:hover { color: #f472b6; }
+      li { margin-bottom: 0.45em !important; line-height: 1.75 !important; color: #334155 !important; display: list-item !important; }
+      a { color: #7c3aed; text-decoration: underline; font-weight: 600; text-underline-offset: 3px; }
+      a:hover { color: #db2777; }
       blockquote {
-        border-left: 4px solid #c084fc;
-        background: linear-gradient(90deg, rgba(192, 132, 252, 0.15) 0%, rgba(192, 132, 252, 0.02) 100%);
+        border-left: 4px solid #9333ea;
+        background: #faf5ff;
         padding: 16px 24px;
         border-radius: 0 16px 16px 0;
         font-style: italic;
-        color: #f5d0fe;
+        color: #581c87;
         margin: 24px 0;
       }
       code {
-        background: rgba(255, 255, 255, 0.08);
+        background: #f1f5f9;
         padding: 3px 8px;
         border-radius: 6px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         font-size: 0.9em;
-        color: #f472b6;
+        color: #be185d;
+        border: 1px solid #e2e8f0;
       }
       pre {
-        background: #04060d;
+        background: #0f172a;
         padding: 20px;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid #1e293b;
         overflow-x: auto;
         color: #38bdf8;
         margin: 20px 0;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
       }
       img {
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 12px 35px -5px rgba(0,0,0,0.6);
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.1);
         max-width: 100%;
         height: auto;
         margin: 24px auto;
@@ -759,19 +770,19 @@ function initTinyMCE() {
         margin: 24px 0;
         border-radius: 14px;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: #0b1120;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
       }
       table th, table td {
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid #e2e8f0;
         padding: 14px 18px;
-        color: #e2e8f0;
+        color: #334155;
       }
       table th {
-        background: rgba(192, 132, 252, 0.2);
-        color: #ffffff;
+        background: #f8fafc;
+        color: #0f172a;
         font-weight: 700;
-        border-bottom: 2px solid rgba(192, 132, 252, 0.35);
+        border-bottom: 2px solid #e2e8f0;
         text-transform: uppercase;
         font-size: 0.85rem;
         letter-spacing: 0.05em;
@@ -781,11 +792,10 @@ function initTinyMCE() {
         border-radius: 16px;
         padding: 18px 22px;
         margin: 24px 0;
-        border: 1px solid rgba(255, 255, 255, 0.12);
       }
-      .callout-purple { background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #f5d0fe; }
-      .callout-emerald { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35); color: #a7f3d0; }
-      .callout-amber { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); color: #fde68a; }
+      .callout-purple { background: #faf5ff; border: 1px solid #e9d5ff; color: #581c87; }
+      .callout-emerald { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+      .callout-amber { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
     `,
     images_upload_url: '/axomai-content/articles/upload-image/',
     images_upload_handler: function (blobInfo, progress) {
@@ -841,9 +851,9 @@ function initTinyMCE() {
               text: '💡 Key Takeaways Callout',
               onAction: function () {
                 editor.insertContent(`
-                  <div class="callout-box callout-purple my-6 p-5 rounded-2xl bg-purple-500/10 border border-purple-500/30">
-                    <h4 class="text-base font-bold text-purple-300 mb-2 flex items-center gap-2">💡 Key Takeaways</h4>
-                    <p class="text-sm text-slate-300 m-0">Summarize the main core takeaways of this section here in clear, concise points.</p>
+                  <div class="callout-box callout-purple my-6 p-5 rounded-2xl bg-purple-50 border border-purple-200">
+                    <h4 class="text-base font-bold text-purple-900 mb-2 flex items-center gap-2">💡 Key Takeaways</h4>
+                    <p class="text-sm text-purple-800 m-0">Summarize the main core takeaways of this section here in clear, concise points.</p>
                   </div>
                 `);
               }
@@ -853,9 +863,9 @@ function initTinyMCE() {
               text: '⭐ Pro Tip / Success Box',
               onAction: function () {
                 editor.insertContent(`
-                  <div class="callout-box callout-emerald my-6 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
-                    <h4 class="text-base font-bold text-emerald-300 mb-2 flex items-center gap-2">⭐ Pro Tip</h4>
-                    <p class="text-sm text-slate-300 m-0">Write practical actionable recommendations or best practices here.</p>
+                  <div class="callout-box callout-emerald my-6 p-5 rounded-2xl bg-emerald-50 border border-emerald-200">
+                    <h4 class="text-base font-bold text-emerald-900 mb-2 flex items-center gap-2">⭐ Pro Tip</h4>
+                    <p class="text-sm text-emerald-800 m-0">Write practical actionable recommendations or best practices here.</p>
                   </div>
                 `);
               }
@@ -865,9 +875,9 @@ function initTinyMCE() {
               text: '⚠️ Important Warning Callout',
               onAction: function () {
                 editor.insertContent(`
-                  <div class="callout-box callout-amber my-6 p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30">
-                    <h4 class="text-base font-bold text-amber-300 mb-2 flex items-center gap-2">⚠️ Important Note</h4>
-                    <p class="text-sm text-slate-300 m-0">Critical warnings or prerequisites that users should know before proceeding.</p>
+                  <div class="callout-box callout-amber my-6 p-5 rounded-2xl bg-amber-50 border border-amber-200">
+                    <h4 class="text-base font-bold text-amber-900 mb-2 flex items-center gap-2">⚠️ Important Note</h4>
+                    <p class="text-sm text-amber-800 m-0">Critical warnings or prerequisites that users should know before proceeding.</p>
                   </div>
                 `);
               }
@@ -877,24 +887,24 @@ function initTinyMCE() {
               text: '📊 Comparison Table Snippet',
               onAction: function () {
                 editor.insertContent(`
-                  <table style="width: 100%;" class="my-6 border border-slate-700 rounded-xl overflow-hidden">
+                  <table style="width: 100%;" class="my-6 border border-slate-200 rounded-xl overflow-hidden">
                     <thead>
-                      <tr class="bg-slate-800 text-white font-bold">
-                        <th class="p-3 border border-slate-700">Feature</th>
-                        <th class="p-3 border border-slate-700">Axom AI</th>
-                        <th class="p-3 border border-slate-700">Traditional Method</th>
+                      <tr class="bg-slate-100 text-slate-800 font-bold">
+                        <th class="p-3 border border-slate-200">Feature</th>
+                        <th class="p-3 border border-slate-200">Axom AI</th>
+                        <th class="p-3 border border-slate-200">Traditional Method</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td class="p-3 border border-slate-700 font-semibold">Speed &amp; Latency</td>
-                        <td class="p-3 border border-slate-700 text-emerald-400">⚡ Sub-second Instant</td>
-                        <td class="p-3 border border-slate-700 text-slate-400">Slow (Minutes)</td>
+                        <td class="p-3 border border-slate-200 font-semibold">Speed &amp; Latency</td>
+                        <td class="p-3 border border-slate-200 text-emerald-600 font-semibold">⚡ Sub-second Instant</td>
+                        <td class="p-3 border border-slate-200 text-slate-500">Slow (Minutes)</td>
                       </tr>
                       <tr>
-                        <td class="p-3 border border-slate-700 font-semibold">Assamese / Indic Support</td>
-                        <td class="p-3 border border-slate-700 text-emerald-400">✓ Native Orthography</td>
-                        <td class="p-3 border border-slate-700 text-rose-400">✕ Broken Script</td>
+                        <td class="p-3 border border-slate-200 font-semibold">Assamese / Indic Support</td>
+                        <td class="p-3 border border-slate-200 text-emerald-600 font-semibold">✓ Native Orthography</td>
+                        <td class="p-3 border border-slate-200 text-rose-500 font-semibold">✕ Broken Script</td>
                       </tr>
                     </tbody>
                   </table>
@@ -915,7 +925,7 @@ function initTinyMCE() {
       });
 
       editor.on('init', function () {
-        console.log('TinyMCE (WordPress Classic Supercharged) loaded successfully!');
+        console.log('TinyMCE (WordPress Classic Supercharged Light) loaded successfully!');
       });
     }
   });
