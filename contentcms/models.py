@@ -193,6 +193,7 @@ class InsightArticle(models.Model):
     gradient_to = models.CharField(max_length=50, default='#ec4899', help_text='Hex or Tailwind color for banner')
     author_name = models.CharField(max_length=100, default='Axom AI Team')
     external_link = models.CharField(max_length=500, blank=True, help_text='Optional direct link to external article or blog')
+    faqs = models.JSONField(default=list, blank=True, help_text='List of FAQs for this article [{"question": "...", "answer": "..."}]')
     is_published = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
     published_at = models.DateField(default=timezone.now)

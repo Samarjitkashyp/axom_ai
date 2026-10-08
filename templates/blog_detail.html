@@ -715,6 +715,35 @@
               {% endif %}
             </div>
 
+            {% if article.faqs %}
+            <!-- Article FAQs Accordion Section -->
+            <div class="pt-8 pb-4 space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-fuchsia-600/30 to-purple-600/30 border border-fuchsia-500/30 text-fuchsia-300 grid place-items-center text-sm font-bold shadow-sm">
+                  <i class="fa-solid fa-circle-question"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">Frequently Asked Questions</h3>
+                  <p class="text-xs text-gray-400">Essential answers and key takeaways for this topic</p>
+                </div>
+              </div>
+
+              <div class="space-y-3 pt-1" id="article_faq_accordion">
+                {% for f in article.faqs %}
+                <div class="card rounded-2xl overflow-hidden border border-white/10 transition duration-200">
+                  <button type="button" onclick="toggleArticleFaq(this)" class="w-full px-5 py-4 text-left flex items-center justify-between gap-3 text-sm sm:text-base font-bold text-white hover:text-fuchsia-300 transition group">
+                    <span class="flex-1">{{ f.question }}</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-fuchsia-400 transition-transform duration-200 shrink-0"></i>
+                  </button>
+                  <div class="faq-content hidden px-5 pb-5 pt-2 text-sm text-gray-300 leading-relaxed border-t border-white/5 bg-white/[0.01]">
+                    {{ f.answer|linebreaksbr }}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
             <!-- Share This Article Row -->
             <div class="pt-8 pb-4 border-t border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <span class="text-sm font-bold text-white">Share this article</span>
@@ -1027,6 +1056,20 @@
           toast.classList.add('translate-y-20', 'opacity-0');
         }, 2200);
       });
+    }
+
+    function toggleArticleFaq(btn) {
+      const card = btn.closest('.card');
+      const content = card.querySelector('.faq-content');
+      const chevron = btn.querySelector('.fa-chevron-down');
+      const isHidden = content.classList.contains('hidden');
+      if (isHidden) {
+        content.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+      }
     }
   </script>
 

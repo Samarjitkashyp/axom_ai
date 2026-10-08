@@ -473,6 +473,31 @@
         class="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-purple-600 transition">{{ article.content|default:'' }}</textarea>
     </div>
 
+    <!-- Article FAQs (Frequently Asked Questions Builder) -->
+    <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-circle-question text-purple-600"></i> Article FAQs (Frequently Asked Questions)
+          </label>
+          <span class="text-[11px] text-slate-500">Add accordion Q&A pairs displayed at the end of the article and indexed by Google SEO.</span>
+        </div>
+        <button type="button" onclick="addFaqRow()" class="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-sm shadow-purple-600/20 shrink-0">
+          <i class="fa-solid fa-plus text-xs"></i> Add New FAQ
+        </button>
+      </div>
+
+      <div id="faqs_container" class="space-y-3">
+        <!-- Dynamically rendered FAQ cards -->
+      </div>
+
+      <div id="faqs_empty" class="hidden text-center py-7 px-4 border-2 border-dashed border-slate-300 rounded-xl bg-white text-slate-400 text-xs">
+        <i class="fa-regular fa-comments text-2xl text-purple-400 mb-1.5 block"></i>
+        <span class="text-slate-600 font-medium">No FAQs added for this article yet.</span>
+        <div class="mt-1">Click <button type="button" onclick="addFaqRow()" class="text-purple-600 hover:text-purple-700 font-bold underline cursor-pointer">+ Add New FAQ</button> to add your first question and answer.</div>
+      </div>
+    </div>
+
     <!-- Status & Publishing Action Bar -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-5 border-t border-slate-200">
       <label class="relative inline-flex items-center cursor-pointer">
@@ -937,6 +962,139 @@ if (document.readyState === 'loading') {
   initTinyMCE();
 }
 
+// -------------------------------------------------------------
+// Dynamic FAQ Accordion Builder
+// -------------------------------------------------------------
+let faqsList = [];
+
+function loadInitialFaqs() {
+  try {
+    const dataEl = document.getElementById('article_faqs_json');
+    if (dataEl && dataEl.textContent) {
+      const parsed = JSON.parse(dataEl.textContent);
+      if (Array.isArray(parsed)) {
+        faqsList = parsed.map(item => ({
+          question: item.question || '',
+          answer: item.answer || ''
+        }));
+      }
+    }
+  } catch (e) {
+    console.error('Error loading initial FAQs:', e);
+    faqsList = [];
+  }
+  renderFaqs();
+}
+
+function renderFaqs() {
+  const container = document.getElementById('faqs_container');
+  const emptyBox = document.getElementById('faqs_empty');
+  if (!container) return;
+
+  if (faqsList.length === 0) {
+    container.innerHTML = '';
+    if (emptyBox) emptyBox.classList.remove('hidden');
+    return;
+  }
+
+  if (emptyBox) emptyBox.classList.add('hidden');
+
+  container.innerHTML = faqsList.map((faq, idx) => `
+    <div class="faq-item-card rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-sm hover:border-purple-300 transition duration-150" data-index="${idx}">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold grid place-items-center">${idx + 1}</span>
+          <span class="text-xs font-bold text-slate-700">FAQ Question #${idx + 1}</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="moveFaq(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-7 h-7 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 disabled:opacity-30 disabled:hover:bg-transparent grid place-items-center transition text-xs" title="Move Up">
+            <i class="fa-solid fa-chevron-up"></i>
+          </button>
+          <button type="button" onclick="moveFaq(${idx}, 1)" ${idx === faqsList.length - 1 ? 'disabled' : ''} class="w-7 h-7 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 disabled:opacity-30 disabled:hover:bg-transparent grid place-items-center transition text-xs" title="Move Down">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <button type="button" onclick="removeFaqRow(${idx})" class="w-7 h-7 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 grid place-items-center transition text-xs ml-1" title="Delete FAQ">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-2.5">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Question</label>
+          <input type="text" value="${escapeHtml(faq.question)}" placeholder="e.g., What makes Axom AI uniquely suited for Assamese users?"
+            oninput="updateFaqField(${idx}, 'question', this.value)"
+            class="w-full px-3.5 py-2 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/15 transition shadow-sm">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Detailed Answer</label>
+          <textarea rows="3" placeholder="Provide a clear, pedagogical answer..."
+            oninput="updateFaqField(${idx}, 'answer', this.value)"
+            class="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/15 transition leading-relaxed shadow-sm">${escapeHtml(faq.answer)}</textarea>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function addFaqRow(q = '', a = '') {
+  faqsList.push({ question: q, answer: a });
+  renderFaqs();
+  const lastIndex = faqsList.length - 1;
+  const lastCard = document.querySelector(`.faq-item-card[data-index="${lastIndex}"]`);
+  if (lastCard) {
+    const input = lastCard.querySelector('input');
+    if (input) input.focus();
+  }
+}
+
+function removeFaqRow(idx) {
+  faqsList.splice(idx, 1);
+  renderFaqs();
+}
+
+function moveFaq(idx, dir) {
+  const target = idx + dir;
+  if (target < 0 || target >= faqsList.length) return;
+  const temp = faqsList[idx];
+  faqsList[idx] = faqsList[target];
+  faqsList[target] = temp;
+  renderFaqs();
+}
+
+function updateFaqField(idx, field, val) {
+  if (faqsList[idx]) {
+    faqsList[idx][field] = val;
+  }
+}
+
+function getFaqsData() {
+  return faqsList
+    .map(f => ({
+      question: (f.question || '').trim(),
+      answer: (f.answer || '').trim()
+    }))
+    .filter(f => f.question && f.answer);
+}
+
+// Load FAQs on DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadInitialFaqs);
+} else {
+  loadInitialFaqs();
+}
+
 // Slug & Permalink Handlers
 let isManualSlug = !!document.getElementById('art_slug').value;
 
@@ -996,6 +1154,7 @@ async function saveArticle() {
     gradient_to: document.getElementById('art_grad_to_txt').value,
     external_link: document.getElementById('art_link').value,
     content: richContent,
+    faqs: getFaqsData(),
     is_published: document.getElementById('art_published').checked,
   };
 
@@ -1024,4 +1183,5 @@ async function saveArticle() {
   }
 }
 </script>
+{{ article.faqs|default:'[]'|json_script:"article_faqs_json" }}
 {% endblock %}

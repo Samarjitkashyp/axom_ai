@@ -534,6 +534,18 @@ def save_article_api(request):
         raw_content = data.get('content', '')
         article.content = sanitize_html(raw_content)
 
+        # Handle FAQs list
+        raw_faqs = data.get('faqs', [])
+        clean_faqs = []
+        if isinstance(raw_faqs, list):
+            for item in raw_faqs:
+                if isinstance(item, dict):
+                    q = str(item.get('question', '')).strip()
+                    a = str(item.get('answer', '')).strip()
+                    if q and a:
+                        clean_faqs.append({'question': q, 'answer': a})
+        article.faqs = clean_faqs
+
         article.read_time = data.get('read_time', '4 min read').strip()
         article.cover_image_url = data.get('cover_image_url', '').strip() or None
         article.gradient_from = data.get('gradient_from', '#a855f7').strip()
