@@ -961,18 +961,24 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
     ]
   },
   removePlugins: [
-    'AIAssistant', 'CKBox', 'CKBoxUrlResolver', 'CKFinder', 'EasyImage',
+    'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage',
     'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges',
     'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments',
     'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination',
     'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline',
-    'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange',
-    'MultiLevelList', 'ExportPdf', 'ExportWord', 'CloudServices'
+    'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange'
   ]
 }).then(editor => {
   articleEditor = editor;
+  console.log('CKEditor 5 initialized successfully!');
 }).catch(error => {
   console.error('CKEditor Init Error:', error);
+  // Show fallback textarea if CDN/CKEditor fails
+  const textarea = document.querySelector('#art_content');
+  if (textarea) {
+    textarea.style.display = 'block';
+    textarea.style.minHeight = '480px';
+  }
 });
 
 // Slug & Permalink Handlers
