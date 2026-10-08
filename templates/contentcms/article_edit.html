@@ -656,103 +656,124 @@ if (initialExcerpt) {
 let articleEditor;
 
 // -------------------------------------------------------------
-// Initialize TinyMCE 6 (WordPress Classic Editor Engine)
+// Initialize TinyMCE 6 (WordPress Classic Editor Engine — Supercharged Free)
 // -------------------------------------------------------------
 tinymce.init({
   selector: '#art_content',
-  height: 540,
+  height: 580,
   menubar: 'file edit view insert format tools table help',
   plugins: [
     'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
     'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-    'insertdatetime', 'media', 'table', 'help', 'wordcount', 'codesample'
+    'insertdatetime', 'media', 'table', 'help', 'wordcount', 'codesample',
+    'quickbars', 'emoticons'
   ],
+  toolbar_sticky: true,
+  toolbar_sticky_offset: 0,
   toolbar: 'undo redo | blocks fontfamily fontsize | ' +
     'bold italic underline strikethrough | forecolor backcolor | ' +
     'alignleft aligncenter alignright alignjustify | ' +
     'bullist numlist outdent indent | ' +
     'link image media table blockquote codesample | ' +
-    'hr removeformat | code fullscreen preview',
+    'emoticons template_snippets hr removeformat | code fullscreen preview',
+  quickbars_selection_toolbar: 'bold italic underline | formatselect | blockquote quicklink',
+  quickbars_insert_toolbar: 'quickimage quicktable | bullist numlist hr',
   skin: 'oxide-dark',
   content_css: 'dark',
-  font_family_formats: 'Plus Jakarta Sans=Plus Jakarta Sans,sans-serif; Inter=Inter,sans-serif; Noto Serif Bengali=Noto Serif Bengali,sans-serif; Arial=Arial,sans-serif; Courier New=courier new,courier,monospace; Georgia=georgia,palatino; Times New Roman=times new roman,times; Verdana=verdana,geneva',
-  fontsize_formats: '11px 12px 14px 16px 18px 20px 24px 28px 32px 36px 48px',
-  block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Quote=blockquote; Code Block=pre',
+  font_family_formats: 'Plus Jakarta Sans=Plus Jakarta Sans,sans-serif; Inter=Inter,sans-serif; Noto Serif Bengali (Assamese)=Noto Serif Bengali,sans-serif; Arial=Arial,sans-serif; Courier New=courier new,courier,monospace; Georgia=georgia,palatino; Times New Roman=times new roman,times; Verdana=verdana,geneva',
+  fontsize_formats: '12px 14px 15px 16px 18px 20px 22px 24px 28px 32px 36px 48px',
+  block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Quote Box=blockquote; Code Snippet=pre',
   content_style: `
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Serif+Bengali:wght@400;600;700&display=swap');
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-size: 15px;
       line-height: 1.85;
       background: #090d16;
       color: #e2e8f0;
-      padding: 20px 24px;
+      padding: 24px 28px;
     }
-    h1, h2, h3, h4 { color: #ffffff; font-weight: 700; margin-top: 1.6em; margin-bottom: 0.6em; }
-    h1 { font-size: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; }
-    h2 { font-size: 1.6rem; color: #f5d0fe; border-bottom: 1px solid rgba(192,132,252,0.2); padding-bottom: 4px; }
+    h1, h2, h3, h4 { color: #ffffff; font-weight: 700; margin-top: 1.6em; margin-bottom: 0.6em; letter-spacing: -0.02em; }
+    h1 { font-size: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+    h2 { font-size: 1.6rem; color: #f5d0fe; border-bottom: 1px solid rgba(192,132,252,0.25); padding-bottom: 6px; }
     h3 { font-size: 1.35rem; color: #e9d5ff; }
     h4 { font-size: 1.15rem; color: #d8b4fe; }
     p { margin-bottom: 1.25em; line-height: 1.85; }
     ul { list-style-type: disc !important; padding-left: 2rem !important; margin: 1.25em 0 !important; }
     ol { list-style-type: decimal !important; padding-left: 2rem !important; margin: 1.25em 0 !important; }
-    li { margin-bottom: 0.4em !important; line-height: 1.75 !important; color: #cbd5e1 !important; display: list-item !important; }
-    a { color: #c084fc; text-decoration: underline; font-weight: 600; }
+    li { margin-bottom: 0.45em !important; line-height: 1.75 !important; color: #cbd5e1 !important; display: list-item !important; }
+    a { color: #c084fc; text-decoration: underline; font-weight: 600; text-underline-offset: 3px; }
     a:hover { color: #f472b6; }
     blockquote {
       border-left: 4px solid #c084fc;
       background: linear-gradient(90deg, rgba(192, 132, 252, 0.15) 0%, rgba(192, 132, 252, 0.02) 100%);
-      padding: 14px 22px;
-      border-radius: 0 14px 14px 0;
+      padding: 16px 24px;
+      border-radius: 0 16px 16px 0;
       font-style: italic;
       color: #f5d0fe;
-      margin: 20px 0;
+      margin: 24px 0;
     }
     code {
       background: rgba(255, 255, 255, 0.08);
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 6px;
-      font-family: monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.9em;
       color: #f472b6;
     }
     pre {
       background: #04060d;
-      padding: 18px;
+      padding: 20px;
       border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       overflow-x: auto;
       color: #38bdf8;
-      margin: 18px 0;
+      margin: 20px 0;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
     }
     img {
-      border-radius: 14px;
+      border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 12px 35px -5px rgba(0,0,0,0.6);
       max-width: 100%;
       height: auto;
-      margin: 20px 0;
+      margin: 24px auto;
+      display: block;
     }
     table {
       width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-      border-radius: 12px;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 24px 0;
+      border-radius: 14px;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.12);
       background: #0b1120;
     }
     table th, table td {
       border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 12px 16px;
+      padding: 14px 18px;
       color: #e2e8f0;
     }
     table th {
       background: rgba(192, 132, 252, 0.2);
       color: #ffffff;
       font-weight: 700;
-      border-bottom: 2px solid rgba(192, 132, 252, 0.3);
+      border-bottom: 2px solid rgba(192, 132, 252, 0.35);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
     }
+    /* Callout & Component Snippets */
+    .callout-box {
+      border-radius: 16px;
+      padding: 18px 22px;
+      margin: 24px 0;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .callout-purple { background: rgba(168, 85, 247, 0.12); border-color: rgba(168, 85, 247, 0.35); color: #f5d0fe; }
+    .callout-emerald { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35); color: #a7f3d0; }
+    .callout-amber { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.35); color: #fde68a; }
   `,
   images_upload_url: '/axomai-content/articles/upload-image/',
   images_upload_handler: function (blobInfo, progress) {
@@ -798,8 +819,91 @@ tinymce.init({
     });
   },
   setup: function (editor) {
+    // Register Custom Quick Snippets Dropdown
+    editor.ui.registry.addMenuButton('template_snippets', {
+      text: '📦 Component Snippets',
+      fetch: function (callback) {
+        const items = [
+          {
+            type: 'menuitem',
+            text: '💡 Key Takeaways Callout',
+            onAction: function () {
+              editor.insertContent(`
+                <div class="callout-box callout-purple my-6 p-5 rounded-2xl bg-purple-500/10 border border-purple-500/30">
+                  <h4 class="text-base font-bold text-purple-300 mb-2 flex items-center gap-2">💡 Key Takeaways</h4>
+                  <p class="text-sm text-slate-300 m-0">Summarize the main core takeaways of this section here in clear, concise points.</p>
+                </div>
+              `);
+            }
+          },
+          {
+            type: 'menuitem',
+            text: '⭐ Pro Tip / Success Box',
+            onAction: function () {
+              editor.insertContent(`
+                <div class="callout-box callout-emerald my-6 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+                  <h4 class="text-base font-bold text-emerald-300 mb-2 flex items-center gap-2">⭐ Pro Tip</h4>
+                  <p class="text-sm text-slate-300 m-0">Write practical actionable recommendations or best practices here.</p>
+                </div>
+              `);
+            }
+          },
+          {
+            type: 'menuitem',
+            text: '⚠️ Important Warning Callout',
+            onAction: function () {
+              editor.insertContent(`
+                <div class="callout-box callout-amber my-6 p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+                  <h4 class="text-base font-bold text-amber-300 mb-2 flex items-center gap-2">⚠️ Important Note</h4>
+                  <p class="text-sm text-slate-300 m-0">Critical warnings or prerequisites that users should know before proceeding.</p>
+                </div>
+              `);
+            }
+          },
+          {
+            type: 'menuitem',
+            text: '📊 Comparison Table Snippet',
+            onAction: function () {
+              editor.insertContent(`
+                <table style="width: 100%;" class="my-6 border border-slate-700 rounded-xl overflow-hidden">
+                  <thead>
+                    <tr class="bg-slate-800 text-white font-bold">
+                      <th class="p-3 border border-slate-700">Feature</th>
+                      <th class="p-3 border border-slate-700">Axom AI</th>
+                      <th class="p-3 border border-slate-700">Traditional Method</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="p-3 border border-slate-700 font-semibold">Speed &amp; Latency</td>
+                      <td class="p-3 border border-slate-700 text-emerald-400">⚡ Sub-second Instant</td>
+                      <td class="p-3 border border-slate-700 text-slate-400">Slow (Minutes)</td>
+                    </tr>
+                    <tr>
+                      <td class="p-3 border border-slate-700 font-semibold">Assamese / Indic Support</td>
+                      <td class="p-3 border border-slate-700 text-emerald-400">✓ Native Orthography</td>
+                      <td class="p-3 border border-slate-700 text-rose-400">✕ Broken Script</td>
+                    </tr>
+                  </tbody>
+                </table>
+              `);
+            }
+          }
+        ];
+        callback(items);
+      }
+    });
+
+    // Auto-save draft to localStorage every 30s
+    editor.on('input change', function () {
+      const artId = document.getElementById('art_id').value || 'new';
+      try {
+        localStorage.setItem(`axom_blog_draft_${artId}`, editor.getContent());
+      } catch (e) {}
+    });
+
     editor.on('init', function () {
-      console.log('TinyMCE (WordPress Classic Editor) loaded successfully!');
+      console.log('TinyMCE (WordPress Classic Supercharged) loaded successfully!');
     });
   }
 });
