@@ -262,7 +262,12 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
           <article className="blog-rich-content relative w-full text-slate-900 dark:text-slate-100">
             <div
               className="max-w-none leading-relaxed text-base"
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              dangerouslySetInnerHTML={{
+                __html: (article.content || '').replace(
+                  /(<table\b[\s\S]*?<\/table>)/gi,
+                  '<div class="table-responsive-wrapper">$1</div>'
+                ),
+              }}
             />
           </article>
 
