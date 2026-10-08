@@ -836,154 +836,170 @@ if (initialExcerpt) {
 // -------------------------------------------------------------
 let articleEditor;
 
-CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
-  toolbar: {
-    items: [
-      'undo', 'redo', '|',
-      'heading', 'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
-      'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript', '|',
-      'alignment', '|',
-      'bulletedList', 'numberedList', 'outdent', 'indent', '|',
-      'link', 'uploadImage', 'mediaEmbed', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
-      'sourceEditing', 'findAndReplace', 'selectAll'
-    ],
-    shouldNotGroupWhenFull: true
-  },
-  heading: {
-    options: [
-      { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-      { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-      { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-      { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
-      { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
-    ]
-  },
-  fontSize: {
-    options: [ 10, 12, 14, 'default', 18, 20, 24, 30, 36 ],
-    supportAllValues: true
-  },
-  fontFamily: {
-    options: [
-      'default',
-      'Plus Jakarta Sans, sans-serif',
-      'Inter, sans-serif',
-      'Noto Serif Bengali, sans-serif',
-      'Arial, Helvetica, sans-serif',
-      'Courier New, Courier, monospace',
-      'Georgia, serif',
-      'Lucida Sans Unicode, Lucida Grande, sans-serif',
-      'Tahoma, Geneva, sans-serif',
-      'Times New Roman, Times, serif',
-      'Trebuchet MS, Helvetica, sans-serif',
-      'Verdana, Geneva, sans-serif'
-    ],
-    supportAllValues: true
-  },
-  fontColor: {
-    columns: 6,
-    colors: [
-      { color: '#ffffff', label: 'White' },
-      { color: '#f5d0fe', label: 'Light Purple' },
-      { color: '#c084fc', label: 'Purple Accent' },
-      { color: '#d946ef', label: 'Fuchsia' },
-      { color: '#f472b6', label: 'Pink' },
-      { color: '#38bdf8', label: 'Cyan' },
-      { color: '#4ade80', label: 'Green' },
-      { color: '#facc15', label: 'Yellow' },
-      { color: '#fb923c', label: 'Orange' },
-      { color: '#f87171', label: 'Red' },
-      { color: '#94a3b8', label: 'Slate' },
-      { color: '#000000', label: 'Black' }
-    ]
-  },
-  fontBackgroundColor: {
-    columns: 6,
-    colors: [
-      { color: 'transparent', label: 'None' },
-      { color: 'rgba(192, 132, 252, 0.25)', label: 'Purple Tint' },
-      { color: 'rgba(217, 70, 239, 0.25)', label: 'Fuchsia Tint' },
-      { color: 'rgba(56, 189, 248, 0.25)', label: 'Cyan Tint' },
-      { color: 'rgba(74, 222, 128, 0.25)', label: 'Green Tint' },
-      { color: 'rgba(250, 204, 21, 0.25)', label: 'Yellow Tint' },
-      { color: 'rgba(248, 113, 113, 0.25)', label: 'Red Tint' },
-      { color: '#1e293b', label: 'Dark Slate' },
-      { color: '#090d16', label: 'Dark Background' }
-    ]
-  },
-  simpleUpload: {
-    uploadUrl: '/axomai-content/articles/upload-image/',
-    headers: {
-      'X-CSRFToken': csrftoken
-    }
-  },
-  image: {
-    toolbar: [
-      'imageTextAlternative',
-      'toggleImageCaption',
-      '|',
-      'imageStyle:inline',
-      'imageStyle:block',
-      'imageStyle:side',
-      '|',
-      'linkImage'
-    ],
-    insert: {
-      integrations: ['upload']
-    }
-  },
-  table: {
-    contentToolbar: [
-      'tableColumn', 'tableRow', 'mergeTableCells',
-      'tableProperties', 'tableCellProperties'
-    ]
-  },
-  link: {
-    addTargetToExternalLinks: true,
-    defaultProtocol: 'https://'
-  },
-  codeBlock: {
-    languages: [
-      { language: 'plaintext', label: 'Plain text' },
-      { language: 'python', label: 'Python' },
-      { language: 'javascript', label: 'JavaScript' },
-      { language: 'html', label: 'HTML' },
-      { language: 'css', label: 'CSS' },
-      { language: 'json', label: 'JSON' },
-      { language: 'bash', label: 'Bash / Shell' },
-      { language: 'sql', label: 'SQL' }
-    ]
-  },
-  htmlSupport: {
-    allow: [
-      {
-        name: /.*/,
-        attributes: true,
-        classes: true,
-        styles: true
-      }
-    ]
-  },
-  removePlugins: [
-    'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage',
-    'MultiLevelList', 'ExportPdf', 'ExportWord',
-    'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges',
-    'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments',
-    'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination',
-    'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline',
-    'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange'
-  ]
-}).then(editor => {
-  articleEditor = editor;
-  console.log('CKEditor 5 initialized successfully!');
-}).catch(error => {
-  console.error('CKEditor Init Error:', error);
-  // Show fallback textarea if CDN/CKEditor fails
-  const textarea = document.querySelector('#art_content');
-  if (textarea) {
-    textarea.style.display = 'block';
-    textarea.style.minHeight = '480px';
+function initArticleEditor() {
+  if (typeof CKEDITOR === 'undefined' || !CKEDITOR.ClassicEditor) {
+    console.warn('CKEDITOR is loading, retrying initialization...');
+    setTimeout(initArticleEditor, 150);
+    return;
   }
-});
+
+  const targetEl = document.querySelector('#art_content');
+  if (!targetEl) return;
+
+  CKEDITOR.ClassicEditor.create(targetEl, {
+    toolbar: {
+      items: [
+        'undo', 'redo', '|',
+        'heading', 'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
+        'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript', '|',
+        'alignment', '|',
+        'bulletedList', 'numberedList', 'outdent', 'indent', '|',
+        'link', 'uploadImage', 'mediaEmbed', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
+        'sourceEditing', 'findAndReplace', 'selectAll'
+      ],
+      shouldNotGroupWhenFull: true
+    },
+    heading: {
+      options: [
+        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+        { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
+      ]
+    },
+    fontSize: {
+      options: [ 10, 12, 14, 'default', 18, 20, 24, 30, 36 ],
+      supportAllValues: true
+    },
+    fontFamily: {
+      options: [
+        'default',
+        'Plus Jakarta Sans, sans-serif',
+        'Inter, sans-serif',
+        'Noto Serif Bengali, sans-serif',
+        'Arial, Helvetica, sans-serif',
+        'Courier New, Courier, monospace',
+        'Georgia, serif',
+        'Lucida Sans Unicode, Lucida Grande, sans-serif',
+        'Tahoma, Geneva, sans-serif',
+        'Times New Roman, Times, serif',
+        'Trebuchet MS, Helvetica, sans-serif',
+        'Verdana, Geneva, sans-serif'
+      ],
+      supportAllValues: true
+    },
+    fontColor: {
+      columns: 6,
+      colors: [
+        { color: '#ffffff', label: 'White' },
+        { color: '#f5d0fe', label: 'Light Purple' },
+        { color: '#c084fc', label: 'Purple Accent' },
+        { color: '#d946ef', label: 'Fuchsia' },
+        { color: '#f472b6', label: 'Pink' },
+        { color: '#38bdf8', label: 'Cyan' },
+        { color: '#4ade80', label: 'Green' },
+        { color: '#facc15', label: 'Yellow' },
+        { color: '#fb923c', label: 'Orange' },
+        { color: '#f87171', label: 'Red' },
+        { color: '#94a3b8', label: 'Slate' },
+        { color: '#000000', label: 'Black' }
+      ]
+    },
+    fontBackgroundColor: {
+      columns: 6,
+      colors: [
+        { color: 'transparent', label: 'None' },
+        { color: 'rgba(192, 132, 252, 0.25)', label: 'Purple Tint' },
+        { color: 'rgba(217, 70, 239, 0.25)', label: 'Fuchsia Tint' },
+        { color: 'rgba(56, 189, 248, 0.25)', label: 'Cyan Tint' },
+        { color: 'rgba(74, 222, 128, 0.25)', label: 'Green Tint' },
+        { color: 'rgba(250, 204, 21, 0.25)', label: 'Yellow Tint' },
+        { color: 'rgba(248, 113, 113, 0.25)', label: 'Red Tint' },
+        { color: '#1e293b', label: 'Dark Slate' },
+        { color: '#090d16', label: 'Dark Background' }
+      ]
+    },
+    simpleUpload: {
+      uploadUrl: '/axomai-content/articles/upload-image/',
+      headers: {
+        'X-CSRFToken': csrftoken
+      }
+    },
+    image: {
+      toolbar: [
+        'imageTextAlternative',
+        'toggleImageCaption',
+        '|',
+        'imageStyle:inline',
+        'imageStyle:block',
+        'imageStyle:side',
+        '|',
+        'linkImage'
+      ],
+      insert: {
+        integrations: ['upload']
+      }
+    },
+    table: {
+      contentToolbar: [
+        'tableColumn', 'tableRow', 'mergeTableCells',
+        'tableProperties', 'tableCellProperties'
+      ]
+    },
+    link: {
+      addTargetToExternalLinks: true,
+      defaultProtocol: 'https://'
+    },
+    codeBlock: {
+      languages: [
+        { language: 'plaintext', label: 'Plain text' },
+        { language: 'python', label: 'Python' },
+        { language: 'javascript', label: 'JavaScript' },
+        { language: 'html', label: 'HTML' },
+        { language: 'css', label: 'CSS' },
+        { language: 'json', label: 'JSON' },
+        { language: 'bash', label: 'Bash / Shell' },
+        { language: 'sql', label: 'SQL' }
+      ]
+    },
+    htmlSupport: {
+      allow: [
+        {
+          name: /.*/,
+          attributes: true,
+          classes: true,
+          styles: true
+        }
+      ]
+    },
+    removePlugins: [
+      'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage', 'Base64UploadAdapter',
+      'MultiLevelList', 'ExportPdf', 'ExportWord',
+      'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges',
+      'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments',
+      'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination',
+      'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline',
+      'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange'
+    ]
+  }).then(editor => {
+    articleEditor = editor;
+    console.log('CKEditor 5 initialized successfully!');
+  }).catch(error => {
+    console.error('CKEditor Init Error:', error);
+    const textarea = document.querySelector('#art_content');
+    if (textarea) {
+      textarea.style.display = 'block';
+      textarea.style.minHeight = '480px';
+    }
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initArticleEditor);
+} else {
+  initArticleEditor();
+}
 
 // Slug & Permalink Handlers
 let isManualSlug = !!document.getElementById('art_slug').value;
