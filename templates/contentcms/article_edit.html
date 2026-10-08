@@ -173,23 +173,47 @@
   }
 
   /* Interior Typography within CKEditor editable area */
+  .ck-content {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.85 !important;
+    color: #e2e8f0 !important;
+  }
   .ck-content h1, .ck-content h2, .ck-content h3, .ck-content h4 {
-    color: #ffffff !important;
     font-weight: 700 !important;
     line-height: 1.3 !important;
-    margin-top: 1.5em !important;
-    margin-bottom: 0.5em !important;
+    margin-top: 1.6em !important;
+    margin-bottom: 0.6em !important;
   }
-  .ck-content h1 { font-size: 2rem !important; }
-  .ck-content h2 { font-size: 1.55rem !important; color: #f5d0fe !important; }
-  .ck-content h3 { font-size: 1.3rem !important; color: #e9d5ff !important; }
+  .ck-content h1 { font-size: 2rem !important; color: #ffffff !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; }
+  .ck-content h2 { font-size: 1.6rem !important; color: #f5d0fe !important; border-bottom: 1px solid rgba(192,132,252,0.2); padding-bottom: 4px; }
+  .ck-content h3 { font-size: 1.35rem !important; color: #e9d5ff !important; }
   .ck-content h4 { font-size: 1.15rem !important; color: #d8b4fe !important; }
-  .ck-content p { margin-bottom: 1.25em !important; }
-  .ck-content a { color: #c084fc !important; text-decoration: underline !important; }
+  .ck-content p { margin-bottom: 1.25em !important; line-height: 1.85 !important; }
+  
+  /* Visible List Bullets & Numbers in Editor */
+  .ck-content ul {
+    list-style-type: disc !important;
+    padding-left: 2rem !important;
+    margin: 1.25em 0 !important;
+  }
+  .ck-content ol {
+    list-style-type: decimal !important;
+    padding-left: 2rem !important;
+    margin: 1.25em 0 !important;
+  }
+  .ck-content li {
+    margin-bottom: 0.4em !important;
+    line-height: 1.75 !important;
+    color: #cbd5e1 !important;
+    display: list-item !important;
+  }
+
+  .ck-content a { color: #c084fc !important; text-decoration: underline !important; font-weight: 600 !important; }
   .ck-content a:hover { color: #f472b6 !important; }
   .ck-content blockquote {
     border-left: 4px solid #c084fc !important;
-    background: linear-gradient(90deg, rgba(192, 132, 252, 0.12) 0%, rgba(192, 132, 252, 0.02) 100%) !important;
+    background: linear-gradient(90deg, rgba(192, 132, 252, 0.15) 0%, rgba(192, 132, 252, 0.02) 100%) !important;
     padding: 14px 22px !important;
     border-radius: 0 14px 14px 0 !important;
     font-style: italic !important;
@@ -217,30 +241,72 @@
     color: #38bdf8 !important;
     margin: 18px 0 !important;
   }
-  .ck-content .image {
-    margin: 20px 0 !important;
+  .ck-content pre code {
+    background: transparent !important;
+    border: none !important;
+    color: inherit !important;
+    padding: 0 !important;
   }
-  .ck-content .image > img {
+  .ck-content .image, .ck-content figure.image {
+    margin: 24px auto !important;
+  }
+  .ck-content .image > img, .ck-content figure.image > img {
     border-radius: 14px !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     box-shadow: 0 12px 35px -5px rgba(0,0,0,0.6) !important;
+    max-width: 100% !important;
   }
+  .ck-content figcaption {
+    color: #94a3b8 !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    font-style: italic !important;
+    margin-top: 6px !important;
+  }
+  
+  /* Tables inside Editor */
   .ck-content table {
     width: 100% !important;
-    border-collapse: collapse !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
     margin: 20px 0 !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     overflow: hidden !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    background: #0b1120 !important;
   }
   .ck-content table th, .ck-content table td {
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     padding: 12px 16px !important;
+    color: #e2e8f0 !important;
   }
   .ck-content table th {
-    background: rgba(192, 132, 252, 0.15) !important;
+    background: rgba(192, 132, 252, 0.2) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
+    border-bottom: 2px solid rgba(192, 132, 252, 0.3) !important;
+  }
+  .ck-content hr {
+    border: none !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+    margin: 24px 0 !important;
+  }
+
+  /* Source Editing Mode Full-Height Dark Terminal */
+  .ck-source-editing-area {
+    min-height: 480px !important;
+  }
+  .ck-source-editing-area textarea {
+    background: #050811 !important;
+    color: #38bdf8 !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font-size: 13px !important;
+    line-height: 1.7 !important;
+    padding: 20px 24px !important;
+    border: none !important;
+    min-height: 480px !important;
+    outline: none !important;
   }
   .flatpickr-months {
     background: #0f172a !important;
@@ -778,7 +844,7 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
       'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript', '|',
       'alignment', '|',
       'bulletedList', 'numberedList', 'outdent', 'indent', '|',
-      'link', 'uploadImage', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
+      'link', 'insertImage', 'mediaEmbed', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
       'sourceEditing', 'findAndReplace', 'selectAll'
     ],
     shouldNotGroupWhenFull: true
@@ -852,12 +918,12 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
   },
   image: {
     toolbar: [
+      'imageTextAlternative',
+      'toggleImageCaption',
+      '|',
       'imageStyle:inline',
       'imageStyle:block',
       'imageStyle:side',
-      '|',
-      'toggleImageCaption',
-      'imageTextAlternative',
       '|',
       'linkImage'
     ]
@@ -866,6 +932,22 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
     contentToolbar: [
       'tableColumn', 'tableRow', 'mergeTableCells',
       'tableProperties', 'tableCellProperties'
+    ]
+  },
+  link: {
+    addTargetToExternalLinks: true,
+    defaultProtocol: 'https://'
+  },
+  codeBlock: {
+    languages: [
+      { language: 'plaintext', label: 'Plain text' },
+      { language: 'python', label: 'Python' },
+      { language: 'javascript', label: 'JavaScript' },
+      { language: 'html', label: 'HTML' },
+      { language: 'css', label: 'CSS' },
+      { language: 'json', label: 'JSON' },
+      { language: 'bash', label: 'Bash / Shell' },
+      { language: 'sql', label: 'SQL' }
     ]
   },
   htmlSupport: {
@@ -879,11 +961,13 @@ CKEDITOR.ClassicEditor.create(document.querySelector('#art_content'), {
     ]
   },
   removePlugins: [
-    'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage', 'RealTimeCollaborativeComments',
-    'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory',
-    'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData', 'RevisionHistory',
-    'Pagination', 'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline',
-    'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange'
+    'AIAssistant', 'CKBox', 'CKBoxUrlResolver', 'CKFinder', 'EasyImage',
+    'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges',
+    'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments',
+    'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination',
+    'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline',
+    'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange',
+    'MultiLevelList', 'ExportPdf', 'ExportWord', 'CloudServices'
   ]
 }).then(editor => {
   articleEditor = editor;
