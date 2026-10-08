@@ -9,8 +9,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<!-- CKEditor 5 SuperBuild -->
-<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+<!-- TinyMCE 6 (WordPress Classic Editor Engine) Free & Open Source -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
 
 <style>
   /* Premium Dark Glassmorphic Flatpickr */
@@ -32,281 +32,100 @@
   }
 
   /* =========================================================
-     CKEditor 5 Ultra-Premium Dark Glassmorphic Theme
+     TinyMCE Ultra-Premium Dark Theme Styling
      ========================================================= */
-  :root {
-    --ck-color-base-background: #090d16;
-    --ck-color-base-border: rgba(75, 85, 99, 0.4);
-    --ck-color-toolbar-background: #0f172a;
-    --ck-color-toolbar-border: rgba(255, 255, 255, 0.06);
-    --ck-color-text: #e2e8f0;
-    --ck-color-base-text: #e2e8f0;
-    --ck-color-focus-border: #c084fc;
-    --ck-color-shadow: rgba(0, 0, 0, 0.6);
-    --ck-color-button-default-hover-background: rgba(192, 132, 252, 0.2);
-    --ck-color-button-default-active-background: rgba(217, 70, 239, 0.25);
-    --ck-color-button-on-background: rgba(217, 70, 239, 0.25);
-    --ck-color-button-on-hover-background: rgba(217, 70, 239, 0.35);
-    --ck-color-dropdown-panel-background: #090d16;
-    --ck-color-dropdown-panel-border: rgba(192, 132, 252, 0.35);
-    --ck-color-list-background: #090d16;
-    --ck-color-list-button-hover-background: rgba(192, 132, 252, 0.2);
-    --ck-color-panel-background: #090d16;
-    --ck-color-panel-border: rgba(192, 132, 252, 0.35);
-    --ck-color-input-background: #050811;
-    --ck-color-input-border: #334155;
-    --ck-color-input-text: #ffffff;
-    --ck-color-dialog-background: #090d16;
-    --ck-color-dialog-border: rgba(192, 132, 252, 0.35);
-    --ck-border-radius: 12px;
-  }
-
-  .ck.ck-editor {
+  .tox-tinymce {
     border-radius: 18px !important;
     overflow: hidden !important;
-    box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.08) !important;
     border: 1px solid rgba(75, 85, 99, 0.4) !important;
+    box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.08) !important;
     transition: all 0.25s ease !important;
   }
-  .ck.ck-editor:focus-within {
+  .tox-tinymce:focus-within {
     border-color: #c084fc !important;
     box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.8), 0 0 30px rgba(192, 132, 252, 0.25) !important;
   }
-  .ck.ck-toolbar {
+  .tox .tox-menubar {
     background: #0f172a !important;
-    border: none !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    padding: 6px 8px !important;
-    flex-wrap: wrap !important;
   }
-  .ck.ck-toolbar .ck-button {
+  .tox .tox-mbtn {
     color: #cbd5e1 !important;
-    border-radius: 8px !important;
-    transition: all 0.15s ease !important;
-    height: 32px !important;
+    border-radius: 6px !important;
   }
-  .ck.ck-toolbar .ck-button:hover {
+  .tox .tox-mbtn:hover, .tox .tox-mbtn--active {
     background: rgba(192, 132, 252, 0.2) !important;
     color: #ffffff !important;
   }
-  .ck.ck-toolbar .ck-button.ck-on {
+  .tox .tox-toolbar, .tox .tox-toolbar__primary, .tox .tox-toolbar__overflow {
+    background: #090d16 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+  .tox .tox-tbtn {
+    color: #cbd5e1 !important;
+    border-radius: 8px !important;
+  }
+  .tox .tox-tbtn:hover {
+    background: rgba(192, 132, 252, 0.2) !important;
+    color: #ffffff !important;
+  }
+  .tox .tox-tbtn--enabled, .tox .tox-tbtn--active {
     background: linear-gradient(135deg, rgba(192, 38, 211, 0.35), rgba(147, 51, 234, 0.35)) !important;
     color: #f5d0fe !important;
     border: 1px solid rgba(217, 70, 239, 0.4) !important;
   }
-  .ck.ck-toolbar .ck-button svg {
+  .tox .tox-tbtn svg {
     fill: currentColor !important;
   }
-  .ck.ck-editor__main > .ck-editor__editable {
-    background: #090d16 !important;
-    color: #e2e8f0 !important;
-    min-height: 480px !important;
-    padding: 20px 24px !important;
-    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
-    font-size: 15px !important;
-    line-height: 1.85 !important;
-    border: none !important;
-    box-shadow: none !important;
+  .tox .tox-statusbar {
+    background: #0f172a !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    color: #94a3b8 !important;
   }
-  .ck.ck-editor__main > .ck-editor__editable:focus {
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-  }
-  .ck.ck-dropdown__panel {
-    background: #090d16 !important;
-    border: 1px solid rgba(192, 132, 252, 0.35) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
-    backdrop-filter: blur(16px) !important;
-  }
-  .ck.ck-list__item .ck-button {
-    color: #cbd5e1 !important;
-    font-size: 13px !important;
-    font-weight: 500 !important;
-    border-radius: 6px !important;
-  }
-  .ck.ck-list__item .ck-button:hover, .ck.ck-list__item .ck-button.ck-on {
-    background: rgba(192, 132, 252, 0.2) !important;
-    color: #ffffff !important;
-  }
-  .ck.ck-balloon-panel {
-    background: #090d16 !important;
-    border: 1px solid rgba(192, 132, 252, 0.35) !important;
-    border-radius: 12px !important;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
-    z-index: 99999 !important;
-  }
-  .ck.ck-balloon-panel:after, .ck.ck-balloon-panel:before {
-    border-bottom-color: #090d16 !important;
-    border-top-color: #090d16 !important;
-  }
-  .ck.ck-dialog {
+  .tox .tox-dialog {
     background: #090d16 !important;
     border: 1px solid rgba(192, 132, 252, 0.35) !important;
     border-radius: 18px !important;
     box-shadow: 0 30px 70px rgba(0, 0, 0, 0.95) !important;
   }
-  .ck.ck-dialog .ck-dialog__header {
+  .tox .tox-dialog__header, .tox .tox-dialog__footer {
     background: #0f172a !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  .tox .tox-dialog__title {
     color: #ffffff !important;
     font-weight: 700 !important;
   }
-  .ck.ck-dialog .ck-dialog__body {
+  .tox .tox-dialog__body-content {
     background: #090d16 !important;
     color: #e2e8f0 !important;
   }
-  .ck.ck-dialog .ck-dialog__footer {
-    background: #0f172a !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  .tox .tox-button {
+    border-radius: 10px !important;
   }
-  .ck.ck-input-text, .ck.ck-textarea {
-    background: #050811 !important;
-    border: 1px solid #334155 !important;
-    border-radius: 8px !important;
-    color: #ffffff !important;
-  }
-  .ck.ck-input-text:focus, .ck.ck-textarea:focus {
-    border-color: #d946ef !important;
-    box-shadow: 0 0 15px rgba(217, 70, 239, 0.3) !important;
-  }
-
-  /* Interior Typography within CKEditor editable area */
-  .ck-content {
-    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif !important;
-    font-size: 15px !important;
-    line-height: 1.85 !important;
-    color: #e2e8f0 !important;
-  }
-  .ck-content h1, .ck-content h2, .ck-content h3, .ck-content h4 {
-    font-weight: 700 !important;
-    line-height: 1.3 !important;
-    margin-top: 1.6em !important;
-    margin-bottom: 0.6em !important;
-  }
-  .ck-content h1 { font-size: 2rem !important; color: #ffffff !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; }
-  .ck-content h2 { font-size: 1.6rem !important; color: #f5d0fe !important; border-bottom: 1px solid rgba(192,132,252,0.2); padding-bottom: 4px; }
-  .ck-content h3 { font-size: 1.35rem !important; color: #e9d5ff !important; }
-  .ck-content h4 { font-size: 1.15rem !important; color: #d8b4fe !important; }
-  .ck-content p { margin-bottom: 1.25em !important; line-height: 1.85 !important; }
-  
-  /* Visible List Bullets & Numbers in Editor */
-  .ck-content ul {
-    list-style-type: disc !important;
-    padding-left: 2rem !important;
-    margin: 1.25em 0 !important;
-  }
-  .ck-content ol {
-    list-style-type: decimal !important;
-    padding-left: 2rem !important;
-    margin: 1.25em 0 !important;
-  }
-  .ck-content li {
-    margin-bottom: 0.4em !important;
-    line-height: 1.75 !important;
-    color: #cbd5e1 !important;
-    display: list-item !important;
-  }
-
-  .ck-content a { color: #c084fc !important; text-decoration: underline !important; font-weight: 600 !important; }
-  .ck-content a:hover { color: #f472b6 !important; }
-  .ck-content blockquote {
-    border-left: 4px solid #c084fc !important;
-    background: linear-gradient(90deg, rgba(192, 132, 252, 0.15) 0%, rgba(192, 132, 252, 0.02) 100%) !important;
-    padding: 14px 22px !important;
-    border-radius: 0 14px 14px 0 !important;
-    font-style: italic !important;
-    color: #f5d0fe !important;
-    margin: 20px 0 !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-  }
-  .ck-content code {
-    background: rgba(255, 255, 255, 0.08) !important;
-    padding: 2px 7px !important;
-    border-radius: 6px !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-    font-size: 0.9em !important;
-    color: #f472b6 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  }
-  .ck-content pre {
-    background: #04060d !important;
-    padding: 18px !important;
-    border-radius: 14px !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    overflow-x: auto !important;
-    color: #38bdf8 !important;
-    margin: 18px 0 !important;
-  }
-  .ck-content pre code {
-    background: transparent !important;
+  .tox .tox-button--primary {
+    background: linear-gradient(135deg, #c026d3, #9333ea) !important;
     border: none !important;
-    color: inherit !important;
-    padding: 0 !important;
   }
-  .ck-content .image, .ck-content figure.image {
-    margin: 24px auto !important;
-  }
-  .ck-content .image > img, .ck-content figure.image > img {
-    border-radius: 14px !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 12px 35px -5px rgba(0,0,0,0.6) !important;
-    max-width: 100% !important;
-  }
-  .ck-content figcaption {
-    color: #94a3b8 !important;
-    text-align: center !important;
-    font-size: 13px !important;
-    font-style: italic !important;
-    margin-top: 6px !important;
-  }
-  
-  /* Tables inside Editor */
-  .ck-content table {
-    width: 100% !important;
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
-    margin: 20px 0 !important;
+  .tox .tox-menu {
+    background: #090d16 !important;
+    border: 1px solid rgba(192, 132, 252, 0.35) !important;
     border-radius: 12px !important;
-    overflow: hidden !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    background: #0b1120 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9) !important;
   }
-  .ck-content table th, .ck-content table td {
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    padding: 12px 16px !important;
-    color: #e2e8f0 !important;
+  .tox .tox-collection__item {
+    color: #cbd5e1 !important;
+    border-radius: 6px !important;
   }
-  .ck-content table th {
+  .tox .tox-collection__item:hover, .tox .tox-collection__item--active {
     background: rgba(192, 132, 252, 0.2) !important;
     color: #ffffff !important;
-    font-weight: 700 !important;
-    border-bottom: 2px solid rgba(192, 132, 252, 0.3) !important;
   }
-  .ck-content hr {
-    border: none !important;
-    height: 1px !important;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
-    margin: 24px 0 !important;
-  }
-
-  /* Source Editing Mode Full-Height Dark Terminal */
-  .ck-source-editing-area {
-    min-height: 480px !important;
-  }
-  .ck-source-editing-area textarea {
+  .tox .tox-textfield, .tox .tox-selectfield {
     background: #050811 !important;
-    color: #38bdf8 !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-    font-size: 13px !important;
-    line-height: 1.7 !important;
-    padding: 20px 24px !important;
-    border: none !important;
-    min-height: 480px !important;
-    outline: none !important;
+    border: 1px solid #334155 !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
   }
   .flatpickr-months {
     background: #0f172a !important;
@@ -836,170 +655,154 @@ if (initialExcerpt) {
 // -------------------------------------------------------------
 let articleEditor;
 
-function initArticleEditor() {
-  if (typeof CKEDITOR === 'undefined' || !CKEDITOR.ClassicEditor) {
-    console.warn('CKEDITOR is loading, retrying initialization...');
-    setTimeout(initArticleEditor, 150);
-    return;
-  }
-
-  const targetEl = document.querySelector('#art_content');
-  if (!targetEl) return;
-
-  CKEDITOR.ClassicEditor.create(targetEl, {
-    toolbar: {
-      items: [
-        'undo', 'redo', '|',
-        'heading', 'fontFamily', 'fontSize', 'fontColor', 'fontBackgroundColor', '|',
-        'bold', 'italic', 'underline', 'strikethrough', 'code', 'subscript', 'superscript', '|',
-        'alignment', '|',
-        'bulletedList', 'numberedList', 'outdent', 'indent', '|',
-        'link', 'uploadImage', 'mediaEmbed', 'blockQuote', 'insertTable', 'codeBlock', 'horizontalLine', 'specialCharacters', '|',
-        'sourceEditing', 'findAndReplace', 'selectAll'
-      ],
-      shouldNotGroupWhenFull: true
-    },
-    heading: {
-      options: [
-        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
-        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
-        { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
-      ]
-    },
-    fontSize: {
-      options: [ 10, 12, 14, 'default', 18, 20, 24, 30, 36 ],
-      supportAllValues: true
-    },
-    fontFamily: {
-      options: [
-        'default',
-        'Plus Jakarta Sans, sans-serif',
-        'Inter, sans-serif',
-        'Noto Serif Bengali, sans-serif',
-        'Arial, Helvetica, sans-serif',
-        'Courier New, Courier, monospace',
-        'Georgia, serif',
-        'Lucida Sans Unicode, Lucida Grande, sans-serif',
-        'Tahoma, Geneva, sans-serif',
-        'Times New Roman, Times, serif',
-        'Trebuchet MS, Helvetica, sans-serif',
-        'Verdana, Geneva, sans-serif'
-      ],
-      supportAllValues: true
-    },
-    fontColor: {
-      columns: 6,
-      colors: [
-        { color: '#ffffff', label: 'White' },
-        { color: '#f5d0fe', label: 'Light Purple' },
-        { color: '#c084fc', label: 'Purple Accent' },
-        { color: '#d946ef', label: 'Fuchsia' },
-        { color: '#f472b6', label: 'Pink' },
-        { color: '#38bdf8', label: 'Cyan' },
-        { color: '#4ade80', label: 'Green' },
-        { color: '#facc15', label: 'Yellow' },
-        { color: '#fb923c', label: 'Orange' },
-        { color: '#f87171', label: 'Red' },
-        { color: '#94a3b8', label: 'Slate' },
-        { color: '#000000', label: 'Black' }
-      ]
-    },
-    fontBackgroundColor: {
-      columns: 6,
-      colors: [
-        { color: 'transparent', label: 'None' },
-        { color: 'rgba(192, 132, 252, 0.25)', label: 'Purple Tint' },
-        { color: 'rgba(217, 70, 239, 0.25)', label: 'Fuchsia Tint' },
-        { color: 'rgba(56, 189, 248, 0.25)', label: 'Cyan Tint' },
-        { color: 'rgba(74, 222, 128, 0.25)', label: 'Green Tint' },
-        { color: 'rgba(250, 204, 21, 0.25)', label: 'Yellow Tint' },
-        { color: 'rgba(248, 113, 113, 0.25)', label: 'Red Tint' },
-        { color: '#1e293b', label: 'Dark Slate' },
-        { color: '#090d16', label: 'Dark Background' }
-      ]
-    },
-    simpleUpload: {
-      uploadUrl: '/axomai-content/articles/upload-image/',
-      headers: {
-        'X-CSRFToken': csrftoken
-      }
-    },
-    image: {
-      toolbar: [
-        'imageTextAlternative',
-        'toggleImageCaption',
-        '|',
-        'imageStyle:inline',
-        'imageStyle:block',
-        'imageStyle:side',
-        '|',
-        'linkImage'
-      ],
-      insert: {
-        integrations: ['upload']
-      }
-    },
-    table: {
-      contentToolbar: [
-        'tableColumn', 'tableRow', 'mergeTableCells',
-        'tableProperties', 'tableCellProperties'
-      ]
-    },
-    link: {
-      addTargetToExternalLinks: true,
-      defaultProtocol: 'https://'
-    },
-    codeBlock: {
-      languages: [
-        { language: 'plaintext', label: 'Plain text' },
-        { language: 'python', label: 'Python' },
-        { language: 'javascript', label: 'JavaScript' },
-        { language: 'html', label: 'HTML' },
-        { language: 'css', label: 'CSS' },
-        { language: 'json', label: 'JSON' },
-        { language: 'bash', label: 'Bash / Shell' },
-        { language: 'sql', label: 'SQL' }
-      ]
-    },
-    htmlSupport: {
-      allow: [
-        {
-          name: /.*/,
-          attributes: true,
-          classes: true,
-          styles: true
-        }
-      ]
-    },
-    removePlugins: [
-      'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage', 'Base64UploadAdapter',
-      'MultiLevelList', 'ExportPdf', 'ExportWord',
-      'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges',
-      'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments',
-      'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination',
-      'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline',
-      'FormatPainter', 'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange'
-    ]
-  }).then(editor => {
-    articleEditor = editor;
-    console.log('CKEditor 5 initialized successfully!');
-  }).catch(error => {
-    console.error('CKEditor Init Error:', error);
-    const textarea = document.querySelector('#art_content');
-    if (textarea) {
-      textarea.style.display = 'block';
-      textarea.style.minHeight = '480px';
+// -------------------------------------------------------------
+// Initialize TinyMCE 6 (WordPress Classic Editor Engine)
+// -------------------------------------------------------------
+tinymce.init({
+  selector: '#art_content',
+  height: 540,
+  menubar: 'file edit view insert format tools table help',
+  plugins: [
+    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+    'insertdatetime', 'media', 'table', 'help', 'wordcount', 'codesample'
+  ],
+  toolbar: 'undo redo | blocks fontfamily fontsize | ' +
+    'bold italic underline strikethrough | forecolor backcolor | ' +
+    'alignleft aligncenter alignright alignjustify | ' +
+    'bullist numlist outdent indent | ' +
+    'link image media table blockquote codesample | ' +
+    'hr removeformat | code fullscreen preview',
+  skin: 'oxide-dark',
+  content_css: 'dark',
+  font_family_formats: 'Plus Jakarta Sans=Plus Jakarta Sans,sans-serif; Inter=Inter,sans-serif; Noto Serif Bengali=Noto Serif Bengali,sans-serif; Arial=Arial,sans-serif; Courier New=courier new,courier,monospace; Georgia=georgia,palatino; Times New Roman=times new roman,times; Verdana=verdana,geneva',
+  fontsize_formats: '11px 12px 14px 16px 18px 20px 24px 28px 32px 36px 48px',
+  block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Quote=blockquote; Code Block=pre',
+  content_style: `
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.85;
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 20px 24px;
     }
-  });
-}
+    h1, h2, h3, h4 { color: #ffffff; font-weight: 700; margin-top: 1.6em; margin-bottom: 0.6em; }
+    h1 { font-size: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; }
+    h2 { font-size: 1.6rem; color: #f5d0fe; border-bottom: 1px solid rgba(192,132,252,0.2); padding-bottom: 4px; }
+    h3 { font-size: 1.35rem; color: #e9d5ff; }
+    h4 { font-size: 1.15rem; color: #d8b4fe; }
+    p { margin-bottom: 1.25em; line-height: 1.85; }
+    ul { list-style-type: disc !important; padding-left: 2rem !important; margin: 1.25em 0 !important; }
+    ol { list-style-type: decimal !important; padding-left: 2rem !important; margin: 1.25em 0 !important; }
+    li { margin-bottom: 0.4em !important; line-height: 1.75 !important; color: #cbd5e1 !important; display: list-item !important; }
+    a { color: #c084fc; text-decoration: underline; font-weight: 600; }
+    a:hover { color: #f472b6; }
+    blockquote {
+      border-left: 4px solid #c084fc;
+      background: linear-gradient(90deg, rgba(192, 132, 252, 0.15) 0%, rgba(192, 132, 252, 0.02) 100%);
+      padding: 14px 22px;
+      border-radius: 0 14px 14px 0;
+      font-style: italic;
+      color: #f5d0fe;
+      margin: 20px 0;
+    }
+    code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.9em;
+      color: #f472b6;
+    }
+    pre {
+      background: #04060d;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-x: auto;
+      color: #38bdf8;
+      margin: 18px 0;
+    }
+    img {
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 35px -5px rgba(0,0,0,0.6);
+      max-width: 100%;
+      height: auto;
+      margin: 20px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #0b1120;
+    }
+    table th, table td {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 16px;
+      color: #e2e8f0;
+    }
+    table th {
+      background: rgba(192, 132, 252, 0.2);
+      color: #ffffff;
+      font-weight: 700;
+      border-bottom: 2px solid rgba(192, 132, 252, 0.3);
+    }
+  `,
+  images_upload_url: '/axomai-content/articles/upload-image/',
+  images_upload_handler: function (blobInfo, progress) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+      xhr.open('POST', '/axomai-content/articles/upload-image/');
+      xhr.setRequestHeader('X-CSRFToken', csrftoken);
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initArticleEditor);
-} else {
-  initArticleEditor();
-}
+      xhr.upload.onprogress = (e) => {
+        progress(e.loaded / e.total * 100);
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 403) {
+          reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
+          return;
+        }
+
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject('HTTP Error: ' + xhr.status);
+          return;
+        }
+
+        const json = JSON.parse(xhr.responseText);
+
+        if (!json || typeof (json.location || json.url) !== 'string') {
+          reject('Invalid JSON: ' + xhr.responseText);
+          return;
+        }
+
+        resolve(json.location || json.url);
+      };
+
+      xhr.onerror = () => {
+        reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status);
+      };
+
+      const formData = new FormData();
+      formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+      xhr.send(formData);
+    });
+  },
+  setup: function (editor) {
+    editor.on('init', function () {
+      console.log('TinyMCE (WordPress Classic Editor) loaded successfully!');
+    });
+  }
+});
 
 // Slug & Permalink Handlers
 let isManualSlug = !!document.getElementById('art_slug').value;
@@ -1043,8 +846,8 @@ function handleSlugInput(val) {
 }
 
 async function saveArticle() {
-  const richContent = articleEditor
-    ? articleEditor.getData()
+  const richContent = (typeof tinymce !== 'undefined' && tinymce.get('art_content'))
+    ? tinymce.get('art_content').getContent()
     : document.getElementById('art_content').value;
 
   const payload = {
