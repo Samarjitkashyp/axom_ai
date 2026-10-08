@@ -237,9 +237,9 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
           </div>
 
           {/* Main Article Content */}
-          <article className="blog-rich-content relative w-full">
+          <article className="blog-rich-content relative w-full text-slate-900 dark:text-slate-100">
             <div
-              className="prose prose-invert max-w-none prose-headings:text-emerald-950 dark:prose-headings:text-white prose-a:text-purple-700 dark:prose-a:text-purple-400 hover:prose-a:text-purple-700 dark:hover:prose-a:text-purple-300 prose-img:rounded-2xl leading-relaxed"
+              className="prose prose-slate dark:prose-invert max-w-none prose-headings:text-emerald-950 dark:prose-headings:text-white prose-p:text-slate-800 dark:prose-p:text-slate-200 prose-p:leading-relaxed prose-strong:text-emerald-950 dark:prose-strong:text-white prose-a:text-purple-700 dark:prose-a:text-purple-400 hover:prose-a:text-purple-600 dark:hover:prose-a:text-purple-300 prose-img:rounded-2xl leading-relaxed text-base"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
           </article>
