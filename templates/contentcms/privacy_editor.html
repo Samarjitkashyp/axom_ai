@@ -526,55 +526,208 @@
       </div>
     </div>
 
-    <!-- 9. SEO, AEO & GEO METADATA -->
+    <!-- 9. SEO & METADATA -->
     <div id="sec-seo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
       <div class="flex items-center justify-between border-b border-slate-800 pb-4">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 grid place-items-center text-indigo-400">
-            <i class="fa-solid fa-magnifying-glass-chart text-sm"></i>
+          <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 grid place-items-center text-rose-400">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
           </div>
           <div>
-            <h2 class="text-base font-bold text-white">9. SEO, AEO & GEO Search Engine Meta Tags</h2>
-            <p class="text-xs text-slate-400">Google, Bing, Perplexity, DPDP statutory ranking tags</p>
+            <h2 class="text-base font-bold text-white">9. SEO & Generative Search Metadata</h2>
+            <p class="text-xs text-slate-400">Optimize Privacy Policy Page for Google Search, AI Snippets, and Social Cards</p>
           </div>
         </div>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-5">
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Title Tag</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span>Meta Title (Browser Tab & Google)</span>
+            <span id="meta_title_count" class="text-[10px] text-slate-500 font-mono">0 / 65</span>
+          </label>
           <input type="text" id="meta_title" value="{{ config.meta_title|default:'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance' }}"
+            oninput="syncSocialPreview()"
             class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Description Tag</label>
-          <textarea id="meta_description" rows="3"
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span>Meta Description</span>
+            <span id="meta_desc_count" class="text-[10px] text-slate-500 font-mono">0 / 160</span>
+          </label>
+          <textarea id="meta_description" rows="2"
+            oninput="syncSocialPreview()"
             class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description|default:'Axom AI Privacy Policy: Learn how we protect your data, conversations, and uploaded documents. Fully compliant with India’s DPDP Act 2023 with 256-bit encryption and zero training on private data.' }}</textarea>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Target Keywords (Comma Separated)</label>
-          <textarea id="meta_keywords" rows="3"
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Keywords (Comma separated)</label>
+          <textarea id="meta_keywords" rows="2"
             class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords|default:'Axom AI Privacy Policy, Axom AI privacy, Axom AI data privacy, Axom AI data protection, Axom AI security, Axom AI user privacy, Axom AI data security, Axom AI personal data, Axom AI data protection policy, Is Axom AI safe to use, How does Axom AI protect my data, Does Axom AI use my data to train AI models, DPDP Act 2023 AI privacy Assam' }}</textarea>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Canonical URL</label>
-            <input type="text" id="canonical_url" value="{{ config.canonical_url|default:'https://aiaxom.co.in/privacy/' }}"
-              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Canonical URL</label>
+          <input type="text" id="canonical_url" value="{{ config.canonical_url|default:'https://aiaxom.co.in/privacy/' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
+        </div>
+
+        <!-- OPENGRAPH / TWITTER SHARE IMAGE UPLOAD & PREVIEW -->
+        <div class="pt-4 border-t border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-image text-rose-400"></i>
+                <span>OpenGraph & Twitter Share Image</span>
+              </h3>
+              <p class="text-[11px] text-slate-400">Directly upload any image — automatically optimized to 1200×630 px for WhatsApp, Google & X</p>
+            </div>
+            <button type="button" onclick="resetOgImageToDefault()" class="text-[11px] text-slate-400 hover:text-rose-400 transition flex items-center gap-1">
+              <i class="fa-solid fa-rotate-left"></i> Reset to Default
+            </button>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Open Graph (OG) Image URL</label>
-            <div class="flex gap-2">
-              <input type="text" id="og_image_url" value="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}"
-                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
-              <label class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white flex items-center gap-1.5 cursor-pointer shrink-0 transition">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>Upload</span>
-                <input type="file" id="ogImageFileInput" accept="image/*" class="hidden" onchange="uploadPrivacyOgImage(this)">
-              </label>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Upload Box (Left 6 cols) -->
+            <div class="lg:col-span-6 space-y-3">
+              <!-- Drag & Drop Zone -->
+              <div id="og_dropzone"
+                onclick="document.getElementById('og_image_file_input').click()"
+                ondragover="event.preventDefault(); this.classList.add('border-rose-500', 'bg-rose-500/5')"
+                ondragleave="this.classList.remove('border-rose-500', 'bg-rose-500/5')"
+                ondrop="event.preventDefault(); this.classList.remove('border-rose-500', 'bg-rose-500/5'); handleOgImageDrop(event)"
+                class="relative border-2 border-dashed border-slate-700 hover:border-rose-500/70 bg-slate-900/60 hover:bg-rose-500/5 rounded-2xl p-6 text-center cursor-pointer transition group overflow-hidden">
+                
+                <!-- Spinner Overlay -->
+                <div id="og_upload_spinner" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center gap-2.5 z-20">
+                  <div class="w-8 h-8 rounded-full border-2 border-rose-500 border-t-transparent animate-spin"></div>
+                  <p class="text-xs font-semibold text-rose-300 animate-pulse">Converting & Optimizing to 1200×630...</p>
+                  <p class="text-[10px] text-slate-400">Lanczos high-DPI filter & progressive compression</p>
+                </div>
+
+                <input type="file" id="og_image_file_input" accept="image/png,image/jpeg,image/webp,image/avif,image/jfif,image/gif,image/bmp" class="hidden" onchange="handleOgImageUpload(this)">
+
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-rose-500/20 to-pink-600/20 border border-rose-500/30 text-rose-400 grid place-items-center text-lg mb-3 group-hover:scale-110 transition shadow-lg shadow-rose-500/10">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+
+                <div class="space-y-1">
+                  <p class="text-xs font-bold text-white group-hover:text-rose-300 transition">Click to Upload Image or Drag & Drop</p>
+                  <p class="text-[11px] text-slate-400">Supports PNG, JPG, WebP, AVIF, GIF (Any size up to 25MB)</p>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-center gap-4 text-[10px] text-slate-400">
+                  <span class="flex items-center gap-1 text-emerald-400">
+                    <i class="fa-solid fa-check text-[9px]"></i> Auto-Crops 1200×630
+                  </span>
+                  <span class="flex items-center gap-1 text-emerald-400">
+                    <i class="fa-solid fa-check text-[9px]"></i> 100% SEO Valid
+                  </span>
+                  <span class="flex items-center gap-1 text-emerald-400">
+                    <i class="fa-solid fa-check text-[9px]"></i> Fast CDN
+                  </span>
+                </div>
+              </div>
+
+              <!-- Fit Mode Option -->
+              <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-sliders text-rose-400 text-xs"></i>
+                    <span>Conversion Fit Mode:</span>
+                  </label>
+                  <span class="text-[10px] text-slate-500">Output: Exact 1200×630</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <label class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 cursor-pointer text-xs text-slate-200">
+                    <input type="radio" name="og_fit_mode" value="cover" checked class="accent-rose-500">
+                    <span class="text-[11px]">
+                      <strong>Fill & Crop</strong>
+                      <span class="block text-[9px] text-slate-400">Crops cleanly to 1200×630</span>
+                    </span>
+                  </label>
+                  <label class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 cursor-pointer text-xs text-slate-200">
+                    <input type="radio" name="og_fit_mode" value="contain" class="accent-rose-500">
+                    <span class="text-[11px]">
+                      <strong>Smart Contain</strong>
+                      <span class="block text-[9px] text-slate-400">Blurred backdrop (logos)</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Image URL Input (Direct / Fallback) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span>Image URL (Generated or External CDN)</span>
+                  <span class="text-[10px] text-slate-500 font-mono">Live in DB</span>
+                </label>
+                <div class="flex items-center gap-2">
+                  <input type="text" id="og_image_url" value="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}" oninput="syncSocialPreview()"
+                    placeholder="https://aiaxom.co.in/media/cms/og_images/..."
+                    class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
+                  <button type="button" onclick="copyOgImageUrl()" title="Copy Image URL" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition shrink-0">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                  <a id="og_view_link" href="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}" target="_blank" rel="noopener noreferrer" title="View Full Size Image" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition shrink-0">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Social Share Card Mockup (Right 6 cols) -->
+            <div class="lg:col-span-6 space-y-3">
+              <div class="flex items-center justify-between text-xs text-slate-400">
+                <span class="font-semibold text-slate-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-eye text-rose-400"></i>
+                  <span>Live Card Preview (WhatsApp / Google / X)</span>
+                </span>
+                <span id="og_size_badge" class="text-[10px] font-mono text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                  1200 × 630 px
+                </span>
+              </div>
+
+              <!-- Social Card Container -->
+              <div class="rounded-2xl border border-slate-700/90 bg-slate-950 overflow-hidden shadow-2xl">
+                <!-- Image Box with Aspect Ratio 1200 / 630 -->
+                <div class="relative w-full aspect-[1200/630] bg-slate-900 overflow-hidden group">
+                  <img id="og_image_preview_img"
+                    src="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}"
+                    alt="OpenGraph Social Preview"
+                    onerror="this.src='https://aiaxom.co.in/static/dist/hero/assam.avif'"
+                    class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                  
+                  <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60"></div>
+                  
+                  <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+                    <span class="text-[9px] font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                      SEO Ready
+                    </span>
+                    <span class="text-[9px] font-bold font-mono bg-black/70 backdrop-blur-md text-white px-2 py-0.5 rounded-md border border-white/20">
+                      1200×630
+                    </span>
+                  </div>
+
+                  <div class="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                    <span class="text-[10px] font-medium text-slate-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded border border-white/10">
+                      aiaxom.co.in/privacy
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Text Preview Container -->
+                <div class="p-4 space-y-1.5 border-t border-slate-800/80 bg-slate-900/90">
+                  <div class="text-[10px] uppercase tracking-wider font-semibold text-rose-400">aiaxom.co.in</div>
+                  <h4 id="social_preview_title" class="text-xs font-bold text-white leading-snug line-clamp-1">
+                    {{ config.meta_title|default:'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance' }}
+                  </h4>
+                  <p id="social_preview_desc" class="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                    {{ config.meta_description|default:'Axom AI Privacy Policy: Learn how we protect your data, conversations, and uploaded documents. Fully compliant with India’s DPDP Act 2023 with 256-bit encryption.' }}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -970,12 +1123,35 @@
     }
   }
 
-  async function uploadPrivacyOgImage(input) {
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
+  // ==============================================================================
+  // OPENGRAPH IMAGE UPLOAD & PREVIEW LOGIC
+  // ==============================================================================
+  function handleOgImageUpload(input) {
+    if (input.files && input.files[0]) {
+      processOgImageFile(input.files[0]);
+    }
+  }
+
+  function handleOgImageDrop(event) {
+    const dt = event.dataTransfer;
+    if (dt && dt.files && dt.files[0]) {
+      processOgImageFile(dt.files[0]);
+    }
+  }
+
+  async function processOgImageFile(file) {
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid image file.', false);
+      return;
+    }
+
+    const spinner = document.getElementById('og_upload_spinner');
+    if (spinner) spinner.classList.remove('hidden');
+
+    const fitMode = document.querySelector('input[name="og_fit_mode"]:checked')?.value || 'cover';
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('tool_slug', 'privacy');
+    formData.append('fit_mode', fitMode);
 
     try {
       const res = await fetch('/axomai-content/pages/privacy/upload-og-image/', {
@@ -984,16 +1160,80 @@
         body: formData,
       });
       const data = await res.json();
+
       if (data.success) {
-        document.getElementById('og_image_url').value = data.url;
-        showToast('OG Image uploaded and saved for SEO!');
+        const ogInput = document.getElementById('og_image_url');
+        const prevImg = document.getElementById('og_image_preview_img');
+        const sizeBadge = document.getElementById('og_size_badge');
+        const viewLink = document.getElementById('og_view_link');
+
+        if (ogInput) ogInput.value = data.url;
+        if (prevImg) prevImg.src = data.url;
+        if (viewLink) viewLink.href = data.url;
+        if (sizeBadge) sizeBadge.textContent = `1200 × 630 px • ${data.size_kb || 45} KB`;
+
+        showToast(data.message || 'Image converted to 1200×630 and saved for SEO!');
+        syncSocialPreview();
       } else {
-        showToast(data.error || 'Image upload failed', false);
+        showToast(data.error || 'Failed to convert image.', false);
       }
-    } catch (e) {
-      showToast('Upload error', false);
+    } catch (err) {
+      console.error(err);
+      showToast('Network error while uploading image.', false);
+    } finally {
+      if (spinner) spinner.classList.add('hidden');
     }
   }
+
+  function copyOgImageUrl() {
+    const ogInput = document.getElementById('og_image_url');
+    if (!ogInput || !ogInput.value) {
+      showToast('No image URL to copy.', false);
+      return;
+    }
+    navigator.clipboard.writeText(ogInput.value).then(() => {
+      showToast('OpenGraph Image URL copied to clipboard!');
+    }).catch(() => {
+      showToast('Failed to copy URL.', false);
+    });
+  }
+
+  function resetOgImageToDefault() {
+    const defUrl = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
+    const ogInput = document.getElementById('og_image_url');
+    if (ogInput) {
+      ogInput.value = defUrl;
+      syncSocialPreview();
+      showToast('Reset to default image. Remember to Save Changes!');
+    }
+  }
+
+  function syncSocialPreview() {
+    const title = val('meta_title') || 'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance';
+    const desc = val('meta_description') || 'Axom AI Privacy Policy: Learn how we protect your data, conversations, and uploaded documents.';
+    const imgUrl = val('og_image_url') || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
+
+    const titleEl = document.getElementById('social_preview_title');
+    const descEl = document.getElementById('social_preview_desc');
+    const imgEl = document.getElementById('og_image_preview_img');
+    const viewLink = document.getElementById('og_view_link');
+
+    if (titleEl) titleEl.textContent = title;
+    if (descEl) descEl.textContent = desc;
+    if (imgEl) imgEl.src = imgUrl;
+    if (viewLink) viewLink.href = imgUrl;
+
+    // Character counter updates
+    const titleCount = document.getElementById('meta_title_count');
+    if (titleCount) titleCount.textContent = `${title.length} / 65`;
+    const descCount = document.getElementById('meta_desc_count');
+    if (descCount) descCount.textContent = `${desc.length} / 160`;
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    syncSocialPreview();
+  });
 
   // Ctrl+S shortcut
   document.addEventListener('keydown', function(e) {
