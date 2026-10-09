@@ -7,18 +7,18 @@ export const revalidate = 3600; // Cache for 1 hour
 export async function GET() {
   const baseUrl = 'https://aiaxom.co.in';
 
-  // Static High-Level Pages
+  // Static High-Level Pages (Next.js canonical without trailing slash)
   const staticPages = [
-    { url: `${baseUrl}/`, lastmod: '2026-10-08', changefreq: 'daily', priority: '1.0' },
-    { url: `${baseUrl}/about/`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
-    { url: `${baseUrl}/use-cases/`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
-    { url: `${baseUrl}/pricing/`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
-    { url: `${baseUrl}/blog/`, lastmod: '2026-10-08', changefreq: 'daily', priority: '0.9' },
-    { url: `${baseUrl}/faq/`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.8' },
-    { url: `${baseUrl}/contact/`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.8' },
-    { url: `${baseUrl}/privacy/`, lastmod: '2026-10-08', changefreq: 'monthly', priority: '0.7' },
-    { url: `${baseUrl}/terms/`, lastmod: '2026-10-08', changefreq: 'monthly', priority: '0.7' },
-    { url: `${baseUrl}/tools/`, lastmod: '2026-10-08', changefreq: 'daily', priority: '0.9' },
+    { url: `${baseUrl}`, lastmod: '2026-10-08', changefreq: 'daily', priority: '1.0' },
+    { url: `${baseUrl}/about`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
+    { url: `${baseUrl}/use-cases`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
+    { url: `${baseUrl}/pricing`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
+    { url: `${baseUrl}/blog`, lastmod: '2026-10-08', changefreq: 'daily', priority: '0.9' },
+    { url: `${baseUrl}/faq`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.8' },
+    { url: `${baseUrl}/contact`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.8' },
+    { url: `${baseUrl}/privacy`, lastmod: '2026-10-08', changefreq: 'monthly', priority: '0.7' },
+    { url: `${baseUrl}/terms`, lastmod: '2026-10-08', changefreq: 'monthly', priority: '0.7' },
+    { url: `${baseUrl}/tools`, lastmod: '2026-10-08', changefreq: 'daily', priority: '0.9' },
   ];
 
   // All 37 Axom AI Tools
@@ -69,7 +69,7 @@ export async function GET() {
     priority: '0.9',
   }));
 
-  // Dynamic Blog Articles
+  // Dynamic Blog Articles (canonical without trailing slash)
   let blogPages: Array<{ url: string; lastmod: string; changefreq: string; priority: string }> = [];
   try {
     const { articles } = await getArticlesCMS();
@@ -82,7 +82,7 @@ export async function GET() {
           dateStr = new Date(art.published_at).toISOString().split('T')[0];
         }
         return {
-          url: `${baseUrl}/blog/${art.slug}/`,
+          url: `${baseUrl}/blog/${art.slug}`,
           lastmod: dateStr,
           changefreq: 'weekly',
           priority: '0.8',
