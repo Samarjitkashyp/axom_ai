@@ -90,6 +90,7 @@ export const metadata: Metadata = {
   },
   other: {
     'msvalidate.01': 'CB3FFAB9260C37F10E027874F5FA9326',
+    'yandex-verification': 'ec3d751d293b8dd8',
   },
 };
 
@@ -102,6 +103,7 @@ export default function RootLayout({
     <html lang="en-IN" className="scroll-smooth" suppressHydrationWarning>
       <head>
         <meta name="msvalidate.01" content="CB3FFAB9260C37F10E027874F5FA9326" />
+        <meta name="yandex-verification" content="ec3d751d293b8dd8" />
         <script dangerouslySetInnerHTML={{ __html: THEME_JS }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
