@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageTitle } from '../../../lib/seoTitle';
 import Link from 'next/link';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
@@ -56,7 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const ogImage = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
-    title,
+    title: pageTitle(title),
     description,
     keywords: TARGET_KEYWORDS,
     alternates: {

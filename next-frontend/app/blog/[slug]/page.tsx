@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const data = await getArticleDetailCMS(params.slug);
   if (!data || !data.article) {
     return {
-      title: 'Article Not Found | Axom AI',
+      title: 'Article Not Found',
       description: 'The requested article could not be found.',
     };
   }
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
   const ogImage = article.cover_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
-    title: `${article.title} | Axom AI`,
+    title: article.title,   // the root layout adds " | Axom AI"
     description: article.excerpt || article.title,
     alternates: {
       canonical: canonicalUrl,

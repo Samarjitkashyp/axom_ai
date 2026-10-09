@@ -5,6 +5,7 @@ import Footer from '../../components/Footer';
 import FAQPageContent from '../../components/FAQPageContent';
 import { FULL_FAQS_LIST } from '../../components/faqFullData';
 import { getLandingCMS } from '../../lib/api';
+import { pageTitle } from '../../lib/seoTitle';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -116,7 +117,7 @@ export async function generateMetadata(): Promise<Metadata> {
     faqPage?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
-    title,
+    title: pageTitle(title),
     description,
     keywords: TARGET_KEYWORDS,
     alternates: {
