@@ -4335,7 +4335,7 @@ def summarize_api(request):
 # AI IMAGE FINDER (Pexels Stock & Creative Photos API)
 # =============================================================================
 
-PEXELS_API_KEY = os.getenv('PEXELS_API_KEY', 'tFXBOrGoNROyvUYDwsRdoRKkc5u8K0vGLhWzNTVCU9Xqqd9pQxqRGbEn').strip()
+PEXELS_API_KEY = os.getenv('PEXELS_API_KEY', '').strip()
 PEXELS_BASE_URL = 'https://api.pexels.com/v1'
 
 
@@ -4354,7 +4354,7 @@ def search_stock_images_api(request):
         return JsonResponse({'error': 'Only GET method allowed.'}, status=405)
 
     if not PEXELS_API_KEY:
-        return JsonResponse({'error': 'Pexels API key is not configured.'}, status=503)
+        return JsonResponse({'error': 'Image search is not configured'}, status=503)
 
     query = (request.GET.get('query') or '').strip()
     try:
@@ -4494,7 +4494,7 @@ def search_stock_videos_api(request):
         return JsonResponse({'error': 'Only GET method allowed.'}, status=405)
 
     if not PEXELS_API_KEY:
-        return JsonResponse({'error': 'Pexels API key is not configured.'}, status=503)
+        return JsonResponse({'error': 'Image search is not configured'}, status=503)
 
     query = (request.GET.get('query') or '').strip()
     try:
