@@ -1,3 +1,6 @@
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle,
   FileText, Mic, MicOff, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
