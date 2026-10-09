@@ -1,4 +1,4 @@
-import { FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, ArrowDownToLine, GraduationCap } from 'lucide-react';
+import { FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, ArrowDownToLine, GraduationCap, ImageDown } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
   { id: 'all', name: 'All Tools' },
@@ -148,6 +148,14 @@ export const ALL_TOOLS = [
     compressor: true,
     hint: 'PDF file',
     desc: 'Reduce PDF file size without noticeable loss of visual quality.',
+  },
+  {
+    id: 'imgcompress',
+    name: 'Image Compressor',
+    cat: 'Optimize',
+    icon: ImageDown,
+    hint: 'JPG, PNG, WebP',
+    desc: 'Make pictures smaller by quality or to a target size in KB. Works in your browser; nothing is uploaded.',
   },
   {
     id: 'video_compress',
