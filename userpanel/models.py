@@ -131,3 +131,28 @@ class DeviceRegistration(models.Model):
     def __str__(self):
         return f"{self.user.username} registered from IP {self.ip_address} (device: {self.device_id[:8]})"
 
+
+class UserLoginAttempt(models.Model):
+    """Tracks failed User Account login attempts with persistent 24-hour IP and Username lockout."""
+    ip_address = models.CharField(max_length=64, db_index=True)
+    username = models.CharField(max_length=150, db_index=True, blank=True)
+    failed_count = models.PositiveIntegerField(default=0)
+    last_failed_at = models.DateTimeField(null=True, blank=True)
+    is_locked = models.BooleanField(default=False)
+    locked_until = models.DateTimeField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'User Login Security Record'
+        verbose_name_plural = 'User Login Security Records'
+        indexes = [
+            models.Index(fields=['ip_address', 'is_locked']),
+            models.Index(fields=['username', 'is_locked']),
+        ]
+
+    def __str__(self):
+        return f"{self.ip_address} | {self.username} (Failed: {self.failed_count}, Locked: {self.is_locked})"
+
+
