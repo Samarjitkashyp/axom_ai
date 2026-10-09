@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, UploadCloud, Loader2, Download, ImageDown, CheckCircle, AlertCircle, Trash2, ShieldCheck, Archive, ChevronDown } from 'lucide-react';
+import { X, UploadCloud, Loader2, Download, ImageDown, CheckCircle, AlertCircle, Trash2, ShieldCheck, Archive, ChevronDown, Check } from 'lucide-react';
 import { compressImage, fmtSize } from './utils/imageCompress';
 
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/avif';
@@ -26,6 +26,128 @@ const FORMATS = [
 const label = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-secondary, #94a3b8)', margin: '14px 0 6px', textTransform: 'uppercase', letterSpacing: '0.03em' };
 
 let seq = 0;
+
+function CustomSelect({ options, value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (selectRef.current && !selectRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((o) => o.v === value) || options[0];
+
+  return (
+    <div ref={selectRef} style={{ position: 'relative', width: '100%' }}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '10px 14px',
+          borderRadius: '10px',
+          border: `1px solid ${isOpen ? '#10b981' : 'rgba(255, 255, 255, 0.12)'}`,
+          background: 'rgba(255, 255, 255, 0.04)',
+          color: 'var(--text-primary, #f8fafc)',
+          fontSize: '0.86rem',
+          fontWeight: 500,
+          cursor: 'pointer',
+          outline: 'none',
+          boxShadow: isOpen ? '0 0 0 3px rgba(16, 185, 129, 0.2)' : 'none',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {selectedOption ? selectedOption.l : ''}
+        </span>
+        <ChevronDown
+          size={16}
+          style={{
+            color: 'var(--text-muted, #94a3b8)',
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s ease',
+            flexShrink: 0,
+            marginLeft: '8px',
+          }}
+        />
+      </button>
+
+      {isOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 6px)',
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: '#0d1424',
+            border: '1px solid rgba(255, 255, 255, 0.14)',
+            borderRadius: '12px',
+            padding: '6px',
+            boxShadow: '0 12px 28px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255,255,255,0.05)',
+            maxHeight: '220px',
+            overflowY: 'auto',
+            backdropFilter: 'blur(16px)',
+          }}
+        >
+          {options.map((opt) => {
+            const isSelected = opt.v === value;
+            return (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => {
+                  onChange(opt.v);
+                  setIsOpen(false);
+                }}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '9px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: isSelected ? 'rgba(16, 185, 129, 0.16)' : 'transparent',
+                  color: isSelected ? '#10b981' : '#e2e8f0',
+                  fontSize: '0.84rem',
+                  fontWeight: isSelected ? 600 : 400,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'background 0.15s ease, color 0.15s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)';
+                    e.currentTarget.style.color = '#ffffff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = '#e2e8f0';
+                  }
+                }}
+              >
+                <span>{opt.l}</span>
+                {isSelected && <Check size={14} style={{ color: '#10b981', flexShrink: 0, marginLeft: '6px' }} />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ImageCompressor({ onClose }) {
   const [items, setItems] = useState([]);
@@ -125,36 +247,6 @@ export default function ImageCompressor({ onClose }) {
   return (
     <div className="ic-container" style={{ width: '100%', maxWidth: '1060px', margin: '0 auto', background: 'var(--bg-primary, #0b0f19)', border: '1px solid var(--border-color, rgba(255,255,255,0.1))', borderRadius: '20px', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: '440px' }}>
       <style>{`
-        .ic-select {
-          width: 100%;
-          padding: 10px 36px 10px 12px;
-          border-radius: 10px;
-          border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
-          background: rgba(255, 255, 255, 0.04);
-          color: var(--text-primary, #f8fafc);
-          font-size: 0.86rem;
-          font-weight: 500;
-          outline: none;
-          cursor: pointer;
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-        }
-        .ic-select:hover {
-          border-color: rgba(16, 185, 129, 0.4);
-          background: rgba(255, 255, 255, 0.06);
-        }
-        .ic-select:focus {
-          border-color: #10b981 !important;
-          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
-          background: rgba(255, 255, 255, 0.07);
-        }
-        .ic-select option {
-          background-color: #0f172a;
-          color: #f8fafc;
-          padding: 8px 12px;
-        }
         .ic-input {
           width: 100%;
           padding: 9px 12px;
@@ -227,18 +319,36 @@ export default function ImageCompressor({ onClose }) {
       </div>
 
       {items.length === 0 ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '28px 20px', minHeight: '340px' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px', minHeight: '340px' }}>
           <label
             onDragEnter={(e) => { e.preventDefault(); setDragActive(true); }}
             onDragOver={(e) => e.preventDefault()}
             onDragLeave={() => setDragActive(false)}
             onDrop={(e) => { e.preventDefault(); setDragActive(false); addFiles(e.dataTransfer.files); }}
-            style={{ cursor: 'pointer', border: `2px dashed ${dragActive ? 'var(--accent-purple,#10b981)' : 'var(--border-color, rgba(255,255,255,0.15))'}`, borderRadius: '16px', padding: '54px 40px', textAlign: 'center', color: 'var(--text-secondary, #94a3b8)', maxWidth: '520px', width: '100%', background: dragActive ? 'rgba(16,185,129,0.05)' : 'transparent', transition: 'all 0.2s ease' }}>
+            style={{
+              cursor: 'pointer',
+              border: `2px dashed ${dragActive ? 'var(--accent-purple,#10b981)' : 'var(--border-color, rgba(255,255,255,0.15))'}`,
+              borderRadius: '16px',
+              padding: '48px 36px',
+              textAlign: 'center',
+              color: 'var(--text-secondary, #94a3b8)',
+              maxWidth: '520px',
+              width: '100%',
+              background: dragActive ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.01)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+            }}
+          >
             <input ref={inputRef} type="file" accept={ACCEPT} multiple style={{ display: 'none' }} onChange={(e) => addFiles(e.target.files)} />
-            <UploadCloud size={40} style={{ color: '#10b981' }} />
-            <h3 style={{ margin: '12px 0 4px', color: 'var(--text-primary, #f8fafc)' }}>Choose pictures to compress</h3>
-            <p style={{ fontSize: '0.84rem', margin: 0 }}>Drag & drop or click to browse. JPG, PNG, WebP, GIF, BMP, AVIF • up to {MAX_FILES} pictures, {MAX_MB} MB each.</p>
-            {errorMsg && <div className="converter-error-box" style={{ marginTop: '14px', textAlign: 'left' }}>{errorMsg}</div>}
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+              <UploadCloud size={32} style={{ color: '#10b981' }} />
+            </div>
+            <h3 style={{ margin: '0 0 6px', color: 'var(--text-primary, #f8fafc)', fontSize: '1.15rem', fontWeight: 600 }}>Choose pictures to compress</h3>
+            <p style={{ fontSize: '0.84rem', margin: 0, color: 'var(--text-muted, #94a3b8)', maxWidth: '380px' }}>Drag & drop or click to browse. JPG, PNG, WebP, GIF, BMP, AVIF • up to {MAX_FILES} pictures, {MAX_MB} MB each.</p>
+            {errorMsg && <div className="converter-error-box" style={{ marginTop: '14px', textAlign: 'left', width: '100%' }}>{errorMsg}</div>}
           </label>
         </div>
       ) : (
@@ -331,22 +441,20 @@ export default function ImageCompressor({ onClose }) {
               <div style={label}>
                 <span>Max Resolution / Longest side</span>
               </div>
-              <div style={{ position: 'relative', width: '100%' }}>
-                <select value={maxSide} onChange={(e) => setMaxSide(Number(e.target.value))} className="ic-select">
-                  {SIDE_PRESETS.map((s) => <option key={s.v} value={s.v}>{s.l}</option>)}
-                </select>
-                <ChevronDown size={15} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted, #94a3b8)', pointerEvents: 'none' }} />
-              </div>
+              <CustomSelect
+                options={SIDE_PRESETS}
+                value={maxSide}
+                onChange={(val) => setMaxSide(Number(val))}
+              />
 
               <div style={label}>
                 <span>Save format</span>
               </div>
-              <div style={{ position: 'relative', width: '100%' }}>
-                <select value={format} onChange={(e) => setFormat(e.target.value)} className="ic-select">
-                  {FORMATS.map((f) => <option key={f.v} value={f.v}>{f.l}</option>)}
-                </select>
-                <ChevronDown size={15} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted, #94a3b8)', pointerEvents: 'none' }} />
-              </div>
+              <CustomSelect
+                options={FORMATS}
+                value={format}
+                onChange={(val) => setFormat(val)}
+              />
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted, #94a3b8)', marginTop: '6px' }}>Auto keeps JPG as JPG, uses WebP for transparent pictures, and JPG for the rest.</div>
 
               <button onClick={run} disabled={busy || pendingCount === 0}
@@ -367,4 +475,3 @@ export default function ImageCompressor({ onClose }) {
     </div>
   );
 }
-
