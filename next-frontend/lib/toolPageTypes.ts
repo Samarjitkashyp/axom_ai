@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { pageTitle } from './seoTitle';
 
 export interface FaqItem {
   q: string;
@@ -129,7 +130,7 @@ export interface ToolPageData {
 export function buildToolMetadata(data: ToolPageData): Metadata {
   const ogImage = data.ogImageUrl || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   return {
-    title: data.metaTitle,
+    title: pageTitle(data.metaTitle),
     description: data.metaDescription,
     keywords: data.keywords,
     alternates: { canonical: data.canonicalUrl },
