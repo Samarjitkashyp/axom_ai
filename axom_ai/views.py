@@ -2102,6 +2102,99 @@ def _attach_global_auth_cookies(request, response, device_id=None):
     return _apply_cross_subdomain_cors(request, response)
 
 
+def _sanitize_auth_input(val, max_len=150):
+    """Sanitize input against null bytes, control characters and length overflows."""
+    if not val:
+        return ''
+    cleaned = str(val).replace('\x00', '').strip()
+    return cleaned[:max_len]
+
+
+def _get_active_chat_lockout(ip, username):
+    """Check if IP or username is currently locked out."""
+    from userpanel.models import UserLoginAttempt
+    now = timezone.now()
+    filters = Q(ip_address=ip)
+    if username:
+        filters |= Q(username=username)
+    
+    attempts = UserLoginAttempt.objects.filter(filters, is_locked=True)
+    for record in attempts:
+        if record.locked_until and record.locked_until > now:
+            diff = record.locked_until - now
+            seconds = max(0, int(diff.total_seconds()))
+            hours = seconds // 3600
+            mins = (seconds % 3600) // 60
+            return {
+                'is_locked': True,
+                'record': record,
+                'locked_until': record.locked_until,
+                'hours': hours,
+                'mins': mins,
+                'seconds': seconds,
+            }
+        elif record.locked_until and record.locked_until <= now:
+            record.is_locked = False
+            record.failed_count = 0
+            record.locked_until = None
+            record.save(update_fields=['is_locked', 'failed_count', 'locked_until', 'updated_at'])
+            
+    return {'is_locked': False}
+
+
+def _record_failed_chat_attempt(ip, username, user_agent):
+    """Record a failed login attempt and apply 24-hour lockout on 3rd failure."""
+    from userpanel.models import UserLoginAttempt
+    now = timezone.now()
+    record, _ = UserLoginAttempt.objects.get_or_create(
+        ip_address=ip,
+        defaults={'username': username, 'user_agent': (user_agent or '')[:500]}
+    )
+    
+    if record.locked_until and record.locked_until <= now:
+        record.failed_count = 0
+        record.is_locked = False
+        record.locked_until = None
+
+    record.failed_count += 1
+    record.username = username or record.username
+    record.user_agent = (user_agent or '')[:500]
+    record.last_failed_at = now
+
+    if record.failed_count >= 3:
+        record.is_locked = True
+        record.locked_until = now + timedelta(days=1)
+        record.save()
+        return {
+            'is_locked': True,
+            'failed_count': record.failed_count,
+            'remaining_attempts': 0,
+            'locked_until': record.locked_until,
+            'hours': 24,
+            'mins': 0,
+        }
+    else:
+        record.save()
+        return {
+            'is_locked': False,
+            'failed_count': record.failed_count,
+            'remaining_attempts': max(0, 3 - record.failed_count),
+        }
+
+
+def _clear_failed_chat_attempts(ip, username):
+    """Clear failed attempts upon successful login."""
+    from userpanel.models import UserLoginAttempt
+    filters = Q(ip_address=ip)
+    if username:
+        filters |= Q(username=username)
+    UserLoginAttempt.objects.filter(filters).update(
+        failed_count=0,
+        is_locked=False,
+        locked_until=None
+    )
+
+
 @csrf_exempt
 def login_api_view(request):
     if request.method == 'OPTIONS':
@@ -2111,42 +2204,109 @@ def login_api_view(request):
         return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Only POST is allowed'}, status=405))
     try:
         data = json.loads(request.body.decode('utf-8'))
-        username = data.get('username', '').strip()
-        password = data.get('password', '').strip()
+        raw_u = data.get('username', '')
+        raw_p = data.get('password', '')
+        username = _sanitize_auth_input(raw_u, max_len=150)
+        password = _sanitize_auth_input(raw_p, max_len=256)
         device_id = get_device_id(request, fallback_body=data)
     except Exception:
         return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Invalid request data'}, status=400))
 
-    from django.contrib.auth import authenticate, login
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
-        display_name = (user.get_full_name() or user.first_name or user.username).strip()
-        avatar_url = ''
-        from userpanel.models import UserProfile
-        try:
-            profile = UserProfile.objects.filter(user=user).first()
-            if profile and profile.avatar_url:
-                raw_avatar = profile.avatar_url.strip()
-                if raw_avatar.startswith('//media/'):
-                    avatar_url = raw_avatar[1:]
-                elif raw_avatar.startswith('media/'):
-                    avatar_url = '/' + raw_avatar
-                else:
-                    avatar_url = raw_avatar
-        except Exception:
-            pass
+    client_ip = get_client_ip(request)
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
 
-        resp = JsonResponse({
-            'success': True,
-            'username': user.username,
-            'name': display_name,
-            'avatar_url': avatar_url,
-            'is_staff': bool(user.is_staff),
-        })
-        return _attach_global_auth_cookies(request, resp, device_id=device_id)
-    else:
-        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Invalid username or password'}, status=400))
+    # 1. Pre-check IP lockout
+    active_lock = _get_active_chat_lockout(client_ip, '')
+    if active_lock.get('is_locked'):
+        h, m = active_lock['hours'], active_lock['mins']
+        return _apply_cross_subdomain_cors(
+            request,
+            JsonResponse({
+                'error': f"Security Lockout Active: Too many failed login attempts. This IP address is locked for 24 hours ({h}h {m}m remaining). For security, unauthorized brute force requests are blocked.",
+                'is_locked': True,
+                'remaining_attempts': 0,
+                'locked_hours': h,
+                'locked_mins': m
+            }, status=429)
+        )
+
+    # 2. Pre-check Username lockout
+    if username:
+        user_lock = _get_active_chat_lockout(client_ip, username)
+        if user_lock.get('is_locked'):
+            h, m = user_lock['hours'], user_lock['mins']
+            return _apply_cross_subdomain_cors(
+                request,
+                JsonResponse({
+                    'error': f"Security Lockout Active: Account '{username}' is locked for 24 hours ({h}h {m}m remaining). Contact support at support@aiaxom.co.in.",
+                    'is_locked': True,
+                    'remaining_attempts': 0,
+                    'locked_hours': h,
+                    'locked_mins': m
+                }, status=429)
+            )
+
+    from django.contrib.auth import authenticate, login
+    user = authenticate(request, username=username, password=password) if (username and password) else None
+
+    if user is None:
+        fail_result = _record_failed_chat_attempt(client_ip, username, user_agent)
+        if fail_result.get('is_locked'):
+            return _apply_cross_subdomain_cors(
+                request,
+                JsonResponse({
+                    'error': "🚨 Extreme Security Lockout: 3 consecutive failed login attempts detected. Your IP address and account have been LOCKED FOR 24 HOURS. All further attempts are automatically blocked.",
+                    'is_locked': True,
+                    'remaining_attempts': 0,
+                    'locked_hours': 24,
+                    'locked_mins': 0
+                }, status=429)
+            )
+        else:
+            rem = fail_result.get('remaining_attempts', 1)
+            return _apply_cross_subdomain_cors(
+                request,
+                JsonResponse({
+                    'error': f"Invalid username or password. Warning: {rem} attempt{'s' if rem != 1 else ''} remaining before a mandatory 24-HOUR SECURITY LOCKOUT.",
+                    'remaining_attempts': rem,
+                    'is_locked': False
+                }, status=400)
+            )
+
+    if not user.is_active:
+        return _apply_cross_subdomain_cors(
+            request,
+            JsonResponse({'error': 'This account has been deactivated. Please contact support.', 'is_locked': False}, status=403)
+        )
+
+    # 3. Successful authentication: clear failure records
+    _clear_failed_chat_attempts(client_ip, username)
+    login(request, user)
+
+    display_name = (user.get_full_name() or user.first_name or user.username).strip()
+    avatar_url = ''
+    from userpanel.models import UserProfile
+    try:
+        profile = UserProfile.objects.filter(user=user).first()
+        if profile and profile.avatar_url:
+            raw_avatar = profile.avatar_url.strip()
+            if raw_avatar.startswith('//media/'):
+                avatar_url = raw_avatar[1:]
+            elif raw_avatar.startswith('media/'):
+                avatar_url = '/' + raw_avatar
+            else:
+                avatar_url = raw_avatar
+    except Exception:
+        pass
+
+    resp = JsonResponse({
+        'success': True,
+        'username': user.username,
+        'name': display_name,
+        'avatar_url': avatar_url,
+        'is_staff': bool(user.is_staff),
+    })
+    return _attach_global_auth_cookies(request, resp, device_id=device_id)
 
 
 @csrf_exempt
@@ -2168,50 +2328,68 @@ def logout_api_view(request):
 @csrf_exempt
 def register_api_view(request):
     """
-    User Registration API with strict device and IP security.
+    User Registration API with strict device, IP security, and 24-hour lockout protection.
     Constraint: Only 1 account is permitted per device / IP address.
     """
     if request.method != 'POST':
-        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Only POST method is allowed'}, status=405))
 
     ip = get_client_ip(request)
 
+    # 1. Pre-check IP security lockout
+    active_lock = _get_active_chat_lockout(ip, '')
+    if active_lock.get('is_locked'):
+        h, m = active_lock['hours'], active_lock['mins']
+        return _apply_cross_subdomain_cors(
+            request,
+            JsonResponse({
+                'error': f"Security Lockout Active: Too many failed security attempts on this IP address ({h}h {m}m remaining). Registration is temporarily blocked.",
+                'is_locked': True,
+                'remaining_attempts': 0
+            }, status=429)
+        )
+
     try:
         data = json.loads(request.body.decode('utf-8'))
-        username = str(data.get('username', '')).strip()
-        email = str(data.get('email', '')).strip().lower()
-        password = str(data.get('password', '')).strip()
-        confirm_password = str(data.get('confirm_password', '')).strip()
+        raw_u = data.get('username', '')
+        raw_e = data.get('email', '')
+        raw_p = data.get('password', '')
+        raw_cp = data.get('confirm_password', '')
+        
+        username = _sanitize_auth_input(raw_u, max_len=150)
+        email = _sanitize_auth_input(raw_e, max_len=150).lower()
+        password = _sanitize_auth_input(raw_p, max_len=256)
+        confirm_password = _sanitize_auth_input(raw_cp, max_len=256)
         device_id = get_device_id(request, fallback_body=data)
     except Exception:
-        return JsonResponse({'error': 'Invalid request payload.'}, status=400)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Invalid request payload.'}, status=400))
 
-    # 1. Multi-account restriction check per device and IP
+    # 2. Multi-account restriction check per device and IP
     allowed, err_msg = check_device_registration_allowed(ip=ip, device_id=device_id)
     if not allowed:
-        return JsonResponse({
+        return _apply_cross_subdomain_cors(request, JsonResponse({
             'error': err_msg,
             'code': 'DEVICE_REGISTRATION_RESTRICTED',
-        }, status=403)
+        }, status=403))
 
-    # 2. Input Validation
+    # 3. Input Validation
     if not username or len(username) < 3:
-        return JsonResponse({'error': 'Username must be at least 3 characters long.'}, status=400)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Username must be at least 3 characters long.'}, status=400))
     if not re.match(r'^[a-zA-Z0-9_.-]+$', username):
-        return JsonResponse({'error': 'Username can only contain letters, numbers, dots, and underscores.'}, status=400)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Username can only contain letters, numbers, dots, and underscores.'}, status=400))
     if len(password) < 6:
-        return JsonResponse({'error': 'Password must be at least 6 characters long.'}, status=400)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Password must be at least 6 characters long.'}, status=400))
     if confirm_password and password != confirm_password:
-        return JsonResponse({'error': 'Passwords do not match.'}, status=400)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Passwords do not match.'}, status=400))
 
     from django.contrib.auth.models import User
     from django.contrib.auth import login
 
     if User.objects.filter(username__iexact=username).exists():
-        return JsonResponse({'error': 'This username is already taken. Please choose another.'}, status=400)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'This username is already taken. Please choose another.'}, status=400))
 
     if email and User.objects.filter(email__iexact=email).exists():
-        return JsonResponse({'error': 'An account with this email address already exists.'}, status=400)
+        return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'An account with this email address already exists.'}, status=400))
 
     # 3. Create User and UserProfile
     try:
