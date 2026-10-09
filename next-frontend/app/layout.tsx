@@ -88,6 +88,9 @@ export const metadata: Metadata = {
     description: 'Native Assamese intelligence, ChatGPT-grade reasoning, image generation, and document tools built for Assam.',
     images: ['https://aiaxom.co.in/static/dist/hero/assam.avif'],
   },
+  other: {
+    'msvalidate.01': 'CB3FFAB9260C37F10E027874F5FA9326',
+  },
 };
 
 export default function RootLayout({
@@ -98,6 +101,7 @@ export default function RootLayout({
   return (
     <html lang="en-IN" className="scroll-smooth" suppressHydrationWarning>
       <head>
+        <meta name="msvalidate.01" content="CB3FFAB9260C37F10E027874F5FA9326" />
         <script dangerouslySetInnerHTML={{ __html: THEME_JS }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
