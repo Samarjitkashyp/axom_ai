@@ -1,34 +1,4 @@
-import {
-  FileType2,
-  Image as ImageIcon,
-  Combine,
-  Scissors,
-  FileOutput,
-  Minimize2,
-  Droplets,
-  Eraser,
-  Lock,
-  Unlock,
-  Presentation,
-  FileSpreadsheet,
-  ScanText,
-  MessagesSquare,
-  Languages,
-  Sparkles,
-  PenTool,
-  Signature,
-  ImagePlus,
-  Images,
-  Video,
-  Network,
-  RefreshCw,
-  QrCode,
-  Palette,
-  Code,
-  Laugh,
-  ArrowDownToLine,
-  GraduationCap,
-} from 'lucide-react';
+import { FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, ArrowDownToLine, GraduationCap } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
   { id: 'all', name: 'All Tools' },
@@ -142,18 +112,6 @@ export const ALL_TOOLS = [
     hint: 'XLSX, XLS, ODS, CSV',
     desc: 'Turn Excel spreadsheets and CSV tables into neatly formatted PDF documents.',
   },
-  {
-    id: 'office2pdf',
-    name: 'ODT / HTML / EPUB → PDF',
-    cat: 'Office',
-    icon: FileType2,
-    ep: 'convert',
-    target: 'pdf',
-    accept: '.odt,.html,.htm,.epub,.rtf',
-    multi: false,
-    hint: 'ODT, HTML, EPUB, RTF',
-    desc: 'Convert open formats, e-books, and web pages into readable PDF documents.',
-  },
 
   // Organize
   {
@@ -179,19 +137,6 @@ export const ALL_TOOLS = [
     multi: false,
     hint: 'PDF file',
     desc: 'Split a large PDF file into separate single-page PDF files.',
-  },
-  {
-    id: 'extract',
-    name: 'Extract Pages',
-    cat: 'Organize',
-    icon: FileOutput,
-    ep: 'pdf',
-    op: 'extract',
-    accept: '.pdf',
-    multi: false,
-    param: 'pages',
-    hint: 'PDF file',
-    desc: 'Extract specific page ranges (e.g. 1, 3-5) into an independent PDF.',
   },
 
   // Optimize
@@ -225,17 +170,6 @@ export const ALL_TOOLS = [
     hint: 'PDF file',
     desc: 'Add a custom text watermark — colour, opacity, size, rotation and position (diagonal, tiled, centred).',
   },
-  {
-    id: 'wmremove',
-    name: 'Remove Watermark',
-    cat: 'Optimize',
-    icon: Eraser,
-    wmeditor: true,
-    accept: '.pdf',
-    multi: false,
-    hint: 'PDF file',
-    desc: 'Open a visual editor: auto-scan for watermarks, box any watermark and erase it (content-aware).',
-  },
 
   // Security
   {
@@ -251,33 +185,7 @@ export const ALL_TOOLS = [
     hint: 'PDF file',
     desc: 'Encrypt and secure sensitive PDF documents with robust password protection.',
   },
-  {
-    id: 'unlock',
-    name: 'Unlock PDF',
-    cat: 'Security',
-    icon: Unlock,
-    ep: 'pdf',
-    op: 'unlock',
-    accept: '.pdf',
-    multi: false,
-    param: 'password',
-    hint: 'Password-protected PDF',
-    desc: 'Remove security passwords and restrictions from your protected PDF files.',
-  },
 
-  // OCR
-  {
-    id: 'ocr',
-    name: 'OCR — Make Searchable',
-    cat: 'OCR',
-    icon: ScanText,
-    ep: 'pdf',
-    op: 'ocr',
-    accept: '.pdf',
-    multi: false,
-    hint: 'Scanned PDF',
-    desc: 'Convert scanned image PDFs into searchable, selectable text (English, Assamese & Hindi).',
-  },
 
   // AI Tools
   {
@@ -301,28 +209,6 @@ export const ALL_TOOLS = [
     param: 'question',
     hint: 'PDF file',
     desc: 'Ask questions and get instant, intelligent answers directly from your PDF document.',
-  },
-  {
-    id: 'summarize',
-    name: 'Summarize',
-    cat: 'AI Tools',
-    icon: Sparkles,
-    summarizer: true,
-    hint: 'PDF · DOCX · TXT · pasted text',
-    desc: 'Summarise a document or pasted text — short, medium or detailed, in Assamese, English or Hindi.',
-  },
-  {
-    id: 'translatepdf',
-    name: 'Translate PDF',
-    cat: 'AI Tools',
-    icon: Languages,
-    ep: 'ai',
-    op: 'translate',
-    accept: '.pdf',
-    multi: false,
-    param: 'lang',
-    hint: 'PDF file',
-    desc: 'Translate PDF text into Assamese, Hindi, English, and more with AI.',
   },
   {
     id: 'imagegen',

@@ -10,12 +10,10 @@ import DocConverterModal from './components/DocConverterModal';
 import PdfEditor from './components/PdfEditor';
 import PdfCompressor from './components/PdfCompressor';
 import VideoCompressor from './components/VideoCompressor';
-import WatermarkRemover from './components/WatermarkRemover';
 import ImageGenerator from './components/ImageGenerator';
 import ImageFinder from './components/ImageFinder';
 import VideoFinder from './components/VideoFinder';
 const DiagramGenerator = React.lazy(() => import('./components/DiagramGenerator'));
-import Summarize from './components/Summarize';
 import SubscriptionPage from './components/SubscriptionPage';
 import { useWordLimit } from './hooks/useWordLimit';
 import { useChatSessions } from './hooks/useChatSessions';
@@ -51,7 +49,6 @@ export default function App() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
   const [isVideoCompressorOpen, setIsVideoCompressorOpen] = useState(false);
-  const [isWmOpen, setIsWmOpen] = useState(false);
   const [isImgGenOpen, setIsImgGenOpen] = useState(false);
   const [isImageFinderOpen, setIsImageFinderOpen] = useState(false);
   const [isVideoFinderOpen, setIsVideoFinderOpen] = useState(false);
@@ -66,7 +63,6 @@ export default function App() {
       .then((d) => { if (d) setActivePlan(d); })
       .catch(() => {});
   }, [user.isAuthenticated, currentView]);
-  const [isSummarizeOpen, setIsSummarizeOpen] = useState(false);
 
   // Login Modal state
   const [loginModalState, setLoginModalState] = useState({
@@ -224,12 +220,10 @@ export default function App() {
           onOpenEditor={() => setIsEditorOpen(true)}
           onOpenCompressor={() => setIsCompressorOpen(true)}
           onOpenVideoCompressor={() => setIsVideoCompressorOpen(true)}
-          onOpenWmRemover={() => setIsWmOpen(true)}
           onOpenImageGen={() => setIsImgGenOpen(true)}
           onOpenImageFinder={() => setIsImageFinderOpen(true)}
           onOpenVideoFinder={() => setIsVideoFinderOpen(true)}
           onOpenDiagramGen={() => setIsDiagramGenOpen(true)}
-          onOpenSummarizer={() => setIsSummarizeOpen(true)}
           theme={theme}
           onToggleTheme={handleToggleTheme}
         />
@@ -248,7 +242,6 @@ export default function App() {
         )}
 
         {/* FULL-SCREEN WATERMARK REMOVER */}
-        {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
 
         {/* FULL-SCREEN IMAGE GENERATOR */}
         {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
@@ -267,7 +260,6 @@ export default function App() {
         )}
 
         {/* FULL-SCREEN SUMMARIZE */}
-        {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
       </>
     );
   }
@@ -379,7 +371,6 @@ export default function App() {
       )}
 
       {/* FULL-SCREEN WATERMARK REMOVER */}
-      {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
 
       {/* FULL-SCREEN IMAGE GENERATOR */}
       {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
@@ -398,7 +389,6 @@ export default function App() {
       )}
 
       {/* FULL-SCREEN SUMMARIZE */}
-      {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
 
       {/* BEAUTIFUL CREDENTIALS MODAL */}
       <LoginModal

@@ -206,16 +206,3 @@ def compress_pdf_best(input_path, out_pdf, level='moderate'):
     return out_pdf
 
 
-def ocr_pdf(input_path, out_pdf, langs='eng+asm+hin'):
-    """
-    Make a scanned PDF searchable (adds a text layer) via ocrmypdf + Tesseract.
-    Supports English, Assamese and Hindi. Returns the searchable PDF path.
-    """
-    import shutil
-    import subprocess
-    if not shutil.which('ocrmypdf'):
-        raise RuntimeError("ocrmypdf is not installed on this machine.")
-    cmd = ['ocrmypdf', '--force-ocr', '-l', langs,
-           '--optimize', '1', input_path, out_pdf]
-    subprocess.run(cmd, check=True, timeout=600, capture_output=True)
-    return out_pdf

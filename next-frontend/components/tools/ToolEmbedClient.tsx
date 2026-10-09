@@ -16,8 +16,6 @@ const TOOL_MAP: Record<string, React.LazyExoticComponent<React.ComponentType<any
   'sign-pdf': lazy(() => import('../chat/PdfEditor')),
   'meme-generator': lazy(() => import('../chat/MemeGenerator')),
   'svg-editor': lazy(() => import('../chat/SvgEditor')),
-  'remove-watermark': lazy(() => import('../chat/WatermarkRemover')),
-  'summarize': lazy(() => import('../chat/Summarize')),
   'qr-code-generator': lazy(() => import('../chat/QrGenerator')),
   'screenshot-to-code': lazy(() => import('../chat/ScreenshotToCode')),
 };

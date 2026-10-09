@@ -12,12 +12,10 @@ import DocConverterModal from './DocConverterModal';
 import PdfEditor from './PdfEditor';
 import PdfCompressor from './PdfCompressor';
 import VideoCompressor from './VideoCompressor';
-import WatermarkRemover from './WatermarkRemover';
 import ImageGenerator from './ImageGenerator';
 import ImageFinder from './ImageFinder';
 import VideoFinder from './VideoFinder';
 import DiagramGenerator from './DiagramGenerator';
-import Summarize from './Summarize';
 import SvgEditor from './SvgEditor';
 import QrGenerator from './QrGenerator';
 import ColorPaletteGen from './ColorPaletteGen';
@@ -213,12 +211,10 @@ export default function ChatApp() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isCompressorOpen, setIsCompressorOpen] = useState(false);
   const [isVideoCompressorOpen, setIsVideoCompressorOpen] = useState(false);
-  const [isWmOpen, setIsWmOpen] = useState(false);
   const [isImgGenOpen, setIsImgGenOpen] = useState(false);
   const [isImageFinderOpen, setIsImageFinderOpen] = useState(false);
   const [isVideoFinderOpen, setIsVideoFinderOpen] = useState(false);
   const [isDiagramGenOpen, setIsDiagramGenOpen] = useState(false);
-  const [isSummarizeOpen, setIsSummarizeOpen] = useState(false);
   const [isSvgEditorOpen, setIsSvgEditorOpen] = useState(false);
   const [isQrGenOpen, setIsQrGenOpen] = useState(false);
   const [isPaletteGenOpen, setIsPaletteGenOpen] = useState(false);
@@ -524,7 +520,6 @@ export default function ChatApp() {
       )}
 
       {/* FULL-SCREEN WATERMARK REMOVER */}
-      {isWmOpen && <WatermarkRemover onClose={() => setIsWmOpen(false)} />}
 
       {/* FULL-SCREEN IMAGE GENERATOR */}
       {isImgGenOpen && <ImageGenerator onClose={() => setIsImgGenOpen(false)} />}
@@ -539,7 +534,6 @@ export default function ChatApp() {
       {isDiagramGenOpen && <DiagramGenerator onClose={() => setIsDiagramGenOpen(false)} />}
 
       {/* FULL-SCREEN SUMMARIZE */}
-      {isSummarizeOpen && <Summarize onClose={() => setIsSummarizeOpen(false)} />}
 
       {/* FULL-SCREEN SVG EDITOR */}
       {isSvgEditorOpen && <SvgEditor onClose={() => setIsSvgEditorOpen(false)} />}

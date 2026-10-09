@@ -24,7 +24,7 @@ export default function ToolWorkspace({ tool, onClose }) {
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);   // dataURLs (pdf 1st page / image)
   const [paramText, setParamText] = useState('');
-  const [angle, setAngle] = useState(tool.param === 'lang' ? 'assamese' : '90');
+  const [angle, setAngle] = useState('90');
   const [dragActive, setDragActive] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState(null);
@@ -115,7 +115,6 @@ export default function ToolWorkspace({ tool, onClose }) {
     if (tool.param === 'password') fd.append('password', paramText.trim());
     if (tool.param === 'question') fd.append('question', paramText.trim());
     if (tool.param === 'angle') fd.append('angle', angle);
-    if (tool.param === 'lang') fd.append('lang', angle);
     if (tool.op === 'watermark') {
       fd.append('text', (wm.text || 'CONFIDENTIAL'));
       fd.append('position', wm.position);
@@ -144,7 +143,7 @@ export default function ToolWorkspace({ tool, onClose }) {
 
   const reset = () => { setFiles([]); setPreviews([]); setParamText(''); setResult(null); setErrorMsg(null); if (inputRef.current) inputRef.current.value = ''; };
 
-  const paramLabel = { pages: 'Pages to keep (e.g. 1,3,5-7)', text: 'Watermark text', password: tool.op === 'unlock' ? 'Current password' : 'New password', question: 'Ask a question about this PDF…' };
+  const paramLabel = { pages: 'Pages to keep (e.g. 1,3,5-7)', text: 'Watermark text', password: 'New password', question: 'Ask a question about this PDF…' };
 
   return (
     <div className="tool-ws-overlay">
@@ -258,15 +257,6 @@ export default function ToolWorkspace({ tool, onClose }) {
                       <option value="90">Rotate 90° clockwise</option>
                       <option value="180">Rotate 180°</option>
                       <option value="270">Rotate 270° counter-clockwise</option>
-                    </select>
-                  </label>
-                )}
-                {tool.param === 'lang' && (
-                  <label className="tool-ws-field"><span>Translate to</span>
-                    <select value={angle} onChange={(e) => setAngle(e.target.value)}>
-                      <option value="assamese">Assamese (অসমীয়া)</option>
-                      <option value="english">English</option>
-                      <option value="hindi">Hindi (हिन्दी)</option>
                     </select>
                   </label>
                 )}

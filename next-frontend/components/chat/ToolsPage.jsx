@@ -2,54 +2,7 @@
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  ChevronLeft,
-  Search,
-  X,
-  UploadCloud,
-  FileText,
-  CheckCircle,
-  AlertCircle,
-  Download,
-  Loader2,
-  Copy,
-  Check,
-  ArrowRight,
-  Sun,
-  Moon,
-  Sparkles,
-  Layers,
-  FileUp,
-  FileType2,
-  Image as ImageIcon,
-  Combine,
-  Scissors,
-  FileOutput,
-  Minimize2,
-  Droplets,
-  Eraser,
-  Lock,
-  Unlock,
-  Presentation,
-  FileSpreadsheet,
-  ScanText,
-  MessagesSquare,
-  Languages,
-  PenTool,
-  Signature,
-  ImagePlus,
-  Images,
-  Video,
-  Network,
-  RefreshCw,
-  QrCode,
-  Palette,
-  Code,
-  Laugh,
-  Wrench,
-  Shapes,
-  GraduationCap,
-} from 'lucide-react';
+import { ChevronLeft, Search, X, ArrowRight, Sun, Moon, Sparkles, Layers, FileUp, FileType2, Image as ImageIcon, Combine, Scissors, FileOutput, Minimize2, Droplets, Eraser, Lock, Unlock, Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, Wrench, Shapes, GraduationCap } from 'lucide-react';
 import { ALL_TOOLS, TOOL_CATEGORIES } from './utils/toolsData';
 import { getCsrfToken } from './utils/security';
 import ToolWorkspace from './ToolWorkspace';
@@ -94,19 +47,16 @@ export default function ToolsPage({
   onOpenEditor,
   onOpenCompressor,
   onOpenVideoCompressor,
-  onOpenWmRemover,
   onOpenImageGen,
   onOpenImageFinder,
   onOpenVideoFinder,
   onOpenDiagramGen,
-  onOpenSummarizer,
   onOpenSvgEditor,
   onOpenQrGen,
   onOpenPaletteGen,
   onOpenScreenshot2Code,
   onOpenMemeGen,
   onOpenBgRemover,
-  onOpenCanva,
   onOpenVideoDownloader,
   onOpenYouTubeDownloader,
   theme,
@@ -258,20 +208,19 @@ export default function ToolsPage({
     const TOOL_ROUTES = {
       edit: 'edit-pdf', sign: 'sign-pdf',
       compress: 'compress-pdf', video_compress: 'video-compressor',
-      wmremove: 'remove-watermark',
       imagegen: 'ai-image-generator', imagefinder: 'ai-image-finder',
       videofinder: 'ai-video-finder', diagramgen: 'ai-diagram-generator',
-      summarize: 'summarize', svgeditor: 'svg-editor',
+      svgeditor: 'svg-editor',
       qrgen: 'qr-code-generator', palettegen: 'color-palette-generator',
       screenshot2code: 'screenshot-to-code', memegen: 'meme-generator',
       bgremover: 'background-remover',
       youtubedownloader: 'youtube-video-downloader',
       videodownloader: 'video-downloader',
-      merge: 'merge-pdf', split: 'split-pdf', extract: 'extract-pdf-pages',
-      watermark: 'watermark-pdf', protect: 'protect-pdf', unlock: 'unlock-pdf',
-      ocr: 'ocr-pdf', chatpdf: 'chat-with-pdf', translatepdf: 'translate-pdf',
+      merge: 'merge-pdf', split: 'split-pdf',
+      watermark: 'watermark-pdf', protect: 'protect-pdf',
+      chatpdf: 'chat-with-pdf',
       'ai-notes-generator': 'ai-notes-generator', notesgen: 'ai-notes-generator',
-      ppt2pdf: 'ppt-to-pdf', excel2pdf: 'excel-to-pdf', office2pdf: 'office-to-pdf',
+      ppt2pdf: 'ppt-to-pdf', excel2pdf: 'excel-to-pdf',
     };
     const slug = TOOL_ROUTES[t.id];
     if (slug) {
@@ -350,7 +299,6 @@ export default function ToolsPage({
     if (activeTool.param === 'password') fd.append('password', paramText.trim());
     if (activeTool.param === 'question') fd.append('question', paramText.trim());
     if (activeTool.param === 'angle') fd.append('angle', angle);
-    if (activeTool.param === 'lang') fd.append('lang', angle);
 
     try {
       const res = await fetch(url, {
@@ -389,7 +337,7 @@ export default function ToolsPage({
   const paramLabel = {
     pages: 'Specify page numbers (e.g. 1, 3-5, 8)',
     text: 'Watermark text (e.g. CONFIDENTIAL / Axom AI)',
-    password: activeTool?.op === 'unlock' ? 'Current document password' : 'New secure password',
+    password: 'New secure password',
     question: 'Ask any question about this PDF content…',
   };
 

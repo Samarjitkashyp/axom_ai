@@ -224,7 +224,7 @@ class AITool(models.Model):
 
     # Execution & routing properties
     endpoint_type = models.CharField(max_length=50, blank=True, default="")  # 'convert', 'pdf', 'ai'
-    operation = models.CharField(max_length=50, blank=True, default="")      # 'merge', 'split', 'watermark', 'ocr', etc.
+    operation = models.CharField(max_length=50, blank=True, default="")      # 'merge', 'split', 'watermark', etc.
     target = models.CharField(max_length=50, blank=True, default="")         # 'pdf', 'docx', 'jpg', 'png'
     param_type = models.CharField(max_length=50, blank=True, default="")     # 'pages', 'password', 'question', 'angle', 'lang'
     accept_types = models.CharField(max_length=255, blank=True, default="")  # '.pdf', '.docx,.doc', etc.
@@ -243,30 +243,6 @@ class AITool(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.category}) [{'Active' if self.is_active else 'Inactive'}]"
-
-
-class CanvaToken(models.Model):
-    """OAuth2 tokens for Canva Connect API, stored per user."""
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='canva_token'
-    )
-    access_token = models.TextField()
-    refresh_token = models.TextField(blank=True, default='')
-    token_type = models.CharField(max_length=50, default='Bearer')
-    expires_at = models.DateTimeField()
-    scope = models.TextField(blank=True, default='')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = 'Canva Token'
-
-    def __str__(self):
-        return f"Canva token for {self.user.username}"
-
-    @property
-    def is_expired(self):
-        return timezone.now() >= self.expires_at
 
 
 class UserTag(models.Model):

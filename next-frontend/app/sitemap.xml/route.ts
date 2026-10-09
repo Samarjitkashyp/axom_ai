@@ -37,14 +37,8 @@ export async function GET() {
     'compress-pdf',
     'edit-pdf',
     'protect-pdf',
-    'unlock-pdf',
     'sign-pdf',
-    'ocr-pdf',
-    'extract-pdf-pages',
-    'remove-watermark',
     'watermark-pdf',
-    'translate-pdf',
-    'summarize',
     'ai-image-generator',
     'ai-image-finder',
     'ai-video-finder',
@@ -59,7 +53,6 @@ export async function GET() {
     'video-downloader',
     'youtube-video-downloader',
     'screenshot-to-code',
-    'office-to-pdf',
   ];
 
   const toolPages = toolSlugs.map((slug) => ({
