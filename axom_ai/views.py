@@ -89,7 +89,6 @@ def _websearch_burst_limited(ip):
     return is_websearch_burst_limited(ip)
 
 
-
 def _optimize_search_query(raw_query: str) -> str:
     """
     Intelligently converts user input (in English, Hindi, Hinglish, Assamese script,
@@ -2039,8 +2038,6 @@ def chat_api_view(request):
     return JsonResponse({'error': f"API Error: {last_error}"}, status=400)
 
 
-
-
 def _attach_global_auth_cookies(request, response, device_id=None):
     """
     Ensures that sessionid, csrftoken, and auth state cookies are issued
@@ -2407,8 +2404,6 @@ def google_auth_api_view(request):
         return _apply_cross_subdomain_cors(request, JsonResponse({'error': 'Failed to create user account with Google.'}, status=500))
 
 
-
-
 def convert_doc_api(request):
     """
     API endpoint to convert DOC, DOCX, TXT, and RTF documents to PDF.
@@ -2577,8 +2572,8 @@ def convert_file_api(request):
     from knowledge.doc_converter import convert_doc_to_pdf
     from knowledge import file_converters as fc
 
-    OFFICE_EXTS = ('.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls', '.odt',
-                   '.odp', '.ods', '.rtf', '.html', '.htm', '.epub', '.txt', '.md', '.csv')
+    OFFICE_EXTS = ('.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls',
+                   '.odp', '.ods', '.rtf', '.txt', '.md', '.csv')
     try:
         if target == 'pdf' and src_ext in OFFICE_EXTS:
             if len(saved) > 1:
@@ -2727,11 +2722,9 @@ def pdf_tool_api(request):
       compress  : shrink a PDF
       rotate    : rotate pages (param `angle`=90/180/270, optional `pages`)
       delete    : remove pages (param `pages`, e.g. "2,4-6")
-      extract   : keep only some pages (param `pages`)
       numbers   : stamp page numbers
       watermark : add a text watermark (param `text`)
       protect   : add a password (param `password`)
-      unlock    : remove a password (param `password`)
     """
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
@@ -2740,7 +2733,7 @@ def pdf_tool_api(request):
 
     op = (request.POST.get('op', '') or '').lower().strip()
     valid_ops = {'merge', 'split', 'compress', 'rotate', 'delete',
-                 'extract', 'numbers', 'watermark', 'wmremove', 'protect', 'unlock', 'ocr'}
+                 'numbers', 'watermark', 'protect'}
     if op not in valid_ops:
         return JsonResponse({'error': f'Unknown operation: {op}'}, status=400)
 
@@ -2806,10 +2799,6 @@ def pdf_tool_api(request):
             out = os.path.join(out_dir, f"{stem}_{uid}.pdf")
             T.delete_pages(first_path, pages, out)
             out_name = f"{stem}.pdf"
-        elif op == 'extract':
-            out = os.path.join(out_dir, f"{stem}_{uid}_extracted.pdf")
-            T.extract_pages(first_path, pages, out)
-            out_name = f"{stem}_extracted.pdf"
         elif op == 'numbers':
             out = os.path.join(out_dir, f"{stem}_{uid}_numbered.pdf")
             T.add_page_numbers(first_path, out)
@@ -2826,10 +2815,6 @@ def pdf_tool_api(request):
                 position=(request.POST.get('position', 'diagonal') or 'diagonal').lower(),
             )
             out_name = f"{stem}_watermarked.pdf"
-        elif op == 'wmremove':
-            out = os.path.join(out_dir, f"{stem}_{uid}_clean.pdf")
-            T.remove_watermark(first_path, out)
-            out_name = f"{stem}_clean.pdf"
         elif op == 'protect':
             pw = request.POST.get('password', '').strip()
             if not pw:
@@ -2837,16 +2822,6 @@ def pdf_tool_api(request):
             out = os.path.join(out_dir, f"{stem}_{uid}_protected.pdf")
             T.protect_pdf(first_path, pw, out)
             out_name = f"{stem}_protected.pdf"
-        elif op == 'unlock':
-            pw = request.POST.get('password', '').strip()
-            out = os.path.join(out_dir, f"{stem}_{uid}_unlocked.pdf")
-            T.unlock_pdf(first_path, pw, out)
-            out_name = f"{stem}_unlocked.pdf"
-        elif op == 'ocr':
-            from knowledge import file_converters as fc
-            out = os.path.join(out_dir, f"{stem}_{uid}_searchable.pdf")
-            fc.ocr_pdf(first_path, out)
-            out_name = f"{stem}_searchable.pdf"
     except Exception as e:
         return JsonResponse({'error': f'Operation failed: {str(e)}'}, status=400)
 
@@ -2886,10 +2861,7 @@ def _extract_pdf_text(path, max_chars=16000):
 
 def pdf_ai_api(request):
     """
-    Groq-powered PDF tools (multipart POST), selected by `op`:
-      chat      : answer `question` using the PDF's text
-      summarize : summarise the PDF
-      translate : translate the PDF into `lang` (assamese|english|hindi)
+    Groq-powered PDF chat (multipart POST), `op` = chat: answer `question` using the PDF's text
     Returns {'text': ...} — no file download.
     """
     if request.method != 'POST':
@@ -2900,7 +2872,7 @@ def pdf_ai_api(request):
         return JsonResponse({'error': 'AI service is not configured.'}, status=503)
 
     op = (request.POST.get('op', '') or '').lower().strip()
-    if op not in ('chat', 'summarize', 'translate'):
+    if op != 'chat':
         return JsonResponse({'error': f'Unknown AI operation: {op}'}, status=400)
 
     f = request.FILES.get('file')
@@ -2926,28 +2898,16 @@ def pdf_ai_api(request):
         pass
     if not text:
         return JsonResponse({
-            'error': 'No readable text found. This looks like a scanned PDF — use the OCR tool first.'
+            'error': 'No readable text found. This looks like a scanned PDF.'
         }, status=400)
 
-    if op == 'chat':
-        question = (request.POST.get('question', '') or '').strip()
-        if not question:
-            return JsonResponse({'error': 'Please type a question.'}, status=400)
-        system = ("You are Axom AI. Answer the user's question using ONLY the document below. "
-                  "Reply in natural, native Assamese (অসমীয়া). If the answer is not in the "
-                  "document, say so honestly in Assamese.")
-        prompt = f"Document:\n{text}\n\nQuestion: {question}"
-    elif op == 'summarize':
-        system = ("You are Axom AI. Summarise the document below in clear, natural Assamese "
-                  "(অসমীয়া) — a short intro then the key points as bullet points.")
-        prompt = f"Document:\n{text}"
-    else:  # translate
-        lang = (request.POST.get('lang', 'assamese') or 'assamese').lower()
-        label = {'assamese': 'Assamese (অসমীয়া script)', 'english': 'English',
-                 'hindi': 'Hindi (Devanagari)'}.get(lang, 'Assamese (অসমীয়া script)')
-        system = (f"You are a professional translator. Translate the document below into {label}. "
-                  "Keep the meaning faithful and the language natural. Output only the translation.")
-        prompt = f"Document:\n{text}"
+    question = (request.POST.get('question', '') or '').strip()
+    if not question:
+        return JsonResponse({'error': 'Please type a question.'}, status=400)
+    system = ("You are Axom AI. Answer the user's question using ONLY the document below. "
+              "Reply in natural, native Assamese (অসমীয়া). If the answer is not in the "
+              "document, say so honestly in Assamese.")
+    prompt = f"Document:\n{text}\n\nQuestion: {question}"
 
     answer = _groq_generate(system, prompt, timeout=60)
     if not answer:
@@ -2958,85 +2918,6 @@ def pdf_ai_api(request):
                             status=503)
 
     return JsonResponse({'success': True, 'text': answer, 'op': op})
-
-
-def detect_watermark_api(request):
-    """Scan a PDF for watermark indicators. Returns JSON (no file)."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
-    if _is_rate_limited(_client_ip(request)):
-        return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
-    f = request.FILES.get('file')
-    if not f or not f.name.lower().endswith('.pdf'):
-        return JsonResponse({'error': 'Please upload a .pdf file.'}, status=400)
-    if f.size > 40 * 1024 * 1024:
-        return JsonResponse({'error': 'File exceeds the 40MB limit.'}, status=400)
-
-    import uuid
-    upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
-    os.makedirs(upload_dir, exist_ok=True)
-    path = os.path.join(upload_dir, f"wd_{uuid.uuid4().hex[:8]}.pdf")
-    with open(path, 'wb+') as d:
-        for chunk in f.chunks():
-            d.write(chunk)
-    try:
-        from knowledge.watermark_tools import detect_watermark
-        info = detect_watermark(path)
-    except Exception as e:
-        return JsonResponse({'error': f'Scan failed: {str(e)}'}, status=500)
-    finally:
-        try:
-            os.remove(path)
-        except Exception:
-            pass
-    return JsonResponse({'success': True, **info})
-
-
-def remove_watermark_api(request):
-    """Remove user-selected watermark regions. POST: file, regions (JSON), mode."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
-    if _is_rate_limited(_client_ip(request)):
-        return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
-    f = request.FILES.get('file')
-    if not f or not f.name.lower().endswith('.pdf'):
-        return JsonResponse({'error': 'Please upload a .pdf file.'}, status=400)
-    if f.size > 40 * 1024 * 1024:
-        return JsonResponse({'error': 'File exceeds the 40MB limit.'}, status=400)
-
-    try:
-        regions = json.loads(request.POST.get('regions', '{}'))
-    except Exception:
-        regions = {}
-    if not regions:
-        return JsonResponse({'error': 'Select at least one watermark region to remove.'}, status=400)
-    mode = (request.POST.get('mode', 'inpaint') or 'inpaint').lower()
-
-    import uuid
-    upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
-    out_dir = os.path.join(settings.MEDIA_ROOT, 'converted_files')
-    os.makedirs(upload_dir, exist_ok=True)
-    os.makedirs(out_dir, exist_ok=True)
-    uid = uuid.uuid4().hex[:8]
-    stem = "".join(c for c in os.path.splitext(f.name)[0] if c.isalnum() or c in (' ', '_', '-')).strip() or 'file'
-    in_path = os.path.join(upload_dir, f"{stem}_{uid}.pdf")
-    out = os.path.join(out_dir, f"{stem}_{uid}_nowm.pdf")
-    with open(in_path, 'wb+') as d:
-        for chunk in f.chunks():
-            d.write(chunk)
-    try:
-        from knowledge.watermark_tools import remove_watermark_regions
-        remove_watermark_regions(in_path, out, regions, mode)
-    except Exception as e:
-        return JsonResponse({'error': f'Removal failed: {str(e)}'}, status=500)
-
-    fname = os.path.basename(out)
-    size = os.path.getsize(out)
-    size_str = f"{size / 1024:.1f} KB" if size < 1024 * 1024 else f"{size / (1024 * 1024):.2f} MB"
-    return JsonResponse({
-        'success': True, 'filename': fname, 'output_name': f"{stem}_nowm.pdf",
-        'download_url': f"/api/download-converted-file/{fname}", 'file_size': size_str,
-    })
 
 
 # ---------------------------------------------------------------------------
@@ -4078,260 +3959,6 @@ def generate_image_api(request):
 
 
 # =============================================================================
-# SUMMARIZE — universal summarizer for PDF / DOCX / TXT / pasted text.
-# Groq primary, Gemini fallback. Assamese output by default.
-# =============================================================================
-
-_SUMMARIZE_MAX_CHARS = 60_000          # per-request text cap (safety)
-_SUMMARIZE_CHUNK_CHARS = 12_000        # split threshold for map-reduce
-_SUMMARIZE_MAX_FILE_MB = 40
-# Product cap for the launch tier — keeps latency + cost predictable while
-# the summarizer is free. Frontend enforces the same number so users see it
-# up-front for pasted text; server enforces it for uploaded files.
-_SUMMARIZE_MAX_WORDS = 450
-
-_SUMMARY_LENGTH_HINTS = {
-    'short':    ('a very short summary — 3 to 4 sentences', '~80 words'),
-    'medium':   ('a clear summary — one intro paragraph plus 4 to 6 key points',
-                 '~200 words'),
-    'detailed': ('a detailed summary — an intro paragraph, all key points as short '
-                 'paragraphs, and a one-line takeaway at the end',
-                 '~450 words'),
-}
-
-_SUMMARY_LANG_LABEL = {
-    'assamese': 'natural, native Assamese (অসমীয়া script)',
-    'english':  'clear, natural English',
-    'hindi':    'clear, natural Hindi (Devanagari script)',
-}
-
-
-def _extract_docx_text(path, max_chars=_SUMMARIZE_MAX_CHARS):
-    """Pull text out of a .docx (paragraphs + tables), capped for prompt safety."""
-    from docx import Document
-    doc = Document(path)
-    parts, total = [], 0
-    for p in doc.paragraphs:
-        t = (p.text or '').strip()
-        if t:
-            parts.append(t)
-            total += len(t)
-            if total > max_chars:
-                break
-    if total < max_chars:
-        for tbl in doc.tables:
-            for row in tbl.rows:
-                line = ' | '.join(c.text.strip() for c in row.cells if c.text.strip())
-                if line:
-                    parts.append(line)
-                    total += len(line)
-                    if total > max_chars:
-                        break
-            if total > max_chars:
-                break
-    return '\n'.join(parts)[:max_chars].strip()
-
-
-def _extract_txt(path, max_chars=_SUMMARIZE_MAX_CHARS):
-    for enc in ('utf-8', 'utf-16', 'latin-1'):
-        try:
-            with open(path, 'r', encoding=enc) as fh:
-                return fh.read(max_chars).strip()
-        except (UnicodeDecodeError, OSError):
-            continue
-    return ''
-
-
-def _chunk_text(text, chunk_size=_SUMMARIZE_CHUNK_CHARS):
-    """Break long text on paragraph boundaries where possible."""
-    if len(text) <= chunk_size:
-        return [text]
-    chunks, buf, buf_len = [], [], 0
-    for para in text.split('\n'):
-        if buf_len + len(para) + 1 > chunk_size and buf:
-            chunks.append('\n'.join(buf))
-            buf, buf_len = [], 0
-        buf.append(para)
-        buf_len += len(para) + 1
-    if buf:
-        chunks.append('\n'.join(buf))
-    return chunks
-
-
-def _summarize_text(text, length='medium', language='assamese'):
-    """Groq-first, Gemini-fallback summarizer. Handles long docs via map-reduce."""
-    length_desc, target = _SUMMARY_LENGTH_HINTS.get(length, _SUMMARY_LENGTH_HINTS['medium'])
-    lang_label = _SUMMARY_LANG_LABEL.get(language, _SUMMARY_LANG_LABEL['assamese'])
-
-    def _one(system, prompt):
-        out = _groq_generate(system, prompt, timeout=60)
-        if out:
-            return out
-        gk = os.getenv('GEMINI_API_KEY', '').strip()
-        if gk:
-            return _gemini_generate(
-                gk, system, prompt,
-                ['gemini-3.5-flash-lite', 'gemini-flash-lite-latest'],
-            )
-        return None
-
-    chunks = _chunk_text(text)
-
-    # Short doc: one call and done.
-    if len(chunks) == 1:
-        system = (
-            f"You are Axom AI. Summarise the document below into {length_desc} "
-            f"({target}). Write in {lang_label}. Keep every fact faithful — never "
-            f"invent names, dates or numbers. Output plain prose only (no Markdown, "
-            f"no bullets with -/*, no HTML). If a list is needed, write items as "
-            f"ordinary sentences separated by commas."
-        )
-        prompt = f"Document:\n{chunks[0]}"
-        return _one(system, prompt)
-
-    # Long doc: map-reduce.
-    partials = []
-    for i, ch in enumerate(chunks, 1):
-        sys_ch = (
-            f"You are summarising a section ({i} of {len(chunks)}) of a longer "
-            f"document. Extract the key facts and figures in {lang_label}, in 5-8 "
-            f"short sentences. No headings, no bullets."
-        )
-        out = _one(sys_ch, f"Section:\n{ch}")
-        if out:
-            partials.append(out)
-    if not partials:
-        return None
-
-    combined = '\n\n'.join(partials)
-    sys_final = (
-        f"You are Axom AI. Below are section summaries of one document. Combine "
-        f"them into {length_desc} ({target}) in {lang_label}. Remove repetition, "
-        f"keep every fact faithful, and never invent details. Plain prose only."
-    )
-    return _one(sys_final, f"Section summaries:\n{combined}")
-
-
-def summarize_api(request):
-    """
-    Universal summarizer.
-
-    POST multipart:  file=<pdf|docx|txt>,  length=short|medium|detailed,  language=assamese|english|hindi
-    POST JSON:       {text, length, language}
-    Returns:         {success, summary, chars_in, chars_out, engine}
-    """
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
-    if _is_rate_limited(_client_ip(request)):
-        return JsonResponse({'error': 'Too many requests. Please wait a moment.'},
-                            status=429)
-    if not GROQ_API_KEY and not os.getenv('GEMINI_API_KEY'):
-        return JsonResponse({'error': 'AI service is not configured.'}, status=503)
-
-    length = 'medium'
-    language = 'assamese'
-    text = ''
-
-    content_type = (request.META.get('CONTENT_TYPE') or '').lower()
-    is_json = content_type.startswith('application/json')
-
-    if is_json:
-        try:
-            payload = json.loads(request.body.decode('utf-8') or '{}')
-        except Exception:
-            return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
-        text = (payload.get('text') or '').strip()
-        length = (payload.get('length') or 'medium').lower()
-        language = (payload.get('language') or 'assamese').lower()
-        if not text:
-            return JsonResponse({'error': 'Please provide text to summarise.'}, status=400)
-    else:
-        length = (request.POST.get('length') or 'medium').lower()
-        language = (request.POST.get('language') or 'assamese').lower()
-        pasted = (request.POST.get('text') or '').strip()
-        f = request.FILES.get('file')
-
-        if pasted:
-            text = pasted
-        elif f:
-            if f.size > _SUMMARIZE_MAX_FILE_MB * 1024 * 1024:
-                return JsonResponse({
-                    'error': f'File exceeds the {_SUMMARIZE_MAX_FILE_MB} MB limit.',
-                }, status=400)
-            ext = os.path.splitext(f.name)[1].lower()
-            if ext not in ('.pdf', '.docx', '.txt'):
-                return JsonResponse({
-                    'error': 'Supported types: .pdf, .docx, .txt (or paste text).',
-                }, status=400)
-            import uuid as _uuid
-            upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
-            os.makedirs(upload_dir, exist_ok=True)
-            path = os.path.join(upload_dir, f"sum_{_uuid.uuid4().hex[:8]}{ext}")
-            with open(path, 'wb+') as d:
-                for chunk in f.chunks():
-                    d.write(chunk)
-            try:
-                if ext == '.pdf':
-                    text = _extract_pdf_text(path, max_chars=_SUMMARIZE_MAX_CHARS)
-                elif ext == '.docx':
-                    text = _extract_docx_text(path)
-                else:
-                    text = _extract_txt(path)
-            finally:
-                try:
-                    os.remove(path)
-                except Exception:
-                    pass
-            if not text:
-                return JsonResponse({
-                    'error': 'No readable text found. If this is a scanned PDF, run OCR first.',
-                }, status=400)
-        else:
-            return JsonResponse({'error': 'Attach a file or paste some text.'}, status=400)
-
-    if length not in _SUMMARY_LENGTH_HINTS:
-        length = 'medium'
-    if language not in _SUMMARY_LANG_LABEL:
-        language = 'assamese'
-    if len(text) > _SUMMARIZE_MAX_CHARS:
-        text = text[:_SUMMARIZE_MAX_CHARS]
-
-    # Enforce the 450-word launch-tier cap. The frontend also blocks this for
-    # pasted text; the server catch is for uploaded files where the user can't
-    # see the word count in advance, and for any client that bypasses the UI.
-    word_count = len(text.split())
-    if word_count > _SUMMARIZE_MAX_WORDS:
-        return JsonResponse({
-            'error': (
-                f'This document has about {word_count} words, but Axom AI can '
-                f'currently summarise up to {_SUMMARIZE_MAX_WORDS} words at a '
-                f'time. Please trim the text or split the file into smaller '
-                f'sections.'
-            ),
-            'word_count': word_count,
-            'word_limit': _SUMMARIZE_MAX_WORDS,
-        }, status=413)
-
-    t0 = time.time()
-    summary = _summarize_text(text, length=length, language=language)
-    if not summary:
-        return JsonResponse({
-            'error': 'The AI service is busy. Please try again in a moment.',
-        }, status=503)
-
-    return JsonResponse({
-        'success': True,
-        'summary': summary,
-        'chars_in': len(text),
-        'chars_out': len(summary),
-        'length': length,
-        'language': language,
-        'engine': 'groq+gemini',
-        'ms': int((time.time() - t0) * 1000),
-    })
-
-
-# =============================================================================
 # AI IMAGE FINDER (Pexels Stock & Creative Photos API)
 # =============================================================================
 
@@ -5354,395 +4981,6 @@ def tools_api_view(request):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e), 'tools': []}, status=500)
-
-
-# ---------------------------------------------------------------------------
-# Canva Connect — OAuth2 flow + API proxy
-# ---------------------------------------------------------------------------
-import hashlib, base64, secrets as _secrets
-from urllib.parse import urlencode
-from django.utils import timezone as _tz
-from datetime import timedelta as _td
-
-def canva_auth_start(request):
-    """Initiate Canva OAuth2 PKCE flow — returns the authorization URL."""
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Login required'}, status=401)
-
-    client_id = settings.CANVA_CLIENT_ID
-    redirect_uri = settings.CANVA_REDIRECT_URI
-    if not client_id:
-        return JsonResponse({'error': 'Canva not configured'}, status=500)
-
-    code_verifier = _secrets.token_urlsafe(64)
-    code_challenge = base64.urlsafe_b64encode(
-        hashlib.sha256(code_verifier.encode()).digest()
-    ).rstrip(b'=').decode()
-
-    state = _secrets.token_urlsafe(32)
-    request.session['canva_code_verifier'] = code_verifier
-    request.session['canva_state'] = state
-
-    params = {
-        'response_type': 'code',
-        'client_id': client_id,
-        'redirect_uri': redirect_uri,
-        'scope': 'design:content:read design:content:write design:meta:read asset:read asset:write',
-        'state': state,
-        'code_challenge': code_challenge,
-        'code_challenge_method': 'S256',
-    }
-    auth_url = f'https://www.canva.com/api/oauth/authorize?{urlencode(params)}'
-    return JsonResponse({'auth_url': auth_url})
-
-
-def canva_callback(request):
-    """Handle Canva OAuth2 callback — exchange code for tokens."""
-    code = request.GET.get('code')
-    state = request.GET.get('state')
-    error = request.GET.get('error')
-
-    if error:
-        return redirect(f'https://aiaxom.co.in/tools?canva_error={error}')
-
-    if not code or state != request.session.get('canva_state'):
-        return redirect('https://aiaxom.co.in/tools?canva_error=invalid_state')
-
-    code_verifier = request.session.pop('canva_code_verifier', '')
-    request.session.pop('canva_state', None)
-
-    try:
-        resp = http_session.post(
-            'https://api.canva.com/rest/v1/oauth/token',
-            data={
-                'grant_type': 'authorization_code',
-                'code': code,
-                'code_verifier': code_verifier,
-                'redirect_uri': settings.CANVA_REDIRECT_URI,
-            },
-            auth=(settings.CANVA_CLIENT_ID, settings.CANVA_CLIENT_SECRET),
-            headers={'Content-Type': 'application/x-www-form-urlencoded'},
-            timeout=15,
-        )
-        resp.raise_for_status()
-        token_data = resp.json()
-    except Exception:
-        return redirect('https://aiaxom.co.in/tools?canva_error=token_exchange_failed')
-
-    from superadmin.models import CanvaToken
-    expires_at = _tz.now() + _td(seconds=token_data.get('expires_in', 3600))
-
-    CanvaToken.objects.update_or_create(
-        user=request.user,
-        defaults={
-            'access_token': token_data['access_token'],
-            'refresh_token': token_data.get('refresh_token', ''),
-            'token_type': token_data.get('token_type', 'Bearer'),
-            'expires_at': expires_at,
-            'scope': token_data.get('scope', ''),
-        },
-    )
-    return redirect('https://aiaxom.co.in/tools?canva_connected=1')
-
-
-def _refresh_canva_token(canva_token):
-    """Refresh an expired Canva access token."""
-    if not canva_token.refresh_token:
-        return False
-    try:
-        resp = http_session.post(
-            'https://api.canva.com/rest/v1/oauth/token',
-            data={
-                'grant_type': 'refresh_token',
-                'refresh_token': canva_token.refresh_token,
-            },
-            auth=(settings.CANVA_CLIENT_ID, settings.CANVA_CLIENT_SECRET),
-            headers={'Content-Type': 'application/x-www-form-urlencoded'},
-            timeout=15,
-        )
-        resp.raise_for_status()
-        td = resp.json()
-        canva_token.access_token = td['access_token']
-        canva_token.refresh_token = td.get('refresh_token', canva_token.refresh_token)
-        canva_token.expires_at = _tz.now() + _td(seconds=td.get('expires_in', 3600))
-        canva_token.save()
-        return True
-    except Exception:
-        return False
-
-
-def _get_canva_headers(canva_token):
-    """Return valid Canva API headers, refreshing token if needed."""
-    if canva_token.is_expired:
-        if not _refresh_canva_token(canva_token):
-            return None
-    return {
-        'Authorization': f'Bearer {canva_token.access_token}',
-        'Content-Type': 'application/json',
-    }
-
-
-@ensure_csrf_cookie
-def canva_status_api(request):
-    """Check if current user has Canva connected."""
-    if not request.user.is_authenticated:
-        return JsonResponse({'connected': False})
-    from superadmin.models import CanvaToken
-    try:
-        ct = CanvaToken.objects.get(user=request.user)
-        headers = _get_canva_headers(ct)
-        if headers is None:
-            ct.delete()
-            return JsonResponse({'connected': False})
-        return JsonResponse({'connected': True})
-    except CanvaToken.DoesNotExist:
-        return JsonResponse({'connected': False})
-
-
-@ensure_csrf_cookie
-def canva_disconnect_api(request):
-    """Disconnect Canva for current user."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Login required'}, status=401)
-    from superadmin.models import CanvaToken
-    CanvaToken.objects.filter(user=request.user).delete()
-    return JsonResponse({'success': True})
-
-
-@ensure_csrf_cookie
-def canva_designs_api(request):
-    """List user's Canva designs."""
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Login required'}, status=401)
-    from superadmin.models import CanvaToken
-    try:
-        ct = CanvaToken.objects.get(user=request.user)
-    except CanvaToken.DoesNotExist:
-        return JsonResponse({'error': 'Canva not connected'}, status=403)
-
-    headers = _get_canva_headers(ct)
-    if not headers:
-        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
-
-    query = request.GET.get('query', '')
-    params = {'ownership': 'owned'}
-    if query:
-        params['query'] = query
-
-    try:
-        resp = http_session.get(
-            'https://api.canva.com/rest/v1/designs',
-            headers=headers, params=params, timeout=15,
-        )
-        resp.raise_for_status()
-        return JsonResponse(resp.json())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=502)
-
-
-@ensure_csrf_cookie
-def canva_create_design_api(request):
-    """Create a new Canva design."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Login required'}, status=401)
-    from superadmin.models import CanvaToken
-    try:
-        ct = CanvaToken.objects.get(user=request.user)
-    except CanvaToken.DoesNotExist:
-        return JsonResponse({'error': 'Canva not connected'}, status=403)
-
-    headers = _get_canva_headers(ct)
-    if not headers:
-        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
-
-    try:
-        body = json.loads(request.body)
-    except Exception:
-        body = {}
-
-    design_type = body.get('design_type', {})
-    if not design_type:
-        design_type = {'type': 'preset', 'name': 'doc'}
-
-    payload = {
-        'design_type': design_type,
-    }
-    if body.get('title'):
-        payload['title'] = body['title']
-    if body.get('asset_id'):
-        payload['asset_id'] = body['asset_id']
-
-    try:
-        resp = http_session.post(
-            'https://api.canva.com/rest/v1/designs',
-            headers=headers, json=payload, timeout=15,
-        )
-        resp.raise_for_status()
-        return JsonResponse(resp.json())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=502)
-
-
-@ensure_csrf_cookie
-def canva_export_api(request):
-    """Export a Canva design as PNG/PDF/etc."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Login required'}, status=401)
-    from superadmin.models import CanvaToken
-    try:
-        ct = CanvaToken.objects.get(user=request.user)
-    except CanvaToken.DoesNotExist:
-        return JsonResponse({'error': 'Canva not connected'}, status=403)
-
-    headers = _get_canva_headers(ct)
-    if not headers:
-        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
-
-    try:
-        body = json.loads(request.body)
-    except Exception:
-        body = {}
-
-    design_id = body.get('design_id')
-    if not design_id:
-        return JsonResponse({'error': 'design_id required'}, status=400)
-
-    export_format = body.get('format', 'png')
-
-    try:
-        resp = http_session.post(
-            f'https://api.canva.com/rest/v1/exports',
-            headers=headers,
-            json={
-                'design_id': design_id,
-                'format': {'type': export_format},
-            },
-            timeout=15,
-        )
-        resp.raise_for_status()
-        return JsonResponse(resp.json())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=502)
-
-
-@ensure_csrf_cookie
-def canva_export_status_api(request, export_id):
-    """Check export status."""
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Login required'}, status=401)
-    from superadmin.models import CanvaToken
-    try:
-        ct = CanvaToken.objects.get(user=request.user)
-    except CanvaToken.DoesNotExist:
-        return JsonResponse({'error': 'Canva not connected'}, status=403)
-
-    headers = _get_canva_headers(ct)
-    if not headers:
-        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
-
-    try:
-        resp = http_session.get(
-            f'https://api.canva.com/rest/v1/exports/{export_id}',
-            headers=headers, timeout=15,
-        )
-        resp.raise_for_status()
-        return JsonResponse(resp.json())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=502)
-
-
-@ensure_csrf_cookie
-def canva_ai_design_api(request):
-    """Use AI to pick a design type and generate content from a prompt, then create in Canva."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Login required'}, status=401)
-    from superadmin.models import CanvaToken
-    try:
-        ct = CanvaToken.objects.get(user=request.user)
-    except CanvaToken.DoesNotExist:
-        return JsonResponse({'error': 'Canva not connected'}, status=403)
-
-    try:
-        body = json.loads(request.body)
-    except Exception:
-        body = {}
-
-    user_prompt = body.get('prompt', '').strip()
-    if not user_prompt:
-        return JsonResponse({'error': 'Prompt is required'}, status=400)
-
-    system = (
-        "You are a design assistant. Given a user's design request, respond with ONLY valid JSON "
-        "(no markdown, no ```json code fences, no explanation). Fields:\n"
-        '- "design_type": MUST be one of these exact values: presentation, poster, flyer, '
-        'instagram_post, instagram_story, facebook_post, youtube_thumbnail, logo, '
-        'resume, business_card, invitation, doc, whiteboard, a4_document, letter_document\n'
-        "  IMPORTANT: Choose the VISUAL format that best fits. For infographics, comparisons, "
-        "charts, or visual explanations → use 'poster' or 'instagram_post'. "
-        "For multi-slide content → 'presentation'. For social media → the matching platform type. "
-        "Use 'doc' ONLY for long-form text documents like reports or articles.\n"
-        '- "title": a short catchy title for the design\n'
-        '- "content": object with "heading" (string), "subheading" (string), '
-        '"body" (the main text content, can be multi-line), '
-        '"color_scheme" (array of 3-4 hex color strings like "#FF5733"), '
-        '"style_notes" (brief style/layout guidance for the designer)\n'
-        "Respond with ONLY the JSON object, nothing else."
-    )
-
-    gk = os.getenv('GEMINI_API_KEY', '').strip()
-    ai_result = None
-    if gk:
-        ai_result = _gemini_generate(gk, system, user_prompt,
-                                     ['gemini-2.0-flash', 'gemini-1.5-flash'])
-
-    design_preset = 'doc'
-    title = 'Untitled Design'
-    content = {}
-
-    if ai_result:
-        try:
-            cleaned = ai_result.strip()
-            if cleaned.startswith('```'):
-                cleaned = cleaned.split('\n', 1)[1] if '\n' in cleaned else cleaned[3:]
-                if cleaned.endswith('```'):
-                    cleaned = cleaned[:-3]
-                cleaned = cleaned.strip()
-            parsed = json.loads(cleaned)
-            design_preset = parsed.get('design_type', 'poster')
-            title = parsed.get('title', title)
-            content = parsed.get('content', {})
-        except (json.JSONDecodeError, KeyError):
-            design_preset = 'poster'
-
-    headers = _get_canva_headers(ct)
-    if not headers:
-        return JsonResponse({'error': 'Token expired, please reconnect'}, status=401)
-
-    payload = {
-        'design_type': {'type': 'preset', 'name': design_preset},
-        'title': title,
-    }
-
-    try:
-        resp = http_session.post(
-            'https://api.canva.com/rest/v1/designs',
-            headers=headers, json=payload, timeout=15,
-        )
-        resp.raise_for_status()
-        result = resp.json()
-        result['ai_content'] = content
-        result['ai_design_type'] = design_preset
-        return JsonResponse(result)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=502)
 
 
 # ─── Video Downloader (yt-dlp streaming, no server storage) ───────────────────

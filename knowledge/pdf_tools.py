@@ -1,7 +1,7 @@
 """
 Deterministic PDF operations built on PyMuPDF (no ML needed):
-merge, split, compress, rotate, delete/extract pages, page numbers,
-watermark, protect (password) and unlock (remove password).
+merge, split, compress, rotate, delete pages, page numbers,
+watermark and protect (password).
 
 Page specs are 1-based and accept ranges: "1,3,5-7".
 """
@@ -71,22 +71,6 @@ def delete_pages(path, spec, out):
         doc.save(out, garbage=4, deflate=True)
     finally:
         doc.close()
-    return out
-
-
-def extract_pages(path, spec, out):
-    src = pymupdf.open(path)
-    try:
-        keep = sorted(_parse_pages(spec, len(src)))
-        if not keep:
-            raise ValueError("No valid pages selected.")
-        d = pymupdf.open()
-        for i in keep:
-            d.insert_pdf(src, from_page=i, to_page=i)
-        d.save(out)
-        d.close()
-    finally:
-        src.close()
     return out
 
 
@@ -206,47 +190,6 @@ def watermark_pdf(path, text, out, opacity=0.15, size=48, color='#888888',
     return out
 
 
-def remove_watermark(path, out):
-    """
-    Best-effort watermark removal: deletes annotations and images that repeat on
-    EVERY page (typical logo/stamp watermarks). Cannot remove text baked into the
-    page content without also removing real content.
-    """
-    doc = pymupdf.open(path)
-    try:
-        page_imgs = []
-        for page in doc:
-            try:
-                page_imgs.append({img[0] for img in page.get_images(full=True)})
-            except Exception:
-                page_imgs.append(set())
-        common = set.intersection(*page_imgs) if len(page_imgs) > 1 and all(page_imgs) else set()
-
-        for page in doc:
-            # 1. drop annotations (stamp/watermark annots)
-            try:
-                for annot in list(page.annots() or []):
-                    page.delete_annot(annot)
-            except Exception:
-                pass
-            # 2. redact repeating (watermark) images
-            for img in page.get_images(full=True):
-                if img[0] in common:
-                    try:
-                        for rect in page.get_image_rects(img[0]):
-                            page.add_redact_annot(rect)
-                    except Exception:
-                        pass
-            try:
-                page.apply_redactions()
-            except Exception:
-                pass
-        doc.save(out, garbage=4, deflate=True)
-    finally:
-        doc.close()
-    return out
-
-
 def protect_pdf(path, password, out):
     """Encrypt with a password (AES-256)."""
     doc = pymupdf.open(path)
@@ -256,18 +199,6 @@ def protect_pdf(path, password, out):
             | pymupdf.PDF_PERM_COPY | pymupdf.PDF_PERM_ANNOTATE)
         doc.save(out, encryption=pymupdf.PDF_ENCRYPT_AES_256,
                  owner_pw=password, user_pw=password, permissions=perm)
-    finally:
-        doc.close()
-    return out
-
-
-def unlock_pdf(path, password, out):
-    """Remove password protection (needs the current password)."""
-    doc = pymupdf.open(path)
-    try:
-        if doc.needs_pass and not doc.authenticate(password or ''):
-            raise ValueError("Wrong password — cannot unlock this PDF.")
-        doc.save(out)
     finally:
         doc.close()
     return out

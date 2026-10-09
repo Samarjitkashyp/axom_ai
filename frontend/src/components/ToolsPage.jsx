@@ -1,23 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import {
-  ChevronLeft,
-  Search,
-  X,
-  UploadCloud,
-  FileText,
-  CheckCircle,
-  AlertCircle,
-  Download,
-  Loader2,
-  Copy,
-  Check,
-  ArrowRight,
-  Sun,
-  Moon,
-  Sparkles,
-  Layers,
-  FileUp,
-} from 'lucide-react';
+import { ChevronLeft, Search, X, ArrowRight, Sun, Moon, Sparkles, Layers, FileUp } from 'lucide-react';
 import { ALL_TOOLS, TOOL_CATEGORIES } from '../utils/toolsData';
 import { getCsrfToken } from '../utils/security';
 import ToolWorkspace from './ToolWorkspace';
@@ -27,12 +9,10 @@ export default function ToolsPage({
   onOpenEditor,
   onOpenCompressor,
   onOpenVideoCompressor,
-  onOpenWmRemover,
   onOpenImageGen,
   onOpenImageFinder,
   onOpenVideoFinder,
   onOpenDiagramGen,
-  onOpenSummarizer,
   theme,
   onToggleTheme,
 }) {
@@ -108,10 +88,6 @@ export default function ToolsPage({
       onOpenVideoCompressor?.();
       return;
     }
-    if (t.wmeditor) {
-      onOpenWmRemover?.();
-      return;
-    }
     if (t.imagegen) {
       onOpenImageGen?.();
       return;
@@ -128,13 +104,8 @@ export default function ToolsPage({
       onOpenDiagramGen?.();
       return;
     }
-    if (t.summarizer) {
-      onOpenSummarizer?.();
-      return;
-    }
     resetRunner();
     setActiveTool(t);
-    if (t.param === 'lang') setAngle('assamese');
   };
 
   const closeRunner = () => {
@@ -207,7 +178,6 @@ export default function ToolsPage({
     if (activeTool.param === 'password') fd.append('password', paramText.trim());
     if (activeTool.param === 'question') fd.append('question', paramText.trim());
     if (activeTool.param === 'angle') fd.append('angle', angle);
-    if (activeTool.param === 'lang') fd.append('lang', angle);
 
     try {
       const res = await fetch(url, {
@@ -246,7 +216,7 @@ export default function ToolsPage({
   const paramLabel = {
     pages: 'Specify page numbers (e.g. 1, 3-5, 8)',
     text: 'Watermark text (e.g. CONFIDENTIAL / Axom AI)',
-    password: activeTool?.op === 'unlock' ? 'Current document password' : 'New secure password',
+    password: 'New secure password',
     question: 'Ask any question about this PDF content…',
   };
 

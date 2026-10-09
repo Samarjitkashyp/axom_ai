@@ -869,7 +869,6 @@ def analytics_page(request):
         'image': UsageRecord.objects.filter(action_type='image').count(),
         'search': UsageRecord.objects.filter(action_type='search').count(),
         'pdf': UsageRecord.objects.filter(action_type='pdf').count(),
-        'summarize': UsageRecord.objects.filter(action_type='summarize').count(),
     }
 
     context = {

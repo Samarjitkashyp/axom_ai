@@ -1,13 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  X, UploadCloud, FileText, CheckCircle, AlertCircle, Download, Loader2,
-  ChevronLeft, FileType2, Image as ImageIcon, Combine, Scissors, Trash2,
-  FileOutput, RotateCw, Hash, Minimize2, Droplets, Lock, Unlock,
-  Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, Copy, Check, Sparkles,
-  PenTool, Signature,
-} from 'lucide-react';
+import { X, UploadCloud, FileText, CheckCircle, AlertCircle, Download, Loader2, ChevronLeft, FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, Copy, Check, PenTool, Signature } from 'lucide-react';
 import { getCsrfToken } from './utils/security';
 
 // Every tool. ep 'convert' -> /api/convert-file/ (target); ep 'pdf' -> /api/pdf-tool/ (op).
@@ -21,26 +15,20 @@ const TOOLS = [
 
   { id: 'merge', name: 'Merge PDF', cat: 'Organize', icon: Combine, ep: 'pdf', op: 'merge', accept: '.pdf', multi: true, hint: 'Two or more PDFs' },
   { id: 'split', name: 'Split PDF', cat: 'Organize', icon: Scissors, ep: 'pdf', op: 'split', accept: '.pdf', multi: false, hint: 'PDF file' },
-  { id: 'extract', name: 'Extract Pages', cat: 'Organize', icon: FileOutput, ep: 'pdf', op: 'extract', accept: '.pdf', multi: false, param: 'pages', hint: 'PDF file' },
 
   { id: 'compress', name: 'Compress PDF', cat: 'Optimize', icon: Minimize2, compressor: true },
   { id: 'watermark', name: 'Watermark PDF', cat: 'Optimize', icon: Droplets, ep: 'pdf', op: 'watermark', accept: '.pdf', multi: false, param: 'text', hint: 'PDF file' },
 
   { id: 'protect', name: 'Protect PDF', cat: 'Security', icon: Lock, ep: 'pdf', op: 'protect', accept: '.pdf', multi: false, param: 'password', hint: 'PDF file' },
-  { id: 'unlock', name: 'Unlock PDF', cat: 'Security', icon: Unlock, ep: 'pdf', op: 'unlock', accept: '.pdf', multi: false, param: 'password', hint: 'Password-protected PDF' },
 
   // Office -> PDF (LibreOffice on the server)
   { id: 'ppt2pdf', name: 'PowerPoint → PDF', cat: 'Office', icon: Presentation, ep: 'convert', target: 'pdf', accept: '.pptx,.ppt,.odp', multi: false, hint: 'PPTX, PPT, ODP' },
   { id: 'excel2pdf', name: 'Excel → PDF', cat: 'Office', icon: FileSpreadsheet, ep: 'convert', target: 'pdf', accept: '.xlsx,.xls,.ods,.csv', multi: false, hint: 'XLSX, XLS, ODS, CSV' },
-  { id: 'office2pdf', name: 'ODT / HTML / EPUB → PDF', cat: 'Office', icon: FileType2, ep: 'convert', target: 'pdf', accept: '.odt,.html,.htm,.epub,.rtf', multi: false, hint: 'ODT, HTML, EPUB, RTF' },
 
   // OCR (Tesseract: English + Assamese + Hindi)
-  { id: 'ocr', name: 'OCR — Make Searchable', cat: 'OCR', icon: ScanText, ep: 'pdf', op: 'ocr', accept: '.pdf', multi: false, hint: 'Scanned PDF' },
 
   // AI (Groq)
   { id: 'chatpdf', name: 'Chat with PDF', cat: 'AI Tools', icon: MessagesSquare, ep: 'ai', op: 'chat', accept: '.pdf', multi: false, param: 'question', hint: 'PDF file' },
-  { id: 'summarize', name: 'Summarize PDF', cat: 'AI Tools', icon: Sparkles, ep: 'ai', op: 'summarize', accept: '.pdf', multi: false, hint: 'PDF file' },
-  { id: 'translatepdf', name: 'Translate PDF', cat: 'AI Tools', icon: Languages, ep: 'ai', op: 'translate', accept: '.pdf', multi: false, param: 'lang', hint: 'PDF file' },
 
   // Interactive editor (opens a full-screen canvas editor)
   { id: 'edit', name: 'Edit PDF', cat: 'Edit', icon: PenTool, editor: true },
@@ -86,7 +74,7 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
     if (t.id === 'imgconvert') { window.location.href = '/tools/image-format-converter'; return; }
     if (t.editor) { onClose?.(); onOpenEditor?.(); return; }
     if (t.compressor) { onClose?.(); onOpenCompressor?.(); return; }
-    reset(); setTool(t); if (t.param === 'lang') setAngle('assamese');
+    reset(); setTool(t);
   };
   const backToGrid = () => { reset(); setTool(null); };
 
@@ -130,7 +118,6 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
     if (tool.param === 'password') fd.append('password', paramText.trim());
     if (tool.param === 'question') fd.append('question', paramText.trim());
     if (tool.param === 'angle') fd.append('angle', angle);
-    if (tool.param === 'lang') fd.append('lang', angle); // reuse `angle` state as lang for translate
 
     try {
       const res = await fetch(url, { method: 'POST', headers: { 'X-CSRFToken': getCsrfToken() || '' }, body: fd });
@@ -164,7 +151,7 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
   const paramLabel = {
     pages: 'Pages (e.g. 2,4-6)',
     text: 'Watermark text',
-    password: tool?.op === 'unlock' ? 'Current password' : 'New password',
+    password: 'New password',
     question: 'Ask a question about this PDF…',
   };
 
@@ -262,13 +249,6 @@ export default function DocConverterModal({ isOpen, onClose, onOpenEditor, onOpe
                       <option value="90">Rotate 90° (clockwise)</option>
                       <option value="180">Rotate 180°</option>
                       <option value="270">Rotate 270° (counter-clockwise)</option>
-                    </select>
-                  ) : tool.param === 'lang' ? (
-                    <select value={angle} onChange={(e) => setAngle(e.target.value)}
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: '9px', border: '1px solid var(--border-color)', background: 'var(--bg-input, rgba(255,255,255,0.03))', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
-                      <option value="assamese">Translate to Assamese (অসমীয়া)</option>
-                      <option value="english">Translate to English</option>
-                      <option value="hindi">Translate to Hindi (हिन्दी)</option>
                     </select>
                   ) : (
                     <input

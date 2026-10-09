@@ -76,7 +76,7 @@ export default function InlineToolConverter({
 
   // Param input (pages, password, text, question, lang)
   const [paramText, setParamText] = useState('');
-  const [angle, setAngle] = useState(tool.param === 'lang' ? 'assamese' : '');
+  const [angle, setAngle] = useState('');
 
   const [result, setResult] = useState<{
     downloadUrl: string;
@@ -117,7 +117,6 @@ export default function InlineToolConverter({
   const remainingFree = Math.max(0, FREE_DAILY_LIMIT - dailyUsage);
 
   const needsParam = tool.param && ['pages', 'password', 'text', 'question'].includes(tool.param);
-  const needsLang = tool.param === 'lang';
 
   const resetAll = () => {
     setFiles([]);
@@ -214,7 +213,6 @@ export default function InlineToolConverter({
       if (tool.param === 'text') fd.append('text', paramText.trim() || 'CONFIDENTIAL');
       if (tool.param === 'password') fd.append('password', paramText.trim());
       if (tool.param === 'question') fd.append('question', paramText.trim());
-      if (tool.param === 'lang') fd.append('lang', angle);
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -251,19 +249,11 @@ export default function InlineToolConverter({
 
   const paramLabels: Record<string, { label: string; placeholder: string }> = {
     pages: { label: 'Page Range', placeholder: 'e.g. 1, 3-5, 8' },
-    password: { label: tool.op === 'unlock' ? 'Current Password' : 'Set Password', placeholder: 'Enter password...' },
+    password: { label: 'Set Password', placeholder: 'Enter password...' },
     text: { label: 'Watermark Text', placeholder: 'e.g. CONFIDENTIAL' },
     question: { label: 'Your Question', placeholder: 'Ask a question about this PDF...' },
   };
 
-  const languages = [
-    { value: 'assamese', label: 'Assamese (অসমীয়া)' },
-    { value: 'hindi', label: 'Hindi (हिन्दी)' },
-    { value: 'bengali', label: 'Bengali (বাংলা)' },
-    { value: 'english', label: 'English' },
-    { value: 'tamil', label: 'Tamil (தமிழ்)' },
-    { value: 'telugu', label: 'Telugu (తెలుగు)' },
-  ];
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -437,17 +427,6 @@ export default function InlineToolConverter({
                     <input type={tool.param === 'password' ? 'password' : 'text'} value={paramText} onChange={e => setParamText(e.target.value)} placeholder={paramLabels[tool.param]?.placeholder}
                       className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-white/10 text-white text-sm placeholder:text-slate-500 focus:border-purple-500/50 focus:outline-none" />
                   )}
-                </div>
-              )}
-
-              {/* Language Selector */}
-              {needsLang && (
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-300">Target Language</label>
-                  <select value={angle} onChange={e => setAngle(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-white/10 text-white text-sm focus:border-purple-500/50 focus:outline-none">
-                    {languages.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-                  </select>
                 </div>
               )}
 

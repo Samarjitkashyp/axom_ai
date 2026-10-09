@@ -57,7 +57,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 - **Video & Media Discovery:** Intelligent video finder and media discovery engine tailored for educational and creative workflows.
 - **Architecture & Diagram Generator:** Automated Mermaid-based flowcharts, sequence diagrams, and architecture visualization.
 - **Universal Document Summarizer:** Multilingual PDF/DOCX/TXT synthesis with customizable summary lengths.
-- **Complete Document & OCR Suite:** Tesseract-powered regional OCR, PDF merge, split, compress, watermark, and format conversions.
+- **Complete Document Suite:** PDF merge, split, compress, watermark, protect, and format conversions.
 
 ### 4. Multi-Subdomain Architecture & Role-Based Access
 - **Six Dedicated Subdomains:** `aiaxom.co.in` (landing), `chat.aiaxom.co.in` (AI workspace), `admin.aiaxom.co.in` (super admin panel), `content.aiaxom.co.in` (CMS), `user.aiaxom.co.in` (user dashboard), `axomai-bot.aiaxom.co.in` (crawler bot).
@@ -141,7 +141,7 @@ Mainstream global AI models frequently treat Assamese as a low-resource aftertho
 | **Web Search Grounding** | Google Programmable Custom Search JSON API + Tavily Fallback |
 | **Grammar & Vector RAG** | Multilingual MiniLM embeddings, Sentence-Transformers, NLTK |
 | **Media & Video Processing** | FFmpeg (H.264 / AAC, 16:9 & 9:16 aspect ratio detection), PyMuPDF, LibreOffice |
-| **Document & OCR** | Tesseract OCR, LibreOffice (Word/Excel/PPT to PDF) |
+| **Documents** | LibreOffice (Word/Excel/PPT to PDF) |
 | **Payments** | Razorpay Standard Checkout + HMAC-SHA256 Webhook Verification |
 | **Infrastructure** | AWS Lightsail (Debian Linux), Cloudflare CDN, Systemd Services |
 | **CI / CD** | GitHub Actions Automated SSH Deployment Pipeline |

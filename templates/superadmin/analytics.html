@@ -74,16 +74,15 @@
     new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Chat Conversations', 'Image Generation', 'Web Searches', 'PDF / Doc AI', 'Summaries'],
+        labels: ['Chat Conversations', 'Image Generation', 'Web Searches', 'PDF / Doc AI'],
         datasets: [{
           data: [
             {{ usage_breakdown.chat|default:10 }},
             {{ usage_breakdown.image|default:5 }},
             {{ usage_breakdown.search|default:5 }},
-            {{ usage_breakdown.pdf|default:3 }},
-            {{ usage_breakdown.summarize|default:2 }}
+            {{ usage_breakdown.pdf|default:3 }}
           ],
-          backgroundColor: ['#6366f1', '#a855f7', '#10b981', '#f59e0b', '#3b82f6'],
+          backgroundColor: ['#6366f1', '#a855f7', '#10b981', '#f59e0b'],
           borderWidth: 0
         }]
       },
