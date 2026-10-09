@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Search, X, ArrowRight, Sun, Moon, Sparkles, Layers, FileUp, FileType2, Image as ImageIcon, Combine, Scissors, FileOutput, Minimize2, Droplets, Eraser, Lock, Unlock, Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, Wrench, Shapes, GraduationCap } from 'lucide-react';
+import { ChevronLeft, Search, X, ArrowRight, Sun, Moon, Sparkles, Layers, FileUp, FileType2, Image as ImageIcon, Combine, Scissors, FileOutput, Minimize2, Droplets, Eraser, Lock, Unlock, Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, Wrench, Shapes, GraduationCap, ImageDown } from 'lucide-react';
 import { ALL_TOOLS, TOOL_CATEGORIES } from './utils/toolsData';
 import { getCsrfToken } from './utils/security';
 import ToolWorkspace from './ToolWorkspace';
@@ -11,6 +11,7 @@ import Footer from '../Footer';
 
 const ICON_MAP = {
   FileType2,
+  ImageDown,
   ImageIcon,
   Combine,
   Scissors,
@@ -207,7 +208,7 @@ export default function ToolsPage({
     // Route map: tool id → dedicated page slug
     const TOOL_ROUTES = {
       edit: 'edit-pdf', sign: 'sign-pdf',
-      compress: 'compress-pdf', video_compress: 'video-compressor',
+      compress: 'compress-pdf', video_compress: 'video-compressor', imgcompress: 'image-compressor',
       imagegen: 'ai-image-generator', imagefinder: 'ai-image-finder',
       videofinder: 'ai-video-finder', diagramgen: 'ai-diagram-generator',
       svgeditor: 'svg-editor',

@@ -40,13 +40,16 @@ export default function ToolPageTemplate({ data, children }: ToolPageTemplatePro
     featureList: data.appFeatureList || [],
     browserRequirements: 'Requires modern web browser with HTML5 support',
     softwareVersion: data.appVersion || '2.5',
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: data.appRatingValue || '4.9',
-      reviewCount: data.appReviewCount || '3420',
-      bestRating: '5',
-      worstRating: '1',
-    },
+    // only when the page states a rating itself; nothing is invented
+    ...(data.appRatingValue && data.appReviewCount ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: data.appRatingValue,
+        reviewCount: data.appReviewCount,
+        bestRating: '5',
+        worstRating: '1',
+      },
+    } : {}),
   };
 
   const howToSchema = {

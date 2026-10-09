@@ -12,6 +12,7 @@ const TOOL_MAP: Record<string, React.LazyExoticComponent<React.ComponentType<any
   'ai-diagram-generator': lazy(() => import('../chat/DiagramGenerator')),
   'background-remover': lazy(() => import('../chat/BackgroundRemover')),
   'video-compressor': lazy(() => import('../chat/VideoCompressor')),
+  'image-compressor': lazy(() => import('../chat/ImageCompressor')),
   'edit-pdf': lazy(() => import('../chat/PdfEditor')),
   'sign-pdf': lazy(() => import('../chat/PdfEditor')),
   'meme-generator': lazy(() => import('../chat/MemeGenerator')),

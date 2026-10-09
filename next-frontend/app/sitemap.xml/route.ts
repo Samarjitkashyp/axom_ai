@@ -50,6 +50,7 @@ export async function GET() {
     'meme-generator',
     'background-remover',
     'video-compressor',
+    'image-compressor',
     'video-downloader',
     'youtube-video-downloader',
     'screenshot-to-code',
