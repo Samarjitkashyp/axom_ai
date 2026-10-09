@@ -8326,11 +8326,54 @@ ol.chat-list {
 
 /* Tables */
 .chat-table-wrapper {
-  overflow-x: auto;
-  margin: 14px 0;
-  border-radius: 8px;
+  overflow: hidden;
+  margin: 16px 0;
+  border-radius: 12px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.chat-table-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.76rem;
+}
+
+.chat-table-title {
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chat-table-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(52, 211, 153, 0.1);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-table-copy-btn:hover {
+  background: rgba(52, 211, 153, 0.2);
+  transform: translateY(-1px);
+}
+
+.chat-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .chat-markdown-table {
@@ -8346,10 +8389,11 @@ ol.chat-list {
   font-weight: 700;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .chat-markdown-table td {
-  padding: 8px 14px;
+  padding: 9px 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   color: var(--text-secondary);
 }
@@ -8359,7 +8403,228 @@ ol.chat-list {
 }
 
 .chat-markdown-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(52, 211, 153, 0.04);
+}
+
+/* Code Blocks with Live Tabs */
+.chat-code-block {
+  margin: 16px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: #090a14;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+body.light-theme .chat-code-block {
+  background: #0f172a;
+}
+
+.chat-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.chat-code-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-code-lang-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
+}
+
+.chat-code-lang {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.chat-code-tabs {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.chat-code-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chat-code-tab.active {
+  background: #34d399;
+  color: #0b1220;
+}
+
+.chat-code-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-code-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.chat-code-pre {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.chat-code-preview-frame {
+  width: 100%;
+  min-height: 220px;
+  background: #ffffff;
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Math LaTeX Display */
+.chat-math-block {
+  margin: 14px 0;
+  padding: 12px 18px;
+  background: rgba(52, 211, 153, 0.05);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 10px;
+  text-align: center;
+  overflow-x: auto;
+  font-family: 'Times New Roman', serif;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+/* Streaming Cursor Effect */
+.chat-streaming-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 16px;
+  margin-left: 4px;
+  vertical-align: -2px;
+  background: #34d399;
+  border-radius: 2px;
+  animation: streamingBlink 0.8s ease-in-out infinite alternate;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+}
+
+@keyframes streamingBlink {
+  0% { opacity: 0.2; transform: scaleY(0.7); }
+  100% { opacity: 1; transform: scaleY(1.1); }
+}
+
+/* Floating Capsule Input Bar Enhancement */
+.chat-input-container {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chat-input-container:focus-within {
+  border-color: rgba(52, 211, 153, 0.5);
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(52, 211, 153, 0.35);
+}
+
+body.light-theme .chat-input-container {
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .chat-input-container:focus-within {
+  box-shadow: 0 8px 32px rgba(52, 211, 153, 0.15), 0 0 0 2px rgba(52, 211, 153, 0.4);
+}
+
+/* Attachment Menu Popover */
+.attachment-popover {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 220px;
+  z-index: 120;
+  backdrop-filter: blur(12px);
+  animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.attachment-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.attachment-popover-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.light-theme .attachment-popover-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.popover-icon-box {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
 }
 
 /* Blockquotes */
@@ -8379,6 +8644,7 @@ ol.chat-list {
   border-top: 1px solid var(--border-color);
   margin: 18px 0;
 }
+
 
 
 

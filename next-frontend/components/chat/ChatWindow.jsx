@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle,
-  FileText, Mic, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
+  FileText, Mic, MicOff, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
   ExternalLink, Loader2, Sparkles, FileUp, Wrench, Languages, ChevronDown,
-  X, MessageSquare, Image as ImageIcon
+  X, MessageSquare, Image as ImageIcon, Plus, Zap
 } from 'lucide-react';
 import { formatMarkdown } from './utils/format';
 import { getCsrfToken } from './utils/security';
@@ -51,19 +51,24 @@ export default function ChatWindow({
     return 'assamese';
   });
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isAttachMenuOpen, setIsAttachMenuOpen] = useState(false);
   const langMenuRef = useRef(null);
+  const attachMenuRef = useRef(null);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (langMenuRef.current && !langMenuRef.current.contains(e.target)) {
         setIsLangMenuOpen(false);
       }
+      if (attachMenuRef.current && !attachMenuRef.current.contains(e.target)) {
+        setIsAttachMenuOpen(false);
+      }
     };
-    if (isLangMenuOpen) {
+    if (isLangMenuOpen || isAttachMenuOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
     }
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isLangMenuOpen]);
+  }, [isLangMenuOpen, isAttachMenuOpen]);
 
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
@@ -92,6 +97,47 @@ export default function ChatWindow({
   const [speakingIndex, setSpeakingIndex] = useState(null);
   const recognitionRef = useRef(null);
   const docFileInputRef = useRef(null);
+  const imageFileInputRef = useRef(null);
+
+  const toggleSpeechRecognition = () => {
+    if (typeof window === 'undefined') return;
+    if (isListening) {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      setErrorMsg('Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    try {
+      const rec = new SpeechRec();
+      rec.continuous = false;
+      rec.interimResults = true;
+      rec.lang = langCode();
+
+      rec.onstart = () => setIsListening(true);
+      rec.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((res) => res[0].transcript)
+          .join('');
+        setInputText((prev) => (prev ? prev + ' ' + transcript : transcript));
+      };
+      rec.onerror = () => setIsListening(false);
+      rec.onend = () => setIsListening(false);
+
+      recognitionRef.current = rec;
+      rec.start();
+    } catch (err) {
+      setIsListening(false);
+      setErrorMsg('Could not access microphone. Please allow microphone permissions.');
+    }
+  };
 
   const langCode = () =>
     (language === 'english' ? 'en-IN' : language === 'assamese' ? 'as-IN' : 'hi-IN');
@@ -1145,7 +1191,11 @@ export default function ChatWindow({
                       </div>
                     </div>
                   )}
-                  <div className="msg-text-content" dangerouslySetInnerHTML={{ __html: formatMarkdown(streamingText) }} />
+                  <div className="msg-text-content" dangerouslySetInnerHTML={{ __html: formatMarkdown(streamingText) + '<span class="chat-streaming-cursor"></span>' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    <Zap size={11} style={{ color: '#34d399' }} />
+                    <span>Streaming response...</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -1350,21 +1400,98 @@ export default function ChatWindow({
           )}
 
           <div className="input-row">
-            <button
-              type="button"
-              className="btn-attach"
-              onClick={() => docFileInputRef.current?.click()}
-              title="Attach document or image"
-            >
-              <Paperclip size={18} />
-            </button>
+            <div ref={attachMenuRef} style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className={`btn-attach ${isAttachMenuOpen ? 'active' : ''}`}
+                onClick={() => setIsAttachMenuOpen((v) => !v)}
+                title="Add attachments or tools"
+                aria-expanded={isAttachMenuOpen}
+              >
+                <Plus size={18} style={{ transform: isAttachMenuOpen ? 'rotate(45deg)' : 'none', transition: 'transform 0.2s ease' }} />
+              </button>
+
+              {isAttachMenuOpen && (
+                <div className="attachment-popover">
+                  <button
+                    type="button"
+                    className="attachment-popover-item"
+                    onClick={() => {
+                      setIsAttachMenuOpen(false);
+                      docFileInputRef.current?.click();
+                    }}
+                  >
+                    <div className="popover-icon-box" style={{ background: 'rgba(52, 211, 153, 0.15)', color: '#34d399' }}>
+                      <FileText size={15} />
+                    </div>
+                    <div>
+                      <div>Upload Document</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>PDF, Word (.docx), TXT</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="attachment-popover-item"
+                    onClick={() => {
+                      setIsAttachMenuOpen(false);
+                      docFileInputRef.current?.click();
+                    }}
+                  >
+                    <div className="popover-icon-box" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+                      <ImageIcon size={15} />
+                    </div>
+                    <div>
+                      <div>Upload Image</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>PNG, JPG, WebP analysis</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="attachment-popover-item"
+                    onClick={() => {
+                      setIsAttachMenuOpen(false);
+                      setIsGeneratingImage(true);
+                      setInputText('/image A cinematic portrait in Assam tea gardens, 8k resolution');
+                    }}
+                  >
+                    <div className="popover-icon-box" style={{ background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>
+                      <Sparkles size={15} />
+                    </div>
+                    <div>
+                      <div>Generate AI Image</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>Create images from prompt</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="attachment-popover-item"
+                    onClick={() => {
+                      setIsAttachMenuOpen(false);
+                      toggleSpeechRecognition();
+                    }}
+                  >
+                    <div className="popover-icon-box" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}>
+                      <Mic size={15} />
+                    </div>
+                    <div>
+                      <div>Voice Dictation</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>Speak in Assamese/English</div>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+
             <textarea
               className="chat-textarea"
               ref={textareaRef}
               value={inputText}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : "Message Axom AI..."}
+              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : (isListening ? "Listening... speak now..." : "Message Axom AI...")}
               rows={1}
               disabled={isLoading || isConvertingDoc || isGeneratingImage}
             />
@@ -1510,7 +1637,20 @@ export default function ChatWindow({
                 </span>
               )}
             </div>
-            <div className="controls-right">
+            <div className="controls-right" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <button
+                type="button"
+                className={`lang-btn ${isListening ? 'active' : ''}`}
+                onClick={toggleSpeechRecognition}
+                title={isListening ? "Listening... Click to stop" : "Voice Input (Speech to Text)"}
+                style={{
+                  color: isListening ? '#ef4444' : 'var(--text-secondary)',
+                  borderColor: isListening ? 'rgba(239, 68, 68, 0.5)' : undefined,
+                  background: isListening ? 'rgba(239, 68, 68, 0.15)' : undefined
+                }}
+              >
+                {isListening ? <MicOff size={14} className="spin-icon" /> : <Mic size={14} />}
+              </button>
               <button
                 type="button"
                 className={`btn-send-message ${(inputText.trim() || attachedFile) && !isLoading && !isGeneratingImage ? 'active' : ''}`}
