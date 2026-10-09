@@ -98,6 +98,10 @@ export function useChatSessions() {
     postAction({ action: 'pin', session_id: id });
   };
 
+  const tagSession = (id, tag) => {
+    setSessions((prev) => (prev[id] ? { ...prev, [id]: { ...prev[id], tag: tag || null } } : prev));
+  };
+
   const clearAllSessions = () => {
     setSessions({});
     setCurrentChatId(null);
@@ -113,6 +117,7 @@ export function useChatSessions() {
     resetCurrentSession,
     deleteSession,
     togglePin,
+    tagSession,
     clearAllSessions,
   };
 }

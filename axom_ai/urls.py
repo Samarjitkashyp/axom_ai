@@ -7,6 +7,7 @@ from . import views
 import knowledge.views as knowledge_views
 import contentcms.api_views as contentcms_api
 from . import ai_notes_views
+from . import chat_enhancements
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,6 +35,9 @@ urlpatterns = [
     path('subscription/', views.home_view, name='subscription'),
     path('subscription', views.home_view, name='subscription_no_slash'),
     path('api/chat/', views.chat_api_view, name='chat_api'),
+    path('api/chat/transliterate/', chat_enhancements.api_chat_transliterate, name='chat_transliterate_api'),
+    path('api/chat/ocr/', chat_enhancements.api_chat_ocr, name='chat_ocr_api'),
+    path('api/chat/export-docx/', chat_enhancements.api_chat_export_docx, name='chat_export_docx_api'),
     path('api/history/', views.chat_history_view, name='chat_history'),
     path('api/history/action/', views.chat_action_view, name='chat_action'),
     path('api/feedback/', views.feedback_view, name='feedback'),

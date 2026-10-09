@@ -1331,6 +1331,8 @@ def chat_api_view(request):
         history = data.get('history', [])
         if not isinstance(history, list):
             history = []
+        custom_instructions = data.get('custom_instructions') or data.get('system_persona') or ''
+        persona_mode = data.get('persona_mode') or ''
     except Exception:
         return JsonResponse({'error': 'Invalid JSON body'}, status=400)
 
@@ -1692,6 +1694,16 @@ def chat_api_view(request):
         )
 
     system_instruction = base_intro + lang_instruction
+
+    if persona_mode == 'assam_exam':
+        from .chat_enhancements import ASSAM_EXAM_SYSTEM_PROMPT
+        system_instruction += "\n\n" + ASSAM_EXAM_SYSTEM_PROMPT
+    if custom_instructions:
+        system_instruction += (
+            f"\n\nUSER CUSTOM INSTRUCTIONS & PERSONA DIRECTIVES:\n"
+            f"{custom_instructions}\n"
+            f"Adhere strictly to the user's specific background and preferences above.\n"
+        )
 
     # 2. KB search skipped — go directly to GPT (ChatGPT style).
     #    KB data is insufficient; GPT provides faster, better answers for all topics.

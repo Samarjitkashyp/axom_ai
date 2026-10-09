@@ -144,6 +144,35 @@ export default function SettingsPage({
     }
   };
 
+  // Custom Persona / System Instructions state
+  const [personaAbout, setPersonaAbout] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('axom_custom_persona_about') || '';
+    }
+    return '';
+  });
+  const [personaResponse, setPersonaResponse] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('axom_custom_persona_response') || '';
+    }
+    return '';
+  });
+  const [personaSavedMsg, setPersonaSavedMsg] = useState('');
+
+  const handleSavePersona = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('axom_custom_persona_about', personaAbout.trim());
+      localStorage.setItem('axom_custom_persona_response', personaResponse.trim());
+      setPersonaSavedMsg('Custom AI Instructions saved successfully!');
+      setTimeout(() => setPersonaSavedMsg(''), 3000);
+    }
+  };
+
+  const handleApplyPersonaPreset = (about, resp) => {
+    setPersonaAbout(about);
+    setPersonaResponse(resp);
+  };
+
   const nonPinned = Object.values(sessions).filter((s) => !s.pinned).reverse();
   const archived = nonPinned.slice(RECENT_LIMIT);
 
@@ -152,6 +181,7 @@ export default function SettingsPage({
 
   const NAV = [
     { key: 'profile', label: 'Profile', icon: User },
+    { key: 'persona', label: 'Custom Persona', icon: Sparkles },
     { key: 'archived', label: 'Archived Chats', icon: Archive },
     { key: 'appearance', label: 'Appearance', icon: Palette },
     { key: 'about', label: 'About', icon: Info },
@@ -405,6 +435,167 @@ export default function SettingsPage({
               </div>
 
               <p className="profile-version">Axom AI v2.0 • Neural Edition</p>
+            </div>
+          )}
+
+          {/* ────── CUSTOM PERSONA TAB ────── */}
+          {active === 'persona' && (
+            <div className="persona-tab" style={{ maxWidth: '680px' }}>
+              <h2 className="settings-h2" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={20} style={{ color: '#34d399' }} />
+                <span>Custom AI Instructions (System Persona)</span>
+              </h2>
+              <p className="settings-sub">
+                Personalize how Axom AI responds to you across all your conversations. Choose a preset or write your own instructions.
+              </p>
+
+              {/* Quick Presets */}
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px' }}>
+                  QUICK PERSONA PRESETS
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPersonaPreset(
+                      "I am an APSC & ADRE competitive exam aspirant from Assam.",
+                      "Provide high-yield, point-wise answers with historical dates, Assam geography facts, and exam scoring key points ⭐."
+                    )}
+                    style={{
+                      padding: '6px 12px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600,
+                      background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)',
+                      color: '#fbbf24', cursor: 'pointer'
+                    }}
+                  >
+                    🏛️ APSC / ADRE Aspirant
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPersonaPreset(
+                      "I am a Class 12 Science / Arts student.",
+                      "Explain concepts simply with clear real-world examples, definitions, and easy language. Avoid unnecessary jargon."
+                    )}
+                    style={{
+                      padding: '6px 12px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600,
+                      background: 'rgba(52, 211, 153, 0.12)', border: '1px solid rgba(52, 211, 153, 0.3)',
+                      color: '#34d399', cursor: 'pointer'
+                    }}
+                  >
+                    🎓 High School / College Student
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPersonaPreset(
+                      "I am a Software Engineer and Developer.",
+                      "Give direct, concise code examples with standard triple backticks. Skip lengthy introductions and focus on efficient, production-ready code."
+                    )}
+                    style={{
+                      padding: '6px 12px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600,
+                      background: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)',
+                      color: '#60a5fa', cursor: 'pointer'
+                    }}
+                  >
+                    💻 Software Developer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPersonaPreset(
+                      "I am a Teacher / Educator preparing master lesson notes.",
+                      "Structure notes with learning objectives, teaching flow, blackboard examples, and student discussion questions."
+                    )}
+                    style={{
+                      padding: '6px 12px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 600,
+                      background: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.3)',
+                      color: '#c084fc', cursor: 'pointer'
+                    }}
+                  >
+                    👨‍🏫 Teacher / Educator
+                  </button>
+                </div>
+              </div>
+
+              {/* Field 1: About You */}
+              <div className="profile-field" style={{ marginBottom: '18px' }}>
+                <label className="profile-label" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span>1. What should Axom AI know about you to provide better responses?</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                    e.g. Your role, education level, city, profession, or topics of interest.
+                  </span>
+                </label>
+                <textarea
+                  value={personaAbout}
+                  onChange={(e) => setPersonaAbout(e.target.value)}
+                  placeholder="e.g. I am a Class 12 student in Guwahati preparing for competitive entrance exams..."
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    background: 'var(--bg-input, rgba(255,255,255,0.04))',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.85rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              {/* Field 2: How AI Should Respond */}
+              <div className="profile-field" style={{ marginBottom: '24px' }}>
+                <label className="profile-label" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span>2. How would you like Axom AI to respond?</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                    e.g. Formality level, length, code style, language preference, step-by-step points.
+                  </span>
+                </label>
+                <textarea
+                  value={personaResponse}
+                  onChange={(e) => setPersonaResponse(e.target.value)}
+                  placeholder="e.g. Please explain concepts in simple everyday language with bullet points and practical examples..."
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    background: 'var(--bg-input, rgba(255,255,255,0.04))',
+                    border: '1px solid var(--border-color)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.85rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+
+              {/* Save Button */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <button
+                  type="button"
+                  onClick={handleSavePersona}
+                  style={{
+                    padding: '10px 22px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #34d399, #10b981)',
+                    color: '#0b1220',
+                    fontWeight: 700,
+                    fontSize: '0.84rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(52, 211, 153, 0.3)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  Save Instructions
+                </button>
+                {personaSavedMsg && (
+                  <span style={{ fontSize: '0.80rem', color: '#34d399', fontWeight: 600 }}>
+                    ✅ {personaSavedMsg}
+                  </span>
+                )}
+              </div>
             </div>
           )}
 

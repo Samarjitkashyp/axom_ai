@@ -250,6 +250,7 @@ export default function ChatApp() {
     resetCurrentSession,
     deleteSession,
     togglePin,
+    tagSession,
     clearAllSessions,
   } = useChatSessions();
 
@@ -446,6 +447,7 @@ export default function ChatApp() {
         user={user}
         deleteSession={deleteSession}
         togglePin={togglePin}
+        tagSession={tagSession}
         clearAllSessions={clearAllSessions}
         onOpenSettings={navigateToSettings}
         onOpenDocConverter={() => setIsDocModalOpen(true)}
