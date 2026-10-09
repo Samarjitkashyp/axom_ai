@@ -22,7 +22,18 @@ from django.views.decorators.http import require_POST
 from payments.models import Payment, UserPlan, PLAN_CATALOG
 from knowledge.models import KnowledgeDocument, KnowledgeChunk, QAPair, ChatSession, ChatMessage, UnansweredQuery, Feedback
 from userpanel.models import SupportTicket, TicketReply, UsageRecord, InAppNotification
-from .models import SystemSetting, CouponCode, CustomPlanOverride, AuditLog, SubdomainPermission, LanguageRule, AITool, UserTag, UserCustomQuota
+from .models import (
+    SystemSetting,
+    CouponCode,
+    CustomPlanOverride,
+    AuditLog,
+    SubdomainPermission,
+    LanguageRule,
+    AITool,
+    UserTag,
+    UserCustomQuota,
+    SuperAdminLoginAttempt,
+)
 
 
 def _is_super(u):
@@ -34,8 +45,113 @@ superuser_required = user_passes_test(_is_super, login_url='/axomai-admin/login/
 
 
 def _client_ip(request):
-    """Safely get client IP address without blind trust of spoofable headers."""
-    return request.META.get('REMOTE_ADDR', '127.0.0.1')
+    """Safely extract client IP address across reverse proxies, Cloudflare, and Nginx."""
+    cf_ip = request.META.get('HTTP_CF_CONNECTING_IP')
+    if cf_ip:
+        return cf_ip.strip()[:64]
+    
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        client_ip = x_forwarded_for.split(',')[0].strip()
+        if client_ip:
+            return client_ip[:64]
+            
+    x_real_ip = request.META.get('HTTP_X_REAL_IP')
+    if x_real_ip:
+        return x_real_ip.strip()[:64]
+        
+    return (request.META.get('REMOTE_ADDR') or '127.0.0.1').strip()[:64]
+
+
+def _sanitize_input(val, max_len=150):
+    """Sanitize input against null bytes, control characters and length overflows."""
+    if not val:
+        return ''
+    cleaned = str(val).replace('\x00', '').strip()
+    return cleaned[:max_len]
+
+
+def _get_active_lockout(ip, username):
+    """Check if IP or username is currently locked out."""
+    now = timezone.now()
+    filters = Q(ip_address=ip)
+    if username:
+        filters |= Q(username=username)
+    
+    attempts = SuperAdminLoginAttempt.objects.filter(filters, is_locked=True)
+    for record in attempts:
+        if record.locked_until and record.locked_until > now:
+            diff = record.locked_until - now
+            seconds = max(0, int(diff.total_seconds()))
+            hours = seconds // 3600
+            mins = (seconds % 3600) // 60
+            return {
+                'is_locked': True,
+                'record': record,
+                'locked_until': record.locked_until,
+                'hours': hours,
+                'mins': mins,
+                'seconds': seconds,
+            }
+        elif record.locked_until and record.locked_until <= now:
+            # Lockout expired, automatically reset
+            record.is_locked = False
+            record.failed_count = 0
+            record.locked_until = None
+            record.save(update_fields=['is_locked', 'failed_count', 'locked_until', 'updated_at'])
+            
+    return {'is_locked': False}
+
+
+def _record_failed_attempt(ip, username, user_agent):
+    """Record a failed superadmin login attempt and apply 24-hour lockout on 3rd failure."""
+    now = timezone.now()
+    record, _ = SuperAdminLoginAttempt.objects.get_or_create(
+        ip_address=ip,
+        defaults={'username': username, 'user_agent': user_agent[:500]}
+    )
+    
+    if record.locked_until and record.locked_until <= now:
+        record.failed_count = 0
+        record.is_locked = False
+        record.locked_until = None
+
+    record.failed_count += 1
+    record.username = username or record.username
+    record.user_agent = user_agent[:500]
+    record.last_failed_at = now
+
+    if record.failed_count >= 3:
+        record.is_locked = True
+        record.locked_until = now + timedelta(days=1)
+        record.save()
+        return {
+            'is_locked': True,
+            'failed_count': record.failed_count,
+            'remaining_attempts': 0,
+            'locked_until': record.locked_until,
+            'hours': 24,
+            'mins': 0,
+        }
+    else:
+        record.save()
+        return {
+            'is_locked': False,
+            'failed_count': record.failed_count,
+            'remaining_attempts': max(0, 3 - record.failed_count),
+        }
+
+
+def _clear_failed_attempts(ip, username):
+    """Clear failed attempts upon successful login."""
+    filters = Q(ip_address=ip)
+    if username:
+        filters |= Q(username=username)
+    SuperAdminLoginAttempt.objects.filter(filters).update(
+        failed_count=0,
+        is_locked=False,
+        locked_until=None
+    )
 
 
 def _log_audit(request, action, target="", details=""):
@@ -52,37 +168,105 @@ def _log_audit(request, action, target="", details=""):
 
 
 def login_view(request):
-    error = None
     if request.user.is_authenticated and _is_super(request.user):
         return redirect('/axomai-admin/')
 
+    client_ip = _client_ip(request)
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    error = None
+    lockout_info = None
+    remaining_attempts = 3
+
+    # Check pre-existing IP lockout
+    active_lock = _get_active_lockout(client_ip, '')
+    if active_lock.get('is_locked'):
+        lockout_info = active_lock
+        h, m = active_lock['hours'], active_lock['mins']
+        error = f"Security Lockout Active: Too many failed login attempts. This IP address is locked for 24 hours ({h}h {m}m remaining). For security, unauthorized brute force requests are blocked."
+        return render(request, 'superadmin/login.html', {
+            'error': error,
+            'is_locked': True,
+            'lockout_info': lockout_info,
+            'remaining_attempts': 0,
+            'client_ip': client_ip
+        })
+
     if request.method == 'POST':
-        u = request.POST.get('username', '').strip()
-        p = request.POST.get('password', '')
+        raw_u = request.POST.get('username', '')
+        raw_p = request.POST.get('password', '')
+        
+        u = _sanitize_input(raw_u, max_len=150)
+        p = _sanitize_input(raw_p, max_len=256)
 
-        # Rate limiting on admin login attempts
-        ip = _client_ip(request)
-        rate_key = f"admin_login_rate:{ip}"
-        attempts = cache.get(rate_key, 0)
-        if attempts >= 10:
-            return render(request, 'superadmin/login.html', {
-                'error': 'Too many failed login attempts. Please wait 5 minutes.'
-            })
+        # Check lockout on username specifically
+        if u:
+            user_lock = _get_active_lockout(client_ip, u)
+            if user_lock.get('is_locked'):
+                lockout_info = user_lock
+                h, m = user_lock['hours'], user_lock['mins']
+                error = f"Security Lockout Active: Account '{u}' is locked for 24 hours ({h}h {m}m remaining). Contact system administrator."
+                return render(request, 'superadmin/login.html', {
+                    'error': error,
+                    'is_locked': True,
+                    'lockout_info': lockout_info,
+                    'remaining_attempts': 0,
+                    'client_ip': client_ip,
+                    'last_username': u
+                })
 
-        user = authenticate(request, username=u, password=p)
+        user = authenticate(request, username=u, password=p) if (u and p) else None
+
         if user is None:
-            cache.set(rate_key, attempts + 1, timeout=300)
+            fail_result = _record_failed_attempt(client_ip, u, user_agent)
             _log_audit(request, "ADMIN_LOGIN_FAILED", f"Username: {u}", "Invalid credentials provided")
-            error = 'Invalid credentials. Access denied.'
+            
+            if fail_result.get('is_locked'):
+                lockout_info = fail_result
+                error = "🚨 Extreme Security Lockout: 3 consecutive failed login attempts detected. Your IP address and account have been LOCKED FOR 24 HOURS. All further attempts are automatically blocked."
+                remaining_attempts = 0
+                return render(request, 'superadmin/login.html', {
+                    'error': error,
+                    'is_locked': True,
+                    'lockout_info': lockout_info,
+                    'remaining_attempts': 0,
+                    'client_ip': client_ip,
+                    'last_username': u
+                })
+            else:
+                rem = fail_result.get('remaining_attempts', 1)
+                remaining_attempts = rem
+                error = f"Invalid administrator credentials. Warning: {rem} attempt{'s' if rem != 1 else ''} remaining before a mandatory 24-HOUR SECURITY LOCKOUT."
         elif not user.is_superuser:
             _log_audit(request, "ADMIN_LOGIN_DENIED", f"User: {user.username}", "User is not a Super Administrator")
-            error = 'Unauthorized: Only Super Administrators can access this area.'
+            fail_result = _record_failed_attempt(client_ip, u, user_agent)
+            if fail_result.get('is_locked'):
+                lockout_info = fail_result
+                error = "🚨 Extreme Security Lockout: 3 consecutive unauthorized login attempts. Access LOCKED FOR 24 HOURS."
+                return render(request, 'superadmin/login.html', {
+                    'error': error,
+                    'is_locked': True,
+                    'lockout_info': lockout_info,
+                    'remaining_attempts': 0,
+                    'client_ip': client_ip,
+                    'last_username': u
+                })
+            rem = fail_result.get('remaining_attempts', 1)
+            remaining_attempts = rem
+            error = f"Unauthorized: Only Super Administrators can access this area. ({rem} attempt{'s' if rem != 1 else ''} remaining)"
         else:
-            cache.delete(rate_key)
+            _clear_failed_attempts(client_ip, u)
             login(request, user)
             _log_audit(request, "ADMIN_LOGIN_SUCCESS", f"User: {user.username}", "Logged into Super Admin")
-            return redirect('/axomai-admin/')
-    return render(request, 'superadmin/login.html', {'error': error})
+            nxt = request.GET.get('next', '/axomai-admin/')
+            return redirect(nxt)
+
+    return render(request, 'superadmin/login.html', {
+        'error': error,
+        'is_locked': False,
+        'lockout_info': lockout_info,
+        'remaining_attempts': remaining_attempts,
+        'client_ip': client_ip
+    })
 
 
 def logout_view(request):
