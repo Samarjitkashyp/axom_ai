@@ -310,71 +310,43 @@
 
       <!-- Tools Dropdown -->
       <div class="space-y-1">
-        <button type="button" onclick="toggleToolsDropdown()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all {% if 'tools_' in a or a == 'word_to_pdf_editor' %}bg-slate-800/80 text-fuchsia-400{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <button type="button" onclick="toggleToolsDropdown()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all {% if 'tools_' in a or a == 'word_to_pdf_editor' or tool_slug %}bg-slate-800/80 text-fuchsia-400{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
           <div class="flex items-center">
             <i class="fa-solid fa-screwdriver-wrench w-5 text-center mr-3 text-sm flex-shrink-0"></i>
             <div class="text-left">
-              <div class="text-xs font-semibold leading-tight">Tools (Converter)</div>
-              <div class="text-[10px] text-slate-400">Manage 6 Converter Pages</div>
+              <div class="text-xs font-semibold leading-tight">All Tools CMS</div>
+              <div class="text-[10px] text-slate-400">Manage {{ cms_tools_count|default:"31" }} Live Tool Pages</div>
             </div>
           </div>
-          <i id="tools-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {% if 'tools_' in a or a == 'word_to_pdf_editor' %}rotate-180 text-fuchsia-400{% else %}text-slate-500{% endif %}"></i>
+          <i id="tools-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {% if 'tools_' in a or a == 'word_to_pdf_editor' or tool_slug %}rotate-180 text-fuchsia-400{% else %}text-slate-500{% endif %}"></i>
         </button>
 
-        <div id="tools-submenu" class="pl-4 space-y-1 {% if 'tools_' not in a and a != 'word_to_pdf_editor' %}hidden{% endif %}">
-          <!-- 1. Word to PDF Tool -->
-          <a href="/axomai-content/tools/word-to-pdf/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'tools_word_to_pdf' or a == 'word_to_pdf_editor' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
-            <i class="fa-solid fa-file-pdf w-4 text-center mr-2.5 text-xs flex-shrink-0 text-red-400"></i>
-            <div>
-              <div class="font-semibold">Word to PDF</div>
-              <div class="text-[9px] text-slate-400">DOCX/DOC → PDF</div>
+        <div id="tools-submenu" class="pl-2 space-y-2 max-h-[55vh] overflow-y-auto pr-1 {% if 'tools_' not in a and a != 'word_to_pdf_editor' and not tool_slug %}hidden{% endif %}">
+          <!-- Quick Filter Input -->
+          <div class="px-1.5 pt-1 pb-1 sticky top-0 bg-slate-900/95 backdrop-blur z-10">
+            <div class="relative">
+              <input type="text" id="toolSidebarSearch" oninput="filterToolsSidebar(this.value)" placeholder="Filter {{ cms_tools_count|default:'31' }} tools..." 
+                class="w-full pl-7 pr-2 py-1.5 bg-slate-950/80 border border-slate-700/70 rounded-lg text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-fuchsia-500">
+              <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500"></i>
             </div>
-          </a>
+          </div>
 
-          <!-- 2. PDF to Word Tool -->
-          <a href="/axomai-content/tools/pdf-to-word/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'tools_pdf_to_word' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
-            <i class="fa-solid fa-file-word w-4 text-center mr-2.5 text-xs flex-shrink-0 text-blue-400"></i>
-            <div>
-              <div class="font-semibold">PDF to Word</div>
-              <div class="text-[9px] text-slate-400">PDF → Editable DOCX</div>
+          {% for cat, tools in grouped_cms_tools.items %}
+            <div class="tool-category-group pt-1">
+              <div class="text-[9px] font-bold uppercase tracking-wider text-slate-500 px-2 pb-1">{{ cat }}</div>
+              <div class="space-y-0.5">
+                {% for t in tools %}
+                  <a href="/axomai-content/tools/{{ t.slug }}/" data-tool-name="{{ t.name|lower }}" data-tool-sub="{{ t.subtitle|lower }}" class="tool-sidebar-link flex items-center px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all {% if tool_slug == t.slug or a == 'tools_'|add:t.slug %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+                    <i class="{{ t.icon }} w-4 text-center mr-2 text-xs flex-shrink-0"></i>
+                    <div class="min-w-0 flex-1">
+                      <div class="font-semibold text-[11px] truncate leading-snug">{{ t.name }}</div>
+                      <div class="text-[9px] text-slate-400 truncate">{{ t.subtitle }}</div>
+                    </div>
+                  </a>
+                {% endfor %}
+              </div>
             </div>
-          </a>
-
-          <!-- 3. Image to PDF Tool -->
-          <a href="/axomai-content/tools/image-to-pdf/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'tools_image_to_pdf' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
-            <i class="fa-solid fa-file-image w-4 text-center mr-2.5 text-xs flex-shrink-0 text-emerald-400"></i>
-            <div>
-              <div class="font-semibold">Image to PDF</div>
-              <div class="text-[9px] text-slate-400">JPG/PNG → PDF</div>
-            </div>
-          </a>
-
-          <!-- 4. PDF to JPG Tool -->
-          <a href="/axomai-content/tools/pdf-to-jpg/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'tools_pdf_to_jpg' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
-            <i class="fa-solid fa-image w-4 text-center mr-2.5 text-xs flex-shrink-0 text-amber-400"></i>
-            <div>
-              <div class="font-semibold">PDF to JPG</div>
-              <div class="text-[9px] text-slate-400">PDF → High-Res JPG</div>
-            </div>
-          </a>
-
-          <!-- 5. PDF to PNG Tool -->
-          <a href="/axomai-content/tools/pdf-to-png/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'tools_pdf_to_png' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
-            <i class="fa-solid fa-images w-4 text-center mr-2.5 text-xs flex-shrink-0 text-cyan-400"></i>
-            <div>
-              <div class="font-semibold">PDF to PNG</div>
-              <div class="text-[9px] text-slate-400">PDF → Lossless PNG</div>
-            </div>
-          </a>
-
-          <!-- 6. Image Format Converter Tool -->
-          <a href="/axomai-content/tools/image-format-converter/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'tools_image_format_converter' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
-            <i class="fa-solid fa-arrows-rotate w-4 text-center mr-2.5 text-xs flex-shrink-0 text-purple-400"></i>
-            <div>
-              <div class="font-semibold">Image Format Converter</div>
-              <div class="text-[9px] text-slate-400">WebP, JFIF, SVG, PNG</div>
-            </div>
-          </a>
+          {% endfor %}
         </div>
       </div>
 
@@ -595,6 +567,32 @@ function toggleMobileSidebar(show) {
   }
 }
 window.toggleMobileSidebar = toggleMobileSidebar;
+
+function filterToolsSidebar(q) {
+  const query = (q || '').toLowerCase().trim();
+  const links = document.querySelectorAll('.tool-sidebar-link');
+  const groups = document.querySelectorAll('.tool-category-group');
+
+  links.forEach(link => {
+    const name = link.getAttribute('data-tool-name') || '';
+    const sub = link.getAttribute('data-tool-sub') || '';
+    if (!query || name.includes(query) || sub.includes(query)) {
+      link.style.display = 'flex';
+    } else {
+      link.style.display = 'none';
+    }
+  });
+
+  groups.forEach(group => {
+    const visibleLinks = Array.from(group.querySelectorAll('.tool-sidebar-link')).filter(el => el.style.display !== 'none');
+    if (visibleLinks.length > 0) {
+      group.style.display = 'block';
+    } else {
+      group.style.display = 'none';
+    }
+  });
+}
+window.filterToolsSidebar = filterToolsSidebar;
 
 // Auto-close sidebar on mobile when clicking any nav link
 document.querySelectorAll('#cms-sidebar a').forEach(link => {
