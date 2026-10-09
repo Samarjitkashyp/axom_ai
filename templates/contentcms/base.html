@@ -256,7 +256,7 @@
 
       <!-- Pages Dropdown -->
       <div class="space-y-1">
-        <button type="button" onclick="togglePagesDropdown()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'pages_faq' or a == 'faq_manager' or a == 'pages_about' or a == 'about_editor' or a == 'pages_usecases' or a == 'usecases_editor' or a == 'pages_contact' or a == 'contact_editor' %}bg-slate-800/80 text-fuchsia-400{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+        <button type="button" onclick="togglePagesDropdown()" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'pages_faq' or a == 'faq_manager' or a == 'pages_about' or a == 'about_editor' or a == 'pages_usecases' or a == 'usecases_editor' or a == 'pages_contact' or a == 'contact_editor' or a == 'pages_privacy' or a == 'privacy_editor' or a == 'pages_terms' or a == 'terms_editor' %}bg-slate-800/80 text-fuchsia-400{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
           <div class="flex items-center">
             <i class="fa-solid fa-layer-group w-5 text-center mr-3 text-sm flex-shrink-0"></i>
             <div class="text-left">
@@ -264,10 +264,10 @@
               <div class="text-[10px] text-slate-400">Manage Custom Pages</div>
             </div>
           </div>
-          <i id="pages-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {% if a == 'pages_faq' or a == 'faq_manager' or a == 'pages_about' or a == 'about_editor' or a == 'pages_usecases' or a == 'usecases_editor' or a == 'pages_contact' or a == 'contact_editor' %}rotate-180 text-fuchsia-400{% else %}text-slate-500{% endif %}"></i>
+          <i id="pages-chevron" class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {% if a == 'pages_faq' or a == 'faq_manager' or a == 'pages_about' or a == 'about_editor' or a == 'pages_usecases' or a == 'usecases_editor' or a == 'pages_contact' or a == 'contact_editor' or a == 'pages_privacy' or a == 'privacy_editor' or a == 'pages_terms' or a == 'terms_editor' %}rotate-180 text-fuchsia-400{% else %}text-slate-500{% endif %}"></i>
         </button>
 
-        <div id="pages-submenu" class="pl-4 space-y-1 {% if a != 'pages_faq' and a != 'faq_manager' and a != 'pages_about' and a != 'about_editor' and a != 'pages_usecases' and a != 'usecases_editor' and a != 'pages_contact' and a != 'contact_editor' %}hidden{% endif %}">
+        <div id="pages-submenu" class="pl-4 space-y-1 {% if a != 'pages_faq' and a != 'faq_manager' and a != 'pages_about' and a != 'about_editor' and a != 'pages_usecases' and a != 'usecases_editor' and a != 'pages_contact' and a != 'contact_editor' and a != 'pages_privacy' and a != 'privacy_editor' and a != 'pages_terms' and a != 'terms_editor' %}hidden{% endif %}">
           <!-- About Us Page -->
           <a href="/axomai-content/pages/about/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'pages_about' or a == 'about_editor' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
             <i class="fa-solid fa-address-card w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
@@ -292,6 +292,24 @@
             <div>
               <div class="font-semibold">Contact Us</div>
               <div class="text-[9px] text-slate-400">Help Desk, Channels & Office</div>
+            </div>
+          </a>
+
+          <!-- Privacy Policy Page -->
+          <a href="/axomai-content/pages/privacy/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'pages_privacy' or a == 'privacy_editor' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+            <i class="fa-solid fa-shield-halved w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold">Privacy Policy</div>
+              <div class="text-[9px] text-slate-400">DPDP Act 2023, DPO & 14 Clauses</div>
+            </div>
+          </a>
+
+          <!-- Terms of Service Page -->
+          <a href="/axomai-content/pages/terms/" class="flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all {% if a == 'pages_terms' or a == 'terms_editor' %}bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white shadow-sm shadow-fuchsia-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
+            <i class="fa-solid fa-scale-balanced w-4 text-center mr-2.5 text-xs flex-shrink-0"></i>
+            <div>
+              <div class="font-semibold">Terms of Service</div>
+              <div class="text-[9px] text-slate-400">Commercial Rights & Licensing</div>
             </div>
           </a>
 

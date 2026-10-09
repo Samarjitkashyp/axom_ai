@@ -1193,7 +1193,240 @@ class ContactFAQItem(models.Model):
         return self.question
 
 
+# ==============================================================================
+# PRIVACY POLICY PAGE CONFIGURATION (Standalone Page)
+# ==============================================================================
+
+class PrivacyPageConfig(models.Model):
+    # 1. Hero Section
+    hero_badge_text = models.CharField(max_length=200, default='Official Legal Document • Updated for DPDP Act 2023')
+    hero_heading_prefix = models.CharField(max_length=150, default='Axom AI')
+    hero_heading_highlight = models.CharField(max_length=150, default='Privacy Policy')
+    hero_heading_suffix = models.CharField(max_length=150, default='& Data Protection', blank=True)
+    hero_subtitle = models.TextField(default='Complete transparency on how Axom AI safeguards your conversations, uploaded files, and personal data under India’s Digital Personal Data Protection (DPDP) Act 2023.')
+
+    # 2. Metadata / Legal Badges Pill Card
+    last_updated = models.CharField(max_length=100, default='September 17, 2026')
+    effective_date = models.CharField(max_length=100, default='September 17, 2026')
+    policy_version = models.CharField(max_length=50, default='2.4')
+    data_fiduciary_text = models.CharField(max_length=255, default='Data Fiduciary under India Digital Personal Data Protection (DPDP) Act 2023')
+    headquarters_text = models.CharField(max_length=255, default='Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001)')
+    dpo_email = models.CharField(max_length=150, default='support@aiaxom.co.in')
+    grievance_officer = models.CharField(max_length=200, default='Samarjit Kashyap (samarjitkashyp@gmail.com)')
+
+    # 3. 4 Security & Privacy Key Highlight Cards
+    card_1_title = models.CharField(max_length=150, default='Zero Model Training')
+    card_1_desc = models.TextField(default='We never use your private conversations, customer queries, or uploaded documents to train public AI models.')
+    card_1_icon = models.CharField(max_length=80, default='EyeOff')
+
+    card_2_title = models.CharField(max_length=150, default='256-Bit TLS & AES Storage')
+    card_2_desc = models.TextField(default='Bank-grade TLS 1.3 encryption in transit and AES-256 encrypted databases hosted in tier-3/4 secure facilities.')
+    card_2_icon = models.CharField(max_length=80, default='Lock')
+
+    card_3_title = models.CharField(max_length=150, default='Automated File Purging')
+    card_3_desc = models.TextField(default='Files uploaded to converters, PDF utilities, and OCR pipelines are processed in memory sandboxes and purged.')
+    card_3_icon = models.CharField(max_length=80, default='Trash2')
+
+    card_4_title = models.CharField(max_length=150, default='DPDP Act 2023 Compliance')
+    card_4_desc = models.TextField(default='Statutory data principal rights with dedicated Grievance & Data Protection Officers based in Guwahati, Assam.')
+    card_4_icon = models.CharField(max_length=80, default='Scale')
+
+    # 4. AEO Direct Summary Box (Generative Engine Optimization)
+    aeo_badge = models.CharField(max_length=150, default='AEO Direct Summary • Verified Data Privacy')
+    aeo_title = models.CharField(max_length=255, default='How does Axom AI protect and process user data?')
+    aeo_description = models.TextField(default='Axom AI enforces strict data privacy under India’s DPDP Act 2023. User conversations and uploaded documents are processed ephemerally in encrypted memory and NEVER used to train public AI models. All network traffic uses TLS 1.3 256-bit encryption, and users can request full data erasure within 48 hours.')
+    aeo_point1 = models.CharField(max_length=200, default='Zero Model Training on Private Data')
+    aeo_point2 = models.CharField(max_length=200, default='Automated File & Sandbox Purging')
+    aeo_point3 = models.CharField(max_length=200, default='Guwahati DPO & 48h Grievance SLA')
+
+    # 5. Data Erasure & Portability Desk Section
+    erasure_section_title = models.CharField(max_length=255, default='Data Erasure & Portability Request (DPDP Act 2023)')
+    erasure_section_subtitle = models.TextField(default='Exercise your statutory rights to permanently delete, export, or revoke consent for your personal data.')
+    erasure_sla_text = models.CharField(max_length=200, default='Verified requests processed by our Guwahati DPO within 48 business hours.')
+    erasure_active = models.BooleanField(default=True)
+
+    # 6. FAQ Section Headings
+    faq_badge = models.CharField(max_length=150, default='Common Privacy Questions')
+    faq_title = models.CharField(max_length=255, default='Frequently Asked Questions Regarding Privacy & Security')
+    faq_subtitle = models.TextField(default='Direct, transparent answers regarding model training, file retention, cookies, and your legal rights.')
+
+    # 7. Bottom Assistance CTA Banner
+    cta_badge = models.CharField(max_length=150, default='Dedicated Privacy Desk')
+    cta_heading = models.CharField(max_length=255, default='Have Questions About Your Data Privacy?')
+    cta_subheading = models.TextField(default='Our Data Protection & Grievance Team in Guwahati is ready to assist you with compliance inquiries, data portability requests, or technical clarifications.')
+    cta_primary_btn_text = models.CharField(max_length=100, default='Contact Privacy Officer')
+    cta_primary_btn_url = models.CharField(max_length=300, default='mailto:support@aiaxom.co.in?subject=Privacy%20Inquiry%20-%20Axom%20AI')
+    cta_secondary_btn_text = models.CharField(max_length=100, default='View Terms of Service')
+    cta_secondary_btn_url = models.CharField(max_length=300, default='/terms')
+
+    # 8. SEO / GEO / AEO Meta Tags
+    meta_title = models.CharField(max_length=255, default='Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance')
+    meta_description = models.TextField(default='Axom AI Privacy Policy: Learn how we protect your data, conversations, and uploaded documents. Fully compliant with India’s DPDP Act 2023 with 256-bit encryption and zero training on private data.')
+    meta_keywords = models.TextField(default='Axom AI Privacy Policy, Axom AI privacy, Axom AI data privacy, Axom AI data protection, Axom AI security, Axom AI user privacy, Axom AI data security, Axom AI personal data, Axom AI data protection policy, Is Axom AI safe to use, How does Axom AI protect my data, Does Axom AI use my data to train AI models, DPDP Act 2023 AI privacy Assam')
+    canonical_url = models.CharField(max_length=300, default='https://aiaxom.co.in/privacy/')
+    og_image_url = models.CharField(max_length=500, default='https://aiaxom.co.in/static/dist/hero/assam.avif')
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Privacy Policy Page Configuration'
+        verbose_name_plural = 'Privacy Policy Page Configuration'
+
+    def __str__(self):
+        return "Privacy Policy Page Configuration"
 
 
+class PrivacySectionModel(models.Model):
+    page_config = models.ForeignKey(PrivacyPageConfig, related_name='sections', on_delete=models.CASCADE, null=True, blank=True)
+    section_id = models.CharField(max_length=100, default='introduction', help_text='Anchor ID e.g. introduction, data-fiduciary, data-collection')
+    title = models.CharField(max_length=255, default='1. Introduction & Scope')
+    short_title = models.CharField(max_length=100, default='Introduction', help_text='Short label for sidebar quick navigation')
+    content_raw = models.TextField(help_text='Main paragraphs separated by blank lines', default='')
+    subsections_json = models.TextField(blank=True, default='[]', help_text='JSON list of subsections [{"subtitle": "...", "paragraphs": ["..."]}]')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Privacy Policy Section'
+        verbose_name_plural = 'Privacy Policy Sections'
+
+    def __str__(self):
+        return f"[{self.order}] {self.title}"
 
 
+class PrivacyFAQItem(models.Model):
+    page_config = models.ForeignKey(PrivacyPageConfig, related_name='faqs', on_delete=models.CASCADE, null=True, blank=True)
+    question = models.CharField(max_length=350)
+    answer = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Privacy FAQ'
+        verbose_name_plural = 'Privacy FAQs'
+
+    def __str__(self):
+        return self.question
+
+
+# ==============================================================================
+# TERMS OF SERVICE PAGE CONFIGURATION (Standalone Page)
+# ==============================================================================
+
+class TermsPageConfig(models.Model):
+    # 1. Hero Section
+    hero_badge_text = models.CharField(max_length=200, default='Official Legal Agreement • Effective for All Users')
+    hero_heading_prefix = models.CharField(max_length=150, default='Axom AI')
+    hero_heading_highlight = models.CharField(max_length=150, default='Terms of Service')
+    hero_heading_suffix = models.CharField(max_length=150, default='& User Agreement', blank=True)
+    hero_subtitle = models.TextField(default='Clear, fair, and legally binding terms governing your access to Axom AI chat assistants, translation engines, document converters, and APIs.')
+
+    # 2. Metadata / Legal Badges Pill Card
+    last_updated = models.CharField(max_length=100, default='September 17, 2026')
+    effective_date = models.CharField(max_length=100, default='September 17, 2026')
+    terms_version = models.CharField(max_length=50, default='2.4')
+    organization_text = models.CharField(max_length=255, default='Axom AI (AI Axom)')
+    entity_type_text = models.CharField(max_length=255, default='Indian Artificial Intelligence & Document Processing Platform')
+    headquarters_text = models.CharField(max_length=255, default='Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001)')
+    legal_email = models.CharField(max_length=150, default='support@aiaxom.co.in')
+    grievance_officer = models.CharField(max_length=200, default='Samarjit Kashyap (samarjitkashyp@gmail.com)')
+
+    # 3. 4 Commercial & Legal Key Highlight Cards
+    card_1_title = models.CharField(max_length=150, default='Commercial Output Rights')
+    card_1_desc = models.TextField(default='Users on paid plans retain full commercial exploitation rights over generated text, code, translations, and media.')
+    card_1_icon = models.CharField(max_length=80, default='Scale')
+
+    card_2_title = models.CharField(max_length=150, default='Zero Lock-in Billing')
+    card_2_desc = models.TextField(default='Transparent INR pricing with 100% Indian payment methods (UPI, RuPay, Cards) and 1-click self-service cancellation.')
+    card_2_icon = models.CharField(max_length=80, default='CreditCard')
+
+    card_3_title = models.CharField(max_length=150, default='Strict Acceptable Use')
+    card_3_desc = models.TextField(default='Zero tolerance for harmful content, automated scraping abuse, reverse engineering, or platform exploitation.')
+    card_3_icon = models.CharField(max_length=80, default='ShieldAlert')
+
+    card_4_title = models.CharField(max_length=150, default='Guwahati Legal Jurisdiction')
+    card_4_desc = models.TextField(default='Governed by the laws of India and Information Technology Act 2000 under the exclusive jurisdiction of Guwahati courts.')
+    card_4_icon = models.CharField(max_length=80, default='Building')
+
+    # 4. AEO Direct Summary Box (Generative Engine Optimization)
+    aeo_badge = models.CharField(max_length=150, default='AEO Direct Summary • Terms Overview')
+    aeo_title = models.CharField(max_length=255, default='What are the core terms of using Axom AI?')
+    aeo_description = models.TextField(default='Users retain full commercial ownership of all text, code, and media generated on paid tiers. Personal use is free. Prohibited activities include illegal content generation, security reverse-engineering, and scraping. Subscriptions can be cancelled anytime with instant automated billing management under Indian consumer laws.')
+    aeo_point1 = models.CharField(max_length=200, default='100% Commercial Output Ownership on Paid Plans')
+    aeo_point2 = models.CharField(max_length=200, default='Fair Use Quotas & Anti-Abuse Protection')
+    aeo_point3 = models.CharField(max_length=200, default='Guwahati Jurisdiction & Indian Law Binding')
+
+    # 5. FAQ Section Headings
+    faq_badge = models.CharField(max_length=150, default='Common Terms Questions')
+    faq_title = models.CharField(max_length=255, default='Frequently Asked Questions Regarding Terms of Service')
+    faq_subtitle = models.TextField(default='Clear answers regarding commercial ownership, licensing, acceptable use, billing, and cancellations.')
+
+    # 6. Bottom Assistance CTA Banner
+    cta_badge = models.CharField(max_length=150, default='Legal & Commercial Desk')
+    cta_heading = models.CharField(max_length=255, default='Need Clarification on Licensing or Commercial Use?')
+    cta_subheading = models.TextField(default='For enterprise licensing agreements, API volume contracts, or legal inquiries, reach out directly to our Guwahati legal desk.')
+    cta_primary_btn_text = models.CharField(max_length=100, default='Contact Legal Desk')
+    cta_primary_btn_url = models.CharField(max_length=300, default='mailto:support@aiaxom.co.in?subject=Terms%20and%20Licensing%20Inquiry%20-%20Axom%20AI')
+    cta_secondary_btn_text = models.CharField(max_length=100, default='Read Privacy Policy')
+    cta_secondary_btn_url = models.CharField(max_length=300, default='/privacy')
+
+    # 7. SEO / GEO / AEO Meta Tags
+    meta_title = models.CharField(max_length=255, default='Axom AI Terms of Service — Commercial Rights, Licensing & User Agreement')
+    meta_description = models.TextField(default='Read the official Terms of Service for Axom AI. Learn about commercial output ownership, subscription billing, acceptable use policy, and legal rights under Indian law.')
+    meta_keywords = models.TextField(default='Axom AI Terms of Service, Axom AI terms, Axom AI terms and conditions, Axom AI user agreement, Axom AI commercial rights, Axom AI acceptable use, Axom AI legal terms, AI terms of service India, Axom AI licensing, Axom AI ownership rights')
+    canonical_url = models.CharField(max_length=300, default='https://aiaxom.co.in/terms/')
+    og_image_url = models.CharField(max_length=500, default='https://aiaxom.co.in/static/dist/hero/assam.avif')
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Terms of Service Page Configuration'
+        verbose_name_plural = 'Terms of Service Page Configuration'
+
+    def __str__(self):
+        return "Terms of Service Page Configuration"
+
+
+class TermsSectionModel(models.Model):
+    page_config = models.ForeignKey(TermsPageConfig, related_name='sections', on_delete=models.CASCADE, null=True, blank=True)
+    section_id = models.CharField(max_length=100, default='acceptance', help_text='Anchor ID e.g. acceptance, eligibility, account-security')
+    title = models.CharField(max_length=255, default='1. Acceptance of Terms & Legal Binding')
+    short_title = models.CharField(max_length=100, default='Acceptance of Terms', help_text='Short label for sidebar quick navigation')
+    content_raw = models.TextField(help_text='Main paragraphs separated by blank lines', default='')
+    subsections_json = models.TextField(blank=True, default='[]', help_text='JSON list of subsections [{"subtitle": "...", "paragraphs": ["..."]}]')
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Terms of Service Section'
+        verbose_name_plural = 'Terms of Service Sections'
+
+    def __str__(self):
+        return f"[{self.order}] {self.title}"
+
+
+class TermsFAQItem(models.Model):
+    page_config = models.ForeignKey(TermsPageConfig, related_name='faqs', on_delete=models.CASCADE, null=True, blank=True)
+    question = models.CharField(max_length=350)
+    answer = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = 'Terms FAQ'
+        verbose_name_plural = 'Terms FAQs'
+
+    def __str__(self):
+        return self.question

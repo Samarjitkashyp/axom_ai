@@ -51,6 +51,12 @@ from .models import (
     ContactPageConfig,
     ContactChannelItem,
     ContactFAQItem,
+    PrivacyPageConfig,
+    PrivacySectionModel,
+    PrivacyFAQItem,
+    TermsPageConfig,
+    TermsSectionModel,
+    TermsFAQItem,
 )
 from .converter_defaults import (
     CONVERTER_TOOLS_METADATA,
@@ -66,6 +72,16 @@ from .contact_defaults import (
     DEFAULT_CONTACT_CHANNELS,
     DEFAULT_CONTACT_FAQS,
     ensure_contact_defaults,
+)
+from .privacy_defaults import (
+    DEFAULT_PRIVACY_SECTIONS,
+    DEFAULT_PRIVACY_FAQS,
+    ensure_privacy_defaults,
+)
+from .terms_defaults import (
+    DEFAULT_TERMS_SECTIONS,
+    DEFAULT_TERMS_FAQS,
+    ensure_terms_defaults,
 )
 
 
@@ -2471,6 +2487,14 @@ def upload_converter_tool_og_image_api(request, tool_slug=None):
             cfg = ensure_contact_defaults()
             cfg.og_image_url = full_url
             cfg.save(update_fields=['og_image_url', 'updated_at'])
+        elif resolved_slug in ('privacy', 'privacy-policy'):
+            cfg = ensure_privacy_defaults()
+            cfg.og_image_url = full_url
+            cfg.save(update_fields=['og_image_url', 'updated_at'])
+        elif resolved_slug in ('terms', 'terms-of-service', 'terms-and-conditions'):
+            cfg = ensure_terms_defaults()
+            cfg.og_image_url = full_url
+            cfg.save(update_fields=['og_image_url', 'updated_at'])
         elif resolved_slug in ('general-seo', 'seo') or request.POST.get('is_general_seo') == 'true':
             seo_setting, _ = SiteSEOSetting.objects.get_or_create(id=1)
             seo_setting.og_image_url = full_url
@@ -2511,6 +2535,18 @@ def upload_usecases_og_image_api(request):
 @require_POST
 def upload_faq_og_image_api(request):
     return upload_converter_tool_og_image_api(request, 'faq')
+
+
+@content_admin_required
+@require_POST
+def upload_privacy_og_image_api(request):
+    return upload_converter_tool_og_image_api(request, 'privacy')
+
+
+@content_admin_required
+@require_POST
+def upload_terms_og_image_api(request):
+    return upload_converter_tool_og_image_api(request, 'terms')
 
 
 @content_admin_required
@@ -3472,6 +3508,514 @@ def upload_contact_og_image_api(request):
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Image upload failed: {str(e)}'}, status=400)
+
+
+# ==============================================================================
+# PRIVACY POLICY PAGE MANAGEMENT (contentcms)
+# ==============================================================================
+
+@content_admin_required
+def privacy_editor(request):
+    """Dynamic Privacy Policy Page Editor for Content CMS."""
+    config = ensure_privacy_defaults()
+    sections = PrivacySectionModel.objects.filter(page_config=config).order_by('order', 'id')
+    faqs = PrivacyFAQItem.objects.filter(page_config=config).order_by('order', 'id')
+
+    return render(request, 'contentcms/privacy_editor.html', {
+        'active': 'pages_privacy',
+        'config': config,
+        'sections': sections,
+        'faqs': faqs,
+    })
+
+
+@content_admin_required
+@require_POST
+def save_privacy_page_api(request):
+    """AJAX API to save all dynamic fields for the Privacy Policy Page."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_privacy_defaults()
+
+        # 1. Hero Section
+        if 'hero_badge_text' in data:
+            config.hero_badge_text = data.get('hero_badge_text', '').strip()
+        if 'hero_heading_prefix' in data:
+            config.hero_heading_prefix = data.get('hero_heading_prefix', '').strip()
+        if 'hero_heading_highlight' in data:
+            config.hero_heading_highlight = data.get('hero_heading_highlight', '').strip()
+        if 'hero_heading_suffix' in data:
+            config.hero_heading_suffix = data.get('hero_heading_suffix', '').strip()
+        if 'hero_subtitle' in data:
+            config.hero_subtitle = data.get('hero_subtitle', '').strip()
+
+        # 2. Metadata / Badges Pill Card
+        if 'last_updated' in data:
+            config.last_updated = data.get('last_updated', '').strip()
+        if 'effective_date' in data:
+            config.effective_date = data.get('effective_date', '').strip()
+        if 'policy_version' in data:
+            config.policy_version = data.get('policy_version', '').strip()
+        if 'data_fiduciary_text' in data:
+            config.data_fiduciary_text = data.get('data_fiduciary_text', '').strip()
+        if 'headquarters_text' in data:
+            config.headquarters_text = data.get('headquarters_text', '').strip()
+        if 'dpo_email' in data:
+            config.dpo_email = data.get('dpo_email', '').strip()
+        if 'grievance_officer' in data:
+            config.grievance_officer = data.get('grievance_officer', '').strip()
+
+        # 3. 4 Security & Privacy Highlight Cards
+        if 'card_1_title' in data:
+            config.card_1_title = data.get('card_1_title', '').strip()
+        if 'card_1_desc' in data:
+            config.card_1_desc = data.get('card_1_desc', '').strip()
+        if 'card_1_icon' in data:
+            config.card_1_icon = data.get('card_1_icon', '').strip()
+
+        if 'card_2_title' in data:
+            config.card_2_title = data.get('card_2_title', '').strip()
+        if 'card_2_desc' in data:
+            config.card_2_desc = data.get('card_2_desc', '').strip()
+        if 'card_2_icon' in data:
+            config.card_2_icon = data.get('card_2_icon', '').strip()
+
+        if 'card_3_title' in data:
+            config.card_3_title = data.get('card_3_title', '').strip()
+        if 'card_3_desc' in data:
+            config.card_3_desc = data.get('card_3_desc', '').strip()
+        if 'card_3_icon' in data:
+            config.card_3_icon = data.get('card_3_icon', '').strip()
+
+        if 'card_4_title' in data:
+            config.card_4_title = data.get('card_4_title', '').strip()
+        if 'card_4_desc' in data:
+            config.card_4_desc = data.get('card_4_desc', '').strip()
+        if 'card_4_icon' in data:
+            config.card_4_icon = data.get('card_4_icon', '').strip()
+
+        # 4. AEO Direct Answer Box
+        if 'aeo_badge' in data:
+            config.aeo_badge = data.get('aeo_badge', '').strip()
+        if 'aeo_title' in data:
+            config.aeo_title = data.get('aeo_title', '').strip()
+        if 'aeo_description' in data:
+            config.aeo_description = data.get('aeo_description', '').strip()
+        if 'aeo_point1' in data:
+            config.aeo_point1 = data.get('aeo_point1', '').strip()
+        if 'aeo_point2' in data:
+            config.aeo_point2 = data.get('aeo_point2', '').strip()
+        if 'aeo_point3' in data:
+            config.aeo_point3 = data.get('aeo_point3', '').strip()
+
+        # 5. Data Erasure Desk Section
+        if 'erasure_section_title' in data:
+            config.erasure_section_title = data.get('erasure_section_title', '').strip()
+        if 'erasure_section_subtitle' in data:
+            config.erasure_section_subtitle = data.get('erasure_section_subtitle', '').strip()
+        if 'erasure_sla_text' in data:
+            config.erasure_sla_text = data.get('erasure_sla_text', '').strip()
+        if 'erasure_active' in data:
+            config.erasure_active = bool(data.get('erasure_active'))
+
+        # 6. FAQ Section Headings
+        if 'faq_badge' in data:
+            config.faq_badge = data.get('faq_badge', '').strip()
+        if 'faq_title' in data:
+            config.faq_title = data.get('faq_title', '').strip()
+        if 'faq_subtitle' in data:
+            config.faq_subtitle = data.get('faq_subtitle', '').strip()
+
+        # 7. Bottom CTA Banner
+        if 'cta_badge' in data:
+            config.cta_badge = data.get('cta_badge', '').strip()
+        if 'cta_heading' in data:
+            config.cta_heading = data.get('cta_heading', '').strip()
+        if 'cta_subheading' in data:
+            config.cta_subheading = data.get('cta_subheading', '').strip()
+        if 'cta_primary_btn_text' in data:
+            config.cta_primary_btn_text = data.get('cta_primary_btn_text', '').strip()
+        if 'cta_primary_btn_url' in data:
+            config.cta_primary_btn_url = data.get('cta_primary_btn_url', '').strip()
+        if 'cta_secondary_btn_text' in data:
+            config.cta_secondary_btn_text = data.get('cta_secondary_btn_text', '').strip()
+        if 'cta_secondary_btn_url' in data:
+            config.cta_secondary_btn_url = data.get('cta_secondary_btn_url', '').strip()
+
+        # 8. SEO & Meta
+        if 'meta_title' in data:
+            config.meta_title = data.get('meta_title', '').strip()
+        if 'meta_description' in data:
+            config.meta_description = data.get('meta_description', '').strip()
+        if 'meta_keywords' in data:
+            config.meta_keywords = data.get('meta_keywords', '').strip()
+        if 'canonical_url' in data:
+            config.canonical_url = data.get('canonical_url', '').strip()
+        if 'og_image_url' in data:
+            config.og_image_url = data.get('og_image_url', '').strip()
+
+        config.save()
+        return JsonResponse({'success': True, 'message': 'Privacy Policy page updated successfully!'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_privacy_section_api(request):
+    """Save or update an individual Privacy Policy section."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_privacy_defaults()
+        section_id = data.get('id')
+
+        if section_id:
+            sec = get_object_or_404(PrivacySectionModel, id=section_id, page_config=config)
+        else:
+            sec = PrivacySectionModel(page_config=config)
+
+        sec.section_id = slugify(data.get('section_id', sec.section_id or 'section'))
+        sec.title = data.get('title', '').strip() or 'Privacy Policy Section'
+        sec.short_title = data.get('short_title', '').strip() or sec.title
+        sec.content_raw = data.get('content_raw', '').strip()
+        sec.subsections_json = data.get('subsections_json', '[]')
+        sec.order = int(data.get('order', 0))
+        sec.is_active = bool(data.get('is_active', True))
+        sec.save()
+
+        return JsonResponse({'success': True, 'id': sec.id, 'message': 'Section saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_privacy_section_api(request, section_id):
+    """Delete a Privacy Policy section."""
+    try:
+        config = ensure_privacy_defaults()
+        sec = get_object_or_404(PrivacySectionModel, id=section_id, page_config=config)
+        sec.delete()
+        return JsonResponse({'success': True, 'message': 'Section deleted successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_privacy_section_api(request, section_id):
+    """Toggle visibility status of a Privacy Policy section."""
+    try:
+        config = ensure_privacy_defaults()
+        sec = get_object_or_404(PrivacySectionModel, id=section_id, page_config=config)
+        sec.is_active = not sec.is_active
+        sec.save(update_fields=['is_active', 'updated_at'])
+        return JsonResponse({'success': True, 'is_active': sec.is_active})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_privacy_faq_api(request):
+    """Save or update a Privacy Policy FAQ item."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_privacy_defaults()
+        faq_id = data.get('id')
+
+        if faq_id:
+            faq = get_object_or_404(PrivacyFAQItem, id=faq_id, page_config=config)
+        else:
+            faq = PrivacyFAQItem(page_config=config)
+
+        faq.question = data.get('question', '').strip()
+        faq.answer = data.get('answer', '').strip()
+        faq.order = int(data.get('order', 0))
+        faq.is_active = bool(data.get('is_active', True))
+        faq.save()
+
+        return JsonResponse({'success': True, 'id': faq.id, 'message': 'Privacy FAQ saved!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_privacy_faq_api(request, faq_id):
+    """Delete a Privacy FAQ."""
+    try:
+        config = ensure_privacy_defaults()
+        faq = get_object_or_404(PrivacyFAQItem, id=faq_id, page_config=config)
+        faq.delete()
+        return JsonResponse({'success': True, 'message': 'Privacy FAQ deleted!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_privacy_faq_api(request, faq_id):
+    """Toggle visibility of a Privacy FAQ."""
+    try:
+        config = ensure_privacy_defaults()
+        faq = get_object_or_404(PrivacyFAQItem, id=faq_id, page_config=config)
+        faq.is_active = not faq.is_active
+        faq.save(update_fields=['is_active', 'updated_at'])
+        return JsonResponse({'success': True, 'is_active': faq.is_active})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+# ==============================================================================
+# TERMS OF SERVICE PAGE MANAGEMENT (contentcms)
+# ==============================================================================
+
+@content_admin_required
+def terms_editor(request):
+    """Dynamic Terms of Service Page Editor for Content CMS."""
+    config = ensure_terms_defaults()
+    sections = TermsSectionModel.objects.filter(page_config=config).order_by('order', 'id')
+    faqs = TermsFAQItem.objects.filter(page_config=config).order_by('order', 'id')
+
+    return render(request, 'contentcms/terms_editor.html', {
+        'active': 'pages_terms',
+        'config': config,
+        'sections': sections,
+        'faqs': faqs,
+    })
+
+
+@content_admin_required
+@require_POST
+def save_terms_page_api(request):
+    """AJAX API to save all dynamic fields for the Terms of Service Page."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_terms_defaults()
+
+        # 1. Hero Section
+        if 'hero_badge_text' in data:
+            config.hero_badge_text = data.get('hero_badge_text', '').strip()
+        if 'hero_heading_prefix' in data:
+            config.hero_heading_prefix = data.get('hero_heading_prefix', '').strip()
+        if 'hero_heading_highlight' in data:
+            config.hero_heading_highlight = data.get('hero_heading_highlight', '').strip()
+        if 'hero_heading_suffix' in data:
+            config.hero_heading_suffix = data.get('hero_heading_suffix', '').strip()
+        if 'hero_subtitle' in data:
+            config.hero_subtitle = data.get('hero_subtitle', '').strip()
+
+        # 2. Metadata / Badges Pill Card
+        if 'last_updated' in data:
+            config.last_updated = data.get('last_updated', '').strip()
+        if 'effective_date' in data:
+            config.effective_date = data.get('effective_date', '').strip()
+        if 'terms_version' in data:
+            config.terms_version = data.get('terms_version', '').strip()
+        if 'organization_text' in data:
+            config.organization_text = data.get('organization_text', '').strip()
+        if 'entity_type_text' in data:
+            config.entity_type_text = data.get('entity_type_text', '').strip()
+        if 'headquarters_text' in data:
+            config.headquarters_text = data.get('headquarters_text', '').strip()
+        if 'legal_email' in data:
+            config.legal_email = data.get('legal_email', '').strip()
+        if 'grievance_officer' in data:
+            config.grievance_officer = data.get('grievance_officer', '').strip()
+
+        # 3. 4 Commercial & Legal Highlight Cards
+        if 'card_1_title' in data:
+            config.card_1_title = data.get('card_1_title', '').strip()
+        if 'card_1_desc' in data:
+            config.card_1_desc = data.get('card_1_desc', '').strip()
+        if 'card_1_icon' in data:
+            config.card_1_icon = data.get('card_1_icon', '').strip()
+
+        if 'card_2_title' in data:
+            config.card_2_title = data.get('card_2_title', '').strip()
+        if 'card_2_desc' in data:
+            config.card_2_desc = data.get('card_2_desc', '').strip()
+        if 'card_2_icon' in data:
+            config.card_2_icon = data.get('card_2_icon', '').strip()
+
+        if 'card_3_title' in data:
+            config.card_3_title = data.get('card_3_title', '').strip()
+        if 'card_3_desc' in data:
+            config.card_3_desc = data.get('card_3_desc', '').strip()
+        if 'card_3_icon' in data:
+            config.card_3_icon = data.get('card_3_icon', '').strip()
+
+        if 'card_4_title' in data:
+            config.card_4_title = data.get('card_4_title', '').strip()
+        if 'card_4_desc' in data:
+            config.card_4_desc = data.get('card_4_desc', '').strip()
+        if 'card_4_icon' in data:
+            config.card_4_icon = data.get('card_4_icon', '').strip()
+
+        # 4. AEO Direct Answer Box
+        if 'aeo_badge' in data:
+            config.aeo_badge = data.get('aeo_badge', '').strip()
+        if 'aeo_title' in data:
+            config.aeo_title = data.get('aeo_title', '').strip()
+        if 'aeo_description' in data:
+            config.aeo_description = data.get('aeo_description', '').strip()
+        if 'aeo_point1' in data:
+            config.aeo_point1 = data.get('aeo_point1', '').strip()
+        if 'aeo_point2' in data:
+            config.aeo_point2 = data.get('aeo_point2', '').strip()
+        if 'aeo_point3' in data:
+            config.aeo_point3 = data.get('aeo_point3', '').strip()
+
+        # 5. FAQ Section Headings
+        if 'faq_badge' in data:
+            config.faq_badge = data.get('faq_badge', '').strip()
+        if 'faq_title' in data:
+            config.faq_title = data.get('faq_title', '').strip()
+        if 'faq_subtitle' in data:
+            config.faq_subtitle = data.get('faq_subtitle', '').strip()
+
+        # 6. Bottom CTA Banner
+        if 'cta_badge' in data:
+            config.cta_badge = data.get('cta_badge', '').strip()
+        if 'cta_heading' in data:
+            config.cta_heading = data.get('cta_heading', '').strip()
+        if 'cta_subheading' in data:
+            config.cta_subheading = data.get('cta_subheading', '').strip()
+        if 'cta_primary_btn_text' in data:
+            config.cta_primary_btn_text = data.get('cta_primary_btn_text', '').strip()
+        if 'cta_primary_btn_url' in data:
+            config.cta_primary_btn_url = data.get('cta_primary_btn_url', '').strip()
+        if 'cta_secondary_btn_text' in data:
+            config.cta_secondary_btn_text = data.get('cta_secondary_btn_text', '').strip()
+        if 'cta_secondary_btn_url' in data:
+            config.cta_secondary_btn_url = data.get('cta_secondary_btn_url', '').strip()
+
+        # 7. SEO & Meta
+        if 'meta_title' in data:
+            config.meta_title = data.get('meta_title', '').strip()
+        if 'meta_description' in data:
+            config.meta_description = data.get('meta_description', '').strip()
+        if 'meta_keywords' in data:
+            config.meta_keywords = data.get('meta_keywords', '').strip()
+        if 'canonical_url' in data:
+            config.canonical_url = data.get('canonical_url', '').strip()
+        if 'og_image_url' in data:
+            config.og_image_url = data.get('og_image_url', '').strip()
+
+        config.save()
+        return JsonResponse({'success': True, 'message': 'Terms of Service page updated successfully!'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_terms_section_api(request):
+    """Save or update an individual Terms of Service section."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_terms_defaults()
+        section_id = data.get('id')
+
+        if section_id:
+            sec = get_object_or_404(TermsSectionModel, id=section_id, page_config=config)
+        else:
+            sec = TermsSectionModel(page_config=config)
+
+        sec.section_id = slugify(data.get('section_id', sec.section_id or 'section'))
+        sec.title = data.get('title', '').strip() or 'Terms of Service Section'
+        sec.short_title = data.get('short_title', '').strip() or sec.title
+        sec.content_raw = data.get('content_raw', '').strip()
+        sec.subsections_json = data.get('subsections_json', '[]')
+        sec.order = int(data.get('order', 0))
+        sec.is_active = bool(data.get('is_active', True))
+        sec.save()
+
+        return JsonResponse({'success': True, 'id': sec.id, 'message': 'Section saved successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_terms_section_api(request, section_id):
+    """Delete a Terms of Service section."""
+    try:
+        config = ensure_terms_defaults()
+        sec = get_object_or_404(TermsSectionModel, id=section_id, page_config=config)
+        sec.delete()
+        return JsonResponse({'success': True, 'message': 'Section deleted successfully!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_terms_section_api(request, section_id):
+    """Toggle visibility status of a Terms of Service section."""
+    try:
+        config = ensure_terms_defaults()
+        sec = get_object_or_404(TermsSectionModel, id=section_id, page_config=config)
+        sec.is_active = not sec.is_active
+        sec.save(update_fields=['is_active', 'updated_at'])
+        return JsonResponse({'success': True, 'is_active': sec.is_active})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def save_terms_faq_api(request):
+    """Save or update a Terms FAQ item."""
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        config = ensure_terms_defaults()
+        faq_id = data.get('id')
+
+        if faq_id:
+            faq = get_object_or_404(TermsFAQItem, id=faq_id, page_config=config)
+        else:
+            faq = TermsFAQItem(page_config=config)
+
+        faq.question = data.get('question', '').strip()
+        faq.answer = data.get('answer', '').strip()
+        faq.order = int(data.get('order', 0))
+        faq.is_active = bool(data.get('is_active', True))
+        faq.save()
+
+        return JsonResponse({'success': True, 'id': faq.id, 'message': 'Terms FAQ saved!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def delete_terms_faq_api(request, faq_id):
+    """Delete a Terms FAQ."""
+    try:
+        config = ensure_terms_defaults()
+        faq = get_object_or_404(TermsFAQItem, id=faq_id, page_config=config)
+        faq.delete()
+        return JsonResponse({'success': True, 'message': 'Terms FAQ deleted!'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def toggle_terms_faq_api(request, faq_id):
+    """Toggle visibility of a Terms FAQ."""
+    try:
+        config = ensure_terms_defaults()
+        faq = get_object_or_404(TermsFAQItem, id=faq_id, page_config=config)
+        faq.is_active = not faq.is_active
+        faq.save(update_fields=['is_active', 'updated_at'])
+        return JsonResponse({'success': True, 'is_active': faq.is_active})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
 

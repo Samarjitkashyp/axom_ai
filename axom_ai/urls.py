@@ -54,6 +54,8 @@ urlpatterns = [
     path('api/cms/about/', contentcms_api.cms_about_api, name='api_cms_about'),
     path('api/cms/use-cases/', contentcms_api.cms_usecases_api, name='api_cms_usecases'),
     path('api/cms/contact/', contentcms_api.cms_contact_api, name='api_cms_contact'),
+    path('api/cms/privacy/', contentcms_api.cms_privacy_api, name='api_cms_privacy'),
+    path('api/cms/terms/', contentcms_api.cms_terms_api, name='api_cms_terms'),
     path('api/cms/tools/word-to-pdf/', contentcms_api.cms_word_to_pdf_api, name='api_cms_word_to_pdf'),
     path('api/cms/tools/<slug:tool_slug>/', contentcms_api.cms_tool_detail_api, name='api_cms_tool_detail'),
     

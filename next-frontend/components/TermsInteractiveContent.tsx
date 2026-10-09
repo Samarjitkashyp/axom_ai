@@ -4,9 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   FileCheck2,
-  Lock,
   Briefcase,
-  AlertOctagon,
   Scale,
   Building,
   Mail,
@@ -15,16 +13,16 @@ import {
   ChevronDown,
   Send,
   Loader2,
-  ShieldCheck,
   Globe2,
   Sparkles,
-  ArrowRight
 } from 'lucide-react';
 import {
   TERMS_SECTIONS,
   TERMS_FAQS,
-  TERMS_METADATA
+  TermsSection,
+  TermsFaq,
 } from './termsData';
+import { TermsCMSData } from '../lib/api';
 
 const INQUIRY_TYPES = [
   {
@@ -49,8 +47,30 @@ const INQUIRY_TYPES = [
   },
 ];
 
-export default function TermsInteractiveContent() {
-  const [openFaqId, setOpenFaqId] = useState<string | null>(TERMS_FAQS[0]?.id || null);
+interface TermsInteractiveContentProps {
+  cmsData?: TermsCMSData | null;
+}
+
+export default function TermsInteractiveContent({ cmsData }: TermsInteractiveContentProps) {
+  const sections: TermsSection[] = cmsData?.sections && cmsData.sections.length > 0
+    ? cmsData.sections.map((s) => ({
+        id: s.id,
+        title: s.title,
+        shortTitle: s.shortTitle || s.short_title || s.title,
+        content: s.content || [],
+        subsections: s.subsections,
+      }))
+    : TERMS_SECTIONS;
+
+  const faqs: TermsFaq[] = cmsData?.faqs && cmsData.faqs.length > 0
+    ? cmsData.faqs.map((f, i) => ({
+        id: f.id || `faq-${i}`,
+        question: f.question,
+        answer: f.answer,
+      }))
+    : TERMS_FAQS;
+
+  const [openFaqId, setOpenFaqId] = useState<string | null>(faqs[0]?.id || null);
 
   // Custom Dark Dropdown State
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -101,13 +121,16 @@ export default function TermsInteractiveContent() {
             <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/25 text-fuchsia-700 dark:text-fuchsia-400 grid place-items-center mb-4 shadow-sm">
               <Briefcase className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">Commercial Use Rights</h3>
+            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+              {cmsData?.config?.highlight_1_title || 'Commercial Use Rights'}
+            </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Paid plan users enjoy royalty-free rights to use, publish, and monetize generated text, translations, and software code.
+              {cmsData?.config?.highlight_1_desc || 'Paid plan users enjoy royalty-free rights to use, publish, and monetize generated text, translations, and software code.'}
             </p>
           </div>
           <span className="mt-5 pt-3 border-t border-emerald-900/10 dark:border-white/5 text-xs font-semibold text-fuchsia-700 dark:text-fuchsia-300 inline-flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" /> Commercial Freedom
+            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            {cmsData?.config?.highlight_1_badge || 'Commercial Freedom'}
           </span>
         </div>
 
@@ -116,13 +139,16 @@ export default function TermsInteractiveContent() {
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 grid place-items-center mb-4 shadow-sm">
               <FileCheck2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">Your Content Ownership</h3>
+            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+              {cmsData?.config?.highlight_2_title || 'Your Content Ownership'}
+            </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              You own your prompts and outputs. Axom AI does not claim IP ownership over your deliverables or train public models on your data.
+              {cmsData?.config?.highlight_2_desc || 'You own your prompts and outputs. Axom AI does not claim IP ownership over your deliverables or train public models on your data.'}
             </p>
           </div>
           <span className="mt-5 pt-3 border-t border-emerald-900/10 dark:border-white/5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 inline-flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4" /> 100% User Owned
+            <CheckCircle2 className="w-4 h-4" />
+            {cmsData?.config?.highlight_2_badge || '100% User Owned'}
           </span>
         </div>
 
@@ -131,13 +157,16 @@ export default function TermsInteractiveContent() {
             <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/25 text-indigo-700 dark:text-indigo-400 grid place-items-center mb-4 shadow-sm">
               <Scale className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">Indian Cyber Law Aligned</h3>
+            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+              {cmsData?.config?.highlight_3_title || 'Indian Cyber Law Aligned'}
+            </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Fully compliant with India’s Information Technology Act 2000, Intermediary Guidelines 2021, and DPDP Act 2023.
+              {cmsData?.config?.highlight_3_desc || 'Fully compliant with India’s Information Technology Act 2000, Intermediary Guidelines 2021, and DPDP Act 2023.'}
             </p>
           </div>
           <span className="mt-5 pt-3 border-t border-emerald-900/10 dark:border-white/5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 inline-flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" /> Statutory Compliance
+            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            {cmsData?.config?.highlight_3_badge || 'Statutory Compliance'}
           </span>
         </div>
 
@@ -146,20 +175,23 @@ export default function TermsInteractiveContent() {
             <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/25 text-purple-700 dark:text-purple-400 grid place-items-center mb-4 shadow-sm">
               <Globe2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">Guwahati Legal Jurisdiction</h3>
+            <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+              {cmsData?.config?.highlight_4_title || 'Guwahati Legal Jurisdiction'}
+            </h3>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              Transparent dispute resolution governed by Indian law, with dedicated Grievance Redressal desk headquartered in Assam.
+              {cmsData?.config?.highlight_4_desc || 'Transparent dispute resolution governed by Indian law, with dedicated Grievance Redressal desk headquartered in Assam.'}
             </p>
           </div>
           <span className="mt-5 pt-3 border-t border-emerald-900/10 dark:border-white/5 text-xs font-semibold text-purple-700 dark:text-purple-300 inline-flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" /> Kamrup Jurisdiction
+            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            {cmsData?.config?.highlight_4_badge || 'Kamrup Jurisdiction'}
           </span>
         </div>
       </div>
 
       {/* 14 Comprehensive Terms Sections (Full-Width Luxury Cards like use-cases) */}
       <div className="w-full space-y-8 text-slate-700 dark:text-slate-300 leading-relaxed mb-16">
-        {TERMS_SECTIONS.map((section, idx) => (
+        {sections.map((section, idx) => (
           <section
             key={section.id}
             id={section.id}
@@ -353,18 +385,18 @@ export default function TermsInteractiveContent() {
 
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                Specific Question or Enterprise Requirements (Optional)
+                Detailed Brief / Inquiry Details
               </label>
               <textarea
                 rows={3}
                 value={inquiryMessage}
                 onChange={(e) => setInquiryMessage(e.target.value)}
-                placeholder="Describe your requested licensing scope, expected monthly volume, or legal queries..."
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-emerald-950 dark:text-white text-xs sm:text-sm placeholder-slate-500 transition resize-none"
+                placeholder="Please describe your specific commercial licensing need, contract questions, or compliance query..."
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 text-emerald-950 dark:text-white text-xs sm:text-sm placeholder-slate-500 transition"
               />
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-emerald-900/10 dark:border-white/5">
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-emerald-900/10 dark:border-white/5">
               <button
                 type="submit"
                 disabled={inquirySubmitting}
@@ -373,23 +405,23 @@ export default function TermsInteractiveContent() {
                 {inquirySubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Connecting with Legal Counsel...
+                    Transmitting Inquiry to Legal Counsel...
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Submit Terms & Licensing Inquiry
+                    Submit Formal Legal Inquiry
                   </>
                 )}
               </button>
 
               <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                <span>Or email counsel directly:</span>
+                <span>Direct legal counsel:</span>
                 <a
-                  href="mailto:support@aiaxom.co.in?subject=Axom%20AI%20Terms%20Inquiry"
+                  href={`mailto:${cmsData?.config?.legal_email || 'support@aiaxom.co.in'}?subject=Terms%20%26%20Commercial%20Inquiry%20-%20Axom%20AI`}
                   className="text-fuchsia-700 dark:text-fuchsia-400 hover:text-emerald-950 dark:hover:text-white font-mono font-medium underline inline-flex items-center gap-1"
                 >
-                  <Mail className="w-3.5 h-3.5" /> support@aiaxom.co.in
+                  <Mail className="w-3.5 h-3.5" /> {cmsData?.config?.legal_email || 'support@aiaxom.co.in'}
                 </a>
               </div>
             </div>
@@ -413,7 +445,7 @@ export default function TermsInteractiveContent() {
         </div>
 
         <div className="w-full space-y-4">
-          {TERMS_FAQS.map((faq, index) => {
+          {faqs.map((faq, index) => {
             const isOpen = openFaqId === faq.id;
             return (
               <div
@@ -470,23 +502,23 @@ export default function TermsInteractiveContent() {
             <Building className="w-7 h-7" />
           </div>
           <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-emerald-950 dark:text-white mb-3">
-            Have Questions for our Legal & Compliance Desk?
+            {cmsData?.config?.cta_heading || 'Have Questions for our Legal & Compliance Desk?'}
           </h3>
           <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed mb-8">
-            Our Grievance Officer and corporate counsel in Guwahati, Assam are available to assist with custom commercial agreements, service level agreements, or compliance inquiries.
+            {cmsData?.config?.cta_subheading || 'Our Grievance Officer and corporate counsel in Guwahati, Assam are available to assist with custom commercial agreements, service level agreements, or compliance inquiries.'}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/contact"
+              href={cmsData?.config?.cta_primary_btn_url || '/contact'}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold text-sm shadow-lg shadow-fuchsia-600/30 transition"
             >
-              <Mail className="w-4 h-4" /> Contact Legal & Grievance Desk
+              <Mail className="w-4 h-4" /> {cmsData?.config?.cta_primary_btn_text || 'Contact Legal & Grievance Desk'}
             </Link>
             <Link
-              href="/pricing"
+              href={cmsData?.config?.cta_secondary_btn_url || '/pricing'}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 border border-emerald-900/15 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white font-medium text-sm transition"
             >
-              <Sparkles className="w-4 h-4 text-fuchsia-700 dark:text-fuchsia-400" /> Explore Commercial Plans & Pricing
+              <Sparkles className="w-4 h-4 text-fuchsia-700 dark:text-fuchsia-400" /> {cmsData?.config?.cta_secondary_btn_text || 'Explore Commercial Plans & Pricing'}
             </Link>
           </div>
         </div>

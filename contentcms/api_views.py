@@ -11,10 +11,14 @@ from .models import (
     FooterSettings, FooterColumn, FooterColumnLink, FooterSocialLink,
     AboutPageConfig, WordToPdfToolConfig, WordToPdfFAQ, PricingFAQ,
     UseCasesPageConfig, UseCaseSector, UseCaseFAQ,
-    ContactPageConfig, ContactChannelItem, ContactFAQItem
+    ContactPageConfig, ContactChannelItem, ContactFAQItem,
+    PrivacyPageConfig, PrivacySectionModel, PrivacyFAQItem,
+    TermsPageConfig, TermsSectionModel, TermsFAQItem
 )
 from .usecases_defaults import ensure_usecases_defaults
 from .contact_defaults import ensure_contact_defaults
+from .privacy_defaults import ensure_privacy_defaults
+from .terms_defaults import ensure_terms_defaults
 
 
 @require_GET
@@ -843,6 +847,210 @@ def cms_contact_api(request):
         'og_image_url': cfg.og_image_url,
         'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
     })
+
+
+@require_GET
+def cms_privacy_api(request):
+    """API returning all dynamic content, sections, and FAQs for Privacy Policy Page."""
+    cfg = ensure_privacy_defaults()
+    sections_qs = PrivacySectionModel.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+    faqs_qs = PrivacyFAQItem.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+
+    sections_data = []
+    for s in sections_qs:
+        paragraphs = [p.strip() for p in s.content_raw.split('\n\n') if p.strip()] if s.content_raw else []
+        try:
+            subsections = json.loads(s.subsections_json) if s.subsections_json else []
+        except Exception:
+            subsections = []
+
+        sections_data.append({
+            'id': s.section_id,
+            'db_id': s.id,
+            'title': s.title,
+            'shortTitle': s.short_title or s.title,
+            'short_title': s.short_title or s.title,
+            'content': paragraphs,
+            'subsections': subsections,
+            'order': s.order,
+        })
+
+    faqs_data = [
+        {'id': f"faq-{f.id}", 'db_id': f.id, 'question': f.question, 'answer': f.answer, 'order': f.order}
+        for f in faqs_qs
+    ]
+
+    return JsonResponse({
+        # Hero Section
+        'hero_badge_text': cfg.hero_badge_text,
+        'hero_heading_prefix': cfg.hero_heading_prefix,
+        'hero_heading_highlight': cfg.hero_heading_highlight,
+        'hero_heading_suffix': cfg.hero_heading_suffix,
+        'hero_subtitle': cfg.hero_subtitle,
+
+        # Metadata / Legal Badges Pill Card
+        'last_updated': cfg.last_updated,
+        'effective_date': cfg.effective_date,
+        'policy_version': cfg.policy_version,
+        'data_fiduciary_text': cfg.data_fiduciary_text,
+        'headquarters_text': cfg.headquarters_text,
+        'dpo_email': cfg.dpo_email,
+        'grievance_officer': cfg.grievance_officer,
+
+        # 4 Security & Privacy Key Highlight Cards
+        'card_1_title': cfg.card_1_title,
+        'card_1_desc': cfg.card_1_desc,
+        'card_1_icon': cfg.card_1_icon,
+        'card_2_title': cfg.card_2_title,
+        'card_2_desc': cfg.card_2_desc,
+        'card_2_icon': cfg.card_2_icon,
+        'card_3_title': cfg.card_3_title,
+        'card_3_desc': cfg.card_3_desc,
+        'card_3_icon': cfg.card_3_icon,
+        'card_4_title': cfg.card_4_title,
+        'card_4_desc': cfg.card_4_desc,
+        'card_4_icon': cfg.card_4_icon,
+
+        # AEO Direct Summary Box
+        'aeo_badge': cfg.aeo_badge,
+        'aeo_title': cfg.aeo_title,
+        'aeo_description': cfg.aeo_description,
+        'aeo_point1': cfg.aeo_point1,
+        'aeo_point2': cfg.aeo_point2,
+        'aeo_point3': cfg.aeo_point3,
+
+        # Data Erasure Desk Section
+        'erasure_section_title': cfg.erasure_section_title,
+        'erasure_section_subtitle': cfg.erasure_section_subtitle,
+        'erasure_sla_text': cfg.erasure_sla_text,
+        'erasure_active': cfg.erasure_active,
+
+        # Sections
+        'sections': sections_data,
+
+        # FAQ Section
+        'faq_badge': cfg.faq_badge,
+        'faq_title': cfg.faq_title,
+        'faq_subtitle': cfg.faq_subtitle,
+        'faqs': faqs_data,
+
+        # Bottom Assistance CTA Banner
+        'cta_badge': cfg.cta_badge,
+        'cta_heading': cfg.cta_heading,
+        'cta_subheading': cfg.cta_subheading,
+        'cta_primary_btn_text': cfg.cta_primary_btn_text,
+        'cta_primary_btn_url': cfg.cta_primary_btn_url,
+        'cta_secondary_btn_text': cfg.cta_secondary_btn_text,
+        'cta_secondary_btn_url': cfg.cta_secondary_btn_url,
+
+        # SEO / GEO / AEO Meta Tags
+        'meta_title': cfg.meta_title,
+        'meta_description': cfg.meta_description,
+        'meta_keywords': cfg.meta_keywords,
+        'canonical_url': cfg.canonical_url,
+        'og_image_url': cfg.og_image_url,
+        'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
+    })
+
+
+@require_GET
+def cms_terms_api(request):
+    """API returning all dynamic content, sections, and FAQs for Terms of Service Page."""
+    cfg = ensure_terms_defaults()
+    sections_qs = TermsSectionModel.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+    faqs_qs = TermsFAQItem.objects.filter(page_config=cfg, is_active=True).order_by('order', 'id')
+
+    sections_data = []
+    for s in sections_qs:
+        paragraphs = [p.strip() for p in s.content_raw.split('\n\n') if p.strip()] if s.content_raw else []
+        try:
+            subsections = json.loads(s.subsections_json) if s.subsections_json else []
+        except Exception:
+            subsections = []
+
+        sections_data.append({
+            'id': s.section_id,
+            'db_id': s.id,
+            'title': s.title,
+            'shortTitle': s.short_title or s.title,
+            'short_title': s.short_title or s.title,
+            'content': paragraphs,
+            'subsections': subsections,
+            'order': s.order,
+        })
+
+    faqs_data = [
+        {'id': f"faq-{f.id}", 'db_id': f.id, 'question': f.question, 'answer': f.answer, 'order': f.order}
+        for f in faqs_qs
+    ]
+
+    return JsonResponse({
+        # Hero Section
+        'hero_badge_text': cfg.hero_badge_text,
+        'hero_heading_prefix': cfg.hero_heading_prefix,
+        'hero_heading_highlight': cfg.hero_heading_highlight,
+        'hero_heading_suffix': cfg.hero_heading_suffix,
+        'hero_subtitle': cfg.hero_subtitle,
+
+        # Metadata / Badges Pill Card
+        'last_updated': cfg.last_updated,
+        'effective_date': cfg.effective_date,
+        'terms_version': cfg.terms_version,
+        'organization_text': cfg.organization_text,
+        'entity_type_text': cfg.entity_type_text,
+        'headquarters_text': cfg.headquarters_text,
+        'legal_email': cfg.legal_email,
+        'grievance_officer': cfg.grievance_officer,
+
+        # 4 Commercial & Legal Key Highlight Cards
+        'card_1_title': cfg.card_1_title,
+        'card_1_desc': cfg.card_1_desc,
+        'card_1_icon': cfg.card_1_icon,
+        'card_2_title': cfg.card_2_title,
+        'card_2_desc': cfg.card_2_desc,
+        'card_2_icon': cfg.card_2_icon,
+        'card_3_title': cfg.card_3_title,
+        'card_3_desc': cfg.card_3_desc,
+        'card_3_icon': cfg.card_3_icon,
+        'card_4_title': cfg.card_4_title,
+        'card_4_desc': cfg.card_4_desc,
+        'card_4_icon': cfg.card_4_icon,
+
+        # AEO Direct Summary Box
+        'aeo_badge': cfg.aeo_badge,
+        'aeo_title': cfg.aeo_title,
+        'aeo_description': cfg.aeo_description,
+        'aeo_point1': cfg.aeo_point1,
+        'aeo_point2': cfg.aeo_point2,
+        'aeo_point3': cfg.aeo_point3,
+
+        # Sections
+        'sections': sections_data,
+
+        # FAQ Section
+        'faq_badge': cfg.faq_badge,
+        'faq_title': cfg.faq_title,
+        'faq_subtitle': cfg.faq_subtitle,
+        'faqs': faqs_data,
+
+        # Bottom Assistance CTA Banner
+        'cta_badge': cfg.cta_badge,
+        'cta_heading': cfg.cta_heading,
+        'cta_subheading': cfg.cta_subheading,
+        'cta_primary_btn_text': cfg.cta_primary_btn_text,
+        'cta_primary_btn_url': cfg.cta_primary_btn_url,
+        'cta_secondary_btn_text': cfg.cta_secondary_btn_text,
+        'cta_secondary_btn_url': cfg.cta_secondary_btn_url,
+
+        # SEO / GEO / AEO Meta Tags
+        'meta_title': cfg.meta_title,
+        'meta_description': cfg.meta_description,
+        'meta_keywords': cfg.meta_keywords,
+        'canonical_url': cfg.canonical_url,
+        'og_image_url': cfg.og_image_url,
+        'updated_at': cfg.updated_at.isoformat() if cfg.updated_at else '',
+    })
+
 
 
 

@@ -4,139 +4,115 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import PrivacyInteractiveContent from '../../components/PrivacyInteractiveContent';
 import { PRIVACY_POLICY_METADATA, PRIVACY_FAQS } from '../../components/privacyData';
-import { getLandingCMS } from '../../lib/api';
+import { getLandingCMS, getPrivacyCMS, PrivacyCMSData } from '../../lib/api';
 import {
   ShieldCheck,
-  Lock,
-  Sparkles,
-  Building,
-  Scale,
   Calendar,
-  CheckCircle2
+  CheckCircle2,
+  Scale,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const TARGET_KEYWORDS = [
-  // Primary SEO Keyword
+const DEFAULT_KEYWORDS = [
   'Axom AI Privacy Policy',
-  // Secondary SEO Keywords
   'Axom AI privacy',
   'Axom AI data privacy',
-  'Axom AI privacy policy',
   'Axom AI data protection',
   'Axom AI security',
   'Axom AI user privacy',
   'Axom AI data security',
-  'Axom AI information security',
   'Axom AI personal data',
-  'Axom AI user data',
-  'Axom AI data protection policy',
-  'Axom AI privacy practices',
+  'DPDP Act 2023 AI',
   'AI platform privacy policy',
   'AI chatbot privacy policy',
-  'AI tool privacy policy',
-  // AEO Question Keywords
   'Is Axom AI safe to use',
   'How does Axom AI protect my data',
-  'What data does Axom AI collect',
-  'Does Axom AI collect personal information',
   'Does Axom AI store my conversations',
-  'Does Axom AI store uploaded files',
-  'How long does Axom AI keep my data',
   'Does Axom AI use my data to train AI models',
-  'How does Axom AI use personal information',
   'Can I delete my Axom AI data',
-  'How can I request deletion of my data',
-  'Does Axom AI share my data with third parties',
-  'Does Axom AI use cookies',
-  'How does Axom AI protect uploaded documents',
-  'Is my information encrypted on Axom AI',
-  'How can I contact Axom AI about privacy',
-  'What are my privacy rights when using Axom AI',
-  // GEO Keywords
-  'Axom AI privacy and security',
-  'Axom AI data protection',
-  'Axom AI privacy practices',
-  'how Axom AI protects user data',
-  'Axom AI data retention policy',
-  'Axom AI AI data privacy',
-  'Axom AI chatbot data privacy',
-  'Axom AI document privacy',
-  'Axom AI file security',
-  'Axom AI conversation privacy',
-  'privacy policy for Axom AI',
-  'secure AI platform in Assam',
-  'Assamese AI privacy',
-  'Assamese AI data security',
-  // Data Privacy Cluster & Cookies
-  'user data privacy',
-  'personal data protection',
-  'data collection policy',
-  'data retention policy',
-  'data deletion policy',
-  'AI conversation privacy',
-  'uploaded file privacy',
-  'Axom AI cookies policy',
-  'Axom AI cookie policy',
-  // Security & India Legal
   'Axom AI encryption',
-  'secure AI platform',
-  'Axom AI India privacy policy',
-  'AI privacy policy India',
-  'data privacy India',
-  'personal data protection India',
+  'secure AI platform Assam',
+  'Assamese AI privacy',
   'Indian AI platform privacy policy'
 ];
 
-export const metadata: Metadata = {
-  title: 'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance',
-  description:
-    'Axom AI Privacy Policy: Learn how we protect your data, conversations, and uploaded documents. Fully compliant with India’s DPDP Act 2023 with 256-bit encryption and zero training on private data.',
-  keywords: TARGET_KEYWORDS,
-  alternates: {
-    canonical: 'https://aiaxom.co.in/privacy/',
-  },
-  openGraph: {
-    title: 'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance',
-    description:
-      'Official privacy practices and data protection policy of Axom AI. Learn about 256-bit encryption, stateless AI inference, file purging, and your statutory rights under the DPDP Act 2023.',
-    url: 'https://aiaxom.co.in/privacy/',
-    siteName: 'Axom AI',
-    locale: 'en_IN',
-    images: [
-      {
-        url: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
-        width: 1200,
-        height: 630,
-        alt: 'Axom AI Privacy Policy and Data Security Protocol',
-      },
-    ],
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance',
-    description:
-      'Official privacy practices and data protection policy of Axom AI. Compliant with India’s DPDP Act 2023 with zero training on private customer data.',
-    images: ['https://aiaxom.co.in/static/dist/hero/assam.avif'],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const privacyData = await getPrivacyCMS().catch(() => null);
+  const config = privacyData?.config;
+
+  const title = config?.meta_title || 'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance';
+  const description =
+    config?.meta_description ||
+    'Axom AI Privacy Policy: Learn how we protect your data, conversations, and uploaded documents. Fully compliant with India’s DPDP Act 2023 with 256-bit encryption and zero training on private data.';
+  const keywordsStr = config?.meta_keywords || DEFAULT_KEYWORDS.join(', ');
+  const keywords = keywordsStr.split(',').map((k) => k.trim()).filter(Boolean);
+  const ogImage = config?.og_image || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
+
+  return {
+    title,
+    description,
+    keywords,
+    alternates: {
+      canonical: 'https://aiaxom.co.in/privacy/',
+    },
+    openGraph: {
+      title,
+      description,
+      url: 'https://aiaxom.co.in/privacy/',
+      siteName: 'Axom AI',
+      locale: 'en_IN',
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: 'Axom AI Privacy Policy and Data Security Protocol',
+        },
+      ],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function PrivacyPage() {
-  const landingData = await getLandingCMS().catch(() => null);
+  const [landingData, privacyData] = await Promise.all([
+    getLandingCMS().catch(() => null),
+    getPrivacyCMS().catch(() => null),
+  ]);
+
+  const cfg = privacyData?.config;
+
+  const pageTitle = cfg?.hero_title_highlight
+    ? `${cfg.hero_title_prefix || 'Axom AI'} ${cfg.hero_title_highlight}`
+    : 'Axom AI Privacy Policy';
+  const pageDesc = cfg?.hero_subheading || 'Transparent, accountable, and legally grounded data stewardship. Learn how we secure your conversations, protect uploaded documents, and respect your digital rights.';
+  const lastUpdated = cfg?.last_updated_date || PRIVACY_POLICY_METADATA.lastUpdated;
+  const version = cfg?.version_text || PRIVACY_POLICY_METADATA.version;
+  const jurisdiction = cfg?.jurisdiction_text || 'Guwahati, Assam (India)';
+
+  const faqsList = privacyData?.faqs && privacyData.faqs.length > 0
+    ? privacyData.faqs
+    : PRIVACY_FAQS;
 
   // Schema 1: WebPage / Privacy Policy
   const privacyPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    name: 'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance',
+    name: cfg?.meta_title || 'Axom AI Privacy Policy — Data Protection, Security & DPDP Compliance',
     url: 'https://aiaxom.co.in/privacy/',
     description:
+      cfg?.meta_description ||
       'Official data protection and privacy policy for Axom AI, establishing statutory compliance under India’s Digital Personal Data Protection (DPDP) Act 2023.',
     datePublished: '2025-01-01',
-    dateModified: '2026-09-17',
+    dateModified: lastUpdated,
     inLanguage: ['en-IN', 'as-IN'],
     about: {
       '@type': 'Thing',
@@ -150,7 +126,7 @@ export default async function PrivacyPage() {
       alternateName: ['AI Axom', 'অসম এআই'],
       url: 'https://aiaxom.co.in',
       logo: 'https://aiaxom.co.in/axom-brand-logo.png',
-      email: 'support@aiaxom.co.in',
+      email: cfg?.dpo_email || 'support@aiaxom.co.in',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Guwahati',
@@ -169,7 +145,7 @@ export default async function PrivacyPage() {
     alternateName: ['AI Axom', 'অসম এআই', 'Assam AI'],
     url: 'https://aiaxom.co.in',
     logo: 'https://aiaxom.co.in/axom-brand-logo.png',
-    email: 'support@aiaxom.co.in',
+    email: cfg?.dpo_email || 'support@aiaxom.co.in',
     founder: {
       '@type': 'Person',
       name: 'Samarjit Kashyap',
@@ -186,7 +162,7 @@ export default async function PrivacyPage() {
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'data protection and privacy grievances',
-      email: 'support@aiaxom.co.in',
+      email: cfg?.dpo_email || 'support@aiaxom.co.in',
       availableLanguage: ['English', 'Assamese', 'Hindi'],
     },
   };
@@ -195,7 +171,7 @@ export default async function PrivacyPage() {
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: PRIVACY_FAQS.map((faq) => ({
+    mainEntity: faqsList.map((faq) => ({
       '@type': 'Question',
       name: faq.question,
       acceptedAnswer: {
@@ -259,29 +235,29 @@ export default async function PrivacyPage() {
           <div className="text-center max-w-4xl mx-auto mb-14 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/15 via-purple-500/10 to-indigo-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold mb-5 shadow-sm">
               <Scale className="w-3.5 h-3.5 text-fuchsia-700 dark:text-fuchsia-400" />
-              <span>Digital Personal Data Protection (DPDP) Act 2023 Compliant</span>
+              <span>{cfg?.hero_badge || 'Digital Personal Data Protection (DPDP) Act 2023 Compliant'}</span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-5">
-              Axom AI{' '}
+              {cfg?.hero_title_prefix ? `${cfg.hero_title_prefix} ` : 'Axom AI '}
               <span className="bg-gradient-to-r from-fuchsia-600 dark:from-fuchsia-400 via-purple-600 dark:via-purple-300 to-indigo-600 dark:to-indigo-300 bg-clip-text text-transparent">
-                Privacy Policy
+                {cfg?.hero_title_highlight || 'Privacy Policy'}
               </span>
             </h1>
             <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6">
-              Transparent, accountable, and legally grounded data stewardship. Learn how we secure your conversations, protect uploaded documents, and respect your digital rights.
+              {pageDesc}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
               <span className="inline-flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-fuchsia-700 dark:text-fuchsia-400" />
-                Last Updated: <strong className="text-slate-800 dark:text-slate-200">{PRIVACY_POLICY_METADATA.lastUpdated}</strong>
+                Last Updated: <strong className="text-slate-800 dark:text-slate-200">{lastUpdated}</strong>
               </span>
               <span>&bull;</span>
               <span>
-                Version: <strong className="text-slate-800 dark:text-slate-200 font-mono">{PRIVACY_POLICY_METADATA.version}</strong>
+                Version: <strong className="text-slate-800 dark:text-slate-200 font-mono">{version}</strong>
               </span>
               <span>&bull;</span>
               <span>
-                Jurisdiction: <strong className="text-slate-800 dark:text-slate-200">Guwahati, Assam (India)</strong>
+                Jurisdiction: <strong className="text-slate-800 dark:text-slate-200">{jurisdiction}</strong>
               </span>
             </div>
           </div>
@@ -298,13 +274,17 @@ export default async function PrivacyPage() {
               </div>
               <div className="space-y-2.5">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
-                  <span>AEO Direct Summary &bull; Axom AI Privacy Commitment</span>
+                  <span>{cfg?.aeo_box_badge || 'AEO Direct Summary • Axom AI Privacy Commitment'}</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-emerald-950 dark:text-white tracking-tight">
-                  How does Axom AI protect user data?
+                  {cfg?.aeo_box_title || 'How does Axom AI protect user data?'}
                 </h2>
                 <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
-                  <strong>Axom AI</strong> operates with strict end-to-end security and complies with India&apos;s <strong>Digital Personal Data Protection (DPDP) Act 2023</strong>. We <strong>do not use private user conversations or uploaded documents to train public AI models</strong>. All data transmitted is encrypted with 256-bit TLS 1.3, files processed by conversion tools are automatically purged from isolated memory sandboxes, and users hold the statutory right to view, export, or permanently delete their account and chat logs at any time.
+                  {cfg?.aeo_box_content || (
+                    <>
+                      <strong>Axom AI</strong> operates with strict end-to-end security and complies with India&apos;s <strong>Digital Personal Data Protection (DPDP) Act 2023</strong>. We <strong>do not use private user conversations or uploaded documents to train public AI models</strong>. All data transmitted is encrypted with 256-bit TLS 1.3, files processed by conversion tools are automatically purged from isolated memory sandboxes, and users hold the statutory right to view, export, or permanently delete their account and chat logs at any time.
+                    </>
+                  )}
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                   <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
@@ -322,7 +302,7 @@ export default async function PrivacyPage() {
           </section>
 
           {/* Interactive Policy Content */}
-          <PrivacyInteractiveContent />
+          <PrivacyInteractiveContent cmsData={privacyData} />
         </div>
       </main>
 

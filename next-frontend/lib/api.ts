@@ -811,4 +811,207 @@ export async function getContactCMS(): Promise<ContactCMSData | null> {
   }
 }
 
+// ==============================================================================
+// PRIVACY POLICY PAGE CMS TYPES & API
+// ==============================================================================
+
+export interface PrivacySectionCMSItem {
+  id: string;
+  db_id?: number;
+  title: string;
+  shortTitle: string;
+  short_title?: string;
+  content: string[];
+  subsections?: {
+    subtitle: string;
+    paragraphs: string[];
+    bulletPoints?: string[];
+  }[];
+  order?: number;
+}
+
+export interface PrivacyFaqCMSItem {
+  id: string;
+  db_id?: number;
+  question: string;
+  answer: string;
+  order?: number;
+}
+
+export interface PrivacyCMSData {
+  hero_badge_text?: string;
+  hero_heading_prefix?: string;
+  hero_heading_highlight?: string;
+  hero_heading_suffix?: string;
+  hero_subtitle?: string;
+
+  last_updated?: string;
+  effective_date?: string;
+  policy_version?: string;
+  data_fiduciary_text?: string;
+  headquarters_text?: string;
+  dpo_email?: string;
+  grievance_officer?: string;
+
+  card_1_title?: string;
+  card_1_desc?: string;
+  card_1_icon?: string;
+  card_2_title?: string;
+  card_2_desc?: string;
+  card_2_icon?: string;
+  card_3_title?: string;
+  card_3_desc?: string;
+  card_3_icon?: string;
+  card_4_title?: string;
+  card_4_desc?: string;
+  card_4_icon?: string;
+
+  aeo_badge?: string;
+  aeo_title?: string;
+  aeo_description?: string;
+  aeo_point1?: string;
+  aeo_point2?: string;
+  aeo_point3?: string;
+
+  erasure_section_title?: string;
+  erasure_section_subtitle?: string;
+  erasure_sla_text?: string;
+  erasure_active?: boolean;
+
+  sections?: PrivacySectionCMSItem[];
+
+  faq_badge?: string;
+  faq_title?: string;
+  faq_subtitle?: string;
+  faqs?: PrivacyFaqCMSItem[];
+
+  cta_badge?: string;
+  cta_heading?: string;
+  cta_subheading?: string;
+  cta_primary_btn_text?: string;
+  cta_primary_btn_url?: string;
+  cta_secondary_btn_text?: string;
+  cta_secondary_btn_url?: string;
+
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  canonical_url?: string;
+  og_image_url?: string;
+  updated_at?: string;
+}
+
+export async function getPrivacyCMS(): Promise<PrivacyCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/privacy/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch Privacy CMS data:', err);
+    return null;
+  }
+}
+
+// ==============================================================================
+// TERMS OF SERVICE PAGE CMS TYPES & API
+// ==============================================================================
+
+export interface TermsSectionCMSItem {
+  id: string;
+  db_id?: number;
+  title: string;
+  shortTitle: string;
+  short_title?: string;
+  content: string[];
+  subsections?: {
+    subtitle: string;
+    paragraphs: string[];
+    bulletPoints?: string[];
+  }[];
+  order?: number;
+}
+
+export interface TermsFaqCMSItem {
+  id: string;
+  db_id?: number;
+  question: string;
+  answer: string;
+  order?: number;
+}
+
+export interface TermsCMSData {
+  hero_badge_text?: string;
+  hero_heading_prefix?: string;
+  hero_heading_highlight?: string;
+  hero_heading_suffix?: string;
+  hero_subtitle?: string;
+
+  last_updated?: string;
+  effective_date?: string;
+  terms_version?: string;
+  organization_text?: string;
+  entity_type_text?: string;
+  headquarters_text?: string;
+  legal_email?: string;
+  grievance_officer?: string;
+
+  card_1_title?: string;
+  card_1_desc?: string;
+  card_1_icon?: string;
+  card_2_title?: string;
+  card_2_desc?: string;
+  card_2_icon?: string;
+  card_3_title?: string;
+  card_3_desc?: string;
+  card_3_icon?: string;
+  card_4_title?: string;
+  card_4_desc?: string;
+  card_4_icon?: string;
+
+  aeo_badge?: string;
+  aeo_title?: string;
+  aeo_description?: string;
+  aeo_point1?: string;
+  aeo_point2?: string;
+  aeo_point3?: string;
+
+  sections?: TermsSectionCMSItem[];
+
+  faq_badge?: string;
+  faq_title?: string;
+  faq_subtitle?: string;
+  faqs?: TermsFaqCMSItem[];
+
+  cta_badge?: string;
+  cta_heading?: string;
+  cta_subheading?: string;
+  cta_primary_btn_text?: string;
+  cta_primary_btn_url?: string;
+  cta_secondary_btn_text?: string;
+  cta_secondary_btn_url?: string;
+
+  meta_title?: string;
+  meta_description?: string;
+  meta_keywords?: string;
+  canonical_url?: string;
+  og_image_url?: string;
+  updated_at?: string;
+}
+
+export async function getTermsCMS(): Promise<TermsCMSData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/cms/terms/`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('Failed to fetch Terms CMS data:', err);
+    return null;
+  }
+}
+
+
 

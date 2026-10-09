@@ -90,6 +90,28 @@ urlpatterns = [
     path('faqs/save/', views.save_faq_api, name='save_faq_api'),
     path('faqs/delete/<int:faq_id>/', views.delete_faq_api, name='delete_faq_api'),
 
+    # Standalone Pages: Privacy Policy Page Manager
+    path('pages/privacy/', views.privacy_editor, name='privacy_editor'),
+    path('pages/privacy/save/', views.save_privacy_page_api, name='save_privacy_page_api'),
+    path('pages/privacy/section/save/', views.save_privacy_section_api, name='save_privacy_section_api'),
+    path('pages/privacy/section/delete/<int:section_id>/', views.delete_privacy_section_api, name='delete_privacy_section_api'),
+    path('pages/privacy/section/toggle/<int:section_id>/', views.toggle_privacy_section_api, name='toggle_privacy_section_api'),
+    path('pages/privacy/faq/save/', views.save_privacy_faq_api, name='save_privacy_faq_api'),
+    path('pages/privacy/faq/delete/<int:faq_id>/', views.delete_privacy_faq_api, name='delete_privacy_faq_api'),
+    path('pages/privacy/faq/toggle/<int:faq_id>/', views.toggle_privacy_faq_api, name='toggle_privacy_faq_api'),
+    path('pages/privacy/upload-og-image/', views.upload_privacy_og_image_api, name='upload_privacy_og_image_api'),
+
+    # Standalone Pages: Terms of Service Page Manager
+    path('pages/terms/', views.terms_editor, name='terms_editor'),
+    path('pages/terms/save/', views.save_terms_page_api, name='save_terms_page_api'),
+    path('pages/terms/section/save/', views.save_terms_section_api, name='save_terms_section_api'),
+    path('pages/terms/section/delete/<int:section_id>/', views.delete_terms_section_api, name='delete_terms_section_api'),
+    path('pages/terms/section/toggle/<int:section_id>/', views.toggle_terms_section_api, name='toggle_terms_section_api'),
+    path('pages/terms/faq/save/', views.save_terms_faq_api, name='save_terms_faq_api'),
+    path('pages/terms/faq/delete/<int:faq_id>/', views.delete_terms_faq_api, name='delete_terms_faq_api'),
+    path('pages/terms/faq/toggle/<int:faq_id>/', views.toggle_terms_faq_api, name='toggle_terms_faq_api'),
+    path('pages/terms/upload-og-image/', views.upload_terms_og_image_api, name='upload_terms_og_image_api'),
+
     # Tools: Converter Tools Manager (Word to PDF, PDF to Word, Image to PDF, PDF to JPG, PDF to PNG, Image Format Converter)
     path('tools/word-to-pdf/', views.word_to_pdf_editor, name='word_to_pdf_editor'),
     path('tools/word-to-pdf/save/', views.save_word_to_pdf_api, name='save_word_to_pdf_api'),

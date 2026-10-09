@@ -1,0 +1,973 @@
+{% extends 'contentcms/base.html' %}
+
+{% block title %}Terms of Service Page Management — Axom AI CMS{% endblock %}
+{% block page_title %}Terms of Service Page Editor{% endblock %}
+{% block page_subtitle %}Manage live content, AEO direct answer card, 4 commercial highlights, 14 legal terms clauses, FAQs, and SEO/Licensing meta tags for https://aiaxom.co.in/terms{% endblock %}
+
+{% block extra_head %}
+<style>
+  .focus-ring:focus {
+    border-color: #d946ef !important;
+    box-shadow: 0 0 15px rgba(217, 70, 239, 0.25) !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 pb-12">
+
+  <!-- Top Action & Navigation Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="/axomai-content/" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white grid place-items-center transition">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+      </a>
+      <div>
+        <div class="text-xs text-slate-400">Standalone Page Configuration</div>
+        <div class="text-sm font-bold text-white flex items-center gap-2">
+          <span>Terms of Service Page (aiaxom.co.in/terms)</span>
+          <span class="text-[10px] bg-fuchsia-500/20 text-fuchsia-300 px-2 py-0.5 rounded-full border border-fuchsia-500/30">Commercial Rights & Licensing</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2.5">
+      <a href="https://aiaxom.co.in/terms/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-arrow-up-right-from-square text-fuchsia-400 text-xs"></i>
+        <span>View Live Terms Page</span>
+      </a>
+
+      <button id="saveTopBtn" type="button" onclick="saveTermsConfig()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/25 transition hover:scale-[1.02]">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save Changes</span>
+        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[9px] bg-black/30 rounded border border-white/20 text-fuchsia-200">Ctrl+S</kbd>
+      </button>
+    </div>
+  </div>
+
+  <form id="termsPageForm" onsubmit="event.preventDefault(); saveTermsConfig();" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- 1. HERO HEADER SECTION -->
+    <div id="sec-hero" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 grid place-items-center text-fuchsia-400">
+            <i class="fa-solid fa-scale-balanced text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">1. Hero Section & Main Headings</h2>
+            <p class="text-xs text-slate-400">Controls the primary H1 headline, badge, and descriptive subtitle</p>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-slate-400">Above-the-fold</span>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Eyebrow Badge Text</label>
+          <input type="text" id="hero_badge_text" value="{{ config.hero_badge_text|default:'Official Legal Agreement • Effective for All Users' }}" placeholder="Top badge text"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Prefix</label>
+            <input type="text" id="hero_heading_prefix" value="{{ config.hero_heading_prefix|default:'Axom AI' }}" placeholder="Prefix"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Highlighted Keyword (Gradient)</label>
+            <input type="text" id="hero_heading_highlight" value="{{ config.hero_heading_highlight|default:'Terms of Service' }}" placeholder="Highlight"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-fuchsia-500/40 rounded-xl text-xs text-fuchsia-300 font-semibold focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Heading Suffix (Optional)</label>
+            <input type="text" id="hero_heading_suffix" value="{{ config.hero_heading_suffix|default:'& User Agreement' }}" placeholder="Suffix (optional)"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Hero Descriptive Subtitle</label>
+          <textarea id="hero_subtitle" rows="3" placeholder="Hero subtitle description..."
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.hero_subtitle|default:'Clear, fair, and legally binding terms governing your access to Axom AI chat assistants, translation engines, document converters, and APIs.' }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. METADATA & LEGAL PILL CARD -->
+    <div id="sec-meta-card" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 grid place-items-center text-blue-400">
+            <i class="fa-solid fa-file-contract text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">2. Metadata & Legal Badges Pill Bar</h2>
+            <p class="text-xs text-slate-400">Effective dates, versioning, and company credentials</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Last Updated Date</label>
+          <input type="text" id="last_updated" value="{{ config.last_updated|default:'September 17, 2026' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Effective Date</label>
+          <input type="text" id="effective_date" value="{{ config.effective_date|default:'September 17, 2026' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Terms Version</label>
+          <input type="text" id="terms_version" value="{{ config.terms_version|default:'2.4' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Organization / Platform Name</label>
+          <input type="text" id="organization_text" value="{{ config.organization_text|default:'Axom AI (AI Axom)' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Entity Type Classification</label>
+          <input type="text" id="entity_type_text" value="{{ config.entity_type_text|default:'Indian Artificial Intelligence & Document Processing Platform' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Headquarters Location</label>
+          <input type="text" id="headquarters_text" value="{{ config.headquarters_text|default:'Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001)' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Legal Support Email</label>
+          <input type="text" id="legal_email" value="{{ config.legal_email|default:'support@aiaxom.co.in' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Grievance Officer</label>
+          <input type="text" id="grievance_officer" value="{{ config.grievance_officer|default:'Samarjit Kashyap (samarjitkashyp@gmail.com)' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 4 COMMERCIAL & LEGAL KEY HIGHLIGHT CARDS -->
+    <div id="sec-highlights" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-emerald-400">
+            <i class="fa-solid fa-award text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">3. Commercial & Legal Highlights (4 Cards)</h2>
+            <p class="text-xs text-slate-400">Shown in 4-column responsive grid on desktop</p>
+          </div>
+        </div>
+        <span class="text-[11px] font-medium text-emerald-400">Core Guarantees</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Card 1 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Highlight 1</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+            <input type="text" id="card_1_title" value="{{ config.card_1_title|default:'Commercial Output Rights' }}"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+            <textarea id="card_1_desc" rows="2" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.card_1_desc|default:'Users on paid plans retain full commercial exploitation rights over generated text, code, translations, and media.' }}</textarea>
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+            <input type="text" id="card_1_icon" value="{{ config.card_1_icon|default:'Scale' }}" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs font-mono text-fuchsia-300">
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Highlight 2</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+            <input type="text" id="card_2_title" value="{{ config.card_2_title|default:'Zero Lock-in Billing' }}"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+            <textarea id="card_2_desc" rows="2" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.card_2_desc|default:'Transparent INR pricing with 100% Indian payment methods (UPI, RuPay, Cards) and 1-click self-service cancellation.' }}</textarea>
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+            <input type="text" id="card_2_icon" value="{{ config.card_2_icon|default:'CreditCard' }}" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs font-mono text-fuchsia-300">
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Highlight 3</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+            <input type="text" id="card_3_title" value="{{ config.card_3_title|default:'Strict Acceptable Use' }}"
+              class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+            <textarea id="card_3_desc" rows="2" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.card_3_desc|default:'Zero tolerance for harmful content, automated scraping abuse, reverse engineering, or platform exploitation.' }}</textarea>
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+            <input type="text" id="card_3_icon" value="{{ config.card_3_icon|default:'ShieldAlert' }}" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs font-mono text-fuchsia-300">
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-800 space-y-3">
+          <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider">Highlight 4</span>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Title</label>
+            <input type="text" id="card_4_title" value="{{ config.card_4_title|default:'Guwahati Legal Jurisdiction' }}"
+              class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Description</label>
+            <textarea id="card_4_desc" rows="2" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 focus:outline-none focus-ring leading-relaxed">{{ config.card_4_desc|default:'Governed by the laws of India and Information Technology Act 2000 under the exclusive jurisdiction of Guwahati courts.' }}</textarea>
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Lucide Icon</label>
+            <input type="text" id="card_4_icon" value="{{ config.card_4_icon|default:'Building' }}" class="w-full px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-xs font-mono text-fuchsia-300">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. AEO DIRECT ANSWER BOX -->
+    <div id="sec-aeo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400">
+            <i class="fa-solid fa-compass text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">4. AEO Direct Answer Summary Box</h2>
+            <p class="text-xs text-slate-400">Structured for Perplexity, ChatGPT Search, and Google AI Overviews</p>
+          </div>
+        </div>
+        <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">AEO / GEO</span>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">AEO Badge Text</label>
+            <input type="text" id="aeo_badge" value="{{ config.aeo_badge|default:'AEO Direct Summary • Terms Overview' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Direct Answer Heading (Question)</label>
+            <input type="text" id="aeo_title" value="{{ config.aeo_title|default:'What are the core terms of using Axom AI?' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Direct Answer Comprehensive Overview</label>
+          <textarea id="aeo_description" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.aeo_description|default:'Users retain full commercial ownership of all text, code, and media generated on paid tiers. Personal use is free. Prohibited activities include illegal content generation, security reverse-engineering, and scraping. Subscriptions can be cancelled anytime with instant automated billing management under Indian consumer laws.' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Key Point 1</label>
+            <input type="text" id="aeo_point1" value="{{ config.aeo_point1|default:'100% Commercial Output Ownership on Paid Plans' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Key Point 2</label>
+            <input type="text" id="aeo_point2" value="{{ config.aeo_point2|default:'Fair Use Quotas & Anti-Abuse Protection' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Key Point 3</label>
+            <input type="text" id="aeo_point3" value="{{ config.aeo_point3|default:'Guwahati Jurisdiction & Indian Law Binding' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. COMPREHENSIVE TERMS CLAUSES (CRUD) -->
+    <div id="sec-sections" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 grid place-items-center text-amber-400">
+            <i class="fa-solid fa-gavel text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">5. Comprehensive Terms Sections (14 Clauses)</h2>
+            <p class="text-xs text-slate-400">Manage binding legal clauses including commercial rights, IP, billing, and jurisdiction</p>
+          </div>
+        </div>
+        <button type="button" onclick="openSectionModal()" class="px-4 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-fuchsia-600/20 transition hover:scale-105">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add New Section</span>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-800">
+              <th class="p-3 font-semibold">Order</th>
+              <th class="p-3 font-semibold">Section Title</th>
+              <th class="p-3 font-semibold">Anchor ID</th>
+              <th class="p-3 font-semibold">Short Title</th>
+              <th class="p-3 font-semibold">Status</th>
+              <th class="p-3 font-semibold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 bg-slate-950/40 text-slate-300">
+            {% for s in sections %}
+            <tr class="hover:bg-slate-900/40 transition">
+              <td class="p-3 font-mono text-slate-400">{{ s.order }}</td>
+              <td class="p-3">
+                <div class="font-bold text-white">{{ s.title }}</div>
+                <div class="text-[11px] text-slate-400 truncate max-w-sm">{{ s.content_raw|truncatechars:80 }}</div>
+              </td>
+              <td class="p-3 font-mono text-fuchsia-400 text-[11px]">#{{ s.section_id }}</td>
+              <td class="p-3 text-slate-300">{{ s.short_title }}</td>
+              <td class="p-3">
+                <button type="button" onclick="toggleSectionStatus({{ s.id }})" class="px-2.5 py-1 rounded-full text-[10px] font-semibold transition {% if s.is_active %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
+                  {% if s.is_active %}Active{% else %}Hidden{% endif %}
+                </button>
+              </td>
+              <td class="p-3 text-right space-x-2">
+                <button type="button" onclick="editSectionModal({{ s.id }}, '{{ s.section_id|escapejs }}', '{{ s.title|escapejs }}', '{{ s.short_title|escapejs }}', '{{ s.content_raw|escapejs }}', '{{ s.subsections_json|escapejs }}', {{ s.order }}, {{ s.is_active|lower }})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition" title="Edit Section">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" onclick="deleteSection({{ s.id }})" class="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-red-200 border border-red-800/40 transition" title="Delete Section">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="p-6 text-center text-slate-500">No sections found. Click "Add New Section" to create one.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 6. FAQ MANAGEMENT (CRUD) -->
+    <div id="sec-faqs" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400">
+            <i class="fa-solid fa-circle-question text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">6. Frequently Asked Questions (Terms & Licensing FAQs)</h2>
+            <p class="text-xs text-slate-400">Generates FAQ schema for rich search results in Google and AI engines</p>
+          </div>
+        </div>
+        <button type="button" onclick="openFaqModal()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-purple-600/20 transition hover:scale-105">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span>Add FAQ</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Badge</label>
+          <input type="text" id="faq_badge" value="{{ config.faq_badge|default:'Common Terms Questions' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Section Title</label>
+          <input type="text" id="faq_title" value="{{ config.faq_title|default:'Frequently Asked Questions Regarding Terms of Service' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">FAQ Subtitle</label>
+          <input type="text" id="faq_subtitle" value="{{ config.faq_subtitle|default:'Clear answers regarding commercial ownership, licensing, acceptable use, billing, and cancellations.' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-800">
+              <th class="p-3 font-semibold">Order</th>
+              <th class="p-3 font-semibold">Question</th>
+              <th class="p-3 font-semibold">Answer Summary</th>
+              <th class="p-3 font-semibold">Status</th>
+              <th class="p-3 font-semibold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 bg-slate-950/40 text-slate-300">
+            {% for f in faqs %}
+            <tr class="hover:bg-slate-900/40 transition">
+              <td class="p-3 font-mono text-slate-400">{{ f.order }}</td>
+              <td class="p-3 font-bold text-white max-w-xs">{{ f.question }}</td>
+              <td class="p-3 text-slate-400 max-w-sm truncate">{{ f.answer }}</td>
+              <td class="p-3">
+                <button type="button" onclick="toggleFaqStatus({{ f.id }})" class="px-2.5 py-1 rounded-full text-[10px] font-semibold transition {% if f.is_active %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
+                  {% if f.is_active %}Active{% else %}Hidden{% endif %}
+                </button>
+              </td>
+              <td class="p-3 text-right space-x-2">
+                <button type="button" onclick="editFaqModal({{ f.id }}, '{{ f.question|escapejs }}', '{{ f.answer|escapejs }}', {{ f.order }}, {{ f.is_active|lower }})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition" title="Edit FAQ">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                <button type="button" onclick="deleteFaq({{ f.id }})" class="px-2.5 py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 hover:text-red-200 border border-red-800/40 transition" title="Delete FAQ">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="p-6 text-center text-slate-500">No FAQs found. Click "Add FAQ" to create one.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7. BOTTOM ASSISTANCE CTA BANNER -->
+    <div id="sec-cta" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-pink-500/10 border border-pink-500/20 grid place-items-center text-pink-400">
+            <i class="fa-solid fa-bullhorn text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">7. Bottom Assistance CTA Banner</h2>
+            <p class="text-xs text-slate-400">Controls the bottom legal assistance card and action buttons</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Eyebrow Badge</label>
+            <input type="text" id="cta_badge" value="{{ config.cta_badge|default:'Legal & Commercial Desk' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Main Heading</label>
+            <input type="text" id="cta_heading" value="{{ config.cta_heading|default:'Need Clarification on Licensing or Commercial Use?' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring font-semibold">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">CTA Subtitle Description</label>
+          <textarea id="cta_subheading" rows="2"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.cta_subheading|default:'For enterprise licensing agreements, API volume contracts, or legal inquiries, reach out directly to our Guwahati legal desk.' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 space-y-2">
+            <span class="text-[10px] font-bold text-fuchsia-400 uppercase">Primary Button</span>
+            <input type="text" id="cta_primary_btn_text" value="{{ config.cta_primary_btn_text|default:'Contact Legal Desk' }}" placeholder="Button Text" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <input type="text" id="cta_primary_btn_url" value="{{ config.cta_primary_btn_url|default:'mailto:support@aiaxom.co.in?subject=Terms%20and%20Licensing%20Inquiry%20-%20Axom%20AI' }}" placeholder="URL (e.g. mailto:...)" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 font-mono focus:outline-none focus-ring">
+          </div>
+
+          <div class="p-4 bg-slate-900/60 rounded-xl border border-slate-800 space-y-2">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Secondary Button</span>
+            <input type="text" id="cta_secondary_btn_text" value="{{ config.cta_secondary_btn_text|default:'Read Privacy Policy' }}" placeholder="Button Text" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus-ring">
+            <input type="text" id="cta_secondary_btn_url" value="{{ config.cta_secondary_btn_url|default:'/privacy' }}" placeholder="URL (e.g. /privacy)" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-300 font-mono focus:outline-none focus-ring">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. SEO, AEO & GEO METADATA -->
+    <div id="sec-seo" class="glass-card rounded-2xl border border-slate-800/80 p-6 sm:p-8 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 grid place-items-center text-indigo-400">
+            <i class="fa-solid fa-magnifying-glass-chart text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white">8. SEO, AEO & GEO Search Engine Meta Tags</h2>
+            <p class="text-xs text-slate-400">Google, Bing, Perplexity, Legal & licensing search rankings</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Title Tag</label>
+          <input type="text" id="meta_title" value="{{ config.meta_title|default:'Axom AI Terms of Service — Commercial Rights, Licensing & User Agreement' }}"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Meta Description Tag</label>
+          <textarea id="meta_description" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_description|default:'Read the official Terms of Service for Axom AI. Learn about commercial output ownership, subscription billing, acceptable use policy, and legal rights under Indian law.' }}</textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Target Keywords (Comma Separated)</label>
+          <textarea id="meta_keywords" rows="3"
+            class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed">{{ config.meta_keywords|default:'Axom AI Terms of Service, Axom AI terms, Axom AI terms and conditions, Axom AI user agreement, Axom AI commercial rights, Axom AI acceptable use, Axom AI legal terms, AI terms of service India, Axom AI licensing, Axom AI ownership rights' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Canonical URL</label>
+            <input type="text" id="canonical_url" value="{{ config.canonical_url|default:'https://aiaxom.co.in/terms/' }}"
+              class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Open Graph (OG) Image URL</label>
+            <div class="flex gap-2">
+              <input type="text" id="og_image_url" value="{{ config.og_image_url|default:'https://aiaxom.co.in/static/dist/hero/assam.avif' }}"
+                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
+              <label class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white flex items-center gap-1.5 cursor-pointer shrink-0 transition">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Upload</span>
+                <input type="file" id="ogImageFileInput" accept="image/*" class="hidden" onchange="uploadTermsOgImage(this)">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Floating Save Bar -->
+    <div class="sticky bottom-6 z-30 flex items-center justify-between p-4 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-slate-800 shadow-2xl">
+      <div class="text-xs text-slate-400">All fields auto-validate and sync live to the Next.js frontend.</div>
+      <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-fuchsia-600/30 transition hover:scale-[1.02]">
+        <i class="fa-solid fa-floppy-disk text-xs"></i>
+        <span>Save Terms of Service Page</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- ============================================================================== -->
+<!-- SECTION MODAL -->
+<!-- ============================================================================== -->
+<div id="sectionModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+  <div class="relative w-full max-w-2xl rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-8 space-y-5 shadow-2xl my-8">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <h3 id="sectionModalTitle" class="text-base font-bold text-white">Add Terms Section</h3>
+      <button type="button" onclick="closeSectionModal()" class="text-slate-400 hover:text-white text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form id="sectionForm" onsubmit="event.preventDefault(); submitSectionForm();" class="space-y-4">
+      <input type="hidden" id="modal_sec_id">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Section Title (e.g. 1. Acceptance of Terms)</label>
+          <input type="text" id="modal_sec_title" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Anchor ID (e.g. acceptance)</label>
+          <input type="text" id="modal_sec_anchor" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white font-mono focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Short Title (For Sidebar Pill)</label>
+          <input type="text" id="modal_sec_short" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Display Order</label>
+          <input type="number" id="modal_sec_order" value="1" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Main Content Paragraphs (Separate with Blank Lines)</label>
+        <textarea id="modal_sec_content" rows="4" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Subsections JSON (Optional)</label>
+        <textarea id="modal_sec_subsections" rows="3" placeholder='[{"subtitle": "Subsection 1", "paragraphs": ["Point 1", "Point 2"]}]' class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-fuchsia-300 font-mono focus:outline-none focus-ring leading-relaxed"></textarea>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <button type="button" onclick="closeSectionModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-semibold rounded-xl text-xs transition">Save Section</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================================== -->
+<!-- FAQ MODAL -->
+<!-- ============================================================================== -->
+<div id="faqModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6 sm:p-8 space-y-5 shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+      <h3 id="faqModalTitle" class="text-base font-bold text-white">Add Terms FAQ</h3>
+      <button type="button" onclick="closeFaqModal()" class="text-slate-400 hover:text-white text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form id="faqForm" onsubmit="event.preventDefault(); submitFaqForm();" class="space-y-4">
+      <input type="hidden" id="modal_faq_id">
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Question</label>
+        <input type="text" id="modal_faq_q" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Answer</label>
+        <textarea id="modal_faq_a" rows="4" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring leading-relaxed"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Display Order</label>
+        <input type="number" id="modal_faq_order" value="1" class="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus-ring">
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+        <button type="button" onclick="closeFaqModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition">Cancel</button>
+        <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl text-xs transition">Save FAQ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  function showToast(msg, isSuccess = true) {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-2xl transition-all duration-300 ${
+      isSuccess ? 'bg-emerald-600 text-white shadow-emerald-600/30' : 'bg-red-600 text-white shadow-red-600/30'
+    }`;
+    toast.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i><span>${msg}</span>`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 3200);
+  }
+
+  // Save full Terms of Service page
+  async function saveTermsConfig() {
+    const payload = {
+      hero_badge_text: document.getElementById('hero_badge_text').value,
+      hero_heading_prefix: document.getElementById('hero_heading_prefix').value,
+      hero_heading_highlight: document.getElementById('hero_heading_highlight').value,
+      hero_heading_suffix: document.getElementById('hero_heading_suffix').value,
+      hero_subtitle: document.getElementById('hero_subtitle').value,
+
+      last_updated: document.getElementById('last_updated').value,
+      effective_date: document.getElementById('effective_date').value,
+      terms_version: document.getElementById('terms_version').value,
+      organization_text: document.getElementById('organization_text').value,
+      entity_type_text: document.getElementById('entity_type_text').value,
+      headquarters_text: document.getElementById('headquarters_text').value,
+      legal_email: document.getElementById('legal_email').value,
+      grievance_officer: document.getElementById('grievance_officer').value,
+
+      card_1_title: document.getElementById('card_1_title').value,
+      card_1_desc: document.getElementById('card_1_desc').value,
+      card_1_icon: document.getElementById('card_1_icon').value,
+      card_2_title: document.getElementById('card_2_title').value,
+      card_2_desc: document.getElementById('card_2_desc').value,
+      card_2_icon: document.getElementById('card_2_icon').value,
+      card_3_title: document.getElementById('card_3_title').value,
+      card_3_desc: document.getElementById('card_3_desc').value,
+      card_3_icon: document.getElementById('card_3_icon').value,
+      card_4_title: document.getElementById('card_4_title').value,
+      card_4_desc: document.getElementById('card_4_desc').value,
+      card_4_icon: document.getElementById('card_4_icon').value,
+
+      aeo_badge: document.getElementById('aeo_badge').value,
+      aeo_title: document.getElementById('aeo_title').value,
+      aeo_description: document.getElementById('aeo_description').value,
+      aeo_point1: document.getElementById('aeo_point1').value,
+      aeo_point2: document.getElementById('aeo_point2').value,
+      aeo_point3: document.getElementById('aeo_point3').value,
+
+      faq_badge: document.getElementById('faq_badge').value,
+      faq_title: document.getElementById('faq_title').value,
+      faq_subtitle: document.getElementById('faq_subtitle').value,
+
+      cta_badge: document.getElementById('cta_badge').value,
+      cta_heading: document.getElementById('cta_heading').value,
+      cta_subheading: document.getElementById('cta_subheading').value,
+      cta_primary_btn_text: document.getElementById('cta_primary_btn_text').value,
+      cta_primary_btn_url: document.getElementById('cta_primary_btn_url').value,
+      cta_secondary_btn_text: document.getElementById('cta_secondary_btn_text').value,
+      cta_secondary_btn_url: document.getElementById('cta_secondary_btn_url').value,
+
+      meta_title: document.getElementById('meta_title').value,
+      meta_description: document.getElementById('meta_description').value,
+      meta_keywords: document.getElementById('meta_keywords').value,
+      canonical_url: document.getElementById('canonical_url').value,
+      og_image_url: document.getElementById('og_image_url').value,
+    };
+
+    try {
+      const res = await fetch('/axomai-content/pages/terms/save/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Terms of Service Page saved successfully!');
+      } else {
+        showToast(data.error || 'Failed to save Terms of Service', false);
+      }
+    } catch (e) {
+      showToast('Network error while saving', false);
+    }
+  }
+
+  // Section Modal Handling
+  function openSectionModal() {
+    document.getElementById('sectionModalTitle').innerText = 'Add Terms Section';
+    document.getElementById('modal_sec_id').value = '';
+    document.getElementById('modal_sec_title').value = '';
+    document.getElementById('modal_sec_anchor').value = '';
+    document.getElementById('modal_sec_short').value = '';
+    document.getElementById('modal_sec_content').value = '';
+    document.getElementById('modal_sec_subsections').value = '[]';
+    document.getElementById('modal_sec_order').value = 1;
+    document.getElementById('sectionModal').classList.remove('hidden');
+  }
+
+  function editSectionModal(id, anchor, title, shortTitle, content, subsections, order, isActive) {
+    document.getElementById('sectionModalTitle').innerText = 'Edit Terms Section';
+    document.getElementById('modal_sec_id').value = id;
+    document.getElementById('modal_sec_anchor').value = anchor;
+    document.getElementById('modal_sec_title').value = title;
+    document.getElementById('modal_sec_short').value = shortTitle;
+    document.getElementById('modal_sec_content').value = content;
+    document.getElementById('modal_sec_subsections').value = subsections;
+    document.getElementById('modal_sec_order').value = order;
+    document.getElementById('sectionModal').classList.remove('hidden');
+  }
+
+  function closeSectionModal() {
+    document.getElementById('sectionModal').classList.add('hidden');
+  }
+
+  async function submitSectionForm() {
+    const payload = {
+      id: document.getElementById('modal_sec_id').value || null,
+      section_id: document.getElementById('modal_sec_anchor').value,
+      title: document.getElementById('modal_sec_title').value,
+      short_title: document.getElementById('modal_sec_short').value,
+      content_raw: document.getElementById('modal_sec_content').value,
+      subsections_json: document.getElementById('modal_sec_subsections').value,
+      order: document.getElementById('modal_sec_order').value,
+    };
+
+    try {
+      const res = await fetch('/axomai-content/pages/terms/section/save/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Section saved!');
+        setTimeout(() => location.reload(), 500);
+      } else {
+        showToast(data.error || 'Failed to save section', false);
+      }
+    } catch (e) {
+      showToast('Network error', false);
+    }
+  }
+
+  async function deleteSection(id) {
+    if (!confirm('Are you sure you want to delete this terms section?')) return;
+    try {
+      const res = await fetch(`/axomai-content/pages/terms/section/delete/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Section deleted!');
+        setTimeout(() => location.reload(), 400);
+      } else {
+        showToast(data.error || 'Delete failed', false);
+      }
+    } catch (e) {
+      showToast('Network error', false);
+    }
+  }
+
+  async function toggleSectionStatus(id) {
+    try {
+      const res = await fetch(`/axomai-content/pages/terms/section/toggle/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Status updated!');
+        setTimeout(() => location.reload(), 300);
+      }
+    } catch (e) {
+      showToast('Network error', false);
+    }
+  }
+
+  // FAQ Modal Handling
+  function openFaqModal() {
+    document.getElementById('faqModalTitle').innerText = 'Add Terms FAQ';
+    document.getElementById('modal_faq_id').value = '';
+    document.getElementById('modal_faq_q').value = '';
+    document.getElementById('modal_faq_a').value = '';
+    document.getElementById('modal_faq_order').value = 1;
+    document.getElementById('faqModal').classList.remove('hidden');
+  }
+
+  function editFaqModal(id, q, a, order, isActive) {
+    document.getElementById('faqModalTitle').innerText = 'Edit Terms FAQ';
+    document.getElementById('modal_faq_id').value = id;
+    document.getElementById('modal_faq_q').value = q;
+    document.getElementById('modal_faq_a').value = a;
+    document.getElementById('modal_faq_order').value = order;
+    document.getElementById('faqModal').classList.remove('hidden');
+  }
+
+  function closeFaqModal() {
+    document.getElementById('faqModal').classList.add('hidden');
+  }
+
+  async function submitFaqForm() {
+    const payload = {
+      id: document.getElementById('modal_faq_id').value || null,
+      question: document.getElementById('modal_faq_q').value,
+      answer: document.getElementById('modal_faq_a').value,
+      order: document.getElementById('modal_faq_order').value,
+    };
+
+    try {
+      const res = await fetch('/axomai-content/pages/terms/faq/save/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('FAQ saved!');
+        setTimeout(() => location.reload(), 500);
+      } else {
+        showToast(data.error || 'Failed to save FAQ', false);
+      }
+    } catch (e) {
+      showToast('Network error', false);
+    }
+  }
+
+  async function deleteFaq(id) {
+    if (!confirm('Are you sure you want to delete this FAQ?')) return;
+    try {
+      const res = await fetch(`/axomai-content/pages/terms/faq/delete/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('FAQ deleted!');
+        setTimeout(() => location.reload(), 400);
+      }
+    } catch (e) {
+      showToast('Network error', false);
+    }
+  }
+
+  async function toggleFaqStatus(id) {
+    try {
+      const res = await fetch(`/axomai-content/pages/terms/faq/toggle/${id}/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Status updated!');
+        setTimeout(() => location.reload(), 300);
+      }
+    } catch (e) {
+      showToast('Network error', false);
+    }
+  }
+
+  async function uploadTermsOgImage(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('tool_slug', 'terms');
+
+    try {
+      const res = await fetch('/axomai-content/pages/terms/upload-og-image/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('og_image_url').value = data.url;
+        showToast('OG Image uploaded and saved for SEO!');
+      } else {
+        showToast(data.error || 'Image upload failed', false);
+      }
+    } catch (e) {
+      showToast('Upload error', false);
+    }
+  }
+
+  // Ctrl+S shortcut
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      saveTermsConfig();
+    }
+  });
+</script>
+{% endblock %}
