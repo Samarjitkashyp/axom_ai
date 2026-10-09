@@ -2,13 +2,15 @@ import os
 import json
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_POST
 from django.conf import settings
+from django.utils import timezone
+from django.db.models import Q
 from knowledge.utils import search_knowledge_base, find_instant_answer, semantic_find_answer
 
 # Global HTTP Session for connection pooling & ultra-fast API calls
