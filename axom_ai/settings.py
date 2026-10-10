@@ -208,4 +208,18 @@ SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
 
-
+# --- E-mail (contact form notifications) ---
+# Values come from .env: EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, DEFAULT_FROM_EMAIL, CONTACT_TO_EMAIL.
+EMAIL_HOST = os.getenv('EMAIL_HOST', '').strip()
+try:
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', '465') or 465)
+except ValueError:
+    EMAIL_PORT = 465
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '').strip()
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_SSL = EMAIL_PORT == 465
+EMAIL_USE_TLS = not EMAIL_USE_SSL
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Axom AI <support@aiaxom.co.in>').strip()
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+CONTACT_TO_EMAIL = os.getenv('CONTACT_TO_EMAIL', 'support@aiaxom.co.in').strip()

@@ -304,3 +304,44 @@ class SuperAdminLoginAttempt(models.Model):
         return f"{self.ip_address} | {self.username} (Failed: {self.failed_count}, Locked: {self.is_locked})"
 
 
+CONTACT_CATEGORIES = {
+    'general': 'General Inquiry / Feedback',
+    'support': 'Technical & Account Support',
+    'bug': 'Bug Report / Translation Correction',
+    'business': 'Business & Enterprise Partnership',
+    'api': 'API & Developer Integration',
+    'student': 'Student / Academic Subsidy',
+}
+
+
+class ContactMessage(models.Model):
+    """A message sent through the public contact form (aiaxom.co.in/contact)."""
+    STATUS_CHOICES = [('new', 'New'), ('read', 'Read'), ('replied', 'Replied'), ('spam', 'Spam')]
+    ticket = models.CharField(max_length=16, blank=True, default='', db_index=True)
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
+    phone = models.CharField(max_length=30, blank=True, default='')
+    category = models.CharField(max_length=20, default='general')
+    subject = models.CharField(max_length=200, blank=True, default='')
+    message = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='new', db_index=True)
+    ip = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=200, blank=True, default='')
+    email_sent = models.BooleanField(default=False)
+    email_error = models.CharField(max_length=250, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Contact Message'
+
+    def __str__(self):
+        return f"{self.ticket or self.pk} | {self.name} <{self.email}>"
+
+    @property
+    def category_label(self):
+        return CONTACT_CATEGORIES.get(self.category, self.category)
+
+    @property
+    def reply_subject(self):
+        return 'Re: ' + (self.subject or 'Your message to Axom AI') + (' [' + self.ticket + ']' if self.ticket else '')

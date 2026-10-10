@@ -31,6 +31,7 @@ export default function ContactFormInteractive() {
   const [category, setCategory] = useState('general');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [trap, setTrap] = useState('');   // bot trap: hidden from visitors, bots fill it
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -60,14 +61,28 @@ export default function ContactFormInteractive() {
     setLoading(true);
 
     try {
-      // Simulate/Trigger support intake
-      await new Promise((resolve) => setTimeout(resolve, 850));
-
-      const generatedTicket = 'AXM-' + Math.floor(100000 + Math.random() * 900000);
-      setTicketId(generatedTicket);
+      const res = await fetch('/api/contact/submit/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          category,
+          subject: subject.trim(),
+          message: message.trim(),
+          hp_trap: trap,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Could not send your message. Please try again, or use the direct email link below.');
+        return;
+      }
+      setTicketId(data.ticket);
       setSubmitted(true);
     } catch {
-      setError('Could not submit inquiry automatically. Please use the direct email link below.');
+      setError('Could not reach our server. Please check your connection, or use the direct email link below.');
     } finally {
       setLoading(false);
     }
@@ -79,6 +94,7 @@ export default function ContactFormInteractive() {
     setPhone('');
     setSubject('');
     setMessage('');
+    setTrap('');
     setSubmitted(false);
     setError(null);
     setTicketId(null);
@@ -163,6 +179,10 @@ export default function ContactFormInteractive() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Bot trap: real visitors never see or fill this field */}
+        <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
+          <label>Leave this empty<input type="text" name="hp_trap" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} /></label>
+        </div>
         {/* Name and Email */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>

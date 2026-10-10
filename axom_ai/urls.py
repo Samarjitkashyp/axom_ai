@@ -6,6 +6,7 @@ from django.views.static import serve
 from . import views
 import knowledge.views as knowledge_views
 import contentcms.api_views as contentcms_api
+from . import contact_api
 from . import ai_notes_views
 from . import chat_enhancements
 
@@ -54,6 +55,7 @@ urlpatterns = [
     path('api/cms/about/', contentcms_api.cms_about_api, name='api_cms_about'),
     path('api/cms/use-cases/', contentcms_api.cms_usecases_api, name='api_cms_usecases'),
     path('api/cms/contact/', contentcms_api.cms_contact_api, name='api_cms_contact'),
+    path('api/contact/submit/', contact_api.contact_submit_api, name='contact_submit_api'),
     path('api/cms/privacy/', contentcms_api.cms_privacy_api, name='api_cms_privacy'),
     path('api/cms/terms/', contentcms_api.cms_terms_api, name='api_cms_terms'),
     path('api/cms/tools/word-to-pdf/', contentcms_api.cms_word_to_pdf_api, name='api_cms_word_to_pdf'),
