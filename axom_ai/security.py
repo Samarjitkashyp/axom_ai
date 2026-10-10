@@ -1,3 +1,4 @@
+import ipaddress
 import time
 import uuid
 import logging
@@ -19,14 +20,20 @@ _WEBSEARCH_BURST_MEM = {}   # {ip: [timestamp, ...]}
 
 
 def get_client_ip(request) -> str:
-    """Extract real client IP behind reverse proxy / Nginx."""
-    fwd = request.META.get('HTTP_X_FORWARDED_FOR')
-    if fwd:
-        # e.g. "203.0.113.195, 70.41.3.18, 150.172.238.178" -> client is first
-        ip = fwd.split(',')[0].strip()
-        if ip:
-            return ip
-    return request.META.get('REMOTE_ADDR', '127.0.0.1')
+    """The visitor's address as nginx saw it.
+
+    nginx sets X-Real-IP from the connection (and takes Cloudflare's CF-Connecting-IP only from Cloudflare's own addresses), so a
+    visitor cannot choose it. X-Forwarded-For and CF-Connecting-IP are NOT used here: anyone can send them, and a limit or a login
+    lockout that trusts them can be dodged (or pointed at somebody else) by changing the header.
+    Without X-Real-IP (local development, tests) the connection address is used.
+    """
+    real = (request.META.get('HTTP_X_REAL_IP') or '').strip()
+    if real:
+        try:
+            return str(ipaddress.ip_address(real))
+        except ValueError:
+            pass
+    return (request.META.get('REMOTE_ADDR') or '127.0.0.1').strip()
 
 
 def get_device_id(request, fallback_body=None) -> str:

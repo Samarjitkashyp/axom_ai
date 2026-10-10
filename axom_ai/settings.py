@@ -24,10 +24,23 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-fallback-key')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
+
+
+def _secret_key(raw, debug):
+    """SECRET_KEY from .env. Only with DEBUG on (local development) a throw-away key is used when it is missing; with DEBUG off the app
+    refuses to start instead of quietly running with a key that anybody can read in the repository."""
+    key = (raw or '').strip()
+    if key:
+        return key
+    if debug:
+        return 'django-insecure-development-only-key'
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured('SECRET_KEY is not set in .env (required when DEBUG is off).')
+
+
+SECRET_KEY = _secret_key(os.getenv('SECRET_KEY'), DEBUG)
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()]
 

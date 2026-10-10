@@ -96,23 +96,9 @@ content_admin_required = user_passes_test(_is_staff_or_admin, login_url='/axomai
 
 
 def _get_client_ip(request):
-    """Safely extract the client's public IP address behind reverse proxies / Cloudflare / Nginx."""
-    cf_ip = request.META.get('HTTP_CF_CONNECTING_IP')
-    if cf_ip:
-        return cf_ip.strip()[:64]
-    
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        # First IP in comma-separated list is the client
-        client_ip = x_forwarded_for.split(',')[0].strip()
-        if client_ip:
-            return client_ip[:64]
-            
-    x_real_ip = request.META.get('HTTP_X_REAL_IP')
-    if x_real_ip:
-        return x_real_ip.strip()[:64]
-        
-    return (request.META.get('REMOTE_ADDR') or '127.0.0.1').strip()[:64]
+    """The visitor's address as nginx saw it (X-Real-IP); one shared, trusted helper: axom_ai.security.get_client_ip."""
+    from axom_ai.security import get_client_ip
+    return (get_client_ip(request) or '127.0.0.1')[:64]
 
 
 def _sanitize_input(val, max_len=150):
