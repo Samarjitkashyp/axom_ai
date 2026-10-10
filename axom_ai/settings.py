@@ -223,3 +223,7 @@ EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Axom AI <support@aiaxom.co.in>').strip()
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 CONTACT_TO_EMAIL = os.getenv('CONTACT_TO_EMAIL', 'support@aiaxom.co.in').strip()
+
+# --- Cloudflare Turnstile (the human check on the contact form; both empty = off) ---
+TURNSTILE_SITE_KEY = os.getenv('TURNSTILE_SITE_KEY', '').strip()
+TURNSTILE_SECRET_KEY = os.getenv('TURNSTILE_SECRET_KEY', '').strip()

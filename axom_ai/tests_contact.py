@@ -2,6 +2,7 @@ import json
 from smtplib import SMTPException
 from unittest import mock
 
+import requests
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import TestCase, override_settings
@@ -148,3 +149,70 @@ class ContactAdminTests(TestCase):
             r = self.act('resend')
         self.assertEqual(r.status_code, 502)
         self.assertIn('connection refused', r.json()['error'])
+
+
+@override_settings(**MAIL, TURNSTILE_SECRET_KEY='secret-key', TURNSTILE_SITE_KEY='site-key')
+class TurnstileTests(TestCase):
+    def post(self, data, **extra):
+        return self.client.post('/api/contact/submit/', data=json.dumps(data), content_type='application/json', **extra)
+
+    def fake_cloudflare(self, success):
+        resp = mock.Mock()
+        resp.json.return_value = {'success': success}
+        return mock.patch('axom_ai.contact_api.requests.post', return_value=resp)
+
+    def test_site_key_is_published_only_while_the_check_is_on(self):
+        self.assertEqual(self.client.get('/api/contact/config/').json(), {'turnstile_site_key': 'site-key'})
+        with override_settings(TURNSTILE_SECRET_KEY=''):
+            self.assertEqual(self.client.get('/api/contact/config/').json(), {'turnstile_site_key': ''})
+        self.assertEqual(self.client.post('/api/contact/config/').status_code, 405)
+
+    def test_a_missing_token_is_rejected_without_calling_cloudflare(self):
+        with self.fake_cloudflare(True) as cf:
+            r = self.post(payload())
+        self.assertEqual(r.status_code, 400)
+        self.assertFalse(cf.called)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    def test_a_token_cloudflare_refuses_stores_nothing(self):
+        with self.fake_cloudflare(False):
+            r = self.post(payload(cf_token='bad-token'))
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual((ContactMessage.objects.count(), len(mail.outbox)), (0, 0))
+
+    def test_a_good_token_goes_through_and_cloudflare_gets_the_secret_token_and_visitor_ip(self):
+        with self.fake_cloudflare(True) as cf:
+            r = self.post(payload(cf_token='good-token'), HTTP_X_REAL_IP='198.51.100.7')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(ContactMessage.objects.count(), 1)
+        sent = cf.call_args.kwargs['data']
+        self.assertEqual((sent['secret'], sent['response'], sent['remoteip']), ('secret-key', 'good-token', '198.51.100.7'))
+
+    def test_when_cloudflare_cannot_be_reached_the_form_fails_closed(self):
+        with mock.patch('axom_ai.contact_api.requests.post', side_effect=requests.ConnectionError('down')):
+            r = self.post(payload(cf_token='any'))
+        self.assertEqual(r.status_code, 503)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    @override_settings(TURNSTILE_SECRET_KEY='')
+    def test_without_a_secret_key_no_token_is_needed(self):
+        with self.fake_cloudflare(False) as cf:
+            r = self.post(payload())
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(cf.called)
+
+
+@override_settings(**MAIL)
+class VisitorIpTests(TestCase):
+    def post(self, data, **extra):
+        return self.client.post('/api/contact/submit/', data=json.dumps(data), content_type='application/json', **extra)
+
+    def test_limits_follow_the_address_nginx_sets_not_headers_a_visitor_can_forge(self):
+        for i in range(5):    # the visitor changes X-Forwarded-For and CF-Connecting-IP every time, X-Real-IP stays the same
+            r = self.post(payload(email='v%d@example.com' % i, message='Question number %d about the plans' % i),
+                          HTTP_X_REAL_IP='203.0.113.50', HTTP_X_FORWARDED_FOR='10.0.0.%d' % i, HTTP_CF_CONNECTING_IP='192.0.2.%d' % i)
+            self.assertEqual(r.status_code, 200)
+        r = self.post(payload(email='v9@example.com', message='Sixth question about the plans'), HTTP_X_REAL_IP='203.0.113.50', HTTP_X_FORWARDED_FOR='10.9.9.9')
+        self.assertEqual(r.status_code, 429)
+        other = self.post(payload(email='v8@example.com', message='A question from a different address'), HTTP_X_REAL_IP='203.0.113.51', HTTP_X_FORWARDED_FOR='10.0.0.1')
+        self.assertEqual(other.status_code, 200)

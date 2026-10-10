@@ -8,6 +8,8 @@ import hashlib
 import json
 import logging
 import re
+
+import requests
 from datetime import timedelta
 from urllib.parse import urlparse
 
@@ -27,6 +29,7 @@ PER_IP_PER_HOUR = 5
 PER_EMAIL_PER_HOUR = 3
 PER_DAY_TOTAL = 300
 DUPLICATE_WINDOW = timedelta(minutes=10)
+TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
 EMAIL_RE = re.compile(r'^[^@\s<>"\'(),;:\\]+@[^@\s<>"\'(),;:\\]+\.[A-Za-z]{2,}$')
 PHONE_RE = re.compile(r'^[0-9+()\-. ]{5,30}$')
 
@@ -45,9 +48,29 @@ def _origin_ok(request):
 
 
 def _visitor_ip(request):
-    """Cloudflare's CF-Connecting-IP when present (the visitor cannot set it through Cloudflare), else the usual proxy header."""
-    cf = (request.META.get('HTTP_CF_CONNECTING_IP') or '').strip()
-    return cf or get_client_ip(request) or None
+    """The visitor's address for the limits. nginx sets X-Real-IP from the connection (after resolving Cloudflare), so a visitor cannot
+    choose it; X-Forwarded-For and CF-Connecting-IP can be forged by anyone who reaches the server directly, so they come last."""
+    for header in ('HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP'):
+        value = (request.META.get(header) or '').strip()
+        if value:
+            return value
+    return get_client_ip(request) or None
+
+
+def verify_turnstile(token, ip):
+    """True when Cloudflare says the Turnstile token is valid. Raises requests.RequestException if Cloudflare cannot be reached."""
+    r = requests.post(TURNSTILE_VERIFY_URL, data={'secret': settings.TURNSTILE_SECRET_KEY, 'response': token, 'remoteip': ip or ''}, timeout=5)
+    return bool(r.json().get('success'))
+
+
+@csrf_exempt
+def contact_config_api(request):
+    """The public settings the contact form needs: the Turnstile site key (empty = no human check)."""
+    if request.method != 'GET':
+        return _fail('Only GET is allowed.', 405)
+    resp = JsonResponse({'turnstile_site_key': settings.TURNSTILE_SITE_KEY if settings.TURNSTILE_SECRET_KEY else ''})
+    resp['Cache-Control'] = 'no-store'
+    return resp
 
 
 def ticket_code(msg):
@@ -133,6 +156,18 @@ def contact_submit_api(request):
         return _fail('You have sent several messages already. Please try again in an hour or write to support@aiaxom.co.in.', 429)
     if ContactMessage.objects.filter(created_at__gte=now - timedelta(days=1)).count() >= PER_DAY_TOTAL:
         return _fail('Our contact desk is very busy right now. Please write to support@aiaxom.co.in.', 429)
+
+    if settings.TURNSTILE_SECRET_KEY:
+        token = str(data.get('cf_token') or '').strip()
+        if not token or len(token) > 2048:
+            return _fail('Please complete the verification and try again.')
+        try:
+            human = verify_turnstile(token, ip)
+        except (requests.RequestException, ValueError):
+            log.exception('Turnstile verification could not be reached')
+            return _fail('The verification service is not reachable right now. Please try again in a minute or write to support@aiaxom.co.in.', 503)
+        if not human:
+            return _fail('The verification failed. Please try again.')
 
     # The same message sent twice in a row (double click, retry): answer with the first ticket, store nothing new.
     digest = hashlib.sha256((email.lower() + '\n' + message).encode('utf-8')).hexdigest()
