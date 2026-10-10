@@ -160,18 +160,16 @@ export default function SidebarRight({
       </div>
 
       {/* Download Axom AI Mobile App */}
-      <div className="widget-card">
-        <a
-          href="/download/app/"
-          className="btn-download-android"
-          download="AxomAI.apk"
-          title="Download Axom AI Mobile App"
-        >
-          <Smartphone size={16} />
-          <span>Download Axom AI Mobile App</span>
-          <Download size={15} />
-        </a>
-      </div>
+      <a
+        href="/download/app/"
+        className="btn-download-mobile-app"
+        download="AxomAI.apk"
+        title="Download Axom AI Mobile App"
+      >
+        <Smartphone size={17} className="app-icon" />
+        <span>Download Axom AI Mobile App</span>
+        <Download size={15} className="dl-icon" />
+      </a>
 
 
       {/* Quick Tips Panel */}

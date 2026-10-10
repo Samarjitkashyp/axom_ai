@@ -1568,175 +1568,48 @@ body {
 }
 
 /* ==========================================================================
-   Android App Download Widget
+   Download Axom AI Mobile App Button
    ========================================================================== */
-.android-download-widget {
-    background: linear-gradient(145deg, rgba(16, 185, 129, 0.09) 0%, rgba(147, 51, 234, 0.09) 50%, rgba(59, 130, 246, 0.07) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.35);
-    border-radius: 16px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.android-download-widget:hover {
-    border-color: rgba(16, 185, 129, 0.6);
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.18);
-    transform: translateY(-2px);
-}
-
-.android-widget-badge {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
-    border-radius: 9999px;
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.4);
-    color: #10b981;
-    font-size: 0.66rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-.badge-live-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 8px #10b981;
-    animation: pulse-dot 2s infinite ease-in-out;
-}
-
-@keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.35; transform: scale(0.8); }
-}
-
-.android-widget-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    margin-top: 4px;
-}
-
-.android-widget-icon-box {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(59, 130, 246, 0.18));
-    border: 1px solid rgba(16, 185, 129, 0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #34d399;
-    flex-shrink: 0;
-}
-
-.android-phone-icon {
-    color: #34d399;
-    filter: drop-shadow(0 2px 6px rgba(52, 211, 153, 0.4));
-}
-
-.android-widget-titles {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding-right: 70px;
-}
-
-.android-widget-title {
-    font-size: 0.90rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
-    line-height: 1.25;
-}
-
-.android-widget-desc {
-    font-size: 0.72rem;
-    color: var(--text-secondary);
-    line-height: 1.35;
-    margin: 0;
-}
-
-.android-features-pill-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 1px;
-}
-
-.feat-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 7px;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    font-size: 0.68rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-.btn-download-android {
+.btn-download-mobile-app {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     width: 100%;
-    height: 38px;
-    background: linear-gradient(135deg, #059669 0%, #10b981 50%, #065f46 100%);
-    border: 1px solid rgba(52, 211, 153, 0.5);
-    border-radius: 10px;
+    min-height: 44px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    border-radius: 12px;
     color: #ffffff !important;
     text-decoration: none !important;
-    font-size: 0.84rem;
-    font-weight: 700;
+    font-family: var(--font-sans);
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.1px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-    transition: all 0.2s ease;
-    margin-top: 3px;
+    text-align: center;
+    white-space: nowrap;
 }
 
-.btn-download-android:hover {
-    background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #059669 100%);
-    box-shadow: 0 6px 20px rgba(52, 211, 153, 0.55);
+.btn-download-mobile-app:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
     transform: translateY(-1px);
     color: #ffffff !important;
 }
 
-.dl-icon {
-    animation: bounce-subtle 2s infinite ease-in-out;
+.btn-download-mobile-app .app-icon {
+    flex-shrink: 0;
 }
 
-@keyframes bounce-subtle {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-2px); }
-}
-
-.dl-btn-text {
-    letter-spacing: 0.2px;
-}
-
-.dl-btn-tag {
-    font-size: 0.65rem;
-    padding: 2px 5px;
-    background: rgba(0, 0, 0, 0.35);
-    border-radius: 4px;
-    font-weight: 800;
-    opacity: 0.9;
+.btn-download-mobile-app .dl-icon {
+    flex-shrink: 0;
+    opacity: 0.85;
 }
 
 /* Models List */
