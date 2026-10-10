@@ -205,12 +205,6 @@ export default function ContactFormInteractive() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={mailtoUrl}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold text-xs transition shadow-lg shadow-fuchsia-500/25"
-          >
-            <Mail className="w-4 h-4" /> Open In Email Client As Backup
-          </a>
           <button
             type="button"
             onClick={handleReset}
