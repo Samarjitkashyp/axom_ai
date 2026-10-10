@@ -5333,7 +5333,7 @@ def _vd_check_rate(ip, limit=10, window=60):
 @csrf_exempt
 @require_POST
 def video_download_info_api(request):
-    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    ip = get_client_ip(request)
     if not _vd_check_rate(ip, 10, 60):
         return JsonResponse({'error': 'Too many requests. Please wait a minute.'}, status=429)
     try:
@@ -5409,7 +5409,7 @@ def video_download_info_api(request):
 @_tool_cors_view
 @csrf_exempt
 def video_download_stream_api(request):
-    ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    ip = get_client_ip(request)
     if not _vd_check_rate(ip, 10, 60):
         return JsonResponse({'error': 'Too many requests. Please wait a minute.'}, status=429)
     raw_url = ''

@@ -48,12 +48,7 @@ def _origin_ok(request):
 
 
 def _visitor_ip(request):
-    """The visitor's address for the limits. nginx sets X-Real-IP from the connection (after resolving Cloudflare), so a visitor cannot
-    choose it; X-Forwarded-For and CF-Connecting-IP can be forged by anyone who reaches the server directly, so they come last."""
-    for header in ('HTTP_X_REAL_IP', 'HTTP_CF_CONNECTING_IP'):
-        value = (request.META.get(header) or '').strip()
-        if value:
-            return value
+    """The visitor's address for the limits: the trusted X-Real-IP from nginx (see axom_ai.security.get_client_ip)."""
     return get_client_ip(request) or None
 
 
