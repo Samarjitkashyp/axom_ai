@@ -39,6 +39,9 @@ urlpatterns = [
     path('api/chat/transliterate/', chat_enhancements.api_chat_transliterate, name='chat_transliterate_api'),
     path('api/chat/ocr/', chat_enhancements.api_chat_ocr, name='chat_ocr_api'),
     path('api/chat/export-docx/', chat_enhancements.api_chat_export_docx, name='chat_export_docx_api'),
+    path('api/chat/tts/', chat_enhancements.api_assamese_tts, name='chat_tts_api'),
+    path('api/tts/synthesize/', chat_enhancements.api_assamese_tts, name='tts_synthesize_api'),
+    path('api/chat/phonetics/', chat_enhancements.api_assamese_phonetics, name='chat_phonetics_api'),
     path('api/history/', views.chat_history_view, name='chat_history'),
     path('api/history/action/', views.chat_action_view, name='chat_action'),
     path('api/feedback/', views.feedback_view, name='feedback'),
@@ -115,6 +118,12 @@ urlpatterns = [
     # Video Downloader
     path('api/video-download/info/', views.video_download_info_api, name='video_download_info_api'),
     path('api/video-download/stream/', views.video_download_stream_api, name='video_download_stream_api'),
+
+    # Android App Download
+    path('download/app/', views.app_download_view, name='app_download'),
+    path('download/app', views.app_download_view, name='app_download_no_slash'),
+    path('app/download/', views.app_download_view, name='app_download_alt'),
+    path('app/download', views.app_download_view, name='app_download_alt_no_slash'),
 
     # Razorpay payments
     path('api/', include('payments.urls')),

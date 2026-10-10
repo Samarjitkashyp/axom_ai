@@ -26,6 +26,7 @@ from .views import (
     _is_rate_limited,
     _client_ip,
     _purify_assamese_with_grammar,
+    _get_language_rules_block,
     http_session,
 )
 
@@ -595,7 +596,7 @@ def ai_notes_generate_api(request):
         f"- Use bullet points for readability.\n"
         f"- Never make up facts. Strictly ground notes in the provided document content.\n"
         f"- Do NOT wrap output in ```markdown or ``` tags. Output direct raw markdown text."
-    )
+    ) + _get_language_rules_block()
 
     user_prompt = f"DOCUMENT TITLE: {filename}\nTOTAL PAGES: {page_count}\n\nDOCUMENT CONTENT:\n{text}"
 
@@ -699,7 +700,7 @@ def ai_notes_refine_api(request):
         f"ACTION INSTRUCTION: {directive}\n"
         f"Maintain proper Markdown formatting with headers (# and ##), bullet points, and clean structure.\n"
         f"Do NOT wrap output in ```markdown or ``` tags. Output raw markdown text."
-    )
+    ) + _get_language_rules_block()
 
     refined = _call_ai_engine(system_prompt, f"CURRENT NOTES:\n\n{notes_markdown[:50_000]}", timeout=60)
     if not refined:
@@ -753,7 +754,7 @@ def ai_notes_ask_api(request):
         "3. If relevant, mention which section of the notes contains this concept.\n"
         "4. Use bullet points and bold formatting for clarity.\n"
         "5. Keep the response focused and pedagogical."
-    )
+    ) + _get_language_rules_block()
 
     user_prompt = f"STUDY NOTES CONTEXT:\n{notes_context[:35_000]}\n\nSTUDENT QUESTION:\n{question}"
 

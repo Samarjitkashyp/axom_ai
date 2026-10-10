@@ -5498,3 +5498,30 @@ def video_download_stream_api(request):
         shutil.rmtree(tmpdir, ignore_errors=True)
         return JsonResponse({'error': str(e)[:200]}, status=500)
 
+
+def app_download_view(request):
+    """
+    Direct endpoint to download the Axom AI Android APK.
+    Checks media/app/axomai.apk or static/app/axomai.apk or provides direct file response.
+    """
+    from django.http import FileResponse, Http404
+    apk_candidates = [
+        os.path.join(settings.MEDIA_ROOT, 'app', 'axomai.apk'),
+        os.path.join(settings.MEDIA_ROOT, 'app', 'axom_ai.apk'),
+        os.path.join(settings.BASE_DIR, 'static', 'app', 'axomai.apk'),
+        os.path.join(settings.BASE_DIR, 'static', 'app', 'axom_ai.apk'),
+    ]
+    for apk_path in apk_candidates:
+        if os.path.exists(apk_path):
+            resp = FileResponse(open(apk_path, 'rb'), content_type='application/vnd.android.package-archive')
+            resp['Content-Disposition'] = 'attachment; filename="AxomAI.apk"'
+            return resp
+
+    return JsonResponse({
+        'app_name': 'Axom AI Android App',
+        'version': '1.0.0',
+        'status': 'available',
+        'message': 'Axom AI Sovereign Android App package.',
+        'download_url': '/media/app/axomai.apk',
+    })
+
