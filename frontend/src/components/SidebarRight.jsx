@@ -159,40 +159,20 @@ export default function SidebarRight({
         </div>
       </div>
 
-      {/* Android App Download Card (Directly Below Usage Card) */}
-      <div className="widget-card android-download-widget">
-        <div className="android-widget-badge">
-          <span className="badge-live-dot"></span>
-          <span>Android App</span>
-        </div>
-
-        <div className="android-widget-header">
-          <div className="android-widget-icon-box">
-            <Smartphone size={22} className="android-phone-icon" />
-          </div>
-          <div className="android-widget-titles">
-            <h4 className="android-widget-title">Axom AI on Android</h4>
-            <p className="android-widget-desc">Native speed, voice input & 15+ built-in PDF/AI tools on your mobile.</p>
-          </div>
-        </div>
-
-        <div className="android-features-pill-row">
-          <span className="feat-pill"><Zap size={11} /> Fast AI</span>
-          <span className="feat-pill"><Mic size={11} /> Voice</span>
-          <span className="feat-pill"><CheckCircle2 size={11} /> 15+ Tools</span>
-        </div>
-
+      {/* Download Axom AI Mobile App */}
+      <div className="widget-card">
         <a
           href="/download/app/"
           className="btn-download-android"
           download="AxomAI.apk"
-          title="Download Axom AI Android APK"
+          title="Download Axom AI Mobile App"
         >
-          <Download size={16} className="dl-icon" />
-          <span className="dl-btn-text">Download APK</span>
-          <span className="dl-btn-tag">v1.0</span>
+          <Smartphone size={16} />
+          <span>Download Axom AI Mobile App</span>
+          <Download size={15} />
         </a>
       </div>
+
 
       {/* Quick Tips Panel */}
       <div className="widget-card">
