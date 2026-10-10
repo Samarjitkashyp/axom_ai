@@ -1,0 +1,104 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Contact Messages — Axom AI Super Admin{% endblock %}
+{% block heading %}Contact Messages{% endblock %}
+
+{% block content %}
+{% if unsent %}
+<div class="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
+  <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+  <span><strong>{{ unsent }}</strong> message{{ unsent|pluralize }} could not be e-mailed to the support inbox. They are saved here — open them and use <em>Resend e-mail</em>, or check the e-mail settings in the server <code>.env</code>.</span>
+</div>
+{% endif %}
+
+<!-- Status tabs -->
+<div class="flex flex-wrap border-b border-slate-800 gap-x-6 mb-5 text-sm font-semibold">
+  {% for key, label, n in tabs %}
+  <a href="?status={{ key }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="pb-3 border-b-2 transition {% if status == key %}border-indigo-500 text-white{% else %}border-transparent text-slate-400 hover:text-slate-200{% endif %}">
+    {{ label }} <span class="text-xs text-slate-500">({{ n }})</span>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="glass-card rounded-2xl p-4 border border-slate-800 mb-5">
+  <form method="get" class="flex items-center gap-3">
+    <input type="hidden" name="status" value="{{ status }}">
+    <div class="relative flex-1">
+      <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500"><i class="fa-solid fa-magnifying-glass text-xs"></i></div>
+      <input type="text" name="q" value="{{ q }}" placeholder="Search name, e-mail, ticket, subject or message..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+    </div>
+    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow transition">Search</button>
+  </form>
+</div>
+
+<div class="space-y-4">
+  {% for m in page %}
+  <div class="glass-card rounded-2xl p-5 border {% if m.status == 'new' %}border-indigo-500/40{% else %}border-slate-800{% endif %}">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="font-mono text-indigo-300">{{ m.ticket }}</span>
+          <span class="px-2 py-0.5 rounded-full font-semibold
+            {% if m.status == 'new' %}bg-indigo-500/20 text-indigo-300{% elif m.status == 'replied' %}bg-emerald-500/20 text-emerald-300{% elif m.status == 'spam' %}bg-rose-500/20 text-rose-300{% else %}bg-slate-700 text-slate-300{% endif %}">{{ m.get_status_display }}</span>
+          <span class="text-slate-500">{{ m.created_at|date:"d M Y, H:i" }}</span>
+          <span class="text-slate-500">• {{ m.category_label }}</span>
+          {% if m.email_sent %}
+            <span class="text-emerald-400" title="Notification e-mail was sent to support"><i class="fa-solid fa-envelope-circle-check"></i> e-mailed</span>
+          {% else %}
+            <span class="text-rose-400" title="{{ m.email_error }}"><i class="fa-solid fa-envelope-circle-xmark"></i> not e-mailed</span>
+          {% endif %}
+        </div>
+        <h3 class="text-white font-bold mt-1.5">{{ m.subject|default:"(no subject)" }}</h3>
+        <p class="text-xs text-slate-400 mt-0.5">
+          {{ m.name }} &lt;<a class="text-indigo-300 hover:underline" href="mailto:{{ m.email }}">{{ m.email }}</a>&gt;{% if m.phone %} • {{ m.phone }}{% endif %}
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs">
+        <a href="mailto:{{ m.email }}?subject={{ m.reply_subject|urlencode }}" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium"><i class="fa-solid fa-reply mr-1"></i> Reply</a>
+        {% if m.status != 'read' %}<button onclick="contactAct({{ m.id }}, 'read')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200">Mark read</button>{% endif %}
+        {% if m.status != 'replied' %}<button onclick="contactAct({{ m.id }}, 'replied')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300">Mark replied</button>{% endif %}
+        {% if m.status != 'spam' %}<button onclick="contactAct({{ m.id }}, 'spam')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-rose-300">Spam</button>{% else %}<button onclick="contactAct({{ m.id }}, 'new')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200">Not spam</button>{% endif %}
+        {% if not m.email_sent %}<button onclick="contactAct({{ m.id }}, 'resend')" class="px-3 py-1.5 rounded-lg bg-amber-600/80 hover:bg-amber-500 text-white">Resend e-mail</button>{% endif %}
+      </div>
+    </div>
+    <div class="mt-3 text-sm text-slate-300 whitespace-pre-wrap break-words bg-slate-900/60 border border-slate-800 rounded-xl p-3.5">{{ m.message }}</div>
+    {% if not m.email_sent and m.email_error %}<p class="mt-2 text-[11px] text-rose-400/80 font-mono break-all">{{ m.email_error }}</p>{% endif %}
+  </div>
+  {% empty %}
+  <div class="glass-card rounded-2xl p-10 border border-slate-800 text-center text-slate-500 text-sm">
+    <i class="fa-regular fa-envelope-open text-2xl mb-3 block"></i>
+    No messages here yet.
+  </div>
+  {% endfor %}
+</div>
+
+{% if page.paginator.num_pages > 1 %}
+<div class="flex items-center justify-center gap-3 mt-6 text-xs">
+  {% if page.has_previous %}<a class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200" href="?status={{ status }}&q={{ q|urlencode }}&page={{ page.previous_page_number }}">← Newer</a>{% endif %}
+  <span class="text-slate-400">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200" href="?status={{ status }}&q={{ q|urlencode }}&page={{ page.next_page_number }}">Older →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  async function contactAct(id, action) {
+    try {
+      const res = await fetch('/axomai-admin/contact-messages/action/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify({ id: id, action: action })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast(data.error || 'Action failed.', 'error');
+      }
+    } catch (e) {
+      showToast('Action failed.', 'error');
+    }
+  }
+</script>
+{% endblock %}

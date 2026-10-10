@@ -22,6 +22,7 @@ from django.views.decorators.http import require_POST
 from payments.models import Payment, UserPlan, PLAN_CATALOG
 from knowledge.models import KnowledgeDocument, KnowledgeChunk, QAPair, ChatSession, ChatMessage, UnansweredQuery, Feedback
 from userpanel.models import SupportTicket, TicketReply, UsageRecord, InAppNotification
+from .models import ContactMessage
 from .models import (
     SystemSetting,
     CouponCode,
@@ -1485,3 +1486,53 @@ def delete_tool_api(request, tool_id):
     _log_audit(request, 'tool_delete', f'Tool #{tool.id}: {tool.name} ({tool.slug})')
     tool.delete()
     return JsonResponse({'success': True, 'message': f'Tool "{tool.name}" deleted successfully.'})
+
+
+@superuser_required
+def contact_messages_page(request):
+    status = request.GET.get('status', 'all')
+    q = request.GET.get('q', '').strip()
+    qs = ContactMessage.objects.all()
+    if status in ('new', 'read', 'replied', 'spam'):
+        qs = qs.filter(status=status)
+    else:
+        status = 'all'
+    if q:
+        qs = qs.filter(Q(name__icontains=q) | Q(email__icontains=q) | Q(subject__icontains=q) | Q(message__icontains=q) | Q(ticket__icontains=q))
+    counts = {s: ContactMessage.objects.filter(status=s).count() for s, _ in ContactMessage.STATUS_CHOICES}
+    counts['all'] = sum(counts.values())
+    tabs = [('all', 'All', counts['all']), ('new', 'New', counts['new']), ('read', 'Read', counts['read']),
+            ('replied', 'Replied', counts['replied']), ('spam', 'Spam', counts['spam'])]
+    context = {
+        'active': 'contact_messages',
+        'page': Paginator(qs, 20).get_page(request.GET.get('page', 1)),
+        'status': status,
+        'q': q,
+        'tabs': tabs,
+        'unsent': ContactMessage.objects.filter(email_sent=False).exclude(status='spam').count(),
+    }
+    return render(request, 'superadmin/contact_messages.html', context)
+
+
+@superuser_required
+@require_POST
+def contact_message_action_api(request):
+    try:
+        data = json.loads(request.body)
+        msg = get_object_or_404(ContactMessage, id=int(data.get('id')))
+        action = data.get('action')
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+    if action in ('read', 'replied', 'spam', 'new'):
+        msg.status = action
+        msg.save(update_fields=['status'])
+        _log_audit(request, "CONTACT_MESSAGE_STATUS", msg.ticket, action)
+        return JsonResponse({'success': True, 'message': f"{msg.ticket} marked {action}."})
+    if action == 'resend':
+        from axom_ai.contact_api import send_contact_notification
+        ok = send_contact_notification(msg)
+        _log_audit(request, "CONTACT_MESSAGE_RESEND", msg.ticket, 'sent' if ok else msg.email_error)
+        if ok:
+            return JsonResponse({'success': True, 'message': f"E-mail for {msg.ticket} sent."})
+        return JsonResponse({'success': False, 'error': msg.email_error or 'The e-mail could not be sent.'}, status=502)
+    return JsonResponse({'success': False, 'error': 'Unknown action.'}, status=400)

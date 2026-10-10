@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Send,
   CheckCircle2,
@@ -14,6 +14,12 @@ import {
   ArrowRight,
   RotateCcw
 } from 'lucide-react';
+
+declare global {
+  interface Window {
+    turnstile?: any;
+  }
+}
 
 const CATEGORIES = [
   { id: 'general', label: 'General Inquiry / Feedback', email: 'support@aiaxom.co.in' },
@@ -31,11 +37,67 @@ export default function ContactFormInteractive() {
   const [category, setCategory] = useState('general');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [trap, setTrap] = useState('');   // bot trap: hidden from visitors, bots fill it
+  const [siteKey, setSiteKey] = useState('');   // Cloudflare Turnstile site key from the server ('' = no human check)
+  const [cfToken, setCfToken] = useState('');
+  const widgetBox = useRef<HTMLDivElement | null>(null);
+  const widgetId = useRef<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ticketId, setTicketId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/contact/config/')
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled && d && d.turnstile_site_key) setSiteKey(d.turnstile_site_key); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (!siteKey || submitted) return;
+    let cancelled = false;
+    const render = () => {
+      if (cancelled || !window.turnstile || !widgetBox.current || widgetId.current) return;
+      widgetId.current = window.turnstile.render(widgetBox.current, {
+        sitekey: siteKey,
+        callback: (t: string) => setCfToken(t),
+        'expired-callback': () => setCfToken(''),
+        'error-callback': () => setCfToken(''),
+      });
+    };
+    if (window.turnstile) {
+      render();
+    } else {
+      let tag = document.querySelector('script[data-turnstile]') as HTMLScriptElement | null;
+      if (!tag) {
+        tag = document.createElement('script');
+        tag.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        tag.async = true;
+        tag.defer = true;
+        tag.setAttribute('data-turnstile', '1');
+        document.head.appendChild(tag);
+      }
+      tag.addEventListener('load', render);
+    }
+    return () => {
+      cancelled = true;
+      if (widgetId.current && window.turnstile) {
+        try { window.turnstile.remove(widgetId.current); } catch { /* already gone */ }
+      }
+      widgetId.current = null;
+    };
+  }, [siteKey, submitted]);
+
+  const resetCheck = () => {
+    setCfToken('');
+    if (widgetId.current && window.turnstile) {
+      try { window.turnstile.reset(widgetId.current); } catch { /* ignore */ }
+    }
+  };
 
   const selectedCat = CATEGORIES.find((c) => c.id === category) || CATEGORIES[0];
 
@@ -57,17 +119,39 @@ export default function ContactFormInteractive() {
       return;
     }
 
+    if (siteKey && !cfToken) {
+      setError('Please complete the verification below first.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Simulate/Trigger support intake
-      await new Promise((resolve) => setTimeout(resolve, 850));
-
-      const generatedTicket = 'AXM-' + Math.floor(100000 + Math.random() * 900000);
-      setTicketId(generatedTicket);
+      const res = await fetch('/api/contact/submit/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          category,
+          subject: subject.trim(),
+          message: message.trim(),
+          hp_trap: trap,
+          cf_token: cfToken,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Could not send your message. Please try again, or use the direct email link below.');
+        resetCheck();
+        return;
+      }
+      setTicketId(data.ticket);
       setSubmitted(true);
     } catch {
-      setError('Could not submit inquiry automatically. Please use the direct email link below.');
+      setError('Could not reach our server. Please check your connection, or use the direct email link below.');
+      resetCheck();
     } finally {
       setLoading(false);
     }
@@ -79,6 +163,7 @@ export default function ContactFormInteractive() {
     setPhone('');
     setSubject('');
     setMessage('');
+    setTrap('');
     setSubmitted(false);
     setError(null);
     setTicketId(null);
@@ -163,6 +248,10 @@ export default function ContactFormInteractive() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Bot trap: real visitors never see or fill this field */}
+        <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
+          <label>Leave this empty<input type="text" name="hp_trap" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} /></label>
+        </div>
         {/* Name and Email */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -254,11 +343,20 @@ export default function ContactFormInteractive() {
           />
         </div>
 
+        {siteKey && (
+          <div className="flex flex-col items-start gap-1.5">
+            <div ref={widgetBox} />
+            <p className="text-[11px] text-slate-600 dark:text-gray-500">
+              {cfToken ? 'Verified. Protected by Cloudflare Turnstile.' : 'Verifying that you are human… if this does not appear, please use the direct email link below.'}
+            </p>
+          </div>
+        )}
+
         {/* Submit Button & Direct Mail Link */}
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (!!siteKey && !cfToken)}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold text-sm shadow-xl shadow-fuchsia-500/20 hover:shadow-fuchsia-500/35 transition-all duration-200 disabled:opacity-60 cursor-pointer"
           >
             {loading ? (
