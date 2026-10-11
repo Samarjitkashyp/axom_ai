@@ -50,10 +50,15 @@ const LoadingFallback = () => (
 interface ToolEmbedClientProps {
   toolKey: string;
   buttonLabel?: string;
+  defaultOpen?: boolean;
 }
 
-export default function ToolEmbedClient({ toolKey, buttonLabel = 'Use This Tool Now — Free' }: ToolEmbedClientProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function ToolEmbedClient({
+  toolKey,
+  buttonLabel = 'Use This Tool Now — Free',
+  defaultOpen = false,
+}: ToolEmbedClientProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [dailyUsed, setDailyUsed] = useState(0);
   const ToolComponent = TOOL_MAP[toolKey];
   const limitConfig = DAILY_LIMIT_CONFIG[toolKey];

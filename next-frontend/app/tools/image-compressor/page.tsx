@@ -13,7 +13,7 @@ export function generateMetadata(): Metadata {
 export default function ImageCompressorPage() {
   return (
     <ToolPageTemplate data={toolData}>
-      <ToolEmbedClient toolKey="image-compressor" buttonLabel="Compress Your Images — Free" />
+      <ToolEmbedClient toolKey="image-compressor" buttonLabel="Compress Your Images — Free" defaultOpen={true} />
     </ToolPageTemplate>
   );
 }
