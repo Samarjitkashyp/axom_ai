@@ -3632,8 +3632,11 @@ def _get_user_word_key(request):
     user = getattr(request, 'user', None)
     if user and getattr(user, 'is_authenticated', False):
         return f"axom_word_usage_user_{user.id}_{today}"
-    from axom_ai.security import get_device_id
-    device_id = get_device_id(request)
+    device_id = (
+        request.headers.get('X-Device-Id', '').strip()
+        or request.COOKIES.get('axom_device_uid', '').strip()
+        or request.COOKIES.get('axom_device_id', '').strip()
+    )
     if device_id:
         return f"axom_word_usage_dev_{device_id}_{today}"
     ip = _client_ip(request)
