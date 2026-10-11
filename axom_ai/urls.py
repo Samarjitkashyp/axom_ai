@@ -35,6 +35,7 @@ urlpatterns = [
     path('upgrade', views.home_view, name='upgrade_no_slash'),
     path('subscription/', views.home_view, name='subscription'),
     path('subscription', views.home_view, name='subscription_no_slash'),
+    path('api/usage/', views.user_usage_api, name='user_usage_api'),
     path('api/chat/', views.chat_api_view, name='chat_api'),
     path('api/chat/transliterate/', chat_enhancements.api_chat_transliterate, name='chat_transliterate_api'),
     path('api/chat/ocr/', chat_enhancements.api_chat_ocr, name='chat_ocr_api'),

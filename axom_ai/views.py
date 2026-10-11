@@ -3623,6 +3623,111 @@ def _check_user_premium_status(request):
     return False, 'free', None
 
 
+MAX_DAILY_WORDS = 5000
+
+
+def _get_user_word_key(request):
+    """Generates a date-partitioned cache key for tracking daily words per user/device/IP."""
+    today = timezone.localdate().strftime('%Y-%m-%d')
+    user = getattr(request, 'user', None)
+    if user and getattr(user, 'is_authenticated', False):
+        return f"axom_word_usage_user_{user.id}_{today}"
+    from axom_ai.security import get_device_id
+    device_id = get_device_id(request)
+    if device_id:
+        return f"axom_word_usage_dev_{device_id}_{today}"
+    ip = _client_ip(request)
+    return f"axom_word_usage_ip_{ip}_{today}"
+
+
+def _get_user_word_usage(request):
+    """Returns dict with word allowance, used, remaining, is_unlimited for current user."""
+    from django.core.cache import cache
+    is_premium, plan_name, _ = _check_user_premium_status(request)
+    user = getattr(request, 'user', None)
+    is_auth = bool(user and getattr(user, 'is_authenticated', False))
+
+    if is_premium:
+        plan_label = plan_name.replace('_', ' ').title() if plan_name else 'Pro'
+        return {
+            'is_authenticated': is_auth,
+            'is_unlimited': True,
+            'plan_name': plan_name,
+            'plan_label': plan_label,
+            'max_words': MAX_DAILY_WORDS,
+            'used_words': 0,
+            'remaining_words': MAX_DAILY_WORDS,
+            'percentage': 100.0,
+        }
+
+    key = _get_user_word_key(request)
+    used_words = cache.get(key, 0)
+    try:
+        used_words = int(used_words)
+    except (ValueError, TypeError):
+        used_words = 0
+
+    remaining = max(0, MAX_DAILY_WORDS - used_words)
+    pct = round((remaining / MAX_DAILY_WORDS) * 100, 1)
+
+    plan_label = 'Free Tier' if is_auth else 'Guest'
+    return {
+        'is_authenticated': is_auth,
+        'is_unlimited': False,
+        'plan_name': 'free',
+        'plan_label': plan_label,
+        'max_words': MAX_DAILY_WORDS,
+        'used_words': used_words,
+        'remaining_words': remaining,
+        'percentage': pct,
+    }
+
+
+def _deduct_user_words(request, count: int):
+    """Deducts words from daily quota for free/guest users. Pro users are unaffected."""
+    from django.core.cache import cache
+    is_premium, _, _ = _check_user_premium_status(request)
+    if is_premium:
+        return _get_user_word_usage(request)
+
+    key = _get_user_word_key(request)
+    used_words = cache.get(key, 0)
+    try:
+        used_words = int(used_words)
+    except (ValueError, TypeError):
+        used_words = 0
+
+    new_used = min(MAX_DAILY_WORDS, used_words + max(0, int(count)))
+    cache.set(key, new_used, timeout=86400 * 2)
+    return _get_user_word_usage(request)
+
+
+@csrf_exempt
+def user_usage_api(request):
+    """GET /api/usage/ : returns current daily word usage and plan info.
+       POST /api/usage/ : { 'deduct': count } deducts words and returns updated stats.
+    """
+    if request.method == 'OPTIONS':
+        from django.http import HttpResponse
+        return _apply_cross_subdomain_cors(request, HttpResponse(status=204))
+
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            body = {}
+        deduct_count = body.get('deduct', 0)
+        usage = _deduct_user_words(request, deduct_count)
+    else:
+        usage = _get_user_word_usage(request)
+
+    resp = JsonResponse({
+        'success': True,
+        **usage,
+    })
+    return _apply_cross_subdomain_cors(request, resp)
+
+
 @csrf_exempt
 def user_status_api(request):
     """Returns current user plan, daily quota usage, and model routing configuration."""
@@ -3698,6 +3803,7 @@ def user_status_api(request):
         'daily_limit': daily_limit,
         'used_today': used_today,
         'remaining_today': max(0, daily_limit - used_today),
+        'word_usage': _get_user_word_usage(request),
         'models': models_config,
     })
 

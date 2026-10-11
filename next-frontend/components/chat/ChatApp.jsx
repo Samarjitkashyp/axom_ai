@@ -240,7 +240,8 @@ export default function ChatApp() {
   });
 
   // Custom Hooks
-  const { remainingWords, deductWords, maxWords } = useWordLimit(user.isAuthenticated);
+  const isPro = !!(activePlan && activePlan.active) || !!user?.isStaff;
+  const { remainingWords, deductWords, maxWords, isUnlimited } = useWordLimit(user.isAuthenticated, isPro);
   const {
     sessions,
     currentChatId,

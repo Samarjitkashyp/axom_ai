@@ -52,3 +52,6 @@ Thumbs.db
 AxomAI_*.pdf
 .claude/
 yt_cookies.txt
+*.apk
+static/app/
+

@@ -10,10 +10,11 @@ export default function SidebarRight({
   isCollapsed,
   onClose,
 }) {
-  const pct = (remainingWords / maxWords) * 100;
+  const hasActivePlan = !!(activePlan && activePlan.active);
+  const isUnlimited = (user.isAuthenticated && hasActivePlan) || !!user?.isStaff;
+  const pct = isUnlimited ? 100 : (remainingWords / maxWords) * 100;
   const remainingInt = Math.floor(remainingWords);
   const offset = 238.76 * (1 - pct / 100);
-  const hasActivePlan = !!(activePlan && activePlan.active);
   const expiryDate = hasActivePlan && activePlan.expires_at
     ? new Date(activePlan.expires_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : '';
@@ -108,12 +109,12 @@ export default function SidebarRight({
                 r="38"
                 strokeWidth="8"
                 strokeDasharray="238.76"
-                strokeDashoffset={user.isAuthenticated ? 0 : offset}
+                strokeDashoffset={isUnlimited ? 0 : offset}
               ></circle>
             </svg>
             <div className="gauge-text">
               <span className="gauge-percent">
-                {user.isAuthenticated ? '∞' : `${Math.round(pct)}%`}
+                {isUnlimited ? '∞' : `${Math.round(pct)}%`}
               </span>
             </div>
           </div>
@@ -121,18 +122,18 @@ export default function SidebarRight({
           <div className="usage-info">
             <span className="usage-label" id="usageLabel">Words Remaining</span>
             <span className="usage-count" id="usageCount">
-              {user.isAuthenticated ? 'Unlimited' : `${remainingInt.toLocaleString()} / 5,000`}
+              {isUnlimited ? 'Unlimited' : `${remainingInt.toLocaleString()} / 5,000`}
             </span>
             <div className="usage-bar-track">
-              <div className="usage-bar-fill" style={{ width: user.isAuthenticated ? '100%' : `${pct}%` }}></div>
+              <div className="usage-bar-fill" style={{ width: isUnlimited ? '100%' : `${pct}%` }}></div>
             </div>
 
             <div id="usageResetTimer" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px', fontWeight: '500', lineHeight: '1.3' }}>
-              {user.isAuthenticated ? (
+              {isUnlimited ? (
                 <>
                   Unlimited Access<br />
                   <span style={{ opacity: 0.75, fontSize: '0.66rem', display: 'block', marginTop: '3px', fontWeight: 400 }}>
-                    Logged in as Pro user
+                    {activePlan?.plan_label || 'Pro'} subscription active
                   </span>
                 </>
               ) : (
