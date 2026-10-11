@@ -1,23 +1,41 @@
 import React from 'react';
-import { Sparkles, HelpCircle, X, Smartphone, Download, Zap, Mic, CheckCircle2 } from 'lucide-react';
+import { Sparkles, HelpCircle, X, Smartphone, Download, Zap, Crown } from 'lucide-react';
 
 export default function SidebarRight({
-  user,
-  activePlan,
-  remainingWords,
-  maxWords,
+  user = {},
+  activePlan = null,
+  remainingWords = 5000,
+  maxWords = 5000,
   onUpgrade,
-  isCollapsed,
+  isCollapsed = false,
   onClose,
 }) {
-  const hasActivePlan = !!(activePlan && activePlan.active);
-  const isUnlimited = (user.isAuthenticated && hasActivePlan) || !!user?.isStaff;
-  const pct = isUnlimited ? 100 : (remainingWords / maxWords) * 100;
-  const remainingInt = Math.floor(remainingWords);
-  const offset = 238.76 * (1 - pct / 100);
-  const expiryDate = hasActivePlan && activePlan.expires_at
-    ? new Date(activePlan.expires_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  const isStaff = !!user?.isStaff;
+  const isPaidUser = !!(activePlan && activePlan.active);
+  const hasActivePlan = isPaidUser || isStaff;
+
+  const planLabel = isStaff
+    ? 'Admin Pro'
+    : isPaidUser
+    ? (activePlan?.plan_label || 'Pro')
+    : 'Free';
+
+  const expiryDate = activePlan?.expires_at
+    ? new Date(activePlan.expires_at).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+    : isStaff
+    ? 'Lifetime Access'
     : '';
+
+  const isUnlimited = (!!user?.isAuthenticated && hasActivePlan) || isStaff;
+  const safeMaxWords = maxWords || 5000;
+  const safeRemainingWords = typeof remainingWords === 'number' ? remainingWords : 5000;
+  const pct = isUnlimited ? 100 : (safeRemainingWords / safeMaxWords) * 100;
+  const remainingInt = Math.floor(safeRemainingWords);
+  const offset = 238.76 * (1 - pct / 100);
 
   return (
     <aside className={`sidebar-right ${isCollapsed ? 'collapsed' : ''}`} id="sidebarRight">
@@ -33,25 +51,37 @@ export default function SidebarRight({
           <X size={18} />
         </button>
       </div>
-      {/* Active Plan Card (paid, logged in) */}
+
+      {/* Active Plan Card (paid or staff) */}
       {hasActivePlan && (
-        <div className="promo-card" style={{
-          background: 'linear-gradient(135deg, rgba(34,197,94,0.18), rgba(59,130,246,0.10))',
-          border: '1px solid rgba(34,197,94,0.35)',
-        }}>
+        <div
+          className="promo-card"
+          style={{
+            background: 'linear-gradient(135deg, rgba(34,197,94,0.18), rgba(59,130,246,0.10))',
+            border: '1px solid rgba(34,197,94,0.35)',
+          }}
+        >
           <div className="promo-header">
             <div className="promo-gem-icon">
               <Sparkles size={22} color="#22c55e" />
             </div>
             <div className="promo-title-area">
-              <h4 className="promo-title">{activePlan.plan_label || 'Active Plan'}</h4>
+              <h4 className="promo-title">{planLabel}</h4>
               <p className="promo-subtitle">
-                Valid till <strong>{expiryDate}</strong>
-                {activePlan.days_left != null && <> · {activePlan.days_left} day{activePlan.days_left === 1 ? '' : 's'} left</>}
+                {expiryDate ? (
+                  <>Valid: <strong>{expiryDate}</strong></>
+                ) : (
+                  <strong>Unlimited Access</strong>
+                )}
+                {activePlan?.days_left != null && (
+                  <> · {activePlan.days_left} day{activePlan.days_left === 1 ? '' : 's'} left</>
+                )}
               </p>
             </div>
           </div>
-          <button className="btn-upgrade" onClick={onUpgrade} title="Manage plan">Manage Plan</button>
+          <button className="btn-upgrade" onClick={onUpgrade} title="Manage plan">
+            Manage Plan
+          </button>
         </div>
       )}
 
@@ -75,7 +105,7 @@ export default function SidebarRight({
               <h4 className="promo-title">Axom AI Pro</h4>
               <p className="promo-subtitle">
                 {activePlan && activePlan.plan
-                  ? `Your ${activePlan.plan_label} expired. Renew to restore access.`
+                  ? `Your ${activePlan.plan_label || 'Pro'} expired. Renew to restore access.`
                   : 'Unlock advanced models, plugins, and more.'}
               </p>
             </div>
@@ -122,37 +152,52 @@ export default function SidebarRight({
           <div className="usage-info">
             <span className="usage-label" id="usageLabel">Words Remaining</span>
             <span className="usage-count" id="usageCount">
-              {isUnlimited ? 'Unlimited' : `${remainingInt.toLocaleString()} / 5,000`}
+              {isUnlimited
+                ? 'Unlimited'
+                : `${remainingInt.toLocaleString()} / ${safeMaxWords.toLocaleString()}`}
             </span>
             <div className="usage-bar-track">
               <div className="usage-bar-fill" style={{ width: isUnlimited ? '100%' : `${pct}%` }}></div>
             </div>
 
-            <div id="usageResetTimer" style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px', fontWeight: '500', lineHeight: '1.3' }}>
+            <div
+              id="usageResetTimer"
+              style={{
+                fontSize: '0.72rem',
+                color: 'var(--text-muted)',
+                marginTop: '6px',
+                fontWeight: '500',
+                lineHeight: '1.3',
+              }}
+            >
               {isUnlimited ? (
                 <>
                   Unlimited Access<br />
-                  <span style={{ opacity: 0.75, fontSize: '0.66rem', display: 'block', marginTop: '3px', fontWeight: 400 }}>
-                    {activePlan?.plan_label || 'Pro'} subscription active
+                  <span
+                    style={{
+                      opacity: 0.75,
+                      fontSize: '0.66rem',
+                      display: 'block',
+                      marginTop: '3px',
+                      fontWeight: 400,
+                    }}
+                  >
+                    {planLabel} subscription active
                   </span>
                 </>
               ) : (
                 <>
-                  {remainingWords >= maxWords ? (
-                    <>
-                      Fully Charged<br />
-                      <span style={{ opacity: 0.75, fontSize: '0.66rem', display: 'block', marginTop: '3px', fontWeight: 400 }}>
-                        Restore in 24 hours. Once 24 hours are completed, you will get 5000 words again.
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Restoring...</span><br />
-                      <span style={{ opacity: 0.75, fontSize: '0.66rem', display: 'block', marginTop: '3px', fontWeight: 400 }}>
-                        Restore in 24 hours. Once 24 hours are completed, you will get 5000 words again.
-                      </span>
-                    </>
-                  )}
+                  <span
+                    style={{
+                      opacity: 0.75,
+                      fontSize: '0.66rem',
+                      display: 'block',
+                      marginTop: '3px',
+                      fontWeight: 400,
+                    }}
+                  >
+                    Restore in 24 hours · 5,000 words daily limit
+                  </span>
                 </>
               )}
             </div>
@@ -172,7 +217,6 @@ export default function SidebarRight({
         <Download size={15} className="dl-icon" />
       </a>
 
-
       {/* Quick Tips Panel */}
       <div className="widget-card">
         <div className="widget-header">
@@ -188,4 +232,3 @@ export default function SidebarRight({
     </aside>
   );
 }
-

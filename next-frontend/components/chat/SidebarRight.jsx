@@ -1,28 +1,42 @@
 'use client';
 
 import React from 'react';
-import { Sparkles, Crown, Zap, X, Smartphone, Download, Mic, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Crown, Zap, X, Smartphone, Download } from 'lucide-react';
 
 export default function SidebarRight({
-  user,
-  activePlan,
-  remainingWords,
-  maxWords,
+  user = {},
+  activePlan = null,
+  remainingWords = 5000,
+  maxWords = 5000,
   onUpgrade,
-  isCollapsed,
+  isCollapsed = false,
   onClose,
 }) {
-  const hasActivePlan = !!(activePlan && activePlan.active) || !!user?.isStaff;
-  const planLabel = hasActivePlan
-    ? (activePlan?.plan_label || (user?.isStaff ? 'Pro' : 'Pro'))
+  const isStaff = !!user?.isStaff;
+  const isPaidUser = !!(activePlan && activePlan.active);
+  const hasActivePlan = isPaidUser || isStaff;
+
+  const planLabel = isStaff
+    ? 'Admin Pro'
+    : isPaidUser
+    ? (activePlan?.plan_label || 'Pro')
     : 'Free';
-  const expiryDate = hasActivePlan && activePlan?.expires_at
-    ? new Date(activePlan.expires_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+
+  const expiryDate = activePlan?.expires_at
+    ? new Date(activePlan.expires_at).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+    : isStaff
+    ? 'Lifetime Access'
     : '';
 
-  const isUnlimited = (user.isAuthenticated && hasActivePlan) || !!user?.isStaff;
-  const pct = isUnlimited ? 100 : (remainingWords / maxWords) * 100;
-  const remainingInt = Math.floor(remainingWords);
+  const isUnlimited = (!!user?.isAuthenticated && hasActivePlan) || isStaff;
+  const safeMaxWords = maxWords || 5000;
+  const safeRemainingWords = typeof remainingWords === 'number' ? remainingWords : 5000;
+  const pct = isUnlimited ? 100 : (safeRemainingWords / safeMaxWords) * 100;
+  const remainingInt = Math.floor(safeRemainingWords);
   const offset = 238.76 * (1 - pct / 100);
 
   return (
@@ -41,28 +55,38 @@ export default function SidebarRight({
       </div>
 
       {/* Subscription Badge Card */}
-      <div className="promo-card" style={{
-        background: hasActivePlan
-          ? 'linear-gradient(135deg, rgba(34,197,94,0.18), rgba(59,130,246,0.10))'
-          : 'linear-gradient(135deg, rgba(5,150,105,0.15), rgba(245,158,11,0.10))',
-        border: hasActivePlan
-          ? '1px solid rgba(34,197,94,0.35)'
-          : '1px solid rgba(5,150,105,0.30)',
-      }}>
+      <div
+        className="promo-card"
+        style={{
+          background: hasActivePlan
+            ? 'linear-gradient(135deg, rgba(34,197,94,0.18), rgba(59,130,246,0.10))'
+            : 'linear-gradient(135deg, rgba(5,150,105,0.15), rgba(245,158,11,0.10))',
+          border: hasActivePlan
+            ? '1px solid rgba(34,197,94,0.35)'
+            : '1px solid rgba(5,150,105,0.30)',
+        }}
+      >
         <div className="promo-header">
           <div className="promo-gem-icon">
-            {hasActivePlan
-              ? <Crown size={22} color="#22c55e" />
-              : <Zap size={22} color="#10b981" />
-            }
+            {hasActivePlan ? (
+              <Crown size={22} color="#22c55e" />
+            ) : (
+              <Zap size={22} color="#10b981" />
+            )}
           </div>
           <div className="promo-title-area">
             <h4 className="promo-title">Axom AI {planLabel}</h4>
             <p className="promo-subtitle">
               {hasActivePlan ? (
                 <>
-                  Valid till <strong>{expiryDate}</strong>
-                  {activePlan.days_left != null && <> · {activePlan.days_left} day{activePlan.days_left === 1 ? '' : 's'} left</>}
+                  {expiryDate ? (
+                    <>Valid: <strong>{expiryDate}</strong></>
+                  ) : (
+                    <strong>Unlimited Access</strong>
+                  )}
+                  {activePlan?.days_left != null && (
+                    <> · {activePlan.days_left} day{activePlan.days_left === 1 ? '' : 's'} left</>
+                  )}
                 </>
               ) : (
                 'Upgrade for unlimited access and advanced features.'
@@ -114,23 +138,49 @@ export default function SidebarRight({
           <div className="usage-info">
             <span className="usage-label">Words Remaining</span>
             <span className="usage-count">
-              {isUnlimited ? 'Unlimited' : `${remainingInt.toLocaleString()} / ${maxWords.toLocaleString()}`}
+              {isUnlimited
+                ? 'Unlimited'
+                : `${remainingInt.toLocaleString()} / ${safeMaxWords.toLocaleString()}`}
             </span>
             <div className="usage-bar-track">
               <div className="usage-bar-fill" style={{ width: `${pct}%` }}></div>
             </div>
 
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px', fontWeight: '500', lineHeight: '1.3' }}>
+            <div
+              style={{
+                fontSize: '0.72rem',
+                color: 'var(--text-muted)',
+                marginTop: '6px',
+                fontWeight: '500',
+                lineHeight: '1.3',
+              }}
+            >
               {isUnlimited ? (
                 <>
                   Unlimited Access<br />
-                  <span style={{ opacity: 0.75, fontSize: '0.66rem', display: 'block', marginTop: '3px', fontWeight: 400 }}>
+                  <span
+                    style={{
+                      opacity: 0.75,
+                      fontSize: '0.66rem',
+                      display: 'block',
+                      marginTop: '3px',
+                      fontWeight: 400,
+                    }}
+                  >
                     {planLabel} subscription active
                   </span>
                 </>
               ) : (
                 <>
-                  <span style={{ opacity: 0.75, fontSize: '0.66rem', display: 'block', marginTop: '3px', fontWeight: 400 }}>
+                  <span
+                    style={{
+                      opacity: 0.75,
+                      fontSize: '0.66rem',
+                      display: 'block',
+                      marginTop: '3px',
+                      fontWeight: 400,
+                    }}
+                  >
                     Resets in 24 hours · Upgrade for unlimited
                   </span>
                 </>
@@ -154,4 +204,3 @@ export default function SidebarRight({
     </aside>
   );
 }
-
