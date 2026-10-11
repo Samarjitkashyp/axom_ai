@@ -12,15 +12,15 @@ export default function SidebarRight({
   isCollapsed,
   onClose,
 }) {
-  const hasActivePlan = !!(activePlan && activePlan.active);
+  const hasActivePlan = !!(activePlan && activePlan.active) || !!user?.isStaff;
   const planLabel = hasActivePlan
-    ? (activePlan.plan_label || 'Pro')
+    ? (activePlan?.plan_label || (user?.isStaff ? 'Pro' : 'Pro'))
     : 'Free';
-  const expiryDate = hasActivePlan && activePlan.expires_at
+  const expiryDate = hasActivePlan && activePlan?.expires_at
     ? new Date(activePlan.expires_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : '';
 
-  const isUnlimited = user.isAuthenticated && hasActivePlan;
+  const isUnlimited = (user.isAuthenticated && hasActivePlan) || !!user?.isStaff;
   const pct = isUnlimited ? 100 : (remainingWords / maxWords) * 100;
   const remainingInt = Math.floor(remainingWords);
   const offset = 238.76 * (1 - pct / 100);

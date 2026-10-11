@@ -224,6 +224,16 @@ def plan_status(request):
     """GET current user's plan (or anonymous placeholder)."""
     if not request.user.is_authenticated:
         return JsonResponse({"active": False, "anonymous": True})
+    if getattr(request.user, "is_staff", False) or getattr(request.user, "is_superuser", False):
+        return JsonResponse({
+            "active": True,
+            "plan": "pro",
+            "plan_label": "Pro",
+            "started_at": None,
+            "expires_at": None,
+            "days_left": 9999,
+            "status": "active",
+        })
     user_plan = UserPlan.objects.filter(user=request.user).first()
     return JsonResponse(_plan_status_dict(user_plan))
 
