@@ -112,36 +112,36 @@ export default function ToolPageTemplate({ data, children }: ToolPageTemplatePro
 
       <Navbar />
 
-      <main className="min-h-screen bg-[#0b1220] text-slate-200 relative overflow-hidden pt-28 pb-20">
+      <main className="min-h-screen bg-[#0b1220] text-slate-200 relative overflow-x-clip pt-20 sm:pt-28 pb-16 sm:pb-20">
         {/* Background glow effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
           <div className="absolute top-10 left-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-[120px]" />
           <div className="absolute top-20 right-1/4 w-96 h-96 bg-fuchsia-600/15 rounded-full blur-[120px]" />
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
 
           {/* HERO SECTION */}
-          <section className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/10 via-purple-500/10 to-indigo-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-4 shadow-sm">
-              <Sparkles size={14} className="text-fuchsia-400" />
+          <section className="text-center max-w-3xl mx-auto mb-6 sm:mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/10 via-purple-500/10 to-indigo-500/10 border border-purple-500/20 text-purple-300 text-[11px] sm:text-xs font-semibold mb-3 sm:mb-4 shadow-sm">
+              <Sparkles size={13} className="text-fuchsia-400" />
               <span>{data.heroBadgeText}</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight sm:leading-tight mb-4">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-snug sm:leading-tight mb-3 sm:mb-4">
               {data.heroHeadingPrefix}{' '}
               <span className="gradient-text">{data.heroHeadingHighlight}</span>{' '}
               {data.heroHeadingSuffix}
             </h1>
 
-            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto mb-6">
+            <p className="text-xs sm:text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto mb-4 sm:mb-6">
               {data.heroDescription}
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm text-slate-400">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-400">
               {data.heroTags.map((tag, i) => (
-                <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300">
-                  <Check size={14} className="text-emerald-400" /> {tag}
+                <span key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-[11px] sm:text-xs">
+                  <Check size={13} className="text-emerald-400" /> {tag}
                 </span>
               ))}
             </div>
