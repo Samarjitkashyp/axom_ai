@@ -1534,7 +1534,7 @@ import re as _re
 
 _DOC_ID = _re.compile(r'^[a-f0-9]{12}$')
 _DOC_IMAGE = _re.compile(r'^[\w.-]{1,80}$')
-_DOC_ACTIONS = ('edit', 'approve', 'reject', 'resend', 'delete')
+_DOC_ACTIONS = ('edit', 'approve', 'reject', 'resend', 'delete', 'reread')
 
 
 def _bot_upload_call(request, method, path, json_body=None, raw=False):

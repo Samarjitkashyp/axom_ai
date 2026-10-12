@@ -71,6 +71,7 @@ class DocumentVerifyTests(TestCase):
 
     def test_approve_reject_resend_delete_are_forwarded(self):
         expected = {'approve': ('POST', '/api/upload/%s/approve' % UID), 'reject': ('POST', '/api/upload/%s/reject' % UID),
+                    'reread': ('POST', '/api/upload/%s/reread' % UID),
                     'resend': ('POST', '/api/upload/%s/resend' % UID), 'delete': ('DELETE', '/api/upload/%s' % UID)}
         for action, (method, path) in expected.items():
             with mock.patch('superadmin.views.requests.request', return_value=FakeResp(data={'ok': True})) as m:
