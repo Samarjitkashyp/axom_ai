@@ -1067,6 +1067,14 @@ def _validate_bot_cleanup(data):
             data['bot_cleanup_days'] = str(max(3, int(str(data['bot_cleanup_days']).strip())))
         except (TypeError, ValueError):
             return "Bot clean-up days must be a whole number."
+    if 'bot_upload_daily_pages' in data:
+        try:
+            n = int(str(data['bot_upload_daily_pages']).strip())
+        except (TypeError, ValueError):
+            return "Document upload limit must be a whole number."
+        if not 0 <= n <= 100000:
+            return "Document upload limit must be between 0 and 100000 pages a day."
+        data['bot_upload_daily_pages'] = str(n)
     return None
 
 
@@ -1099,6 +1107,7 @@ def settings_page(request):
         'daily_search_limit_free': SystemSetting.get_setting('daily_search_limit_free', '5'),
         'bot_cleanup_mode': SystemSetting.get_setting('bot_cleanup_mode', 'off'),
         'bot_cleanup_days': SystemSetting.get_setting('bot_cleanup_days', '7'),
+        'bot_upload_daily_pages': SystemSetting.get_setting('bot_upload_daily_pages', '500'),
     }
 
     def _mask(k):

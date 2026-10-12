@@ -90,6 +90,15 @@
           {% endif %}
         </div>
 
+        <!-- Crawler bot: uploaded documents (images / PDFs) read by AI -->
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div class="font-bold text-white">Document uploads: AI pages per day</div>
+          <div class="text-slate-400 text-[11px] mb-3">How many pages of uploaded photos and PDFs the crawler bot may send to Gemini / OpenAI in one day (UTC). A page with a good text layer in a PDF costs nothing. When the limit is reached, pages are read by the free Tesseract reader instead and marked for a closer look. <strong class="text-slate-300">0</strong> = no AI pages at all. Takes effect at once; today's use is shown on the Document Verify page.</div>
+          <label class="text-slate-300 flex items-center gap-2">Up to
+            <input type="number" id="botUploadDailyPages" min="0" max="100000" value="{{ settings.bot_upload_daily_pages }}" class="w-28 bg-slate-800 border border-slate-700 text-white rounded-lg px-2 py-2 text-xs"> pages a day
+          </label>
+        </div>
+
         <!-- Global Announcement Banner -->
         <div class="pt-2">
           <label class="block font-bold text-white mb-1.5">Global Announcement Banner (Broadcast to all users)</label>
@@ -229,7 +238,8 @@
       maintenance_mode: document.getElementById('flagMaintenance').checked,
       announcement_banner: document.getElementById('announcementBanner').value.trim(),
       bot_cleanup_mode: document.getElementById('botCleanupMode').value,
-      bot_cleanup_days: document.getElementById('botCleanupDays').value
+      bot_cleanup_days: document.getElementById('botCleanupDays').value,
+      bot_upload_daily_pages: document.getElementById('botUploadDailyPages').value
     };
     try {
       const res = await fetch('/axomai-admin/settings/save/', {
