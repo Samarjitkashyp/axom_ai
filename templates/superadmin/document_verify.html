@@ -8,6 +8,7 @@
   <span>Photos and PDFs uploaded in the crawler bot are read by AI and wait here. <strong>Check the text against the picture, fix any mistake, then approve.</strong> Only approved documents are sent to Axom AI chat. Pages marked <span class="text-amber-300">⚠</span> were read by a weaker reader or look uncertain.</span>
 </div>
 
+<p id="dvUsage" class="text-xs text-slate-400 mb-4"></p>
 <div id="dvError" class="hidden mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs"></div>
 
 <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 items-start">
@@ -70,6 +71,7 @@
     try {
       const data = await call(BASE + 'list/');
       uploads = data.uploads || [];
+      $('dvUsage').innerHTML = 'AI pages used today: <strong class="text-slate-200">' + (data.pages_used_today || 0) + ' / ' + (data.daily_limit || 0) + '</strong> <a class="text-indigo-300 hover:text-white underline ml-1" href="/axomai-admin/settings/">change the daily limit</a>';
       err('');
     } catch (e) { err(e.message); uploads = []; }
     $('cReview').textContent = '(' + uploads.filter((u) => u.status === 'review').length + ')';
