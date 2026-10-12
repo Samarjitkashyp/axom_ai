@@ -1523,3 +1523,96 @@ def contact_message_action_api(request):
             return JsonResponse({'success': True, 'message': f"E-mail for {msg.ticket} sent."})
         return JsonResponse({'success': False, 'error': msg.email_error or 'The e-mail could not be sent.'}, status=502)
     return JsonResponse({'success': False, 'error': 'Unknown action.'}, status=400)
+
+
+# ---------------------------------------------------------------------------
+# Document Verify: the admin reads, corrects and approves what the crawler bot read from uploaded photos / PDFs.
+# The documents live in the bot (axomai-bot); this page talks to the bot's /api/upload* with the shared BOT_IMPORT_TOKEN
+# (server side only: the token never reaches the browser). Nothing reaches the chat before the admin approves here.
+# ---------------------------------------------------------------------------
+import re as _re
+
+_DOC_ID = _re.compile(r'^[a-f0-9]{12}$')
+_DOC_IMAGE = _re.compile(r'^[\w.-]{1,80}$')
+_DOC_ACTIONS = ('edit', 'approve', 'reject', 'resend', 'delete')
+
+
+def _bot_upload_call(request, method, path, json_body=None, raw=False):
+    token = os.getenv('BOT_IMPORT_TOKEN', '')
+    if not token:
+        return JsonResponse({'success': False, 'error': 'BOT_IMPORT_TOKEN is not set in the server .env.'}, status=503)
+    base = getattr(settings, 'BOT_BASE_URL', os.getenv('BOT_BASE_URL', 'http://127.0.0.1:8001')).rstrip('/')
+    try:
+        r = requests.request(method, base + path, json=json_body, timeout=30,
+                             headers={'X-Bot-Token': token, 'X-Admin-User': request.user.username})
+    except requests.RequestException:
+        return JsonResponse({'success': False, 'error': 'The document service (bot) is not reachable right now.'}, status=502)
+    if raw:
+        ctype = r.headers.get('Content-Type', '')
+        if r.status_code != 200 or not ctype.startswith('image/'):
+            return HttpResponse(status=404)
+        resp = HttpResponse(r.content, content_type=ctype)
+        resp['X-Content-Type-Options'] = 'nosniff'
+        resp['Cache-Control'] = 'private, max-age=300'
+        return resp
+    try:
+        data = r.json()
+    except ValueError:
+        data = {}
+    if r.status_code >= 400:
+        status = r.status_code if r.status_code in (400, 404) else 502
+        return JsonResponse({'success': False, 'error': data.get('detail') or data.get('error') or f'The document service answered {r.status_code}.'}, status=status)
+    if isinstance(data, dict):
+        data['success'] = True
+    return JsonResponse(data)
+
+
+@superuser_required
+def document_verify_page(request):
+    return render(request, 'superadmin/document_verify.html', {'active': 'document_verify'})
+
+
+@superuser_required
+def document_verify_list_api(request):
+    return _bot_upload_call(request, 'GET', '/api/upload/list')
+
+
+@superuser_required
+def document_verify_detail_api(request, uid):
+    if not _DOC_ID.match(uid):
+        return JsonResponse({'success': False, 'error': 'Invalid document.'}, status=400)
+    return _bot_upload_call(request, 'GET', f'/api/upload/{uid}')
+
+
+@superuser_required
+def document_verify_image(request, uid, name):
+    if not _DOC_ID.match(uid) or not _DOC_IMAGE.match(name):
+        return HttpResponse(status=404)
+    return _bot_upload_call(request, 'GET', f'/api/upload/{uid}/image/{name}', raw=True)
+
+
+@superuser_required
+@require_POST
+def document_verify_action_api(request, uid, action):
+    if not _DOC_ID.match(uid) or action not in _DOC_ACTIONS:
+        return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+    if action == 'edit':
+        try:
+            data = json.loads(request.body)
+            n = int(data.get('n'))
+            text = data.get('text')
+            if not isinstance(text, str):
+                raise ValueError
+        except (ValueError, TypeError):
+            return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+        result = _bot_upload_call(request, 'PUT', f'/api/upload/{uid}/page/{n}', {'text': text})
+        if result.status_code == 200:
+            _log_audit(request, 'DOCUMENT_EDIT', uid, f'page {n}')
+        return result
+    if action == 'delete':
+        result = _bot_upload_call(request, 'DELETE', f'/api/upload/{uid}')
+    else:
+        result = _bot_upload_call(request, 'POST', f'/api/upload/{uid}/{action}')
+    if result.status_code == 200:
+        _log_audit(request, 'DOCUMENT_' + action.upper(), uid, '')
+    return result

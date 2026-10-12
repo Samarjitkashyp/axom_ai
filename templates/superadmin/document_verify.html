@@ -1,0 +1,151 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Document Verify — Axom AI Super Admin{% endblock %}
+{% block heading %}Document Verify{% endblock %}
+
+{% block content %}
+<div class="mb-5 p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 text-indigo-200 text-xs leading-relaxed flex gap-3">
+  <i class="fa-solid fa-shield-halved mt-0.5"></i>
+  <span>Photos and PDFs uploaded in the crawler bot are read by AI and wait here. <strong>Check the text against the picture, fix any mistake, then approve.</strong> Only approved documents are sent to Axom AI chat. Pages marked <span class="text-amber-300">⚠</span> were read by a weaker reader or look uncertain.</span>
+</div>
+
+<div id="dvError" class="hidden mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs"></div>
+
+<div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 items-start">
+  <!-- Left: the list -->
+  <div class="glass-card rounded-2xl border border-slate-800 p-3">
+    <div class="flex gap-1 mb-3 text-xs font-semibold" id="dvTabs">
+      <button data-tab="review" class="dv-tab flex-1 py-2 rounded-lg">To review <span id="cReview" class="opacity-70"></span></button>
+      <button data-tab="approved" class="dv-tab flex-1 py-2 rounded-lg">Approved <span id="cApproved" class="opacity-70"></span></button>
+      <button data-tab="all" class="dv-tab flex-1 py-2 rounded-lg">All</button>
+    </div>
+    <div id="dvList" class="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
+      <p class="text-slate-500 text-xs p-4 text-center">Loading…</p>
+    </div>
+    <button id="dvRefresh" class="mt-3 w-full text-xs text-slate-400 hover:text-white py-2"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
+  </div>
+
+  <!-- Right: the document -->
+  <div id="dvDoc" class="min-w-0">
+    <div class="glass-card rounded-2xl border border-slate-800 p-10 text-center text-slate-500 text-sm">
+      <i class="fa-regular fa-file-lines text-3xl mb-3 block"></i>
+      Choose a document on the left to check it.
+    </div>
+  </div>
+</div>
+
+<style>
+  .dv-tab { color: #94a3b8; background: rgba(30,41,59,.5); }
+  .dv-tab.on { color: #fff; background: #4f46e5; }
+  .dv-item { cursor: pointer; border: 1px solid rgb(30 41 59); background: rgba(15,23,42,.55); }
+  .dv-item:hover { border-color: #6366f1; }
+  .dv-item.on { border-color: #6366f1; background: rgba(79,70,229,.15); }
+  .dv-text { width: 100%; min-height: 190px; resize: vertical; line-height: 1.6; }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const BASE = '/axomai-admin/document-verify/api/';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const LABEL = { processing: ['Reading…', 'text-sky-300 bg-sky-500/10'], review: ['Needs review', 'text-amber-300 bg-amber-500/10'], approved: ['Approved', 'text-emerald-300 bg-emerald-500/10'], rejected: ['Rejected', 'text-rose-300 bg-rose-500/10'], failed: ['Failed', 'text-rose-300 bg-rose-500/10'] };
+  let uploads = [], tab = 'review', current = null, timer = null;
+
+  function err(msg) { const e = $('dvError'); e.textContent = msg || ''; e.classList.toggle('hidden', !msg); }
+
+  async function call(url, method, body) {
+    const opts = { method: method || 'GET', headers: {} };
+    if (method === 'POST') { opts.headers['X-CSRFToken'] = csrftoken; opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body || {}); }
+    const res = await fetch(url, opts);
+    let data = {};
+    try { data = await res.json(); } catch (e) { /* not JSON */ }
+    if (!res.ok || data.success === false) throw new Error(data.error || ('Error ' + res.status));
+    return data;
+  }
+
+  function pill(status) { const l = LABEL[status] || [status, 'text-slate-300 bg-slate-500/10']; return '<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ' + l[1] + '">' + esc(l[0]) + '</span>'; }
+
+  async function loadList() {
+    try {
+      const data = await call(BASE + 'list/');
+      uploads = data.uploads || [];
+      err('');
+    } catch (e) { err(e.message); uploads = []; }
+    $('cReview').textContent = '(' + uploads.filter((u) => u.status === 'review').length + ')';
+    $('cApproved').textContent = '(' + uploads.filter((u) => u.status === 'approved').length + ')';
+    document.querySelectorAll('.dv-tab').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+    const rows = uploads.filter((u) => tab === 'all' || u.status === tab || (tab === 'review' && u.status === 'processing'));
+    $('dvList').innerHTML = rows.length ? rows.map((u) =>
+      '<div class="dv-item rounded-xl p-3' + (current === u.id ? ' on' : '') + '" data-id="' + u.id + '">' +
+      '<div class="flex items-start justify-between gap-2"><div class="min-w-0"><div class="text-sm font-semibold text-slate-100 break-words">' + esc(u.name) + '</div>' +
+      '<div class="text-[11px] text-slate-500 mt-0.5">' + esc((u.created_at || '').replace('T', ' ').slice(0, 16)) + ' · ' + esc(u.uploader) + ' · ' + (u.page_count || 0) + ' page' + (u.page_count === 1 ? '' : 's') + '</div></div>' +
+      '</div><div class="mt-2 flex items-center gap-2 flex-wrap">' + pill(u.status) +
+      (u.review_pages && u.status === 'review' ? '<span class="text-[11px] text-amber-300">⚠ ' + u.review_pages + ' to check</span>' : '') + '</div></div>'
+    ).join('') : '<p class="text-slate-500 text-xs p-4 text-center">' + (tab === 'review' ? 'Nothing is waiting for review.' : 'No documents here.') + '</p>';
+    $('dvList').querySelectorAll('.dv-item').forEach((el) => el.addEventListener('click', () => openDoc(el.dataset.id)));
+    const busy = uploads.some((u) => u.status === 'processing' || u.send_status === 'sending');
+    if (busy && !timer) timer = setInterval(loadList, 4000);
+    if (!busy && timer) { clearInterval(timer); timer = null; }
+  }
+
+  async function openDoc(id) {
+    current = id;
+    document.querySelectorAll('.dv-item').forEach((el) => el.classList.toggle('on', el.dataset.id === id));
+    let m;
+    try { m = await call(BASE + id + '/'); err(''); } catch (e) { err(e.message); return; }
+    const editable = m.status === 'review';
+    const flagged = m.pages.filter((p) => p.review).length;
+    $('dvDoc').innerHTML =
+      '<div class="glass-card rounded-2xl border border-slate-800 p-5">' +
+      '<div class="flex flex-wrap items-start justify-between gap-3 mb-1"><div class="min-w-0"><h3 class="text-lg font-bold text-white break-words">' + esc(m.name) + '</h3>' +
+      '<p class="text-xs text-slate-500 mt-1">Uploaded by ' + esc(m.uploader) + ' · ' + esc((m.created_at || '').replace('T', ' ').slice(0, 16)) + ' · ' + m.pages.length + ' page' + (m.pages.length === 1 ? '' : 's') +
+      (flagged ? ' · <span class="text-amber-300">⚠ ' + flagged + ' to check</span>' : '') + '</p></div><div>' + pill(m.status) + '</div></div>' +
+      (m.error ? '<p class="text-xs text-rose-400 mt-2">' + esc(m.error) + '</p>' : '') +
+      (m.status === 'approved' && m.send_status === 'failed' ? '<p class="text-xs text-rose-300 mt-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Approved, but it could not be sent to Axom AI chat. Use <strong>Send again</strong> below.</p>' : '') +
+      (m.status === 'approved' && m.send_status === 'sending' ? '<p class="text-xs text-sky-300 mt-2">Sending to Axom AI chat…</p>' : '') +
+      (m.status === 'approved' && m.send_status === 'sent' ? '<p class="text-xs text-emerald-300 mt-2"><i class="fa-solid fa-check mr-1"></i>Sent to Axom AI chat.</p>' : '') + '</div>' +
+      m.pages.map((p) =>
+        '<div class="glass-card rounded-2xl border ' + (p.review ? 'border-amber-500/50' : 'border-slate-800') + ' mt-4 overflow-hidden">' +
+        '<div class="px-4 py-2.5 bg-slate-900/60 text-xs text-slate-400 flex flex-wrap gap-x-3">' +
+        '<strong class="text-slate-200">Page ' + p.n + '</strong><span>read by ' + esc(p.engine) + '</span>' +
+        (p.review ? '<span class="text-amber-300">⚠ ' + esc(p.reason) + '</span>' : '<span class="text-emerald-400">looks fine</span>') +
+        (p.edited ? '<span class="text-sky-300">edited by admin</span>' : '') + '</div>' +
+        '<div class="p-4 grid grid-cols-1 md:grid-cols-[minmax(0,260px)_1fr] gap-4 items-start">' +
+        (p.image ? '<a href="' + BASE + id + '/image/' + encodeURIComponent(p.image) + '/" target="_blank" rel="noopener"><img class="w-full rounded-lg border border-slate-700 bg-white" src="' + BASE + id + '/image/' + encodeURIComponent(p.image) + '/" alt="page ' + p.n + '"></a>'
+                 : '<div class="rounded-lg border border-slate-800 bg-slate-900/50 text-slate-500 text-xs p-4">Text taken straight from the PDF (no picture).</div>') +
+        '<textarea class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none" data-page="' + p.n + '" spellcheck="false" ' + (editable ? '' : 'readonly') + '>' + esc(p.text) + '</textarea>' +
+        '</div></div>'
+      ).join('') +
+      '<div class="sticky bottom-3 mt-5 glass-card rounded-2xl border border-slate-700 p-3 flex flex-wrap items-center gap-2 shadow-xl">' +
+      (editable ? '<button id="dvApprove" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold"><i class="fa-solid fa-check mr-1.5"></i>Approve &amp; send to Axom AI</button>' +
+                  '<button id="dvReject" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm">Reject</button>' : '') +
+      (m.status === 'approved' ? '<button id="dvResend" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm">Send again</button>' : '') +
+      (m.status !== 'processing' ? '<button id="dvDelete" class="ml-auto px-3 py-2 rounded-xl text-rose-300 hover:bg-rose-500/10 text-sm"><i class="fa-regular fa-trash-can mr-1"></i>Delete</button>' : '') + '</div>';
+
+    if (editable) {
+      $('dvDoc').querySelectorAll('textarea[data-page]').forEach((t) => {
+        const orig = t.value;
+        t.addEventListener('change', async () => {
+          try { await call(BASE + id + '/edit/', 'POST', { n: Number(t.dataset.page), text: t.value }); showToast('Page ' + t.dataset.page + ' saved.', 'success'); }
+          catch (e) { t.value = orig; showToast(e.message, 'error'); }
+        });
+      });
+    }
+    const act = (btn, name, ask, done) => { const b = $(btn); if (!b) return; b.addEventListener('click', async () => {
+      if (ask && !confirm(ask)) return;
+      b.disabled = true;
+      try { await call(BASE + id + '/' + name + '/', 'POST'); showToast(done, 'success'); current = name === 'delete' ? null : id; if (name === 'delete') $('dvDoc').innerHTML = ''; await loadList(); if (name !== 'delete') openDoc(id); }
+      catch (e) { showToast(e.message, 'error'); b.disabled = false; } }); };
+    act('dvApprove', 'approve', 'Send this text to Axom AI chat? The chat will start answering from it.', 'Approved. It is being sent to Axom AI.');
+    act('dvReject', 'reject', 'Reject this document? It will not be sent to the chat.', 'Document rejected.');
+    act('dvResend', 'resend', null, 'Sending again.');
+    act('dvDelete', 'delete', 'Delete this document and its text for good?', 'Document deleted.');
+  }
+
+  document.querySelectorAll('.dv-tab').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; loadList(); }));
+  $('dvRefresh').addEventListener('click', loadList);
+  loadList();
+})();
+</script>
+{% endblock %}
