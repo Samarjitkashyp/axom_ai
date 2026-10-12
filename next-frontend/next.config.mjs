@@ -34,6 +34,19 @@ const nextConfig = {
       { source: '/tools/remove-watermark', destination: '/tools', permanent: true },
     ];
   },
+  // Security headers for every page of the Next.js site (HSTS, CSP frame-ancestors and Permissions-Policy are added by nginx)
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
