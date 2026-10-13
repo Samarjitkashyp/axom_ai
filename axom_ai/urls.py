@@ -7,6 +7,7 @@ from . import views
 import knowledge.views as knowledge_views
 import contentcms.api_views as contentcms_api
 from . import contact_api
+from . import tts_api
 from . import ai_notes_views
 from . import chat_enhancements
 
@@ -42,6 +43,7 @@ urlpatterns = [
     path('api/chat/export-docx/', chat_enhancements.api_chat_export_docx, name='chat_export_docx_api'),
     path('api/chat/tts/', chat_enhancements.api_assamese_tts, name='chat_tts_api'),
     path('api/tts/synthesize/', chat_enhancements.api_assamese_tts, name='tts_synthesize_api'),
+    path('api/tts/speak/', tts_api.tts_speak_api, name='tts_speak_api'),
     path('api/chat/phonetics/', chat_enhancements.api_assamese_phonetics, name='chat_phonetics_api'),
     path('api/history/', views.chat_history_view, name='chat_history'),
     path('api/history/action/', views.chat_action_view, name='chat_action'),
