@@ -237,14 +237,20 @@ export default function ChatWindow({
   const [voiceLoading, setVoiceLoading] = useState(null);   // index of the answer whose Assamese voice is being made
   const [voiceNote, setVoiceNote] = useState(null);         // { index, text }: why the voice did not play
   const voiceRef = useRef({ token: 0, audio: null });
+  const [isTranscribing, setIsTranscribing] = useState(false);   // a recording was sent to the server and is being written down
   const recognitionRef = useRef(null);
   const docFileInputRef = useRef(null);
   const imageFileInputRef = useRef(null);
 
-  // Voice input (speech to text) with the browser's Web Speech API.
-  // Every result event carries EVERYTHING heard so far ("How", then "How are", then "How are you"), so the text box is set to
-  // (what was typed before) + (everything heard), never appended to: appending is what made "How are you" come out doubled.
+  // ---------------------------------------------------------------- voice input (speech to text)
+  // 1. Server voice typing (default): the microphone is recorded with the browser's noise suppression, echo cancellation and gain control
+  //    switched on, the recording stops by itself after a pause, the server cleans it and writes down what was said (Gemini).
+  // 2. The browser's own speech recognition: used when the server says no (switched off, limit, not reachable) or MediaRecorder is missing.
+  // Either way the text box is set to (what was typed before) + (what was heard), never appended to: appending doubled "How are you".
+  const VOICE_VAD = { tickMs: 100, calibrateMs: 500, pauseMs: 1600, waitForSpeechMs: 8000, maxMs: 40000, minSpeechMs: 250 };
   const micStreamRef = useRef(null);
+  const sttModeRef = useRef('server');           // 'server' until the server cannot be used, then 'browser'
+  const recorderRef = useRef(null);
 
   const releaseMic = () => {
     if (micStreamRef.current) {
@@ -253,32 +259,147 @@ export default function ChatWindow({
     }
   };
 
-  const toggleSpeechRecognition = async () => {
-    if (typeof window === 'undefined') return;
-    if (isListening) {
-      if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (e) { /* already stopped */ }
+  const micConstraints = { audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } };
+
+  const sttLanguage = () => (language === 'english' ? 'english' : language === 'assamese' ? 'assamese' : 'hinglish');
+
+  const sendRecording = async (blob, base) => {
+    setIsTranscribing(true);
+    try {
+      const fd = new FormData();
+      fd.append('audio', blob, 'speech.' + (blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm'));
+      fd.append('language', sttLanguage());
+      const res = await fetch('/api/stt/', { method: 'POST', credentials: 'include', body: fd });
+      let data = {};
+      try { data = await res.json(); } catch (e) { /* not JSON */ }
+      if (res.ok && data.success) {
+        if (data.text) setInputText(base + data.text);
+        else setErrorMsg('I could not catch any words. Please speak a little closer and try again.');
+        return;
       }
-      releaseMic();
-      setIsListening(false);
+      if (res.status === 429) {
+        setErrorMsg((data.error || "Today's voice-typing limit is over.") + (data.upgrade_required ? ' Upgrade for more.' : ''));
+        return;
+      }
+      if (res.status === 413 || res.status === 400) { setErrorMsg(data.error || 'That recording could not be used. Please try again.'); return; }
+      sttModeRef.current = 'browser';                              // switched off, or the server voice typing is down
+      setErrorMsg('Server voice typing is not available right now. Tap the microphone again to use your browser voice typing.');
+    } catch (e) {
+      sttModeRef.current = 'browser';
+      setErrorMsg('Voice typing could not reach the server. Tap the microphone again to use your browser voice typing.');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const startServerRecording = async () => {
+    const base = inputText && inputText.trim() ? inputText.trim() + ' ' : '';
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(micConstraints);
+    } catch (err) {
+      if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) {
+        setErrorMsg('Could not access microphone. Please allow microphone permissions.');
+      } else {
+        setErrorMsg('No microphone was found.');
+      }
       return;
     }
+    micStreamRef.current = stream;
+    const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'].find((m) => window.MediaRecorder.isTypeSupported && window.MediaRecorder.isTypeSupported(m));
+    let recorder;
+    try {
+      recorder = new window.MediaRecorder(stream, mime ? { mimeType: mime, audioBitsPerSecond: 32000 } : undefined);
+    } catch (err) {
+      releaseMic();
+      sttModeRef.current = 'browser';
+      startBrowserRecognition();
+      return;
+    }
+    const chunks = [];
+    let speechMs = 0;                  // how long the person has been heard so far
+    let lastSpeechAt = 0;
+    let startedAt = Date.now();
+    let floor = null;                  // the room's own noise level, measured in the first moments
+    let calib = [];
+    let ctx = null;
+    let timer = null;
+    let stopped = false;
 
+    const finish = () => {
+      if (stopped) return;
+      stopped = true;
+      if (timer) clearInterval(timer);
+      try { if (ctx && ctx.close) ctx.close(); } catch (e) { /* closed */ }
+      try { if (recorder.state !== 'inactive') recorder.stop(); } catch (e) { /* stopped */ }
+    };
+
+    recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+    recorder.onstop = () => {
+      releaseMic();
+      recorderRef.current = null;
+      setIsListening(false);
+      if (speechMs < VOICE_VAD.minSpeechMs || !chunks.length) {
+        setErrorMsg('I did not hear anything. Tap the microphone and speak.');
+        return;
+      }
+      sendRecording(new Blob(chunks, { type: recorder.mimeType || mime || 'audio/webm' }), base);
+    };
+    recorder.onerror = () => { releaseMic(); recorderRef.current = null; setIsListening(false); };
+
+    // Level meter: after a pause of about a second and a half the recording stops by itself.
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      ctx = new AC();
+      const src = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+      src.connect(analyser);
+      const buf = new Float32Array(analyser.fftSize);
+      timer = setInterval(() => {
+        analyser.getFloatTimeDomainData(buf);
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+        const level = Math.sqrt(sum / buf.length);
+        const now = Date.now();
+        if (floor === null) {
+          calib.push(level);
+          if (now - startedAt >= VOICE_VAD.calibrateMs) {
+            floor = calib.reduce((a, b) => a + b, 0) / calib.length;
+          }
+          return;
+        }
+        const speaking = level > Math.max(floor * 2.5, 0.015);
+        if (speaking) { speechMs += VOICE_VAD.tickMs; lastSpeechAt = now; }
+        if (speechMs >= VOICE_VAD.minSpeechMs && now - lastSpeechAt >= VOICE_VAD.pauseMs) finish();
+        else if (speechMs < VOICE_VAD.minSpeechMs && now - startedAt >= VOICE_VAD.waitForSpeechMs) finish();
+        else if (now - startedAt >= VOICE_VAD.maxMs) finish();
+      }, VOICE_VAD.tickMs);
+    } catch (e) {
+      // no level meter in this browser: record until the person taps the microphone again (or the longest time)
+      speechMs = VOICE_VAD.minSpeechMs;
+      timer = setInterval(() => { if (Date.now() - startedAt >= VOICE_VAD.maxMs) finish(); }, 1000);
+    }
+
+    recorderRef.current = { stop: finish };
+    setIsListening(true);
+    startedAt = Date.now();
+    recorder.start();
+  };
+
+  const startBrowserRecognition = async () => {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
       setErrorMsg('Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.');
       return;
     }
 
-    // Noise suppression: where the browser lets speech recognition take a microphone track (new Chrome), the track is opened with the
-    // browser's noise suppression, echo cancellation and gain control on. Other browsers use their own microphone handling.
+    // Where the browser lets speech recognition take a microphone track (new Chrome), the track is opened with noise suppression on.
     let track = null;
     const takesTrack = typeof SpeechRec.available === 'function' || 'processLocally' in SpeechRec.prototype;
     if (takesTrack && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
-        });
+        const stream = await navigator.mediaDevices.getUserMedia(micConstraints);
         micStreamRef.current = stream;
         track = stream.getAudioTracks()[0] || null;
       } catch (err) {
@@ -286,7 +407,7 @@ export default function ChatWindow({
           setErrorMsg('Could not access microphone. Please allow microphone permissions.');
           return;
         }
-        track = null;                                              // no such microphone setting: the browser's own way
+        track = null;
       }
     }
 
@@ -330,6 +451,20 @@ export default function ChatWindow({
       setIsListening(false);
       setErrorMsg('Could not access microphone. Please allow microphone permissions.');
     }
+  };
+
+  const toggleSpeechRecognition = async () => {
+    if (typeof window === 'undefined' || isTranscribing) return;
+    if (isListening) {                                             // a tap while listening stops it
+      if (recorderRef.current) recorderRef.current.stop();
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) { /* already stopped */ }
+      }
+      return;
+    }
+    const canRecord = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    if (sttModeRef.current === 'server' && canRecord) await startServerRecording();
+    else await startBrowserRecognition();
   };
 
   const langCode = () =>
@@ -2167,16 +2302,17 @@ export default function ChatWindow({
             <div className="controls-right" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <button
                 type="button"
-                className={`lang-btn ${isListening ? 'active' : ''}`}
+                className={`lang-btn ${isListening || isTranscribing ? 'active' : ''}`}
                 onClick={toggleSpeechRecognition}
-                title={isListening ? "Listening... Click to stop" : "Voice Input (Speech to Text)"}
+                disabled={isTranscribing}
+                title={isTranscribing ? "Writing down what you said..." : isListening ? "Listening... Click to stop" : "Voice Input (Speech to Text)"}
                 style={{
                   color: isListening ? '#ef4444' : 'var(--text-secondary)',
                   borderColor: isListening ? 'rgba(239, 68, 68, 0.5)' : undefined,
                   background: isListening ? 'rgba(239, 68, 68, 0.15)' : undefined
                 }}
               >
-                {isListening ? <MicOff size={14} className="spin-icon" /> : <Mic size={14} />}
+                {isListening || isTranscribing ? <MicOff size={14} className="spin-icon" /> : <Mic size={14} />}
               </button>
               <button
                 type="button"
