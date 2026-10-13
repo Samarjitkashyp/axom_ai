@@ -5,7 +5,7 @@ import {
   ChevronLeft, Archive, Palette, Info, Sun, Moon, Trash2,
   MessageSquare, Settings as SettingsIcon, User, Camera,
   Mail, Phone, MapPin, FileText, Lock, Star, Check, Shield,
-  LogOut, Crown, Volume2,
+  LogOut, Crown, Volume2, Sparkles,
 } from 'lucide-react';
 import { getCsrfToken } from './utils/security';
 

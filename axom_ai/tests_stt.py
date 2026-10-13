@@ -25,7 +25,8 @@ def make_audio(spec, seconds=2, suffix='.webm'):
         return f.read()
 
 
-TONE = 'sine=frequency=300:sample_rate=48000'              # loud enough: counts as sound
+# words go on and off: a tone that is on for 0.35 s and off for 0.35 s stands for a voice (a steady tone would be taken for a hum)
+TONE = "aevalsrc='sin(2*PI*220*t)*gt(sin(2*PI*t/0.7),0)':s=48000"
 SILENCE = 'anullsrc=r=48000:cl=mono'
 
 
@@ -194,8 +195,8 @@ class SttSettingsTests(TestCase):
             self.assertEqual(self.save(stt_daily_free=bad).status_code, 400, bad)
 
 
-class SecondReaderTests(TestCase):
-    """Gemini is sometimes 'in high demand' (503) or too slow: one more try, then OpenAI, and never more than DEADLINE_SECONDS."""
+class ReadersTests(TestCase):
+    """OpenAI reads first (fast); Gemini is the second reader; a reader that is "in high demand" gets one more try; the wait has an end."""
 
     class R:
         def __init__(self, status, text=None, key='text'):
@@ -208,52 +209,67 @@ class SecondReaderTests(TestCase):
                 return {'text': self._t}
             return {'candidates': [{'content': {'parts': [{'text': self._t}]}}]}
 
-    def env(self, openai='ok'):
-        return mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': 'o' if openai else ''})
+    def env(self, openai='o'):
+        return mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': openai})
 
-    def test_a_busy_model_gets_one_more_try(self):
-        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), \
+    def test_openai_reads_first_and_gemini_is_not_asked(self):
+        with self.env(), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, 'নমস্কাৰ', key='openai')) as p:
+            self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), 'নমস্কাৰ')
+        self.assertEqual(p.call_count, 1)
+        self.assertIn('api.openai.com', p.call_args[0][0])
+
+    def test_gemini_reads_when_openai_cannot(self):
+        def fake(url, **kw):
+            return self.R(500, key='openai') if 'openai' in url else self.R(200, 'ঠিক আছে')
+        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake) as p:
+            self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), 'ঠিক আছে')
+        self.assertIn('api.openai.com', p.call_args_list[0][0][0])
+        self.assertIn('generativelanguage', p.call_args_list[1][0][0])
+
+    def test_without_an_openai_key_gemini_reads_and_a_busy_model_gets_one_more_try(self):
+        with self.env(openai=''), mock.patch('axom_ai.stt_api.time.sleep'), \
                 mock.patch('axom_ai.stt_api.requests.post', side_effect=[self.R(503), self.R(200, 'ঠিক আছে')]) as p:
             self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), 'ঠিক আছে')
-        self.assertEqual(p.call_count, 2)
-        self.assertEqual(p.call_args_list[0][0][0], p.call_args_list[1][0][0])          # the same model, twice
+        self.assertEqual(p.call_args_list[0][0][0], p.call_args_list[1][0][0])          # the same Gemini model, twice
 
-    def test_openai_reads_when_gemini_cannot(self):
+    def test_gemini_first_when_asked_to(self):
         calls = []
 
         def fake(url, **kw):
             calls.append(url)
-            if 'openai' in url:
-                return self.R(200, 'নমস্কাৰ', key='openai')
-            return self.R(503)
-        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
-            self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), 'নমস্কাৰ')
-        self.assertTrue(calls[-1].startswith('https://api.openai.com/v1/audio/transcriptions'))
+            return self.R(200, 'ঠিক', key='openai') if 'openai' in url else self.R(200, 'ঠিক')
+        with self.env(), mock.patch('axom_ai.stt_api.PRIMARY', 'gemini'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
+            stt_api.transcribe(b'RIFF', 'assamese')
+        self.assertIn('generativelanguage', calls[0])
 
-    def test_openai_is_told_the_language(self):
+    def test_assamese_is_sent_with_no_prompt_and_no_language_code(self):
         seen = {}
 
         def fake(url, **kw):
-            if 'openai' in url:
-                seen.update(kw['data'])
-                return self.R(200, 'hello', key='openai')
-            return self.R(503)
-        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
-            stt_api.transcribe(b'RIFF', 'english')
-        self.assertEqual(seen['language'], 'en')
-
-    def test_assamese_is_asked_for_in_a_prompt_not_a_language_code(self):
-        seen = {}
-
-        def fake(url, **kw):
-            if 'openai' in url:
-                seen.update(kw['data'])
-                return self.R(200, 'নমস্কাৰ', key='openai')
-            return self.R(503)
-        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
+            seen.update(kw['data'])
+            return self.R(200, 'নমস্কাৰ', key='openai')
+        with self.env(), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
             stt_api.transcribe(b'RIFF', 'assamese')
         self.assertNotIn('language', seen)                       # OpenAI answers 400 to 'as'
-        self.assertIn('Assamese', seen['prompt'])
+        self.assertNotIn('prompt', seen)                         # with noise only it said an Assamese prompt back as the text
+
+    def test_english_and_hindi_get_a_language_code(self):
+        for lang, code in (('english', 'en'), ('hinglish', 'hi')):
+            seen = {}
+
+            def fake(url, **kw):
+                seen.update(kw['data'])
+                return self.R(200, 'hello', key='openai')
+            with self.env(), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
+                stt_api.transcribe(b'RIFF', lang)
+            self.assertEqual(seen['language'], code)
+
+    def test_a_stock_phrase_on_noise_is_not_speech(self):
+        for phrase in ('Thank you.', 'thanks for watching!', 'You'):
+            with self.env(), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, phrase, key='openai')):
+                self.assertEqual(stt_api.transcribe(b'RIFF', 'english'), '', phrase)
+        with self.env(), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, 'Thank you for your help with the form', key='openai')):
+            self.assertEqual(stt_api.transcribe(b'RIFF', 'english'), 'Thank you for your help with the form')
 
     def test_nobody_available_is_none(self):
         with self.env(openai=''), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(503)):
@@ -273,6 +289,31 @@ class SecondReaderTests(TestCase):
             self.assertIsNone(stt_api.transcribe(b'RIFF', 'assamese'))
         self.assertLessEqual(clock['t'], stt_api.DEADLINE_SECONDS + 1)
         self.assertLessEqual(p.call_count, 5)
+
+
+@skipUnless(HAVE_FFMPEG, 'ffmpeg is needed')
+class OnlyNoiseTests(TestCase):
+    """A recording of only noise (a fan, a hum, rain, a road) must not be written down: a recogniser asked to do that sometimes invents text."""
+
+    def setUp(self):
+        cache.clear()
+
+    def test_steady_noise_is_not_speech_and_is_not_sent_or_counted(self):
+        for spec in ('anoisesrc=c=pink:a=0.1:r=48000', 'anoisesrc=c=brown:a=0.2:r=48000', 'sine=frequency=120:sample_rate=48000', 'anoisesrc=c=white:a=0.1:r=48000'):
+            audio = make_audio(spec, seconds=3)
+            wav, secs, db = stt_api.clean_audio(audio)
+            self.assertLess(stt_api.speech_dynamics(wav), stt_api.MIN_DYNAMICS, spec)
+            with mock.patch('axom_ai.stt_api.transcribe') as tr:
+                r = post(self.client, audio)
+            self.assertEqual((r.status_code, r.json()['text']), (200, ''), spec)
+            tr.assert_not_called()
+        self.assertEqual(UsageRecord.objects.filter(action_type='stt').count(), 0)
+
+    def test_speech_like_changes_of_loudness_pass(self):
+        # a tone that is on and off like words: 0.4 s sound, 0.3 s pause, five times
+        audio = make_audio("aevalsrc='sin(2*PI*220*t)*gt(sin(2*PI*t/0.7),0)':s=48000:d=3.5", seconds=3.5)
+        wav, secs, db = stt_api.clean_audio(audio)
+        self.assertGreater(stt_api.speech_dynamics(wav), 3)
 
 
 class NumberRewriteResilienceTests(TestCase):
