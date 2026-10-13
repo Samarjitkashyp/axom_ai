@@ -41,12 +41,28 @@ def _gemini_key():
     return os.getenv('GEMINI_API_KEY', '')
 
 
-def _ask(text):
+def _openai(text, deadline):
+    """The second writer, used when Gemini is slow or busy: OpenAI gpt-4o-mini with the same instruction."""
+    key = os.getenv('OPENAI_API_KEY', '')
+    left = deadline - time.monotonic()
+    if not key or left < 2:
+        return None
+    try:
+        r = requests.post('https://api.openai.com/v1/chat/completions', headers={'Authorization': 'Bearer ' + key}, timeout=min(10, left),
+                          json={'model': os.getenv('VOICE_OPENAI_MODEL', 'gpt-4o-mini'), 'temperature': 0,
+                                'messages': [{'role': 'user', 'content': PROMPT + text}]})
+        if r.status_code != 200:
+            return None
+        return (r.json()['choices'][0]['message']['content'] or '').strip()
+    except (requests.RequestException, KeyError, IndexError, ValueError, TypeError):
+        return None
+
+
+def _gemini_ask(text, deadline, models, per_call):
     key = _gemini_key()
     if not key:
         return None
-    deadline = time.monotonic() + 15                    # numbers are not worth a long wait: the digits are read one by one instead
-    for model in MODELS:
+    for model in models:
         for attempt in range(2):
             left = deadline - time.monotonic()
             if left < 2:
@@ -54,7 +70,7 @@ def _ask(text):
             try:
                 r = requests.post('https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % model,
                                   json={'contents': [{'parts': [{'text': PROMPT + text}]}], 'generationConfig': {'temperature': 0}},
-                                  headers={'x-goog-api-key': key}, timeout=min(10, left))
+                                  headers={'x-goog-api-key': key}, timeout=min(per_call, left))
             except requests.RequestException:
                 break
             if r.status_code == 503 and attempt == 0:   # "high demand": one more try
@@ -67,6 +83,17 @@ def _ask(text):
             except (KeyError, IndexError, ValueError, TypeError):
                 break
     return None
+
+
+def _ask(text):
+    """Gemini's first model (not for long), then OpenAI, then the other Gemini models; 15 seconds in all (then the digits are read one by one)."""
+    deadline = time.monotonic() + 15
+    out = _gemini_ask(text, deadline, MODELS[:1], 6)
+    if out is None:
+        out = _openai(text, deadline)
+    if out is None:
+        out = _gemini_ask(text, deadline, MODELS[1:], 8)
+    return out
 
 
 def valid_rewrite(original, rewritten):

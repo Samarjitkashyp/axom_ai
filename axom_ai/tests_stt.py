@@ -293,3 +293,37 @@ class NumberRewriteResilienceTests(TestCase):
         with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), mock.patch('axom_ai.voice_text.time.sleep'), \
                 mock.patch('axom_ai.voice_text.requests.post', return_value=R(503)):
             self.assertIsNone(vt._ask('২৫'))
+
+
+class NumberRewriteSecondWriterTests(TestCase):
+    def test_openai_writes_the_numbers_when_gemini_cannot(self):
+        from axom_ai import voice_text as vt
+
+        class R:
+            def __init__(self, status, content=None):
+                self.status_code = status
+                self._c = content
+
+            def json(self):
+                return {'choices': [{'message': {'content': self._c}}]}
+
+        def fake(url, **kw):
+            if 'openai' in url:
+                return R(200, 'আজি পঁচিশ ডিগ্ৰী।')
+            return R(503)
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': 'o'}), mock.patch('axom_ai.voice_text.time.sleep'),                 mock.patch('axom_ai.voice_text.requests.post', side_effect=fake) as p:
+            self.assertEqual(vt._ask('আজি ২৫ ডিগ্ৰী।'), 'আজি পঁচিশ ডিগ্ৰী।')
+        self.assertIn('api.openai.com', p.call_args[0][0])
+
+    def test_gemini_first_when_it_answers(self):
+        from axom_ai import voice_text as vt
+
+        class R:
+            status_code = 200
+
+            def json(self):
+                return {'candidates': [{'content': {'parts': [{'text': 'পঁচিশ'}]}}]}
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': 'o'}), mock.patch('axom_ai.voice_text.requests.post', return_value=R()) as p:
+            self.assertEqual(vt._ask('২৫'), 'পঁচিশ')
+        self.assertEqual(p.call_count, 1)
+        self.assertIn('generativelanguage', p.call_args[0][0])

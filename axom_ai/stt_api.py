@@ -160,7 +160,7 @@ def _openai(wav, language, deadline):
 def transcribe(wav, language):
     """The words that were said ('' when there was no speech), or None when no reader could be used within DEADLINE_SECONDS."""
     deadline = time.monotonic() + DEADLINE_SECONDS
-    text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=9)       # the first choice, not for long
+    text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=6)       # the first choice, not for long
     if text is None:
         text = _openai(wav, language, deadline)                                  # the second reader answers in about 2 seconds
     if text is None:

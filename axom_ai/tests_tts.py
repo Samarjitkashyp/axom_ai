@@ -218,7 +218,7 @@ class NumbersAreWrittenOutTests(TestCase):
 
             def json(self):
                 return {'candidates': [{'content': {'parts': [{'text': self._t}]}}]}
-        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k'}), \
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), \
                 mock.patch('axom_ai.voice_text.requests.post', side_effect=[R(404), R(429), R(200, 'পঁচিশ ডিগ্ৰী')]) as p:
             self.assertEqual(vt._ask('২৫ ডিগ্ৰী'), 'পঁচিশ ডিগ্ৰী')
         self.assertEqual(p.call_count, 3)
