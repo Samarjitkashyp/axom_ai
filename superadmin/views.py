@@ -1067,7 +1067,7 @@ def _validate_bot_cleanup(data):
             data['bot_cleanup_days'] = str(max(3, int(str(data['bot_cleanup_days']).strip())))
         except (TypeError, ValueError):
             return "Bot clean-up days must be a whole number."
-    for key in ('tts_daily_free', 'tts_daily_pro'):
+    for key in ('tts_daily_free', 'tts_daily_pro', 'stt_daily_free', 'stt_daily_pro'):
         if key in data:
             try:
                 n = int(str(data[key]).strip())
@@ -1120,6 +1120,9 @@ def settings_page(request):
         'tts_enabled': SystemSetting.is_enabled('tts_enabled', True),
         'tts_daily_free': SystemSetting.get_setting('tts_daily_free', '40'),
         'tts_daily_pro': SystemSetting.get_setting('tts_daily_pro', '600'),
+        'stt_enabled': SystemSetting.is_enabled('stt_enabled', True),
+        'stt_daily_free': SystemSetting.get_setting('stt_daily_free', '40'),
+        'stt_daily_pro': SystemSetting.get_setting('stt_daily_pro', '400'),
     }
 
     def _mask(k):

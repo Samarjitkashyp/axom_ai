@@ -1,7 +1,7 @@
 // Run from the repo root: node next-frontend/tests/voice-input.check.js  (voice input in the chat: no doubled text, noise handling)
 const fs = require('fs');
 const src = fs.readFileSync('next-frontend/components/chat/ChatWindow.jsx', 'utf8');
-const a = src.indexOf('const micStreamRef = useRef(null);');
+const a = src.indexOf('const VOICE_VAD');
 const b = src.indexOf('const langCode = () =>');
 const block = src.slice(a, b);
 let fails = 0; const t = (n, c) => { if (!c) { fails++; console.log('FAIL', n); } };
@@ -19,11 +19,14 @@ async function scenario({ inputText = '', takesTrack = false, permission = 'ok',
   const refs = {};
   const useRef = (v) => (refs[Math.random()] = { current: v });
   const win = { SpeechRecognition: FakeSR };
+  // (these checks are about the browser's own recognition: the window has no MediaRecorder, so that way is taken)
   const ctx = new Function('useRef', 'window', 'navigator', 'recognitionRef', 'isListening', 'inputText', 'setInputText', 'setIsListening', 'setErrorMsg', 'langCode',
+    'Date', 'setInterval', 'clearInterval', 'fetch', 'FormData', 'Blob', 'language', 'setIsTranscribing', 'isTranscribing',
     block + '; return { toggleSpeechRecognition, releaseMic };');
   const recRef = { current: null };
   let listening = false;
-  const api = ctx(useRef, win, nav, recRef, false, inputText, (v) => { state.input = typeof v === 'function' ? v(state.input) : v; }, (v) => { listening = v; state.listening = v; }, (m) => { state.error = m; }, () => 'en-IN');
+  const api = ctx(useRef, win, nav, recRef, false, inputText, (v) => { state.input = typeof v === 'function' ? v(state.input) : v; }, (v) => { listening = v; state.listening = v; }, (m) => { state.error = m; }, () => 'en-IN',
+    Date, setInterval, clearInterval, null, null, null, 'english', () => {}, false);
   await api.toggleSpeechRecognition();
   const rec = FakeSR.last;
   for (const ev of events) rec.onresult && rec.onresult({ results: ev });

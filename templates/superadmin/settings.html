@@ -110,6 +110,26 @@
           </div>
         </div>
 
+        <!-- Voice typing (microphone) in the chat -->
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div class="flex items-center justify-between gap-3 mb-1">
+            <div class="font-bold text-white">Voice typing on the server (🎤)</div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="flagStt" {% if settings.stt_enabled %}checked{% endif %} class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+          <div class="text-slate-400 text-[11px] mb-3">The chat records the microphone with the browser's noise suppression and Gemini writes down what was said (Assamese, English, Hindi). A recording with no speech in it is not sent and not counted. When this is off, or a person is over the limit, the chat uses the browser's own voice typing. 0 = none.</div>
+          <div class="flex flex-wrap items-center gap-4">
+            <label class="text-slate-300 flex items-center gap-2">Free / not signed in
+              <input type="number" id="sttDailyFree" min="0" max="100000" value="{{ settings.stt_daily_free }}" class="w-24 bg-slate-800 border border-slate-700 text-white rounded-lg px-2 py-2 text-xs"> recordings a day
+            </label>
+            <label class="text-slate-300 flex items-center gap-2">Paid plans
+              <input type="number" id="sttDailyPro" min="0" max="100000" value="{{ settings.stt_daily_pro }}" class="w-24 bg-slate-800 border border-slate-700 text-white rounded-lg px-2 py-2 text-xs"> recordings a day
+            </label>
+          </div>
+        </div>
+
         <!-- Crawler bot: uploaded documents (images / PDFs) read by AI -->
         <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
           <div class="font-bold text-white">Document uploads: AI pages per day</div>
@@ -262,7 +282,10 @@
       bot_upload_daily_pages: document.getElementById('botUploadDailyPages').value,
       tts_enabled: document.getElementById('flagTts').checked,
       tts_daily_free: document.getElementById('ttsDailyFree').value,
-      tts_daily_pro: document.getElementById('ttsDailyPro').value
+      tts_daily_pro: document.getElementById('ttsDailyPro').value,
+      stt_enabled: document.getElementById('flagStt').checked,
+      stt_daily_free: document.getElementById('sttDailyFree').value,
+      stt_daily_pro: document.getElementById('sttDailyPro').value
     };
     try {
       const res = await fetch('/axomai-admin/settings/save/', {
