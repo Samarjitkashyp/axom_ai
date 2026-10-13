@@ -18,6 +18,7 @@ export async function GET() {
     { url: `${baseUrl}/contact`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.8' },
     { url: `${baseUrl}/privacy`, lastmod: '2026-10-08', changefreq: 'monthly', priority: '0.7' },
     { url: `${baseUrl}/terms`, lastmod: '2026-10-08', changefreq: 'monthly', priority: '0.7' },
+    { url: `${baseUrl}/cookie-policy`, lastmod: '2026-10-13', changefreq: 'yearly', priority: '0.4' },
     { url: `${baseUrl}/tools`, lastmod: '2026-10-08', changefreq: 'daily', priority: '0.9' },
   ];
 

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FooterData } from '@/lib/api';
+import { openCookieSettings } from './CookieConsent';
 
 const DEFAULT_COLS = [
   {
@@ -273,6 +274,8 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
             <span>&copy; {currentYear} {copyrightText}</span>
             <Link href={resolveUrl('/privacy')} className="hover:text-fuchsia-400 transition">Privacy Policy</Link>
             <Link href={resolveUrl('/terms')} className="hover:text-fuchsia-400 transition">Terms of Service</Link>
+            <Link href={resolveUrl('/cookie-policy')} className="hover:text-fuchsia-400 transition">Cookie Policy</Link>
+            <button type="button" onClick={openCookieSettings} className="hover:text-fuchsia-400 transition">Cookie Settings</button>
             <a href="mailto:samarjitkashyp@gmail.com" className="hover:text-fuchsia-400 transition">Support</a>
           </div>
           <div>
