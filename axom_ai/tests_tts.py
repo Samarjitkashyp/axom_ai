@@ -139,3 +139,15 @@ class TtsSettingsTests(TestCase):
         self.assertFalse(SystemSetting.is_enabled('tts_enabled', True))
         for bad in ('x', '-1', '100001', ''):
             self.assertEqual(self.save(tts_daily_free=bad).status_code, 400, bad)
+
+
+class OldOpenVoiceRoutesAreGone(TestCase):
+    def test_the_old_public_routes_do_not_exist_any_more(self):
+        for url in ('/api/chat/tts/', '/api/tts/synthesize/'):
+            r = self.client.post(url, data=json.dumps({'text': 'অসম'}), content_type='application/json')
+            self.assertEqual(r.status_code, 404, url)
+
+    def test_the_phonetics_endpoint_still_works(self):
+        r = self.client.post('/api/chat/phonetics/', data=json.dumps({'text': 'অসম'}), content_type='application/json')
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.json()['success'])
