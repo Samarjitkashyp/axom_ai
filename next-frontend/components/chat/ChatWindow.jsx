@@ -247,7 +247,7 @@ export default function ChatWindow({
   //    switched on, the recording stops by itself after a pause, the server cleans it and writes down what was said (Gemini).
   // 2. The browser's own speech recognition: used when the server says no (switched off, limit, not reachable) or MediaRecorder is missing.
   // Either way the text box is set to (what was typed before) + (what was heard), never appended to: appending doubled "How are you".
-  const VOICE_VAD = { tickMs: 100, calibrateMs: 500, pauseMs: 1600, waitForSpeechMs: 8000, maxMs: 40000, minSpeechMs: 250 };
+  const VOICE_VAD = { tickMs: 100, calibrateMs: 500, pauseMs: 1100, waitForSpeechMs: 8000, maxMs: 40000, minSpeechMs: 250 };
   const micStreamRef = useRef(null);
   const sttModeRef = useRef('server');           // 'server' until the server cannot be used, then 'browser'
   const recorderRef = useRef(null);
@@ -2156,7 +2156,7 @@ export default function ChatWindow({
               value={inputText}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : (isListening ? "Listening... speak now..." : "Message Axom AI...")}
+              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : (isListening ? "Listening... speak now..." : isTranscribing ? "Writing down what you said..." : "Message Axom AI...")}
               rows={1}
               disabled={isLoading || isConvertingDoc || isGeneratingImage}
             />

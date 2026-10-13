@@ -37,8 +37,11 @@ DEFAULT_PRO = 400
 FFMPEG = shutil.which('ffmpeg') or '/usr/bin/ffmpeg'
 DEADLINE_SECONDS = 28            # the whole of Gemini + the second reader: a person is never kept waiting longer than this
 OPENAI_MODEL = os.getenv('STT_OPENAI_MODEL', 'gpt-4o-mini-transcribe')
-OPENAI_LANG = {'english': 'en', 'hinglish': 'hi'}          # OpenAI refuses the code 'as' (Assamese); it reads Assamese when it is only told so in a prompt
-OPENAI_PROMPT = {'assamese': 'অসমীয়া ভাষাৰ কথা। Assamese speech, write it in Assamese script (ৰ and ৱ).'}
+OPENAI_LANG = {'english': 'en', 'hinglish': 'hi'}          # OpenAI refuses the code 'as' (Assamese) and, given an Assamese prompt, says the prompt back when it hears only noise:
+#                                                            for Assamese it is told nothing and finds the language by itself (tried: it does, in Assamese script)
+PRIMARY = os.getenv('STT_PRIMARY', 'openai')                # who reads first: OpenAI answers in about 1-2 s, Gemini in 3-30 s depending on its load
+MIN_DYNAMICS = 3.2                                          # as recorded by a browser (Opus): steady noise / a hum / a fan 1.2-3.0, speech 34+ (4.1+ with a noisy room; only speech as loud as the noise itself falls to 2.2-2.9)
+HALLUCINATIONS = {'thank you', 'thanks for watching', 'thank you for watching', 'you', 'bye', 'bye bye', 'okay', 'the end', 'subtitles by the amara.org community'}
 MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-flash-latest').split(',') if m]
 
 # rumble out, speech band only, even loudness, silence at both ends cut. No heavy noise reduction here: tried on noisy recordings it made the
@@ -95,6 +98,20 @@ def has_speech(seconds, dbfs):
     return seconds >= MIN_SECONDS and dbfs > SILENCE_DBFS
 
 
+def speech_dynamics(wav):
+    """How much the loudness changes from moment to moment (loud 5% of the 20 ms pieces / quiet 25%). Speech goes up and down all the time; a fan,
+    a hum, rain or a busy road stays level (tried on Opus recordings: 1.2-3.0 for noise only, 4-477 for speech with and without noise). Without it the recogniser is
+    asked to write down noise, and a recogniser asked that sometimes writes something."""
+    pcm = wav[44:]
+    samples = array.array('h')
+    samples.frombytes(pcm[:len(pcm) - len(pcm) % 2])
+    n = 320
+    levels = sorted(math.sqrt(sum(x * x for x in samples[i:i + n]) / n) for i in range(0, len(samples) - n, n))
+    if len(levels) < 10:
+        return 0.0
+    return levels[int(0.95 * (len(levels) - 1))] / max(levels[int(0.25 * (len(levels) - 1))], 1.0)
+
+
 # ---------------------------------------------------------------- Gemini
 def _gemini_key():
     return os.getenv('GEMINI_API_KEY', '')
@@ -145,26 +162,33 @@ def _openai(wav, language, deadline):
     data = {'model': OPENAI_MODEL, 'response_format': 'json'}
     if OPENAI_LANG.get(language):
         data['language'] = OPENAI_LANG[language]
-    if OPENAI_PROMPT.get(language):
-        data['prompt'] = OPENAI_PROMPT[language]
     try:
         r = requests.post('https://api.openai.com/v1/audio/transcriptions', headers={'Authorization': 'Bearer ' + key}, data=data,
                           files={'file': ('speech.wav', wav, 'audio/wav')}, timeout=min(25, left))
         if r.status_code != 200:
             return None
-        return re.sub(r'\s+', ' ', (r.json().get('text') or '').strip())
+        text = re.sub(r'\s+', ' ', (r.json().get('text') or '').strip())
+        # a recogniser asked to write down noise sometimes invents a stock phrase: those are not speech
+        return '' if text.lower().strip(' .!?,') in HALLUCINATIONS else text
     except (requests.RequestException, ValueError):
         return None
 
 
 def transcribe(wav, language):
-    """The words that were said ('' when there was no speech), or None when no reader could be used within DEADLINE_SECONDS."""
+    """The words that were said ('' when there was no speech), or None when no reader could be used within DEADLINE_SECONDS.
+    OpenAI reads first (about 1-2 seconds, as good as Gemini on Assamese speech with and without noise when tried on the server); Gemini is the
+    second reader. STT_PRIMARY=gemini puts them the other way round."""
     deadline = time.monotonic() + DEADLINE_SECONDS
-    text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=9)       # the first choice, not for long
+    if PRIMARY == 'gemini' or not os.getenv('OPENAI_API_KEY'):
+        text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=6)       # the first choice, not for long
+        if text is None:
+            text = _openai(wav, language, deadline)
+        if text is None:
+            text = _gemini(wav, language, deadline, models=MODELS[1:], per_call=18)  # the other Gemini models, with what is left of the time
+        return text
+    text = _openai(wav, language, deadline)
     if text is None:
-        text = _openai(wav, language, deadline)                                  # the second reader answers in about 2 seconds
-    if text is None:
-        text = _gemini(wav, language, deadline, models=MODELS[1:], per_call=18)  # the other Gemini models, with what is left of the time
+        text = _gemini(wav, language, deadline, models=MODELS, per_call=12)
     return text
 
 
@@ -238,8 +262,8 @@ def stt_api(request):
         return _error(str(e), 400)
     if seconds > MAX_SECONDS:
         return _error('This recording is too long (%d seconds at most).' % MAX_SECONDS, 413)
-    if not has_speech(seconds, dbfs):
-        return JsonResponse({'success': True, 'text': '', 'seconds': round(seconds, 1)})     # nothing to write down: nothing is asked or counted
+    if not has_speech(seconds, dbfs) or speech_dynamics(wav) < MIN_DYNAMICS:
+        return JsonResponse({'success': True, 'text': '', 'seconds': round(seconds, 1)})     # nothing to write down (silence or only noise): nothing is asked or counted
     text = transcribe(wav, language)
     if text is None:
         return _error('Voice typing is not available right now.', 503)
