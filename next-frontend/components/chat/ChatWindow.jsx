@@ -5,7 +5,7 @@ import {
   Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle,
   FileText, Mic, MicOff, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
   ExternalLink, Loader2, Sparkles, FileUp, Wrench, Languages, ChevronDown,
-  X, MessageSquare, Image as ImageIcon, Plus, Zap, Landmark, FileDown, ScanText, BookOpen
+  X, MessageSquare, Image as ImageIcon, Plus, Zap, ScanText, BookOpen
 } from 'lucide-react';
 import { formatMarkdown } from './utils/format';
 import { getCsrfToken } from './utils/security';
@@ -56,8 +56,6 @@ export default function ChatWindow({
   });
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isAttachMenuOpen, setIsAttachMenuOpen] = useState(false);
-  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
-  const [isAssamExamMode, setIsAssamExamMode] = useState(false);
   const [phoneticSuggestion, setPhoneticSuggestion] = useState(null);
   const [isTransliterating, setIsTransliterating] = useState(false);
   const [isOcrLoading, setIsOcrLoading] = useState(false);
@@ -65,7 +63,6 @@ export default function ChatWindow({
 
   const langMenuRef = useRef(null);
   const attachMenuRef = useRef(null);
-  const exportMenuRef = useRef(null);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -75,15 +72,12 @@ export default function ChatWindow({
       if (attachMenuRef.current && !attachMenuRef.current.contains(e.target)) {
         setIsAttachMenuOpen(false);
       }
-      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
-        setIsExportMenuOpen(false);
-      }
     };
-    if (isLangMenuOpen || isAttachMenuOpen || isExportMenuOpen) {
+    if (isLangMenuOpen || isAttachMenuOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
     }
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isLangMenuOpen, isAttachMenuOpen, isExportMenuOpen]);
+  }, [isLangMenuOpen, isAttachMenuOpen]);
 
   // Phonetic Assamese detection in input text
   useEffect(() => {
@@ -153,59 +147,6 @@ export default function ChatWindow({
       setErrorMsg('Network error extracting text. Please try again.');
     } finally {
       setIsOcrLoading(false);
-    }
-  };
-
-  const handleExportPdf = () => {
-    setIsExportMenuOpen(false);
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
-  };
-
-  const handleExportMarkdown = () => {
-    setIsExportMenuOpen(false);
-    if (!currentSession || !currentSession.messages || currentSession.messages.length === 0) return;
-    let md = `# ${currentSession.title || 'Axom AI Chat'}\n\nExported on: ${new Date().toLocaleString()}\n\n---\n\n`;
-    currentSession.messages.forEach((m) => {
-      const role = m.role === 'user' ? '### 👤 You' : '### 🤖 Axom AI';
-      md += `${role}\n\n${m.text}\n\n---\n\n`;
-    });
-    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${(currentSession.title || 'Axom_AI_Chat').replace(/[^\w-]/g, '_')}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleExportDocx = async () => {
-    setIsExportMenuOpen(false);
-    if (!currentSession || !currentSession.messages || currentSession.messages.length === 0) return;
-    try {
-      const res = await fetch('/api/chat/export-docx/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken() || '',
-        },
-        body: JSON.stringify({
-          title: currentSession.title || 'Axom AI Conversation',
-          messages: currentSession.messages,
-        }),
-      });
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${(currentSession.title || 'Axom_AI_Conversation').replace(/[^\w-]/g, '_')}.docx`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-    } catch {
-      setErrorMsg('Failed to export Word document.');
     }
   };
 
@@ -1033,7 +974,6 @@ export default function ChatWindow({
           web_search: webSearch,
           session_id: sessionId,
           language,
-          persona_mode: isAssamExamMode ? 'assam_exam' : '',
           custom_instructions: typeof window !== 'undefined' ? (
             (localStorage.getItem('axom_custom_persona_about') ? 'User Profile: ' + localStorage.getItem('axom_custom_persona_about') + '\n' : '') +
             (localStorage.getItem('axom_custom_persona_response') ? 'Response Style: ' + localStorage.getItem('axom_custom_persona_response') : '')
@@ -1250,92 +1190,6 @@ export default function ChatWindow({
         </div>
 
         <div className="header-right">
-          <button
-            className={`header-action-btn ${isAssamExamMode ? 'active' : ''}`}
-            onClick={() => setIsAssamExamMode((prev) => !prev)}
-            title="Toggle Assam Competitive Exams Prep Persona (APSC, ADRE, Assam Police, AHSEC)"
-            style={{
-              background: isAssamExamMode ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(16, 185, 129, 0.15))' : undefined,
-              borderColor: isAssamExamMode ? '#fbbf24' : undefined,
-              color: isAssamExamMode ? '#fbbf24' : undefined,
-              fontWeight: isAssamExamMode ? 700 : 500,
-            }}
-          >
-            <Landmark size={14} style={{ color: isAssamExamMode ? '#fbbf24' : 'inherit' }} />
-            <span className="btn-label">{isAssamExamMode ? 'Exam Mode ⭐' : 'Exam Prep'}</span>
-          </button>
-
-          <button className="header-action-btn" onClick={onOpenTools} title="Open AI Tools & Document Studio">
-            <Wrench size={14} />
-            <span className="btn-label">Tools</span>
-          </button>
-
-          {/* Export Dropdown */}
-          <div style={{ position: 'relative' }} ref={exportMenuRef}>
-            <button
-              className="header-action-btn"
-              onClick={() => setIsExportMenuOpen((prev) => !prev)}
-              title="Export conversation to PDF, Markdown, or Word (.docx)"
-            >
-              <FileDown size={14} />
-              <span className="btn-label">Export</span>
-              <ChevronDown size={12} />
-            </button>
-            {isExportMenuOpen && (
-              <div
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: 'calc(100% + 6px)',
-                  zIndex: 100,
-                  background: 'var(--bg-card, #111827)',
-                  border: '1px solid var(--border-color, #1f2937)',
-                  borderRadius: '10px',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-                  padding: '6px',
-                  minWidth: '175px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={handleExportPdf}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px',
-                    background: 'transparent', border: 'none', color: 'var(--text-primary)',
-                    fontSize: '0.80rem', fontWeight: 600, cursor: 'pointer', borderRadius: '6px', textAlign: 'left'
-                  }}
-                >
-                  <span>📄 Export as PDF</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExportMarkdown}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px',
-                    background: 'transparent', border: 'none', color: 'var(--text-primary)',
-                    fontSize: '0.80rem', fontWeight: 600, cursor: 'pointer', borderRadius: '6px', textAlign: 'left'
-                  }}
-                >
-                  <span>📝 Export as Markdown (.md)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExportDocx}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px',
-                    background: 'transparent', border: 'none', color: 'var(--text-primary)',
-                    fontSize: '0.80rem', fontWeight: 600, cursor: 'pointer', borderRadius: '6px', textAlign: 'left'
-                  }}
-                >
-                  <span>📘 Export as Word (.docx)</span>
-                </button>
-              </div>
-            )}
-          </div>
-
           <button className="icon-btn" onClick={onToggleTheme} title="Toggle Theme">
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
@@ -1381,38 +1235,7 @@ export default function ChatWindow({
 
             {/* Quick Exam & General Prompt Chips */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center', maxWidth: '660px', margin: '20px auto 0', padding: '0 12px' }}>
-              {isAssamExamMode ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => handleSendWithText('APSC Prelims: Top 10 high-yield MCQs on Ahom Dynasty & Administration with explanations')}
-                    style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fbbf24', fontSize: '0.76rem', fontWeight: 600, cursor: 'pointer' }}
-                  >
-                    ⭐ APSC 10 MCQs on Ahom Dynasty
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSendWithText('Explain all 7 National Parks & Ramsar Sites of Assam with their key wildlife & locations')}
-                    style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(52, 211, 153, 0.12)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', fontSize: '0.76rem', fontWeight: 600, cursor: 'pointer' }}
-                  >
-                    🌿 Assam National Parks & Ramsar Sites
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSendWithText('Battle of Saraighat (1671) & Lachit Borphukan: Strategic significance for Assam History')}
-                    style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', color: '#60a5fa', fontSize: '0.76rem', fontWeight: 600, cursor: 'pointer' }}
-                  >
-                    📜 Saraighat Battle & Lachit Borphukan
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleSendWithText('ADRE Grade 3 & 4 Mock Questions: Assam Rivers, Drainage & Geography')}
-                    style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(168, 85, 247, 0.12)', border: '1px solid rgba(168, 85, 247, 0.3)', color: '#c084fc', fontSize: '0.76rem', fontWeight: 600, cursor: 'pointer' }}
-                  >
-                    📊 ADRE Mock: Assam Geography & Rivers
-                  </button>
-                </>
-              ) : (
+              {(
                 <>
                   <button
                     type="button"
@@ -1427,13 +1250,6 @@ export default function ChatWindow({
                     style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.76rem', fontWeight: 500, cursor: 'pointer' }}
                   >
                     💻 Python Data Structures with Code
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsAssamExamMode(true)}
-                    style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fbbf24', fontSize: '0.76rem', fontWeight: 600, cursor: 'pointer' }}
-                  >
-                    🏛️ 1-Click Assam Exam & GK Mode
                   </button>
                 </>
               )}
