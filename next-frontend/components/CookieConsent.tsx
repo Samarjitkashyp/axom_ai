@@ -56,6 +56,8 @@ export default function CookieConsent() {
     } else {
       setShow(true);
     }
+    // Google Analytics cookies left by visits from before this banner existed (they last 2 years) are removed unless analytics was accepted
+    if (!c || !c.analytics) removeAnalyticsCookies();
     const open = () => {
       const now = readConsent(document.cookie, stored());
       setAnalytics(!!now?.analytics);
