@@ -5,7 +5,7 @@ import {
   ChevronLeft, Archive, Palette, Info, Sun, Moon, Trash2,
   MessageSquare, Settings as SettingsIcon, User, Camera,
   Mail, Phone, MapPin, FileText, Lock, Star, Check, Shield,
-  LogOut, Crown,
+  LogOut, Crown, Volume2,
 } from 'lucide-react';
 import { getCsrfToken } from './utils/security';
 
@@ -143,6 +143,45 @@ export default function SettingsPage({
       setSaving(false);
     }
   };
+
+  // Assamese voice (the 🔊 button in the chat): male or female, kept on this device. "Listen" plays a short sample.
+  const [ttsVoice, setTtsVoice] = useState(() => {
+    try { return localStorage.getItem('axom_tts_voice') === 'female' ? 'female' : 'male'; } catch (e) { return 'male'; }
+  });
+  const [voiceTest, setVoiceTest] = useState('');          // '' | 'loading' | message
+  const voiceTestAudio = useRef(null);
+  const chooseTtsVoice = (v) => {
+    setTtsVoice(v);
+    try { localStorage.setItem('axom_tts_voice', v); } catch (e) { /* private mode: it just is not remembered */ }
+  };
+  const listenToVoice = async () => {
+    if (voiceTestAudio.current) { voiceTestAudio.current.pause(); voiceTestAudio.current = null; }
+    setVoiceTest('loading');
+    try {
+      const res = await fetch('/api/tts/speak/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: 'নমস্কাৰ, মই অসম এআই। এয়া মোৰ কণ্ঠস্বৰ।', voice: ttsVoice }),
+      });
+      if (!res.ok) {
+        let body = {};
+        try { body = await res.json(); } catch (e) { /* not JSON */ }
+        setVoiceTest(body.error || 'The voice is not available right now.');
+        return;
+      }
+      const url = URL.createObjectURL(await res.blob());
+      const audio = new Audio(url);
+      voiceTestAudio.current = audio;
+      audio.onended = () => { URL.revokeObjectURL(url); setVoiceTest(''); };
+      audio.onerror = () => { URL.revokeObjectURL(url); setVoiceTest(''); };
+      setVoiceTest('');
+      audio.play().catch(() => setVoiceTest(''));
+    } catch (e) {
+      setVoiceTest('The voice is not available right now.');
+    }
+  };
+  useEffect(() => () => { if (voiceTestAudio.current) voiceTestAudio.current.pause(); }, []);
 
   // Custom Persona / System Instructions state
   const [personaAbout, setPersonaAbout] = useState(() => {
@@ -675,6 +714,26 @@ export default function SettingsPage({
                 <button className="settings-toggle-btn" onClick={onToggleTheme}>
                   {theme === 'dark' ? <><Sun size={15} /> Light</> : <><Moon size={15} /> Dark</>}
                 </button>
+              </div>
+              <div className="settings-row">
+                <div className="settings-row-left">
+                  <Volume2 size={18} />
+                  <div>
+                    <div className="settings-row-title">Assamese voice</div>
+                    <div className="settings-row-desc">
+                      {voiceTest && voiceTest !== 'loading' ? voiceTest : 'The voice of the 🔊 button when an answer is read aloud in Assamese.'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <button className="settings-toggle-btn" aria-pressed={ttsVoice === 'male'} onClick={() => chooseTtsVoice('male')}
+                    style={ttsVoice === 'male' ? { outline: '2px solid var(--accent-pink, #ec4899)' } : undefined}>Male</button>
+                  <button className="settings-toggle-btn" aria-pressed={ttsVoice === 'female'} onClick={() => chooseTtsVoice('female')}
+                    style={ttsVoice === 'female' ? { outline: '2px solid var(--accent-pink, #ec4899)' } : undefined}>Female</button>
+                  <button className="settings-toggle-btn" onClick={listenToVoice} disabled={voiceTest === 'loading'}>
+                    <Volume2 size={14} /> {voiceTest === 'loading' ? 'Making…' : 'Listen'}
+                  </button>
+                </div>
               </div>
             </div>
           )}

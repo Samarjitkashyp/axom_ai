@@ -14,6 +14,7 @@ from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
+from axom_ai import voice_text
 from axom_ai.security import get_client_ip
 from axom_ai.views import _chat_cors_view
 from payments.utils import has_active_plan
@@ -89,8 +90,10 @@ def tts_speak_api(request):
     used, limit = used_today(request), daily_limit(request)
     over = used >= limit
     pro = request.user.is_authenticated and has_active_plan(request.user)
+    # numbers are written out as Assamese words first (the voice has no digits); a person over the limit only gets what was remembered
+    spoken = (voice_text.normalize_numbers(text, allow_ask=not over) or text) if voice_text.has_digits(text) else text
     try:
-        r = requests.post(TTS_URL + '/tts', json={'text': text, 'voice': voice, 'cache_only': over}, timeout=75)
+        r = requests.post(TTS_URL + '/tts', json={'text': spoken, 'voice': voice, 'cache_only': over}, timeout=75)
     except requests.RequestException:
         return _error('The Assamese voice is not available right now.', 503)
 

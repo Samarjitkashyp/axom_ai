@@ -151,3 +151,76 @@ class OldOpenVoiceRoutesAreGone(TestCase):
         r = self.client.post('/api/chat/phonetics/', data=json.dumps({'text': 'অসম'}), content_type='application/json')
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.json()['success'])
+
+
+class NumbersAreWrittenOutTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def test_digits_are_rewritten_as_assamese_words_before_the_voice(self):
+        with mock.patch('axom_ai.voice_text._ask', return_value='আজি তাপমাত্ৰা পঁচিশ ডিগ্ৰী।') as ask, \
+                mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp()) as m:
+            self.assertEqual(post(self.client, text='আজি তাপমাত্ৰা ২৫ ডিগ্ৰী।').status_code, 200)
+        self.assertEqual(m.call_args[1]['json']['text'], 'আজি তাপমাত্ৰা পঁচিশ ডিগ্ৰী।')
+        ask.assert_called_once()
+
+    def test_a_replay_does_not_ask_gemini_again(self):
+        with mock.patch('axom_ai.voice_text._ask', return_value='আজি পঁচিশ ডিগ্ৰী।') as ask, mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp(cache='hit')):
+            post(self.client, text='আজি ২৫ ডিগ্ৰী।')
+            post(self.client, text='আজি ২৫ ডিগ্ৰী।')
+        self.assertEqual(ask.call_count, 1)
+
+    def test_when_gemini_fails_the_text_goes_as_it_is(self):
+        with mock.patch('axom_ai.voice_text._ask', return_value=None), mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp()) as m:
+            post(self.client, text='আজি ২৫ ডিগ্ৰী।')
+        self.assertEqual(m.call_args[1]['json']['text'], 'আজি ২৫ ডিগ্ৰী।')
+
+    def test_a_bad_rewrite_is_refused(self):
+        with mock.patch('axom_ai.voice_text._ask', return_value='আজি ২৫ ডিগ্ৰী।'), mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp()) as m:
+            post(self.client, text='আজি ২৫ ডিগ্ৰী।')                       # a digit is still there
+        self.assertEqual(m.call_args[1]['json']['text'], 'আজি ২৫ ডিগ্ৰী।')
+
+    def test_no_digits_no_gemini(self):
+        with mock.patch('axom_ai.voice_text._ask') as ask, mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp()):
+            post(self.client, text='অসম ভাৰতৰ এটা ৰাজ্য।')
+        ask.assert_not_called()
+
+    def test_over_the_limit_never_asks_gemini(self):
+        SystemSetting.set_setting('tts_daily_free', '0')
+        with mock.patch('axom_ai.voice_text._ask') as ask, mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp(status=404)) as m:
+            r = post(self.client, text='আজি ২৫ ডিগ্ৰী।')
+        ask.assert_not_called()
+        self.assertEqual((r.status_code, m.call_args[1]['json']['cache_only']), (429, True))
+
+    def test_rewrite_checks(self):
+        from axom_ai import voice_text as vt
+        self.assertTrue(vt.valid_rewrite('২৫ ডিগ্ৰী', 'পঁচিশ ডিগ্ৰী'))
+        self.assertFalse(vt.valid_rewrite('২৫ ডিগ্ৰী', ''))                  # empty
+        self.assertFalse(vt.valid_rewrite('২৫ ডিগ্ৰী', '25 degrees'))        # not Assamese
+        self.assertFalse(vt.valid_rewrite('২৫ ডিগ্ৰী', 'পঁচিশ ২ ডিগ্ৰী'))     # a digit left
+        self.assertFalse(vt.valid_rewrite('২৫ ডিগ্ৰী', 'অ' * 400))           # far too long
+        self.assertTrue(vt.has_digits('মোৰ ৩ টা'))
+        self.assertTrue(vt.has_digits('I have 3'))
+        self.assertFalse(vt.has_digits('মোৰ তিনিটা'))
+
+    def test_currency_symbol_is_dropped(self):
+        from axom_ai import voice_text as vt
+        with mock.patch('axom_ai.voice_text._ask', return_value='দাম ₹পাঁচশ টকা।'):
+            self.assertEqual(vt.normalize_numbers('দাম ₹৫০০ টকা।'), 'দাম পাঁচশ টকা।')
+
+    def test_gemini_http_failures_fall_through_the_models(self):
+        from axom_ai import voice_text as vt
+
+        class R:
+            def __init__(self, status, text=None):
+                self.status_code = status
+                self._t = text
+
+            def json(self):
+                return {'candidates': [{'content': {'parts': [{'text': self._t}]}}]}
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k'}), \
+                mock.patch('axom_ai.voice_text.requests.post', side_effect=[R(404), R(429), R(200, 'পঁচিশ ডিগ্ৰী')]) as p:
+            self.assertEqual(vt._ask('২৫ ডিগ্ৰী'), 'পঁচিশ ডিগ্ৰী')
+        self.assertEqual(p.call_count, 3)
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': ''}):
+            self.assertIsNone(vt._ask('২৫'))
