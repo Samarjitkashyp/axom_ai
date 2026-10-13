@@ -241,12 +241,25 @@ export default function ChatWindow({
   const docFileInputRef = useRef(null);
   const imageFileInputRef = useRef(null);
 
-  const toggleSpeechRecognition = () => {
+  // Voice input (speech to text) with the browser's Web Speech API.
+  // Every result event carries EVERYTHING heard so far ("How", then "How are", then "How are you"), so the text box is set to
+  // (what was typed before) + (everything heard), never appended to: appending is what made "How are you" come out doubled.
+  const micStreamRef = useRef(null);
+
+  const releaseMic = () => {
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
+  };
+
+  const toggleSpeechRecognition = async () => {
     if (typeof window === 'undefined') return;
     if (isListening) {
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch (e) {}
+        try { recognitionRef.current.stop(); } catch (e) { /* already stopped */ }
       }
+      releaseMic();
       setIsListening(false);
       return;
     }
@@ -257,25 +270,63 @@ export default function ChatWindow({
       return;
     }
 
+    // Noise suppression: where the browser lets speech recognition take a microphone track (new Chrome), the track is opened with the
+    // browser's noise suppression, echo cancellation and gain control on. Other browsers use their own microphone handling.
+    let track = null;
+    const takesTrack = typeof SpeechRec.available === 'function' || 'processLocally' in SpeechRec.prototype;
+    if (takesTrack && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+        });
+        micStreamRef.current = stream;
+        track = stream.getAudioTracks()[0] || null;
+      } catch (err) {
+        if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) {
+          setErrorMsg('Could not access microphone. Please allow microphone permissions.');
+          return;
+        }
+        track = null;                                              // no such microphone setting: the browser's own way
+      }
+    }
+
     try {
+      const base = inputText && inputText.trim() ? inputText.trim() + ' ' : '';
       const rec = new SpeechRec();
       rec.continuous = false;
       rec.interimResults = true;
+      rec.maxAlternatives = 1;
       rec.lang = langCode();
 
       rec.onstart = () => setIsListening(true);
       rec.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map((res) => res[0].transcript)
-          .join('');
-        setInputText((prev) => (prev ? prev + ' ' + transcript : transcript));
+        let heard = '';
+        for (let i = 0; i < event.results.length; i++) {
+          const res = event.results[i];
+          const alt = res[0];
+          // a finished phrase the recogniser itself is hardly sure of is usually the noise around the speaker, heard as words
+          if (res.isFinal && alt.confidence > 0 && alt.confidence < 0.25) continue;
+          heard += alt.transcript;
+        }
+        setInputText(base + heard.trim());
       };
-      rec.onerror = () => setIsListening(false);
-      rec.onend = () => setIsListening(false);
+      rec.onerror = (e) => {
+        releaseMic();
+        setIsListening(false);
+        if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed')) {
+          setErrorMsg('Could not access microphone. Please allow microphone permissions.');
+        }
+      };
+      rec.onend = () => { releaseMic(); setIsListening(false); };
 
       recognitionRef.current = rec;
-      rec.start();
+      if (track) {
+        try { rec.start(track); } catch (e) { rec.start(); }
+      } else {
+        rec.start();
+      }
     } catch (err) {
+      releaseMic();
       setIsListening(false);
       setErrorMsg('Could not access microphone. Please allow microphone permissions.');
     }
@@ -523,32 +574,6 @@ export default function ChatWindow({
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
-  };
-
-  // Voice input via the browser Web Speech API.
-  const startVoiceInput = () => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
-      alert('Voice input is not supported in this browser. Please try Google Chrome.');
-      return;
-    }
-    if (isListening && recognitionRef.current) {
-      recognitionRef.current.stop();
-      return;
-    }
-    const rec = new SR();
-    rec.lang = langCode();
-    rec.interimResults = false;
-    rec.maxAlternatives = 1;
-    rec.onresult = (e) => {
-      const text = e.results[0][0].transcript;
-      setInputText((prev) => (prev ? prev + ' ' : '') + text);
-    };
-    rec.onend = () => setIsListening(false);
-    rec.onerror = () => setIsListening(false);
-    recognitionRef.current = rec;
-    setIsListening(true);
-    rec.start();
   };
 
   // Read an answer aloud. Assamese text is spoken by the Axom AI Assamese voice (server side, one sentence at a time so that the
