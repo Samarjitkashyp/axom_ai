@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-
-const GTM_ID = 'GTM-K4N88ZBR';
+import CookieConsent from '../components/CookieConsent';
 
 // AXOMAI-LIGHT: the site follows the OS theme (light is the Axomai Browser look). The tools and the chat keep their dark look.
 const THEME_JS = `(function(){try{var h=document.documentElement,q=window.matchMedia('(prefers-color-scheme: dark)');function app(){return /^\\/(tools|chat)(\\/|$)/.test(location.pathname)}h.classList.toggle('dark',app()||q.matches);q.addEventListener('change',function(e){if(!app())h.classList.toggle('dark',e.matches)})}catch(e){}})();`;
@@ -116,30 +115,11 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
 
-        {/* Google Tag Manager — head snippet (synchronous for Tag Assistant handshake) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${GTM_ID}');`,
-          }}
-        />
+        {/* Google Tag Manager (Google Analytics) is NOT loaded here: components/CookieConsent.tsx loads it only after the visitor accepts analytics cookies */}
         {/* Google Identity Services (OAuth 2.0 / Sign In) */}
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body className="antialiased min-h-screen flex flex-col justify-between">
-        {/* Google Tag Manager — noscript fallback */}
-        <noscript>
-          <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
-
         {/* Schema.org Organization Structured Data */}
         <script
           type="application/ld+json"
@@ -158,6 +138,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           }}
         />
         {children}
+        <CookieConsent />
       </body>
     </html>
   );
