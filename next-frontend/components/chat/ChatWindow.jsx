@@ -577,38 +577,44 @@ export default function ChatWindow({
     window.speechSynthesis.speak(u);
   };
 
-  // An answer cut into sentences of about 60-260 characters (the voice makes one sentence at a time).
+  // An answer cut into pieces for the voice. The server makes about one second of speech per second, so the FIRST piece is kept
+  // short (the first sound comes after about 5 seconds, not 15) and the later pieces are about 150 characters.
+  const FIRST_PIECE = 90;
+  const NEXT_PIECE = 150;
   const splitForVoice = (text) => {
-    const pieces = text.replace(/```[\s\S]*?```/g, ' ').split(/(?<=[।.?!])\s+|\n+/).map((p) => p.trim()).filter(Boolean);
-    const out = [];
-    let cur = '';
-    const push = () => { if (cur.trim()) out.push(cur.trim()); cur = ''; };
-    for (const p of pieces) {
-      if (p.length > 260) {                                        // a very long sentence: cut at commas
-        push();
-        let part = '';
-        const flush = (chunk) => {                                 // a piece that is still too long: cut it at a space
-          let rest = chunk.trim();
-          while (rest.length > 260) {
-            let cut = rest.lastIndexOf(' ', 240);
-            if (cut < 120) cut = 240;
-            out.push(rest.slice(0, cut).trim());
-            rest = rest.slice(cut).trim();
-          }
-          if (rest) out.push(rest);
-        };
-        for (const bit of p.split(/(?<=[,;])\s+/)) {
-          if ((part + ' ' + bit).length > 260 && part) { flush(part); part = bit; } else part = part ? part + ' ' + bit : bit;
-        }
-        if (part.trim()) flush(part);
-      } else if ((cur + ' ' + p).trim().length > 200) {
-        push();
-        cur = p;
-      } else {
-        cur = cur ? cur + ' ' + p : p;
+    const sentences = text.replace(/```[\s\S]*?```/g, ' ').split(/(?<=[।.?!])\s+|\n+/).map((p) => p.trim()).filter(Boolean);
+    // 1. every sentence that is too long for the voice is cut at a comma, or at a space
+    const cutAt = (str, limit) => {
+      const parts = [];
+      let rest = str.trim();
+      while (rest.length > limit) {
+        let cut = Math.max(rest.lastIndexOf(', ', limit - 1), rest.lastIndexOf('; ', limit - 1));
+        if (cut < limit * 0.4) cut = rest.lastIndexOf(' ', limit - 1);
+        const end = cut < limit * 0.4 ? limit : cut + 1;          // no comma or space to cut at: cut in the middle of the word
+        parts.push(rest.slice(0, end).trim());
+        rest = rest.slice(end).trim();
       }
+      if (rest) parts.push(rest);
+      return parts;
+    };
+    const flat = [];
+    sentences.forEach((p) => { if (p.length > NEXT_PIECE) flat.push(...cutAt(p, NEXT_PIECE)); else flat.push(p); });
+    if (!flat.length) return [];
+    // 2. the first piece is the first sentence (cut short if needed); the others are joined up to about NEXT_PIECE characters
+    const out = [];
+    let first = flat.shift();
+    while (first.length < 50 && flat.length && (first + ' ' + flat[0]).length <= FIRST_PIECE) first += ' ' + flat.shift();   // a very short first sentence is joined to the next
+    if (first.length > FIRST_PIECE) {
+      const parts = cutAt(first, FIRST_PIECE);
+      first = parts.shift();
+      flat.unshift(...parts);
     }
-    push();
+    out.push(first);
+    let cur = '';
+    for (const p of flat) {
+      if (cur && (cur + ' ' + p).length > NEXT_PIECE) { out.push(cur); cur = p; } else cur = cur ? cur + ' ' + p : p;
+    }
+    if (cur) out.push(cur);
     return out;
   };
 

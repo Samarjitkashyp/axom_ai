@@ -436,35 +436,6 @@ def api_chat_export_docx(request):
 
 @csrf_exempt
 @require_POST
-def api_assamese_tts(request):
-    """
-    POST /api/chat/tts/ & POST /api/tts/synthesize/
-    Synthesizes native Assamese Speech using AI4Bharat IndicTTS / Bhashini / Indic Phonetic Engine.
-    Payload:
-        {
-            "text": "অসম আমাৰ মাতৃভূমি। আপোনাক স্বাগতম।",
-            "voice": "asm_female" | "asm_male",
-            "speed": 1.0
-        }
-    """
-    try:
-        data = json.loads(request.body.decode('utf-8'))
-        text = data.get('text', '').strip()
-        voice = data.get('voice', 'asm_female')
-        speed = float(data.get('speed', 1.0))
-
-        if not text:
-            return JsonResponse({'success': False, 'error': 'text parameter is required'}, status=400)
-
-        from .assamese_phonetics import AssameseTTSEngine
-        res = AssameseTTSEngine.synthesize_speech(text, voice=voice, speed=speed)
-        return JsonResponse(res)
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-
-@csrf_exempt
-@require_POST
 def api_assamese_phonetics(request):
     """
     POST /api/chat/phonetics/
