@@ -1,0 +1,25 @@
+[Unit]
+Description=Axom AI Assamese text-to-speech (AI4Bharat Indic-TTS)
+After=network.target
+
+[Service]
+User=tts
+Group=tts
+WorkingDirectory=/srv/axom-tts/app
+Environment=TTS_BASE=/srv/axom-tts
+Environment=OMP_NUM_THREADS=2
+ExecStart=/srv/axom-tts/venv/bin/uvicorn tts_service:app --host 127.0.0.1 --port 8090 --workers 1
+Restart=on-failure
+RestartSec=5
+# the site comes first: the voice gets what is left of the 2 CPU cores
+Nice=10
+CPUWeight=50
+MemoryMax=2500M
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/axom-tts
+
+[Install]
+WantedBy=multi-user.target

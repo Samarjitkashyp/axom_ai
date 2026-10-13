@@ -234,6 +234,9 @@ export default function ChatWindow({
   const [isListening, setIsListening] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState({});
   const [speakingIndex, setSpeakingIndex] = useState(null);
+  const [voiceLoading, setVoiceLoading] = useState(null);   // index of the answer whose Assamese voice is being made
+  const [voiceNote, setVoiceNote] = useState(null);         // { index, text }: why the voice did not play
+  const voiceRef = useRef({ token: 0, audio: null });
   const recognitionRef = useRef(null);
   const docFileInputRef = useRef(null);
   const imageFileInputRef = useRef(null);
@@ -548,20 +551,144 @@ export default function ChatWindow({
     rec.start();
   };
 
-  // Read an answer aloud (browser TTS). Assamese voice depends on the device.
-  const speak = (text, index) => {
+  // Read an answer aloud. Assamese text is spoken by the Axom AI Assamese voice (server side, one sentence at a time so that the
+  // first sentence starts early and the next one is made while it plays); any other text, or a voice that is not available,
+  // uses the browser's own voice.
+  const stopSpeaking = () => {
+    voiceRef.current.token += 1;                                  // a read-aloud that is running sees the new number and stops
+    if (voiceRef.current.audio) { voiceRef.current.audio.pause(); voiceRef.current.audio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    setSpeakingIndex(null);
+    setVoiceLoading(null);
+  };
+
+  useEffect(() => () => {
+    voiceRef.current.token += 1;
+    if (voiceRef.current.audio) voiceRef.current.audio.pause();
+    if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
+  }, []);
+
+  const browserSpeak = (text, index) => {
     if (!window.speechSynthesis) return;
-    if (speakingIndex === index) {
-      window.speechSynthesis.cancel();
-      setSpeakingIndex(null);
-      return;
-    }
-    window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text.replace(/[#*`>_]/g, ''));
     u.lang = langCode();
     u.onend = () => setSpeakingIndex(null);
     setSpeakingIndex(index);
     window.speechSynthesis.speak(u);
+  };
+
+  // An answer cut into sentences of about 60-260 characters (the voice makes one sentence at a time).
+  const splitForVoice = (text) => {
+    const pieces = text.replace(/```[\s\S]*?```/g, ' ').split(/(?<=[।.?!])\s+|\n+/).map((p) => p.trim()).filter(Boolean);
+    const out = [];
+    let cur = '';
+    const push = () => { if (cur.trim()) out.push(cur.trim()); cur = ''; };
+    for (const p of pieces) {
+      if (p.length > 260) {                                        // a very long sentence: cut at commas
+        push();
+        let part = '';
+        const flush = (chunk) => {                                 // a piece that is still too long: cut it at a space
+          let rest = chunk.trim();
+          while (rest.length > 260) {
+            let cut = rest.lastIndexOf(' ', 240);
+            if (cut < 120) cut = 240;
+            out.push(rest.slice(0, cut).trim());
+            rest = rest.slice(cut).trim();
+          }
+          if (rest) out.push(rest);
+        };
+        for (const bit of p.split(/(?<=[,;])\s+/)) {
+          if ((part + ' ' + bit).length > 260 && part) { flush(part); part = bit; } else part = part ? part + ' ' + bit : bit;
+        }
+        if (part.trim()) flush(part);
+      } else if ((cur + ' ' + p).trim().length > 200) {
+        push();
+        cur = p;
+      } else {
+        cur = cur ? cur + ' ' + p : p;
+      }
+    }
+    push();
+    return out;
+  };
+
+  const fetchVoice = async (sentence) => {
+    let voice = 'male';
+    try { voice = localStorage.getItem('axom_tts_voice') === 'female' ? 'female' : 'male'; } catch (e) { /* private mode */ }
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const res = await fetch('/api/tts/speak/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: sentence, voice }),
+      });
+      if (res.ok) return URL.createObjectURL(await res.blob());
+      let body = {};
+      try { body = await res.json(); } catch (e) { /* not JSON */ }
+      if (res.status === 429) { const err = new Error(body.error || 'Voice limit reached.'); err.limit = true; err.upgrade = !!body.upgrade_required; throw err; }
+      if (res.status === 503 && body.retry) { await new Promise((r) => setTimeout(r, 2500)); continue; }   // the voice is busy: wait a little
+      if (res.status === 422 || res.status === 413) return null;                                          // nothing to say in this piece
+      const err = new Error(body.error || 'The Assamese voice is not available.');
+      err.unavailable = true;
+      throw err;
+    }
+    return null;
+  };
+
+  const playUrl = (url, token) => new Promise((resolve) => {
+    if (voiceRef.current.token !== token) { URL.revokeObjectURL(url); resolve(); return; }
+    const audio = new Audio(url);
+    voiceRef.current.audio = audio;
+    const done = () => { URL.revokeObjectURL(url); resolve(); };
+    audio.onended = done;
+    audio.onerror = done;
+    audio.onpause = () => { if (voiceRef.current.token !== token) done(); };
+    audio.play().catch(done);
+  });
+
+  const speak = async (text, index) => {
+    if (speakingIndex === index || voiceLoading === index) { stopSpeaking(); return; }
+    stopSpeaking();
+    setVoiceNote(null);
+    const token = voiceRef.current.token;
+    if (!/[ঀ-৿]/.test(text)) { browserSpeak(text, index); return; }
+    const sentences = splitForVoice(text);
+    if (!sentences.length) { browserSpeak(text, index); return; }
+    setVoiceLoading(index);
+    // every piece becomes { url } or { err } at once, so a piece that fails while the one before it is playing is never an unhandled error
+    const make = (sentence) => fetchVoice(sentence).then((url) => ({ url }), (err) => ({ err }));
+    let played = 0;
+    let handedOver = false;
+    try {
+      let next = make(sentences[0]);
+      for (let i = 0; i < sentences.length; i++) {
+        const r = await next;
+        if (voiceRef.current.token !== token) { if (r.url) URL.revokeObjectURL(r.url); return; }
+        if (i + 1 < sentences.length) next = make(sentences[i + 1]);
+        if (r.err) {
+          if (r.err.limit || (!played && i === 0)) throw r.err;      // over the limit, or the voice is down at the very start
+          continue;                                                  // a later piece failed: go on with the next one
+        }
+        if (r.url) {
+          setVoiceLoading(null);
+          setSpeakingIndex(index);
+          await playUrl(r.url, token);
+          played += 1;
+          if (voiceRef.current.token !== token) return;
+        }
+      }
+    } catch (e) {
+      if (voiceRef.current.token === token) {
+        if (e.limit) setVoiceNote({ index, text: e.upgrade ? "Today's voice limit is over. Upgrade for more." : "Today's voice limit is over." });
+        else if (!played) { handedOver = true; browserSpeak(text, index); }      // the server voice is down: the browser's own voice
+      }
+    } finally {
+      if (voiceRef.current.token === token) {
+        voiceRef.current.audio = null;
+        setVoiceLoading(null);
+        if (!handedOver) setSpeakingIndex(null);
+      }
+    }
   };
 
   const sendFeedback = (question, answer, rating, index) => {
@@ -1205,10 +1332,12 @@ export default function ChatWindow({
                           <button
                             className="btn-copy-msg"
                             onClick={() => speak(msg.text, index)}
-                            style={{ background: 'transparent', border: 'none', color: speakingIndex === index ? 'var(--accent-pink)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem' }}
-                            title="Read aloud"
+                            style={{ background: 'transparent', border: 'none', color: speakingIndex === index ? 'var(--accent-pink)' : 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', opacity: voiceLoading === index ? 0.6 : 1 }}
+                            title={voiceLoading === index ? 'Making the voice… (tap to stop)' : speakingIndex === index ? 'Stop' : 'Read aloud'}
                           >
-                            <Volume2 size={13} />
+                            <Volume2 size={13} style={voiceLoading === index ? { animation: 'pulse 1s ease-in-out infinite' } : undefined} />
+                            {voiceLoading === index && <span>…</span>}
+                            {voiceNote && voiceNote.index === index && <span style={{ color: '#fbbf24' }}>{voiceNote.text}</span>}
                           </button>
                           <button
                             className="btn-copy-msg"

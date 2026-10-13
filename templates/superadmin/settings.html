@@ -90,6 +90,26 @@
           {% endif %}
         </div>
 
+        <!-- Assamese voice in the chat -->
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div class="flex items-center justify-between gap-3 mb-1">
+            <div class="font-bold text-white">Assamese voice in the chat (🔊)</div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="flagTts" {% if settings.tts_enabled %}checked{% endif %} class="sr-only peer">
+              <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+          <div class="text-slate-400 text-[11px] mb-3">Reads chat answers aloud in Assamese (AI4Bharat voice running on this server). Every sentence is made once and kept, so replaying is free and does not count. The limits below count the sentences that had to be made (about 3-8 seconds of the server each). 0 = none.</div>
+          <div class="flex flex-wrap items-center gap-4">
+            <label class="text-slate-300 flex items-center gap-2">Free / not signed in
+              <input type="number" id="ttsDailyFree" min="0" max="100000" value="{{ settings.tts_daily_free }}" class="w-24 bg-slate-800 border border-slate-700 text-white rounded-lg px-2 py-2 text-xs"> sentences a day
+            </label>
+            <label class="text-slate-300 flex items-center gap-2">Paid plans
+              <input type="number" id="ttsDailyPro" min="0" max="100000" value="{{ settings.tts_daily_pro }}" class="w-24 bg-slate-800 border border-slate-700 text-white rounded-lg px-2 py-2 text-xs"> sentences a day
+            </label>
+          </div>
+        </div>
+
         <!-- Crawler bot: uploaded documents (images / PDFs) read by AI -->
         <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
           <div class="font-bold text-white">Document uploads: AI pages per day</div>
@@ -239,7 +259,10 @@
       announcement_banner: document.getElementById('announcementBanner').value.trim(),
       bot_cleanup_mode: document.getElementById('botCleanupMode').value,
       bot_cleanup_days: document.getElementById('botCleanupDays').value,
-      bot_upload_daily_pages: document.getElementById('botUploadDailyPages').value
+      bot_upload_daily_pages: document.getElementById('botUploadDailyPages').value,
+      tts_enabled: document.getElementById('flagTts').checked,
+      tts_daily_free: document.getElementById('ttsDailyFree').value,
+      tts_daily_pro: document.getElementById('ttsDailyPro').value
     };
     try {
       const res = await fetch('/axomai-admin/settings/save/', {

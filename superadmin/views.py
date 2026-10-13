@@ -1067,6 +1067,15 @@ def _validate_bot_cleanup(data):
             data['bot_cleanup_days'] = str(max(3, int(str(data['bot_cleanup_days']).strip())))
         except (TypeError, ValueError):
             return "Bot clean-up days must be a whole number."
+    for key in ('tts_daily_free', 'tts_daily_pro'):
+        if key in data:
+            try:
+                n = int(str(data[key]).strip())
+            except (TypeError, ValueError):
+                return "The voice limits must be whole numbers."
+            if not 0 <= n <= 100000:
+                return "The voice limits must be between 0 and 100000 sentences a day."
+            data[key] = str(n)
     if 'bot_upload_daily_pages' in data:
         try:
             n = int(str(data['bot_upload_daily_pages']).strip())
@@ -1108,6 +1117,9 @@ def settings_page(request):
         'bot_cleanup_mode': SystemSetting.get_setting('bot_cleanup_mode', 'off'),
         'bot_cleanup_days': SystemSetting.get_setting('bot_cleanup_days', '7'),
         'bot_upload_daily_pages': SystemSetting.get_setting('bot_upload_daily_pages', '500'),
+        'tts_enabled': SystemSetting.is_enabled('tts_enabled', True),
+        'tts_daily_free': SystemSetting.get_setting('tts_daily_free', '40'),
+        'tts_daily_pro': SystemSetting.get_setting('tts_daily_pro', '600'),
     }
 
     def _mask(k):
