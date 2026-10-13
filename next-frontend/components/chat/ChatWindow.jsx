@@ -269,7 +269,10 @@ export default function ChatWindow({
       const fd = new FormData();
       fd.append('audio', blob, 'speech.' + (blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm'));
       fd.append('language', sttLanguage());
-      const res = await fetch('/api/stt/', { method: 'POST', credentials: 'include', body: fd });
+      const controller = new AbortController();
+      const giveUp = setTimeout(() => controller.abort(), 40000);          // the server itself gives up after about 30 s
+      let res;
+      try { res = await fetch('/api/stt/', { method: 'POST', credentials: 'include', body: fd, signal: controller.signal }); } finally { clearTimeout(giveUp); }
       let data = {};
       try { data = await res.json(); } catch (e) { /* not JSON */ }
       if (res.ok && data.success) {

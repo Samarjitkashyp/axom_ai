@@ -151,15 +151,15 @@ class TranscribeTests(TestCase):
             return {'candidates': [{'content': {'parts': [{'text': self._t}]}}]}
 
     def test_no_speech_answer_is_an_empty_text(self):
-        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k'}), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, 'NO_SPEECH')):
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, 'NO_SPEECH')):
             self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), '')
 
     def test_text_is_tidied(self):
-        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k'}), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, '  "How   are\nyou"  ')):
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, '  "How   are\nyou"  ')):
             self.assertEqual(stt_api.transcribe(b'RIFF', 'english'), 'How are you')
 
     def test_models_are_tried_one_after_the_other(self):
-        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k'}), \
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), \
                 mock.patch('axom_ai.stt_api.requests.post', side_effect=[self.R(404), self.R(429), self.R(200, 'ঠিক আছে')]) as p:
             self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), 'ঠিক আছে')
         self.assertEqual(p.call_count, 3)
@@ -169,7 +169,7 @@ class TranscribeTests(TestCase):
 
     def test_everything_failing_or_no_key_is_none(self):
         import requests
-        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k'}), mock.patch('axom_ai.stt_api.requests.post', side_effect=requests.ConnectionError()):
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), mock.patch('axom_ai.stt_api.requests.post', side_effect=requests.ConnectionError()):
             self.assertIsNone(stt_api.transcribe(b'RIFF', 'assamese'))
         with mock.patch.dict('os.environ', {'GEMINI_API_KEY': ''}):
             self.assertIsNone(stt_api.transcribe(b'RIFF', 'assamese'))
@@ -192,3 +192,104 @@ class SttSettingsTests(TestCase):
         self.assertFalse(SystemSetting.is_enabled('stt_enabled', True))
         for bad in ('x', '-1', '100001'):
             self.assertEqual(self.save(stt_daily_free=bad).status_code, 400, bad)
+
+
+class SecondReaderTests(TestCase):
+    """Gemini is sometimes 'in high demand' (503) or too slow: one more try, then OpenAI, and never more than DEADLINE_SECONDS."""
+
+    class R:
+        def __init__(self, status, text=None, key='text'):
+            self.status_code = status
+            self._t = text
+            self._key = key
+
+        def json(self):
+            if self._key == 'openai':
+                return {'text': self._t}
+            return {'candidates': [{'content': {'parts': [{'text': self._t}]}}]}
+
+    def env(self, openai='ok'):
+        return mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': 'o' if openai else ''})
+
+    def test_a_busy_model_gets_one_more_try(self):
+        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), \
+                mock.patch('axom_ai.stt_api.requests.post', side_effect=[self.R(503), self.R(200, 'ঠিক আছে')]) as p:
+            self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), 'ঠিক আছে')
+        self.assertEqual(p.call_count, 2)
+        self.assertEqual(p.call_args_list[0][0][0], p.call_args_list[1][0][0])          # the same model, twice
+
+    def test_openai_reads_when_gemini_cannot(self):
+        calls = []
+
+        def fake(url, **kw):
+            calls.append(url)
+            if 'openai' in url:
+                return self.R(200, 'নমস্কাৰ', key='openai')
+            return self.R(503)
+        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
+            self.assertEqual(stt_api.transcribe(b'RIFF', 'assamese'), 'নমস্কাৰ')
+        self.assertTrue(calls[-1].startswith('https://api.openai.com/v1/audio/transcriptions'))
+
+    def test_openai_is_told_the_language(self):
+        seen = {}
+
+        def fake(url, **kw):
+            if 'openai' in url:
+                seen.update(kw['data'])
+                return self.R(200, 'hello', key='openai')
+            return self.R(503)
+        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
+            stt_api.transcribe(b'RIFF', 'english')
+        self.assertEqual(seen['language'], 'en')
+
+    def test_assamese_is_asked_for_in_a_prompt_not_a_language_code(self):
+        seen = {}
+
+        def fake(url, **kw):
+            if 'openai' in url:
+                seen.update(kw['data'])
+                return self.R(200, 'নমস্কাৰ', key='openai')
+            return self.R(503)
+        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
+            stt_api.transcribe(b'RIFF', 'assamese')
+        self.assertNotIn('language', seen)                       # OpenAI answers 400 to 'as'
+        self.assertIn('Assamese', seen['prompt'])
+
+    def test_nobody_available_is_none(self):
+        with self.env(openai=''), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(503)):
+            self.assertIsNone(stt_api.transcribe(b'RIFF', 'assamese'))
+        with self.env(), mock.patch('axom_ai.stt_api.time.sleep'), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(503)):
+            self.assertIsNone(stt_api.transcribe(b'RIFF', 'assamese'))
+
+    def test_the_wait_has_an_end(self):
+        clock = {'t': 0.0}
+
+        def slow(url, **kw):
+            clock['t'] += kw['timeout']                            # every call uses all of its time
+            import requests
+            raise requests.Timeout()
+        with self.env(), mock.patch('axom_ai.stt_api.time.monotonic', side_effect=lambda: clock['t']), mock.patch('axom_ai.stt_api.time.sleep'), \
+                mock.patch('axom_ai.stt_api.requests.post', side_effect=slow) as p:
+            self.assertIsNone(stt_api.transcribe(b'RIFF', 'assamese'))
+        self.assertLessEqual(clock['t'], stt_api.DEADLINE_SECONDS + 1)
+        self.assertLessEqual(p.call_count, 5)
+
+
+class NumberRewriteResilienceTests(TestCase):
+    def test_a_busy_model_gets_one_more_try_and_a_dead_end_is_none(self):
+        from axom_ai import voice_text as vt
+
+        class R:
+            def __init__(self, status, text=None):
+                self.status_code = status
+                self._t = text
+
+            def json(self):
+                return {'candidates': [{'content': {'parts': [{'text': self._t}]}}]}
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), mock.patch('axom_ai.voice_text.time.sleep'), \
+                mock.patch('axom_ai.voice_text.requests.post', side_effect=[R(503), R(200, 'পঁচিশ')]) as p:
+            self.assertEqual(vt._ask('২৫'), 'পঁচিশ')
+        self.assertEqual(p.call_count, 2)
+        with mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': ''}), mock.patch('axom_ai.voice_text.time.sleep'), \
+                mock.patch('axom_ai.voice_text.requests.post', return_value=R(503)):
+            self.assertIsNone(vt._ask('২৫'))
