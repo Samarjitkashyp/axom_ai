@@ -9,6 +9,7 @@ import hashlib
 import logging
 import os
 import re
+import time
 
 import requests
 from django.core.cache import cache
@@ -44,19 +45,27 @@ def _ask(text):
     key = _gemini_key()
     if not key:
         return None
+    deadline = time.monotonic() + 15                    # numbers are not worth a long wait: the digits are read one by one instead
     for model in MODELS:
-        try:
-            r = requests.post('https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % model,
-                              json={'contents': [{'parts': [{'text': PROMPT + text}]}], 'generationConfig': {'temperature': 0}},
-                              headers={'x-goog-api-key': key}, timeout=12)
-        except requests.RequestException:
-            continue
-        if r.status_code != 200:
-            continue                                  # model gone (404) or quota (429): the next one
-        try:
-            return r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
-        except (KeyError, IndexError, ValueError, TypeError):
-            continue
+        for attempt in range(2):
+            left = deadline - time.monotonic()
+            if left < 2:
+                return None
+            try:
+                r = requests.post('https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % model,
+                                  json={'contents': [{'parts': [{'text': PROMPT + text}]}], 'generationConfig': {'temperature': 0}},
+                                  headers={'x-goog-api-key': key}, timeout=min(10, left))
+            except requests.RequestException:
+                break
+            if r.status_code == 503 and attempt == 0:   # "high demand": one more try
+                time.sleep(1.0)
+                continue
+            if r.status_code != 200:
+                break                                   # model gone (404) or quota (429): the next one
+            try:
+                return r.json()['candidates'][0]['content']['parts'][0]['text'].strip()
+            except (KeyError, IndexError, ValueError, TypeError):
+                break
     return None
 
 

@@ -13,6 +13,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 from datetime import datetime, time as dtime
 
 import requests
@@ -34,6 +35,10 @@ SILENCE_DBFS = -50.0            # a recording quieter than this (after cleaning)
 DEFAULT_FREE = 40
 DEFAULT_PRO = 400
 FFMPEG = shutil.which('ffmpeg') or '/usr/bin/ffmpeg'
+DEADLINE_SECONDS = 28            # the whole of Gemini + the second reader: a person is never kept waiting longer than this
+OPENAI_MODEL = os.getenv('STT_OPENAI_MODEL', 'gpt-4o-mini-transcribe')
+OPENAI_LANG = {'english': 'en', 'hinglish': 'hi'}          # OpenAI refuses the code 'as' (Assamese); it reads Assamese when it is only told so in a prompt
+OPENAI_PROMPT = {'assamese': 'অসমীয়া ভাষাৰ কথা। Assamese speech, write it in Assamese script (ৰ and ৱ).'}
 MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-flash-latest').split(',') if m]
 
 # rumble out, speech band only, even loudness, silence at both ends cut. No heavy noise reduction here: tried on noisy recordings it made the
@@ -95,28 +100,72 @@ def _gemini_key():
     return os.getenv('GEMINI_API_KEY', '')
 
 
-def transcribe(wav, language):
-    """The words that were said ('' when there was no speech), or None when Gemini could not be used."""
+def _tidy(text):
+    return '' if 'NO_SPEECH' in text.upper() else re.sub(r'\s+', ' ', text.strip(' "\'`'))
+
+
+def _gemini(wav, language, deadline, models=None, per_call=18):
+    """Text from Gemini, '' for no speech, None when it could not be used. A model that is "in high demand" (503) gets one more try."""
     key = _gemini_key()
     if not key:
         return None
     body = {'contents': [{'parts': [{'text': PROMPT.format(language=LANGUAGES.get(language, LANGUAGES['assamese']))},
                                     {'inline_data': {'mime_type': 'audio/wav', 'data': base64.b64encode(wav).decode()}}]}],
             'generationConfig': {'temperature': 0}}
-    for model in MODELS:
-        try:
-            r = requests.post('https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % model, json=body,
-                              headers={'x-goog-api-key': key}, timeout=40)
-        except requests.RequestException:
-            continue
-        if r.status_code != 200:
-            continue
-        try:
-            text = ''.join(p.get('text', '') for p in r.json()['candidates'][0]['content']['parts']).strip()
-        except (KeyError, IndexError, ValueError, TypeError):
-            continue
-        return '' if 'NO_SPEECH' in text.upper() else re.sub(r'\s+', ' ', text.strip(' "\'`'))
+    for model in (MODELS if models is None else models):
+        for attempt in range(2):
+            left = deadline - time.monotonic()
+            if left < 3:
+                return None
+            try:
+                r = requests.post('https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % model, json=body,
+                                  headers={'x-goog-api-key': key}, timeout=min(per_call, left))
+            except requests.RequestException:
+                break                                  # a slow or unreachable model: the next one
+            if r.status_code == 503 and attempt == 0:
+                time.sleep(1.2)
+                continue
+            if r.status_code != 200:
+                break
+            try:
+                return _tidy(''.join(p.get('text', '') for p in r.json()['candidates'][0]['content']['parts']))
+            except (KeyError, IndexError, ValueError, TypeError):
+                break
     return None
+
+
+def _openai(wav, language, deadline):
+    """The second reader, used when Gemini is overloaded: OpenAI speech to text. Text, or None."""
+    key = os.getenv('OPENAI_API_KEY', '')
+    if not key:
+        return None
+    left = deadline - time.monotonic()
+    if left < 3:
+        return None
+    data = {'model': OPENAI_MODEL, 'response_format': 'json'}
+    if OPENAI_LANG.get(language):
+        data['language'] = OPENAI_LANG[language]
+    if OPENAI_PROMPT.get(language):
+        data['prompt'] = OPENAI_PROMPT[language]
+    try:
+        r = requests.post('https://api.openai.com/v1/audio/transcriptions', headers={'Authorization': 'Bearer ' + key}, data=data,
+                          files={'file': ('speech.wav', wav, 'audio/wav')}, timeout=min(25, left))
+        if r.status_code != 200:
+            return None
+        return re.sub(r'\s+', ' ', (r.json().get('text') or '').strip())
+    except (requests.RequestException, ValueError):
+        return None
+
+
+def transcribe(wav, language):
+    """The words that were said ('' when there was no speech), or None when no reader could be used within DEADLINE_SECONDS."""
+    deadline = time.monotonic() + DEADLINE_SECONDS
+    text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=9)       # the first choice, not for long
+    if text is None:
+        text = _openai(wav, language, deadline)                                  # the second reader answers in about 2 seconds
+    if text is None:
+        text = _gemini(wav, language, deadline, models=MODELS[1:], per_call=18)  # the other Gemini models, with what is left of the time
+    return text
 
 
 # ---------------------------------------------------------------- limits (the same way as the voice)
