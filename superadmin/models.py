@@ -345,3 +345,30 @@ class ContactMessage(models.Model):
     @property
     def reply_subject(self):
         return 'Re: ' + (self.subject or 'Your message to Axom AI') + (' [' + self.ticket + ']' if self.ticket else '')
+
+
+class AudioTrainingEntry(models.Model):
+    """Word lists that teach the voice features (Audio Training in the admin): what a spoken number word is worth, how a heard word is
+    corrected, how a written word is pronounced."""
+    KIND_NUMBER = 'number_word'
+    KIND_HEARD = 'transcript_fix'
+    KIND_SPOKEN = 'pronunciation'
+    KIND_CHOICES = [
+        (KIND_NUMBER, 'Number word (voice typing: word → digits)'),
+        (KIND_HEARD, 'Voice typing correction (heard → correct)'),
+        (KIND_SPOKEN, 'Pronunciation (written → how it is read aloud)'),
+    ]
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES, db_index=True)
+    source = models.CharField(max_length=200, help_text="The word as it is heard / written")
+    target = models.CharField(max_length=200, help_text="What it becomes: digits for a number word, the right text otherwise")
+    note = models.CharField(max_length=200, blank=True, default='')
+    is_active = models.BooleanField(default=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['kind', 'source']
+        unique_together = [('kind', 'source')]
+
+    def __str__(self):
+        return f"[{self.kind}] {self.source} → {self.target}"

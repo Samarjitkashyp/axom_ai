@@ -22,6 +22,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
+from axom_ai import audio_training
 from axom_ai.assamese_numbers import numbers_to_digits
 from axom_ai.security import get_client_ip
 from axom_ai.views import _chat_cors_view
@@ -270,5 +271,7 @@ def stt_api(request):
         return _error('Voice typing is not available right now.', 503)
     count_one(request)
     if language == 'assamese' and os.getenv('STT_DIGITS', '1') != '0':
-        text = numbers_to_digits(text)                  # "দুই হাজাৰ চৌবিশ" -> "2024" (rules, not AI)
+        text = numbers_to_digits(text, audio_training.number_words())      # "দুই হাজাৰ চৌবিশ" -> "2024" (rules, not AI)
+    if text:
+        text = audio_training.fix_heard(text)           # the corrections added in the admin (Audio Training)
     return JsonResponse({'success': True, 'text': text, 'seconds': round(seconds, 1)})

@@ -1,0 +1,239 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Audio Training — Axom AI Super Admin{% endblock %}
+{% block heading %}<i class="fa-solid fa-microphone-lines mr-2 text-indigo-400"></i> Audio Training{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <p class="text-sm text-slate-400 max-w-2xl">
+    Teach the voice features. Number words and corrections help voice typing (speech to text); pronunciations change how the Assamese voice reads a word.
+    Changes work within a minute, no deploy needed.
+  </p>
+  <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+    <i class="fa-solid fa-plus"></i> Add Entry
+  </button>
+</div>
+
+<div class="flex border-b border-slate-800 space-x-6 mb-6 text-sm font-semibold">
+  <button onclick="filterEntries('all')" data-filter="all" class="filter-tab pb-3 border-b-2 border-indigo-500 text-white transition">
+    <i class="fa-solid fa-layer-group mr-1.5"></i> All ({{ entries|length }})
+  </button>
+  <button onclick="filterEntries('number_word')" data-filter="number_word" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-hashtag mr-1.5"></i> Number words
+  </button>
+  <button onclick="filterEntries('transcript_fix')" data-filter="transcript_fix" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-microphone mr-1.5"></i> Voice typing corrections
+  </button>
+  <button onclick="filterEntries('pronunciation')" data-filter="pronunciation" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-volume-high mr-1.5"></i> Pronunciation
+  </button>
+</div>
+
+<div class="space-y-3" id="entries-list">
+  {% for e in entries %}
+  <div class="glass-card rounded-xl p-4 border border-slate-800 glass-card-hover transition-all entry-card" data-kind="{{ e.kind }}" data-id="{{ e.id }}">
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2.5 mb-1.5">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase
+            {% if e.kind == 'number_word' %}bg-cyan-500/15 text-cyan-400 border border-cyan-500/30
+            {% elif e.kind == 'transcript_fix' %}bg-amber-500/15 text-amber-400 border border-amber-500/30
+            {% else %}bg-emerald-500/15 text-emerald-400 border border-emerald-500/30{% endif %}">
+            {{ e.get_kind_display }}
+          </span>
+          {% if not e.is_active %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">DISABLED</span>
+          {% endif %}
+        </div>
+        <h3 class="text-sm font-bold text-white break-words">{{ e.source }} <span class="text-slate-500 mx-1">→</span> {{ e.target }}</h3>
+        {% if e.note %}<p class="text-xs text-slate-400 mt-1 break-words">{{ e.note }}</p>{% endif %}
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="editEntry({{ e.id }}, '{{ e.kind }}', `{{ e.source|escapejs }}`, `{{ e.target|escapejs }}`, `{{ e.note|escapejs }}`)"
+                class="p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition" title="Edit">
+          <i class="fa-solid fa-pen-to-square text-xs"></i>
+        </button>
+        <button onclick="toggleEntry({{ e.id }})"
+                class="p-2 rounded-lg transition {% if e.is_active %}text-emerald-400 hover:text-amber-400 hover:bg-amber-500/10{% else %}text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10{% endif %}" title="{% if e.is_active %}Disable{% else %}Enable{% endif %}">
+          <i class="fa-solid {% if e.is_active %}fa-toggle-on{% else %}fa-toggle-off{% endif %} text-sm"></i>
+        </button>
+        <button onclick="deleteEntry({{ e.id }}, `{{ e.source|escapejs }}`)"
+                class="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition" title="Delete">
+          <i class="fa-solid fa-trash-can text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="glass-card rounded-xl p-8 border border-slate-800 text-center">
+    <i class="fa-solid fa-microphone-lines text-4xl text-slate-600 mb-3"></i>
+    <p class="text-slate-400 text-sm">Nothing added yet. Click "Add Entry" to get started.</p>
+    <p class="text-slate-500 text-xs mt-1">Start with the Assamese number words for 51 to 99 (for example চৌৰাশী = 84).</p>
+  </div>
+  {% endfor %}
+</div>
+
+<div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+  <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
+    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+      <h3 class="text-base font-bold text-white" id="modal-title">Add Audio Training Entry</h3>
+      <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <input type="hidden" id="entry-id" value="">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Type</label>
+        <select id="entry-kind" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none" onchange="updateHelp()">
+          {% for value, label in kinds %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5" id="source-label">Word</label>
+        <input type="text" id="entry-source" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5" id="target-label">Becomes</label>
+        <input type="text" id="entry-target" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        <p id="help-text" class="text-[11px] text-slate-500 mt-1"></p>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Note <span class="text-slate-500">(optional)</span></label>
+        <input type="text" id="entry-note" maxlength="200" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-slate-800 flex justify-end gap-3">
+      <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">Cancel</button>
+      <button onclick="saveEntry()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20">
+        <i class="fa-solid fa-check mr-1.5"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const HELP = {
+  number_word: {
+    source: 'Number word as spoken (Assamese script)', target: 'Value as digits',
+    placeholder: 'e.g. 84',
+    text: 'A whole number from 0 to 99. Example: চৌৰাশী → 84. Used when a recording is written down; the word is turned into digits (with দুই হাজাৰ, নশ ... in front it becomes part of the bigger number).',
+  },
+  transcript_fix: {
+    source: 'Word as heard', target: 'Correct text',
+    placeholder: 'e.g. Python',
+    text: 'Whole-word replacement after voice typing. Example: পাইথন → Python. Use it for English words said inside Assamese and for words that are often heard wrongly.',
+  },
+  pronunciation: {
+    source: 'Word as written', target: 'Written the way it should be read aloud',
+    placeholder: 'e.g. এইচ টি এম এল',
+    text: 'Replaced just before the Assamese voice reads the answer; the screen text is not changed. Example: HTML → এইচ টি এম এল.',
+  },
+};
+
+function updateHelp() {
+  const h = HELP[document.getElementById('entry-kind').value];
+  document.getElementById('source-label').textContent = h.source;
+  document.getElementById('target-label').textContent = h.target;
+  document.getElementById('entry-target').placeholder = h.placeholder;
+  document.getElementById('help-text').textContent = h.text;
+}
+
+function openModal() {
+  document.getElementById('entry-id').value = '';
+  document.getElementById('entry-kind').value = 'number_word';
+  document.getElementById('entry-source').value = '';
+  document.getElementById('entry-target').value = '';
+  document.getElementById('entry-note').value = '';
+  document.getElementById('modal-title').textContent = 'Add Audio Training Entry';
+  updateHelp();
+  document.getElementById('entry-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('entry-modal').classList.add('hidden');
+}
+
+function editEntry(id, kind, source, target, note) {
+  document.getElementById('entry-id').value = id;
+  document.getElementById('entry-kind').value = kind;
+  document.getElementById('entry-source').value = source;
+  document.getElementById('entry-target').value = target;
+  document.getElementById('entry-note').value = note;
+  document.getElementById('modal-title').textContent = 'Edit Audio Training Entry';
+  updateHelp();
+  document.getElementById('entry-modal').classList.remove('hidden');
+}
+
+async function saveEntry() {
+  const id = document.getElementById('entry-id').value;
+  const data = {
+    id: id || null,
+    kind: document.getElementById('entry-kind').value,
+    source: document.getElementById('entry-source').value,
+    target: document.getElementById('entry-target').value,
+    note: document.getElementById('entry-note').value,
+  };
+  try {
+    const res = await fetch('/axomai-admin/audio-training/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    if (result.success) {
+      showToast(id ? 'Entry updated.' : 'Entry added.');
+      closeModal();
+      setTimeout(() => location.reload(), 500);
+    } else {
+      showToast(result.error || 'Failed to save.', 'error');
+    }
+  } catch (e) {
+    showToast('Network error. Please try again.', 'error');
+  }
+}
+
+async function toggleEntry(id) {
+  try {
+    const res = await fetch(`/axomai-admin/audio-training/toggle/${id}/`, { method: 'POST', headers: { 'X-CSRFToken': csrftoken } });
+    const result = await res.json();
+    if (result.success) {
+      showToast(result.is_active ? 'Entry enabled.' : 'Entry disabled.');
+      setTimeout(() => location.reload(), 400);
+    }
+  } catch (e) {
+    showToast('Failed to toggle.', 'error');
+  }
+}
+
+async function deleteEntry(id, source) {
+  if (!confirm(`Delete "${source}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`/axomai-admin/audio-training/delete/${id}/`, { method: 'POST', headers: { 'X-CSRFToken': csrftoken } });
+    const result = await res.json();
+    if (result.success) {
+      showToast('Entry deleted.');
+      document.querySelector(`.entry-card[data-id="${id}"]`)?.remove();
+    }
+  } catch (e) {
+    showToast('Failed to delete.', 'error');
+  }
+}
+
+function filterEntries(kind) {
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.classList.remove('border-indigo-500', 'text-white');
+    t.classList.add('border-transparent', 'text-slate-400');
+  });
+  const tab = document.querySelector(`[data-filter="${kind}"]`);
+  tab.classList.add('border-indigo-500', 'text-white');
+  tab.classList.remove('border-transparent', 'text-slate-400');
+  document.querySelectorAll('.entry-card').forEach(card => {
+    card.style.display = (kind === 'all' || card.dataset.kind === kind) ? '' : 'none';
+  });
+}
+
+updateHelp();
+</script>
+{% endblock %}
