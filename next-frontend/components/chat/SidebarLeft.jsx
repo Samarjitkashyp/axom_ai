@@ -183,39 +183,6 @@ export default function SidebarLeft({
         </button>
         <a
           className="sidebar-tools-btn"
-          href="https://aiaxom.co.in/tools/ai-notes-generator"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => {
-            if (window.innerWidth <= 850) onCloseSidebar?.();
-          }}
-          title="AI Notes Generator — Create High-Scoring Study Notes from PDFs & Books"
-          style={{
-            textDecoration: 'none',
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(16, 185, 129, 0.08))',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <GraduationCap size={15} style={{ color: '#fbbf24' }} />
-            <span>AI Notes Gen</span>
-          </div>
-          <span
-            style={{
-              fontSize: '0.62rem',
-              fontWeight: 800,
-              padding: '1px 6px',
-              borderRadius: '9999px',
-              background: 'linear-gradient(135deg, #f59e0b, #10b981)',
-              color: '#fff',
-              letterSpacing: '0.04em',
-            }}
-          >
-            NEW ⭐
-          </span>
-        </a>
-        <a
-          className="sidebar-tools-btn"
           href="https://aiaxom.co.in/tools"
           target="_blank"
           rel="noopener noreferrer"
