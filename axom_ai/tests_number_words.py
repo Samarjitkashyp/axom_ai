@@ -27,7 +27,9 @@ class WordsTests(TestCase):
         self.assertEqual(nw.to_words(200, TABLE), 'দুশ')
         self.assertEqual(nw.to_words(2004, TABLE), 'দুই হাজাৰ চাৰি')
         self.assertEqual(nw.to_words(1984, TABLE), 'এক হাজাৰ নশ চৌৰাশী')
-        self.assertEqual(nw.to_words(500000, TABLE), None)              # পাঁচশ (500) is not in the list: no guessing
+        self.assertIsNone(nw.to_words(500, TABLE))                       # পাঁচশ (500) is not in the list: no guessing
+        self.assertIsNone(nw.to_words(2500, TABLE))
+        self.assertEqual(nw.to_words(500000, TABLE), 'পাঁচ লাখ')
         self.assertEqual(nw.to_words(100000, TABLE), 'এক লাখ')
         self.assertEqual(nw.to_words(10000000, TABLE), 'এক কোটি')
 
