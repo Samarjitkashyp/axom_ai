@@ -220,8 +220,24 @@ class ReadersTests(TestCase):
                 return {'text': self._t}
             return {'candidates': [{'content': {'parts': [{'text': self._t}]}}]}
 
+    def setUp(self):
+        p = mock.patch('axom_ai.stt_api.PRIMARY', 'openai')          # these tests are about OpenAI-first; the default (Gemini first) has its own test
+        p.start()
+        self.addCleanup(p.stop)
+
     def env(self, openai='o'):
         return mock.patch.dict('os.environ', {'GEMINI_API_KEY': 'k', 'OPENAI_API_KEY': openai})
+
+    def test_gemini_reads_first_by_default(self):
+        calls = []
+
+        def fake(url, **kw):
+            calls.append(url)
+            return self.R(200, 'ঠিক', key='openai') if 'openai' in url else self.R(200, 'ঠিক')
+        with self.env(), mock.patch('axom_ai.stt_api.PRIMARY', 'gemini'), mock.patch('axom_ai.stt_api.requests.post', side_effect=fake):
+            stt_api.transcribe(b'RIFF', 'assamese')
+        self.assertIn('generativelanguage', calls[0])
+        self.assertEqual(len(calls), 1)                                # OpenAI is not asked when Gemini answered
 
     def test_openai_reads_first_and_gemini_is_not_asked(self):
         with self.env(), mock.patch('axom_ai.stt_api.requests.post', return_value=self.R(200, 'নমস্কাৰ', key='openai')) as p:

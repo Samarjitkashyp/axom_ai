@@ -41,7 +41,8 @@ DEADLINE_SECONDS = 28            # the whole of Gemini + the second reader: a pe
 OPENAI_MODEL = os.getenv('STT_OPENAI_MODEL', 'gpt-4o-mini-transcribe')
 OPENAI_LANG = {'english': 'en', 'hinglish': 'hi'}          # OpenAI refuses the code 'as' (Assamese) and, given an Assamese prompt, says the prompt back when it hears only noise:
 #                                                            for Assamese it is told nothing and finds the language by itself (tried: it does, in Assamese script)
-PRIMARY = os.getenv('STT_PRIMARY', 'openai')                # who reads first: OpenAI answers in about 1-2 s, Gemini in 3-30 s depending on its load
+PRIMARY = os.getenv('STT_PRIMARY', 'gemini')                # who reads first. Measured on the server (Assamese speech, quiet and noisy rooms): both read about as well, Gemini was the steadier one
+#                                                             (OpenAI now and then drops a whole sentence or waits 25 s) and follows 'write English words in English letters'; STT_PRIMARY=openai puts OpenAI first
 MIN_DYNAMICS = 3.2                                          # as recorded by a browser (Opus): steady noise / a hum / a fan 1.2-3.0, speech 34+ (4.1+ with a noisy room; only speech as loud as the noise itself falls to 2.2-2.9)
 HALLUCINATIONS = {'thank you', 'thanks for watching', 'thank you for watching', 'you', 'bye', 'bye bye', 'okay', 'the end', 'subtitles by the amara.org community'}
 MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-flash-latest').split(',') if m]
@@ -179,7 +180,7 @@ def _openai(wav, language, deadline):
 def transcribe(wav, language):
     """The words that were said ('' when there was no speech), or None when no reader could be used within DEADLINE_SECONDS.
     OpenAI reads first (about 1-2 seconds, as good as Gemini on Assamese speech with and without noise when tried on the server); Gemini is the
-    second reader. STT_PRIMARY=gemini puts them the other way round."""
+    second reader. STT_PRIMARY=openai puts them the other way round."""
     deadline = time.monotonic() + DEADLINE_SECONDS
     if PRIMARY == 'gemini' or not os.getenv('OPENAI_API_KEY'):
         text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=6)       # the first choice, not for long
