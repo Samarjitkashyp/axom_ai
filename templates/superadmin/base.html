@@ -31,13 +31,13 @@
   .ts-btn:focus-visible { outline: 2px solid rgba(99, 102, 241, .7); outline-offset: 1px; }
   .ts-panel { position: fixed; z-index: 200; box-sizing: border-box; background: #0b1224; border: 1px solid #334155; border-radius: .85rem;
               padding: .3rem; overflow-y: auto; box-shadow: 0 18px 40px rgba(0, 0, 0, .55), 0 0 0 1px rgba(99, 102, 241, .12); }
-  .ts-opt { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .6rem .75rem; border-radius: .6rem;
-            font-size: .8rem; line-height: 1.25; color: #cbd5e1; cursor: pointer; user-select: none; }
+  .ts-opt { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .85rem .85rem; border-radius: .6rem; min-height: 44px;   /* a finger-sized row on a phone */
+            font-size: .85rem; line-height: 1.25; color: #cbd5e1; cursor: pointer; user-select: none; }
   .ts-opt.ts-active { background: rgba(99, 102, 241, .22); color: #fff; }
   .ts-opt[aria-selected="true"] { color: #a5b4fc; font-weight: 600; }
   .ts-opt[aria-disabled="true"] { opacity: .4; cursor: not-allowed; }
   .ts-opt svg { flex: none; width: .9em; height: .9em; }
-  @media (min-width: 768px) { .ts-opt { padding: .5rem .7rem; } }
+  @media (min-width: 768px) { .ts-opt { padding: .5rem .7rem; min-height: 0; font-size: .8rem; } }
   /* Custom scrollbars */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: #020617; }
