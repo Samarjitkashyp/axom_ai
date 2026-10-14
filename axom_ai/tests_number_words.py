@@ -132,6 +132,20 @@ class SettingsAndChatTests(TestCase):
         self.assertEqual(views._assamese_final('সাল 2004 ত'), 'সাল দুই হাজাৰ চাৰি ত')
         self.assertIn('NUMBERS:', views._get_language_rules_block())
 
+    def test_a_streamed_answer(self):
+        from axom_ai import views
+        AudioTrainingEntry.objects.create(kind='number_word', source='চৌৰাশী', target='84')
+        AudioTrainingEntry.objects.create(kind='number_word', source='নশ', target='900')
+        SystemSetting.set_setting(nw.SETTING_MODE, 'small')
+        nw.forget()
+        chunks = ['মোৰ জন্ম 19', '84 চনত আৰু 15/', '10/2026 ত, 25', ' জন বন্ধু।']
+        out = ''.join(views._assamese_stream(iter(chunks)))
+        self.assertEqual(out, 'মোৰ জন্ম এক হাজাৰ নশ চৌৰাশী চনত আৰু 15/10/2026 ত, পঁচিশ জন বন্ধু।')
+        # the same text with the setting off is untouched
+        SystemSetting.set_setting(nw.SETTING_MODE, 'off')
+        nw.forget()
+        self.assertEqual(''.join(views._assamese_stream(iter(chunks))), ''.join(chunks))
+
     def test_the_list_of_audio_training_is_used(self):
         AudioTrainingEntry.objects.create(kind='number_word', source='চৈৰাশী', target='84', preferred=True)
         AudioTrainingEntry.objects.create(kind='number_word', source='চৌৰাশী', target='84')

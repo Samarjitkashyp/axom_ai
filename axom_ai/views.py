@@ -165,6 +165,20 @@ def _assamese_final(text: str) -> str:
         return _purify_assamese_with_grammar(text)
 
 
+def _assamese_stream(chunks):
+    """The chunks of a streamed Assamese answer: purified, and numbers written as words when Language Rules -> Numbers is on
+    (a number that is cut between two chunks is held back until it is whole)."""
+    from axom_ai import number_words as nw
+    numbers = nw.NumberWordStream()
+    for chunk in chunks:
+        out = numbers.feed(_purify_assamese_with_grammar(chunk))
+        if out:
+            yield out
+    tail = numbers.flush()
+    if tail:
+        yield tail
+
+
 def _purify_assamese_with_grammar(text: str) -> str:
     """
     Purifies Assamese generated text using curated rules from the Axom AI RAG Grammar Base
@@ -1784,19 +1798,11 @@ def chat_api_view(request):
 
     def _purify_stream(gen):
         """Wrap text-chunk generator: purify Assamese if language is Assamese, and sanitize rival brands."""
-        from axom_ai import number_words as nw
-        numbers = nw.NumberWordStream() if language == 'assamese' else None
+        if language == 'assamese':
+            yield from _assamese_stream(gen)
+            return
         for chunk in gen:
-            if language == 'assamese':
-                out = numbers.feed(_purify_assamese_with_grammar(chunk))
-                if out:
-                    yield out
-            else:
-                yield _sanitize_brand_mentions(chunk)
-        if numbers is not None:
-            tail = numbers.flush()
-            if tail:
-                yield tail
+            yield _sanitize_brand_mentions(chunk)
 
     # -------------------------------------------------------------------------
     # Tier 1 (Streaming): OpenAI model cascade (gpt-4o -> o3-mini -> gpt-4o-mini)
