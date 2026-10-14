@@ -100,3 +100,12 @@ class AudioTrainingTests(TestCase):
         save(self.client, id=first.id, kind='number_word', source='এক', target='1', note='edited')
         order = [e.source for e in self.client.get('/axomai-admin/audio-training/').context['entries']]
         self.assertEqual(order[0], 'এক')
+
+    def test_the_tabs_show_counts_and_an_explanation_even_when_a_tab_is_empty(self):
+        save(self.client, kind='number_word', source='চৌৰাশী', target='84')
+        html = self.client.get('/axomai-admin/audio-training/').content.decode()
+        self.assertIn('Number words (1)', html)
+        self.assertIn('Voice typing corrections (0)', html)
+        self.assertIn('Pronunciation (0)', html)
+        for needle in ['id="tab-empty"', 'No voice typing corrections yet.', 'No pronunciations added yet.', 'HTML → এইচ টি এম এল']:
+            self.assertIn(needle, html)

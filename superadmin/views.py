@@ -1369,6 +1369,7 @@ def audio_training_page(request):
     return render(request, 'superadmin/audio_training.html', {
         'active': 'audio_training',
         'entries': AudioTrainingEntry.objects.order_by('-updated_at', '-id'),   # the last added or changed first
+        'counts': {k: AudioTrainingEntry.objects.filter(kind=k).count() for k, _ in AudioTrainingEntry.KIND_CHOICES},
         'kinds': AudioTrainingEntry.KIND_CHOICES,
     })
 
