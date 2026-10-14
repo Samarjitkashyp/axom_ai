@@ -1395,11 +1395,133 @@ def chart_data_api(request):
 @section_required('language_rules')
 def language_rules_page(request):
     rules = LanguageRule.objects.all()
+    from axom_ai import number_words as nw
+    mode, top = nw.current_settings()
+    number_entries = sorted(AudioTrainingEntry.objects.filter(kind='number_word'),
+                            key=lambda e: (int(e.target) if e.target.isdigit() else 0, e.source))
     return render(request, 'superadmin/language_rules.html', {
         'active': 'language_rules',
         'rules': rules,
         'categories': LanguageRule.CATEGORY_CHOICES,
+        'number_entries': number_entries,
+        'number_mode': mode,
+        'number_max': top,
+        'number_modes': [('off', 'Off (numbers stay as digits)'), ('years', 'Only years (1000 to 2099)'), ('small', 'Whole numbers up to the limit')],
     })
+
+
+# --- Numbers tab of Language Rules: the same number words as Audio Training, used by the chat to write numbers in Assamese answers
+def _numbers_forget():
+    from axom_ai import audio_training, number_words
+    audio_training.forget('number_word')
+    number_words.forget()
+
+
+def _only_preferred(entry):
+    """One preferred spelling per value: this one, and no other."""
+    AudioTrainingEntry.objects.filter(kind='number_word', target=entry.target).exclude(id=entry.id).update(preferred=False)
+    if not entry.preferred:
+        entry.preferred = True
+        entry.save(update_fields=['preferred', 'updated_at'])
+
+
+@section_required('language_rules')
+@require_POST
+def numbers_save_api(request):
+    from axom_ai.audio_training import clean_source, clean_target
+    try:
+        data = json.loads(request.body)
+        source = clean_source(data.get('source'))
+        target = clean_target('number_word', data.get('target'))
+        if not source:
+            return JsonResponse({'error': 'The word is required.'}, status=400)
+        if target is None:
+            return JsonResponse({'error': 'The value must be a whole number from 0 to 99, or a whole hundred up to 900.'}, status=400)
+        entry_id = data.get('id')
+        clash = AudioTrainingEntry.objects.filter(kind='number_word', source=source)
+        if entry_id:
+            clash = clash.exclude(id=entry_id)
+        if clash.exists():
+            return JsonResponse({'error': 'This word is already in the list. Edit that entry instead.'}, status=400)
+        if entry_id:
+            entry = get_object_or_404(AudioTrainingEntry, id=entry_id, kind='number_word')
+            entry.source, entry.target = source, target
+            entry.save()
+        else:
+            entry = AudioTrainingEntry.objects.create(kind='number_word', source=source, target=target, is_active=True)
+        if data.get('preferred'):
+            _only_preferred(entry)
+        elif entry.preferred:
+            entry.preferred = False
+            entry.save(update_fields=['preferred', 'updated_at'])
+        _numbers_forget()
+        _log_audit(request, 'number_word_save', f'#{entry.id}: {source} = {target}')
+        return JsonResponse({'success': True, 'id': entry.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@section_required('language_rules')
+@require_POST
+def numbers_prefer_api(request, entry_id):
+    entry = get_object_or_404(AudioTrainingEntry, id=entry_id, kind='number_word')
+    _only_preferred(entry)
+    _numbers_forget()
+    _log_audit(request, 'number_word_prefer', f'#{entry.id}: {entry.source} = {entry.target}')
+    return JsonResponse({'success': True})
+
+
+@section_required('language_rules')
+@require_POST
+def numbers_toggle_api(request, entry_id):
+    entry = get_object_or_404(AudioTrainingEntry, id=entry_id, kind='number_word')
+    entry.is_active = not entry.is_active
+    entry.save(update_fields=['is_active', 'updated_at'])
+    _numbers_forget()
+    _log_audit(request, 'number_word_toggle', f'#{entry.id} -> {"ON" if entry.is_active else "OFF"}')
+    return JsonResponse({'success': True, 'is_active': entry.is_active})
+
+
+@section_required('language_rules')
+@require_POST
+def numbers_delete_api(request, entry_id):
+    entry = get_object_or_404(AudioTrainingEntry, id=entry_id, kind='number_word')
+    _log_audit(request, 'number_word_delete', f'#{entry.id}: {entry.source}')
+    entry.delete()
+    _numbers_forget()
+    return JsonResponse({'success': True})
+
+
+@section_required('language_rules')
+@require_POST
+def numbers_settings_api(request):
+    from axom_ai import number_words as nw
+    try:
+        data = json.loads(request.body)
+        mode = str(data.get('mode', '')).strip().lower()
+        top = int(data.get('max', nw.DEFAULT_MAX))
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Choose a mode and a whole number for the limit.'}, status=400)
+    if mode not in nw.MODES:
+        return JsonResponse({'error': 'Unknown mode.'}, status=400)
+    if not (1 <= top <= 9999999):
+        return JsonResponse({'error': 'The limit must be between 1 and 9999999.'}, status=400)
+    SystemSetting.set_setting(nw.SETTING_MODE, mode, 'Chat: write numbers as Assamese words (off / years / small)')
+    SystemSetting.set_setting(nw.SETTING_MAX, str(top), 'Chat: largest number written as words')
+    nw.forget()
+    _log_audit(request, 'number_words_mode', f'{mode}, up to {top}')
+    return JsonResponse({'success': True, 'mode': mode, 'max': top})
+
+
+@section_required('language_rules')
+def numbers_preview_api(request):
+    """What a number becomes with the current list (the admin tries a number before switching the chat on)."""
+    from axom_ai import number_words as nw
+    raw = (request.GET.get('n') or '').strip()
+    if not raw.isdigit() or len(raw) > 9:
+        return JsonResponse({'words': None, 'reason': 'Enter a whole number.'})
+    words = nw.to_words(int(raw), nw.cached_table())
+    return JsonResponse({'words': words, 'reason': '' if words else 'A word that this number needs is not in the list yet.'})
 
 
 @section_required('language_rules')

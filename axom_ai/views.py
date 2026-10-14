@@ -34,10 +34,21 @@ MEMORY_CHAR_BUDGET = int(os.getenv('MEMORY_CHAR_BUDGET', '3500'))   # conversati
 _LANG_RULES_CACHE = {'text': '', 'ts': 0}
 _LANG_RULES_TTL = 60  # seconds
 
+def _number_rule():
+    """When the site writes numbers as Assamese words itself (Language Rules -> Numbers), the model is asked for digits."""
+    try:
+        from axom_ai import number_words as nw
+        if nw.current_settings()[0] != 'off':
+            return "\n\nNUMBERS: write every number as digits (0-9), never as words. The site shows the Assamese words itself.\n"
+    except Exception:
+        pass
+    return ""
+
+
 def _get_language_rules_block():
     now = time.time()
     if now - _LANG_RULES_CACHE['ts'] < _LANG_RULES_TTL and _LANG_RULES_CACHE['text']:
-        return _LANG_RULES_CACHE['text']
+        return _LANG_RULES_CACHE['text'] + _number_rule()
     try:
         from superadmin.models import LanguageRule
         block = LanguageRule.build_prompt_block()
@@ -45,7 +56,7 @@ def _get_language_rules_block():
         block = ""
     _LANG_RULES_CACHE['text'] = block
     _LANG_RULES_CACHE['ts'] = now
-    return block
+    return block + _number_rule()
 MAX_MSGS_PER_SESSION = int(os.getenv('MAX_MSGS_PER_SESSION', '100'))  # messages kept per chat
 MAX_SESSIONS_PER_KEY = int(os.getenv('MAX_SESSIONS_PER_KEY', '50'))   # non-pinned chats kept
 
@@ -143,6 +154,29 @@ def _optimize_search_query(raw_query: str) -> str:
         return f"{loc} weather forecast today IMD"
 
     return cleaned
+
+
+def _assamese_final(text: str) -> str:
+    """A whole Assamese answer: purified, and its numbers written as words when Language Rules -> Numbers is on."""
+    from axom_ai import number_words as nw
+    try:
+        return nw.finish(_purify_assamese_with_grammar(text))
+    except Exception:
+        return _purify_assamese_with_grammar(text)
+
+
+def _assamese_stream(chunks):
+    """The chunks of a streamed Assamese answer: purified, and numbers written as words when Language Rules -> Numbers is on
+    (a number that is cut between two chunks is held back until it is whole)."""
+    from axom_ai import number_words as nw
+    numbers = nw.NumberWordStream()
+    for chunk in chunks:
+        out = numbers.feed(_purify_assamese_with_grammar(chunk))
+        if out:
+            yield out
+    tail = numbers.flush()
+    if tail:
+        yield tail
 
 
 def _purify_assamese_with_grammar(text: str) -> str:
@@ -1605,7 +1639,7 @@ def chat_api_view(request):
         answer = re.sub(r'[^\S\n]{2,}', ' ', answer).strip()
 
         if language == 'assamese':
-            answer = _purify_assamese_with_grammar(answer)
+            answer = _assamese_final(answer)
         else:
             answer = _sanitize_brand_mentions(answer)
 
@@ -1764,11 +1798,11 @@ def chat_api_view(request):
 
     def _purify_stream(gen):
         """Wrap text-chunk generator: purify Assamese if language is Assamese, and sanitize rival brands."""
+        if language == 'assamese':
+            yield from _assamese_stream(gen)
+            return
         for chunk in gen:
-            if language == 'assamese':
-                yield _purify_assamese_with_grammar(chunk)
-            else:
-                yield _sanitize_brand_mentions(chunk)
+            yield _sanitize_brand_mentions(chunk)
 
     # -------------------------------------------------------------------------
     # Tier 1 (Streaming): OpenAI model cascade (gpt-4o -> o3-mini -> gpt-4o-mini)
@@ -1777,7 +1811,7 @@ def chat_api_view(request):
         try:
             from model_router.router import openai_stream
             def _on_done_save(txt):
-                saved = _purify_assamese_with_grammar(txt) if language == 'assamese' else txt
+                saved = _assamese_final(txt) if language == 'assamese' else txt
                 _save_chat(request, client_id, prompt, saved)
             oai_gen, oai_model = openai_stream(
                 system_instruction, final_prompt,
@@ -1823,7 +1857,9 @@ def chat_api_view(request):
                 continue
             if g_res.status_code == 200:
                 def gemini_stream(resp=g_res):
+                    from axom_ai import number_words as nw
                     acc = []
+                    numbers = nw.NumberWordStream() if language == 'assamese' else None
                     try:
                         for raw in resp.iter_lines():
                             if not raw:
@@ -1843,11 +1879,17 @@ def chat_api_view(request):
                                     if part.get('text'):
                                         chunk = part['text']
                                         if language == 'assamese':
-                                            chunk = _purify_assamese_with_grammar(chunk)
+                                            chunk = numbers.feed(_purify_assamese_with_grammar(chunk))
                                         else:
                                             chunk = _sanitize_brand_mentions(chunk)
-                                        acc.append(chunk)
-                                        yield chunk
+                                        if chunk:
+                                            acc.append(chunk)
+                                            yield chunk
+                        if numbers is not None:
+                            tail = numbers.flush()
+                            if tail:
+                                acc.append(tail)
+                                yield tail
                     finally:
                         resp.close()
                         try:
@@ -1870,7 +1912,7 @@ def chat_api_view(request):
     # -------------------------------------------------------------------------
     if GROQ_API_KEY and not web_search:
         def _on_groq_save(txt):
-            saved = _purify_assamese_with_grammar(txt) if language == 'assamese' else txt
+            saved = _assamese_final(txt) if language == 'assamese' else txt
             _save_chat(request, client_id, prompt, saved)
         gstream = _groq_stream_response(system_instruction, final_prompt, _on_groq_save)
         if gstream is not None:
@@ -1898,7 +1940,7 @@ def chat_api_view(request):
                 image_b64=attached_img_b64, image_mime=attached_img_mime)
             if oai_text:
                 if language == 'assamese':
-                    oai_text = _purify_assamese_with_grammar(oai_text)
+                    oai_text = _assamese_final(oai_text)
                 else:
                     oai_text = _sanitize_brand_mentions(oai_text)
                 _save_chat(request, client_id, prompt, oai_text)
@@ -1997,7 +2039,7 @@ def chat_api_view(request):
                                 response_text = asm.strip()
 
                     if language == 'assamese':
-                        response_text = _purify_assamese_with_grammar(response_text)
+                        response_text = _assamese_final(response_text)
                     else:
                         response_text = _sanitize_brand_mentions(response_text)
                     _save_chat(request, client_id, prompt, response_text)
@@ -2022,7 +2064,7 @@ def chat_api_view(request):
         groq_text = _groq_generate(system_instruction, final_prompt)
         if groq_text:
             if language == 'assamese':
-                groq_text = _purify_assamese_with_grammar(groq_text)
+                groq_text = _assamese_final(groq_text)
             else:
                 groq_text = _sanitize_brand_mentions(groq_text)
             _save_chat(request, client_id, prompt, groq_text)

@@ -38,6 +38,99 @@
   <button onclick="filterRules('example')" data-filter="example" class="filter-tab shrink-0 pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
     <i class="fa-solid fa-lightbulb mr-1.5"></i> Examples
   </button>
+  <button onclick="showNumbers()" data-filter="numbers" class="filter-tab shrink-0 pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+    <i class="fa-solid fa-hashtag mr-1.5"></i> Numbers ({{ number_entries|length }})
+  </button>
+</div>
+
+<!-- Numbers: the number words of Audio Training, used by the chat to write numbers in Assamese answers -->
+<div id="numbers-panel" class="hidden space-y-5">
+  <div class="glass-card rounded-2xl border border-slate-800 p-4 sm:p-5">
+    <h3 class="text-sm font-bold text-white mb-1"><i class="fa-solid fa-comments text-indigo-400 mr-1.5"></i>Numbers in chat answers</h3>
+    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+      The chat writes numbers as digits. When this is on, an Assamese answer shows them as words, using the spelling marked <span class="text-amber-300 font-semibold">preferred</span> below.
+      Dates, times, phone numbers, prices (₹), percentages, decimals, list numbers, tables and code always stay as digits.
+      This is the same list as <strong class="text-slate-200">Audio Training</strong> (voice typing): add a word in either place and both use it.
+    </p>
+    <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Write numbers as words in Assamese answers</label>
+        <select id="num-mode" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+          {% for value, label in number_modes %}<option value="{{ value }}" {% if number_mode == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Largest number</label>
+        <input type="number" id="num-max" min="1" max="9999999" value="{{ number_max }}" class="w-full sm:w-32 bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+      </div>
+    </div>
+    <button onclick="numSaveSettings()" class="mt-3 w-full sm:w-auto px-5 py-3 sm:py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition"><i class="fa-solid fa-check mr-1.5"></i> Save</button>
+    <div class="mt-5 pt-4 border-t border-slate-800">
+      <label class="block text-xs font-semibold text-slate-300 mb-1.5">Try a number</label>
+      <div class="flex gap-2">
+        <input type="number" id="num-try" placeholder="e.g. 2004" class="flex-1 min-w-0 bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none" onkeydown="if(event.key==='Enter')numPreview()">
+        <button onclick="numPreview()" class="px-4 py-3 sm:py-2.5 rounded-xl text-sm font-semibold bg-slate-700 hover:bg-slate-600 text-white transition">Show</button>
+      </div>
+      <p id="num-try-out" class="mt-2 text-sm text-emerald-300 min-h-[1.25rem] break-words"></p>
+    </div>
+  </div>
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="relative flex-1 max-w-md">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs pointer-events-none"></i>
+      <input type="text" id="num-search" oninput="numFilter(this.value)" placeholder="Search a word or a value" class="w-full pl-9 pr-3 py-3 sm:py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+    </div>
+    <button onclick="numOpen()" class="w-full sm:w-auto justify-center shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-3 sm:py-2.5 rounded-xl transition flex items-center gap-2"><i class="fa-solid fa-plus"></i> Add number word</button>
+  </div>
+
+  <div class="space-y-2" id="num-list">
+    {% for e in number_entries %}
+    <div class="num-row glass-card rounded-xl px-3 py-3 border border-slate-800 flex items-center gap-3" data-search="{{ e.source }} {{ e.target }}">
+      <div class="shrink-0 w-14 text-center"><span class="inline-block min-w-[2.5rem] px-2 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 font-mono font-bold text-sm">{{ e.target }}</span></div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold text-white break-words">{{ e.source }}</div>
+        <div class="flex flex-wrap gap-1.5 mt-0.5">
+          {% if e.preferred %}<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">PREFERRED</span>{% endif %}
+          {% if not e.is_active %}<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">DISABLED</span>{% endif %}
+        </div>
+      </div>
+      <div class="flex items-center gap-1 shrink-0">
+        <button onclick="numPrefer({{ e.id }})" class="p-3 sm:p-2 rounded-lg {% if e.preferred %}text-amber-300{% else %}text-slate-500 hover:text-amber-300{% endif %} hover:bg-amber-500/10 transition" title="Write this number with this spelling"><i class="fa-solid fa-star text-xs"></i></button>
+        <button onclick="numEdit({{ e.id }}, `{{ e.source|escapejs }}`, '{{ e.target }}', {{ e.preferred|yesno:'true,false' }})" class="p-3 sm:p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition" title="Edit"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+        <button onclick="numToggle({{ e.id }})" class="p-3 sm:p-2 rounded-lg transition {% if e.is_active %}text-emerald-400 hover:text-amber-400{% else %}text-slate-500 hover:text-emerald-400{% endif %}" title="{% if e.is_active %}Disable{% else %}Enable{% endif %}"><i class="fa-solid {% if e.is_active %}fa-toggle-on{% else %}fa-toggle-off{% endif %} text-sm"></i></button>
+        <button onclick="numDelete({{ e.id }}, `{{ e.source|escapejs }}`)" class="p-3 sm:p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition" title="Delete"><i class="fa-solid fa-trash-can text-xs"></i></button>
+      </div>
+    </div>
+    {% empty %}
+    <div class="glass-card rounded-xl p-8 border border-slate-800 text-center text-slate-400 text-sm">No number words yet. Add one, for example <span class="text-white">চৌৰাশী</span> = 84.</div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Add / edit a number word -->
+<div id="num-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
+  <div class="bg-slate-900 border border-slate-700 rounded-t-2xl sm:rounded-2xl w-full max-w-md sm:mx-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+    <div class="sticky top-0 bg-slate-900 px-4 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+      <h3 class="text-base font-bold text-white" id="num-modal-title">Add number word</h3>
+      <button onclick="numClose()" aria-label="Close" class="w-10 h-10 -mr-2 flex items-center justify-center text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+    </div>
+    <div class="px-4 sm:px-6 py-5 space-y-4">
+      <input type="hidden" id="num-id" value="">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Word (one word, in Assamese)</label>
+        <input type="text" id="num-word" autocomplete="off" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Value</label>
+        <input type="text" inputmode="numeric" id="num-value" placeholder="0 to 99, or 100, 200 ... 900" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+      </div>
+      <label class="flex items-center gap-2.5 text-sm text-slate-200 cursor-pointer"><input type="checkbox" id="num-pref" class="w-4 h-4"> Write this number with this spelling (preferred)</label>
+    </div>
+    <div class="sticky bottom-0 bg-slate-900 px-4 sm:px-6 py-4 border-t border-slate-800 flex justify-end gap-3" style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
+      <button onclick="numClose()" class="px-4 py-3 sm:py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">Cancel</button>
+      <button onclick="numSave()" class="flex-1 sm:flex-none px-5 py-3 sm:py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition"><i class="fa-solid fa-check mr-1.5"></i> Save</button>
+    </div>
+  </div>
 </div>
 
 <!-- Rules List -->
@@ -243,6 +336,8 @@ async function deleteRule(id, title) {
 }
 
 function filterRules(cat) {
+  document.getElementById('numbers-panel').classList.add('hidden');
+  document.getElementById('rules-list').classList.remove('hidden');
   document.querySelectorAll('.filter-tab').forEach(t => {
     t.classList.remove('border-indigo-500', 'text-white');
     t.classList.add('border-transparent', 'text-slate-400');
@@ -260,5 +355,52 @@ function filterRules(cat) {
 }
 
 updateHelpText();
+
+// ---- Numbers tab ------------------------------------------------------------------------------------------------------------
+function showNumbers() {
+  document.querySelectorAll('.filter-tab').forEach(t => { t.classList.remove('border-indigo-500', 'text-white'); t.classList.add('border-transparent', 'text-slate-400'); });
+  const tab = document.querySelector('[data-filter="numbers"]');
+  tab.classList.add('border-indigo-500', 'text-white'); tab.classList.remove('border-transparent', 'text-slate-400');
+  document.getElementById('rules-list').classList.add('hidden');
+  document.getElementById('numbers-panel').classList.remove('hidden');
+  try { history.replaceState(null, '', '#numbers'); } catch (e) { /* ignore */ }
+}
+
+async function numCall(url, body) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken }, body: JSON.stringify(body || {}) });
+  let data = {}; try { data = await res.json(); } catch (e) { /* not JSON */ }
+  return data;
+}
+function numDone(res, ok, reload) {
+  if (res.success) { showToast(ok, 'success'); if (reload) { try { history.replaceState(null, '', '#numbers'); } catch (e) {} setTimeout(() => location.reload(), 500); } return true; }
+  showToast(res.error || 'Something went wrong.', 'error'); return false;
+}
+function numOpen() { document.getElementById('num-id').value = ''; document.getElementById('num-word').value = ''; document.getElementById('num-value').value = ''; document.getElementById('num-pref').checked = false;
+  document.getElementById('num-modal-title').textContent = 'Add number word'; document.getElementById('num-modal').classList.remove('hidden'); document.getElementById('num-word').focus(); }
+function numEdit(id, word, value, pref) { document.getElementById('num-id').value = id; document.getElementById('num-word').value = word; document.getElementById('num-value').value = value; document.getElementById('num-pref').checked = !!pref;
+  document.getElementById('num-modal-title').textContent = 'Edit number word'; document.getElementById('num-modal').classList.remove('hidden'); }
+function numClose() { document.getElementById('num-modal').classList.add('hidden'); }
+async function numSave() {
+  const res = await numCall('/axomai-admin/language-rules/numbers/save/', { id: document.getElementById('num-id').value || null, source: document.getElementById('num-word').value, target: document.getElementById('num-value').value, preferred: document.getElementById('num-pref').checked });
+  if (numDone(res, 'Saved.', true)) numClose();
+}
+async function numPrefer(id) { numDone(await numCall('/axomai-admin/language-rules/numbers/prefer/' + id + '/'), 'This spelling will be used.', true); }
+async function numToggle(id) { numDone(await numCall('/axomai-admin/language-rules/numbers/toggle/' + id + '/'), 'Updated.', true); }
+async function numDelete(id, word) {
+  if (!(await adminConfirm('"' + word + '" will be removed from the list (voice typing uses this list too). This cannot be undone.', { danger: true, title: 'Delete this number word?' }))) return;
+  numDone(await numCall('/axomai-admin/language-rules/numbers/delete/' + id + '/'), 'Deleted.', true);
+}
+async function numSaveSettings() {
+  numDone(await numCall('/axomai-admin/language-rules/numbers/settings/', { mode: document.getElementById('num-mode').value, max: document.getElementById('num-max').value }), 'Saved. New answers use it within half a minute.', false);
+}
+async function numPreview() {
+  const n = document.getElementById('num-try').value.trim(); const out = document.getElementById('num-try-out');
+  if (!n) { out.textContent = ''; return; }
+  const r = await (await fetch('/axomai-admin/language-rules/numbers/preview/?n=' + encodeURIComponent(n))).json();
+  out.className = 'mt-2 text-sm min-h-[1.25rem] break-words ' + (r.words ? 'text-emerald-300' : 'text-amber-300');
+  out.textContent = r.words ? n + ' → ' + r.words : (r.reason || '');
+}
+function numFilter(q) { q = q.trim().toLowerCase(); document.querySelectorAll('.num-row').forEach(r => { r.style.display = (!q || r.dataset.search.toLowerCase().includes(q)) ? '' : 'none'; }); }
+if (location.hash === '#numbers') showNumbers();
 </script>
 {% endblock %}

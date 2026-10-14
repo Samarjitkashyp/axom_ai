@@ -20,6 +20,8 @@ def _key(kind):
 
 def forget(kind):
     cache.delete(_key(kind))
+    if kind == NUMBER:
+        cache.delete('number_words:table')            # the spellings the chat and the voice write numbers with (axom_ai/number_words.py)
 
 
 def clean_source(value):
