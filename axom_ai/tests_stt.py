@@ -61,6 +61,17 @@ class SttTests(TestCase):
         self.assertTrue(tr.call_args[0][0][:4] == b'RIFF')                  # Gemini gets a clean 16 kHz wav
         self.assertEqual(UsageRecord.objects.filter(user=self.user, action_type='stt').count(), 1)
 
+    def test_assamese_number_words_become_digits(self):
+        with mock.patch('axom_ai.stt_api.transcribe', return_value='মই দুই হাজাৰ চৌবিশত গৈছিলো এক জন'):
+            body = post(self.client, self.tone).json()
+        self.assertEqual(body['text'], 'মই দুই হাজাৰ চৌবিশত গৈছিলো এক জন')       # glued suffix (চৌবিশত) is not a number word: left alone
+        with mock.patch('axom_ai.stt_api.transcribe', return_value='দুই হাজাৰ চৌবিশ'):
+            body = post(self.client, self.tone).json()
+        self.assertEqual(body['text'], '2024')
+        with mock.patch('axom_ai.stt_api.transcribe', return_value='দুই হাজাৰ চৌবিশ'):
+            body = post(self.client, self.tone, language='english').json()
+        self.assertEqual(body['text'], 'দুই হাজাৰ চৌবিশ')                          # only Assamese is changed
+
     def test_silence_is_not_sent_and_not_counted(self):
         self.client.force_login(self.user)
         with mock.patch('axom_ai.stt_api.transcribe') as tr:
