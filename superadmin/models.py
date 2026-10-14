@@ -364,6 +364,7 @@ class AudioTrainingEntry(models.Model):
     target = models.CharField(max_length=200, help_text="What it becomes: digits for a number word, the right text otherwise")
     note = models.CharField(max_length=200, blank=True, default='')
     is_active = models.BooleanField(default=True, db_index=True)
+    preferred = models.BooleanField(default=False, help_text="Number words: the spelling the chat writes this number with (one per value)")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

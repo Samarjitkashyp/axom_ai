@@ -14,7 +14,7 @@ from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from axom_ai import audio_training, voice_text
+from axom_ai import audio_training, number_words, voice_text
 from axom_ai.security import get_client_ip
 from axom_ai.views import _chat_cors_view
 from payments.utils import has_active_plan
@@ -93,6 +93,7 @@ def tts_speak_api(request):
     # numbers are written out as Assamese words first (the voice has no digits); a person over the limit only gets what was remembered
     # the words the admin wants read in a certain way come first (Audio Training: HTML, or even a number such as 2004), then the numbers that are left
     text = audio_training.fix_pronunciation(text)
+    text = number_words.for_voice(text)                      # numbers written with the Assamese words of the list (Language Rules -> Numbers)
     spoken = (voice_text.normalize_numbers(text, allow_ask=not over) or text) if voice_text.has_digits(text) else text
     try:
         r = requests.post(TTS_URL + '/tts', json={'text': spoken, 'voice': voice, 'cache_only': over}, timeout=75)
