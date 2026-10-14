@@ -72,8 +72,7 @@ class UserAdminTests(TestCase):
             self.assertIn(needle, html)
 
     def test_users_page_summary_pager_and_cards(self):
-        for i in range(25):
-            User.objects.create_user('person%02d' % i, 'p%02d@example.com' % i, PW)
+        User.objects.bulk_create([User(username='person%02d' % i, email='p%02d@example.com' % i) for i in range(25)])        # no password hashing: fast
         User.objects.filter(username='person00').update(is_active=False)
         sp = SubdomainPermission.objects.create(user=User.objects.get(username='person01'), admin_access=True, admin_sections=['audio_training'])
         r = self.client.get('/axomai-admin/users/?q=person&status=')
@@ -82,7 +81,7 @@ class UserAdminTests(TestCase):
         self.assertEqual(r.context['total_count'], 25)
         html = r.content.decode()
         self.assertIn('Showing', html)
-        self.assertIn('Admin panel: Audio Training', html)
+        self.assertIn('Admin panel: Audio Training', self.client.get('/axomai-admin/users/?q=person01').content.decode())
         self.assertEqual(r.context['page_numbers'], [1, 2])
         self.assertEqual(r.context['qs'], 'q=person')
         self.assertIn('?q=person&page=2', html)                                                           # the filter stays in the pager link
@@ -97,8 +96,7 @@ class UserAdminTests(TestCase):
         self.assertIn('Clear filters', html)
 
     def test_page_numbers_leave_gaps(self):
-        for i in range(160):
-            User.objects.create_user('bulk%03d' % i, 'b%03d@example.com' % i, PW)
+        User.objects.bulk_create([User(username='bulk%03d' % i, email='b%03d@example.com' % i) for i in range(160)])
         r = self.client.get('/axomai-admin/users/?page=5')
         self.assertEqual(r.context['page_numbers'], [1, None, 4, 5, 6, None, 9])
 
