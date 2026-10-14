@@ -21,6 +21,42 @@
     border-color: rgba(99, 102, 241, 0.4);
     box-shadow: 0 8px 30px rgba(99, 102, 241, 0.12);
   }
+  /* ---- shared form + button parts of the admin (one look everywhere) ---- */
+  .fld { width: 100%; background: #020617; border: 1px solid #1e293b; border-radius: .75rem; padding: .65rem .8rem; color: #f1f5f9; font-size: .8rem; line-height: 1.25;
+         transition: border-color .15s, box-shadow .15s; }
+  .fld::placeholder { color: #64748b; }
+  .fld:hover { border-color: #334155; }
+  .fld:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, .22); }
+  .fld[type=number] { -moz-appearance: textfield; appearance: textfield; }
+  .fld[type=number]::-webkit-inner-spin-button, .fld[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  @media (max-width: 767px) { .fld { font-size: 16px; padding: .75rem .85rem; } }     /* 16px: a phone does not zoom the page on tap */
+  .chk { -webkit-appearance: none; appearance: none; flex: none; width: 1.15rem; height: 1.15rem; border-radius: .35rem; border: 1.5px solid #475569; background: #020617 center / 80% no-repeat;
+         cursor: pointer; transition: background-color .12s, border-color .12s, box-shadow .12s; }
+  .chk:hover { border-color: #818cf8; }
+  .chk:checked { background-color: #4f46e5; border-color: #4f46e5;
+         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10.5l4 4 8-9'/%3E%3C/svg%3E"); }
+  .chk:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(99, 102, 241, .35); }
+  .chk:disabled { opacity: .45; cursor: not-allowed; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .6rem 1rem; border-radius: .75rem; font-size: .8rem; font-weight: 600; line-height: 1;
+         color: #e2e8f0; background: #1e293b; border: 1px solid #334155; cursor: pointer; transition: background-color .15s, border-color .15s, transform .05s, box-shadow .15s; white-space: nowrap; }
+  .btn:hover { background: #273449; }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(99, 102, 241, .4); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: #4f46e5; border-color: #4f46e5; color: #fff; box-shadow: 0 6px 18px rgba(79, 70, 229, .28); }
+  .btn-primary:hover { background: #6366f1; border-color: #6366f1; }
+  .btn-success { background: #059669; border-color: #059669; color: #fff; } .btn-success:hover { background: #10b981; }
+  .btn-warn { background: #d97706; border-color: #d97706; color: #fff; } .btn-warn:hover { background: #f59e0b; }
+  .btn-danger { background: rgba(225, 29, 72, .14); border-color: rgba(244, 63, 94, .4); color: #fda4af; } .btn-danger:hover { background: #e11d48; border-color: #e11d48; color: #fff; }
+  .btn-sm { padding: .45rem .7rem; font-size: .72rem; border-radius: .6rem; }
+  @media (max-width: 767px) { .btn { min-height: 44px; } .btn-sm { min-height: 40px; } }
+  .lbl { display: block; font-size: .7rem; font-weight: 600; color: #94a3b8; margin-bottom: .35rem; letter-spacing: .01em; }
+  .pill { display: inline-flex; align-items: center; gap: .3rem; padding: .15rem .55rem; border-radius: 9999px; font-size: .68rem; font-weight: 600; line-height: 1.4; border: 1px solid transparent; }
+  /* confirm dialog */
+  .cf-back { position: fixed; inset: 0; z-index: 300; background: rgba(2, 6, 23, .72); backdrop-filter: blur(4px); display: flex; align-items: flex-end; justify-content: center; padding: 0; }
+  .cf-box { width: 100%; max-width: 26rem; background: #0b1224; border: 1px solid #334155; border-radius: 1.25rem 1.25rem 0 0; padding: 1.25rem; box-shadow: 0 25px 60px rgba(0, 0, 0, .6);
+            padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
+  @media (min-width: 640px) { .cf-back { align-items: center; padding: 1rem; } .cf-box { border-radius: 1.25rem; } }
   /* Dropdowns: every <select> of the admin is shown as a themed menu (the real select stays underneath for the form and the page code) */
   .ts-native { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; overflow: hidden; }
   .ts-btn { display: flex; align-items: center; justify-content: space-between; gap: .5rem; text-align: left; cursor: pointer; }
@@ -108,6 +144,8 @@
         <i class="fa-solid fa-toolbox w-5 text-center mr-3 text-sm"></i>
         Tools Management
       </a>
+      {% endif %}
+      {% if request.user.is_superuser or 'language_rules' in request.user.subdomain_perm.admin_sections %}
       <a href="/axomai-admin/language-rules/" class="flex items-center px-3 py-2.5 rounded-xl font-medium transition-all {% if a == 'language_rules' %}bg-indigo-600 text-white shadow-md shadow-indigo-600/30{% else %}text-slate-400 hover:text-white hover:bg-slate-800/60{% endif %}">
         <i class="fa-solid fa-language w-5 text-center mr-3 text-sm"></i>
         Language Rules
@@ -219,6 +257,35 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
   window.addEventListener('resize', function () { if (window.innerWidth >= 768) closeSidebar(); });
 
+
+
+  // ---- themed confirm dialog (replaces the browser's plain confirm box) ---------------------------------------------------------
+  function adminConfirm(message, opts) {
+    opts = opts || {};
+    return new Promise(function (resolve) {
+      var back = document.createElement('div');
+      back.className = 'cf-back';
+      var danger = !!opts.danger;
+      back.innerHTML =
+        '<div class="cf-box" role="alertdialog" aria-modal="true" aria-labelledby="cf-title">' +
+        '<div class="flex items-start gap-3">' +
+        '<div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ' + (danger ? 'bg-rose-500/15 text-rose-400' : 'bg-indigo-500/15 text-indigo-400') + '"><i class="fa-solid ' + (danger ? 'fa-triangle-exclamation' : 'fa-circle-question') + '"></i></div>' +
+        '<div class="min-w-0"><h3 id="cf-title" class="text-sm font-bold text-white"></h3><p class="cf-msg text-xs text-slate-400 mt-1 leading-relaxed [overflow-wrap:anywhere]"></p></div></div>' +
+        '<div class="flex gap-3 mt-5"><button type="button" class="btn flex-1 cf-no"></button><button type="button" class="btn flex-1 cf-yes ' + (danger ? 'btn-danger' : 'btn-primary') + '"></button></div></div>';
+      back.querySelector('#cf-title').textContent = opts.title || (danger ? 'Are you sure?' : 'Please confirm');
+      back.querySelector('.cf-msg').textContent = message;
+      back.querySelector('.cf-no').textContent = opts.cancelText || 'Cancel';
+      back.querySelector('.cf-yes').textContent = opts.confirmText || (danger ? 'Yes, delete' : 'Yes');
+      function done(v) { document.removeEventListener('keydown', onKey, true); back.remove(); resolve(v); }
+      function onKey(e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); done(false); } }
+      back.addEventListener('mousedown', function (e) { if (e.target === back) done(false); });
+      back.querySelector('.cf-no').onclick = function () { done(false); };
+      back.querySelector('.cf-yes').onclick = function () { done(true); };
+      document.addEventListener('keydown', onKey, true);
+      document.body.appendChild(back);
+      back.querySelector(danger ? '.cf-no' : '.cf-yes').focus();
+    });
+  }
 
   // ---- themed dropdowns -------------------------------------------------------------------------------------------------------
   (function () {

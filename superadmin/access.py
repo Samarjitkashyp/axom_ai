@@ -6,6 +6,7 @@ The sections are kept on the user's SubdomainPermission row; a section is added 
 
 SECTIONS = {
     'audio_training': {'label': 'Audio Training', 'url': '/axomai-admin/audio-training/'},
+    'language_rules': {'label': 'Language Rules', 'url': '/axomai-admin/language-rules/'},
 }
 
 

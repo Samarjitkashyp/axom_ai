@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
+from urllib.parse import urlencode
 from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator
 from django.db import models
@@ -448,10 +449,36 @@ def users_page(request):
         u.stat_images = st['images']
         u.tag_list = tags_map.get(u.id, [])
         u.custom_q = quotas_map.get(u.id, None)
+        u.panel_sections = [SECTIONS[k]['label'] for k in perms_map.get(u.id, {}).get('sections', []) if k in SECTIONS and perms_map[u.id].get('admin')]
+
+    # Summary cards on top of the page
+    total_all = User.objects.count()
+    active_all = User.objects.filter(is_active=True).count()
+    stats = {
+        'total': total_all,
+        'active': active_all,
+        'suspended': total_all - active_all,
+        'admins': User.objects.filter(Q(is_superuser=True) | Q(is_staff=True) | Q(subdomain_perm__admin_access=True)).distinct().count(),
+    }
+
+    # Pager: the filters kept in the links (url-encoded), and a short list of page numbers (None = a gap)
+    qs = urlencode({k: v for k, v in (('q', q), ('plan', plan_filter), ('status', status_filter), ('tag', tag_filter), ('sort', sort_by)) if v and not (k == 'sort' and v == '-date_joined')})
+    last = paginator.num_pages
+    shown = sorted({1, last, users_page_obj.number - 1, users_page_obj.number, users_page_obj.number + 1} & set(range(1, last + 1)))
+    page_numbers = []
+    for n in shown:
+        if page_numbers and n - page_numbers[-1] > 1:
+            page_numbers.append(None)
+        page_numbers.append(n)
 
     context = {
         'active': 'users',
         'users': users_page_obj,
+        'stats': stats,
+        'qs': qs,
+        'page_numbers': page_numbers,
+        'range_from': users_page_obj.start_index() if users_page_obj.paginator.count else 0,
+        'range_to': users_page_obj.end_index() if users_page_obj.paginator.count else 0,
         'q': q,
         'plan_filter': plan_filter,
         'status_filter': status_filter,
@@ -1365,7 +1392,7 @@ def chart_data_api(request):
 # Language Rules Management
 # ---------------------------------------------------------------------------
 
-@superuser_required
+@section_required('language_rules')
 def language_rules_page(request):
     rules = LanguageRule.objects.all()
     return render(request, 'superadmin/language_rules.html', {
@@ -1375,7 +1402,7 @@ def language_rules_page(request):
     })
 
 
-@superuser_required
+@section_required('language_rules')
 @require_POST
 def save_language_rule_api(request):
     try:
@@ -1415,7 +1442,7 @@ def save_language_rule_api(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@superuser_required
+@section_required('language_rules')
 @require_POST
 def toggle_language_rule_api(request, rule_id):
     rule = get_object_or_404(LanguageRule, id=rule_id)
@@ -1425,7 +1452,7 @@ def toggle_language_rule_api(request, rule_id):
     return JsonResponse({'success': True, 'is_active': rule.is_active})
 
 
-@superuser_required
+@section_required('language_rules')
 @require_POST
 def delete_language_rule_api(request, rule_id):
     rule = get_object_or_404(LanguageRule, id=rule_id)

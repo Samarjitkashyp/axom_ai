@@ -1,488 +1,435 @@
 {% extends 'superadmin/base.html' %}
 {% block title %}Users Management — Axom AI Super Admin{% endblock %}
-{% block heading %}Users Management{% endblock %}
+{% block heading %}<i class="fa-solid fa-users mr-2 text-indigo-400 hidden sm:inline"></i>Users{% endblock %}
+
+{% block extra_head %}
+<style>
+  .tabs-scroll { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tabs-scroll::-webkit-scrollbar { display: none; }
+  .u-table tbody tr + tr { border-top: 1px solid rgba(30, 41, 59, .75); }
+  .u-table tbody tr:hover { background: rgba(15, 23, 42, .55); }
+  .u-sheet { max-height: 92vh; }
+
+  /* Phone: every row of the table becomes a card */
+  @media (max-width: 767px) {
+    .u-table thead { display: none; }
+    .u-table, .u-table tbody { display: block; width: 100%; }
+    .u-table tbody tr, .u-table tbody tr + tr { display: grid; grid-template-columns: 1fr; gap: .55rem; position: relative; margin: .75rem; padding: 1rem;
+      border: 1px solid #1e293b; border-radius: 1rem; background: rgba(15, 23, 42, .62); }
+    .u-table tbody tr:hover { background: rgba(15, 23, 42, .62); }
+    .u-table td { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: .6rem; align-items: start; padding: 0 !important; border: 0 !important; text-align: left !important; min-width: 0; }
+    .u-table td[data-label]::before { content: attr(data-label); font-size: .64rem; text-transform: uppercase; letter-spacing: .07em; color: #64748b; font-weight: 700; padding-top: .18rem; }
+    .u-table td.u-select { position: absolute; top: 1rem; right: 1rem; display: block; width: auto; z-index: 1; }
+    .u-table td.u-user { display: block; padding-right: 2rem !important; }
+    .u-table td.u-actions { display: flex; gap: .5rem; padding-top: .75rem !important; margin-top: .2rem; border-top: 1px solid #1e293b !important; }
+    .u-table td.u-actions > * { flex: 1; }
+    .u-table td.u-empty { display: block; text-align: center !important; padding: 2rem 1rem !important; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Top Controls Bar -->
-<div class="glass-card rounded-2xl p-5 border border-slate-800 mb-6">
-  <form method="get" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div class="flex-1 flex flex-wrap items-center gap-3">
-      <!-- Search Input -->
-      <div class="relative flex-1 min-w-[220px]">
-        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-          <i class="fa-solid fa-magnifying-glass text-xs"></i>
-        </div>
-        <input type="text" name="q" value="{{ q }}" placeholder="Search username, email, name..." class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+
+<!-- Summary -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5">
+  <div class="glass-card rounded-2xl p-4 border border-slate-800">
+    <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total users</span><i class="fa-solid fa-users text-indigo-400"></i></div>
+    <div class="text-2xl font-extrabold text-white mt-2">{{ stats.total }}</div>
+  </div>
+  <div class="glass-card rounded-2xl p-4 border border-slate-800">
+    <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Active</span><i class="fa-solid fa-circle-check text-emerald-400"></i></div>
+    <div class="text-2xl font-extrabold text-white mt-2">{{ stats.active }}</div>
+  </div>
+  <div class="glass-card rounded-2xl p-4 border border-slate-800">
+    <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Suspended</span><i class="fa-solid fa-ban text-rose-400"></i></div>
+    <div class="text-2xl font-extrabold text-white mt-2">{{ stats.suspended }}</div>
+  </div>
+  <div class="glass-card rounded-2xl p-4 border border-slate-800">
+    <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Admin access</span><i class="fa-solid fa-user-shield text-amber-400"></i></div>
+    <div class="text-2xl font-extrabold text-white mt-2">{{ stats.admins }}</div>
+  </div>
+</div>
+
+<!-- Search, filters and the main buttons -->
+<div class="glass-card rounded-2xl p-4 sm:p-5 border border-slate-800 mb-5">
+  <form method="get" class="space-y-3">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+      <div class="relative flex-1 min-w-0">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none"></i>
+        <input type="text" name="q" value="{{ q }}" placeholder="Search username, email or name" autocomplete="off" class="fld !pl-9">
       </div>
-
-      <!-- Plan Filter -->
-      <select name="plan" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
-        <option value="">All Subscription Tiers</option>
-        <option value="free" {% if plan_filter == 'free' %}selected{% endif %}>Free Plan</option>
-        {% for p in plans_list %}
-        <option value="{{ p }}" {% if plan_filter == p %}selected{% endif %}>{{ p }}</option>
-        {% endfor %}
-      </select>
-
-      <!-- Status Filter -->
-      <select name="status" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
-        <option value="">All Account Statuses</option>
-        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active Only</option>
-        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Deactivated Only</option>
-        <option value="staff" {% if status_filter == 'staff' %}selected{% endif %}>Staff / Admins</option>
-      </select>
-
-      <!-- Tag Filter -->
-      <select name="tag" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
-        <option value="">All User Tags</option>
-        {% for t in all_tags %}
-        <option value="{{ t }}" {% if tag_filter == t %}selected{% endif %}>🏷️ {{ t }}</option>
-        {% endfor %}
-      </select>
-
-      <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs rounded-xl shadow transition">
-        Filter
-      </button>
-      {% if q or plan_filter or status_filter or tag_filter %}
-      <a href="/axomai-admin/users/" class="text-xs text-slate-400 hover:text-white px-2 py-2">Clear</a>
-      {% endif %}
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 lg:flex lg:items-center">
+        <select name="plan" class="fld lg:w-44">
+          <option value="">All plans</option>
+          <option value="free" {% if plan_filter == 'free' %}selected{% endif %}>Free plan</option>
+          {% for p in plans_list %}
+          <option value="{{ p }}" {% if plan_filter == p %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+        <select name="status" class="fld lg:w-40">
+          <option value="">All statuses</option>
+          <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active only</option>
+          <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>Suspended only</option>
+          <option value="staff" {% if status_filter == 'staff' %}selected{% endif %}>Staff / admins</option>
+        </select>
+        <select name="tag" class="fld col-span-2 sm:col-span-1 lg:w-40">
+          <option value="">All labels</option>
+          {% for t in all_tags %}
+          <option value="{{ t }}" {% if tag_filter == t %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
-
-    <!-- Actions: Export CSV -->
-    <div class="flex items-center space-x-3">
-      <span class="text-xs text-slate-400">Total: <strong class="text-white">{{ total_count }}</strong></span>
-      <button type="button" onclick="openAddUser()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 transition shadow-lg shadow-indigo-600/20">
-        <i class="fa-solid fa-user-plus"></i>
-        <span>Add User</span>
-      </button>
-      <a href="/axomai-admin/users/export/" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold rounded-xl flex items-center space-x-2 transition">
-        <i class="fa-solid fa-file-csv text-emerald-400"></i>
-        <span>Export CSV</span>
-      </a>
+    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <button type="submit" class="btn btn-primary flex-1 sm:flex-none"><i class="fa-solid fa-filter"></i> Apply filters</button>
+        {% if q or plan_filter or status_filter or tag_filter %}
+        <a href="/axomai-admin/users/" class="btn flex-1 sm:flex-none"><i class="fa-solid fa-xmark"></i> Clear</a>
+        {% endif %}
+      </div>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="openAddUser()" class="btn btn-primary flex-1 sm:flex-none"><i class="fa-solid fa-user-plus"></i> Add User</button>
+        <a href="/axomai-admin/users/export/" class="btn flex-1 sm:flex-none"><i class="fa-solid fa-file-csv text-emerald-400"></i> Export CSV</a>
+      </div>
     </div>
   </form>
 </div>
 
-<!-- Bulk Actions Floating Bar (Visible when users selected) -->
-<div id="bulkActionsBar" class="hidden glass-card rounded-2xl p-4 border border-indigo-500/30 bg-indigo-950/40 mb-6 flex flex-wrap items-center justify-between gap-4 transition-all animate-fade-in">
-  <div class="flex items-center space-x-3">
-    <span class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg" id="selectedCountBadge">0 selected</span>
-    <span class="text-xs text-slate-300 font-medium">Bulk Action:</span>
+<!-- Bulk actions: a bar at the bottom of the screen on a phone -->
+<div id="bulkActionsBar" class="hidden fixed inset-x-0 bottom-0 z-40 md:static md:z-auto glass-card md:rounded-2xl rounded-t-2xl border border-indigo-500/30 bg-slate-950/95 md:bg-indigo-950/40 mb-0 md:mb-5 p-4 shadow-[0_-12px_40px_rgba(0,0,0,.5)] md:shadow-none max-h-[70vh] overflow-y-auto" style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2.5">
+      <span class="pill bg-indigo-600 text-white !text-xs !py-1" id="selectedCountBadge">0 selected</span>
+      <button type="button" onclick="clearSelection()" class="text-xs text-slate-400 hover:text-white underline underline-offset-2">Clear</button>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <button onclick="executeBulkAction('activate')" class="btn btn-sm btn-success"><i class="fa-solid fa-check"></i> Activate</button>
+      <button onclick="executeBulkAction('deactivate')" class="btn btn-sm btn-warn"><i class="fa-solid fa-ban"></i> Suspend</button>
+      <button onclick="executeBulkAction('delete')" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash-can"></i> Delete</button>
+      <button type="button" onclick="toggleBulkMore()" id="bulkMoreBtn" class="btn btn-sm" aria-expanded="false"><i class="fa-solid fa-sliders"></i> More</button>
+    </div>
   </div>
-
-  <div class="flex flex-wrap items-center gap-2">
-    <!-- Quick Action Buttons -->
-    <button onclick="executeBulkAction('activate')" class="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-600 text-white text-xs font-medium rounded-lg flex items-center space-x-1.5 transition">
-      <i class="fa-solid fa-check text-[10px]"></i> <span>Activate</span>
-    </button>
-    <button onclick="executeBulkAction('deactivate')" class="px-3 py-1.5 bg-amber-600/80 hover:bg-amber-600 text-white text-xs font-medium rounded-lg flex items-center space-x-1.5 transition">
-      <i class="fa-solid fa-ban text-[10px]"></i> <span>Deactivate</span>
-    </button>
-    <button onclick="executeBulkAction('delete')" class="px-3 py-1.5 bg-rose-600/80 hover:bg-rose-600 text-white text-xs font-medium rounded-lg flex items-center space-x-1.5 transition">
-      <i class="fa-solid fa-trash-can text-[10px]"></i> <span>Delete</span>
-    </button>
-
-    <!-- Change Plan Dropdown -->
-    <div class="flex items-center space-x-1 border-l border-slate-700/60 pl-2 ml-1">
-      <select id="bulkPlanSelect" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">
-        <option value="free">Free Tier</option>
-        {% for p in plans_list %}
-        <option value="{{ p }}">{{ p }}</option>
-        {% endfor %}
-      </select>
-      <button onclick="executeBulkAction('change_plan')" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg">Apply Plan</button>
+  <div id="bulkMore" class="hidden mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div class="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
+      <label class="lbl">Change plan (30 days)</label>
+      <div class="flex gap-2">
+        <select id="bulkPlanSelect" class="fld flex-1 min-w-0">
+          <option value="free">Free tier</option>
+          {% for p in plans_list %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+        </select>
+        <button onclick="executeBulkAction('change_plan')" class="btn btn-sm btn-primary">Apply</button>
+      </div>
     </div>
-
-    <!-- Gift Days -->
-    <div class="flex items-center space-x-1 border-l border-slate-700/60 pl-2">
-      <input type="number" id="bulkGiftDays" value="7" class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white text-center">
-      <button onclick="executeBulkAction('gift_days')" class="px-2.5 py-1.5 bg-pink-600 hover:bg-pink-500 text-white text-xs font-medium rounded-lg flex items-center space-x-1">
-        <i class="fa-solid fa-gift text-[10px]"></i> <span>Gift Days</span>
-      </button>
+    <div class="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
+      <label class="lbl">Gift premium days</label>
+      <div class="flex gap-2">
+        <input type="number" id="bulkGiftDays" value="7" min="1" class="fld flex-1 min-w-0 text-center">
+        <button onclick="executeBulkAction('gift_days')" class="btn btn-sm" style="background:#be185d;border-color:#be185d;color:#fff"><i class="fa-solid fa-gift"></i> Gift</button>
+      </div>
     </div>
-
-    <!-- Add Tag -->
-    <div class="flex items-center space-x-1 border-l border-slate-700/60 pl-2">
-      <input type="text" id="bulkTagName" placeholder="Tag name (e.g. VIP)" class="w-28 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white placeholder-slate-500">
-      <button onclick="executeBulkAction('add_tag')" class="px-2.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium rounded-lg flex items-center space-x-1">
-        <i class="fa-solid fa-tag text-[10px]"></i> <span>Tag</span>
-      </button>
+    <div class="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
+      <label class="lbl">Add a label</label>
+      <div class="flex gap-2">
+        <input type="text" id="bulkTagName" placeholder="e.g. VIP" maxlength="40" class="fld flex-1 min-w-0">
+        <button onclick="executeBulkAction('add_tag')" class="btn btn-sm" style="background:#0891b2;border-color:#0891b2;color:#fff"><i class="fa-solid fa-tag"></i> Add</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Users Table -->
+<!-- Users -->
 <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden mb-6">
-  <div class="overflow-x-auto">
-    <table class="w-full text-left text-xs">
+  <div class="px-4 sm:px-5 py-3 border-b border-slate-800 flex items-center justify-between gap-3 text-xs text-slate-400">
+    <span>{% if total_count %}Showing <strong class="text-slate-200">{{ range_from }}–{{ range_to }}</strong> of <strong class="text-slate-200">{{ total_count }}</strong> {% if q or plan_filter or status_filter or tag_filter %}matching {% endif %}user{{ total_count|pluralize }}{% else %}No users{% endif %}</span>
+    <label class="flex items-center gap-2 cursor-pointer md:hidden"><input type="checkbox" class="chk" onclick="toggleSelectAll(this)"> <span>Select all</span></label>
+  </div>
+  <div class="md:overflow-x-auto">
+    <table class="u-table w-full text-left text-xs">
       <thead class="bg-slate-900/90 border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[11px] font-semibold">
         <tr>
-          <th class="py-3.5 px-3 w-10 text-center">
-            <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
-          </th>
-          <th class="py-3.5 px-4">User Details</th>
-          <th class="py-3.5 px-4">Email & Login</th>
-          <th class="py-3.5 px-4">Plan & Status</th>
-          <th class="py-3.5 px-4">Usage Stats</th>
+          <th class="py-3.5 px-3 w-10 text-center"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)" class="chk" aria-label="Select all users on this page"></th>
+          <th class="py-3.5 px-4">User</th>
+          <th class="py-3.5 px-4">Contact</th>
+          <th class="py-3.5 px-4">Plan &amp; status</th>
+          <th class="py-3.5 px-4">Usage</th>
           <th class="py-3.5 px-4">Joined</th>
           <th class="py-3.5 px-4 text-right">Actions</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-slate-800/60 text-slate-300">
+      <tbody class="text-slate-300">
         {% for u in users %}
-        <tr class="hover:bg-slate-900/40 transition">
-          <!-- Checkbox -->
-          <td class="py-3 px-3 text-center">
-            <input type="checkbox" value="{{ u.id }}" onchange="updateBulkSelection()" class="user-checkbox w-4 h-4 accent-indigo-500 rounded cursor-pointer">
+        <tr>
+          <td class="u-select py-3 px-3 text-center align-middle">
+            <input type="checkbox" value="{{ u.id }}" onchange="updateBulkSelection()" class="user-checkbox chk" aria-label="Select {{ u.username }}">
           </td>
 
-          <!-- User Details + Badges -->
-          <td class="py-3 px-4 font-medium text-white">
-            <div class="flex items-start space-x-2.5">
-              <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-600/30 flex items-center justify-center font-bold text-xs uppercase shrink-0 mt-0.5">
-                {{ u.username|slice:":2" }}
-              </div>
-              <div>
-                <div class="font-bold flex items-center gap-1.5">
-                  <span>{{ u.username }}</span>
-                  {% if u.is_superuser %}
-                  <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">SUPER ADMIN</span>
-                  {% elif u.is_staff %}
-                  <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">STAFF</span>
-                  {% endif %}
+          <td class="u-user py-3 px-4 align-top">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-bold text-sm uppercase shrink-0">{{ u.username|slice:":2" }}</div>
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="font-bold text-white text-[13px] [overflow-wrap:anywhere]">{{ u.username }}</span>
+                  {% if u.is_superuser %}<span class="pill bg-amber-500/15 text-amber-300 border-amber-500/30">Super admin</span>
+                  {% elif u.is_staff %}<span class="pill bg-indigo-500/15 text-indigo-300 border-indigo-500/30">Staff</span>{% endif %}
+                  {% if u.panel_sections %}<span class="pill bg-sky-500/15 text-sky-300 border-sky-500/30" title="Can open these parts of the admin panel"><i class="fa-solid fa-user-shield text-[9px]"></i> Admin panel: {{ u.panel_sections|join:", " }}</span>{% endif %}
                 </div>
-                {% if u.first_name or u.last_name %}
-                <div class="text-[11px] text-slate-400">{{ u.first_name }} {{ u.last_name }}</div>
+                {% if u.first_name or u.last_name %}<div class="text-[11px] text-slate-400 mt-0.5">{{ u.first_name }} {{ u.last_name }}</div>{% endif %}
+                {% if u.tag_list or u.custom_q %}
+                <div class="flex flex-wrap gap-1 mt-1.5">
+                  {% for t in u.tag_list %}<span class="pill bg-{{ t.color }}-500/15 text-{{ t.color }}-300 border-{{ t.color }}-500/30"><i class="fa-solid fa-tag text-[9px]"></i> {{ t.name }}</span>{% endfor %}
+                  {% if u.custom_q %}<span class="pill bg-cyan-500/15 text-cyan-300 border-cyan-500/30" title="Custom limits are set for this user"><i class="fa-solid fa-bolt text-[9px]"></i> Custom limits</span>{% endif %}
+                </div>
                 {% endif %}
-
-                <!-- Tags / Badges -->
-                <div class="flex flex-wrap gap-1 mt-1">
-                  {% for t in u.tag_list %}
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-{{ t.color }}-500/20 text-{{ t.color }}-300 border border-{{ t.color }}-500/30">
-                    🏷️ {{ t.name }}
-                  </span>
-                  {% endfor %}
-                  {% if u.custom_q %}
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30" title="Custom Quota Active">
-                    ⚡ Quota Override
-                  </span>
-                  {% endif %}
-                </div>
               </div>
             </div>
           </td>
 
-          <!-- Email & Login -->
-          <td class="py-3 px-4">
-            <div class="text-slate-300 font-mono text-[11px]">{{ u.email|default:"—" }}</div>
-            <div class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
-              <i class="fa-solid fa-clock text-[9px]"></i>
-              <span>Last login: {% if u.last_login %}{{ u.last_login|date:"d M H:i" }}{% else %}Never{% endif %}</span>
+          <td class="py-3 px-4 align-top" data-label="Email">
+            <div class="min-w-0">
+              <div class="text-slate-200 text-[12px] [overflow-wrap:anywhere]">{{ u.email|default:"—" }}</div>
+              <div class="text-[10.5px] text-slate-500 mt-1"><i class="fa-regular fa-clock mr-1"></i>{% if u.last_login %}Last login {{ u.last_login|date:"d M, H:i" }}{% else %}Never logged in{% endif %}</div>
             </div>
           </td>
 
-          <!-- Plan & Status -->
-          <td class="py-3 px-4">
-            <div class="mb-1">
+          <td class="py-3 px-4 align-top" data-label="Plan">
+            <div class="flex flex-wrap items-center gap-1.5">
               {% if u.plan and u.plan.is_active %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                <i class="fa-solid fa-gem mr-1 text-[9px]"></i> {{ u.plan.plan }}
-              </span>
-              <div class="text-[10px] text-slate-500 mt-0.5">Expires: {{ u.plan.expires_at|date:"d M Y" }}</div>
+              <span class="pill bg-indigo-500/15 text-indigo-300 border-indigo-500/30"><i class="fa-solid fa-gem text-[9px]"></i> {{ u.plan.plan }}</span>
               {% else %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-800 text-slate-400">
-                Free Tier
-              </span>
+              <span class="pill bg-slate-800 text-slate-400 border-slate-700">Free</span>
               {% endif %}
-            </div>
-            <div>
               {% if u.is_active %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span> Active
-              </span>
+              <span class="pill bg-emerald-500/15 text-emerald-300 border-emerald-500/25"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active</span>
               {% else %}
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/20 text-rose-400">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span> Suspended
-              </span>
+              <span class="pill bg-rose-500/15 text-rose-300 border-rose-500/25"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Suspended</span>
               {% endif %}
             </div>
+            {% if u.plan and u.plan.is_active %}<div class="text-[10.5px] text-slate-500 mt-1">Expires {{ u.plan.expires_at|date:"d M Y" }}</div>{% endif %}
           </td>
 
-          <!-- Activity Stats -->
-          <td class="py-3 px-4">
-            <div class="flex flex-wrap gap-1.5 text-[10px]">
-              <span class="px-2 py-0.5 bg-slate-900 border border-slate-800 text-indigo-400 rounded-md font-mono" title="Tokens consumed">
-                <i class="fa-solid fa-coins text-[9px] mr-1"></i>{{ u.stat_tokens }}
-              </span>
-              <span class="px-2 py-0.5 bg-slate-900 border border-slate-800 text-cyan-400 rounded-md font-mono" title="Total chat sessions">
-                <i class="fa-solid fa-comments text-[9px] mr-1"></i>{{ u.stat_chats }}
-              </span>
-              <span class="px-2 py-0.5 bg-slate-900 border border-slate-800 text-pink-400 rounded-md font-mono" title="Images generated">
-                <i class="fa-solid fa-image text-[9px] mr-1"></i>{{ u.stat_images }}
-              </span>
+          <td class="py-3 px-4 align-top" data-label="Usage">
+            <div class="flex flex-wrap gap-1.5 text-[10.5px]">
+              <span class="pill bg-slate-900 text-indigo-300 border-slate-800 font-mono" title="Requests made"><i class="fa-solid fa-coins text-[9px]"></i> {{ u.stat_tokens }}</span>
+              <span class="pill bg-slate-900 text-cyan-300 border-slate-800 font-mono" title="Chat sessions"><i class="fa-solid fa-comments text-[9px]"></i> {{ u.stat_chats }}</span>
+              <span class="pill bg-slate-900 text-pink-300 border-slate-800 font-mono" title="Images generated"><i class="fa-solid fa-image text-[9px]"></i> {{ u.stat_images }}</span>
             </div>
           </td>
 
-          <!-- Joined -->
-          <td class="py-3 px-4 text-slate-400 text-[11px]">{{ u.date_joined|date:"d M Y" }}</td>
+          <td class="py-3 px-4 align-top text-slate-400 text-[11.5px] whitespace-nowrap" data-label="Joined">{{ u.date_joined|date:"d M Y" }}</td>
 
-          <!-- Actions -->
-          <td class="py-3 px-4 text-right space-x-1">
-            <button onclick="openUserModal('{{ u.id }}', '{{ u.username }}', '{{ u.is_active }}', '{{ u.plan.plan|default:"free" }}')" class="p-1.5 bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white rounded-lg transition" title="Manage User & Limits">
-              <i class="fa-solid fa-gear text-xs"></i>
-            </button>
-            <button onclick="toggleUserStatus('{{ u.id }}', '{{ u.username }}')" class="p-1.5 bg-slate-800 hover:bg-amber-600 text-slate-300 hover:text-white rounded-lg transition" title="Toggle Active / Suspended">
-              <i class="fa-solid fa-power-off text-xs"></i>
-            </button>
+          <td class="u-actions py-3 px-4 align-middle text-right whitespace-nowrap">
+            <button type="button" onclick="openUserModal(this)" data-id="{{ u.id }}" data-username="{{ u.username }}" data-plan="{{ u.plan.plan|default:'free' }}" data-active="{{ u.is_active|yesno:'1,0' }}"
+                    class="btn btn-sm" title="Open this user: plan, limits, labels, profile, access, password"><i class="fa-solid fa-sliders"></i> Manage</button>
+            {% if u.is_active %}
+            <button type="button" onclick="toggleUserStatus('{{ u.id }}', this.dataset.username, true)" data-username="{{ u.username }}" class="btn btn-sm btn-warn !px-3" title="Suspend this account"><i class="fa-solid fa-pause"></i><span class="md:hidden"> Suspend</span></button>
+            {% else %}
+            <button type="button" onclick="toggleUserStatus('{{ u.id }}', this.dataset.username, false)" data-username="{{ u.username }}" class="btn btn-sm btn-success !px-3" title="Activate this account"><i class="fa-solid fa-play"></i><span class="md:hidden"> Activate</span></button>
+            {% endif %}
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="7" class="py-8 text-center text-slate-500">No users found matching your search.</td>
+          <td colspan="7" class="u-empty py-14 text-center">
+            <div class="mx-auto w-14 h-14 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 text-xl mb-3"><i class="fa-solid fa-user-slash"></i></div>
+            <div class="text-slate-200 font-semibold text-sm">No users found</div>
+            <div class="text-slate-500 text-xs mt-1">{% if q or plan_filter or status_filter or tag_filter %}Nothing matches these filters.{% else %}Add the first one with the Add User button.{% endif %}</div>
+            {% if q or plan_filter or status_filter or tag_filter %}<a href="/axomai-admin/users/" class="btn btn-sm mt-4 inline-flex">Clear filters</a>{% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
-  <!-- Pagination -->
   {% if users.has_other_pages %}
-  <div class="px-5 py-3.5 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-    <div>Showing page {{ users.number }} of {{ users.paginator.num_pages }}</div>
-    <div class="flex items-center space-x-1.5">
-      {% if users.has_previous %}
-      <a href="?page={{ users.previous_page_number }}&q={{ q }}&plan={{ plan_filter }}&status={{ status_filter }}&tag={{ tag_filter }}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Prev</a>
-      {% endif %}
-      {% if users.has_next %}
-      <a href="?page={{ users.next_page_number }}&q={{ q }}&plan={{ plan_filter }}&status={{ status_filter }}&tag={{ tag_filter }}" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg">Next</a>
-      {% endif %}
+  <nav class="px-4 sm:px-5 py-3.5 bg-slate-900/70 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400" aria-label="Pages">
+    <div>Page <strong class="text-slate-200">{{ users.number }}</strong> of {{ users.paginator.num_pages }}</div>
+    <div class="flex items-center gap-1.5">
+      {% if users.has_previous %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ users.previous_page_number }}" class="btn btn-sm" aria-label="Previous page"><i class="fa-solid fa-chevron-left"></i><span class="hidden sm:inline"> Prev</span></a>
+      {% else %}<span class="btn btn-sm opacity-40 pointer-events-none"><i class="fa-solid fa-chevron-left"></i><span class="hidden sm:inline"> Prev</span></span>{% endif %}
+      <span class="hidden sm:flex items-center gap-1.5">
+        {% for n in page_numbers %}
+          {% if n %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ n }}" class="btn btn-sm !px-3 {% if n == users.number %}btn-primary{% endif %}" {% if n == users.number %}aria-current="page"{% endif %}>{{ n }}</a>
+          {% else %}<span class="px-1 text-slate-600">…</span>{% endif %}
+        {% endfor %}
+      </span>
+      {% if users.has_next %}<a href="?{% if qs %}{{ qs }}&{% endif %}page={{ users.next_page_number }}" class="btn btn-sm" aria-label="Next page"><span class="hidden sm:inline">Next </span><i class="fa-solid fa-chevron-right"></i></a>
+      {% else %}<span class="btn btn-sm opacity-40 pointer-events-none"><span class="hidden sm:inline">Next </span><i class="fa-solid fa-chevron-right"></i></span>{% endif %}
     </div>
-  </div>
+  </nav>
   {% endif %}
 </div>
+<div id="bulkSpacer" class="hidden h-40 md:hidden"></div>
 
-<!-- Add User Modal -->
+<!-- Add User -->
 <div id="addUserModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center sm:p-4">
-  <div class="glass-card rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 border border-slate-800 w-full max-w-lg shadow-2xl relative max-h-[92vh] overflow-y-auto">
-    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-      <h3 class="text-base font-bold text-white"><i class="fa-solid fa-user-plus text-indigo-400 mr-2"></i>Add User</h3>
-      <button onclick="closeAddUser()" aria-label="Close" class="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+  <div class="u-sheet glass-card rounded-t-3xl sm:rounded-3xl border border-slate-800 w-full max-w-lg shadow-2xl relative overflow-y-auto">
+    <div class="sticky top-0 z-10 bg-slate-950/95 backdrop-blur px-5 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+      <h3 class="text-base font-bold text-white flex items-center gap-2"><span class="w-8 h-8 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-sm"><i class="fa-solid fa-user-plus"></i></span> Add User</h3>
+      <button onclick="closeAddUser()" aria-label="Close" class="w-10 h-10 -mr-2 flex items-center justify-center text-slate-500 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="space-y-3 text-xs">
+    <div class="px-5 sm:px-6 py-5 space-y-4">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Username *</label>
-          <input type="text" id="newUsername" autocomplete="off" maxlength="150" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Email *</label>
-          <input type="email" id="newEmail" autocomplete="off" maxlength="254" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">First name</label>
-          <input type="text" id="newFirst" maxlength="150" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Last name</label>
-          <input type="text" id="newLast" maxlength="150" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
-        </div>
+        <div><label class="lbl" for="newUsername">Username *</label><input type="text" id="newUsername" autocomplete="off" maxlength="150" class="fld"></div>
+        <div><label class="lbl" for="newEmail">Email *</label><input type="email" id="newEmail" autocomplete="off" maxlength="254" class="fld"></div>
+        <div><label class="lbl" for="newFirst">First name</label><input type="text" id="newFirst" maxlength="150" class="fld"></div>
+        <div><label class="lbl" for="newLast">Last name</label><input type="text" id="newLast" maxlength="150" class="fld"></div>
       </div>
       <div>
-        <label class="block font-semibold text-slate-300 mb-1">Password * <span class="text-slate-500 font-normal">(at least 8 characters, not too common)</span></label>
+        <label class="lbl" for="newPassword">Password * <span class="font-normal text-slate-500">(8+ characters, not a common one)</span></label>
         <div class="flex gap-2">
-          <input type="password" id="newPassword" autocomplete="new-password" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
-          <button type="button" onclick="const f=document.getElementById('newPassword'); f.type = f.type === 'password' ? 'text' : 'password';" class="px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg" aria-label="Show or hide the password"><i class="fa-solid fa-eye"></i></button>
+          <input type="password" id="newPassword" autocomplete="new-password" class="fld flex-1 min-w-0">
+          <button type="button" class="btn !px-3.5" aria-label="Show or hide the password" onclick="const f=document.getElementById('newPassword'); f.type = f.type === 'password' ? 'text' : 'password';"><i class="fa-solid fa-eye"></i></button>
         </div>
       </div>
-      <div class="pt-3 border-t border-slate-800">
-        <div class="font-semibold text-slate-200">Admin panel sections <span class="text-slate-500 font-normal">(optional)</span></div>
-        <div class="flex flex-wrap gap-4 mt-2" id="newSectionBoxes">
+      <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+        <div class="text-xs font-bold text-white mb-0.5"><i class="fa-solid fa-user-shield text-sky-400 mr-1.5"></i>Admin panel sections <span class="font-normal text-slate-500">(optional)</span></div>
+        <p class="text-[11px] text-slate-500 mb-3">This person signs in at admin.aiaxom.co.in and sees only what you tick here.</p>
+        <div class="flex flex-wrap gap-x-5 gap-y-3" id="newSectionBoxes">
           {% for sec in admin_sections %}
-          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
-            <input type="checkbox" class="new-sec-check w-4 h-4 accent-indigo-500 rounded" value="{{ sec.key }}">
-            <span>{{ sec.label }}</span>
-          </label>
+          <label class="flex items-center gap-2.5 text-[13px] text-slate-200 cursor-pointer min-h-[28px]"><input type="checkbox" class="new-sec-check chk" value="{{ sec.key }}"> <span>{{ sec.label }}</span></label>
           {% endfor %}
         </div>
-        <p class="text-slate-500 mt-2">A person with a section can sign in at admin.aiaxom.co.in and sees only that section. Nothing else of the admin is shown to them.</p>
       </div>
     </div>
-    <div class="flex justify-end gap-3 mt-5">
-      <button onclick="closeAddUser()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">Cancel</button>
-      <button onclick="createUser()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg text-xs"><i class="fa-solid fa-check mr-1.5"></i>Create User</button>
+    <div class="sticky bottom-0 bg-slate-950/95 backdrop-blur px-5 sm:px-6 py-4 border-t border-slate-800 flex gap-3 sm:justify-end" style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
+      <button onclick="closeAddUser()" class="btn flex-1 sm:flex-none">Cancel</button>
+      <button onclick="createUser(this)" class="btn btn-primary flex-1 sm:flex-none"><i class="fa-solid fa-check"></i> Create user</button>
     </div>
   </div>
 </div>
 
-<!-- Comprehensive Manage User Modal -->
-<div id="userActionModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-  <div class="glass-card rounded-3xl p-6 border border-slate-800 w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-5">
-      <div>
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <span>Manage User Account</span>
-          <span class="text-xs font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20" id="modalUsername">@user</span>
-        </h3>
+<!-- Manage User -->
+<div id="userActionModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center sm:p-4">
+  <div class="u-sheet glass-card rounded-t-3xl sm:rounded-3xl border border-slate-800 w-full max-w-2xl shadow-2xl relative overflow-y-auto">
+    <div class="sticky top-0 z-10 bg-slate-950/95 backdrop-blur border-b border-slate-800">
+      <div class="px-5 sm:px-6 pt-4 pb-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div id="modalAvatar" class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-bold text-sm uppercase shrink-0">U</div>
+          <div class="min-w-0">
+            <h3 class="text-sm font-bold text-white leading-tight">Manage user</h3>
+            <span class="text-xs font-mono text-indigo-300 truncate block" id="modalUsername">@user</span>
+          </div>
+        </div>
+        <button onclick="closeUserModal()" aria-label="Close" class="w-10 h-10 -mr-2 flex items-center justify-center text-slate-500 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <button onclick="closeUserModal()" class="text-slate-500 hover:text-white text-lg">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+      <div class="tabs-scroll flex overflow-x-auto whitespace-nowrap gap-1 px-4 sm:px-5" role="tablist">
+        <button type="button" data-utab="sub" onclick="switchUserTab('sub')" class="utab shrink-0 px-3 py-2.5 text-xs font-semibold border-b-2 border-indigo-500 text-white" role="tab"><i class="fa-solid fa-crown mr-1.5 text-amber-400"></i>Plan &amp; limits</button>
+        <button type="button" data-utab="profile" onclick="switchUserTab('profile')" class="utab shrink-0 px-3 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200" role="tab"><i class="fa-solid fa-id-card mr-1.5 text-sky-400"></i>Profile &amp; access</button>
+        <button type="button" data-utab="security" onclick="switchUserTab('security')" class="utab shrink-0 px-3 py-2.5 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200" role="tab"><i class="fa-solid fa-key mr-1.5 text-amber-400"></i>Security</button>
+      </div>
     </div>
 
     <input type="hidden" id="modalUserId">
 
-    <div class="space-y-5 text-xs">
+    <div class="px-5 sm:px-6 py-5 text-xs">
 
-      <!-- Section 1: Subscription & Plan -->
-      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-        <h4 class="font-bold text-white mb-3 flex items-center justify-between">
-          <span><i class="fa-solid fa-crown text-amber-400 mr-1.5"></i> Subscription & Premium Days</span>
-        </h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <!-- Change Plan -->
-          <div>
-            <label class="block text-slate-400 text-[11px] mb-1">Upgrade / Change Plan</label>
-            <div class="flex items-center space-x-1.5">
-              <select id="modalPlanSelect" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-white text-xs">
-                <option value="free">Free Tier</option>
-                {% for p in plans_list %}
-                <option value="{{ p }}">{{ p }}</option>
-                {% endfor %}
-              </select>
-              <input type="number" id="modalPlanDays" value="30" placeholder="Days" class="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-2 text-white text-xs text-center" title="Duration in days">
-              <button onclick="saveUserPlan()" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg">Set</button>
+      <!-- Plan & limits -->
+      <div data-upane="sub" class="space-y-4">
+        <div class="rounded-xl bg-slate-900/70 border border-slate-800 p-4">
+          <h4 class="font-bold text-white mb-3 text-[13px]"><i class="fa-solid fa-crown text-amber-400 mr-1.5"></i>Subscription &amp; premium days</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="lbl">Change plan</label>
+              <div class="flex gap-2">
+                <select id="modalPlanSelect" class="fld flex-1 min-w-0">
+                  <option value="free">Free tier</option>
+                  {% for p in plans_list %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+                </select>
+                <input type="number" id="modalPlanDays" value="30" min="1" class="fld !w-20 text-center" title="How many days" aria-label="Days">
+              </div>
+              <button onclick="saveUserPlan()" class="btn btn-primary btn-sm mt-2 w-full">Set plan</button>
             </div>
-          </div>
-
-          <!-- Gift Days -->
-          <div>
-            <label class="block text-slate-400 text-[11px] mb-1">Gift Free Premium Days</label>
-            <div class="flex items-center space-x-1.5">
-              <input type="number" id="giftDaysCount" value="7" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-white text-xs text-center">
-              <button onclick="giftFreeDays()" class="px-3 py-2 bg-pink-600 hover:bg-pink-500 text-white font-semibold rounded-lg flex items-center space-x-1">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> <span>Gift</span>
-              </button>
+            <div>
+              <label class="lbl">Gift free premium days</label>
+              <input type="number" id="giftDaysCount" value="7" min="1" class="fld text-center">
+              <button onclick="giftFreeDays()" class="btn btn-sm mt-2 w-full" style="background:#be185d;border-color:#be185d;color:#fff"><i class="fa-solid fa-gift"></i> Gift days</button>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Section 2: Custom Daily Quotas & Limits Overrides -->
-      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="font-bold text-white"><i class="fa-solid fa-sliders text-cyan-400 mr-1.5"></i> Custom Daily Limits & Quotas</h4>
-          <span class="text-[10px] text-slate-400">(-1 = default plan limit, -2 = unlimited)</span>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div>
-            <label class="block text-slate-400 text-[10px] mb-1">Daily Chats</label>
-            <input type="number" id="quotaChat" value="-1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-xs text-center font-mono">
+        <div class="rounded-xl bg-slate-900/70 border border-slate-800 p-4">
+          <div class="flex flex-wrap items-center justify-between gap-1 mb-3">
+            <h4 class="font-bold text-white text-[13px]"><i class="fa-solid fa-gauge-high text-cyan-400 mr-1.5"></i>Daily limits</h4>
+            <span class="text-[10.5px] text-slate-500">-1 = the plan's own limit &nbsp;·&nbsp; -2 = unlimited</span>
           </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] mb-1">Daily Images</label>
-            <input type="number" id="quotaImages" value="-1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-xs text-center font-mono">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div><label class="lbl">Chats</label><input type="number" id="quotaChat" value="-1" class="fld text-center font-mono"></div>
+            <div><label class="lbl">Images</label><input type="number" id="quotaImages" value="-1" class="fld text-center font-mono"></div>
+            <div><label class="lbl">Searches</label><input type="number" id="quotaSearches" value="-1" class="fld text-center font-mono"></div>
+            <div><label class="lbl">PDF tools</label><input type="number" id="quotaPdf" value="-1" class="fld text-center font-mono"></div>
           </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] mb-1">Daily Searches</label>
-            <input type="number" id="quotaSearches" value="-1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-xs text-center font-mono">
-          </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] mb-1">Daily PDF Tools</label>
-            <input type="number" id="quotaPdf" value="-1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-white text-xs text-center font-mono">
-          </div>
-        </div>
-        <button onclick="saveCustomQuota()" class="mt-3 px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg text-xs flex items-center space-x-1.5">
-          <i class="fa-solid fa-floppy-disk"></i> <span>Save Limit Overrides</span>
-        </button>
-      </div>
-
-      <!-- Section 3: User Tags & Badges -->
-      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-        <h4 class="font-bold text-white mb-2"><i class="fa-solid fa-tags text-indigo-400 mr-1.5"></i> User Labels & Badges</h4>
-        
-        <!-- Active Tags Container -->
-        <div id="modalUserTagsContainer" class="flex flex-wrap gap-1.5 mb-3 min-h-[28px] p-2 bg-slate-950 rounded-lg border border-slate-800">
-          <span class="text-slate-500 italic text-[11px]">No tags assigned.</span>
-        </div>
-
-        <!-- Add Tag Input -->
-        <div class="flex items-center space-x-2">
-          <input type="text" id="newTagName" placeholder="Tag name (e.g. VIP, Tester, High Priority)" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-white text-xs">
-          <select id="newTagColor" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-white text-xs">
-            <option value="indigo">Indigo</option>
-            <option value="emerald">Emerald</option>
-            <option value="amber">Amber</option>
-            <option value="rose">Rose</option>
-            <option value="cyan">Cyan</option>
-            <option value="fuchsia">Fuchsia</option>
-          </select>
-          <button onclick="addUserTag()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg text-xs">Add Tag</button>
+          <button onclick="saveCustomQuota()" class="btn btn-sm mt-3 w-full sm:w-auto" style="background:#0891b2;border-color:#0891b2;color:#fff"><i class="fa-solid fa-floppy-disk"></i> Save limits</button>
         </div>
       </div>
 
-      <!-- Profile: name and email -->
-      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-        <h4 class="font-bold text-white mb-3"><i class="fa-solid fa-id-card text-sky-400 mr-1.5"></i> Profile</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <input type="text" id="profFirst" placeholder="First name" maxlength="150" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
-          <input type="text" id="profLast" placeholder="Last name" maxlength="150" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
-          <input type="email" id="profEmail" placeholder="Email" maxlength="254" class="sm:col-span-2 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+      <!-- Profile & access -->
+      <div data-upane="profile" class="space-y-4 hidden">
+        <div class="rounded-xl bg-slate-900/70 border border-slate-800 p-4">
+          <h4 class="font-bold text-white mb-3 text-[13px]"><i class="fa-solid fa-id-card text-sky-400 mr-1.5"></i>Profile</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div><label class="lbl" for="profFirst">First name</label><input type="text" id="profFirst" maxlength="150" class="fld"></div>
+            <div><label class="lbl" for="profLast">Last name</label><input type="text" id="profLast" maxlength="150" class="fld"></div>
+            <div class="sm:col-span-2"><label class="lbl" for="profEmail">Email</label><input type="email" id="profEmail" maxlength="254" class="fld"></div>
+          </div>
+          <button onclick="saveProfile()" class="btn btn-sm mt-3 w-full sm:w-auto" style="background:#0284c7;border-color:#0284c7;color:#fff"><i class="fa-solid fa-floppy-disk"></i> Save profile</button>
         </div>
-        <button onclick="saveProfile()" class="mt-3 px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg text-xs flex items-center space-x-1.5">
-          <i class="fa-solid fa-floppy-disk"></i> <span>Save Profile</span>
-        </button>
-      </div>
 
-      <!-- Section 4: Subdomain Permissions -->
-      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-        <h4 class="font-bold text-white mb-2"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i> Subdomain Access Permissions</h4>
-        <div class="flex flex-wrap gap-4 mt-2">
-          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
-            <input type="checkbox" id="permAdmin" class="w-4 h-4 accent-indigo-500 rounded">
-            <span><strong class="text-indigo-400">admin</strong>.aiaxom.co.in</span>
-          </label>
-          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
-            <input type="checkbox" id="permContent" class="w-4 h-4 accent-pink-500 rounded">
-            <span><strong class="text-pink-400">content</strong>.aiaxom.co.in</span>
-          </label>
-          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
-            <input type="checkbox" id="permBot" class="w-4 h-4 accent-amber-500 rounded">
-            <span><strong class="text-amber-400">axomai-bot</strong>.aiaxom.co.in</span>
-          </label>
+        <div class="rounded-xl bg-slate-900/70 border border-slate-800 p-4">
+          <h4 class="font-bold text-white mb-2 text-[13px]"><i class="fa-solid fa-tags text-indigo-400 mr-1.5"></i>Labels</h4>
+          <div id="modalUserTagsContainer" class="flex flex-wrap gap-1.5 mb-3 min-h-[40px] p-2.5 bg-slate-950 rounded-xl border border-slate-800 items-center">
+            <span class="text-slate-500 italic text-[11px]">No labels yet.</span>
+          </div>
+          <div class="grid grid-cols-[1fr_auto] gap-2">
+            <input type="text" id="newTagName" placeholder="Label (e.g. VIP, Tester)" maxlength="40" class="fld">
+            <select id="newTagColor" class="fld !w-32">
+              <option value="indigo">Indigo</option><option value="emerald">Emerald</option><option value="amber">Amber</option>
+              <option value="rose">Rose</option><option value="cyan">Cyan</option><option value="fuchsia">Fuchsia</option>
+            </select>
+          </div>
+          <button onclick="addUserTag()" class="btn btn-primary btn-sm mt-2 w-full sm:w-auto"><i class="fa-solid fa-plus"></i> Add label</button>
         </div>
-        <div class="mt-4 pt-3 border-t border-slate-800">
-          <div class="font-semibold text-slate-200 mb-1">Admin panel sections <span class="text-slate-500 font-normal">(this person sees only what you tick; the admin login is the same page)</span></div>
-          <div class="flex flex-wrap gap-4 mt-2" id="sectionBoxes">
+
+        <div class="rounded-xl bg-slate-900/70 border border-slate-800 p-4">
+          <h4 class="font-bold text-white mb-3 text-[13px]"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i>Access</h4>
+          <div class="text-[11px] font-semibold text-slate-400 mb-2">Sub-sites</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <label class="flex items-center gap-2.5 rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 cursor-pointer text-slate-300"><input type="checkbox" id="permAdmin" class="chk"> <span><strong class="text-indigo-400">admin</strong>.aiaxom.co.in</span></label>
+            <label class="flex items-center gap-2.5 rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 cursor-pointer text-slate-300"><input type="checkbox" id="permContent" class="chk"> <span><strong class="text-pink-400">content</strong>.aiaxom.co.in</span></label>
+            <label class="flex items-center gap-2.5 rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 cursor-pointer text-slate-300"><input type="checkbox" id="permBot" class="chk"> <span><strong class="text-amber-400">axomai-bot</strong>.aiaxom.co.in</span></label>
+          </div>
+          <div class="text-[11px] font-semibold text-slate-400 mt-4 mb-1">Admin panel sections</div>
+          <p class="text-[11px] text-slate-500 mb-2">This person sees only the sections ticked here (the admin login is the same page). Ticking one turns the admin sub-site on.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="sectionBoxes">
             {% for sec in admin_sections %}
-            <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
-              <input type="checkbox" class="sec-check w-4 h-4 accent-indigo-500 rounded" value="{{ sec.key }}">
-              <span>{{ sec.label }}</span>
-            </label>
+            <label class="flex items-center gap-2.5 rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2.5 cursor-pointer text-slate-200"><input type="checkbox" class="sec-check chk" value="{{ sec.key }}"> <span>{{ sec.label }}</span></label>
             {% endfor %}
           </div>
-        </div>
-        <button onclick="savePermissions()" class="mt-3 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs flex items-center space-x-1.5">
-          <i class="fa-solid fa-floppy-disk"></i> <span>Save Permissions</span>
-        </button>
-      </div>
-
-      <!-- Section 5: Reset Password -->
-      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-        <h4 class="font-bold text-white mb-2"><i class="fa-solid fa-key text-amber-400 mr-1.5"></i> Reset Password</h4>
-        <div class="flex items-center space-x-2">
-          <input type="text" id="modalNewPassword" placeholder="Enter new password (min 6 chars)" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-white text-xs">
-          <button onclick="resetUserPassword()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg text-xs">Update Password</button>
+          <button onclick="savePermissions()" class="btn btn-success btn-sm mt-3 w-full sm:w-auto"><i class="fa-solid fa-floppy-disk"></i> Save access</button>
         </div>
       </div>
 
-      <!-- Danger Actions -->
-      <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
-        <button onclick="deleteUserAccount()" class="text-rose-400 hover:text-rose-300 font-semibold text-xs flex items-center space-x-1">
-          <i class="fa-solid fa-trash-can"></i> <span>Delete User Permanently</span>
-        </button>
-        <button onclick="closeUserModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">Close</button>
+      <!-- Security -->
+      <div data-upane="security" class="space-y-4 hidden">
+        <div class="rounded-xl bg-slate-900/70 border border-slate-800 p-4">
+          <h4 class="font-bold text-white mb-3 text-[13px]"><i class="fa-solid fa-key text-amber-400 mr-1.5"></i>Reset password</h4>
+          <label class="lbl" for="modalNewPassword">New password</label>
+          <div class="flex gap-2">
+            <input type="password" id="modalNewPassword" autocomplete="new-password" placeholder="At least 8 characters" class="fld flex-1 min-w-0">
+            <button type="button" class="btn !px-3.5" aria-label="Show or hide the password" onclick="const f=document.getElementById('modalNewPassword'); f.type = f.type === 'password' ? 'text' : 'password';"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <button onclick="resetUserPassword()" class="btn btn-warn btn-sm mt-3 w-full sm:w-auto"><i class="fa-solid fa-rotate"></i> Update password</button>
+        </div>
+        <div class="rounded-xl border border-rose-500/25 bg-rose-950/20 p-4">
+          <h4 class="font-bold text-rose-300 mb-1 text-[13px]"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Danger zone</h4>
+          <p class="text-[11px] text-slate-400 mb-3">Deleting removes the account with its chats, tickets and plan. It cannot be undone.</p>
+          <button onclick="deleteUserAccount()" class="btn btn-danger btn-sm w-full sm:w-auto"><i class="fa-solid fa-trash-can"></i> Delete user permanently</button>
+        </div>
       </div>
+    </div>
 
+    <div class="sticky bottom-0 bg-slate-950/95 backdrop-blur px-5 sm:px-6 py-3 border-t border-slate-800 flex justify-end" style="padding-bottom: max(.75rem, env(safe-area-inset-bottom))">
+      <button onclick="closeUserModal()" class="btn w-full sm:w-auto">Close</button>
     </div>
   </div>
 </div>
@@ -495,54 +442,69 @@
   var quotasMap = {{ quotas_map|safe }};
   var profilesMap = {{ profiles_map|safe }};
 
-  function updateBulkSelection() {
-    const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-    const count = checkboxes.length;
-    const bulkBar = document.getElementById('bulkActionsBar');
-    const badge = document.getElementById('selectedCountBadge');
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
-    if (count > 0) {
-      bulkBar.classList.remove('hidden');
-      badge.textContent = `${count} selected`;
-    } else {
-      bulkBar.classList.add('hidden');
-    }
+  function updateBulkSelection() {
+    const count = document.querySelectorAll('.user-checkbox:checked').length;
+    const bar = document.getElementById('bulkActionsBar');
+    document.getElementById('bulkSpacer').classList.toggle('hidden', count === 0);
+    document.getElementById('selectedCountBadge').textContent = count + ' selected';
+    bar.classList.toggle('hidden', count === 0);
+    const all = document.querySelectorAll('.user-checkbox').length;
+    const master = document.getElementById('selectAllCheckbox');
+    master.checked = all > 0 && count === all;
+    master.indeterminate = count > 0 && count < all;
   }
 
   function toggleSelectAll(master) {
-    const checkboxes = document.querySelectorAll('.user-checkbox');
-    checkboxes.forEach(cb => cb.checked = master.checked);
+    document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = master.checked);
     updateBulkSelection();
   }
 
+  function clearSelection() {
+    document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
+    updateBulkSelection();
+  }
+
+  function toggleBulkMore() {
+    const box = document.getElementById('bulkMore');
+    const open = box.classList.toggle('hidden') === false;
+    document.getElementById('bulkMoreBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
   function getSelectedUserIds() {
-    const checkboxes = document.querySelectorAll('.user-checkbox:checked');
-    return Array.from(checkboxes).map(cb => parseInt(cb.value));
+    return Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => parseInt(cb.value));
   }
 
   async function callUserApi(payload) {
     const res = await fetch('/axomai-admin/users/action/', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      },
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
       body: JSON.stringify(payload)
     });
     return await res.json();
   }
 
+  function done(res, reload) {
+    if (res.success) {
+      showToast(res.message, 'success');
+      if (reload) setTimeout(() => location.reload(), 800);
+    } else {
+      showToast(res.error || 'Something went wrong.', 'error');
+    }
+    return !!res.success;
+  }
+
   async function executeBulkAction(bulkType) {
     const userIds = getSelectedUserIds();
-    if (userIds.length === 0) {
-      showToast('Please select at least one user.', 'error');
-      return;
-    }
+    if (userIds.length === 0) { showToast('Please select at least one user.', 'error'); return; }
 
     let payload = { action: 'bulk_action', bulk_type: bulkType, user_ids: userIds };
 
     if (bulkType === 'delete') {
-      if (!confirm(`⚠️ DANGER: Are you sure you want to PERMANENTLY delete ${userIds.length} selected users? This cannot be undone.`)) return;
+      if (!(await adminConfirm(`${userIds.length} selected user${userIds.length === 1 ? '' : 's'} will be deleted permanently with their chats and plans. This cannot be undone.`, { danger: true, title: 'Delete the selected users?', confirmText: 'Delete them' }))) return;
+    } else if (bulkType === 'deactivate') {
+      if (!(await adminConfirm(`${userIds.length} selected user${userIds.length === 1 ? '' : 's'} will not be able to sign in until you activate them again (super admins and you are skipped).`, { title: 'Suspend the selected users?', confirmText: 'Suspend' }))) return;
     } else if (bulkType === 'change_plan') {
       payload.plan_key = document.getElementById('bulkPlanSelect').value;
       payload.duration_days = 30;
@@ -550,79 +512,81 @@
       payload.days = parseInt(document.getElementById('bulkGiftDays').value) || 7;
     } else if (bulkType === 'add_tag') {
       payload.tag_name = document.getElementById('bulkTagName').value.trim();
-      if (!payload.tag_name) {
-        showToast('Please enter a tag name.', 'error');
-        return;
-      }
+      if (!payload.tag_name) { showToast('Please enter a label.', 'error'); return; }
     }
 
-    const res = await callUserApi(payload);
-    if (res.success) {
-      showToast(res.message, 'success');
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast(res.error, 'error');
-    }
+    done(await callUserApi(payload), true);
   }
 
-  function openUserModal(userId, username, isActive, currentPlan) {
+  function switchUserTab(name) {
+    document.querySelectorAll('.utab').forEach(function (b) {
+      const on = b.dataset.utab === name;
+      b.classList.toggle('border-indigo-500', on); b.classList.toggle('text-white', on);
+      b.classList.toggle('border-transparent', !on); b.classList.toggle('text-slate-400', !on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-upane]').forEach(function (p) { p.classList.toggle('hidden', p.dataset.upane !== name); });
+    const sheet = document.querySelector('#userActionModal .u-sheet'); if (sheet) sheet.scrollTop = 0;
+  }
+
+  function openUserModal(btn) {
+    const userId = btn.dataset.id, username = btn.dataset.username, currentPlan = btn.dataset.plan;
     document.getElementById('modalUserId').value = userId;
     document.getElementById('modalUsername').textContent = '@' + username;
+    document.getElementById('modalAvatar').textContent = username.slice(0, 2);
     document.getElementById('modalPlanSelect').value = currentPlan;
     document.getElementById('modalNewPassword').value = '';
-    
-    // Load subdomain permissions
+    document.getElementById('modalNewPassword').type = 'password';
+
     var p = permsMap[userId] || {};
     document.getElementById('permAdmin').checked = !!p.admin;
     document.getElementById('permContent').checked = !!p.content;
     document.getElementById('permBot').checked = !!p.bot;
     document.querySelectorAll('.sec-check').forEach(function (c) { c.checked = (p.sections || []).indexOf(c.value) !== -1; });
 
-    // Profile
     var pr = profilesMap[userId] || {};
     document.getElementById('profFirst').value = pr.first || '';
     document.getElementById('profLast').value = pr.last || '';
     document.getElementById('profEmail').value = pr.email || '';
 
-    // Load custom quotas
     var q = quotasMap[userId] || {};
     document.getElementById('quotaChat').value = q.chat !== undefined ? q.chat : -1;
     document.getElementById('quotaImages').value = q.images !== undefined ? q.images : -1;
     document.getElementById('quotaSearches').value = q.searches !== undefined ? q.searches : -1;
     document.getElementById('quotaPdf').value = q.pdf !== undefined ? q.pdf : -1;
 
-    // Render user tags
     renderModalTags(userId);
-
+    switchUserTab('sub');
     document.getElementById('userActionModal').classList.remove('hidden');
   }
+
+  function closeUserModal() { document.getElementById('userActionModal').classList.add('hidden'); }
 
   function renderModalTags(userId) {
     const container = document.getElementById('modalUserTagsContainer');
     const uTags = tagsMap[userId] || [];
     if (uTags.length === 0) {
-      container.innerHTML = '<span class="text-slate-500 italic text-[11px]">No tags assigned.</span>';
+      container.innerHTML = '<span class="text-slate-500 italic text-[11px]">No labels yet.</span>';
       return;
     }
-
     container.innerHTML = uTags.map(t => `
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-${t.color}-500/20 text-${t.color}-300 border border-${t.color}-500/30 gap-1">
-        <span>🏷️ ${t.name}</span>
-        <button onclick="removeUserTag(${t.id}, '${t.name}')" class="text-slate-400 hover:text-white ml-0.5">&times;</button>
+      <span class="pill bg-${esc(t.color)}-500/15 text-${esc(t.color)}-300 border-${esc(t.color)}-500/30">
+        <i class="fa-solid fa-tag text-[9px]"></i> ${esc(t.name)}
+        <button type="button" onclick="removeUserTag(${Number(t.id)}, this.dataset.name)" data-name="${esc(t.name)}" aria-label="Remove label" class="ml-0.5 text-slate-400 hover:text-white text-sm leading-none">&times;</button>
       </span>
     `).join('');
   }
 
+  function busy(btn, on) { if (!btn) return; btn.disabled = on; btn.style.opacity = on ? '.6' : ''; }
+
   async function saveProfile() {
-    const res = await callUserApi({
+    done(await callUserApi({
       action: 'update_profile',
       user_id: document.getElementById('modalUserId').value,
       first_name: document.getElementById('profFirst').value,
       last_name: document.getElementById('profLast').value,
       email: document.getElementById('profEmail').value
-    });
-    if (res.success) { showToast(res.message, 'success'); setTimeout(() => location.reload(), 800); }
-    else { showToast(res.error, 'error'); }
+    }), true);
   }
 
   function openAddUser() {
@@ -635,58 +599,40 @@
 
   function closeAddUser() { document.getElementById('addUserModal').classList.add('hidden'); }
 
-  async function createUser() {
-    const res = await callUserApi({
-      action: 'create_user',
-      username: document.getElementById('newUsername').value,
-      email: document.getElementById('newEmail').value,
-      first_name: document.getElementById('newFirst').value,
-      last_name: document.getElementById('newLast').value,
-      password: document.getElementById('newPassword').value,
-      admin_sections: Array.from(document.querySelectorAll('.new-sec-check:checked')).map(c => c.value)
-    });
-    if (res.success) { showToast(res.message, 'success'); closeAddUser(); setTimeout(() => location.reload(), 900); }
-    else { showToast(res.error, 'error'); }
+  async function createUser(btn) {
+    busy(btn, true);
+    try {
+      const res = await callUserApi({
+        action: 'create_user',
+        username: document.getElementById('newUsername').value,
+        email: document.getElementById('newEmail').value,
+        first_name: document.getElementById('newFirst').value,
+        last_name: document.getElementById('newLast').value,
+        password: document.getElementById('newPassword').value,
+        admin_sections: Array.from(document.querySelectorAll('.new-sec-check:checked')).map(c => c.value)
+      });
+      if (done(res, true)) closeAddUser();
+    } finally { busy(btn, false); }
   }
 
-  function closeUserModal() {
-    document.getElementById('userActionModal').classList.add('hidden');
-  }
-
-  async function toggleUserStatus(userId, username) {
-    if (!confirm(`Are you sure you want to toggle status for @${username}?`)) return;
-    const res = await callUserApi({ action: 'toggle_status', user_id: userId });
-    if (res.success) {
-      showToast(res.message, 'success');
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast(res.error, 'error');
-    }
+  async function toggleUserStatus(userId, username, isActive) {
+    const ok = await adminConfirm(isActive
+      ? `@${username} will not be able to sign in until you activate the account again.`
+      : `@${username} will be able to sign in again.`,
+      { title: isActive ? 'Suspend this account?' : 'Activate this account?', confirmText: isActive ? 'Suspend' : 'Activate' });
+    if (!ok) return;
+    done(await callUserApi({ action: 'toggle_status', user_id: userId }), true);
   }
 
   async function saveUserPlan() {
-    const userId = document.getElementById('modalUserId').value;
-    const planKey = document.getElementById('modalPlanSelect').value;
-    const days = document.getElementById('modalPlanDays').value;
-    const res = await callUserApi({ action: 'change_plan', user_id: userId, plan_key: planKey, duration_days: days });
-    if (res.success) {
-      showToast(res.message, 'success');
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast(res.error, 'error');
-    }
+    done(await callUserApi({
+      action: 'change_plan', user_id: document.getElementById('modalUserId').value,
+      plan_key: document.getElementById('modalPlanSelect').value, duration_days: document.getElementById('modalPlanDays').value
+    }), true);
   }
 
   async function giftFreeDays() {
-    const userId = document.getElementById('modalUserId').value;
-    const days = document.getElementById('giftDaysCount').value;
-    const res = await callUserApi({ action: 'gift_days', user_id: userId, days: days });
-    if (res.success) {
-      showToast(res.message, 'success');
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast(res.error, 'error');
-    }
+    done(await callUserApi({ action: 'gift_days', user_id: document.getElementById('modalUserId').value, days: document.getElementById('giftDaysCount').value }), true);
   }
 
   async function saveCustomQuota() {
@@ -695,86 +641,46 @@
     const images = parseInt(document.getElementById('quotaImages').value);
     const searches = parseInt(document.getElementById('quotaSearches').value);
     const pdf = parseInt(document.getElementById('quotaPdf').value);
-
-    const res = await callUserApi({
-      action: 'set_custom_quota',
-      user_id: userId,
-      chat_per_day: chat,
-      images_per_day: images,
-      searches_per_day: searches,
-      pdf_per_day: pdf
-    });
-
-    if (res.success) {
-      quotasMap[userId] = { chat: chat, images: images, searches: searches, pdf: pdf };
-      showToast(res.message, 'success');
-    } else {
-      showToast(res.error, 'error');
-    }
+    const res = await callUserApi({ action: 'set_custom_quota', user_id: userId, chat_per_day: chat, images_per_day: images, searches_per_day: searches, pdf_per_day: pdf });
+    if (done(res, false)) quotasMap[userId] = { chat: chat, images: images, searches: searches, pdf: pdf };
   }
 
   async function addUserTag() {
     const userId = document.getElementById('modalUserId').value;
     const tagName = document.getElementById('newTagName').value.trim();
     const color = document.getElementById('newTagColor').value;
-    if (!tagName) {
-      showToast('Tag name cannot be empty.', 'error');
-      return;
-    }
-
+    if (!tagName) { showToast('Label cannot be empty.', 'error'); return; }
     const res = await callUserApi({ action: 'add_tag', user_id: userId, tag_name: tagName, color: color });
-    if (res.success) {
+    if (done(res, false)) {
       if (!tagsMap[userId]) tagsMap[userId] = [];
       tagsMap[userId].push(res.tag);
       renderModalTags(userId);
       document.getElementById('newTagName').value = '';
-      showToast(res.message, 'success');
-    } else {
-      showToast(res.error, 'error');
     }
   }
 
   async function removeUserTag(tagId, tagName) {
     const userId = document.getElementById('modalUserId').value;
     const res = await callUserApi({ action: 'remove_tag', user_id: userId, tag_id: tagId, tag_name: tagName });
-    if (res.success) {
-      if (tagsMap[userId]) {
-        tagsMap[userId] = tagsMap[userId].filter(t => t.id !== tagId);
-      }
+    if (done(res, false)) {
+      if (tagsMap[userId]) tagsMap[userId] = tagsMap[userId].filter(t => t.id !== tagId);
       renderModalTags(userId);
-      showToast(res.message, 'success');
-    } else {
-      showToast(res.error, 'error');
     }
   }
 
   async function resetUserPassword() {
     const userId = document.getElementById('modalUserId').value;
     const pass = document.getElementById('modalNewPassword').value;
-    if (!pass || pass.length < 6) {
-      showToast('Password must be at least 6 characters.', 'error');
-      return;
-    }
+    if (!pass || pass.length < 6) { showToast('Password must be at least 6 characters.', 'error'); return; }
     const res = await callUserApi({ action: 'reset_password', user_id: userId, new_password: pass });
-    if (res.success) {
-      showToast(res.message, 'success');
-      document.getElementById('modalNewPassword').value = '';
-    } else {
-      showToast(res.error, 'error');
-    }
+    if (done(res, false)) document.getElementById('modalNewPassword').value = '';
   }
 
   async function deleteUserAccount() {
     const userId = document.getElementById('modalUserId').value;
     const username = document.getElementById('modalUsername').textContent;
-    if (!confirm(`⚠️ DANGER: Are you sure you want to permanently delete user ${username}? All user chats, tickets, and plans will be deleted.`)) return;
-    const res = await callUserApi({ action: 'delete', user_id: userId });
-    if (res.success) {
-      showToast(res.message, 'success');
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast(res.error, 'error');
-    }
+    if (!(await adminConfirm(`${username} will be deleted permanently with all their chats, tickets and plans. This cannot be undone.`, { danger: true, title: 'Delete this user?', confirmText: 'Delete user' }))) return;
+    done(await callUserApi({ action: 'delete', user_id: userId }), true);
   }
 
   async function savePermissions() {
@@ -784,14 +690,21 @@
     const bot_access = document.getElementById('permBot').checked;
     const admin_sections = Array.from(document.querySelectorAll('.sec-check:checked')).map(c => c.value);
     const res = await callUserApi({ action: 'set_permissions', user_id: userId, admin_access, content_access, bot_access, admin_sections });
-    if (res.success) {
+    if (done(res, false)) {
       const gotAdmin = admin_access || admin_sections.length > 0;                  // a section needs the admin subdomain: the server turns it on
       permsMap[userId] = { admin: gotAdmin, content: content_access, bot: bot_access, sections: admin_sections };
       document.getElementById('permAdmin').checked = gotAdmin;
-      showToast(res.message, 'success');
-    } else {
-      showToast(res.error, 'error');
     }
   }
+
+  // Esc closes the open form; tapping the dark area around it too
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!document.querySelector('.ts-panel, .cf-back')) { closeUserModal(); closeAddUser(); }
+  });
+  ['userActionModal', 'addUserModal'].forEach(function (id) {
+    const el = document.getElementById(id);
+    el.addEventListener('mousedown', function (e) { if (e.target === el) el.classList.add('hidden'); });
+  });
 </script>
 {% endblock %}
