@@ -18,6 +18,11 @@ class AssameseNumbers(SimpleTestCase):
         self.assertEqual(n('দাম পাঁচশ টকা।'), 'দাম 500 টকা।')
         self.assertEqual(n('সি বিশ, মই ত্ৰিশ'), 'সি 20, মই 30')
 
+    def test_endings_stay_after_the_digits(self):
+        self.assertEqual(n('মই দুই হাজাৰ চৌবিশত গৈছিলো'), 'মই 2024ত গৈছিলো')
+        self.assertEqual(n('পঁচিশৰ'), '25ৰ')
+        self.assertEqual(n('পাঁচশ টকাক'), '500 টকাক')
+
     def test_left_alone(self):
         for s in ['এক জন মানুহ', 'দুই তিনি', 'এক দুই তিনি চাৰি', 'আমি ঘৰলৈ গ\'লো', 'এবাৰ আহিব', 'দহ', 'বাৰ', '', 'ন']:
             self.assertEqual(n(s), s)

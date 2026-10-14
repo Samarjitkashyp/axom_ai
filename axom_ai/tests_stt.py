@@ -64,7 +64,7 @@ class SttTests(TestCase):
     def test_assamese_number_words_become_digits(self):
         with mock.patch('axom_ai.stt_api.transcribe', return_value='মই দুই হাজাৰ চৌবিশত গৈছিলো এক জন'):
             body = post(self.client, self.tone).json()
-        self.assertEqual(body['text'], 'মই দুই হাজাৰ চৌবিশত গৈছিলো এক জন')       # glued suffix (চৌবিশত) is not a number word: left alone
+        self.assertEqual(body['text'], 'মই 2024ত গৈছিলো এক জন')       # the ending (ত) stays after the digits
         with mock.patch('axom_ai.stt_api.transcribe', return_value='দুই হাজাৰ চৌবিশ'):
             body = post(self.client, self.tone).json()
         self.assertEqual(body['text'], '2024')

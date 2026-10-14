@@ -21,6 +21,8 @@ HUNDRED = {'শ', 'শত'}
 BIG = {'হাজাৰ': 1000, 'হাজাৰ': 1000, 'লাখ': 100000, 'লক্ষ': 100000, 'কোটি': 10000000}
 # said alone these are also ordinary words (বাৰ = a time / a day, দহ = a pool): they become digits only inside a longer number
 AMBIGUOUS_ALONE = {'বাৰ', 'দহ', 'ন'}
+# endings that stick to the last number word (২০২৪ত = in 2024): the digits keep the ending
+ENDINGS = ('তকৈ', 'লৈকে', 'লৈ', 'ৰে', 'ক', 'ত', 'ৰ')
 EDGE = '.,;:!?।"\'()[]'
 
 
@@ -44,6 +46,19 @@ def _kind(word):
         if front in UNITS or front in GLUE:
             return ('uh', UNITS.get(front, GLUE.get(front)))
     return None
+
+
+def _kind_end(word):
+    """(kind, ending) of a number word, which may carry an ending; (None, '') when it is no number."""
+    k = _kind(word)
+    if k:
+        return k, ''
+    for e in ENDINGS:
+        if word.endswith(e) and len(word) > len(e):
+            k = _kind(word[:-len(e)])
+            if k:
+                return k, e
+    return None, ''
 
 
 def _evaluate(parts):
@@ -79,23 +94,24 @@ def numbers_to_digits(text):
     i = 0
     while i < len(tokens):
         lead, word, trail = _split(tokens[i])
-        kind = _kind(word)
+        kind, ending = _kind_end(word)
         if kind is None:
             out.append(tokens[i])
             i += 1
             continue
-        # the longest run of number words (marks inside a run, such as a comma, end it)
+        # the longest run of number words (marks inside a run, such as a comma, end it; an ending closes it)
         parts = [kind]
         words = [word]
         j = i + 1
         end_trail = trail
-        while not end_trail and j < len(tokens):
+        while not end_trail and not ending and j < len(tokens):
             l2, w2, t2 = _split(tokens[j])
-            k2 = _kind(w2)
+            k2, e2 = _kind_end(w2)
             if l2 or k2 is None:
                 break
             parts.append(k2)
             words.append(w2)
+            ending = e2
             end_trail = t2
             j += 1
         # use the longest front part of the run that is one number; the rest is looked at again
@@ -113,6 +129,6 @@ def numbers_to_digits(text):
             out.append(tokens[i])
             i += 1
             continue
-        out.append((lead if used else '') + str(value) + (end_trail if used == len(parts) else ''))
+        out.append((lead if used else '') + str(value) + ((ending + end_trail) if used == len(parts) else ''))
         i += used
     return ' '.join(out)
