@@ -30,6 +30,7 @@ from .models import (
     AuditLog,
     SubdomainPermission,
     LanguageRule,
+    AudioTrainingEntry,
     AITool,
     UserTag,
     UserCustomQuota,
