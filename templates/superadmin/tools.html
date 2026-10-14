@@ -588,7 +588,7 @@ async function submitToolForm() {
 
 // Delete tool
 async function deleteTool(id, name) {
-  if (!confirm(`Are you sure you want to permanently delete the tool "${name}"?`)) return;
+  if (!(await adminConfirm(`The tool "${name}" will be deleted permanently.`, { danger: true, title: 'Delete this tool?', confirmText: 'Delete tool' }))) return;
 
   try {
     const res = await fetch(`/axomai-admin/tools/delete/${id}/`, {

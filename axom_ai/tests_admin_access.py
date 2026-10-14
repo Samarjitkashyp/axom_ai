@@ -100,6 +100,24 @@ class UserAdminTests(TestCase):
         r = self.client.get('/axomai-admin/users/?page=5')
         self.assertEqual(r.context['page_numbers'], [1, None, 4, 5, 6, None, 9])
 
+    def test_every_admin_page_has_the_phone_rules(self):
+        pages = ['subscriptions', 'plans', 'moderation/?tab=tickets', 'moderation/?tab=unanswered', 'moderation/?tab=feedback', 'knowledge', 'analytics', 'models', 'tools',
+                 'contact-messages', 'document-verify', 'settings', 'users', 'audio-training', 'language-rules']
+        for page in pages:
+            r = self.client.get('/axomai-admin/' + (page if '?' in page else page + '/'))
+            self.assertEqual(r.status_code, 200, page)
+            html = r.content.decode()
+            for needle in ['width=device-width', 'id="sidebar-toggle"', '.rtable', 'function adminConfirm', 'max-width: 767px']:
+                self.assertIn(needle, html, page + ' ' + needle)
+        # no plain browser confirm / alert boxes are left in the admin pages
+        import re
+        from pathlib import Path
+        for f in list(Path('templates/superadmin').glob('*.html')) + [Path('templates/model_router/dashboard.html')]:
+            if f.name in ('login.html', 'base.html'):
+                continue
+            src = f.read_text(encoding='utf-8')
+            self.assertIsNone(re.search(r'(?<![\w.])(confirm|alert)\(', src), f.name)
+
     def test_only_a_superuser_can_manage_users(self):
         u = User.objects.create_user('nobody', 'nobody@example.com', PW)
         SubdomainPermission.objects.create(user=u, admin_access=True, admin_sections=['audio_training'])

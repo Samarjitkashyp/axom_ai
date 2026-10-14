@@ -218,7 +218,7 @@
 {% block extra_scripts %}
 <script>
   async function deleteChat(sessionId) {
-    if (!confirm('Are you sure you want to delete this chat session?')) return;
+    if (!(await adminConfirm('This chat session and its messages will be deleted. This cannot be undone.', { danger: true, title: 'Delete this chat?', confirmText: 'Delete chat' }))) return;
     try {
       const res = await fetch(`/axomai-admin/moderation/delete-chat/${sessionId}/`, {
         method: 'POST',

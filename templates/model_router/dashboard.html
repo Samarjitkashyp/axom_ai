@@ -207,9 +207,9 @@ function modelsDashboard() {
       try {
         const r = await fetch('/axomai-admin/models/api/seed/', {method:'POST', headers:{'X-CSRFToken': getCookie('csrftoken')}});
         const d = await r.json();
-        alert(d.created + ' models added');
+        showToast(d.created + ' models added', 'success');
         this.loadData();
-      } catch(e) { alert('Error: ' + e); }
+      } catch(e) { showToast('Error: ' + e, 'error'); }
     },
 
     async toggleModel(id) {
