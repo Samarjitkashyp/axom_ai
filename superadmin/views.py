@@ -23,6 +23,7 @@ from payments.models import Payment, UserPlan, PLAN_CATALOG
 from knowledge.models import KnowledgeDocument, KnowledgeChunk, QAPair, ChatSession, ChatMessage, UnansweredQuery, Feedback
 from userpanel.models import SupportTicket, TicketReply, UsageRecord, InAppNotification
 from .models import ContactMessage
+from .access import SECTIONS, can_open, first_url, clean_sections, user_sections
 from .models import (
     SystemSetting,
     CouponCode,
@@ -44,6 +45,11 @@ def _is_super(u):
 
 
 superuser_required = user_passes_test(_is_super, login_url='/axomai-admin/login/')
+
+
+def section_required(section):
+    """A superuser, or a user a superuser gave this section (Users page, Admin panel sections)."""
+    return user_passes_test(lambda u: can_open(u, section), login_url='/axomai-admin/login/')
 
 
 def _client_ip(request):
@@ -159,6 +165,8 @@ def _log_audit(request, action, target="", details=""):
 def login_view(request):
     if request.user.is_authenticated and _is_super(request.user):
         return redirect('/axomai-admin/')
+    if request.user.is_authenticated and first_url(request.user):
+        return redirect(first_url(request.user))
 
     client_ip = _client_ip(request)
     user_agent = request.META.get('HTTP_USER_AGENT', '')
@@ -225,8 +233,8 @@ def login_view(request):
                 rem = fail_result.get('remaining_attempts', 1)
                 remaining_attempts = rem
                 error = f"Invalid administrator credentials. Warning: {rem} attempt{'s' if rem != 1 else ''} remaining before a mandatory 24-HOUR SECURITY LOCKOUT."
-        elif not user.is_superuser:
-            _log_audit(request, "ADMIN_LOGIN_DENIED", f"User: {user.username}", "User is not a Super Administrator")
+        elif not (user.is_superuser or first_url(user)):
+            _log_audit(request, "ADMIN_LOGIN_DENIED", f"User: {user.username}", "User is not a Super Administrator and has no admin section")
             fail_result = _record_failed_attempt(client_ip, u, user_agent)
             if fail_result.get('is_locked'):
                 lockout_info = fail_result
@@ -241,12 +249,15 @@ def login_view(request):
                 })
             rem = fail_result.get('remaining_attempts', 1)
             remaining_attempts = rem
-            error = f"Unauthorized: Only Super Administrators can access this area. ({rem} attempt{'s' if rem != 1 else ''} remaining)"
+            error = f"Unauthorized: this account has no access to the admin panel. ({rem} attempt{'s' if rem != 1 else ''} remaining)"
         else:
             _clear_failed_attempts(client_ip, u)
             login(request, user)
             _log_audit(request, "ADMIN_LOGIN_SUCCESS", f"User: {user.username}", "Logged into Super Admin")
             nxt = request.GET.get('next', '/axomai-admin/')
+            if not user.is_superuser:
+                allowed = [info['url'] for key, info in SECTIONS.items() if key in user_sections(user)]
+                nxt = nxt if nxt in allowed else first_url(user)           # a limited user goes only to a section that was given
             return redirect(nxt)
 
     return render(request, 'superadmin/login.html', {
@@ -403,7 +414,10 @@ def users_page(request):
     # Permissions map
     perms_map = {}
     for sp in SubdomainPermission.objects.filter(user_id__in=page_user_ids):
-        perms_map[sp.user_id] = {'admin': sp.admin_access, 'content': sp.content_access, 'bot': sp.bot_access}
+        perms_map[sp.user_id] = {'admin': sp.admin_access, 'content': sp.content_access, 'bot': sp.bot_access, 'sections': clean_sections(sp.admin_sections)}
+
+    # Profile data for the edit form
+    profiles_map = {u.id: {'email': u.email, 'first': u.first_name, 'last': u.last_name} for u in users_page_obj}
 
     # Tags map
     tags_map = {}
@@ -447,10 +461,60 @@ def users_page(request):
         'all_tags': all_tags,
         'total_count': users_qs.count(),
         'perms_map': json.dumps(perms_map),
+        'profiles_map': json.dumps(profiles_map),
+        'admin_sections': [{'key': k, 'label': v['label']} for k, v in SECTIONS.items()],
         'tags_map': json.dumps(tags_map),
         'quotas_map': json.dumps(quotas_map),
     }
     return render(request, 'superadmin/users.html', context)
+
+
+import re as _re
+from django.core.validators import validate_email as _validate_email
+
+
+def _create_user(request, data):
+    """Superadmin adds a (normal, never staff or superuser) user, optionally with admin panel sections."""
+    username = _sanitize_input(data.get('username'), 150)
+    email = _sanitize_input(data.get('email'), 254).lower()
+    password = str(data.get('password') or '')
+    if not _re.fullmatch(r'[\w.@+-]{3,150}', username):
+        return JsonResponse({'success': False, 'error': 'Username: 3 to 150 letters, digits or . @ + - _ only.'}, status=400)
+    try:
+        _validate_email(email)
+    except ValidationError:
+        return JsonResponse({'success': False, 'error': 'Enter a valid email address.'}, status=400)
+    if User.objects.filter(username__iexact=username).exists():
+        return JsonResponse({'success': False, 'error': 'This username is already taken.'}, status=400)
+    if User.objects.filter(email__iexact=email).exists():
+        return JsonResponse({'success': False, 'error': 'This email is already used by another account.'}, status=400)
+    try:
+        validate_password(password)
+    except ValidationError as err:
+        return JsonResponse({'success': False, 'error': '; '.join(err.messages)}, status=400)
+    user = User.objects.create_user(username=username, email=email, password=password,
+                                    first_name=_sanitize_input(data.get('first_name'), 150), last_name=_sanitize_input(data.get('last_name'), 150))
+    sections = clean_sections(data.get('admin_sections'))
+    if sections:
+        SubdomainPermission.objects.update_or_create(user=user, defaults={'admin_access': True, 'admin_sections': sections})
+    _log_audit(request, "USER_CREATED", f"User: {user.username}", f"Created by Super Admin; sections={sections}")
+    return JsonResponse({'success': True, 'message': f'User {user.username} created.' + (' Admin panel access given.' if sections else '')})
+
+
+def _update_profile(request, user, data):
+    email = _sanitize_input(data.get('email'), 254).lower()
+    try:
+        _validate_email(email)
+    except ValidationError:
+        return JsonResponse({'success': False, 'error': 'Enter a valid email address.'}, status=400)
+    if User.objects.filter(email__iexact=email).exclude(id=user.id).exists():
+        return JsonResponse({'success': False, 'error': 'This email is already used by another account.'}, status=400)
+    user.email = email
+    user.first_name = _sanitize_input(data.get('first_name'), 150)
+    user.last_name = _sanitize_input(data.get('last_name'), 150)
+    user.save(update_fields=['email', 'first_name', 'last_name'])
+    _log_audit(request, "USER_PROFILE_EDIT", f"User: {user.username}", "Name / email changed by Super Admin")
+    return JsonResponse({'success': True, 'message': f'Profile of {user.username} saved.'})
 
 
 @superuser_required
@@ -537,6 +601,9 @@ def user_action_api(request):
 
             return JsonResponse({'success': False, 'error': 'Unknown bulk action.'}, status=400)
 
+        if action == 'create_user':
+            return _create_user(request, data)
+
         # Single User Actions
         user_id = data.get('user_id')
         user = get_object_or_404(User, id=user_id)
@@ -612,17 +679,24 @@ def user_action_api(request):
             _log_audit(request, "GIFT_DAYS", f"User: {user.username}", f"Gifted +{days} free premium days")
             return JsonResponse({'success': True, 'message': f'Gifted +{days} days to {user.username}.'})
 
+        elif action == 'update_profile':
+            return _update_profile(request, user, data)
+
         elif action == 'set_permissions':
             admin_access = bool(data.get('admin_access', False))
             content_access = bool(data.get('content_access', False))
             bot_access = bool(data.get('bot_access', False))
+            sections = clean_sections(data.get('admin_sections'))
+            if sections:
+                admin_access = True                                        # a section is only reachable through the admin subdomain
             perm, _ = SubdomainPermission.objects.get_or_create(user=user)
             perm.admin_access = admin_access
             perm.content_access = content_access
             perm.bot_access = bot_access
+            perm.admin_sections = sections
             perm.save()
             _log_audit(request, "USER_PERMISSIONS", f"User: {user.username}",
-                       f"admin={admin_access}, content={content_access}, bot={bot_access}")
+                       f"admin={admin_access}, content={content_access}, bot={bot_access}, sections={sections}")
             return JsonResponse({'success': True, 'message': f'Permissions updated for {user.username}.'})
 
         elif action == 'add_tag':
@@ -1364,7 +1438,7 @@ def delete_language_rule_api(request, rule_id):
 # Audio Training (word lists for voice typing and the Assamese voice)
 # ---------------------------------------------------------------------------
 
-@superuser_required
+@section_required('audio_training')
 def audio_training_page(request):
     return render(request, 'superadmin/audio_training.html', {
         'active': 'audio_training',
@@ -1392,7 +1466,7 @@ def _clean_audio_entry(data):
     return kind, source, target, note, None
 
 
-@superuser_required
+@section_required('audio_training')
 @require_POST
 def save_audio_training_api(request):
     from axom_ai.audio_training import forget
@@ -1423,7 +1497,7 @@ def save_audio_training_api(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@superuser_required
+@section_required('audio_training')
 @require_POST
 def toggle_audio_training_api(request, entry_id):
     from axom_ai.audio_training import forget
@@ -1435,7 +1509,7 @@ def toggle_audio_training_api(request, entry_id):
     return JsonResponse({'success': True, 'is_active': entry.is_active})
 
 
-@superuser_required
+@section_required('audio_training')
 @require_POST
 def delete_audio_training_api(request, entry_id):
     from axom_ai.audio_training import forget

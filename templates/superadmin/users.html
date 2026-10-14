@@ -51,6 +51,10 @@
     <!-- Actions: Export CSV -->
     <div class="flex items-center space-x-3">
       <span class="text-xs text-slate-400">Total: <strong class="text-white">{{ total_count }}</strong></span>
+      <button type="button" onclick="openAddUser()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 transition shadow-lg shadow-indigo-600/20">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Add User</span>
+      </button>
       <a href="/axomai-admin/users/export/" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold rounded-xl flex items-center space-x-2 transition">
         <i class="fa-solid fa-file-csv text-emerald-400"></i>
         <span>Export CSV</span>
@@ -257,6 +261,59 @@
   {% endif %}
 </div>
 
+<!-- Add User Modal -->
+<div id="addUserModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center sm:p-4">
+  <div class="glass-card rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 border border-slate-800 w-full max-w-lg shadow-2xl relative max-h-[92vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+      <h3 class="text-base font-bold text-white"><i class="fa-solid fa-user-plus text-indigo-400 mr-2"></i>Add User</h3>
+      <button onclick="closeAddUser()" aria-label="Close" class="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="space-y-3 text-xs">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Username *</label>
+          <input type="text" id="newUsername" autocomplete="off" maxlength="150" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Email *</label>
+          <input type="email" id="newEmail" autocomplete="off" maxlength="254" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">First name</label>
+          <input type="text" id="newFirst" maxlength="150" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Last name</label>
+          <input type="text" id="newLast" maxlength="150" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
+        </div>
+      </div>
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Password * <span class="text-slate-500 font-normal">(at least 8 characters, not too common)</span></label>
+        <div class="flex gap-2">
+          <input type="password" id="newPassword" autocomplete="new-password" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-white text-sm sm:text-xs">
+          <button type="button" onclick="const f=document.getElementById('newPassword'); f.type = f.type === 'password' ? 'text' : 'password';" class="px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg" aria-label="Show or hide the password"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="pt-3 border-t border-slate-800">
+        <div class="font-semibold text-slate-200">Admin panel sections <span class="text-slate-500 font-normal">(optional)</span></div>
+        <div class="flex flex-wrap gap-4 mt-2" id="newSectionBoxes">
+          {% for sec in admin_sections %}
+          <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+            <input type="checkbox" class="new-sec-check w-4 h-4 accent-indigo-500 rounded" value="{{ sec.key }}">
+            <span>{{ sec.label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <p class="text-slate-500 mt-2">A person with a section can sign in at admin.aiaxom.co.in and sees only that section. Nothing else of the admin is shown to them.</p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 mt-5">
+      <button onclick="closeAddUser()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">Cancel</button>
+      <button onclick="createUser()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg text-xs"><i class="fa-solid fa-check mr-1.5"></i>Create User</button>
+    </div>
+  </div>
+</div>
+
 <!-- Comprehensive Manage User Modal -->
 <div id="userActionModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
   <div class="glass-card rounded-3xl p-6 border border-slate-800 w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
@@ -363,6 +420,19 @@
         </div>
       </div>
 
+      <!-- Profile: name and email -->
+      <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+        <h4 class="font-bold text-white mb-3"><i class="fa-solid fa-id-card text-sky-400 mr-1.5"></i> Profile</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <input type="text" id="profFirst" placeholder="First name" maxlength="150" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+          <input type="text" id="profLast" placeholder="Last name" maxlength="150" class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+          <input type="email" id="profEmail" placeholder="Email" maxlength="254" class="sm:col-span-2 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs">
+        </div>
+        <button onclick="saveProfile()" class="mt-3 px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg text-xs flex items-center space-x-1.5">
+          <i class="fa-solid fa-floppy-disk"></i> <span>Save Profile</span>
+        </button>
+      </div>
+
       <!-- Section 4: Subdomain Permissions -->
       <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
         <h4 class="font-bold text-white mb-2"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i> Subdomain Access Permissions</h4>
@@ -379,6 +449,17 @@
             <input type="checkbox" id="permBot" class="w-4 h-4 accent-amber-500 rounded">
             <span><strong class="text-amber-400">axomai-bot</strong>.aiaxom.co.in</span>
           </label>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800">
+          <div class="font-semibold text-slate-200 mb-1">Admin panel sections <span class="text-slate-500 font-normal">(this person sees only what you tick; the admin login is the same page)</span></div>
+          <div class="flex flex-wrap gap-4 mt-2" id="sectionBoxes">
+            {% for sec in admin_sections %}
+            <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
+              <input type="checkbox" class="sec-check w-4 h-4 accent-indigo-500 rounded" value="{{ sec.key }}">
+              <span>{{ sec.label }}</span>
+            </label>
+            {% endfor %}
+          </div>
         </div>
         <button onclick="savePermissions()" class="mt-3 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs flex items-center space-x-1.5">
           <i class="fa-solid fa-floppy-disk"></i> <span>Save Permissions</span>
@@ -412,6 +493,7 @@
   var permsMap = {{ perms_map|safe }};
   var tagsMap = {{ tags_map|safe }};
   var quotasMap = {{ quotas_map|safe }};
+  var profilesMap = {{ profiles_map|safe }};
 
   function updateBulkSelection() {
     const checkboxes = document.querySelectorAll('.user-checkbox:checked');
@@ -494,6 +576,13 @@
     document.getElementById('permAdmin').checked = !!p.admin;
     document.getElementById('permContent').checked = !!p.content;
     document.getElementById('permBot').checked = !!p.bot;
+    document.querySelectorAll('.sec-check').forEach(function (c) { c.checked = (p.sections || []).indexOf(c.value) !== -1; });
+
+    // Profile
+    var pr = profilesMap[userId] || {};
+    document.getElementById('profFirst').value = pr.first || '';
+    document.getElementById('profLast').value = pr.last || '';
+    document.getElementById('profEmail').value = pr.email || '';
 
     // Load custom quotas
     var q = quotasMap[userId] || {};
@@ -522,6 +611,42 @@
         <button onclick="removeUserTag(${t.id}, '${t.name}')" class="text-slate-400 hover:text-white ml-0.5">&times;</button>
       </span>
     `).join('');
+  }
+
+  async function saveProfile() {
+    const res = await callUserApi({
+      action: 'update_profile',
+      user_id: document.getElementById('modalUserId').value,
+      first_name: document.getElementById('profFirst').value,
+      last_name: document.getElementById('profLast').value,
+      email: document.getElementById('profEmail').value
+    });
+    if (res.success) { showToast(res.message, 'success'); setTimeout(() => location.reload(), 800); }
+    else { showToast(res.error, 'error'); }
+  }
+
+  function openAddUser() {
+    ['newUsername', 'newEmail', 'newFirst', 'newLast', 'newPassword'].forEach(function (id) { document.getElementById(id).value = ''; });
+    document.getElementById('newPassword').type = 'password';
+    document.querySelectorAll('.new-sec-check').forEach(function (c) { c.checked = false; });
+    document.getElementById('addUserModal').classList.remove('hidden');
+    document.getElementById('newUsername').focus();
+  }
+
+  function closeAddUser() { document.getElementById('addUserModal').classList.add('hidden'); }
+
+  async function createUser() {
+    const res = await callUserApi({
+      action: 'create_user',
+      username: document.getElementById('newUsername').value,
+      email: document.getElementById('newEmail').value,
+      first_name: document.getElementById('newFirst').value,
+      last_name: document.getElementById('newLast').value,
+      password: document.getElementById('newPassword').value,
+      admin_sections: Array.from(document.querySelectorAll('.new-sec-check:checked')).map(c => c.value)
+    });
+    if (res.success) { showToast(res.message, 'success'); closeAddUser(); setTimeout(() => location.reload(), 900); }
+    else { showToast(res.error, 'error'); }
   }
 
   function closeUserModal() {
@@ -657,9 +782,12 @@
     const admin_access = document.getElementById('permAdmin').checked;
     const content_access = document.getElementById('permContent').checked;
     const bot_access = document.getElementById('permBot').checked;
-    const res = await callUserApi({ action: 'set_permissions', user_id: userId, admin_access, content_access, bot_access });
+    const admin_sections = Array.from(document.querySelectorAll('.sec-check:checked')).map(c => c.value);
+    const res = await callUserApi({ action: 'set_permissions', user_id: userId, admin_access, content_access, bot_access, admin_sections });
     if (res.success) {
-      permsMap[userId] = { admin: admin_access, content: content_access, bot: bot_access };
+      const gotAdmin = admin_access || admin_sections.length > 0;                  // a section needs the admin subdomain: the server turns it on
+      permsMap[userId] = { admin: gotAdmin, content: content_access, bot: bot_access, sections: admin_sections };
+      document.getElementById('permAdmin').checked = gotAdmin;
       showToast(res.message, 'success');
     } else {
       showToast(res.error, 'error');

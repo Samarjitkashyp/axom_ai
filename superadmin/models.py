@@ -83,6 +83,7 @@ class SubdomainPermission(models.Model):
     admin_access = models.BooleanField(default=False)
     content_access = models.BooleanField(default=False)
     bot_access = models.BooleanField(default=False)
+    admin_sections = models.JSONField(default=list, blank=True, help_text="Admin panel sections this user may open (superadmin/access.py)")
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
