@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { formatMarkdown } from './utils/format';
 import { getCsrfToken } from './utils/security';
+import { readSpeed } from '../../lib/voiceSpeed';
 
 const PHONETIC_PATTERNS = [
   /\b(aji|bohut|bhal|lagil|moi|tumi|apuni|aponar|kene|asa|aso|khobor|axom|asom|dhonyobad|dhanyabad|kenekoi|kiba|kobo|mor|naam|ghor|kot|jaba|ki|kotha|bhalne)\b/i
@@ -748,6 +749,7 @@ export default function ChatWindow({
   const playUrl = (url, token) => new Promise((resolve) => {
     if (voiceRef.current.token !== token) { URL.revokeObjectURL(url); resolve(); return; }
     const audio = new Audio(url);
+    audio.playbackRate = readSpeed();                              // the speed chosen in Settings (the pitch stays the same)
     voiceRef.current.audio = audio;
     const done = () => { URL.revokeObjectURL(url); resolve(); };
     audio.onended = done;

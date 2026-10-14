@@ -8,6 +8,7 @@ import {
   LogOut, Crown, Volume2, Sparkles,
 } from 'lucide-react';
 import { getCsrfToken } from './utils/security';
+import { readSpeed, parseSpeed, saveSpeed, SPEED_MIN, SPEED_MAX } from '../../lib/voiceSpeed';
 
 const RECENT_LIMIT = 15;
 
@@ -150,6 +151,13 @@ export default function SettingsPage({
   });
   const [voiceTest, setVoiceTest] = useState('');          // '' | 'loading' | message
   const voiceTestAudio = useRef(null);
+  const [ttsSpeed, setTtsSpeed] = useState(() => readSpeed());
+  const chooseTtsSpeed = (v) => {
+    const sp = parseSpeed(String(v));
+    setTtsSpeed(sp);
+    saveSpeed(sp);
+    if (voiceTestAudio.current) voiceTestAudio.current.playbackRate = sp;     // a sample that is playing follows the slider
+  };
   const chooseTtsVoice = (v) => {
     setTtsVoice(v);
     try { localStorage.setItem('axom_tts_voice', v); } catch (e) { /* private mode: it just is not remembered */ }
@@ -172,6 +180,7 @@ export default function SettingsPage({
       }
       const url = URL.createObjectURL(await res.blob());
       const audio = new Audio(url);
+      audio.playbackRate = readSpeed();
       voiceTestAudio.current = audio;
       audio.onended = () => { URL.revokeObjectURL(url); setVoiceTest(''); };
       audio.onerror = () => { URL.revokeObjectURL(url); setVoiceTest(''); };
@@ -733,6 +742,28 @@ export default function SettingsPage({
                   <button className="settings-toggle-btn" onClick={listenToVoice} disabled={voiceTest === 'loading'}>
                     <Volume2 size={14} /> {voiceTest === 'loading' ? 'Making…' : 'Listen'}
                   </button>
+                </div>
+              </div>
+              <div className="settings-row">
+                <div className="settings-row-left">
+                  <Volume2 size={18} />
+                  <div>
+                    <div className="settings-row-title">Voice speed</div>
+                    <div className="settings-row-desc">How fast the 🔊 button reads aloud: {ttsSpeed.toFixed(2).replace(/0$/, '')}x (1x is normal).</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                  <input
+                    type="range"
+                    min={SPEED_MIN}
+                    max={SPEED_MAX}
+                    step="0.05"
+                    value={ttsSpeed}
+                    onChange={(e) => chooseTtsSpeed(e.target.value)}
+                    aria-label="Voice speed"
+                    style={{ width: '140px' }}
+                  />
+                  <button className="settings-toggle-btn" onClick={() => chooseTtsSpeed(1)} disabled={ttsSpeed === 1}>Normal</button>
                 </div>
               </div>
             </div>
