@@ -1386,7 +1386,7 @@ def _clean_audio_entry(data):
         return None, None, None, None, 'The word is required.'
     if target is None:
         if kind == AudioTrainingEntry.KIND_NUMBER:
-            return None, None, None, None, 'A number word needs a whole number from 0 to 99 as digits (for example 84).'
+            return None, None, None, None, 'One word (not a phrase) and its value as digits: 0 to 99, or a whole hundred such as 900. Example: চৈৰাশী = 84, নওশ = 900.'
         return None, None, None, None, 'The replacement is required.'
     return kind, source, target, note, None
 

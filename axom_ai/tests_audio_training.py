@@ -45,7 +45,7 @@ class AudioTrainingTests(TestCase):
         self.assertEqual(AudioTrainingEntry.objects.count(), 0)
 
     def test_bad_input_is_refused(self):
-        for data in [dict(kind='number_word', source='চৌৰাশী', target='abc'), dict(kind='number_word', source='চৌৰাশী', target='100'),
+        for data in [dict(kind='number_word', source='চৌৰাশী', target='abc'), dict(kind='number_word', source='চৌৰাশী', target='150'), dict(kind='number_word', source='চৌৰাশী', target='1000'),
                      dict(kind='number_word', source='', target='84'), dict(kind='nope', source='a', target='b'),
                      dict(kind='pronunciation', source='HTML', target='')]:
             self.assertEqual(save(self.client, **data).status_code, 400, data)
@@ -80,3 +80,12 @@ class AudioTrainingTests(TestCase):
             cache.clear()
             self.assertEqual(audio_training.fix_heard('abc'), 'abc')
             self.assertEqual(audio_training.number_words(), {})
+
+    def test_hundreds_and_a_year_said_with_added_words(self):
+        self.assertEqual(save(self.client, kind='number_word', source='ন\u200cওশ', target='900').json()['success'], True)      # a ZWNJ typed inside the word is dropped
+        self.assertEqual(save(self.client, kind='number_word', source='চৈৰাশী', target='84').json()['success'], True)
+        self.assertEqual(AudioTrainingEntry.objects.get(target='900').source, 'নওশ')
+        words = audio_training.number_words()
+        self.assertEqual(numbers_to_digits('এক হাজাৰ নওশ চৈৰাশী', words), '1984')
+        self.assertEqual(numbers_to_digits('এক হাজাৰ ন\u200cওশ চৈৰাশী', words), '1984')
+        self.assertEqual(numbers_to_digits('নওশ', words), '900')
