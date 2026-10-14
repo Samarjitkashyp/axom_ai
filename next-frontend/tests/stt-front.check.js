@@ -10,6 +10,7 @@ let fails = 0;
 const t = (name, ok) => { if (!ok) { fails++; console.log('FAIL', name); } };
 
 async function scenario(o = {}) {
+  const L = await import(require('url').pathToFileURL(require('path').join(__dirname, '../lib/voiceLevel.ts')).href);   // the level rules (TypeScript; Node 22.6+ reads it)
   const w = {
     now: 1000000, level: 0, intervals: [], fetchCalls: [], error: '', input: o.inputText || '', listening: false, transcribing: false,
     stoppedTracks: 0, browserStarted: 0, recorders: [], appended: [],
@@ -51,17 +52,18 @@ async function scenario(o = {}) {
   const useRef = (v) => { const i = n++; if (!store[i]) store[i] = { current: v }; return store[i]; };
   const state = { isListening: false, isTranscribing: false };
   const names = ['useRef', 'window', 'navigator', 'Date', 'setInterval', 'clearInterval', 'fetch', 'FormData', 'Blob', 'language', 'inputText',
-    'recognitionRef', 'setInputText', 'setIsListening', 'setIsTranscribing', 'setErrorMsg', 'langCode', 'isListening', 'isTranscribing'];
+    'recognitionRef', 'setInputText', 'setIsListening', 'setIsTranscribing', 'setErrorMsg', 'langCode', 'isListening', 'isTranscribing',
+    'noiseFloor', 'speechThreshold', 'followFloor', 'MAX_THRESHOLD'];
   const fn0 = new Function(...names, block + '; return { toggleSpeechRecognition, sttModeRef, VOICE_VAD };');
   const fn = (...args) => { n = 0; return fn0(...args); };
   const api = fn(useRef, win, nav, D, setInterval_, clearInterval_, fakeFetch, FakeFormData, FakeBlob, o.language || 'assamese', o.inputText || '',
     { current: null }, (v) => { w.input = v; }, (v) => { w.listening = v; state.isListening = v; }, (v) => { w.transcribing = v; state.isTranscribing = v; },
-    (m) => { w.error = m; }, () => 'as-IN', false, false);
+    (m) => { w.error = m; }, () => 'as-IN', false, false, L.noiseFloor, L.speechThreshold, L.followFloor, L.MAX_THRESHOLD);
   if (o.mode) api.sttModeRef.current = o.mode;
   // `isListening` is a render value in the real component: a second tap sees the new value because React re-renders; here it is passed again
   const again = () => fn(useRef, win, nav, D, setInterval_, clearInterval_, fakeFetch, FakeFormData, FakeBlob, o.language || 'assamese', o.inputText || '',
     { current: null }, (v) => { w.input = v; }, (v) => { w.listening = v; state.isListening = v; }, (v) => { w.transcribing = v; state.isTranscribing = v; },
-    (m) => { w.error = m; }, () => 'as-IN', state.isListening, state.isTranscribing);
+    (m) => { w.error = m; }, () => 'as-IN', state.isListening, state.isTranscribing, L.noiseFloor, L.speechThreshold, L.followFloor, L.MAX_THRESHOLD);
   // advance the fake clock and run the level meter
   const run = async (ms, level) => {
     w.level = level;
@@ -91,6 +93,12 @@ async function scenario(o = {}) {
   t('1 typed text is kept and the voice text follows once', s.w.input === 'Hello How are you');
   t('1 microphone released', s.w.stoppedTracks === 1);
   t('1 not stuck on "writing down"', s.w.transcribing === false);
+  // a person who starts talking the moment the microphone opens (no quiet moment to measure the room): still heard and sent
+  s = await scenario({});
+  await s.api.toggleSpeechRecognition();
+  await s.run(600, 0.12); await s.run(800, 0.12);            // speech from the very first moment
+  await s.run(2000, 0.001);
+  t('1b speech from the first moment is sent, not "did not hear"', s.w.fetchCalls.length === 1 && !/did not hear/i.test(s.w.error || ''));
 
   // 2. nobody speaks: stops after the wait, nothing is sent
   s = await scenario();
