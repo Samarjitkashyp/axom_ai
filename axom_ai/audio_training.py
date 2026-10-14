@@ -23,7 +23,8 @@ def forget(kind):
 
 
 def clean_source(value):
-    return re.sub(r'\s+', ' ', (value or '')).strip()[:200]
+    # invisible joiners (ZWNJ / ZWJ) that a keyboard puts inside a word are dropped, so the word matches the text
+    return re.sub(r'\s+', ' ', (value or '').replace('\u200c', '').replace('\u200d', '')).strip()[:200]
 
 
 def clean_target(kind, value):
@@ -31,9 +32,12 @@ def clean_target(kind, value):
     value = re.sub(r'\s+', ' ', (value or '')).strip()[:200]
     if kind == NUMBER:
         value = value.translate(str.maketrans('০১২৩৪৫৬৭৮৯', '0123456789'))
-        if not re.fullmatch(r'\d{1,2}', value):
+        if not re.fullmatch(r'\d{1,3}', value):
             return None
-        return str(int(value))
+        n = int(value)
+        if n > 99 and not (n % 100 == 0 and n <= 900):
+            return None                                     # 0-99, or a whole hundred (100 ... 900) for words like নওশ
+        return str(n)
     return value or None
 
 

@@ -29,13 +29,14 @@ EDGE = '.,;:!?।"\'()[]'
 def _split(token):
     """(leading marks, word, trailing marks)."""
     m = re.match(r'^([' + re.escape(EDGE) + r']*)(.*?)([' + re.escape(EDGE) + r']*)$', token)
-    return m.group(1), m.group(2), m.group(3)
+    return m.group(1), m.group(2).replace('\u200c', '').replace('\u200d', ''), m.group(3)
 
 
 def _kind(word, units=UNITS):
     """('u', value) a number below 100, ('h',) hundred, ('b', factor) thousand and up, or None."""
     if word in units:
-        return ('u', units[word])
+        v = units[word]
+        return ('uh', v // 100) if v >= 100 else ('u', v)
     if word in HUNDRED:
         return ('h',)
     if word in BIG:
