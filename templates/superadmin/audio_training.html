@@ -2,28 +2,37 @@
 {% block title %}Audio Training — Axom AI Super Admin{% endblock %}
 {% block heading %}<i class="fa-solid fa-microphone-lines mr-2 text-indigo-400"></i> Audio Training{% endblock %}
 
+{% block extra_head %}
+<style>
+  /* 16px fields: a phone does not zoom the page when a field is tapped */
+  @media (max-width: 640px) { #entry-modal input, #entry-modal select, #entry-modal textarea { font-size: 16px; } }
+  .tabs-scroll { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tabs-scroll::-webkit-scrollbar { display: none; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="mb-6 flex items-center justify-between">
+<div class="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
   <p class="text-sm text-slate-400 max-w-2xl">
     Teach the voice features. Number words and corrections help voice typing (speech to text); pronunciations change how the Assamese voice reads a word.
     Changes work within a minute, no deploy needed.
   </p>
-  <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+  <button onclick="openModal()" class="w-full sm:w-auto justify-center shrink-0 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-3 sm:py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
     <i class="fa-solid fa-plus"></i> Add Entry
   </button>
 </div>
 
-<div class="flex border-b border-slate-800 space-x-6 mb-6 text-sm font-semibold">
-  <button onclick="filterEntries('all')" data-filter="all" class="filter-tab pb-3 border-b-2 border-indigo-500 text-white transition">
+<div class="tabs-scroll flex overflow-x-auto whitespace-nowrap border-b border-slate-800 gap-5 sm:gap-6 mb-5 sm:mb-6 text-sm font-semibold -mx-4 px-4 sm:mx-0 sm:px-0" role="tablist">
+  <button onclick="filterEntries('all')" data-filter="all" class="filter-tab shrink-0 pb-3 border-b-2 border-indigo-500 text-white transition">
     <i class="fa-solid fa-layer-group mr-1.5"></i> All ({{ entries|length }})
   </button>
-  <button onclick="filterEntries('number_word')" data-filter="number_word" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+  <button onclick="filterEntries('number_word')" data-filter="number_word" class="filter-tab shrink-0 pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
     <i class="fa-solid fa-hashtag mr-1.5"></i> Number words ({{ counts.number_word }})
   </button>
-  <button onclick="filterEntries('transcript_fix')" data-filter="transcript_fix" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+  <button onclick="filterEntries('transcript_fix')" data-filter="transcript_fix" class="filter-tab shrink-0 pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
     <i class="fa-solid fa-microphone mr-1.5"></i> Voice typing corrections ({{ counts.transcript_fix }})
   </button>
-  <button onclick="filterEntries('pronunciation')" data-filter="pronunciation" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+  <button onclick="filterEntries('pronunciation')" data-filter="pronunciation" class="filter-tab shrink-0 pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
     <i class="fa-solid fa-volume-high mr-1.5"></i> Pronunciation ({{ counts.pronunciation }})
   </button>
 </div>
@@ -42,7 +51,7 @@
 <div class="space-y-3" id="entries-list">
   {% for e in entries %}
   <div class="glass-card rounded-xl p-4 border border-slate-800 glass-card-hover transition-all entry-card" data-kind="{{ e.kind }}" data-id="{{ e.id }}">
-    <div class="flex items-center justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2.5 mb-1.5">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase
@@ -55,20 +64,20 @@
           <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-400 border border-red-500/30">DISABLED</span>
           {% endif %}
         </div>
-        <h3 class="text-sm font-bold text-white break-words">{{ e.source }} <span class="text-slate-500 mx-1">→</span> {{ e.target }}</h3>
+        <h3 class="text-sm font-bold text-white break-words [overflow-wrap:anywhere]">{{ e.source }} <span class="text-slate-500 mx-1">→</span> {{ e.target }}</h3>
         {% if e.note %}<p class="text-xs text-slate-400 mt-1 break-words">{{ e.note }}</p>{% endif %}
       </div>
-      <div class="flex items-center gap-1.5 shrink-0">
+      <div class="flex items-center justify-end gap-1.5 shrink-0 border-t border-slate-800/70 pt-2 sm:border-0 sm:pt-0">
         <button onclick="editEntry({{ e.id }}, '{{ e.kind }}', `{{ e.source|escapejs }}`, `{{ e.target|escapejs }}`, `{{ e.note|escapejs }}`)"
-                class="p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition" title="Edit">
+                class="p-3 sm:p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition" title="Edit">
           <i class="fa-solid fa-pen-to-square text-xs"></i>
         </button>
         <button onclick="toggleEntry({{ e.id }})"
-                class="p-2 rounded-lg transition {% if e.is_active %}text-emerald-400 hover:text-amber-400 hover:bg-amber-500/10{% else %}text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10{% endif %}" title="{% if e.is_active %}Disable{% else %}Enable{% endif %}">
+                class="p-3 sm:p-2 rounded-lg transition {% if e.is_active %}text-emerald-400 hover:text-amber-400 hover:bg-amber-500/10{% else %}text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10{% endif %}" title="{% if e.is_active %}Disable{% else %}Enable{% endif %}">
           <i class="fa-solid {% if e.is_active %}fa-toggle-on{% else %}fa-toggle-off{% endif %} text-sm"></i>
         </button>
         <button onclick="deleteEntry({{ e.id }}, `{{ e.source|escapejs }}`)"
-                class="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition" title="Delete">
+                class="p-3 sm:p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition" title="Delete">
           <i class="fa-solid fa-trash-can text-xs"></i>
         </button>
       </div>
@@ -83,39 +92,39 @@
   {% endfor %}
 </div>
 
-<div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-  <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
-    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+<div id="entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center hidden">
+  <div class="bg-slate-900 border border-slate-700 rounded-t-2xl sm:rounded-2xl w-full max-w-lg sm:mx-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+    <div class="sticky top-0 bg-slate-900 px-4 sm:px-6 py-4 border-b border-slate-800 flex items-center justify-between">
       <h3 class="text-base font-bold text-white" id="modal-title">Add Audio Training Entry</h3>
-      <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+      <button onclick="closeModal()" aria-label="Close" class="w-10 h-10 -mr-2 flex items-center justify-center text-slate-400 hover:text-white transition">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
-    <div class="px-6 py-5 space-y-4">
+    <div class="px-4 sm:px-6 py-5 space-y-4">
       <input type="hidden" id="entry-id" value="">
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Type</label>
-        <select id="entry-kind" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none" onchange="updateHelp()">
+        <select id="entry-kind" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none" onchange="updateHelp()">
           {% for value, label in kinds %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
         </select>
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1.5" id="source-label">Word</label>
-        <input type="text" id="entry-source" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        <input type="text" id="entry-source" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1.5" id="target-label">Becomes</label>
-        <input type="text" id="entry-target" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
+        <input type="text" id="entry-target" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none">
         <p id="help-text" class="text-[11px] text-slate-500 mt-1"></p>
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Note <span class="text-slate-500">(optional)</span></label>
-        <input type="text" id="entry-note" maxlength="200" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
+        <input type="text" id="entry-note" maxlength="200" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 sm:py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none">
       </div>
     </div>
-    <div class="px-6 py-4 border-t border-slate-800 flex justify-end gap-3">
-      <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">Cancel</button>
-      <button onclick="saveEntry()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20">
+    <div class="sticky bottom-0 bg-slate-900 px-4 sm:px-6 py-4 border-t border-slate-800 flex justify-end gap-3" style="padding-bottom: max(1rem, env(safe-area-inset-bottom))">
+      <button onclick="closeModal()" class="px-4 py-3 sm:py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition">Cancel</button>
+      <button onclick="saveEntry()" class="flex-1 sm:flex-none px-5 py-3 sm:py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-lg shadow-indigo-600/20">
         <i class="fa-solid fa-check mr-1.5"></i> Save
       </button>
     </div>
