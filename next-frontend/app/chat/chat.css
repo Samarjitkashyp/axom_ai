@@ -4713,8 +4713,8 @@ body.light-theme .tools-topbar {
     }
     .chat-textarea {
         font-size: 16px !important; /* Prevents iOS input auto-zoom */
-        min-height: 24px;
-        max-height: 110px;
+        min-height: 56px; /* two lines tall: easier to type in */
+        max-height: 160px;
         line-height: 1.4;
         padding: 2px 0;
     }

@@ -875,7 +875,7 @@ export default function ChatWindow({
     // Auto resize
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + 'px';
     }
   };
 
@@ -2099,15 +2099,6 @@ export default function ChatWindow({
                 aria-pressed={webSearch}
               >
                 <Globe size={13} /> Web {webSearch ? 'ON' : ''}
-              </button>
-              <button
-                type="button"
-                className="lang-btn"
-                onClick={onOpenTools || onOpenDocConverterModal}
-                title="Open all converter & PDF tools (/tools)"
-                id="btnChatTools"
-              >
-                <Wrench size={13} /> Tools
               </button>
               {webSearch && (
                 <span
