@@ -32,30 +32,30 @@ def _split(token):
     return m.group(1), m.group(2), m.group(3)
 
 
-def _kind(word):
+def _kind(word, units=UNITS):
     """('u', value) a number below 100, ('h',) hundred, ('b', factor) thousand and up, or None."""
-    if word in UNITS:
-        return ('u', UNITS[word])
+    if word in units:
+        return ('u', units[word])
     if word in HUNDRED:
         return ('h',)
     if word in BIG:
         return ('b', BIG[word])
     # glued hundred: নশ (900), দুশ (200), উনৈশশ (1900)
-    if len(word) > 1 and word.endswith('শ') and word not in UNITS:
+    if len(word) > 1 and word.endswith('শ') and word not in units:
         front = word[:-1]
-        if front in UNITS or front in GLUE:
-            return ('uh', UNITS.get(front, GLUE.get(front)))
+        if front in units or front in GLUE:
+            return ('uh', units.get(front, GLUE.get(front)))
     return None
 
 
-def _kind_end(word):
+def _kind_end(word, units=UNITS):
     """(kind, ending) of a number word, which may carry an ending; (None, '') when it is no number."""
-    k = _kind(word)
+    k = _kind(word, units)
     if k:
         return k, ''
     for e in ENDINGS:
         if word.endswith(e) and len(word) > len(e):
-            k = _kind(word[:-len(e)])
+            k = _kind(word[:-len(e)], units)
             if k:
                 return k, e
     return None, ''
@@ -85,16 +85,18 @@ def _evaluate(parts):
     return total + current
 
 
-def numbers_to_digits(text):
-    """The text with the numbers that were said as words written as digits. Anything it does not understand is left exactly as it was."""
+def numbers_to_digits(text, extra=None):
+    """The text with the numbers that were said as words written as digits. Anything it does not understand is left exactly as it was.
+    extra = more number words {word: value} (from Audio Training in the admin)."""
     if not text:
         return text
+    units = dict(UNITS, **extra) if extra else UNITS
     tokens = text.split(' ')
     out = []
     i = 0
     while i < len(tokens):
         lead, word, trail = _split(tokens[i])
-        kind, ending = _kind_end(word)
+        kind, ending = _kind_end(word, units)
         if kind is None:
             out.append(tokens[i])
             i += 1
@@ -106,7 +108,7 @@ def numbers_to_digits(text):
         end_trail = trail
         while not end_trail and not ending and j < len(tokens):
             l2, w2, t2 = _split(tokens[j])
-            k2, e2 = _kind_end(w2)
+            k2, e2 = _kind_end(w2, units)
             if l2 or k2 is None:
                 break
             parts.append(k2)
@@ -124,7 +126,7 @@ def numbers_to_digits(text):
             value = _evaluate(parts[:1])
             used = 1
         lone_small = used == 1 and parts[0][0] == 'u' and (parts[0][1] < 10 or words[0] in AMBIGUOUS_ALONE)
-        is_multiple_alone = used == 1 and parts[0][0] == 'u' and words[0] in ('ষাঠি', 'সত্তৰ', 'আশী', 'নৱৈ', 'নব্বৈ')
+        is_multiple_alone = used == 1 and parts[0][0] == 'u' and parts[0][1] >= 10 and words[0] not in AMBIGUOUS_ALONE
         if value is None or (lone_small and not is_multiple_alone):
             out.append(tokens[i])
             i += 1

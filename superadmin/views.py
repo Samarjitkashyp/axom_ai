@@ -1360,6 +1360,92 @@ def delete_language_rule_api(request, rule_id):
 
 
 # ---------------------------------------------------------------------------
+# Audio Training (word lists for voice typing and the Assamese voice)
+# ---------------------------------------------------------------------------
+
+@superuser_required
+def audio_training_page(request):
+    return render(request, 'superadmin/audio_training.html', {
+        'active': 'audio_training',
+        'entries': AudioTrainingEntry.objects.all(),
+        'kinds': AudioTrainingEntry.KIND_CHOICES,
+    })
+
+
+def _clean_audio_entry(data):
+    """(kind, source, target, note, error)"""
+    from axom_ai.audio_training import clean_source, clean_target
+    kind = (data.get('kind') or '').strip()
+    if kind not in [k[0] for k in AudioTrainingEntry.KIND_CHOICES]:
+        return None, None, None, None, 'Choose a valid type.'
+    source = clean_source(data.get('source'))
+    target = clean_target(kind, data.get('target'))
+    note = (data.get('note') or '').strip()[:200]
+    if not source:
+        return None, None, None, None, 'The word is required.'
+    if target is None:
+        if kind == AudioTrainingEntry.KIND_NUMBER:
+            return None, None, None, None, 'A number word needs a whole number from 0 to 99 as digits (for example 84).'
+        return None, None, None, None, 'The replacement is required.'
+    return kind, source, target, note, None
+
+
+@superuser_required
+@require_POST
+def save_audio_training_api(request):
+    from axom_ai.audio_training import forget
+    try:
+        data = json.loads(request.body)
+        kind, source, target, note, error = _clean_audio_entry(data)
+        if error:
+            return JsonResponse({'error': error}, status=400)
+        entry_id = data.get('id')
+        clash = AudioTrainingEntry.objects.filter(kind=kind, source=source)
+        if entry_id:
+            clash = clash.exclude(id=entry_id)
+        if clash.exists():
+            return JsonResponse({'error': 'This word is already in the list. Edit that entry instead.'}, status=400)
+        if entry_id:
+            entry = get_object_or_404(AudioTrainingEntry, id=entry_id)
+            old_kind = entry.kind
+            entry.kind, entry.source, entry.target, entry.note = kind, source, target, note
+            entry.save()
+            forget(old_kind)
+            _log_audit(request, 'audio_training_update', f'#{entry.id}: {source}')
+        else:
+            entry = AudioTrainingEntry.objects.create(kind=kind, source=source, target=target, note=note, is_active=True)
+            _log_audit(request, 'audio_training_create', f'#{entry.id}: {source}')
+        forget(kind)
+        return JsonResponse({'success': True, 'id': entry.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@superuser_required
+@require_POST
+def toggle_audio_training_api(request, entry_id):
+    from axom_ai.audio_training import forget
+    entry = get_object_or_404(AudioTrainingEntry, id=entry_id)
+    entry.is_active = not entry.is_active
+    entry.save(update_fields=['is_active', 'updated_at'])
+    forget(entry.kind)
+    _log_audit(request, 'audio_training_toggle', f'#{entry.id} -> {"ON" if entry.is_active else "OFF"}')
+    return JsonResponse({'success': True, 'is_active': entry.is_active})
+
+
+@superuser_required
+@require_POST
+def delete_audio_training_api(request, entry_id):
+    from axom_ai.audio_training import forget
+    entry = get_object_or_404(AudioTrainingEntry, id=entry_id)
+    _log_audit(request, 'audio_training_delete', f'#{entry.id}: {entry.source}')
+    kind = entry.kind
+    entry.delete()
+    forget(kind)
+    return JsonResponse({'success': True})
+
+
+# ---------------------------------------------------------------------------
 # Tools Management
 # ---------------------------------------------------------------------------
 
