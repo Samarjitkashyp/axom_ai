@@ -166,12 +166,12 @@
       </div>
       <div class="space-y-2 text-xs">
         {% for t in recent_tickets %}
-        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 flex items-center justify-between">
-          <div class="truncate mr-2">
+        <div class="p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 flex items-center justify-between gap-2">
+          <div class="min-w-0 flex-1 truncate">
             <span class="font-bold text-slate-300">{{ t.ticket_id }}</span>
-            <span class="text-slate-400 truncate ml-1">{{ t.subject }}</span>
+            <span class="text-slate-400 ml-1">{{ t.subject }}</span>
           </div>
-          <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold {% if t.status == 'open' %}bg-rose-500/20 text-rose-400{% else %}bg-amber-500/20 text-amber-400{% endif %}">
+          <span class="shrink-0 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold {% if t.status == 'open' %}bg-rose-500/20 text-rose-400{% else %}bg-amber-500/20 text-amber-400{% endif %}">
             {{ t.status }}
           </span>
         </div>

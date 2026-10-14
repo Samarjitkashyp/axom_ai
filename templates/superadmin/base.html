@@ -75,6 +75,10 @@
     .rtable td.rt-empty { display: block; text-align: center !important; padding: 1.5rem 1rem !important; }
     .rtable-wrap { overflow: visible !important; }
 
+    /* Rows with text on the left and something on the right: they share the room, never run into each other */
+    main .flex.justify-between { column-gap: .5rem; }
+    main .flex.justify-between > *:not([class*="w-"]):not(.shrink-0):not(img):not(svg):not(i) { min-width: 0; }
+    main .glass-card { overflow-wrap: anywhere; }
     /* Fields: 16px (the phone does not zoom on tap) and a finger-sized height */
     main input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]):not([type=file]):not([type=color]), main textarea { font-size: 16px !important; min-height: 44px; }
     main textarea { min-height: 96px; }
