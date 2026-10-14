@@ -90,41 +90,68 @@ export default function CookieConsent() {
 
   if (!show) return null;
 
-  const btn = 'inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500';
+  // a low bar across the whole width: the words on the left, the three buttons on the right (they go under the words on a phone)
+  const btn = 'inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-xs sm:text-[13px] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500';
+  const neutral = `${btn} bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white`;
+  const main = `${btn} bg-emerald-600 hover:bg-emerald-500 text-white`;
+  const outline = `${btn} border border-slate-300 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/5`;
+  const link = 'underline font-medium text-emerald-700 dark:text-emerald-400';
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[9999] p-3 sm:p-4" role="dialog" aria-modal="false" aria-labelledby="axom-cookie-title" data-cookie-banner>
-      <div className="mx-auto max-w-4xl rounded-2xl border border-emerald-900/15 dark:border-white/10 bg-white dark:bg-[#0f1a2e] text-slate-800 dark:text-slate-200 shadow-2xl p-4 sm:p-5 max-h-[85vh] overflow-y-auto">
-        <h2 id="axom-cookie-title" className="text-base font-bold text-emerald-950 dark:text-white">
-          Cookies on Axom AI
-        </h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-          We use strictly necessary cookies to sign you in and keep the site safe. With your permission we also use analytics cookies (Google Analytics) to
-          see how the site is used. Refusing is fine: every feature keeps working. You can change your choice any time from <em>Cookie Settings</em> in the
-          footer. <Link href="/cookie-policy" className="underline font-medium text-emerald-700 dark:text-emerald-400">Cookie Policy</Link> &middot;{' '}
-          <Link href="/privacy" className="underline font-medium text-emerald-700 dark:text-emerald-400">Privacy Policy</Link>
-        </p>
-        <p lang="as" className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300 font-assamese">
-          প্ৰয়োজনীয় কুকী সদায় চলে। বিশ্লেষণী (Analytics) কুকী কেৱল আপোনাৰ অনুমতি পোৱাৰ পিছতহে চলিব। আপুনি অস্বীকাৰ কৰিলেও সকলো সুবিধা ব্যৱহাৰ কৰিব পাৰিব।
-        </p>
+    <div
+      className="fixed inset-x-0 bottom-0 z-[9999] border-t border-emerald-900/15 dark:border-white/10 bg-white/95 dark:bg-[#0f1a2e]/95 backdrop-blur text-slate-800 dark:text-slate-200 shadow-[0_-6px_24px_rgba(0,0,0,0.18)] max-h-[70vh] overflow-y-auto"
+      role="dialog"
+      aria-modal="false"
+      aria-label="Cookie choices"
+      data-cookie-banner
+    >
+      <div className="mx-auto w-full max-w-[1500px] px-3 sm:px-6 py-2 sm:py-2.5">
+        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-5">
+          <p className="flex-1 text-[11.5px] sm:text-xs leading-snug text-slate-600 dark:text-slate-300">
+            <strong className="text-emerald-900 dark:text-white">Cookies:</strong> we use necessary cookies to keep the site working, and Google Analytics only if you allow it.
+            Refusing is fine, every feature keeps working. Change it any time from <em>Cookie Settings</em> in the footer.{' '}
+            <Link href="/cookie-policy" className={link}>Cookie Policy</Link> &middot; <Link href="/privacy" className={link}>Privacy Policy</Link>
+            <span lang="as" className="font-assamese"> &nbsp;|&nbsp; প্ৰয়োজনীয় কুকী সদায় চলে; Analytics কুকী কেৱল আপোনাৰ অনুমতিৰ পিছতহে। অস্বীকাৰ কৰিলেও সকলো সুবিধা পাব।</span>
+          </p>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {customize ? (
+              <>
+                <button ref={firstButton} type="button" className={main} onClick={() => save(analytics)}>Save my choices</button>
+                <button
+                  type="button"
+                  className={neutral}
+                  onClick={() => { const c = readConsent(document.cookie, stored()); if (c) { setShow(false); setCustomize(false); } else { setCustomize(false); } }}
+                >
+                  Back
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" className={neutral} onClick={() => save(false)}>Reject non-essential</button>
+                <button type="button" className={main} onClick={() => save(true)}>Accept all</button>
+                <button type="button" className={outline} onClick={() => setCustomize(true)}>Customize</button>
+              </>
+            )}
+          </div>
+        </div>
 
         {customize && (
-          <div className="mt-3 space-y-2" aria-label="Cookie categories">
-            <div className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 dark:border-white/10 p-3">
+          <div className="mt-2 grid gap-2 md:grid-cols-2" aria-label="Cookie categories">
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2">
               <div>
-                <div className="text-sm font-semibold">Strictly necessary</div>
-                <div className="text-xs text-slate-600 dark:text-slate-400">Sign-in, security (CSRF), your device’s usage limits, your language and theme, and this cookie choice. The site cannot work without them.</div>
+                <div className="text-xs font-semibold">Strictly necessary</div>
+                <div className="text-[11px] text-slate-600 dark:text-slate-400">Sign-in, security, your device’s usage limits, language, theme and this choice. The site cannot work without them.</div>
               </div>
-              <span className="shrink-0 text-xs font-semibold text-emerald-700 dark:text-emerald-400">Always on</span>
+              <span className="shrink-0 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">Always on</span>
             </div>
-            <label className="flex items-start justify-between gap-4 rounded-xl border border-slate-200 dark:border-white/10 p-3 cursor-pointer">
+            <label className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2 cursor-pointer">
               <div>
-                <div className="text-sm font-semibold">Analytics (Google Analytics)</div>
-                <div className="text-xs text-slate-600 dark:text-slate-400">Counts visits and shows which pages are useful (cookies _ga and _ga_*). Off unless you switch it on.</div>
+                <div className="text-xs font-semibold">Analytics (Google Analytics)</div>
+                <div className="text-[11px] text-slate-600 dark:text-slate-400">Counts visits and shows which pages are useful (cookies _ga, _ga_*). Off unless you switch it on.</div>
               </div>
               <input
                 type="checkbox"
-                className="mt-1 h-5 w-5 shrink-0 accent-emerald-600"
+                className="h-5 w-5 shrink-0 accent-emerald-600"
                 checked={analytics}
                 onChange={(e) => setAnalytics(e.target.checked)}
                 aria-label="Allow analytics cookies"
@@ -132,31 +159,6 @@ export default function CookieConsent() {
             </label>
           </div>
         )}
-
-        <div className="mt-4 flex flex-wrap gap-2.5">
-          {customize ? (
-            <>
-              <button ref={firstButton} type="button" className={`${btn} bg-emerald-600 hover:bg-emerald-500 text-white`} onClick={() => save(analytics)}>
-                Save my choices
-              </button>
-              <button type="button" className={`${btn} bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white`} onClick={() => { const c = readConsent(document.cookie, stored()); if (c) { setShow(false); setCustomize(false); } else { setCustomize(false); } }}>
-                Back
-              </button>
-            </>
-          ) : (
-            <>
-              <button type="button" className={`${btn} bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white`} onClick={() => save(false)}>
-                Reject non-essential
-              </button>
-              <button type="button" className={`${btn} bg-emerald-600 hover:bg-emerald-500 text-white`} onClick={() => save(true)}>
-                Accept all
-              </button>
-              <button type="button" className={`${btn} border border-slate-300 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/5`} onClick={() => setCustomize(true)}>
-                Customize
-              </button>
-            </>
-          )}
-        </div>
       </div>
     </div>
   );
