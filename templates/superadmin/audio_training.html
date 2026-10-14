@@ -18,13 +18,24 @@
     <i class="fa-solid fa-layer-group mr-1.5"></i> All ({{ entries|length }})
   </button>
   <button onclick="filterEntries('number_word')" data-filter="number_word" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
-    <i class="fa-solid fa-hashtag mr-1.5"></i> Number words
+    <i class="fa-solid fa-hashtag mr-1.5"></i> Number words ({{ counts.number_word }})
   </button>
   <button onclick="filterEntries('transcript_fix')" data-filter="transcript_fix" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
-    <i class="fa-solid fa-microphone mr-1.5"></i> Voice typing corrections
+    <i class="fa-solid fa-microphone mr-1.5"></i> Voice typing corrections ({{ counts.transcript_fix }})
   </button>
   <button onclick="filterEntries('pronunciation')" data-filter="pronunciation" class="filter-tab pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
-    <i class="fa-solid fa-volume-high mr-1.5"></i> Pronunciation
+    <i class="fa-solid fa-volume-high mr-1.5"></i> Pronunciation ({{ counts.pronunciation }})
+  </button>
+</div>
+
+<div id="tab-help" class="hidden mb-4 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-xs text-slate-400 leading-relaxed"></div>
+
+<div id="tab-empty" class="hidden glass-card rounded-xl p-8 border border-slate-800 text-center mb-3">
+  <i id="tab-empty-icon" class="fa-solid fa-microphone text-4xl text-slate-600 mb-3"></i>
+  <p id="tab-empty-text" class="text-slate-300 text-sm font-medium"></p>
+  <p id="tab-empty-example" class="text-slate-500 text-xs mt-1.5"></p>
+  <button id="tab-empty-add" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">
+    <i class="fa-solid fa-plus mr-1.5"></i> Add the first one
   </button>
 </div>
 
@@ -64,7 +75,7 @@
     </div>
   </div>
   {% empty %}
-  <div class="glass-card rounded-xl p-8 border border-slate-800 text-center">
+  <div class="glass-card rounded-xl p-8 border border-slate-800 text-center" id="all-empty">
     <i class="fa-solid fa-microphone-lines text-4xl text-slate-600 mb-3"></i>
     <p class="text-slate-400 text-sm">Nothing added yet. Click "Add Entry" to get started.</p>
     <p class="text-slate-500 text-xs mt-1">Start with the Assamese number words for 51 to 99 (for example চৌৰাশী = 84).</p>
@@ -140,9 +151,11 @@ function updateHelp() {
   document.getElementById('help-text').textContent = h.text;
 }
 
-function openModal() {
+let currentTab = 'all';
+
+function openModal(kind) {
   document.getElementById('entry-id').value = '';
-  document.getElementById('entry-kind').value = 'number_word';
+  document.getElementById('entry-kind').value = (typeof kind === 'string' && HELP[kind]) ? kind : (HELP[currentTab] ? currentTab : 'number_word');
   document.getElementById('entry-source').value = '';
   document.getElementById('entry-target').value = '';
   document.getElementById('entry-note').value = '';
@@ -221,7 +234,23 @@ async function deleteEntry(id, source) {
   }
 }
 
+const TAB_TEXT = {
+  number_word: {
+    help: 'Number words: a spoken Assamese number word and its value in digits, used by voice typing. Built in: 0-50, 60/70/80/90, শ, হাজাৰ, লাখ, কোটি.',
+    empty: 'No number words added yet.', example: 'Example: চৌৰাশী → 84', icon: 'fa-hashtag',
+  },
+  transcript_fix: {
+    help: 'Voice typing corrections: after a recording is written down, this exact word is replaced with the right text. Whole words only (পাইথন does not change পাইথনৰ). Use it for English words said inside Assamese and for words that are often heard wrongly.',
+    empty: 'No voice typing corrections yet.', example: 'Example: পাইথন → Python    |    অনলাইন → online', icon: 'fa-microphone',
+  },
+  pronunciation: {
+    help: 'Pronunciation: just before the Assamese voice reads an answer aloud, this word is replaced with the text to read. The answer on the screen is not changed. Works for digits too (2004 → দুই হাজাৰ চাৰি).',
+    empty: 'No pronunciations added yet.', example: 'Example: HTML → এইচ টি এম এল', icon: 'fa-volume-high',
+  },
+};
+
 function filterEntries(kind) {
+  currentTab = kind;
   document.querySelectorAll('.filter-tab').forEach(t => {
     t.classList.remove('border-indigo-500', 'text-white');
     t.classList.add('border-transparent', 'text-slate-400');
@@ -229,9 +258,27 @@ function filterEntries(kind) {
   const tab = document.querySelector(`[data-filter="${kind}"]`);
   tab.classList.add('border-indigo-500', 'text-white');
   tab.classList.remove('border-transparent', 'text-slate-400');
+  let shown = 0;
   document.querySelectorAll('.entry-card').forEach(card => {
-    card.style.display = (kind === 'all' || card.dataset.kind === kind) ? '' : 'none';
+    const show = (kind === 'all' || card.dataset.kind === kind);
+    card.style.display = show ? '' : 'none';
+    if (show) shown += 1;
   });
+  const info = TAB_TEXT[kind];
+  const help = document.getElementById('tab-help');
+  const empty = document.getElementById('tab-empty');
+  help.classList.toggle('hidden', !info);
+  if (info) help.textContent = info.help;
+  const allEmpty = document.getElementById('all-empty');
+  if (allEmpty) allEmpty.style.display = kind === 'all' ? '' : 'none';
+  const nothing = !!info && shown === 0;
+  empty.classList.toggle('hidden', !nothing);
+  if (nothing) {
+    document.getElementById('tab-empty-text').textContent = info.empty;
+    document.getElementById('tab-empty-example').textContent = info.example;
+    document.getElementById('tab-empty-icon').className = 'fa-solid ' + info.icon + ' text-4xl text-slate-600 mb-3';
+    document.getElementById('tab-empty-add').onclick = () => openModal(kind);
+  }
 }
 
 updateHelp();
