@@ -1368,7 +1368,7 @@ def delete_language_rule_api(request, rule_id):
 def audio_training_page(request):
     return render(request, 'superadmin/audio_training.html', {
         'active': 'audio_training',
-        'entries': AudioTrainingEntry.objects.all(),
+        'entries': AudioTrainingEntry.objects.order_by('-updated_at', '-id'),   # the last added or changed first
         'kinds': AudioTrainingEntry.KIND_CHOICES,
     })
 

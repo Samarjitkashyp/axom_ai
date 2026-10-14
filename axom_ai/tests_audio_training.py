@@ -89,3 +89,14 @@ class AudioTrainingTests(TestCase):
         self.assertEqual(numbers_to_digits('এক হাজাৰ নওশ চৈৰাশী', words), '1984')
         self.assertEqual(numbers_to_digits('এক হাজাৰ ন\u200cওশ চৈৰাশী', words), '1984')
         self.assertEqual(numbers_to_digits('নওশ', words), '900')
+
+    def test_the_last_added_or_changed_entry_is_listed_first(self):
+        save(self.client, kind='number_word', source='এক', target='1')
+        save(self.client, kind='number_word', source='দুই', target='2')
+        save(self.client, kind='number_word', source='তিনি', target='3')
+        order = [e.source for e in self.client.get('/axomai-admin/audio-training/').context['entries']]
+        self.assertEqual(order, ['তিনি', 'দুই', 'এক'])
+        first = AudioTrainingEntry.objects.get(source='এক')
+        save(self.client, id=first.id, kind='number_word', source='এক', target='1', note='edited')
+        order = [e.source for e in self.client.get('/axomai-admin/audio-training/').context['entries']]
+        self.assertEqual(order[0], 'এক')
