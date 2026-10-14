@@ -10,6 +10,7 @@ import {
 import { formatMarkdown } from './utils/format';
 import { getCsrfToken } from './utils/security';
 import { readSpeed } from '../../lib/voiceSpeed';
+import { noiseFloor, speechThreshold, followFloor, MAX_THRESHOLD } from '../../lib/voiceLevel';
 
 const PHONETIC_PATTERNS = [
   /\b(aji|bohut|bhal|lagil|moi|tumi|apuni|aponar|kene|asa|aso|khobor|axom|asom|dhonyobad|dhanyabad|kenekoi|kiba|kobo|mor|naam|ghor|kot|jaba|ki|kotha|bhalne)\b/i
@@ -309,12 +310,14 @@ export default function ChatWindow({
         const now = Date.now();
         if (floor === null) {
           calib.push(level);
+          if (level > MAX_THRESHOLD) { speechMs += VOICE_VAD.tickMs; lastSpeechAt = now; }       // a person who starts talking at once is heard too
           if (now - startedAt >= VOICE_VAD.calibrateMs) {
-            floor = calib.reduce((a, b) => a + b, 0) / calib.length;
+            floor = noiseFloor(calib);                                                          // only the quiet samples count, so early speech cannot raise the limit
           }
           return;
         }
-        const speaking = level > Math.max(floor * 2.5, 0.015);
+        floor = followFloor(floor, level);
+        const speaking = level > speechThreshold(floor);
         if (speaking) { speechMs += VOICE_VAD.tickMs; lastSpeechAt = now; }
         if (speechMs >= VOICE_VAD.minSpeechMs && now - lastSpeechAt >= VOICE_VAD.pauseMs) finish();
         else if (speechMs < VOICE_VAD.minSpeechMs && now - startedAt >= VOICE_VAD.waitForSpeechMs) finish();
