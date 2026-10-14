@@ -33,8 +33,11 @@
 
 <div class="flex h-full min-h-screen">
 
+  <!-- Phone: the sidebar slides in over the page (menu button in the top bar); from 768px wide it is a fixed column as before -->
+  <div id="sidebar-overlay" class="hidden fixed inset-0 z-30 bg-black/60 md:hidden" onclick="closeSidebar()"></div>
+
   <!-- Left Sidebar -->
-  <aside class="w-64 bg-slate-900/90 border-r border-slate-800/80 flex flex-col shrink-0">
+  <aside id="admin-sidebar" class="fixed inset-y-0 left-0 z-40 w-64 max-w-[82vw] -translate-x-full transition-transform duration-200 md:static md:z-auto md:max-w-none md:translate-x-0 bg-slate-900 md:bg-slate-900/90 border-r border-slate-800/80 flex flex-col shrink-0">
     <!-- Brand Header -->
     <div class="h-16 px-6 flex items-center justify-between border-b border-slate-800">
       <div class="flex items-center space-x-3">
@@ -144,9 +147,13 @@
   <!-- Main Content Wrapper -->
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-950">
     <!-- Top Bar -->
-    <header class="h-16 px-8 border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0">
-      <div class="flex items-center space-x-4">
-        <h1 class="text-xl font-bold text-white flex items-center">
+    <header class="h-16 px-3 sm:px-5 md:px-8 border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md flex items-center justify-between gap-2 z-10 shrink-0">
+      <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
+        <button type="button" id="sidebar-toggle" onclick="openSidebar()" aria-label="Open menu" aria-controls="admin-sidebar" aria-expanded="false"
+                class="md:hidden shrink-0 w-10 h-10 rounded-xl border border-slate-700 bg-slate-800/70 text-slate-200 flex items-center justify-center">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="text-base sm:text-xl font-bold text-white flex items-center truncate">
           {% block heading %}Dashboard{% endblock %}
         </h1>
       </div>
@@ -155,16 +162,16 @@
           <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
           admin.aiaxom.co.in
         </div>
-        <div class="text-xs text-slate-400">
+        <div class="hidden sm:block text-xs text-slate-400">
           {% now "D, d M Y" %}
         </div>
       </div>
     </header>
 
     <!-- Scrollable Area -->
-    <main class="flex-1 overflow-y-auto p-6 lg:p-8">
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
       <!-- Toast Notification Container -->
-      <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+      <div id="toast-container" class="fixed top-4 left-4 right-4 sm:left-auto sm:right-5 sm:top-5 z-50 space-y-2 pointer-events-none"></div>
 
       {% block content %}{% endblock %}
     </main>
@@ -173,6 +180,20 @@
 </div>
 
 <script>
+  // phone menu: the sidebar slides in over the page
+  function openSidebar() {
+    document.getElementById('admin-sidebar').classList.remove('-translate-x-full');
+    document.getElementById('sidebar-overlay').classList.remove('hidden');
+    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', 'true');
+  }
+  function closeSidebar() {
+    document.getElementById('admin-sidebar').classList.add('-translate-x-full');
+    document.getElementById('sidebar-overlay').classList.add('hidden');
+    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', 'false');
+  }
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
+  window.addEventListener('resize', function () { if (window.innerWidth >= 768) closeSidebar(); });
+
   // Helper for CSRF in AJAX
   function getCookie(name) {
     let cookieValue = null;

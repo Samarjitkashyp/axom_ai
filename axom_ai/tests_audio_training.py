@@ -109,3 +109,8 @@ class AudioTrainingTests(TestCase):
         self.assertIn('Pronunciation (0)', html)
         for needle in ['id="tab-empty"', 'No voice typing corrections yet.', 'No pronunciations added yet.', 'HTML → এইচ টি এম এল']:
             self.assertIn(needle, html)
+
+    def test_the_admin_layout_has_a_phone_menu(self):
+        html = self.client.get('/axomai-admin/audio-training/').content.decode()
+        for needle in ['id="sidebar-toggle"', 'id="admin-sidebar"', 'id="sidebar-overlay"', 'function openSidebar', 'width=device-width']:
+            self.assertIn(needle, html)
