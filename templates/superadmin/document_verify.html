@@ -137,7 +137,7 @@
       });
     }
     const act = (btn, name, ask, done) => { const b = $(btn); if (!b) return; b.addEventListener('click', async () => {
-      if (ask && !confirm(ask)) return;
+      if (ask && !(await adminConfirm(ask, { title: 'Please confirm', confirmText: 'Yes, go on' }))) return;
       b.disabled = true;
       try { await call(BASE + id + '/' + name + '/', 'POST'); showToast(done, 'success'); current = name === 'delete' ? null : id; if (name === 'delete') $('dvDoc').innerHTML = ''; await loadList(); if (name !== 'delete') openDoc(id); }
       catch (e) { showToast(e.message, 'error'); b.disabled = false; } }); };

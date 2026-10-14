@@ -57,6 +57,48 @@
   .cf-box { width: 100%; max-width: 26rem; background: #0b1224; border: 1px solid #334155; border-radius: 1.25rem 1.25rem 0 0; padding: 1.25rem; box-shadow: 0 25px 60px rgba(0, 0, 0, .6);
             padding-bottom: max(1.25rem, env(safe-area-inset-bottom)); }
   @media (min-width: 640px) { .cf-back { align-items: center; padding: 1rem; } .cf-box { border-radius: 1.25rem; } }
+  /* ---- Phone (up to 767px): rules for every admin page ---- */
+  /* Tables become cards (the script below sets the labels from the table head; a table can opt out with data-no-cards) */
+  @media (max-width: 767px) {
+    .rtable thead { display: none; }
+    .rtable, .rtable tbody { display: block; width: 100%; }
+    .rtable tbody > tr, .rtable tbody > tr + tr { display: grid; grid-template-columns: minmax(0, 1fr); gap: .55rem; margin: .75rem; padding: 1rem; border: 1px solid #1e293b; border-radius: 1rem; background: rgba(15, 23, 42, .62); }
+    .rtable tbody > tr:hover { background: rgba(15, 23, 42, .62); }
+    .rtable td { display: grid; grid-template-columns: 5.4rem minmax(0, 1fr); gap: .6rem; align-items: start; padding: 0 !important; border: 0 !important; text-align: left !important;
+                 min-width: 0; max-width: none !important; white-space: normal !important; overflow-wrap: anywhere; }
+    .rtable td .truncate { white-space: normal; overflow: visible; text-overflow: clip; max-width: none; }
+    .rtable td[data-label]::before { content: attr(data-label); font-size: .64rem; text-transform: uppercase; letter-spacing: .07em; color: #64748b; font-weight: 700; padding-top: .18rem; }
+    .rtable td.rt-first { display: block; font-size: .85rem; }
+    .rtable td.rt-actions { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-start !important; padding-top: .75rem !important; margin-top: .2rem; border-top: 1px solid #1e293b !important; }
+    .rtable td.rt-actions > * { flex: 1 1 auto; text-align: center; }
+    .rtable td.rt-empty { display: block; text-align: center !important; padding: 1.5rem 1rem !important; }
+    .rtable-wrap { overflow: visible !important; }
+
+    /* Fields: 16px (the phone does not zoom on tap) and a finger-sized height */
+    main input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]):not([type=file]):not([type=color]), main textarea { font-size: 16px !important; min-height: 44px; }
+    main textarea { min-height: 96px; }
+    main .ts-btn { min-height: 44px; font-size: 16px !important; }
+    /* Buttons and button-like links: at least 40px tall */
+    main button:not(.chk):not([data-keep]), main a[class*="px-"][class*="rounded"] { min-height: 40px; }
+    main a[class*="px-"][class*="rounded"]:not(.flex):not(.block):not(.inline-flex):not(.grid) { display: inline-flex; align-items: center; justify-content: center; }
+    /* ON/OFF switches: a bigger area to tap (the switch itself stays the same size) */
+    main label:has(> input.sr-only.peer) { padding: .7rem .3rem; }
+    /* Rows of tabs: one line that scrolls sideways */
+    main > .flex.border-b { flex-wrap: nowrap !important; overflow-x: auto; white-space: nowrap; scrollbar-width: none; gap: 1.25rem; margin-left: -1rem; margin-right: -1rem; padding-left: 1rem; padding-right: 1rem; }
+    main > .flex.border-b::-webkit-scrollbar { display: none; }
+    main > .flex.border-b > * { flex-shrink: 0; }
+    /* Pop-up windows that are centred on a desktop come up from the bottom of the screen */
+    .fixed.inset-0.z-50.items-center { align-items: flex-end !important; padding: 0 !important; }
+    .fixed.inset-0.z-50.items-center > div { max-width: none !important; width: 100% !important; max-height: 92vh; overflow-y: auto; border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; margin: 0 !important; }
+  }
+  /* Tick boxes: the same look in the whole admin (the ON/OFF switches keep their own) */
+  input[type=checkbox]:not(.sr-only):not([data-native]) { -webkit-appearance: none; appearance: none; flex: none; width: 1.15rem; height: 1.15rem; border-radius: .35rem; border: 1.5px solid #475569; background: #020617 center / 80% no-repeat; cursor: pointer; transition: background-color .12s, border-color .12s; }
+  input[type=checkbox]:not(.sr-only):not([data-native]):hover { border-color: #818cf8; }
+  input[type=checkbox]:not(.sr-only):not([data-native]):checked { background-color: #4f46e5; border-color: #4f46e5;
+         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10.5l4 4 8-9'/%3E%3C/svg%3E"); }
+  input[type=checkbox]:not(.sr-only):not([data-native]):focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(99, 102, 241, .35); }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; appearance: textfield; }
   /* Dropdowns: every <select> of the admin is shown as a themed menu (the real select stays underneath for the form and the page code) */
   .ts-native { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; overflow: hidden; }
   .ts-btn { display: flex; align-items: center; justify-content: space-between; gap: .5rem; text-align: left; cursor: pointer; }
@@ -258,6 +300,37 @@
   window.addEventListener('resize', function () { if (window.innerWidth >= 768) closeSidebar(); });
 
 
+
+  // ---- tables become cards on a phone: the label of every cell comes from the table head ------------------------------------------
+  (function () {
+    function label(table) {
+      if (table.hasAttribute('data-no-cards') || table.classList.contains('u-table')) return;
+      var heads = Array.prototype.map.call(table.querySelectorAll('thead th'), function (h) { return h.textContent.replace(/\s+/g, ' ').trim(); });
+      if (!heads.length) return;
+      table.classList.add('rtable');
+      var wrap = table.parentElement;
+      if (wrap && /overflow-x-auto/.test(wrap.className)) wrap.classList.add('rtable-wrap');
+      Array.prototype.forEach.call(table.querySelectorAll('tbody > tr'), function (tr) {
+        var cells = Array.prototype.filter.call(tr.children, function (c) { return c.tagName === 'TD'; });
+        if (!cells.length) return;
+        if (cells.length === 1 && cells[0].colSpan > 1) { cells[0].classList.add('rt-empty'); return; }
+        cells.forEach(function (td, i) {
+          var h = heads[i] || '';
+          if (i === 0) td.classList.add('rt-first');
+          else if (/^actions?$/i.test(h) || (!h && i === cells.length - 1)) td.classList.add('rt-actions');
+          else if (h && !td.hasAttribute('data-label')) td.setAttribute('data-label', h);
+        });
+      });
+    }
+    function init() {
+      Array.prototype.forEach.call(document.querySelectorAll('main table'), function (t) {
+        label(t);
+        var body = t.tBodies[0];
+        if (body && !t._rtObs) { t._rtObs = new MutationObserver(function () { label(t); }); t._rtObs.observe(body, { childList: true }); }   // rows added later (Alpine, scripts)
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  })();
 
   // ---- themed confirm dialog (replaces the browser's plain confirm box) ---------------------------------------------------------
   function adminConfirm(message, opts) {
