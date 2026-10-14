@@ -19,7 +19,7 @@
       <button data-tab="approved" class="dv-tab flex-1 py-2 rounded-lg">Approved <span id="cApproved" class="opacity-70"></span></button>
       <button data-tab="all" class="dv-tab flex-1 py-2 rounded-lg">All</button>
     </div>
-    <div id="dvList" class="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
+    <div id="dvList" class="space-y-2 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto pr-1">
       <p class="text-slate-500 text-xs p-4 text-center">Loading…</p>
     </div>
     <button id="dvRefresh" class="mt-3 w-full text-xs text-slate-400 hover:text-white py-2"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
@@ -99,7 +99,8 @@
     const editable = m.status === 'review';
     const flagged = m.pages.filter((p) => p.review).length;
     $('dvDoc').innerHTML =
-      '<div class="glass-card rounded-2xl border border-slate-800 p-5">' +
+      '<button type="button" id="dvBack" class="lg:hidden mb-3 inline-flex items-center gap-2 text-sm text-indigo-300"><i class="fa-solid fa-arrow-left"></i> All documents</button>' +
+      '<div class="glass-card rounded-2xl border border-slate-800 p-4 sm:p-5">' +
       '<div class="flex flex-wrap items-start justify-between gap-3 mb-1"><div class="min-w-0"><h3 class="text-lg font-bold text-white break-words">' + esc(m.name) + '</h3>' +
       '<p class="text-xs text-slate-500 mt-1">Uploaded by ' + esc(m.uploader) + ' · ' + esc((m.created_at || '').replace('T', ' ').slice(0, 16)) + ' · ' + m.pages.length + ' page' + (m.pages.length === 1 ? '' : 's') +
       (flagged ? ' · <span class="text-amber-300">⚠ ' + flagged + ' to check</span>' : '') + '</p></div><div>' + pill(m.status) + '</div></div>' +
@@ -127,6 +128,9 @@
       (m.status === 'approved' ? '<button id="dvResend" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm">Send again</button>' : '') +
       (m.status !== 'processing' ? '<button id="dvDelete" class="ml-auto px-3 py-2 rounded-xl text-rose-300 hover:bg-rose-500/10 text-sm"><i class="fa-regular fa-trash-can mr-1"></i>Delete</button>' : '') + '</div>';
 
+    const back = $('dvBack');                                                       // phone: the list is above the document
+    if (back) back.onclick = () => $('dvList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (window.innerWidth < 1024) $('dvDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (editable) {
       $('dvDoc').querySelectorAll('textarea[data-page]').forEach((t) => {
         const orig = t.value;
