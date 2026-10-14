@@ -37,6 +37,17 @@ class TtsSpeakTests(TestCase):
         self.assertEqual(m.call_args[1]['json'], {'text': 'অসম ভাৰতৰ এটা ৰাজ্য।', 'voice': 'female', 'cache_only': False})
         self.assertEqual(UsageRecord.objects.filter(user=self.user, action_type='tts').count(), 1)
 
+    def test_pronunciation_entries_are_applied_before_numbers_are_written_out(self):
+        from superadmin.models import AudioTrainingEntry
+        AudioTrainingEntry.objects.create(kind='pronunciation', source='2004', target='দুই হাজাৰ চাৰি')
+        AudioTrainingEntry.objects.create(kind='pronunciation', source='HTML', target='এইচ টি এম এল')
+        self.client.force_login(self.user)
+        with mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp()) as m,                 mock.patch('axom_ai.voice_text.normalize_numbers') as numbers:
+            r = post(self.client, text='সাল 2004 আৰু HTML।')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(m.call_args[1]['json']['text'], 'সাল দুই হাজাৰ চাৰি আৰু এইচ টি এম এল।')
+        numbers.assert_not_called()                                    # no digit was left, so nobody is asked to write numbers out
+
     def test_a_replayed_sentence_is_free(self):
         self.client.force_login(self.user)
         with mock.patch('axom_ai.tts_api.requests.post', return_value=FakeResp(cache='hit')):
