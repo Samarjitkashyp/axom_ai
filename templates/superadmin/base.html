@@ -71,6 +71,7 @@
     .rtable td.rt-first { display: block; font-size: .85rem; }
     .rtable td.rt-actions { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-start !important; padding-top: .75rem !important; margin-top: .2rem; border-top: 1px solid #1e293b !important; }
     .rtable td.rt-actions > * { flex: 1 1 auto; text-align: center; }
+    .rtable td.rt-none { display: none; }
     .rtable td.rt-empty { display: block; text-align: center !important; padding: 1.5rem 1rem !important; }
     .rtable-wrap { overflow: visible !important; }
 
@@ -318,7 +319,7 @@
         cells.forEach(function (td, i) {
           var h = heads[i] || '';
           if (i === 0) td.classList.add('rt-first');
-          else if (/^actions?$/i.test(h) || (!h && i === cells.length - 1)) td.classList.add('rt-actions');
+          else if (/^actions?$/i.test(h) || (!h && i === cells.length - 1)) { td.classList.add('rt-actions'); if (!td.querySelector('button, a, input, select')) td.classList.add('rt-none'); }   // nothing to press: no empty strip
           else if (h && !td.hasAttribute('data-label')) td.setAttribute('data-label', h);
         });
       });
