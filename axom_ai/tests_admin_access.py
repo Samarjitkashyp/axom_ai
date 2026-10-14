@@ -71,6 +71,37 @@ class UserAdminTests(TestCase):
         for needle in ['openAddUser()', 'id="addUserModal"', 'saveProfile()', 'class="sec-check', 'Admin panel sections']:
             self.assertIn(needle, html)
 
+    def test_users_page_summary_pager_and_cards(self):
+        for i in range(25):
+            User.objects.create_user('person%02d' % i, 'p%02d@example.com' % i, PW)
+        User.objects.filter(username='person00').update(is_active=False)
+        sp = SubdomainPermission.objects.create(user=User.objects.get(username='person01'), admin_access=True, admin_sections=['audio_training'])
+        r = self.client.get('/axomai-admin/users/?q=person&status=')
+        st = r.context['stats']
+        self.assertEqual((st['total'], st['active'], st['suspended'], st['admins']), (26, 25, 1, 2))      # boss (superuser) + person01 (admin access)
+        self.assertEqual(r.context['total_count'], 25)
+        html = r.content.decode()
+        self.assertIn('Showing', html)
+        self.assertIn('Admin panel: Audio Training', html)
+        self.assertEqual(r.context['page_numbers'], [1, 2])
+        self.assertEqual(r.context['qs'], 'q=person')
+        self.assertIn('?q=person&page=2', html)                                                           # the filter stays in the pager link
+        r2 = self.client.get('/axomai-admin/users/?q=a b&page=2')
+        self.assertEqual(r2.context['qs'], 'q=a+b')                                                       # url-encoded
+        for needle in ['u-table', 'data-label="Email"', 'class="chk"', 'adminConfirm', 'openUserModal(this)', 'switchUserTab']:
+            self.assertIn(needle, html)
+
+    def test_empty_search_shows_a_helpful_empty_state(self):
+        html = self.client.get('/axomai-admin/users/?q=zzzzzz-nobody').content.decode()
+        self.assertIn('No users found', html)
+        self.assertIn('Clear filters', html)
+
+    def test_page_numbers_leave_gaps(self):
+        for i in range(160):
+            User.objects.create_user('bulk%03d' % i, 'b%03d@example.com' % i, PW)
+        r = self.client.get('/axomai-admin/users/?page=5')
+        self.assertEqual(r.context['page_numbers'], [1, None, 4, 5, 6, None, 9])
+
     def test_only_a_superuser_can_manage_users(self):
         u = User.objects.create_user('nobody', 'nobody@example.com', PW)
         SubdomainPermission.objects.create(user=u, admin_access=True, admin_sections=['audio_training'])
@@ -153,6 +184,27 @@ class LimitedAdminTests(TestCase):
         plain = User.objects.create_user('plain', 'plain@example.com', PW)
         self.assertEqual(self.login('plain').status_code, 200)
         self.client.force_login(plain)
+        self.assertEqual(self.client.get('/axomai-admin/audio-training/').status_code, 302)
+
+    def test_language_rules_can_be_given_as_a_section(self):
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get('/axomai-admin/language-rules/').status_code, 302)                # not given yet
+        self.sp.admin_sections = ['audio_training', 'language_rules']
+        self.sp.save()
+        self.assertEqual(self.client.get('/axomai-admin/language-rules/').status_code, 200)
+        r = self.client.post('/axomai-admin/language-rules/save/', data=json.dumps({'category': 'grammar', 'title': 'T', 'content': 'use ৰ not র', 'priority': 1}), content_type='application/json')
+        self.assertEqual(r.json()['success'], True)
+        html = self.client.get('/axomai-admin/language-rules/').content.decode()
+        self.assertIn('Language Rules', html)
+        self.assertIn('/axomai-admin/audio-training/', html)
+        self.assertNotIn('Users Management', html)
+        self.assertEqual(self.client.get('/axomai-admin/users/').status_code, 302)
+
+    def test_only_language_rules_lands_on_language_rules(self):
+        self.sp.admin_sections = ['language_rules']
+        self.sp.save()
+        r = self.client.post('/axomai-admin/login/', {'username': 'trainer', 'password': PW})
+        self.assertEqual(r['Location'], '/axomai-admin/language-rules/')
         self.assertEqual(self.client.get('/axomai-admin/audio-training/').status_code, 302)
 
     def test_a_wrong_password_is_still_refused(self):

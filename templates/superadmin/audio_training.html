@@ -230,7 +230,7 @@ async function toggleEntry(id) {
 }
 
 async function deleteEntry(id, source) {
-  if (!confirm(`Delete "${source}"? This cannot be undone.`)) return;
+  if (!(await adminConfirm(`"${source}" will be removed from the list. This cannot be undone.`, { danger: true, title: 'Delete this entry?' }))) return;
   try {
     const res = await fetch(`/axomai-admin/audio-training/delete/${id}/`, { method: 'POST', headers: { 'X-CSRFToken': csrftoken } });
     const result = await res.json();

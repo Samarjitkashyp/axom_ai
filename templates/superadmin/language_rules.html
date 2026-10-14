@@ -218,7 +218,7 @@ async function toggleRule(id) {
 }
 
 async function deleteRule(id, title) {
-  if (!confirm(`Delete rule "${title}"? This cannot be undone.`)) return;
+  if (!(await adminConfirm(`The rule "${title}" will be removed. This cannot be undone.`, { danger: true, title: 'Delete this rule?' }))) return;
   try {
     const res = await fetch(`/axomai-admin/language-rules/delete/${id}/`, {
       method: 'POST',
