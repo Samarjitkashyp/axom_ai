@@ -43,6 +43,9 @@ const ICON_MAP = {
   GraduationCap,
 };
 
+// a tool lives in one main category and may also be listed under others (alsoIn)
+const inCategory = (t, catId) => t.cat === catId || (t.alsoIn || []).includes(catId);
+
 export default function ToolsPage({
   onBackToChat,
   onOpenEditor,
@@ -137,7 +140,7 @@ export default function ToolsPage({
   // Filter tools based on category and search query
   const filteredTools = useMemo(() => {
     return toolsList.filter((t) => {
-      const matchCat = selectedCat === 'all' || t.cat === selectedCat;
+      const matchCat = selectedCat === 'all' || inCategory(t, selectedCat);
       const q = searchQuery.trim().toLowerCase();
       const matchSearch =
         !q ||
@@ -153,7 +156,7 @@ export default function ToolsPage({
   const categoryCounts = useMemo(() => {
     const counts = { all: toolsList.length };
     toolsList.forEach((t) => {
-      counts[t.cat] = (counts[t.cat] || 0) + 1;
+      [t.cat, ...(t.alsoIn || [])].forEach((c) => { counts[c] = (counts[c] || 0) + 1; });
     });
     return counts;
   }, [toolsList]);
@@ -165,7 +168,7 @@ export default function ToolsPage({
     return cats
       .map((cat) => ({
         ...cat,
-        tools: toolsList.filter((t) => t.cat === cat.id),
+        tools: toolsList.filter((t) => inCategory(t, cat.id)),
       }))
       .filter((cat) => cat.tools.length > 0);
   }, [toolsList, selectedCat, searchQuery]);
