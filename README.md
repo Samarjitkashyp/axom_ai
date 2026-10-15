@@ -1,260 +1,171 @@
-# Axom AI — Assam's Premier Indigenous AI Platform
+# Axom AI
 
-> **Pioneering Artificial Intelligence in Assam, Built for the World.**  
-> Axom AI is the first indigenous Assamese generative AI platform — engineered to bridge the linguistic divide for 15+ million Assamese speakers with native conversational intelligence, multimodal creative suites, ChatGPT-style live web search grounding, pure Assamese grammar RAG purification, smart multi-model cost optimization, and unified cross-domain component architectures.
+**Assamese-first AI platform:** chat with live sources, voice in and out, document and image tools, and an admin console. Built and operated from Guwahati, Assam.
 
-**Official Portal:** [https://aiaxom.co.in](https://aiaxom.co.in)  
-**AI Chat & Tools Workspace:** [https://chat.aiaxom.co.in](https://chat.aiaxom.co.in)  
-**All-in-One Productivity Tools:** [https://aiaxom.co.in/tools](https://aiaxom.co.in/tools)  
-**Super Admin Panel:** [https://admin.aiaxom.co.in/axomai-admin/](https://admin.aiaxom.co.in/axomai-admin/)  
-**Content Management System (CMS):** [https://content.aiaxom.co.in](https://content.aiaxom.co.in)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.x-092E20?logo=django&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=nextdotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)
+![License](https://img.shields.io/badge/License-Proprietary-lightgrey)
 
----
-
-## What is Axom AI?
-
-Mainstream global AI models frequently treat Assamese as a low-resource afterthought — commonly mistranslating, substituting Bengali script characters (such as replacing 'ৰ' with 'র' or 'ৱ' with 'ব'), or failing to understand Northeast Indian regional and cultural context.
-
-**Axom AI is Assamese-first, by design:**
-- **Authentic Assamese Output:** High-fidelity script processing with zero script confusion or regional grammar degradation.
-- **Pure Assamese Grammar RAG Layer:** Specialized linguistic purification pipeline that verifies vocabulary, verb inflections, and phonetic accuracy against regional grammar rules.
-- **Indigenous Knowledge Base:** Custom RAG pipeline indexed over 25,000+ Assamese Wikipedia articles, historical chronicles, and cultural repositories (~112,000 semantic vector chunks).
-- **Smart Multi-Model Orchestration:** Automatic model rotation across OpenAI free-tier models (GPT-5.4-mini, GPT-5-mini, GPT-4.1-mini, nano variants) for cost-free daily usage, with GPT-5.6 Luna fallback for complex queries and Gemini for image generation.
-- **ChatGPT-Style Live Web Search Grounding:** Real-time Google Programmable Custom Search Engine (with Tavily fallback) delivering live Assam news, government exams, and current events directly in Assamese.
-- **Unified Reusable Component Architecture:** Shared modular Header and Footer across Django templates (`aiaxom.co.in`) and Next.js SSR apps (`aiaxom.co.in/tools`) with dynamic CMS brand logo sync.
-- **Smart Multimodal Productivity Suite:** 27+ utilities including auto-detecting Video Compressor (16:9 vs 9:16), FLUX image synthesis, Word-to-PDF converter, background remover, QR generator, and regional OCR.
-- **Web Crawler Bot & Knowledge Import:** Dedicated crawler bot (`axomai-bot.aiaxom.co.in`) for automated web content ingestion into the RAG knowledge base with semantic embeddings.
-- **IP-Based Security & Anti-Abuse Protection:** Strict 5 daily web searches limit per IP/device and single-account-per-device enforcement to eliminate spam and multi-account bot abuse.
-
----
-
-## Core Product Modules
-
-### 1. Conversational AI & Neural Chat
-- **Streaming Low-Latency Chat:** Native Assamese generation with streaming token-by-token delivery.
-- **RAG-Grounded Accuracy:** Vector search over 112K+ semantic knowledge chunks to eliminate hallucinations.
-- **Multi-Model Smart Routing:** Automatic rotation across 9 free-tier mini/nano models (~24.5M free tokens/day), with Luna paid fallback for complex reasoning.
-- **ChatGPT-Style Live Web Search:** Real-time web search grounding with live status steps, spinning radar globe animation, query tags, and citation badges.
-- **Multilingual Intent Translation:** Automatically identifies intent from Hinglish, Romanized Assamese (e.g., *"ajir news ki hoi"*), or English, query-searches Google CSE, and delivers response in pure Assamese.
-- **Custom Document RAG:** Users can upload PDF, DOCX, CSV, Excel, or JSONL documents with exact citation attribution.
-
-### 2. Unified Reusable Header & Footer Architecture
-- **Django Reusable Partials:** `templates/components/header.html` and `templates/components/footer.html` eliminate redundant code duplication across marketing views.
-- **Django Global Context Processor:** `contentcms.context_processors.global_header_footer` makes `header` and `footer` database models globally available to all templates without manual context passing.
-- **Dynamic CMS Brand Logo Sync:** Automatically pulls uploaded logos and dimensions from `HeaderSettings` (`https://content.aiaxom.co.in/axomai-content/settings/header/`) with instantaneous fallback to official high-resolution brand assets.
-- **Intelligent Cross-Domain Routing:** `resolveUrl` dynamically routes marketing links (`/about`, `/pricing`, `/blog`, `/faq`) to `https://aiaxom.co.in/...` while keeping chat sessions in-app without Next.js middleware 404 rewrites.
-- **Security Hardening:** External links enforce `rel="noopener noreferrer"` and `target="_blank"` against reverse tabnabbing; mobile drawer guarantees body scroll-lock restoration.
-- **Tools Page Header & Subnav:** Full Axom AI navigation embedded on `https://aiaxom.co.in/tools` featuring a persistent `← Return to Chat` button, workspace indicator, and dark/light mode toggle.
-
-### 3. All-in-One Productivity Tools Hub (27+ Tools)
-- **Smart Video Compressor:** Auto-detects aspect ratio (`16:9` widescreen vs `9:16` vertical reels/shorts/TikTok), adjusts bitrate, and manages Pro-tier resolution limits (4K/1080p).
-- **Word to PDF Converter:** CMS-driven tool page with FAQ, comparison matrix, and batch conversion support powered by LibreOffice on the server.
-- **FLUX AI Image Generation:** Text-to-image synthesis converting Assamese, Hinglish, or English prompts into photorealistic visuals.
-- **Background Remover:** AI-powered background removal and depth layer extraction.
-- **Screenshot to Code:** Convert UI screenshots into HTML/CSS/React code.
-- **QR Code Generator:** Custom QR code generation with styling options.
-- **SVG Editor, Meme Generator, Color Palette Generator:** Creative tools suite.
-- **Video & Media Discovery:** Intelligent video finder and media discovery engine tailored for educational and creative workflows.
-- **Architecture & Diagram Generator:** Automated Mermaid-based flowcharts, sequence diagrams, and architecture visualization.
-- **Universal Document Summarizer:** Multilingual PDF/DOCX/TXT synthesis with customizable summary lengths.
-- **Complete Document Suite:** PDF merge, split, compress, watermark, protect, and format conversions.
-
-### 4. Multi-Subdomain Architecture & Role-Based Access
-- **Six Dedicated Subdomains:** `aiaxom.co.in` (landing), `chat.aiaxom.co.in` (AI workspace), `admin.aiaxom.co.in` (super admin panel), `content.aiaxom.co.in` (CMS), `user.aiaxom.co.in` (user dashboard), `axomai-bot.aiaxom.co.in` (crawler bot).
-- **Per-Subdomain Permission System:** Granular access control — admins assign `admin_access`, `content_access`, and `bot_access` flags per user from the super admin panel. Chat, user, and landing subdomains remain open to all authenticated users.
-- **SubdomainPermissionMiddleware:** Django middleware enforces access checks after authentication. Superusers bypass all restrictions. Unauthorized users receive a 403 Access Denied page. Login pages are always accessible.
-- **SubdomainMiddleware Path Rewriting:** Automatic path prefix injection (`/axomai-admin/`, `/axomai-user/`, `/axomai-content/`) based on hostname, with skip rules for `/api/`, `/admin-panel/`, and static assets.
-- **Cross-Subdomain Session Sharing:** Single session cookie scoped to `.aiaxom.co.in` enables seamless authentication across all subdomains with CORS support for cross-origin API calls.
-
-### 5. Web Crawler Bot & Knowledge Import
-- **Automated Web Crawling:** Dedicated bot service at `axomai-bot.aiaxom.co.in` for crawling and importing web content into the RAG knowledge base.
-- **Import API:** Secure token-authenticated endpoint (`/api/import-crawl/`) for ingesting crawled pages with automatic deduplication and semantic vector embeddings.
-- **Bot Access Control:** Separate `bot_access` permission flag for crawler bot operators.
-
-### 6. IP-Based Security & Device Protection
-- **Daily Web Search Quota (5 Searches/Day per IP):** Strict IP-level enforcement ensuring fair access across all users, backed by atomic Django cache counters and sliding-window persistence.
-- **Single Account Per Device Enforcement:** Users are restricted from creating multiple accounts from the same physical device or IP address. Dual-layer identification leverages client IP tracking and persistent browser device fingerprinting.
-- **Burst Rate Throttling:** Sliding-window burst rate limiter prevents rapid-fire automated scraping and DDoS spam.
-- **Persistent Device Token Authentication:** Hardened, long-lived device identification token prevents session hijacking and incognito multi-account circumvention.
-
-### 7. Subscription Commerce & Payments
-- **Indigenous Payment Gateway:** Seamless Razorpay integration supporting UPI (Google Pay, PhonePe, Paytm), Netbanking, and Credit/Debit cards.
-- **Promotional Engine:** Flexible promo codes, discount percentages, usage caps, and expiration limits.
-- **Automated Tax Invoicing:** Instant downloadable PDF invoices generated for every transaction.
-
-### 8. Search & Generative Engine Optimization (SEO / GEO / AEO)
-- **Google Position 0 & SGE Optimization:** Target-engineered for queries including *"Assam AI"*, *"AI in Assam"*, *"Axom AI"*, and *"Assam Artificial Intelligence"*.
-- **Comprehensive Schema.org Graph:** Multi-entity JSON-LD schema spanning `Organization`, `SoftwareApplication`, `AboutPage`, `FAQPage`, and `BreadcrumbList`.
-- **AI Crawler Friendly:** Fully indexable by Googlebot, Bingbot, GPTBot, Google-Extended, PerplexityBot, and ClaudeBot.
-- **Authoritative Citation Factsheet:** Standardized machine-readable entity definitions and copyable BibTeX/APA citation records.
-
----
-
-## High-Level Architecture
-
-```
-                       ┌─────────────────────────┐
-                       │      Cloudflare CDN     │  Full-Strict SSL, WAF, DDoS Protection
-                       │     (aiaxom.co.in)      │
-                       └────────────┬────────────┘
-                                    │
-                       ┌────────────▼────────────┐
-                       │     Nginx Web Server    │  Reverse Proxy, SSL Termination,
-                       │       (Port 80/443)     │  HTTP/2, Real-IP Restoration
-                       └───────┬───────────┬─────┘
-                               │           │
-           ┌───────────────────▼───┐   ┌───▼─────────────────────┐
-           │ Next.js 14 SSR Server │   │  Django 5.2 (Gunicorn)  │
-           │  (Port 3000)          │   │  (Port 8000)            │
-           │  - Landing Page       │   │  - REST API Endpoints   │
-           │  - Chatbot Workspace  │   │  - Auth & Device Guard  │
-           │  - Tools Directory    │   │  - Celery Worker (Redis)│
-           │  - Tool Pages (W2P)   │   │  - IP-Based Rate Limit  │
-           │  - Reusable Navbar/   │   │  - Assamese RAG Pipeline│
-           │    Footer Components  │   │  - Model Router (Multi) │
-           │  - Blog & Regional FAQ│   │  - Video Compression API│
-           └───────────────────────┘   └───────────┬─────────────┘
-                                                   │
-                ┌──────────────────────────────────┼─────────────────────────┐
-                │                                  │                         │
-       ┌────────▼─────────┐              ┌─────────▼─────────┐     ┌─────────▼─────────┐
-       │ PostgreSQL DB    │              │ Vector Embeddings │     │ External AI APIs  │
-       │ Users, Devices,  │              │ 112K+ Knowledge   │     │ OpenAI (GPT-5.x), │
-       │ Usage, CMS Config│              │ Chunks (MiniLM)   │     │ Gemini, Groq LPU, │
-       │ Model Usage Logs │              │                   │     │ Google CSE, FLUX   │
-       └──────────────────┘              └───────────────────┘     └───────────────────┘
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
+| Surface | URL |
 |---|---|
-| **Public Frontend** | Next.js 14 (App Router, Server-Side Rendering, Tailwind CSS) |
-| **Interactive Apps** | React 18, Tailwind CSS, KaTeX, Mermaid.js, Lucide Icons |
-| **Backend Framework** | Django 5.2, Django REST Framework, WhiteNoise, Gunicorn |
-| **Async Task Queue** | Celery 5.4, Redis |
-| **Database** | PostgreSQL 15 |
-| **AI Inference** | OpenAI (GPT-5.x mini/nano rotation + GPT-5.6 Luna), Google Gemini 2.0 Flash, Groq LPU, IndicTrans2 |
-| **Image Generation** | Google Gemini (primary), Cloudflare Workers AI (FLUX.1-Schnell) |
-| **Web Search Grounding** | Google Programmable Custom Search JSON API + Tavily Fallback |
-| **Grammar & Vector RAG** | Multilingual MiniLM embeddings, Sentence-Transformers, NLTK |
-| **Media & Video Processing** | FFmpeg (H.264 / AAC, 16:9 & 9:16 aspect ratio detection), PyMuPDF, LibreOffice |
-| **Documents** | LibreOffice (Word/Excel/PPT to PDF) |
-| **Payments** | Razorpay Standard Checkout + HMAC-SHA256 Webhook Verification |
-| **Infrastructure** | AWS Lightsail (Debian Linux), Cloudflare CDN, Systemd Services |
-| **CI / CD** | GitHub Actions Automated SSH Deployment Pipeline |
+| Website, blog, pricing | https://aiaxom.co.in |
+| Chat workspace | https://chat.aiaxom.co.in |
+| Tools | https://aiaxom.co.in/tools |
+| Admin console | https://admin.aiaxom.co.in/axomai-admin/ |
+| Content CMS | https://content.aiaxom.co.in |
 
 ---
 
-## Local Development Setup
+## Overview
 
-### Prerequisites
-- Python 3.11+
-- Node.js 20+ & npm
-- PostgreSQL 15+
-- Redis Server (for background tasks)
-- FFmpeg (for video compression)
-- LibreOffice (for document conversion)
-- Git
+General-purpose AI models handle Assamese poorly: they mix in Bengali script, mistranslate, and miss local context. Axom AI is built around Assamese from the start.
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/Samarjitkashyp/axom_ai.git
-cd axom_ai
+- **Chat** answers in natural Assamese, grounded in a knowledge base (RAG) and optional live web search.
+- **Voice** supports speaking to the chat (voice typing) and listening to answers in Assamese (text-to-speech).
+- **Tools** cover PDF, image and video utilities, AI image generation, converters and more. Most run in the browser.
+- **Admin console** manages users, plans, content, models, language quality and audio training from a single place.
+
+## Features
+
+**Chat**
+- Streaming answers with a model router and automatic fallback between providers.
+- Retrieval over an indexed knowledge base, with source attribution and user document upload.
+- Assamese quality layer: script clean-up, admin-defined language rules (keep-English terms, grammar, vocabulary) and number-to-words writing.
+- Web search toggle with per-IP daily limits.
+
+**Voice**
+- Voice typing: server-side speech-to-text with noise gating, automatic stop on silence and rule-based Assamese number handling.
+- Text-to-speech: self-hosted Assamese voice service (`deploy/axom-tts`) with male and female voices, sentence-by-sentence playback and a disk cache.
+- **Audio Training** (admin): number words, voice-typing corrections and pronunciations, stored in the database and applied without a deploy.
+
+**Platform**
+- Plans, coupons and payments through Razorpay (order verification, signature check, idempotency).
+- CMS-driven pages (blog, pricing, FAQ, tool pages) and shared header and footer across Django and Next.js.
+- Cookie consent (analytics off until accepted) and privacy and cookie policy pages.
+
+## Architecture
+
+```
+                      Cloudflare (TLS, proxy)
+                              │
+                           nginx
+        ┌─────────────┬───────┴────────┬──────────────┐
+   Next.js SSR     Django (gunicorn)   Assamese TTS   Crawler bot
+   :3000           :8000               :8090          :8001 (separate repo)
+   site, tools,    API, chat, admin,   FastAPI        FastAPI
+   chat UI         CMS, payments
+                        │
+          ┌─────────────┼──────────────┐
+      PostgreSQL       Redis + Celery   LLM providers
+      (data, RAG)      (background)     (OpenAI, Gemini, Groq)
 ```
 
-### 2. Backend Setup (Django)
-```bash
-# Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # macOS / Linux
+Subdomains (`admin.`, `chat.`, `content.`, `user.`) are routed to their sections by `axom_ai/subdomain_middleware.py`; access to `admin.` and `content.` is permission-checked per user.
 
-# Install dependencies
+## Repository layout
+
+```
+axom_ai/          Django project: settings, chat and voice APIs, middleware, tests
+knowledge/        Knowledge base (RAG), chat sessions, Q&A
+payments/         Plans, orders, Razorpay integration
+superadmin/       Admin console (users, plans, language rules, audio training, ...)
+userpanel/        End-user account panel and support tickets
+contentcms/       CMS: blog, pages, header and footer, tool pages
+model_router/     LLM routing and fallback
+next-frontend/    Next.js 14 app: site, tools, chat UI, cookie consent
+deploy/           Deployment scripts and service files (TTS, translation)
+frontend/         Vite app (not served in production)
+```
+
+Related repositories: [axomai-bot](https://github.com/Samarjitkashyp/axomai-bot) (crawler and document ingestion) and [axomai-browser](https://github.com/Samarjitkashyp/axomai-browser).
+
+## Getting started
+
+**Prerequisites:** Python 3.11+, Node.js 20, PostgreSQL 15, Redis, `ffmpeg` (voice features).
+
+```bash
+# 1. Backend
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.example .env
-# Edit .env with your database credentials and API keys
-
-# Run database migrations
+cp .env.example .env            # fill in the values (see Configuration)
 python manage.py migrate
-
-# Create superuser for local testing
 python manage.py createsuperuser
+python manage.py runserver      # http://127.0.0.1:8000
 
-# Start Django development server
-python manage.py runserver
-```
-
-### 3. Frontend Setup (Next.js SSR)
-```bash
+# 2. Frontend
 cd next-frontend
-npm install
-npm run dev
+npm ci
+npm run dev                     # http://localhost:3000
 ```
 
-The Next.js application will be available at `http://localhost:3000`.
+Locally the sections are reached by path: `/axomai-admin/`, `/axomai-user/`, `/axomai-content/`.
 
----
+## Configuration
 
-## CI/CD Deployment Pipeline
+All settings come from environment variables. Copy [`.env.example`](.env.example) to `.env`; never commit `.env`.
 
-The project incorporates an automated **GitHub Actions CI/CD pipeline** configured in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
+| Group | Variables |
+|---|---|
+| Core | `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `DB_*`, `REDIS_URL` |
+| LLM providers | `OPENAI_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `STRICT_KB_MODE` |
+| Voice | `TTS_SERVICE_URL`, `STT_PRIMARY`, `STT_OPENAI_MODEL`, `STT_GEMINI_MODELS` |
+| Search and media | `TAVILY_API_KEY`, `GOOGLE_SEARCH_API_KEY`, `PEXELS_API_KEY`, `CF_API_TOKEN` |
+| Payments | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` |
+| Email and bot protection | `EMAIL_HOST*`, `CONTACT_TO_EMAIL`, `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` |
 
-```
-Push to main branch
-       │
-       ▼
-GitHub Actions CI Runner
-  ├── 1. Set up Python 3.12 & Node.js 20
-  ├── 2. Install dependencies & verify packages
-  ├── 3. Run PostgreSQL service container
-  ├── 4. Execute Django system check & test migrations
-  └── 5. Build React / Next.js frontend bundles
-       │
-       ▼ (If CI checks pass)
-Deploy Stage (SSH to Production Server)
-  ├── 1. Fetch and align latest commits from origin/main
-  ├── 2. Install any updated Python requirements
-  ├── 3. Automatically rebuild Next.js app on source changes (`npm run build`)
-  ├── 4. Apply pending database migrations (`python manage.py migrate`)
-  ├── 5. Collect production static files (`python manage.py collectstatic`)
-  └── 6. Gracefully reload production services (`systemctl restart axom axom-next axom-celery`)
+## Testing
+
+```bash
+python manage.py test                                   # Django tests (needs a Postgres user that can create databases)
+python manage.py test axom_ai.tests_stt axom_ai.tests_number_words   # a subset
+
+node next-frontend/tests/stt-front.check.js             # front-end logic checks
+node next-frontend/tests/cookie-consent.check.mjs
+bash next-frontend/tests/undefined-names.check.sh
 ```
 
-### Configuring Deployment Secrets in GitHub:
-To activate automated server deployment, configure the following secrets in your repository (**Settings > Secrets and variables > Actions**):
-- `LIGHTSAIL_HOST`: Server IP address or hostname
-- `LIGHTSAIL_USER`: SSH username (`admin`)
-- `LIGHTSAIL_SSH_KEY`: Private SSH Key (.pem content)
+## Admin console
 
----
+Dashboard, Users, Payments, Plans and Coupons, Moderation, Knowledge Base, Analytics, AI Models, Tools, Language Rules, Audio Training, Contact Messages, Document Verify, Settings and Audit Log.
 
-## Security & Anti-Abuse Architecture
+- Superusers see everything. Other users see only the sections granted in **Users → Manage → Access**.
+- Sign-in is protected by a 3-strike, 24-hour lockout per IP and username, and every login is audit-logged.
+- The layout is responsive and works on phones.
 
-- **Strict Daily IP Search Limiting:** Maximum 5 web searches per day per IP address across all sessions, preventing search API quota depletion.
-- **Single-Account Device Restriction:** Each device / IP network is restricted to a single registered user account, eliminating multi-account bot abuse.
-- **Reverse Tabnabbing Isolation:** Every external link includes `target="_blank"` and `rel="noopener noreferrer"`.
-- **Subdomain Permission Enforcement:** Role-based middleware restricts `admin.aiaxom.co.in` and `content.aiaxom.co.in` to explicitly authorized users only.
-- **Cross-Domain Routing Guard:** Next.js client router checks hostname and resolves marketing URLs directly to `https://aiaxom.co.in`, avoiding 404 path rewrites on subdomains.
-- **Cross-Subdomain CORS:** Secure CORS headers with credential support for cross-origin API calls between subdomains.
-- **Strict SSL / TLS Encryption:** Cloudflare Full-strict SSL with 15-year Origin Certificate.
-- **CSRF & Injection Hardening:** Complete CSRF token verification, SQL injection protection, and input sanitization across all forms and API endpoints.
-- **HMAC Payment Security:** Razorpay order ID verification, amount mismatch checks, idempotency tracking, and cryptographic signature validation.
+## Deployment
 
----
+The application runs on a single Linux server behind nginx and Cloudflare, with systemd services (`axom`, `axom-next`, `axom-celery`, `axom-tts`).
 
-## Team & Contact
+```bash
+git pull --ff-only origin main
+source venv/bin/activate && pip install -r requirements.txt
+python manage.py migrate && python manage.py collectstatic --noinput
+cd next-frontend && npm ci && npm run build && cd ..
+sudo systemctl restart axom axom-next
+```
 
-- **Lead Architect & Founder:** Samarjit Kashyap
-- **Email:** [samarjitkashyp@gmail.com](mailto:samarjitkashyp@gmail.com)
-- **Website:** [https://aiaxom.co.in](https://aiaxom.co.in)
+Take a backup before any migration. First-time setup is described in [`deploy/DEPLOY.md`](deploy/DEPLOY.md); the voice service in [`deploy/axom-tts/README.md`](deploy/axom-tts/README.md). A manual GitHub Actions workflow is in [`.github/workflows`](.github/workflows).
 
----
+## Security
 
-## License
+- CSRF protection, input sanitising and database access through the Django ORM.
+- Per-user permission checks on privileged subdomains and admin sections.
+- Razorpay payments verified by signature and order, and processed idempotently.
+- Rate limits on chat, search and image generation; daily caps for voice features.
+- Secrets are read from the environment only.
 
-Proprietary software. All rights reserved. &copy; 2026 Axom AI.
+To report a vulnerability, email the maintainer directly instead of opening a public issue.
+
+## Contributing
+
+1. Branch from `main` (`feature/short-name`).
+2. Keep changes focused; add or update tests.
+3. Open a pull request; merge after review.
+
+## License and contact
+
+Proprietary software. All rights reserved. © 2026 Axom AI.
+
+Maintainer: Samarjit Kashyap, samarjitkashyp@gmail.com
