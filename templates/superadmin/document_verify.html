@@ -8,6 +8,36 @@
   <span>Photos and PDFs uploaded in the crawler bot are read by AI and wait here. <strong>Check the text against the picture, fix any mistake, then approve.</strong> Only approved documents are sent to Axom AI chat. Pages marked <span class="text-amber-300">⚠</span> were read by a weaker reader or look uncertain.</span>
 </div>
 
+<div class="flex gap-2 mb-5 text-sm font-semibold" id="dvMode">
+  <button data-mode="docs" class="dv-mode px-4 py-2 rounded-xl">Uploaded documents</button>
+  <button data-mode="manual" class="dv-mode px-4 py-2 rounded-xl">Manual Q&amp;A <span id="cManualPending" class="opacity-80"></span></button>
+</div>
+
+<div id="manualPane" class="hidden">
+  <div class="mb-5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-100 text-xs leading-relaxed">
+    Questions typed in <a class="underline text-white" href="/axomai-admin/questions-upload/">Questions Upload</a> wait here. <strong>Check the question, the answer and the photo, fix any mistake, then approve.</strong> Only approved entries are used by the Axom AI chat.
+  </div>
+  <div id="mqError" class="hidden mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs"></div>
+  <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 items-start">
+    <div class="glass-card rounded-2xl border border-slate-800 p-3">
+      <div class="flex gap-1 mb-3 text-xs font-semibold" id="mqTabs">
+        <button data-tab="pending" class="dv-tab flex-1 py-2 rounded-lg">To review <span id="mqCPending" class="opacity-70"></span></button>
+        <button data-tab="approved" class="dv-tab flex-1 py-2 rounded-lg">Approved</button>
+        <button data-tab="all" class="dv-tab flex-1 py-2 rounded-lg">All</button>
+      </div>
+      <div id="mqList" class="space-y-2 max-h-[45vh] lg:max-h-[70vh] overflow-y-auto pr-1"></div>
+      <button id="mqRefresh" class="mt-3 w-full text-xs text-slate-400 hover:text-white py-2"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
+    </div>
+    <div id="mqDoc" class="min-w-0">
+      <div class="glass-card rounded-2xl border border-slate-800 p-10 text-center text-slate-500 text-sm">
+        <i class="fa-regular fa-circle-question text-3xl mb-3 block"></i>
+        Choose an entry on the left to check it.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="docsPane">
 <p id="dvUsage" class="text-xs text-slate-400 mb-4"></p>
 <div id="dvError" class="hidden mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs"></div>
 
@@ -33,8 +63,11 @@
     </div>
   </div>
 </div>
+</div>
 
 <style>
+  .dv-mode { color: #94a3b8; background: rgba(30,41,59,.5); }
+  .dv-mode.on { color: #fff; background: #4f46e5; }
   .dv-tab { color: #94a3b8; background: rgba(30,41,59,.5); }
   .dv-tab.on { color: #fff; background: #4f46e5; }
   .dv-item { cursor: pointer; border: 1px solid rgb(30 41 59); background: rgba(15,23,42,.55); }
@@ -155,6 +188,78 @@
   document.querySelectorAll('.dv-tab').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; loadList(); }));
   $('dvRefresh').addEventListener('click', loadList);
   loadList();
+
+  // ---- Manual Q&A (typed in Questions Upload) ----
+  let mq = [], mqTab = 'pending', mqCurrent = null, mode = 'docs';
+  function mqErr(msg) { const e = $('mqError'); e.textContent = msg || ''; e.classList.toggle('hidden', !msg); }
+  const MQ_LABEL = { pending: ['Needs review', 'text-amber-300 bg-amber-500/10'], approved: ['Approved', 'text-emerald-300 bg-emerald-500/10'], rejected: ['Rejected', 'text-rose-300 bg-rose-500/10'] };
+  function mqPill(s) { const l = MQ_LABEL[s] || [s, 'text-slate-300 bg-slate-500/10']; return '<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ' + l[1] + '">' + esc(l[0]) + '</span>'; }
+
+  async function mqLoad() {
+    try { const d = await call(BASE + 'manual/list/'); mq = d.items || []; mqErr(''); } catch (e) { mqErr(e.message); mq = []; }
+    const pend = mq.filter((q) => q.status === 'pending').length;
+    $('mqCPending').textContent = '(' + pend + ')';
+    $('cManualPending').textContent = pend ? '(' + pend + ')' : '';
+    document.querySelectorAll('#mqTabs .dv-tab').forEach((b) => b.classList.toggle('on', b.dataset.tab === mqTab));
+    const rows = mq.filter((q) => mqTab === 'all' || q.status === mqTab);
+    $('mqList').innerHTML = rows.length ? rows.map((q) =>
+      '<div class="dv-item rounded-xl p-3' + (mqCurrent === q.id ? ' on' : '') + '" data-id="' + q.id + '"><div class="text-sm font-semibold text-slate-100 break-words">' + esc(q.question.slice(0, 90)) + '</div>' +
+      '<div class="text-[11px] text-slate-500 mt-0.5">' + esc((q.created_at || '').replace('T', ' ')) + ' · ' + esc(q.created_by) + (q.has_image ? ' · photo' : '') + '</div>' +
+      '<div class="mt-2">' + mqPill(q.status) + '</div></div>'
+    ).join('') : '<p class="text-slate-500 text-xs p-4 text-center">' + (mqTab === 'pending' ? 'Nothing is waiting for review.' : 'No entries here.') + '</p>';
+    $('mqList').querySelectorAll('.dv-item').forEach((el) => el.addEventListener('click', () => mqOpen(Number(el.dataset.id))));
+  }
+
+  function mqOpen(id) {
+    mqCurrent = id;
+    const q = mq.find((x) => x.id === id);
+    if (!q) return;
+    document.querySelectorAll('#mqList .dv-item').forEach((el) => el.classList.toggle('on', Number(el.dataset.id) === id));
+    const editable = q.status === 'pending';
+    const ro = editable ? '' : ' readonly';
+    $('mqDoc').innerHTML =
+      '<div class="glass-card rounded-2xl border border-slate-800 p-4 sm:p-5 space-y-4">' +
+      '<div class="flex items-start justify-between gap-3"><p class="text-xs text-slate-500">Typed by ' + esc(q.created_by) + ' · ' + esc((q.created_at || '').replace('T', ' ')) + (q.source_name ? ' · source: ' + esc(q.source_name) : '') + '</p>' + mqPill(q.status) + '</div>' +
+      '<div class="grid grid-cols-1 md:grid-cols-[minmax(0,260px)_1fr] gap-4 items-start">' +
+      (q.has_image ? '<a href="' + BASE + 'manual/' + q.id + '/image/" target="_blank" rel="noopener"><img class="w-full rounded-lg border border-slate-700 bg-white" src="' + BASE + 'manual/' + q.id + '/image/" alt="photo"></a>'
+                   : '<div class="rounded-lg border border-slate-800 bg-slate-900/50 text-slate-500 text-xs p-4">No photo.</div>') +
+      '<div class="space-y-3"><div><label class="block text-xs font-semibold text-slate-300 mb-1">Question</label><textarea id="mqQ" rows="2" class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none" style="min-height:70px"' + ro + '>' + esc(q.question) + '</textarea></div>' +
+      '<div><label class="block text-xs font-semibold text-slate-300 mb-1">Answer</label><textarea id="mqA" class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none"' + ro + '>' + esc(q.answer) + '</textarea></div>' +
+      '<div><label class="block text-xs font-semibold text-slate-300 mb-1">Assamese answer</label><textarea id="mqAs" class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none" style="min-height:90px"' + ro + '>' + esc(q.answer_assamese) + '</textarea></div></div></div>' +
+      '<div class="flex flex-wrap items-center gap-2">' +
+      (editable ? '<button id="mqApprove" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold"><i class="fa-solid fa-check mr-1.5"></i>Approve &amp; use in Axom AI</button><button id="mqReject" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm">Reject</button>' : '') +
+      '<button id="mqDelete" class="ml-auto px-3 py-2 rounded-xl text-rose-300 hover:bg-rose-500/10 text-sm"><i class="fa-regular fa-trash-can mr-1"></i>Delete</button></div></div>';
+    if (window.innerWidth < 1024) $('mqDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const saveEdits = () => call(BASE + 'manual/' + id + '/edit/', 'POST', { question: $('mqQ').value, answer: $('mqA').value, answer_assamese: $('mqAs').value });
+    const act = (btn, name, ask, done) => { const b = $(btn); if (!b) return; b.addEventListener('click', async () => {
+      if (ask && !(await adminConfirm(ask, { title: 'Please confirm', confirmText: 'Yes, go on' }))) return;
+      b.disabled = true;
+      try {
+        if (name === 'approve') await saveEdits();        // what you see is what gets approved
+        await call(BASE + 'manual/' + id + '/' + name + '/', 'POST');
+        showToast(done, 'success');
+        if (name === 'delete') { mqCurrent = null; $('mqDoc').innerHTML = ''; }
+        await mqLoad(); if (name !== 'delete') mqOpen(id);
+      } catch (e) { showToast(e.message, 'error'); b.disabled = false; } }); };
+    act('mqApprove', 'approve', 'Use this question and answer in Axom AI chat? The chat will start answering from it.', 'Approved. The chat can use it now.');
+    act('mqReject', 'reject', 'Reject this entry? It will not be used by the chat.', 'Entry rejected.');
+    act('mqDelete', 'delete', 'Delete this entry and its photo for good?', 'Entry deleted.');
+    if (editable) ['mqQ', 'mqA', 'mqAs'].forEach((f) => $(f).addEventListener('change', async () => { try { await saveEdits(); showToast('Saved.', 'success'); } catch (e) { showToast(e.message, 'error'); } }));
+  }
+
+  function setMode(m) {
+    mode = m;
+    $('docsPane').classList.toggle('hidden', m !== 'docs');
+    $('manualPane').classList.toggle('hidden', m !== 'manual');
+    document.querySelectorAll('.dv-mode').forEach((b) => b.classList.toggle('on', b.dataset.mode === m));
+    if (m === 'manual') mqLoad();
+    try { history.replaceState(null, '', m === 'manual' ? '#manual' : location.pathname); } catch (e) { /* ignore */ }
+  }
+  document.querySelectorAll('.dv-mode').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  document.querySelectorAll('#mqTabs .dv-tab').forEach((b) => b.addEventListener('click', () => { mqTab = b.dataset.tab; mqLoad(); }));
+  $('mqRefresh').addEventListener('click', mqLoad);
+  setMode(location.hash === '#manual' ? 'manual' : 'docs');
+  mqLoad();
 })();
 </script>
 {% endblock %}

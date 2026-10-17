@@ -1951,3 +1951,156 @@ def document_verify_action_api(request, uid, action):
     if result.status_code == 200:
         _log_audit(request, 'DOCUMENT_' + action.upper(), uid, '')
     return result
+
+
+# ---------------------------------------------------------------------------
+# Questions Upload: the admin types question + answer (+ photo) here. Each entry is saved as "pending" and the chat
+# does not see it. It is then checked and approved in Document Verify > "Manual Q&A" (the photo next to the text).
+# ---------------------------------------------------------------------------
+_MANUAL_DOC_TITLE = 'Manual Q&A'
+_QA_IMAGE_MAX = 5 * 1024 * 1024
+_QA_IMAGE_FORMATS = {'JPEG': 'jpg', 'PNG': 'png', 'WEBP': 'webp'}
+
+
+def _manual_doc():
+    doc = KnowledgeDocument.objects.filter(title=_MANUAL_DOC_TITLE, file_type='manual').first()
+    if not doc:
+        doc = KnowledgeDocument.objects.create(title=_MANUAL_DOC_TITLE, file_type='manual', status='Indexed',
+                                               source_name='Manual Q&A (admin)')
+    return doc
+
+
+def _manual_qs():
+    return QAPair.objects.filter(document__file_type='manual')
+
+
+def _qa_json(qa):
+    return {'id': qa.id, 'question': qa.question, 'answer': qa.answer, 'answer_assamese': qa.answer_assamese,
+            'status': qa.status, 'has_image': bool(qa.image), 'created_by': qa.created_by,
+            'created_at': qa.created_at.isoformat(timespec='minutes') if qa.created_at else '',
+            'source_name': qa.source_name}
+
+
+def _checked_image(f):
+    """Returns the file after checking it is a real, small JPEG / PNG / WEBP. Raises ValueError with a message for the admin."""
+    if f.size > _QA_IMAGE_MAX:
+        raise ValueError('The photo is bigger than 5 MB.')
+    from PIL import Image
+    try:
+        img = Image.open(f)
+        fmt = img.format
+        img.verify()
+    except Exception:
+        raise ValueError('The photo is not a valid picture.')
+    if fmt not in _QA_IMAGE_FORMATS:
+        raise ValueError('Only JPG, PNG or WEBP photos are allowed.')
+    f.seek(0)
+    f.name = 'qa.' + _QA_IMAGE_FORMATS[fmt]       # never trust the uploaded file name or extension
+    return f
+
+
+@superuser_required
+def questions_upload_page(request):
+    recent = _manual_qs().order_by('-id')[:30]
+    return render(request, 'superadmin/questions_upload.html', {
+        'active': 'questions_upload',
+        'recent': recent,
+        'pending_count': _manual_qs().filter(status='pending').count(),
+    })
+
+
+@superuser_required
+@require_POST
+def questions_upload_save_api(request):
+    question = (request.POST.get('question') or '').strip()
+    answer = (request.POST.get('answer') or '').strip()
+    answer_as = (request.POST.get('answer_assamese') or '').strip()
+    source = (request.POST.get('source_name') or '').strip()[:255]
+    if len(question) < 5 or len(question) > 1000:
+        return JsonResponse({'success': False, 'error': 'Write the question (5 to 1000 characters).'}, status=400)
+    if not answer or len(answer) > 20000:
+        return JsonResponse({'success': False, 'error': 'Write the answer (up to 20000 characters).'}, status=400)
+    if len(answer_as) > 20000:
+        return JsonResponse({'success': False, 'error': 'The Assamese answer is too long.'}, status=400)
+    image = request.FILES.get('image')
+    if image:
+        try:
+            image = _checked_image(image)
+        except ValueError as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    qa = QAPair.objects.create(document=_manual_doc(), question=question, answer=answer, answer_assamese=answer_as,
+                               source_name=source or 'Manual Q&A', status='pending', created_by=request.user.username[:150])
+    if image:
+        qa.image.save(image.name, image, save=True)
+    _log_audit(request, 'QA_CREATE', f'#{qa.id}', question[:120])
+    return JsonResponse({'success': True, 'item': _qa_json(qa)})
+
+
+@superuser_required
+def manual_qa_list_api(request):
+    items = [_qa_json(q) for q in _manual_qs().order_by('-id')[:300]]
+    return JsonResponse({'success': True, 'items': items})
+
+
+@superuser_required
+def manual_qa_image(request, qa_id):
+    qa = get_object_or_404(_manual_qs(), id=qa_id)
+    if not qa.image:
+        return HttpResponse(status=404)
+    try:
+        with qa.image.open('rb') as fh:
+            data = fh.read()
+    except OSError:
+        return HttpResponse(status=404)
+    ctype = {'jpg': 'image/jpeg', 'png': 'image/png', 'webp': 'image/webp'}.get(qa.image.name.rsplit('.', 1)[-1].lower(), 'application/octet-stream')
+    resp = HttpResponse(data, content_type=ctype)
+    resp['X-Content-Type-Options'] = 'nosniff'
+    resp['Cache-Control'] = 'private, max-age=300'
+    return resp
+
+
+@superuser_required
+@require_POST
+def manual_qa_action_api(request, qa_id, action):
+    if action not in ('edit', 'approve', 'reject', 'delete'):
+        return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+    qa = get_object_or_404(_manual_qs(), id=qa_id)
+    if action == 'delete':
+        if qa.image:
+            qa.image.delete(save=False)
+        qa.delete()
+        _log_audit(request, 'QA_DELETE', f'#{qa_id}')
+        return JsonResponse({'success': True})
+    if qa.status != 'pending':
+        return JsonResponse({'success': False, 'error': 'Only entries waiting for review can be changed.'}, status=400)
+    if action == 'edit':
+        try:
+            data = json.loads(request.body)
+            question, answer = data.get('question'), data.get('answer')
+            answer_as = data.get('answer_assamese', '')
+            if not all(isinstance(x, str) for x in (question, answer, answer_as)):
+                raise ValueError
+        except (ValueError, TypeError):
+            return JsonResponse({'success': False, 'error': 'Invalid request.'}, status=400)
+        question, answer, answer_as = question.strip(), answer.strip(), answer_as.strip()
+        if len(question) < 5 or len(question) > 1000 or not answer or len(answer) > 20000 or len(answer_as) > 20000:
+            return JsonResponse({'success': False, 'error': 'Question or answer has a wrong length.'}, status=400)
+        qa.question, qa.answer, qa.answer_assamese = question, answer, answer_as
+        qa.embedding = ''
+        qa.save(update_fields=['question', 'answer', 'answer_assamese', 'embedding'])
+        _log_audit(request, 'QA_EDIT', f'#{qa.id}')
+        return JsonResponse({'success': True, 'item': _qa_json(qa)})
+    if action == 'reject':
+        qa.status = 'rejected'
+        qa.save(update_fields=['status'])
+        _log_audit(request, 'QA_REJECT', f'#{qa.id}')
+        return JsonResponse({'success': True, 'item': _qa_json(qa)})
+    # approve: embed the question so the chat can match it by meaning, then switch it on
+    from knowledge.utils import _embed_texts
+    vecs = _embed_texts([qa.question])
+    if vecs:
+        qa.embedding = json.dumps(vecs[0])
+    qa.status = 'approved'
+    qa.save(update_fields=['status', 'embedding'])
+    _log_audit(request, 'QA_APPROVE', f'#{qa.id}')
+    return JsonResponse({'success': True, 'item': _qa_json(qa), 'embedded': bool(vecs)})

@@ -60,13 +60,14 @@ def backfill_qa_embeddings(batch_size=256):
 def _load_qa_matrix():
     """Load all QAPair embeddings into a normalized numpy matrix (cached with TTL)."""
     global _QA_CACHE, _QA_CACHE_TS
-    total = QAPair.objects.exclude(embedding='').count()
+    live = QAPair.objects.filter(status='approved').exclude(embedding='')    # pending / rejected manual Q&A never reach the chat
+    total = live.count()
     if _QA_CACHE is not None and _QA_CACHE[5] == total:
         if time.time() - _QA_CACHE_TS < _QA_CACHE_TTL:
             return _QA_CACHE
         _QA_CACHE = None
     ids, answers, asms, srcs, vecs = [], [], [], [], []
-    for qa in QAPair.objects.exclude(embedding='').only(
+    for qa in live.only(
             'id', 'answer', 'answer_assamese', 'embedding', 'source_name', 'source_url').iterator():
         try:
             vecs.append(json.loads(qa.embedding))
@@ -388,7 +389,7 @@ def find_instant_answer(query, threshold=0.6):
     q_filter = Q()
     for t in q_tokens:
         q_filter |= Q(question__icontains=t)
-    candidates = QAPair.objects.filter(q_filter).exclude(
+    candidates = QAPair.objects.filter(q_filter, status='approved').exclude(
         source_name__startswith='Wikipedia:').only(
         'question', 'answer', 'answer_assamese', 'source_name', 'source_url')[:3000]
 

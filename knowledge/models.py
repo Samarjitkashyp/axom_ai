@@ -43,6 +43,13 @@ class QAPair(models.Model):
     # each answer can show where the fact came from.
     source_name = models.CharField(max_length=255, blank=True)
     source_url = models.CharField(max_length=500, blank=True)
+    # Manual entries (admin > Questions Upload) start as "pending" and reach the chat only after
+    # they are approved in Document Verify. Every other pair is "approved" (the default).
+    STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='approved', db_index=True)
+    image = models.ImageField(upload_to='qa_images/', blank=True)
+    created_by = models.CharField(max_length=150, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return f"Q&A: {self.question[:50]}"
