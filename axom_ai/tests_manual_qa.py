@@ -154,7 +154,7 @@ class ManualQATests(TestCase):
         self.client.logout()
         self.assertEqual(self.client.get('/api/qa-image/%d/' % qa.id).status_code, 404)
 
-    def test_pdf_upload_validation_serving_and_chat_link(self):
+    def test_pdf_upload_validation_and_serving(self):
         pdf = b'%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF'
         self.assertEqual(self._save(pdf=SimpleUploadedFile('x.pdf', b'hello, not a pdf', content_type='application/pdf')).status_code, 400)
         self.assertEqual(QAPair.objects.count(), 0)
@@ -169,7 +169,7 @@ class ManualQATests(TestCase):
         with mock.patch('knowledge.utils._embed_texts', return_value=None):
             self.client.post('/axomai-admin/document-verify/api/manual/%d/approve/' % qa.id)
         body = self._chat('What is Bihu?').json()
-        self.assertIn('/api/qa-pdf/%d/' % qa.id, body['response'])
+        self.assertNotIn('qa-pdf', body['response'])               # no PDF line in the chat text
         self.client.logout()
         self.assertEqual(self.client.get('/api/qa-pdf/%d/' % qa.id)['Content-Type'], 'application/pdf')
 

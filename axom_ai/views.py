@@ -1787,7 +1787,7 @@ def chat_api_view(request):
 
     # Approved admin-typed Q&A: the AI writes the reply from these facts in the user's language
     # (Assamese for Assamese, even if the admin typed Hinglish). If the AI is not available the
-    # admin's own text is sent as it is. The photo / PDF of the entry go with the reply.
+    # admin's own text is sent as it is. The photo of the entry goes with the reply (a PDF is kept for the admin only).
     if manual:
         facts = manual.answer_assamese if language == 'assamese' and manual.answer_assamese else manual.answer
         reply = ''
@@ -1807,8 +1807,6 @@ def chat_api_view(request):
             reply = _assamese_final(reply) if language == 'assamese' else _sanitize_brand_mentions(reply)
         else:
             reply = facts
-        if manual.pdf:       # the chat text has no clickable links yet: the full address is added as plain text
-            reply += '\n\n📄 PDF: %s://%s/api/qa-pdf/%d/' % ('http' if settings.DEBUG else 'https', request.get_host(), manual.id)
         _save_chat(request, client_id, prompt, reply)
         out = {'response': reply, 'from_database': True, 'source_docs': [], 'web_search': False,
                'sources': [], 'engine': 'manual-qa', 'source': {'name': manual.source_name, 'url': ''}}
