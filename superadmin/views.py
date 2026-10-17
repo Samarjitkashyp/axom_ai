@@ -1976,7 +1976,7 @@ def _manual_qs():
 
 def _qa_json(qa):
     return {'id': qa.id, 'question': qa.question, 'answer': qa.answer, 'answer_assamese': qa.answer_assamese,
-            'status': qa.status, 'has_image': bool(qa.image), 'created_by': qa.created_by,
+            'status': qa.status, 'has_image': bool(qa.image), 'has_pdf': bool(qa.pdf), 'created_by': qa.created_by,
             'created_at': qa.created_at.isoformat(timespec='minutes') if qa.created_at else '',
             'source_name': qa.source_name}
 
@@ -1996,6 +1996,21 @@ def _checked_image(f):
         raise ValueError('Only JPG, PNG or WEBP photos are allowed.')
     f.seek(0)
     f.name = 'qa.' + _QA_IMAGE_FORMATS[fmt]       # never trust the uploaded file name or extension
+    return f
+
+
+_QA_PDF_MAX = 20 * 1024 * 1024
+
+
+def _checked_pdf(f):
+    """Returns the file after checking it is a real PDF (starts with %PDF-) of at most 20 MB. Raises ValueError for the admin."""
+    if f.size > _QA_PDF_MAX:
+        raise ValueError('The PDF is bigger than 20 MB.')
+    head = f.read(5)
+    f.seek(0)
+    if head != b'%PDF-':
+        raise ValueError('The file is not a valid PDF.')
+    f.name = 'qa.pdf'                                  # never trust the uploaded file name or extension
     return f
 
 
@@ -2028,10 +2043,18 @@ def questions_upload_save_api(request):
             image = _checked_image(image)
         except ValueError as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    pdf = request.FILES.get('pdf')
+    if pdf:
+        try:
+            pdf = _checked_pdf(pdf)
+        except ValueError as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
     qa = QAPair.objects.create(document=_manual_doc(), question=question, answer=answer, answer_assamese=answer_as,
                                source_name=source or 'Manual Q&A', status='pending', created_by=request.user.username[:150])
     if image:
         qa.image.save(image.name, image, save=True)
+    if pdf:
+        qa.pdf.save(pdf.name, pdf, save=True)
     _log_audit(request, 'QA_CREATE', f'#{qa.id}', question[:120])
     return JsonResponse({'success': True, 'item': _qa_json(qa)})
 
@@ -2060,6 +2083,23 @@ def manual_qa_image(request, qa_id):
 
 
 @superuser_required
+def manual_qa_pdf(request, qa_id):
+    qa = get_object_or_404(_manual_qs(), id=qa_id)
+    if not qa.pdf:
+        return HttpResponse(status=404)
+    try:
+        with qa.pdf.open('rb') as fh:
+            data = fh.read()
+    except OSError:
+        return HttpResponse(status=404)
+    resp = HttpResponse(data, content_type='application/pdf')
+    resp['Content-Disposition'] = 'inline; filename="question-%d.pdf"' % qa.id
+    resp['X-Content-Type-Options'] = 'nosniff'
+    resp['Cache-Control'] = 'private, max-age=300'
+    return resp
+
+
+@superuser_required
 @require_POST
 def manual_qa_action_api(request, qa_id, action):
     if action not in ('edit', 'approve', 'reject', 'delete'):
@@ -2068,6 +2108,8 @@ def manual_qa_action_api(request, qa_id, action):
     if action == 'delete':
         if qa.image:
             qa.image.delete(save=False)
+        if qa.pdf:
+            qa.pdf.delete(save=False)
         qa.delete()
         _log_audit(request, 'QA_DELETE', f'#{qa_id}')
         return JsonResponse({'success': True})

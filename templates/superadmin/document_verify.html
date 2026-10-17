@@ -204,7 +204,7 @@
     const rows = mq.filter((q) => mqTab === 'all' || q.status === mqTab);
     $('mqList').innerHTML = rows.length ? rows.map((q) =>
       '<div class="dv-item rounded-xl p-3' + (mqCurrent === q.id ? ' on' : '') + '" data-id="' + q.id + '"><div class="text-sm font-semibold text-slate-100 break-words">' + esc(q.question.slice(0, 90)) + '</div>' +
-      '<div class="text-[11px] text-slate-500 mt-0.5">' + esc((q.created_at || '').replace('T', ' ')) + ' · ' + esc(q.created_by) + (q.has_image ? ' · photo' : '') + '</div>' +
+      '<div class="text-[11px] text-slate-500 mt-0.5">' + esc((q.created_at || '').replace('T', ' ')) + ' · ' + esc(q.created_by) + (q.has_image ? ' · photo' : '') + (q.has_pdf ? ' · PDF' : '') + '</div>' +
       '<div class="mt-2">' + mqPill(q.status) + '</div></div>'
     ).join('') : '<p class="text-slate-500 text-xs p-4 text-center">' + (mqTab === 'pending' ? 'Nothing is waiting for review.' : 'No entries here.') + '</p>';
     $('mqList').querySelectorAll('.dv-item').forEach((el) => el.addEventListener('click', () => mqOpen(Number(el.dataset.id))));
@@ -223,7 +223,7 @@
       '<div class="grid grid-cols-1 md:grid-cols-[minmax(0,260px)_1fr] gap-4 items-start">' +
       (q.has_image ? '<a href="' + BASE + 'manual/' + q.id + '/image/" target="_blank" rel="noopener"><img class="w-full rounded-lg border border-slate-700 bg-white" src="' + BASE + 'manual/' + q.id + '/image/" alt="photo"></a>'
                    : '<div class="rounded-lg border border-slate-800 bg-slate-900/50 text-slate-500 text-xs p-4">No photo.</div>') +
-      '<div class="space-y-3"><div><label class="block text-xs font-semibold text-slate-300 mb-1">Question</label><textarea id="mqQ" rows="2" class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none" style="min-height:70px"' + ro + '>' + esc(q.question) + '</textarea></div>' +
+      '<div class="space-y-3">' + (q.has_pdf ? '<a href="' + BASE + 'manual/' + q.id + '/pdf/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm text-indigo-300 hover:text-white underline"><i class="fa-regular fa-file-pdf"></i>Open the attached PDF</a>' : '') + '<div><label class="block text-xs font-semibold text-slate-300 mb-1">Question</label><textarea id="mqQ" rows="2" class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none" style="min-height:70px"' + ro + '>' + esc(q.question) + '</textarea></div>' +
       '<div><label class="block text-xs font-semibold text-slate-300 mb-1">Answer</label><textarea id="mqA" class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none"' + ro + '>' + esc(q.answer) + '</textarea></div>' +
       '<div><label class="block text-xs font-semibold text-slate-300 mb-1">Assamese answer</label><textarea id="mqAs" class="dv-text bg-slate-950/70 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:border-indigo-500 outline-none" style="min-height:90px"' + ro + '>' + esc(q.answer_assamese) + '</textarea></div></div></div>' +
       '<div class="flex flex-wrap items-center gap-2">' +

@@ -1420,6 +1420,8 @@ def chat_api_view(request):
             manual = None
         if manual:
             reply = (manual.answer_assamese if language == 'assamese' and manual.answer_assamese else manual.answer)
+            if manual.pdf:       # the chat text has no clickable links yet: the full address is added as plain text
+                reply += '\n\n📄 PDF: %s://%s/api/qa-pdf/%d/' % ('http' if settings.DEBUG else 'https', request.get_host(), manual.id)
             _save_chat(request, client_id, prompt, reply)
             out = {'response': reply, 'from_database': True, 'source_docs': [], 'web_search': False,
                    'sources': [], 'engine': 'manual-qa',

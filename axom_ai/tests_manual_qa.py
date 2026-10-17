@@ -149,3 +149,22 @@ class ManualQATests(TestCase):
         self.assertIsNone(kutils.find_manual_answer('What is Bihu?'))     # pending: the chat never sees it
         self.client.logout()
         self.assertEqual(self.client.get('/api/qa-image/%d/' % qa.id).status_code, 404)
+
+    def test_pdf_upload_validation_serving_and_chat_link(self):
+        pdf = b'%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF'
+        self.assertEqual(self._save(pdf=SimpleUploadedFile('x.pdf', b'hello, not a pdf', content_type='application/pdf')).status_code, 400)
+        self.assertEqual(QAPair.objects.count(), 0)
+        self.assertEqual(self._save(pdf=SimpleUploadedFile('evil.html', pdf, content_type='text/html')).status_code, 200)
+        qa = QAPair.objects.get()
+        self.assertTrue(qa.pdf.name.endswith('.pdf'))
+        self.assertTrue(self.client.get('/axomai-admin/document-verify/api/manual/%d/pdf/' % qa.id)['Content-Type'] == 'application/pdf')
+        self.assertTrue(self.client.get('/axomai-admin/document-verify/api/manual/list/').json()['items'][0]['has_pdf'])
+        self.client.logout()
+        self.assertEqual(self.client.get('/api/qa-pdf/%d/' % qa.id).status_code, 404)        # pending: private
+        self.client.force_login(self.admin)
+        with mock.patch('knowledge.utils._embed_texts', return_value=None):
+            self.client.post('/axomai-admin/document-verify/api/manual/%d/approve/' % qa.id)
+        body = self._chat('What is Bihu?').json()
+        self.assertIn('/api/qa-pdf/%d/' % qa.id, body['response'])
+        self.client.logout()
+        self.assertEqual(self.client.get('/api/qa-pdf/%d/' % qa.id)['Content-Type'], 'application/pdf')

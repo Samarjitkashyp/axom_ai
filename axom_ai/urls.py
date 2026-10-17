@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/usage/', views.user_usage_api, name='user_usage_api'),
     path('api/chat/', views.chat_api_view, name='chat_api'),
     path('api/qa-image/<int:qa_id>/', knowledge_views.qa_image_public, name='qa_image_public'),
+    path('api/qa-pdf/<int:qa_id>/', knowledge_views.qa_pdf_public, name='qa_pdf_public'),
     path('api/chat/transliterate/', chat_enhancements.api_chat_transliterate, name='chat_transliterate_api'),
     path('api/chat/ocr/', chat_enhancements.api_chat_ocr, name='chat_ocr_api'),
     path('api/chat/export-docx/', chat_enhancements.api_chat_export_docx, name='chat_export_docx_api'),

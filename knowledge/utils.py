@@ -432,7 +432,7 @@ def find_manual_answer(query, threshold=0.6):
     qn = _normalize(query)
     best, best_score = None, 0.0
     for qa in QAPair.objects.filter(status='approved', document__file_type='manual').only(
-            'id', 'question', 'answer', 'answer_assamese', 'image', 'source_name')[:2000]:
+            'id', 'question', 'answer', 'answer_assamese', 'image', 'pdf', 'source_name')[:2000]:
         if _normalize(qa.question) == qn:
             return qa
         p_tokens = _keywords(qa.question)

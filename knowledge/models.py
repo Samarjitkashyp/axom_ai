@@ -48,6 +48,7 @@ class QAPair(models.Model):
     STATUS_CHOICES = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='approved', db_index=True)
     image = models.ImageField(upload_to='qa_images/', blank=True)
+    pdf = models.FileField(upload_to='qa_pdfs/', blank=True)
     created_by = models.CharField(max_length=150, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 

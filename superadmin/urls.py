@@ -30,6 +30,7 @@ urlpatterns = [
     path('questions-upload/save/', views.questions_upload_save_api, name='questions_upload_save'),
     path('document-verify/api/manual/list/', views.manual_qa_list_api, name='manual_qa_list'),
     path('document-verify/api/manual/<int:qa_id>/image/', views.manual_qa_image, name='manual_qa_image'),
+    path('document-verify/api/manual/<int:qa_id>/pdf/', views.manual_qa_pdf, name='manual_qa_pdf'),
     path('document-verify/api/manual/<int:qa_id>/<str:action>/', views.manual_qa_action_api, name='manual_qa_action'),
     path('document-verify/api/list/', views.document_verify_list_api, name='document_verify_list'),
     path('document-verify/api/<str:uid>/', views.document_verify_detail_api, name='document_verify_detail'),

@@ -195,6 +195,24 @@ def qa_image_public(request, qa_id):
     return resp
 
 
+def qa_pdf_public(request, qa_id):
+    """The PDF of an APPROVED admin-typed Q&A, linked under the chat answer. Pending / rejected PDFs stay private."""
+    from django.http import HttpResponse
+    qa = QAPair.objects.filter(id=qa_id, status='approved', document__file_type='manual').exclude(pdf='').first()
+    if not qa:
+        return HttpResponse(status=404)
+    try:
+        with qa.pdf.open('rb') as fh:
+            data = fh.read()
+    except OSError:
+        return HttpResponse(status=404)
+    resp = HttpResponse(data, content_type='application/pdf')
+    resp['Content-Disposition'] = 'inline; filename="axom-ai-%d.pdf"' % qa.id
+    resp['X-Content-Type-Options'] = 'nosniff'
+    resp['Cache-Control'] = 'public, max-age=3600'
+    return resp
+
+
 @csrf_exempt
 def import_crawl_api(request):
     if request.method != 'POST':
