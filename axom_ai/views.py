@@ -1409,6 +1409,26 @@ def chat_api_view(request):
         })
 
     # -----------------------------------------------------------------------
+    # Admin-typed Q&A (admin > Questions Upload), only after it was approved in Document Verify:
+    # answered as written, with its photo. Nothing else from the knowledge base is used here.
+    # -----------------------------------------------------------------------
+    if not web_search and not data.get('attached_image') and not data.get('attached_pdf'):
+        try:
+            from knowledge.utils import find_manual_answer
+            manual = find_manual_answer(prompt)
+        except Exception:
+            manual = None
+        if manual:
+            reply = (manual.answer_assamese if language == 'assamese' and manual.answer_assamese else manual.answer)
+            _save_chat(request, client_id, prompt, reply)
+            out = {'response': reply, 'from_database': True, 'source_docs': [], 'web_search': False,
+                   'sources': [], 'engine': 'manual-qa',
+                   'source': {'name': manual.source_name, 'url': ''}}
+            if manual.image:
+                out['image_url'] = '/api/qa-image/%d/' % manual.id
+            return JsonResponse(out)
+
+    # -----------------------------------------------------------------------
     # INTENT CLASSIFICATION VIA OPENAI — Check if user wants image generation
     # User rule: "user ki intent samjne ke liye open ai ka use karo, sirf
     # agar bolta he image generate ka tabhi gemini ka use karo chat me"

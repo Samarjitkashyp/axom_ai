@@ -175,6 +175,26 @@ def list_documents_api(request):
     })
 
 
+def qa_image_public(request, qa_id):
+    """The photo of an APPROVED admin-typed Q&A, shown under the chat answer. Pending / rejected photos stay private."""
+    from django.http import HttpResponse
+    qa = QAPair.objects.filter(id=qa_id, status='approved', document__file_type='manual').exclude(image='').first()
+    if not qa:
+        return HttpResponse(status=404)
+    try:
+        with qa.image.open('rb') as fh:
+            data = fh.read()
+    except OSError:
+        return HttpResponse(status=404)
+    ctype = {'jpg': 'image/jpeg', 'png': 'image/png', 'webp': 'image/webp'}.get(qa.image.name.rsplit('.', 1)[-1].lower())
+    if not ctype:
+        return HttpResponse(status=404)
+    resp = HttpResponse(data, content_type=ctype)
+    resp['X-Content-Type-Options'] = 'nosniff'
+    resp['Cache-Control'] = 'public, max-age=3600'
+    return resp
+
+
 @csrf_exempt
 def import_crawl_api(request):
     if request.method != 'POST':

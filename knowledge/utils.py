@@ -422,6 +422,29 @@ def find_instant_answer(query, threshold=0.6):
     return None, '', None
 
 
+def find_manual_answer(query, threshold=0.6):
+    """The approved admin-typed Q&A (Questions Upload) that best matches the query, or None.
+    Only these few hand-checked pairs are looked at (the big crawled / Wikipedia set is not),
+    so the chat can answer them straight away, with their photo."""
+    q_tokens = _keywords(query)
+    if not q_tokens:
+        return None
+    qn = _normalize(query)
+    best, best_score = None, 0.0
+    for qa in QAPair.objects.filter(status='approved', document__file_type='manual').only(
+            'id', 'question', 'answer', 'answer_assamese', 'image', 'source_name')[:2000]:
+        if _normalize(qa.question) == qn:
+            return qa
+        p_tokens = _keywords(qa.question)
+        inter = len(q_tokens & p_tokens)
+        if not p_tokens or not inter:
+            continue
+        score = inter / min(len(q_tokens), len(p_tokens)) + (inter / len(q_tokens | p_tokens)) * 0.001
+        if score > best_score:
+            best, best_score = qa, score
+    return best if best_score >= threshold else None
+
+
 def search_knowledge_base(query, top_k=3):
     """
     High-performance database query checking if user question exists in Knowledge Base.

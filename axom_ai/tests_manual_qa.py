@@ -118,3 +118,34 @@ class ManualQATests(TestCase):
     def test_invalid_action_and_method(self):
         self.assertEqual(self.client.post('/axomai-admin/document-verify/api/manual/1/explode/').status_code, 400)
         self.assertEqual(self.client.get('/axomai-admin/document-verify/api/manual/1/approve/').status_code, 405)
+
+
+    def _approved_with_photo(self):
+        self._save(image=SimpleUploadedFile('a.png', _png(), content_type='image/png'), answer_assamese='অসমীয়া উত্তৰ')
+        qa = QAPair.objects.get()
+        with mock.patch('knowledge.utils._embed_texts', return_value=None):
+            self.client.post('/axomai-admin/document-verify/api/manual/%d/approve/' % qa.id)
+        return qa
+
+    def _chat(self, prompt, language='english'):
+        return self.client.post('/api/chat/', data=json.dumps({'prompt': prompt, 'language': language}), content_type='application/json')
+
+    def test_chat_answers_approved_manual_qa_with_photo(self):
+        qa = self._approved_with_photo()
+        r = self._chat('What is Bihu?')
+        self.assertEqual(r.status_code, 200)
+        body = r.json()
+        self.assertEqual(body['engine'], 'manual-qa')
+        self.assertEqual(body['response'], 'A festival of Assam.')
+        self.assertEqual(body['image_url'], '/api/qa-image/%d/' % qa.id)
+        self.assertEqual(self._chat('What is Bihu?', 'assamese').json()['response'], 'অসমীয়া উত্তৰ')
+        self.client.logout()                                   # the photo is public once approved
+        img = self.client.get(body['image_url'])
+        self.assertEqual((img.status_code, img['Content-Type']), (200, 'image/png'))
+
+    def test_chat_ignores_pending_and_photo_stays_private(self):
+        self._save(image=SimpleUploadedFile('a.png', _png(), content_type='image/png'))
+        qa = QAPair.objects.get()
+        self.assertIsNone(kutils.find_manual_answer('What is Bihu?'))     # pending: the chat never sees it
+        self.client.logout()
+        self.assertEqual(self.client.get('/api/qa-image/%d/' % qa.id).status_code, 404)
