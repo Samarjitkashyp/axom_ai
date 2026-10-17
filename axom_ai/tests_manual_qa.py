@@ -127,8 +127,12 @@ class ManualQATests(TestCase):
             self.client.post('/axomai-admin/document-verify/api/manual/%d/approve/' % qa.id)
         return qa
 
-    def _chat(self, prompt, language='english'):
-        return self.client.post('/api/chat/', data=json.dumps({'prompt': prompt, 'language': language}), content_type='application/json')
+    def _chat(self, prompt, language='english', ai=(None, None)):
+        # the AI is always mocked: ai=(None, None) means "AI unavailable"
+        with mock.patch('model_router.router.openai_generate', return_value=ai) as gen:
+            r = self.client.post('/api/chat/', data=json.dumps({'prompt': prompt, 'language': language}), content_type='application/json')
+        self.ai_call = gen.call_args
+        return r
 
     def test_chat_answers_approved_manual_qa_with_photo(self):
         qa = self._approved_with_photo()
@@ -138,7 +142,7 @@ class ManualQATests(TestCase):
         self.assertEqual(body['engine'], 'manual-qa')
         self.assertEqual(body['response'], 'A festival of Assam.')
         self.assertEqual(body['image_url'], '/api/qa-image/%d/' % qa.id)
-        self.assertEqual(self._chat('What is Bihu?', 'assamese').json()['response'], 'অসমীয়া উত্তৰ')
+        self.assertEqual(self._chat('What is Bihu?', 'assamese').json()['response'], 'অসমীয়া উত্তৰ')   # AI down: the admin text is sent as it is
         self.client.logout()                                   # the photo is public once approved
         img = self.client.get(body['image_url'])
         self.assertEqual((img.status_code, img['Content-Type']), (200, 'image/png'))
@@ -168,3 +172,15 @@ class ManualQATests(TestCase):
         self.assertIn('/api/qa-pdf/%d/' % qa.id, body['response'])
         self.client.logout()
         self.assertEqual(self.client.get('/api/qa-pdf/%d/' % qa.id)['Content-Type'], 'application/pdf')
+
+    def test_chat_has_the_ai_write_the_reply_in_the_users_language(self):
+        self._save(answer='Use TestFlight or Xcode to install the iOS app.', question='how to install ios app')
+        qa = QAPair.objects.get()
+        with mock.patch('knowledge.utils._embed_texts', return_value=None):
+            self.client.post('/axomai-admin/document-verify/api/manual/%d/approve/' % qa.id)
+        body = self._chat('how to install ios app', 'assamese', ai=('আইঅ’এছ এপ ইনষ্টল কৰক।', 'm')).json()
+        self.assertIn('ইনষ্টল', body['response'])
+        system, prompt = self.ai_call.args[0], self.ai_call.args[1]
+        self.assertIn('Assamese', system)                                   # the language rules of the chat
+        self.assertIn('Use TestFlight or Xcode', prompt)                    # the admin's facts are given to the AI
+        self.assertEqual(body['engine'], 'manual-qa')

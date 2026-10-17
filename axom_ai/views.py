@@ -1409,26 +1409,17 @@ def chat_api_view(request):
         })
 
     # -----------------------------------------------------------------------
-    # Admin-typed Q&A (admin > Questions Upload), only after it was approved in Document Verify:
-    # answered as written, with its photo. Nothing else from the knowledge base is used here.
+    # Admin-typed Q&A (admin > Questions Upload), only after it was approved in Document Verify.
+    # Found here; the answer is written further down by the AI from these facts, in the user's language.
+    # Nothing else from the knowledge base is used.
     # -----------------------------------------------------------------------
+    manual = None
     if not web_search and not data.get('attached_image') and not data.get('attached_pdf'):
         try:
             from knowledge.utils import find_manual_answer
             manual = find_manual_answer(prompt)
         except Exception:
             manual = None
-        if manual:
-            reply = (manual.answer_assamese if language == 'assamese' and manual.answer_assamese else manual.answer)
-            if manual.pdf:       # the chat text has no clickable links yet: the full address is added as plain text
-                reply += '\n\n📄 PDF: %s://%s/api/qa-pdf/%d/' % ('http' if settings.DEBUG else 'https', request.get_host(), manual.id)
-            _save_chat(request, client_id, prompt, reply)
-            out = {'response': reply, 'from_database': True, 'source_docs': [], 'web_search': False,
-                   'sources': [], 'engine': 'manual-qa',
-                   'source': {'name': manual.source_name, 'url': ''}}
-            if manual.image:
-                out['image_url'] = '/api/qa-image/%d/' % manual.id
-            return JsonResponse(out)
 
     # -----------------------------------------------------------------------
     # INTENT CLASSIFICATION VIA OPENAI — Check if user wants image generation
@@ -1793,6 +1784,37 @@ def chat_api_view(request):
 
     # Direct GPT prompt — no KB context, no translation step.
     final_prompt = f"{hist_block}User Question: {prompt}"
+
+    # Approved admin-typed Q&A: the AI writes the reply from these facts in the user's language
+    # (Assamese for Assamese, even if the admin typed Hinglish). If the AI is not available the
+    # admin's own text is sent as it is. The photo / PDF of the entry go with the reply.
+    if manual:
+        facts = manual.answer_assamese if language == 'assamese' and manual.answer_assamese else manual.answer
+        reply = ''
+        try:
+            from model_router.router import openai_generate
+            reply, _m = openai_generate(
+                system_instruction,
+                f"{hist_block}VERIFIED INFORMATION (approved by the Axom AI team):\n{facts}\n\n"
+                f"User Question: {prompt}\n\n"
+                "Answer the user's question using this verified information, in the language required above. "
+                "Keep every fact, step, name and number; you may translate and tidy the wording, but do not add facts "
+                "that are not in the verified information.",
+                timeout=45)
+        except Exception:
+            reply = ''
+        if reply:
+            reply = _assamese_final(reply) if language == 'assamese' else _sanitize_brand_mentions(reply)
+        else:
+            reply = facts
+        if manual.pdf:       # the chat text has no clickable links yet: the full address is added as plain text
+            reply += '\n\n📄 PDF: %s://%s/api/qa-pdf/%d/' % ('http' if settings.DEBUG else 'https', request.get_host(), manual.id)
+        _save_chat(request, client_id, prompt, reply)
+        out = {'response': reply, 'from_database': True, 'source_docs': [], 'web_search': False,
+               'sources': [], 'engine': 'manual-qa', 'source': {'name': manual.source_name, 'url': ''}}
+        if manual.image:
+            out['image_url'] = '/api/qa-image/%d/' % manual.id
+        return JsonResponse(out)
 
     # 5. Ollama local model skipped — GPT gives much better answers.
 
