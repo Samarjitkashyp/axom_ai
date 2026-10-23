@@ -179,7 +179,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
 
       <Navbar header={landingData?.header} />
 
-      <main className="pt-28 pb-20 flex-grow relative overflow-hidden">
+      <main className="pt-24 sm:pt-28 pb-16 sm:pb-20 flex-grow relative overflow-hidden">
         {/* Glow Background Elements */}
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[1000px] h-[350px] bg-gradient-to-r from-purple-600/15 via-indigo-600/10 to-pink-600/10 blur-[150px] rounded-full pointer-events-none -z-10" />
 
@@ -187,16 +187,16 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Breadcrumbs */}
-          <nav className="flex items-center space-x-2 text-xs text-slate-600 dark:text-gray-400 mb-8 font-medium">
-            <Link href="/" className="hover:text-emerald-950 dark:hover:text-white transition-colors">
+          <nav className="flex items-center space-x-2 text-xs text-slate-600 dark:text-gray-400 mb-6 sm:mb-8 font-medium min-w-0">
+            <Link href="/" className="hover:text-emerald-950 dark:hover:text-white transition-colors whitespace-nowrap">
               Home
             </Link>
             <span>/</span>
-            <Link href="/blog" className="hover:text-emerald-950 dark:hover:text-white transition-colors">
+            <Link href="/blog" className="hover:text-emerald-950 dark:hover:text-white transition-colors whitespace-nowrap">
               Blog &amp; Insights
             </Link>
             <span>/</span>
-            <span className="text-purple-700 dark:text-purple-400 line-clamp-1 max-w-xs sm:max-w-md">{article.title}</span>
+            <span className="text-purple-700 dark:text-purple-400 line-clamp-1 min-w-0 flex-1 sm:max-w-md">{article.title}</span>
           </nav>
 
           {/* Article Header */}
@@ -213,7 +213,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-emerald-950 dark:text-white leading-[1.2] mb-6">
+            <h1 className="text-[1.65rem] sm:text-4xl lg:text-5xl font-black tracking-tight text-emerald-950 dark:text-white leading-[1.2] mb-5 sm:mb-6 break-words">
               {article.title}
             </h1>
 
@@ -235,7 +235,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
           </div>
 
           {/* Author Info & Actions Bar */}
-          <div className="flex items-center justify-between border-y border-emerald-900/15 dark:border-white/10 py-4 mb-10">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-emerald-900/15 dark:border-white/10 py-4 mb-8 sm:mb-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-bold text-sm shadow-md text-white">
                 {(article.author_name || 'A')[0]}
@@ -251,7 +251,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
             <div className="flex items-center gap-2">
               <Link
                 href="/blog"
-                className="px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-gray-300 bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 hover:bg-emerald-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5"
+                className="px-4 py-2.5 sm:px-3.5 sm:py-1.5 rounded-lg text-xs font-medium text-slate-700 dark:text-gray-300 bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 hover:bg-emerald-50 dark:hover:bg-white/10 transition-colors flex items-center gap-1.5"
               >
                 <i className="fa-solid fa-arrow-left" /> Back to Articles
               </Link>
@@ -291,7 +291,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(canonicalUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-lg bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-white/15 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white transition-colors"
+                className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-white/15 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white transition-colors"
                 title="Share on X"
               >
                 <i className="fa-brands fa-x-twitter" />
@@ -300,7 +300,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
                 href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicalUrl)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-lg bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-white/15 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white transition-colors"
+                className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-white/15 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white transition-colors"
                 title="Share on LinkedIn"
               >
                 <i className="fa-brands fa-linkedin-in" />
@@ -309,7 +309,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
                 href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${article.title} - ${canonicalUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-lg bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-white/15 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white transition-colors"
+                className="w-10 h-10 sm:w-8 sm:h-8 rounded-lg bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-white/15 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white transition-colors"
                 title="Share on WhatsApp"
               >
                 <i className="fa-brands fa-whatsapp" />
@@ -329,7 +329,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
                   <Link
                     key={item.id}
                     href={`/blog/${item.slug}/`}
-                    className="group flex flex-col justify-between p-6 rounded-2xl bg-white/[0.03] border border-emerald-900/15 dark:border-white/10 hover:border-purple-500/40 hover:bg-white/[0.05] transition-all duration-300"
+                    className="group flex flex-col justify-between p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-emerald-900/15 dark:border-white/10 hover:border-purple-500/40 hover:bg-white/[0.05] transition-all duration-300"
                   >
                     <div>
                       <div className="flex items-center justify-between text-xs text-slate-600 dark:text-gray-400 mb-3">

@@ -1049,3 +1049,54 @@ html:not(.dark) .cat-btn.active {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
 }
 
+/* ===== Mobile article reading overrides (keep LAST so they win) ===== */
+/* Long URLs, commands and CVE ids must wrap instead of being clipped */
+.blog-rich-content p,
+.blog-rich-content li,
+.blog-rich-content a,
+.blog-rich-content h1,
+.blog-rich-content h2,
+.blog-rich-content h3,
+.blog-rich-content h4,
+.blog-rich-content blockquote,
+.blog-rich-content .callout-box {
+  overflow-wrap: anywhere;
+}
+
+/* Phones: smaller headings, tighter spacing, lighter code and tables */
+@media (max-width: 640px) {
+  .blog-rich-content { font-size: 1rem; }
+  .blog-rich-content h1 { font-size: 1.6rem; }
+  .blog-rich-content h2 { font-size: 1.4rem; margin-top: 1.9rem; }
+  .blog-rich-content h3 { font-size: 1.2rem; margin-top: 1.6rem; }
+  .blog-rich-content h4 { font-size: 1.05rem; }
+  .blog-rich-content p,
+  .blog-rich-content li { font-size: 1rem; line-height: 1.7; }
+  .blog-rich-content p { margin-bottom: 1.1rem; }
+  .blog-rich-content ul,
+  .blog-rich-content ol { padding-left: 1.25rem; }
+  .blog-rich-content li { margin-bottom: 0.5rem; }
+  .blog-rich-content blockquote { padding: 1rem 1.1rem; margin: 1.4rem 0; }
+  .blog-rich-content code { font-size: 0.85em; padding: 0.1rem 0.35rem; overflow-wrap: anywhere; }
+  .blog-rich-content pre {
+    padding: 0.9rem 1rem !important;
+    font-size: 0.8rem !important;
+    line-height: 1.6 !important;
+    margin: 1.25rem 0 !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .blog-rich-content pre code {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow-wrap: normal;
+    white-space: pre;
+  }
+  .blog-rich-content img { margin: 1.25rem 0; border-radius: 12px; }
+  .table-responsive-wrapper,
+  .blog-rich-content .table-wrapper { margin: 1.5rem 0; border-radius: 14px; }
+  .blog-rich-content table { min-width: 560px; }
+  .blog-rich-content th,
+  .blog-rich-content td { padding: 12px 14px; }
+  .blog-rich-content .callout-box { padding: 1rem 1.1rem; margin: 1.4rem 0; }
+}
