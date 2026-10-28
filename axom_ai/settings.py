@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'userpanel',
     'contentcms',
     'model_router',
+    'developer_api',
 ]
 
 # --- Razorpay (payments) ---

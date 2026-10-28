@@ -9,6 +9,7 @@ import contentcms.api_views as contentcms_api
 from . import contact_api
 from . import tts_api
 from . import stt_api
+from . import whatsapp_api
 from . import ai_notes_views
 from . import chat_enhancements
 
@@ -46,6 +47,10 @@ urlpatterns = [
     path('api/chat/export-docx/', chat_enhancements.api_chat_export_docx, name='chat_export_docx_api'),
     path('api/tts/speak/', tts_api.tts_speak_api, name='tts_speak_api'),
     path('api/stt/', stt_api.stt_api, name='stt_api'),
+    path('api/whatsapp/webhook/', whatsapp_api.whatsapp_webhook, name='whatsapp_webhook'),
+    path('api/whatsapp/webhook', whatsapp_api.whatsapp_webhook),
+    path('v1/', include('developer_api.urls')),
+    path('api/v1/', include('developer_api.urls')),
     path('api/chat/phonetics/', chat_enhancements.api_assamese_phonetics, name='chat_phonetics_api'),
     path('api/history/', views.chat_history_view, name='chat_history'),
     path('api/history/action/', views.chat_action_view, name='chat_action'),
