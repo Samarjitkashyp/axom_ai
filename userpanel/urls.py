@@ -26,6 +26,8 @@ urlpatterns = [
     path('library/delete/<int:session_id>/', views.delete_chat_api, name='delete_chat'),
     path('support/', views.support_page, name='support'),
     path('support/ticket/<int:ticket_id>/', views.ticket_detail_view, name='ticket_detail'),
+    path('support/ticket/<int:ticket_id>/reply/', views.reply_ticket_api),
+    path('support/ticket/<int:ticket_id>/close/', views.close_ticket_api),
     path('support/create/', views.create_ticket_api, name='create_ticket'),
     path('support/reply/<int:ticket_id>/', views.reply_ticket_api, name='reply_ticket'),
     path('support/close/<int:ticket_id>/', views.close_ticket_api, name='close_ticket'),
