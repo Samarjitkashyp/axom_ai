@@ -126,21 +126,6 @@ export default async function DeveloperDocsPage() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb Navigation */}
-          <nav className="flex items-center space-x-2 text-xs text-slate-600 dark:text-gray-400 mb-8 font-medium">
-            <Link href="/" className="hover:text-emerald-950 dark:hover:text-white transition-colors">
-              Home
-            </Link>
-            <span>/</span>
-            <span className="hover:text-emerald-950 dark:hover:text-white transition-colors">
-              Docs
-            </span>
-            <span>/</span>
-            <span className="text-emerald-900 dark:text-emerald-300 font-semibold">
-              Developer API
-            </span>
-          </nav>
-
           {/* ==================== HERO SECTION (USE-CASES PATTERN) ==================== */}
           <section className="text-center max-w-4xl mx-auto mb-14 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/15 via-purple-500/10 to-indigo-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold mb-5 shadow-sm">
