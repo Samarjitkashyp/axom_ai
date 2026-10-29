@@ -2,6 +2,8 @@ import os
 import csv
 import json
 import time
+import hashlib
+from functools import wraps
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.core.cache import cache
@@ -30,6 +32,36 @@ from .models import (
     DeviceRegistration,
     UserLoginAttempt,
 )
+
+
+def user_login_required(view_func):
+    """
+    Enforces authentication for userpanel pages.
+    - Redirects cleanly to '/login/?next=...' when on user subdomain ('user.aiaxom.co.in' / 'user.aiaxom.local').
+    - Ensures inactive/deactivated users are logged out immediately.
+    """
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        host = request.get_host().split(':')[0].lower()
+        from axom_ai.subdomain_middleware import USER_HOSTS
+        is_user_host = host in USER_HOSTS
+        
+        if not request.user.is_authenticated:
+            login_url = '/login/' if is_user_host else '/axomai-user/login/'
+            current_path = request.path_info
+            if is_user_host and current_path.startswith('/axomai-user'):
+                clean_path = current_path[len('/axomai-user'):] or '/'
+            else:
+                clean_path = current_path
+            return redirect(f"{login_url}?next={clean_path}")
+            
+        if not request.user.is_active:
+            logout(request)
+            login_url = '/login/' if is_user_host else '/axomai-user/login/'
+            return redirect(login_url)
+            
+        return view_func(request, *args, **kwargs)
+    return _wrapped
 
 
 def _rate_limited(key: str, max_calls: int, per_seconds: int) -> bool:
@@ -143,8 +175,13 @@ def _clear_failed_attempts(ip, username):
 
 def login_view(request):
     error = None
-    if request.user.is_authenticated:
-        return redirect('/axomai-user/')
+    host = request.get_host().split(':')[0].lower()
+    from axom_ai.subdomain_middleware import USER_HOSTS
+    is_user_host = host in USER_HOSTS
+    default_home = '/' if is_user_host else '/axomai-user/'
+
+    if request.user.is_authenticated and request.user.is_active:
+        return redirect(default_home)
 
     client_ip = _client_ip(request)
     user_agent = request.META.get('HTTP_USER_AGENT', '')
@@ -219,7 +256,9 @@ def login_view(request):
             if request.session.session_key:
                 ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
 
-            nxt = request.GET.get('next', '/axomai-user/')
+            nxt = request.GET.get('next', default_home)
+            if is_user_host and nxt.startswith('/axomai-user'):
+                nxt = nxt[len('/axomai-user'):] or '/'
             return redirect(nxt)
 
     return render(request, 'userpanel/login.html', {
@@ -232,8 +271,13 @@ def login_view(request):
 
 
 def signup_view(request):
-    if request.user.is_authenticated:
-        return redirect('/axomai-user/')
+    host = request.get_host().split(':')[0].lower()
+    from axom_ai.subdomain_middleware import USER_HOSTS
+    is_user_host = host in USER_HOSTS
+    default_home = '/' if is_user_host else '/axomai-user/'
+
+    if request.user.is_authenticated and request.user.is_active:
+        return redirect(default_home)
 
     from axom_ai.security import (
         get_client_ip,
@@ -305,7 +349,7 @@ def signup_view(request):
                 if request.session.session_key:
                     ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
 
-                response = redirect('/axomai-user/')
+                response = redirect(default_home)
                 response.set_cookie(
                     'axom_device_uid',
                     device_id,
@@ -326,7 +370,9 @@ def signup_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('/axomai-user/login/')
+    host = request.get_host().split(':')[0].lower()
+    from axom_ai.subdomain_middleware import USER_HOSTS
+    return redirect('/login/' if host in USER_HOSTS else '/axomai-user/login/')
 
 
 def _get_user_limits(user):
@@ -381,7 +427,7 @@ def _get_user_limits(user):
     }
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def dashboard(request):
     user = request.user
     profile, _ = UserProfile.objects.get_or_create(user=user)
@@ -446,7 +492,7 @@ def dashboard(request):
     return render(request, 'userpanel/dashboard.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def profile_page(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     unread_notif_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
@@ -458,7 +504,7 @@ def profile_page(request):
     return render(request, 'userpanel/profile.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def update_profile_api(request):
     try:
@@ -492,7 +538,7 @@ def update_profile_api(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def change_password_api(request):
     try:
@@ -529,7 +575,7 @@ def change_password_api(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def subscription_page(request):
     user = request.user
     limits = _get_user_limits(user)
@@ -566,7 +612,7 @@ def subscription_page(request):
     return render(request, 'userpanel/subscription.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def cancel_subscription_api(request):
     try:
@@ -589,7 +635,7 @@ def cancel_subscription_api(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def payments_page(request):
     payments = Payment.objects.filter(user=request.user).order_by('-created_at')
     unread_notif_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
@@ -601,7 +647,7 @@ def payments_page(request):
     return render(request, 'userpanel/payments.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def invoice_view(request, payment_id):
     payment = get_object_or_404(Payment, id=payment_id, user=request.user)
     context = {
@@ -613,7 +659,7 @@ def invoice_view(request, payment_id):
     return render(request, 'userpanel/invoice.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def usage_page(request):
     user = request.user
 
@@ -657,7 +703,7 @@ def usage_page(request):
     return render(request, 'userpanel/usage.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def export_usage_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="my_axom_ai_usage_{timezone.now():%Y%m%d}.csv"'
@@ -671,7 +717,7 @@ def export_usage_csv(request):
     return response
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def library_page(request):
     q = request.GET.get('q', '').strip()
     session_key = request.session.session_key
@@ -695,7 +741,7 @@ def library_page(request):
     return render(request, 'userpanel/library.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def rename_chat_api(request, session_id):
     try:
@@ -716,7 +762,7 @@ def rename_chat_api(request, session_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def delete_chat_api(request, session_id):
     try:
@@ -730,7 +776,7 @@ def delete_chat_api(request, session_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def support_page(request):
     tickets = SupportTicket.objects.filter(user=request.user).order_by('-created_at')
     unread_notif_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
@@ -742,7 +788,7 @@ def support_page(request):
     return render(request, 'userpanel/support.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def ticket_detail_view(request, ticket_id):
     ticket = get_object_or_404(SupportTicket, id=ticket_id, user=request.user)
     replies = ticket.replies.all().order_by('created_at')
@@ -756,7 +802,7 @@ def ticket_detail_view(request, ticket_id):
     return render(request, 'userpanel/ticket_detail.html', context)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def create_ticket_api(request):
     try:
@@ -793,7 +839,7 @@ def create_ticket_api(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def reply_ticket_api(request, ticket_id):
     try:
@@ -820,7 +866,7 @@ def reply_ticket_api(request, ticket_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 def export_user_data_json(request):
     user = request.user
     profile, _ = UserProfile.objects.get_or_create(user=user)
@@ -865,10 +911,10 @@ def export_user_data_json(request):
     return response
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def delete_account_api(request):
-    """Soft delete pattern: marks account inactive & terminates session gracefully."""
+    """Soft delete pattern: marks account inactive, revokes all API keys & terminates session gracefully."""
     try:
         data = json.loads(request.body)
         password = data.get('password', '')
@@ -877,36 +923,48 @@ def delete_account_api(request):
             return JsonResponse({'success': False, 'error': 'Incorrect password.'}, status=400)
 
         user = request.user
-        # Soft delete
+        # Soft delete user
         user.is_active = False
         user.save()
 
-        # Expire plan
+        # Expire active plan
         user_plan = UserPlan.objects.filter(user=user).first()
         if user_plan:
             user_plan.status = 'expired'
             user_plan.save()
 
+        # Revoke all developer API keys & purge from cache immediately
+        user_keys = DeveloperApiKey.objects.filter(user=user, is_active=True)
+        for k in user_keys:
+            k.is_active = False
+            k.save(update_fields=['is_active'])
+            if k.hashed_key:
+                cache.delete(f"api_key_lookup:{k.hashed_key}")
+            if k.key:
+                cache.delete(f"api_key_lookup:{k.key}")
+
         logout(request)
-        return JsonResponse({'success': True, 'message': 'Account deactivated successfully.'})
+        return JsonResponse({'success': True, 'message': 'Account deactivated and all API keys permanently revoked.'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def mark_notifications_read_api(request):
     InAppNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
     return JsonResponse({'success': True})
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def create_api_key_api(request):
     """
     Industry-standard secure API Key Generation for authenticated developers.
     - Limits active keys per developer to 5.
     - Determines tier & rate limits based on active UserPlan.
+    - Cryptographic SHA-256 hashing (raw key is NEVER stored in database).
+    - Scoped endpoint permissions (all / chat / translate) & IP whitelisting.
     - Returns the raw secret key ONCE in response for secure storage.
     """
     user = request.user
@@ -926,18 +984,28 @@ def create_api_key_api(request):
             'error': 'Active key limit reached. You can have a maximum of 5 active API keys. Please revoke an unused key before creating a new one.'
         }, status=400)
     
-    # Parse key name from JSON or POST body
+    # Parse key name, allowed_ips, permissions from JSON or POST body
     raw_name = ''
+    raw_ips = ''
+    raw_perms = 'all'
     if request.content_type == 'application/json':
         try:
             body = json.loads(request.body.decode('utf-8'))
             raw_name = body.get('name', '')
+            raw_ips = body.get('allowed_ips', '')
+            raw_perms = body.get('permissions', 'all')
         except Exception:
             pass
     if not raw_name:
         raw_name = request.POST.get('name', '')
+    if not raw_ips:
+        raw_ips = request.POST.get('allowed_ips', '')
+    if raw_perms == 'all' and request.POST.get('permissions'):
+        raw_perms = request.POST.get('permissions', 'all')
         
     key_name = _sanitize_input(raw_name, max_len=80) or f"Secret Key {active_count + 1}"
+    allowed_ips = _sanitize_input(raw_ips, max_len=500).strip()
+    permissions = raw_perms if raw_perms in ('all', 'chat', 'translate') else 'all'
     
     # Determine tier & quota based on active UserPlan
     plan_obj = UserPlan.objects.filter(user=user).first()
@@ -956,16 +1024,27 @@ def create_api_key_api(request):
         monthly_quota = 1000
         rate_limit = 60
     
-    # Generate secure random key
+    import secrets
+    # Generate cryptographically secure random key
     raw_key = generate_key_string()
+    key_hash = hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
+    key_prefix = raw_key[:14]
+    key_suffix = raw_key[-4:]
+    # Masked representation stored in DB so raw secret key is NEVER stored on server
+    masked_db_key = f"{key_prefix}••••{key_suffix}_{secrets.token_hex(4)}"
     
     api_key_obj = DeveloperApiKey.objects.create(
         user=user,
-        key=raw_key,
+        key=masked_db_key,
+        hashed_key=key_hash,
+        key_prefix=key_prefix,
+        key_suffix=key_suffix,
         name=key_name,
         owner_email=user.email or f"{user.username}@user.aiaxom.co.in",
         tier=tier,
         is_active=True,
+        permissions=permissions,
+        allowed_ips=allowed_ips,
         monthly_quota=monthly_quota,
         current_usage=0,
         rate_limit_per_minute=rate_limit,
@@ -975,7 +1054,7 @@ def create_api_key_api(request):
     UsageRecord.objects.create(
         user=user,
         action_type='chat',
-        details=f"Created API Key '{key_name}' (ID: {api_key_obj.id})"
+        details=f"Created API Key '{key_name}' (ID: {api_key_obj.id}, Scope: {permissions})"
     )
     
     # In-App Notification
@@ -994,6 +1073,9 @@ def create_api_key_api(request):
             'name': api_key_obj.name,
             'raw_key': raw_key,  # Transmitted ONLY ONCE
             'masked_key': api_key_obj.masked_key,
+            'permissions': api_key_obj.permissions,
+            'permissions_display': api_key_obj.get_permissions_display(),
+            'allowed_ips': api_key_obj.allowed_ips,
             'tier': api_key_obj.get_tier_display(),
             'monthly_quota': api_key_obj.monthly_quota,
             'rate_limit_per_minute': api_key_obj.rate_limit_per_minute,
@@ -1002,7 +1084,7 @@ def create_api_key_api(request):
     })
 
 
-@login_required(login_url='/axomai-user/login/')
+@user_login_required
 @require_POST
 def revoke_api_key_api(request, key_id):
     """
@@ -1022,7 +1104,10 @@ def revoke_api_key_api(request, key_id):
     key_obj.save(update_fields=['is_active'])
     
     # Invalidate cache key lookup immediately
-    cache.delete(f"api_key_lookup:{key_obj.key}")
+    if key_obj.hashed_key:
+        cache.delete(f"api_key_lookup:{key_obj.hashed_key}")
+    if key_obj.key:
+        cache.delete(f"api_key_lookup:{key_obj.key}")
     
     UsageRecord.objects.create(
         user=user,

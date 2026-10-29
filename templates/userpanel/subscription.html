@@ -163,7 +163,7 @@
     const reason = prompt("We're sorry to see you go! Please share why you are cancelling (optional):");
     if (reason === null) return;
     try {
-      const res = await fetch('/axomai-user/subscription/cancel/', {
+      const res = await fetch('/subscription/cancel/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
         body: JSON.stringify({ reason: reason })

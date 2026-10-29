@@ -57,7 +57,15 @@ class SubdomainMiddleware(MiddlewareMixin):
             return None
 
         # user.aiaxom.co.in  →  /axomai-user/*
-        if host in USER_HOSTS and not path.startswith('/axomai-user'):
+        if host in USER_HOSTS:
+            if path.startswith('/axomai-user'):
+                # Clean URL redirect: strip internal /axomai-user prefix so the user never sees it in the browser
+                clean_path = path[len('/axomai-user'):]
+                if not clean_path.startswith('/'):
+                    clean_path = '/' + clean_path
+                qs = ('?' + request.META['QUERY_STRING']) if request.META.get('QUERY_STRING') else ''
+                return HttpResponsePermanentRedirect(f'{clean_path}{qs}')
+            
             request.path_info = '/axomai-user' + path
             request.path = request.path_info
             return None

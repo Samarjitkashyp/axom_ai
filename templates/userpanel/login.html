@@ -430,7 +430,7 @@
         <div class="text-center mt-5 space-y-2">
           <div class="text-xs text-slate-400">
             Don't have an account yet?
-            <a href="/axomai-user/signup/" class="text-indigo-400 hover:text-indigo-300 font-semibold ml-1 underline underline-offset-4">
+            <a href="/signup/" class="text-indigo-400 hover:text-indigo-300 font-semibold ml-1 underline underline-offset-4">
               Create Account (1 per device)
             </a>
           </div>
@@ -488,7 +488,7 @@ function handleCredentialResponse(response) {
   .then(r => r.json())
   .then(data => {
     if (data.success) {
-      window.location.href = '/axomai-user/';
+      window.location.href = '/';
     } else {
       alert(data.error || 'Google sign-in failed.');
     }

@@ -89,7 +89,7 @@
       </div>
       <h3 class="text-sm font-bold text-slate-900 mb-1">Export Account Data</h3>
       <p class="text-xs text-slate-500 mb-4">Download a complete GDPR-compliant JSON archive of your chats, payments, and tickets.</p>
-      <a href="/axomai-user/export-data/" class="inline-flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+      <a href="/export-data/" class="inline-flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
         <i class="fa-solid fa-download"></i> <span>Download JSON Export</span>
       </a>
     </div>
@@ -123,7 +123,7 @@
       timezone: document.getElementById('profTimezone').value.trim()
     };
     try {
-      const res = await fetch('/axomai-user/profile/update/', {
+      const res = await fetch('/profile/update/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
         body: JSON.stringify(payload)
@@ -147,7 +147,7 @@
       return;
     }
     try {
-      const res = await fetch('/axomai-user/profile/password/', {
+      const res = await fetch('/profile/password/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
         body: JSON.stringify({ old_password: oldP, new_password: newP })
@@ -169,7 +169,7 @@
     const pass = prompt("⚠️ CAUTION: This will delete your account permanently. Enter your password to confirm:");
     if (!pass) return;
     try {
-      const res = await fetch('/axomai-user/delete-account/', {
+      const res = await fetch('/delete-account/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
         body: JSON.stringify({ password: pass })

@@ -28,7 +28,7 @@
   <aside class="w-64 bg-white border-r border-slate-200/80 flex flex-col shrink-0 shadow-sm">
     <!-- Brand Header -->
     <div class="h-16 px-6 flex items-center justify-between border-b border-slate-100">
-      <a href="/axomai-user/" class="flex items-center space-x-3 group">
+      <a href="/" class="flex items-center space-x-3 group">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-violet-600 flex items-center justify-center font-black text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition">
           <i class="fa-solid fa-code text-sm"></i>
         </div>
@@ -45,27 +45,27 @@
     <!-- Navigation -->
     <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto text-sm">
       {% with a=active %}
-      <a href="/axomai-user/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'dashboard' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
+      <a href="/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'dashboard' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
         <i class="fa-solid fa-key w-5 text-center mr-3 text-sm {% if a == 'dashboard' %}text-indigo-600{% endif %}"></i>
         API Keys & Secrets
       </a>
-      <a href="/axomai-user/usage/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'usage' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
+      <a href="/usage/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'usage' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
         <i class="fa-solid fa-chart-column w-5 text-center mr-3 text-sm {% if a == 'usage' %}text-indigo-600{% endif %}"></i>
         Usage & Quotas
       </a>
-      <a href="/axomai-user/subscription/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'subscription' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
+      <a href="/subscription/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'subscription' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
         <i class="fa-solid fa-layer-group w-5 text-center mr-3 text-sm text-amber-500"></i>
         API Plans & Limits
       </a>
-      <a href="/axomai-user/payments/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'payments' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
+      <a href="/payments/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'payments' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
         <i class="fa-solid fa-file-invoice-dollar w-5 text-center mr-3 text-sm {% if a == 'payments' %}text-indigo-600{% endif %}"></i>
         Billing & Receipts
       </a>
-      <a href="/axomai-user/support/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'support' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
+      <a href="/support/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'support' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
         <i class="fa-solid fa-headset w-5 text-center mr-3 text-sm {% if a == 'support' %}text-indigo-600{% endif %}"></i>
         Developer Support
       </a>
-      <a href="/axomai-user/profile/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'profile' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
+      <a href="/profile/" class="flex items-center px-3.5 py-2.5 rounded-xl font-medium transition {% if a == 'profile' %}bg-indigo-50 text-indigo-700 font-semibold shadow-sm{% else %}text-slate-600 hover:bg-slate-50 hover:text-slate-900{% endif %}">
         <i class="fa-solid fa-shield-halved w-5 text-center mr-3 text-sm {% if a == 'profile' %}text-indigo-600{% endif %}"></i>
         Security & Profile
       </a>
@@ -87,7 +87,7 @@
           </span>
           <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-50"></i>
         </a>
-        <a href="/axomai-user/logout/" class="flex items-center px-3.5 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 transition">
+        <a href="/logout/" class="flex items-center px-3.5 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 transition">
           <i class="fa-solid fa-arrow-right-from-bracket w-5 text-center mr-2.5"></i>
           Sign Out
         </a>
@@ -218,7 +218,7 @@
 
   async function markAllNotifsRead() {
     try {
-      await fetch('/axomai-user/notifications/read-all/', {
+      await fetch('/notifications/read-all/', {
         method: 'POST',
         headers: { 'X-CSRFToken': csrftoken }
       });

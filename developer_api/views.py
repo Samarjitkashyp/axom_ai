@@ -81,6 +81,7 @@ def _sanitize_brand(text: str) -> str:
     return text
 
 @csrf_exempt
+@require_developer_api_key
 def v1_models(request):
     """
     Standard OpenAI-compatible GET /v1/models endpoint

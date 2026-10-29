@@ -125,7 +125,7 @@
         <span class="text-[11px] text-slate-500">
           {% if limits.is_active %}{{ days_left }} days left{% else %}Upgrade for 100K+{% endif %}
         </span>
-        <a href="/axomai-user/subscription/" class="text-xs font-bold text-indigo-600 hover:text-indigo-700">
+        <a href="/subscription/" class="text-xs font-bold text-indigo-600 hover:text-indigo-700">
           {% if limits.is_active %}Manage →{% else %}Upgrade ⚡{% endif %}
         </a>
       </div>
@@ -163,6 +163,7 @@
         <tr>
           <th class="py-3.5 px-6">Name / Label</th>
           <th class="py-3.5 px-6">Secret Key</th>
+          <th class="py-3.5 px-6">Scope & Security</th>
           <th class="py-3.5 px-6">Tier & Limit</th>
           <th class="py-3.5 px-6">Requests</th>
           <th class="py-3.5 px-6">Created</th>
@@ -191,6 +192,26 @@
               <button onclick="copyToClipboard('{{ k.masked_key }}', 'Masked key copied')" title="Copy masked key reference" class="text-slate-400 hover:text-slate-700 transition">
                 <i class="fa-regular fa-copy"></i>
               </button>
+            </div>
+          </td>
+          <td class="py-4 px-6">
+            <div class="flex flex-col gap-1">
+              <div>
+                {% if k.permissions == 'chat' %}
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">Chat Only</span>
+                {% elif k.permissions == 'translate' %}
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">Translation</span>
+                {% else %}
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">All Endpoints</span>
+                {% endif %}
+              </div>
+              <div class="text-[10px] text-slate-400">
+                {% if k.allowed_ips %}
+                  <span class="text-emerald-600 font-semibold" title="{{ k.allowed_ips }}"><i class="fa-solid fa-shield-halved mr-0.5"></i> IP Whitelisted</span>
+                {% else %}
+                  <span><i class="fa-solid fa-globe mr-0.5"></i> All IPs Allowed</span>
+                {% endif %}
+              </div>
             </div>
           </td>
           <td class="py-4 px-6">
@@ -464,6 +485,22 @@ main();</code></pre>
           <p class="text-[11px] text-slate-400 mt-1">An identifier to help you organize and identify where this key is deployed.</p>
         </div>
 
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Permissions Scope</label>
+          <select id="newKeyPermissions" class="w-full px-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 focus:bg-white transition font-medium text-slate-800">
+            <option value="all">All Endpoints (Chat + Translation)</option>
+            <option value="chat">Chat Completions Only (/v1/chat/completions)</option>
+            <option value="translate">Translation Only (/v1/translate)</option>
+          </select>
+          <p class="text-[11px] text-slate-400 mt-1">Limit this key strictly to the endpoints your application requires.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">IP Whitelist Restriction <span class="text-slate-400 font-normal">(Optional)</span></label>
+          <input type="text" id="newKeyAllowedIps" placeholder="e.g. 203.0.113.195, 198.51.100.4" maxlength="500" class="w-full px-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 focus:bg-white transition font-mono">
+          <p class="text-[11px] text-slate-400 mt-1">Comma-separated client IP addresses allowed to call with this key. Leave blank to allow from any IP.</p>
+        </div>
+
         <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="text-slate-500">Inherited Tier:</span>
@@ -599,6 +636,10 @@ main();</code></pre>
   // Create Key Modal
   function openCreateKeyModal() {
     document.getElementById('newKeyName').value = '';
+    const permEl = document.getElementById('newKeyPermissions');
+    if (permEl) permEl.value = 'all';
+    const ipEl = document.getElementById('newKeyAllowedIps');
+    if (ipEl) ipEl.value = '';
     document.getElementById('createKeyModal').classList.remove('hidden');
     document.getElementById('newKeyName').focus();
   }
@@ -612,18 +653,24 @@ main();</code></pre>
     const btn = document.getElementById('submitCreateKeyBtn');
     const nameInput = document.getElementById('newKeyName');
     const keyName = nameInput.value.trim();
+    const permissions = document.getElementById('newKeyPermissions') ? document.getElementById('newKeyPermissions').value : 'all';
+    const allowedIps = document.getElementById('newKeyAllowedIps') ? document.getElementById('newKeyAllowedIps').value.trim() : '';
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Generating...';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Generating Secure Key...';
 
     try {
-      const resp = await fetch('/axomai-user/api-keys/create/', {
+      const resp = await fetch('/api-keys/create/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'X-CSRFToken': csrftoken
         },
-        body: new URLSearchParams({ name: keyName })
+        body: new URLSearchParams({
+          name: keyName,
+          permissions: permissions,
+          allowed_ips: allowedIps
+        })
       });
 
       const data = await resp.json();
@@ -678,7 +725,7 @@ main();</code></pre>
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Revoking...';
 
     try {
-      const resp = await fetch(`/axomai-user/api-keys/revoke/${targetRevokeId}/`, {
+      const resp = await fetch(`/api-keys/revoke/${targetRevokeId}/`, {
         method: 'POST',
         headers: {
           'X-CSRFToken': csrftoken
