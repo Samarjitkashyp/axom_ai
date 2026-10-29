@@ -13,7 +13,9 @@ import {
   ChevronRight,
   Layers,
   Cpu,
-  Lock
+  Lock,
+  Play,
+  ShieldCheck
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -161,6 +163,20 @@ export default async function DeveloperDocsPage() {
                 <span>Quickstart SDK</span>
               </a>
               <a
+                href="#playground"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-indigo-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Play size={15} className="text-indigo-600 dark:text-indigo-400" />
+                <span>Live Sandbox</span>
+              </a>
+              <a
+                href="#security"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <ShieldCheck size={15} className="text-emerald-600 dark:text-emerald-400" />
+                <span>Security Architecture</span>
+              </a>
+              <a
                 href="#models"
                 className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
@@ -176,10 +192,10 @@ export default async function DeveloperDocsPage() {
               </a>
               <a
                 href="#rate-limits"
-                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-amber-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <Lock size={15} className="text-amber-600 dark:text-amber-400" />
-                <span>Rate Limits &amp; Security</span>
+                <span>Rate Limits</span>
               </a>
             </div>
           </section>

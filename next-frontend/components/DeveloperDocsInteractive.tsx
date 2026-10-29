@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Code,
@@ -25,7 +25,13 @@ import {
   CheckCircle2,
   Lock,
   ChevronRight,
-  Clock
+  Clock,
+  Play,
+  RotateCcw,
+  Sliders,
+  Send,
+  Trash2,
+  HelpCircle
 } from 'lucide-react';
 
 interface ModelInfo {
@@ -69,60 +75,56 @@ const MODELS: ModelInfo[] = [
 ];
 
 export default function DeveloperDocsInteractive() {
-  // Key Generator State
-  const [keyName, setKeyName] = useState('My Production App');
-  const [tier, setTier] = useState('free');
-  const [email, setEmail] = useState('');
-  const [generatedKey, setGeneratedKey] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showKey, setShowKey] = useState(false);
-  const [copiedKey, setCopiedKey] = useState(false);
-  const [genError, setGenError] = useState<string | null>(null);
+  // Developer Testing Key State (Session Only)
+  const [userKey, setUserKey] = useState<string>('');
+  const [showKey, setShowKey] = useState<boolean>(false);
+  const [copiedKey, setCopiedKey] = useState<boolean>(false);
+  const [copiedSnippet, setCopiedSnippet] = useState<boolean>(false);
 
   // Active Snippet Tab
-  const [activeTab, setActiveTab] = useState<'python' | 'node' | 'curl'>('python');
-  const [copiedSnippet, setCopiedSnippet] = useState(false);
+  const [activeTab, setActiveTab] = useState<'python' | 'node' | 'curl' | 'translate'>('python');
 
-  // Active Endpoint Tab
+  // Active Endpoint Tab in Documentation
   const [activeEndpoint, setActiveEndpoint] = useState<'chat' | 'translate' | 'models'>('chat');
 
-  // Active Key to display in snippets
-  const currentKey = generatedKey || 'sk_live_axom_YOUR_API_KEY_HERE';
+  // Live Playground State
+  const [playgroundEndpoint, setPlaygroundEndpoint] = useState<'chat' | 'translate' | 'models'>('chat');
+  const [chatModel, setChatModel] = useState<string>('axom-indic-1');
+  const [chatPrompt, setChatPrompt] = useState<string>('নমস্কাৰ! আপুনি মোক কি কি বিষয়ত সহায় কৰিব পাৰিব?');
+  const [temperature, setTemperature] = useState<number>(0.7);
+  const [translateText, setTranslateText] = useState<string>('Artificial Intelligence is empowering the youth of Assam.');
+  const [translateTarget, setTranslateTarget] = useState<string>('as');
 
-  const handleGenerateKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsGenerating(true);
-    setGenError(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [apiResponse, setApiResponse] = useState<any | null>(null);
+  const [httpStatus, setHttpStatus] = useState<number | null>(null);
+  const [responseTimeMs, setResponseTimeMs] = useState<number | null>(null);
 
+  // Load key from sessionStorage on mount (never leaves user browser)
+  useEffect(() => {
     try {
-      const res = await fetch('/api/v1/developer/keys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: keyName.trim() || 'My Production Key',
-          tier: tier,
-          email: email.trim(),
-        }),
-      });
+      const saved = sessionStorage.getItem('axom_docs_dev_key');
+      if (saved) setUserKey(saved);
+    } catch {}
+  }, []);
 
-      const data = await res.json();
-      if (data.success && data.api_key?.key) {
-        setGeneratedKey(data.api_key.key);
-        setShowKey(true);
+  const handleSaveKey = (val: string) => {
+    const trimmed = val.trim();
+    setUserKey(trimmed);
+    try {
+      if (trimmed) {
+        sessionStorage.setItem('axom_docs_dev_key', trimmed);
       } else {
-        // Fallback for standalone / client test preview
-        const mockKey = `sk_live_axom_${Math.random().toString(36).substring(2, 12)}${Math.random().toString(36).substring(2, 12)}fd94`;
-        setGeneratedKey(mockKey);
-        setShowKey(true);
+        sessionStorage.removeItem('axom_docs_dev_key');
       }
-    } catch {
-      // Fallback preview
-      const mockKey = `sk_live_axom_${Math.random().toString(36).substring(2, 12)}${Math.random().toString(36).substring(2, 12)}81b2`;
-      setGeneratedKey(mockKey);
-      setShowKey(true);
-    } finally {
-      setIsGenerating(false);
-    }
+    } catch {}
+  };
+
+  const handleClearKey = () => {
+    setUserKey('');
+    try {
+      sessionStorage.removeItem('axom_docs_dev_key');
+    } catch {}
   };
 
   const copyToClipboard = (text: string, isSnippet = false) => {
@@ -136,9 +138,84 @@ export default function DeveloperDocsInteractive() {
     }
   };
 
-  const getMaskedKey = (key: string) => {
-    if (showKey) return key;
-    return `${key.slice(0, 14)}${'•'.repeat(24)}${key.slice(-4)}`;
+  // Masked Key helper for snippets
+  const activeKeyForSnippets = userKey || 'sk_live_axom_••••••••••••••••••••••••••••••••••••••••';
+
+  // Live Playground API Trigger
+  const runLiveTest = async () => {
+    setIsLoading(true);
+    setApiResponse(null);
+    setHttpStatus(null);
+    setResponseTimeMs(null);
+
+    const startTime = performance.now();
+
+    try {
+      let url = '/v1/chat/completions';
+      let options: RequestInit = {};
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      if (userKey) {
+        headers['Authorization'] = `Bearer ${userKey}`;
+      }
+
+      if (playgroundEndpoint === 'chat') {
+        url = '/v1/chat/completions';
+        options = {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            model: chatModel,
+            messages: [
+              { role: 'system', content: 'You are Axom AI assistant.' },
+              { role: 'user', content: chatPrompt },
+            ],
+            temperature: temperature,
+          }),
+        };
+      } else if (playgroundEndpoint === 'translate') {
+        url = '/v1/translate';
+        options = {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            text: translateText,
+            source_lang: 'en',
+            target_lang: translateTarget,
+          }),
+        };
+      } else if (playgroundEndpoint === 'models') {
+        url = '/v1/models';
+        options = {
+          method: 'GET',
+          headers,
+        };
+      }
+
+      const res = await fetch(url, options);
+      const endTime = performance.now();
+      const elapsed = Math.round(endTime - startTime);
+
+      setHttpStatus(res.status);
+      setResponseTimeMs(elapsed);
+
+      let data: any;
+      try {
+        data = await res.json();
+      } catch {
+        data = { error: 'Non-JSON response from server' };
+      }
+      setApiResponse(data);
+    } catch (err: any) {
+      const endTime = performance.now();
+      setHttpStatus(0);
+      setResponseTimeMs(Math.round(endTime - startTime));
+      setApiResponse({ error: err?.message || 'Network request failed' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Code Snippets
@@ -148,7 +225,7 @@ import os
 # 1. Initialize client with Axom AI base URL
 client = OpenAI(
     base_url="https://aiaxom.co.in/v1",
-    api_key=os.environ.get("AXOM_API_KEY", "${currentKey}")
+    api_key=os.environ.get("AXOM_API_KEY", "${activeKeyForSnippets}")
 )
 
 # 2. Query Axom Indic-1 with full OpenAI compatibility
@@ -169,7 +246,7 @@ print(response.choices[0].message.content)`;
 // 1. Point standard OpenAI SDK to Axom AI
 const openai = new OpenAI({
   baseURL: 'https://aiaxom.co.in/v1',
-  apiKey: process.env.AXOM_API_KEY || '${currentKey}',
+  apiKey: process.env.AXOM_API_KEY || '${activeKeyForSnippets}',
 });
 
 async function main() {
@@ -187,9 +264,9 @@ async function main() {
 
 main();`;
 
-  const curlSnippet = `curl -X POST https://aiaxom.co.in/v1/chat/completions \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer ${currentKey}" \\
+  const curlSnippet = `curl -X POST https://aiaxom.co.in/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${activeKeyForSnippets}" \
   -d '{
     "model": "axom-indic-1",
     "messages": [
@@ -201,11 +278,20 @@ main();`;
     "temperature": 0.7
   }'`;
 
+  const translateSnippet = `curl -X POST https://aiaxom.co.in/v1/translate \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${activeKeyForSnippets}" \
+  -d '{
+    "text": "Artificial Intelligence is transforming Assam.",
+    "source_lang": "en",
+    "target_lang": "as"
+  }'`;
+
   return (
-    <div className="space-y-16 py-8">
+    <div className="space-y-16 py-6">
       {/* 1. Quick Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
             <Zap size={14} /> SDK Standard
           </div>
@@ -213,153 +299,152 @@ main();`;
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Drop-in replacement</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
-            <Clock size={14} /> Latency
+            <Lock size={14} /> Security
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">&lt; 800ms</div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sub-second streaming</div>
+          <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">Bearer Auth</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Strict TLS 1.3 encryption</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
             <Globe size={14} /> Languages
           </div>
           <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">Assamese+</div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Indic + Bengali + English</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Purified ৰ/র orthography</div>
         </div>
 
-        <div className="p-4 rounded-xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
             <ShieldCheck size={14} /> Free Quota
           </div>
           <div className="text-xl sm:text-2xl font-bold font-mono text-slate-900 dark:text-white">1,000 / mo</div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">No credit card needed</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Instant developer tier</div>
         </div>
       </div>
 
-      {/* 2. Interactive Key Generator Card */}
-      <section id="api-keys" className="scroll-mt-24">
-        <div className="p-6 sm:p-8 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-emerald-500/30 dark:border-emerald-500/20 shadow-xl relative overflow-hidden">
+      {/* 2. Official Key Management & Security Section */}
+      <section id="api-keys" className="scroll-mt-24 space-y-6">
+        <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-emerald-500/30 dark:border-emerald-500/20 shadow-xl relative overflow-hidden">
           {/* Subtle Accent Glow */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
 
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3">
-              <Key size={13} className="text-emerald-600 dark:text-emerald-400" /> Instant Developer Access
+          <div className="max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
+              <Key size={13} className="text-emerald-600 dark:text-emerald-400" />
+              Cryptographic Key Management
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              Generate Your Developer API Key
+
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+              Generate &amp; Manage Your API Secret Keys
             </h2>
-            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed mb-6">
-              Create your live secret key to start querying Axom AI models. Keys use standard Bearer Token authentication (<code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-xs text-emerald-600 dark:text-emerald-400">sk_live_axom_...</code>).
+
+            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+              To guarantee zero quota hijacking and adhere to strict industry security standards, Axom AI secret keys are cryptographically generated, user-bound, and managed inside the dedicated <strong>Axom AI Developer Console</strong>.
             </p>
 
-            {/* Key Generator Form */}
-            {!generatedKey ? (
-              <form onSubmit={handleGenerateKey} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                      Key Name / Application
-                    </label>
-                    <input
-                      type="text"
-                      value={keyName}
-                      onChange={(e) => setKeyName(e.target.value)}
-                      placeholder="e.g. Guwahati University Portal"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                      Access Tier
-                    </label>
-                    <select
-                      value={tier}
-                      onChange={(e) => setTier(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium"
-                    >
-                      <option value="free">Free Tier (1,000 req/mo)</option>
-                      <option value="developer">Developer Tier (25k req/mo)</option>
-                      <option value="business">Business Tier (100k req/mo)</option>
-                    </select>
-                  </div>
+            {/* Developer Console Launch Card */}
+            <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-500/30 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-5 my-4">
+              <div className="space-y-1.5">
+                <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Official Developer Console
                 </div>
+                <div className="text-lg sm:text-xl font-extrabold text-white">
+                  user.aiaxom.co.in
+                </div>
+                <p className="text-xs text-slate-300 max-w-md leading-relaxed">
+                  Sign in with your developer account to generate new secret keys, monitor real-time monthly usage quotas, set burst rate limits, and instantly revoke compromised keys.
+                </p>
+              </div>
 
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              <a
+                href="https://user.aiaxom.co.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-500/25 transition-all transform active:scale-95 shrink-0"
+              >
+                <span>Open Developer Console</span>
+                <ExternalLink size={15} />
+              </a>
+            </div>
+
+            {/* 3 Steps Visual Flow */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">1</div>
+                <div className="font-bold text-slate-900 dark:text-white">Sign In or Register</div>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">Authenticate at user.aiaxom.co.in to protect your account quota.</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">2</div>
+                <div className="font-bold text-slate-900 dark:text-white">+ Create Secret Key</div>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">Click Create Key and label your application (e.g. Web App, Mobile).</p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">3</div>
+                <div className="font-bold text-slate-900 dark:text-white">Save in Environment</div>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">Export as <code className="font-mono text-emerald-600 dark:text-emerald-400">AXOM_API_KEY</code> and use with standard OpenAI SDK.</p>
+              </div>
+            </div>
+
+            {/* Interactive Key Sandbox Input for Live Playground & Snippets */}
+            <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                <label className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sliders size={14} className="text-indigo-600 dark:text-indigo-400" />
+                  Documentation Testing Key Sandbox
+                </label>
+                {userKey && (
                   <button
-                    type="submit"
-                    disabled={isGenerating}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-semibold text-sm shadow-md shadow-emerald-600/20 transition-all disabled:opacity-60"
+                    onClick={handleClearKey}
+                    className="text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 self-start sm:self-auto"
                   >
-                    {isGenerating ? (
-                      <>Generating Key...</>
-                    ) : (
-                      <>
-                        <Sparkles size={16} /> Create Secret Key
-                      </>
-                    )}
+                    <Trash2 size={12} /> Clear from browser memory
                   </button>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    Free forever • Instant sandbox testing
-                  </span>
-                </div>
-              </form>
-            ) : (
-              /* Success / Key Generated Box */
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60">
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <CheckCircle2 size={15} /> Secret Key Ready ({keyName})
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setShowKey(!showKey)}
-                      className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
-                    >
-                      {showKey ? <EyeOff size={13} /> : <Eye size={13} />}
-                      {showKey ? 'Mask' : 'Reveal'}
-                    </button>
-                  </div>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                Paste your secret key below to automatically update the code snippets and test live API endpoints directly on this page.
+              </p>
 
-                  <div className="flex items-center gap-2 bg-white dark:bg-slate-950 p-2.5 rounded-lg border border-emerald-200 dark:border-emerald-900/60">
-                    <code className="flex-1 font-mono text-xs sm:text-sm text-slate-800 dark:text-emerald-300 select-all overflow-x-auto">
-                      {getMaskedKey(generatedKey)}
-                    </code>
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard(generatedKey)}
-                      className="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium flex items-center gap-1.5 transition-colors shadow-sm"
-                    >
-                      {copiedKey ? <Check size={13} /> : <Copy size={13} />}
-                      {copiedKey ? 'Copied' : 'Copy'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Security Advisory */}
-                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700/50 flex items-start gap-3 text-xs text-amber-900 dark:text-amber-200">
-                  <ShieldAlert size={18} className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="font-semibold">Security Warning:</strong> Treat this key like a password. Never commit it to GitHub, public repositories, or client-side JavaScript. Store it securely in your server’s environment variables as <code className="font-mono font-bold">AXOM_API_KEY</code>.
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type={showKey ? 'text' : 'password'}
+                    value={userKey}
+                    onChange={(e) => handleSaveKey(e.target.value)}
+                    placeholder="Paste your sk_live_axom_... key here"
+                    className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                  />
                   <button
                     type="button"
-                    onClick={() => setGeneratedKey(null)}
-                    className="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-emerald-600 underline"
+                    onClick={() => setShowKey(!showKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    title={showKey ? 'Mask key' : 'Show key'}
                   >
-                    + Generate Another Key
+                    {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(userKey || '')}
+                  disabled={!userKey}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-40"
+                >
+                  {copiedKey ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                  <span>{copiedKey ? 'Copied' : 'Copy'}</span>
+                </button>
               </div>
-            )}
+
+              <div className="mt-2 text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                <Lock size={12} className="text-emerald-600" />
+                <span>Zero telemetry: Key is kept strictly in your local browser sessionStorage and only used for your direct requests.</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -371,7 +456,7 @@ main();`;
             <Terminal size={14} /> Quickstart Guide
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
-            Integrate in 60 Seconds
+            Integrate in Under 60 Seconds
           </h2>
           <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1">
             Because Axom AI adheres to the standard OpenAI API specification, you can use official OpenAI SDKs or standard HTTP clients without learning a new framework.
@@ -381,12 +466,14 @@ main();`;
         {/* Code Editor Window */}
         <div className="rounded-2xl border border-slate-800 bg-[#0b1220] text-slate-200 shadow-2xl overflow-hidden">
           {/* Header Bar */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/60">
+          <div className="flex flex-wrap items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/60 gap-3">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
               <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
               <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
-              <span className="text-xs font-mono text-slate-400 ml-2">quickstart.{activeTab === 'python' ? 'py' : activeTab === 'node' ? 'ts' : 'sh'}</span>
+              <span className="text-xs font-mono text-slate-400 ml-2">
+                quickstart.{activeTab === 'python' ? 'py' : activeTab === 'node' ? 'ts' : 'sh'}
+              </span>
             </div>
 
             {/* Language Selector Tabs */}
@@ -400,7 +487,7 @@ main();`;
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Python
+                Python (OpenAI)
               </button>
               <button
                 type="button"
@@ -424,6 +511,17 @@ main();`;
               >
                 cURL
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('translate')}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  activeTab === 'translate'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Translation API
+              </button>
             </div>
           </div>
 
@@ -433,7 +531,13 @@ main();`;
               type="button"
               onClick={() =>
                 copyToClipboard(
-                  activeTab === 'python' ? pythonSnippet : activeTab === 'node' ? nodeSnippet : curlSnippet,
+                  activeTab === 'python'
+                    ? pythonSnippet
+                    : activeTab === 'node'
+                    ? nodeSnippet
+                    : activeTab === 'curl'
+                    ? curlSnippet
+                    : translateSnippet,
                   true
                 )
               }
@@ -447,12 +551,327 @@ main();`;
               {activeTab === 'python' && pythonSnippet}
               {activeTab === 'node' && nodeSnippet}
               {activeTab === 'curl' && curlSnippet}
+              {activeTab === 'translate' && translateSnippet}
             </pre>
           </div>
         </div>
       </section>
 
-      {/* 4. Models Specification */}
+      {/* 4. LIVE INTERACTIVE API PLAYGROUND */}
+      <section id="playground" className="scroll-mt-24 space-y-4">
+        <div>
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider mb-1">
+            <Play size={14} /> Live Interactive Sandbox
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+            Test Endpoints Live
+          </h2>
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1">
+            Execute real HTTP requests against the Axom AI production endpoints directly from your browser.
+          </p>
+        </div>
+
+        <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+          {/* Endpoint Selector Tabs */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <button
+              type="button"
+              onClick={() => {
+                setPlaygroundEndpoint('chat');
+                setApiResponse(null);
+                setHttpStatus(null);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                playgroundEndpoint === 'chat'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              }`}
+            >
+              <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
+              <span>/v1/chat/completions</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPlaygroundEndpoint('translate');
+                setApiResponse(null);
+                setHttpStatus(null);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                playgroundEndpoint === 'translate'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              }`}
+            >
+              <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
+              <span>/v1/translate</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPlaygroundEndpoint('models');
+                setApiResponse(null);
+                setHttpStatus(null);
+              }}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                playgroundEndpoint === 'models'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              }`}
+            >
+              <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">GET</span>
+              <span>/v1/models</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Input Config Panel */}
+            <div className="space-y-4">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                Request Payload Configuration
+              </div>
+
+              {playgroundEndpoint === 'chat' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Target Model</label>
+                    <select
+                      value={chatModel}
+                      onChange={(e) => setChatModel(e.target.value)}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="axom-indic-1">axom-indic-1 (Flagship Assamese/Indic)</option>
+                      <option value="axom-fast">axom-fast (Sub-second Groq/Llama-3)</option>
+                      <option value="axom-pro">axom-pro (Deep Reasoning & STEM)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">User Prompt</label>
+                    <textarea
+                      rows={4}
+                      value={chatPrompt}
+                      onChange={(e) => setChatPrompt(e.target.value)}
+                      className="w-full p-3 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Type your question or query here..."
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                      <span>Temperature</span>
+                      <span>{temperature}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.0"
+                      max="1.5"
+                      step="0.1"
+                      value={temperature}
+                      onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                      className="w-full accent-indigo-600 cursor-pointer"
+                    />
+                  </div>
+                </>
+              )}
+
+              {playgroundEndpoint === 'translate' && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Source Text (English)</label>
+                    <textarea
+                      rows={4}
+                      value={translateText}
+                      onChange={(e) => setTranslateText(e.target.value)}
+                      className="w-full p-3 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Source Language</label>
+                      <input
+                        type="text"
+                        disabled
+                        value="en (English)"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-500 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Target Language</label>
+                      <select
+                        value={translateTarget}
+                        onChange={(e) => setTranslateTarget(e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="as">as (Assamese - Purified)</option>
+                        <option value="hi">hi (Hindi)</option>
+                        <option value="bn">bn (Bengali)</option>
+                      </select>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {playgroundEndpoint === 'models' && (
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
+                  <p>GET /v1/models queries the active catalog of models running on the Axom AI cluster.</p>
+                  <p className="mt-2 font-mono text-[11px] text-slate-500">Requires Bearer key authorization header.</p>
+                </div>
+              )}
+
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={runLiveTest}
+                  disabled={isLoading}
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white font-bold text-xs sm:text-sm shadow-md transition disabled:opacity-60"
+                >
+                  {isLoading ? (
+                    <>
+                      <RotateCcw size={16} className="animate-spin" />
+                      <span>Sending Request...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={15} />
+                      <span>Send Live Request</span>
+                    </>
+                  )}
+                </button>
+                {!userKey && (
+                  <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-2 flex items-center gap-1">
+                    <AlertCircle size={12} />
+                    <span>No testing key set above. This request will test 401 Unauthorized handling!</span>
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Output Inspector Panel */}
+            <div className="space-y-2 flex flex-col">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                <span>Live Server Response</span>
+                {httpStatus !== null && (
+                  <span className="flex items-center gap-2">
+                    <span
+                      className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${
+                        httpStatus === 200
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                          : httpStatus === 401
+                          ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                          : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                      }`}
+                    >
+                      HTTP {httpStatus}
+                    </span>
+                    {responseTimeMs !== null && (
+                      <span className="text-[11px] text-slate-400 font-mono font-normal">
+                        {responseTimeMs}ms
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex-1 min-h-[260px] max-h-[360px] rounded-2xl bg-[#0b1220] p-4 text-slate-200 font-mono text-xs overflow-auto border border-slate-800">
+                {apiResponse ? (
+                  <pre className="text-emerald-300 whitespace-pre-wrap leading-relaxed">
+                    {JSON.stringify(apiResponse, null, 2)}
+                  </pre>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-500 py-12 text-center">
+                    <Terminal size={32} className="opacity-40 mb-2" />
+                    <span>Click &quot;Send Live Request&quot; to test the endpoint.</span>
+                    <span className="text-[11px] opacity-70 mt-1">Real JSON output and timing will appear here.</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Enterprise Security & Architecture Section */}
+      <section id="security" className="scroll-mt-24 space-y-6">
+        <div>
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
+            <Lock size={14} /> Security Architecture
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+            Enterprise Security &amp; Compliance
+          </h2>
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1">
+            Axom AI endpoints are engineered according to OWASP API Security Top 10 standards to protect high-concurrency production applications.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+              <Lock size={20} />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Strict Bearer Authorization</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              API keys must strictly be transmitted via the <code className="font-mono text-emerald-600 dark:text-emerald-400">Authorization: Bearer &lt;key&gt;</code> HTTP header. Passing keys via URL query strings is blocked to prevent intermediate proxy access-log leakage.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+              <Server size={20} />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Zero Client-Side Exposure</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Never bundle secret keys into client-side SPAs or mobile binaries where users can inspect network requests. Always route queries through a backend server (e.g. Next.js API route or Express proxy).
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+              <Zap size={20} />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Sliding-Window Rate Limits</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              In-memory token bucket rate limiters protect the cluster against burst floods, DDoS attempts, and runaway billings. When thresholds are reached, requests receive an immediate 429 status code.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
+              <ShieldAlert size={20} />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Secret Scanner Ready</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              All secret keys begin with the deterministic prefix <code className="font-mono text-emerald-600 dark:text-emerald-400">sk_live_axom_</code>, allowing automated tools like GitHub Secret Scanning and GitGuardian to automatically catch accidentally committed keys.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-3">
+              <RotateCcw size={20} />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Instant Key Invalidation</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              If an API key is ever compromised, it can be revoked instantly inside the Developer Console. The cache lookup is deleted in milliseconds, cutting off unauthorized requests immediately.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3">
+              <ShieldCheck size={20} />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Strict TLS 1.3 Encryption</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              All endpoints require modern TLS 1.3 ciphers with forward secrecy. Plain HTTP connections are unconditionally dropped or upgraded with HTTP Strict Transport Security (HSTS).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Models Specification */}
       <section id="models" className="scroll-mt-24 space-y-6">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
@@ -505,7 +924,7 @@ main();`;
         </div>
       </section>
 
-      {/* 5. API Endpoints Reference */}
+      {/* 7. API Endpoints Reference */}
       <section id="endpoints" className="scroll-mt-24 space-y-6">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
@@ -763,17 +1182,17 @@ main();`;
         )}
       </section>
 
-      {/* 6. Rate Limits & Error Handling */}
+      {/* 8. Rate Limits & Error Handling */}
       <section id="rate-limits" className="scroll-mt-24 space-y-6">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
-            <Lock size={14} /> Quotas &amp; Security
+            <Lock size={14} /> Quotas &amp; Error Standards
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
             Rate Limits &amp; Error Handling
           </h2>
           <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1">
-            Axom AI protects all endpoints with in-memory caching token bucket rate-limiters.
+            Axom AI protects all endpoints with in-memory caching sliding-window rate-limiters.
           </p>
         </div>
 
@@ -788,15 +1207,15 @@ main();`;
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Developer Tier</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">300 req/min • 25,000 req/mo</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">120 req/min • 25,000 req/mo</span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Business Tier</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">1,200 req/min • 100,000 req/mo</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">300 req/min • 100,000 req/mo</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Enterprise / Sovereign</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">Unlimited • On-Premise</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">Custom Limits • Dedicated GPUs</span>
               </div>
             </div>
           </div>
@@ -826,8 +1245,8 @@ main();`;
         </div>
       </section>
 
-      {/* 7. Need Help / Enterprise CTA */}
-      <div className="p-8 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white shadow-xl relative overflow-hidden">
+      {/* 9. Need Help / Enterprise CTA */}
+      <div className="p-8 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white shadow-xl relative overflow-hidden">
         <div className="max-w-2xl relative z-10 space-y-3">
           <span className="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold uppercase tracking-wider">
             Enterprise &amp; Sovereign AI
@@ -855,4 +1274,3 @@ main();`;
     </div>
   );
 }
-
