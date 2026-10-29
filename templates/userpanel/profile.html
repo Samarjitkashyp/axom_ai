@@ -1,188 +1,772 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}My Profile — Axom AI{% endblock %}
-{% block heading %}Account & Security Settings{% endblock %}
+{% block title %}Developer Profile & Security Settings — Axom AI{% endblock %}
+{% block heading %}Developer Profile & Security Settings{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+<!-- Developer Profile Hero Header -->
+<div class="mb-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden border border-slate-800">
+  <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-  <!-- Profile Edit Card (2 columns) -->
-  <div class="lg:col-span-2 space-y-6">
-    
-    <!-- Personal Details -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-      <h3 class="text-base font-bold text-slate-900 mb-1">Personal Profile</h3>
-      <p class="text-xs text-slate-500 mb-5">Update your contact information and interface preferences</p>
+  <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div class="flex items-start sm:items-center gap-4">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-indigo-500/25 shrink-0 border border-white/10">
+        {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+      </div>
+      <div>
+        <div class="flex flex-wrap items-center gap-2 mb-1">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            {{ request.user.get_full_name|default:request.user.username }}
+          </h2>
+          <span class="text-xs text-slate-400 font-mono">@{{ request.user.username }}</span>
+          
+          {% if profile.is_email_verified %}
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span>Verified Developer</span>
+          </span>
+          {% else %}
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-semibold">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+            <span>Email Unverified</span>
+          </span>
+          {% endif %}
+        </div>
+        <p class="text-xs text-slate-300 font-mono flex flex-wrap items-center gap-3">
+          <span>UID: <span class="text-indigo-300">axom_usr_{{ request.user.id|stringformat:"06d" }}</span></span>
+          <span class="text-slate-600">•</span>
+          <span>Tier: <span class="text-amber-300 font-bold">{{ tier_label }}</span></span>
+          <span class="text-slate-600">•</span>
+          <span>Joined: {{ request.user.date_joined|date:"M Y" }}</span>
+        </p>
+      </div>
+    </div>
 
-      <form id="profileForm" class="space-y-4 text-xs">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Quick Actions -->
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="/subscription/" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/10 transition">
+        <i class="fa-solid fa-layer-group text-amber-400"></i>
+        <span>Manage Plan</span>
+      </a>
+      <a href="/export-data/" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 text-xs font-bold border border-indigo-500/40 transition">
+        <i class="fa-solid fa-file-arrow-down text-indigo-400"></i>
+        <span>Export Archive</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 4 Developer KPI Summary Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+  
+  <!-- Plan & Tier Card -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">API Subscription</span>
+      <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+        <i class="fa-solid fa-layer-group text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-base font-extrabold text-slate-900 tracking-tight">
+        {{ tier_label }}
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <a href="/subscription/" class="text-indigo-600 hover:text-indigo-700 font-semibold">Change Quotas →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active API Keys Card -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Developer Keys</span>
+      <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <i class="fa-solid fa-key text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-base font-extrabold text-slate-900 tracking-tight">
+        {{ active_keys_count }} Active Keys
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1">
+        <a href="/" class="text-indigo-600 hover:text-indigo-700 font-semibold">Generate / Revoke Keys →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Score Card -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Security Health</span>
+      <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <i class="fa-solid fa-shield-halved text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+        <span>{{ security_score }}% Health</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold">Strong</span>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1">
+        {% if profile.is_email_verified %}
+        <span class="text-emerald-600 font-semibold">Email Verified & Protected</span>
+        {% else %}
+        <span class="text-amber-600 font-semibold">Verify email to reach 100%</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Session Client IP Card -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Current Session</span>
+      <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+        <i class="fa-solid fa-network-wired text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-xs font-mono font-bold text-slate-900 truncate">
+        {{ client_ip }}
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        <i class="fa-solid fa-lock text-[10px] text-emerald-500"></i>
+        <span>TLS 1.3 Encrypted</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Unverified Email Alert Banner (if applicable) -->
+{% if not profile.is_email_verified %}
+<div class="mb-8 p-4 bg-amber-50 rounded-2xl border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    <div>
+      <h4 class="text-xs font-bold text-amber-900">Developer Email Not Verified</h4>
+      <p class="text-xs text-amber-700 mt-0.5">Please verify <span class="font-mono font-semibold">{{ request.user.email }}</span> to secure account recovery and access high-throughput quotas.</p>
+    </div>
+  </div>
+  <button onclick="resendVerificationLink(this)" class="shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition shadow-sm">
+    Resend Verification Link
+  </button>
+</div>
+{% endif %}
+
+<!-- Main 2-Column Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+
+  <!-- Left Column: Profile & Password Forms (2 cols) -->
+  <div class="lg:col-span-2 space-y-8">
+
+    <!-- Card 1: Developer Information & Identity Form -->
+    <div class="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200/80 shadow-sm">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900">Developer Profile & Organization</h3>
+          <p class="text-xs text-slate-500 mt-1">Manage your developer identity, primary email, contact details, and preferences.</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+      </div>
+
+      <form id="profileForm" onsubmit="event.preventDefault(); saveProfile();" class="space-y-5 text-xs">
+        
+        <!-- Name Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <label class="block font-bold text-slate-700 mb-1.5">First Name</label>
-            <input type="text" id="profFirstName" value="{{ request.user.first_name }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+            <input type="text" id="profFirstName" value="{{ request.user.first_name }}" placeholder="e.g. Samarjit" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1.5">Last Name</label>
-            <input type="text" id="profLastName" value="{{ request.user.last_name }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+            <input type="text" id="profLastName" value="{{ request.user.last_name }}" placeholder="e.g. Kashyap" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Email & Phone Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Email Address</label>
-            <input type="email" id="profEmail" value="{{ request.user.email }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="font-bold text-slate-700">Primary Developer Email</label>
+              {% if profile.is_email_verified %}
+              <span class="text-[10px] text-emerald-600 font-semibold"><i class="fa-solid fa-check"></i> Verified</span>
+              {% else %}
+              <span class="text-[10px] text-amber-600 font-semibold"><i class="fa-solid fa-clock"></i> Unverified</span>
+              {% endif %}
+            </div>
+            <input type="email" id="profEmail" value="{{ request.user.email }}" data-initial="{{ request.user.email }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white font-mono transition">
+            <p class="text-[11px] text-slate-400 mt-1">Changing email requires your password and triggers a re-verification link.</p>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Phone Number</label>
-            <input type="tel" id="profPhone" value="{{ profile.phone }}" placeholder="+91 98765 43210" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+            <label class="block font-bold text-slate-700 mb-1.5">Developer Phone / Contact</label>
+            <input type="tel" id="profPhone" value="{{ profile.phone }}" placeholder="+91 98765 43210" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+            <p class="text-[11px] text-slate-400 mt-1">Used exclusively for critical outage alerts and billing SMS.</p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Conditional Current Password Input (Appears if Email is modified) -->
+        <div id="emailPasswordGroup" class="hidden p-4 bg-indigo-50/70 border border-indigo-200 rounded-2xl space-y-2">
+          <div class="flex items-center gap-2 text-indigo-900 font-bold text-xs">
+            <i class="fa-solid fa-shield-halved text-indigo-600"></i>
+            <span>Confirm Password to Authorize Email Change</span>
+          </div>
+          <p class="text-[11px] text-indigo-700 leading-relaxed">
+            Because changing your developer email is a sensitive security operation, please provide your current account password below:
+          </p>
+          <input type="password" id="emailConfirmPassword" placeholder="Enter current password" class="w-full bg-white border border-indigo-200 rounded-xl px-4 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 transition">
+        </div>
+
+        <!-- Bio / Organization & Location Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Preferred Language</label>
-            <select id="profLang" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
-              <option value="as" {% if profile.language == 'as' %}selected{% endif %}>Assamese (অসমীয়া)</option>
-              <option value="en" {% if profile.language == 'en' %}selected{% endif %}>English</option>
+            <label class="block font-bold text-slate-700 mb-1.5">Organization / Developer Bio</label>
+            <input type="text" id="profBio" value="{{ profile.bio }}" placeholder="e.g. Senior Backend Engineer @ Axom Tech" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Developer Location</label>
+            <input type="text" id="profLocation" value="{{ profile.location }}" placeholder="e.g. Guwahati, Assam, India" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+          </div>
+        </div>
+
+        <!-- Language & Timezone Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Console & Prompt Language</label>
+            <select id="profLang" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+              <option value="as" {% if profile.language == 'as' %}selected{% endif %}>Assamese (অসমীয়া) — Native Indic Orthography</option>
+              <option value="en" {% if profile.language == 'en' %}selected{% endif %}>English (US / Global)</option>
               <option value="hi" {% if profile.language == 'hi' %}selected{% endif %}>Hindi / Hinglish</option>
             </select>
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Time Zone</label>
-            <input type="text" id="profTimezone" value="{{ profile.timezone }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+            <label class="block font-bold text-slate-700 mb-1.5">Primary Timezone</label>
+            <select id="profTimezone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white font-mono transition">
+              <option value="Asia/Kolkata" {% if profile.timezone == 'Asia/Kolkata' %}selected{% endif %}>Asia/Kolkata (IST • UTC+05:30)</option>
+              <option value="UTC" {% if profile.timezone == 'UTC' %}selected{% endif %}>UTC (Coordinated Universal Time)</option>
+              <option value="America/New_York" {% if profile.timezone == 'America/New_York' %}selected{% endif %}>America/New_York (EST/EDT)</option>
+              <option value="America/Los_Angeles" {% if profile.timezone == 'America/Los_Angeles' %}selected{% endif %}>America/Los_Angeles (PST/PDT)</option>
+              <option value="Europe/London" {% if profile.timezone == 'Europe/London' %}selected{% endif %}>Europe/London (GMT/BST)</option>
+              <option value="Asia/Singapore" {% if profile.timezone == 'Asia/Singapore' %}selected{% endif %}>Asia/Singapore (SGT • UTC+08:00)</option>
+              <option value="Asia/Tokyo" {% if profile.timezone == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo (JST • UTC+09:00)</option>
+            </select>
           </div>
         </div>
 
-        <button type="button" onclick="saveProfile()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-xs shadow-sm transition">
-          Save Profile Changes
-        </button>
+        <!-- Notification Preferences Section -->
+        <div class="pt-4 border-t border-slate-100">
+          <label class="block font-bold text-slate-700 mb-3">Notification & Security Dispatch Preferences</label>
+          <div class="space-y-3">
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" id="notifyEmail" {% if profile.notify_email %}checked{% endif %} class="mt-0.5 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <div>
+                <span class="font-bold text-slate-800 group-hover:text-indigo-600 transition">Critical Security & API Key Alerts (Email)</span>
+                <p class="text-[11px] text-slate-400">Receive instant email notifications when new API keys are created, revoked, or high quota thresholds (80%/100%) are hit.</p>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" id="notifyProduct" {% if profile.notify_product_updates %}checked{% endif %} class="mt-0.5 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <div>
+                <span class="font-bold text-slate-800 group-hover:text-indigo-600 transition">Model Engine & Platform Releases</span>
+                <p class="text-[11px] text-slate-400">Stay informed on new model weight deployments (Axom Indic-1, Turbo, Pro), SDK releases, and API latency optimizations.</p>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" id="notifyInapp" {% if profile.notify_inapp %}checked{% endif %} class="mt-0.5 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+              <div>
+                <span class="font-bold text-slate-800 group-hover:text-indigo-600 transition">Console In-App Notifications</span>
+                <p class="text-[11px] text-slate-400">Receive real-time notifications in your dashboard notification bell for support ticket updates and monthly invoices.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-between">
+          <button type="submit" id="saveProfileBtn" class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-md shadow-indigo-500/20 transition transform active:scale-95">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Save Profile Changes</span>
+          </button>
+          <span class="text-[11px] text-slate-400">All data sanitized & TLS encrypted</span>
+        </div>
+
       </form>
     </div>
 
-    <!-- Password Change -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-      <h3 class="text-base font-bold text-slate-900 mb-1">Security & Password</h3>
-      <p class="text-xs text-slate-500 mb-5">Change your account password to keep your data secure</p>
+    <!-- Card 2: Security & Password Management -->
+    <div class="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200/80 shadow-sm">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-5 mb-6">
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900">Security Credentials & Password</h3>
+          <p class="text-xs text-slate-500 mt-1">Update your account authentication credentials. Active API keys remain operational during password changes.</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+      </div>
 
-      <form id="passwordForm" class="space-y-4 text-xs max-w-md">
+      <form id="passwordForm" onsubmit="event.preventDefault(); changePassword();" class="space-y-5 text-xs max-w-xl">
+        
         <div>
-          <label class="block font-bold text-slate-700 mb-1.5">Current Password</label>
-          <input type="password" id="oldPassword" required placeholder="••••••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+          <label class="block font-bold text-slate-700 mb-1.5">Current Account Password</label>
+          <div class="relative">
+            <input type="password" id="oldPassword" required placeholder="••••••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-10 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+            <button type="button" onclick="togglePasswordVisibility('oldPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+              <i class="fa-solid fa-eye text-xs"></i>
+            </button>
+          </div>
         </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1.5">New Password</label>
-          <input type="password" id="newPassword" required placeholder="Min 6 characters" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">New Password</label>
+            <div class="relative">
+              <input type="password" id="newPassword" oninput="checkPasswordStrength(this.value)" required placeholder="Min 8 characters" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-10 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+              <button type="button" onclick="togglePasswordVisibility('newPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Confirm New Password</label>
+            <div class="relative">
+              <input type="password" id="confirmPassword" required placeholder="Repeat new password" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-10 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+              <button type="button" onclick="togglePasswordVisibility('confirmPassword', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1">
+                <i class="fa-solid fa-eye text-xs"></i>
+              </button>
+            </div>
+          </div>
         </div>
-        <button type="button" onclick="changePassword()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs transition">
-          Update Password
-        </button>
+
+        <!-- Real-time Password Strength Indicator -->
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-bold text-slate-700">Password Strength: <span id="strengthLabel" class="text-slate-400">Enter password</span></span>
+            <span id="strengthPct" class="font-mono text-slate-400">0%</span>
+          </div>
+          <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <div id="strengthBar" class="h-full bg-rose-500 transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] text-slate-400 pt-1">
+            <span id="ruleLength"><i class="fa-solid fa-circle text-[6px] mr-1"></i> 8+ Characters</span>
+            <span id="ruleUpper"><i class="fa-solid fa-circle text-[6px] mr-1"></i> Uppercase</span>
+            <span id="ruleNumber"><i class="fa-solid fa-circle text-[6px] mr-1"></i> Number</span>
+            <span id="ruleSpecial"><i class="fa-solid fa-circle text-[6px] mr-1"></i> Symbol</span>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-between">
+          <button type="submit" id="changePasswordBtn" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition transform active:scale-95 shadow-sm">
+            <i class="fa-solid fa-key"></i>
+            <span>Update Password</span>
+          </button>
+          <span class="text-[11px] text-slate-400">Rate-limited to 5 attempts / 5 mins</span>
+        </div>
+
       </form>
     </div>
 
   </div>
 
-  <!-- Danger Zone & Data Export (1 column) -->
-  <div class="space-y-6">
+  <!-- Right Column: Audit, Compliance & Danger Zone (1 col) -->
+  <div class="space-y-8">
 
-    <!-- GDPR Data Download -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-      <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg mb-3">
-        <i class="fa-solid fa-file-arrow-down"></i>
+    <!-- Card 3: Active Session Security Audit -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+        <h4 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Active Session Audit</h4>
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+        </span>
       </div>
-      <h3 class="text-sm font-bold text-slate-900 mb-1">Export Account Data</h3>
-      <p class="text-xs text-slate-500 mb-4">Download a complete GDPR-compliant JSON archive of your chats, payments, and tickets.</p>
-      <a href="/export-data/" class="inline-flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
-        <i class="fa-solid fa-download"></i> <span>Download JSON Export</span>
-      </a>
+
+      <div class="space-y-3.5 text-xs">
+        <div class="flex items-center justify-between py-1 border-b border-slate-100">
+          <span class="text-slate-500">Client IP Address</span>
+          <span class="font-mono font-bold text-slate-800">{{ client_ip }}</span>
+        </div>
+        <div class="flex items-center justify-between py-1 border-b border-slate-100">
+          <span class="text-slate-500">Operating System</span>
+          <span class="font-semibold text-slate-800">{{ os_name }}</span>
+        </div>
+        <div class="flex items-center justify-between py-1 border-b border-slate-100">
+          <span class="text-slate-500">Browser Agent</span>
+          <span class="font-semibold text-slate-800">{{ browser_name }}</span>
+        </div>
+        <div class="flex items-center justify-between py-1 border-b border-slate-100">
+          <span class="text-slate-500">Last Sign-in</span>
+          <span class="font-semibold text-slate-800">{{ request.user.last_login|date:"d M Y, H:i" }}</span>
+        </div>
+        <div class="flex items-center justify-between py-1">
+          <span class="text-slate-500">Transport Security</span>
+          <span class="font-mono text-emerald-600 font-bold">TLS 1.3 • AES-256</span>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-4 border-t border-slate-100">
+        <a href="/logout/" class="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-700 font-bold text-xs transition">
+          <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+          <span>Sign Out of Current Session</span>
+        </a>
+      </div>
     </div>
 
-    <!-- Danger Zone -->
-    <div class="bg-rose-50/50 rounded-2xl p-6 border border-rose-200">
-      <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg mb-3">
+    <!-- Card 4: GDPR & Developer Data Archive -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+      <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg mb-3">
+        <i class="fa-solid fa-box-archive"></i>
+      </div>
+      <h4 class="text-sm font-extrabold text-slate-900 mb-1">Developer Data Archive</h4>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        Download a complete, GDPR-compliant JSON archive containing your developer profile, masked API keys metadata, payment receipts, and support tickets.
+      </p>
+      
+      <a href="/export-data/" class="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 text-xs font-bold rounded-xl transition">
+        <i class="fa-solid fa-download"></i>
+        <span>Download JSON Archive</span>
+      </a>
+      <p class="text-[10px] text-center text-slate-400 mt-2">Rate-limited to 5 exports / 15 minutes</p>
+    </div>
+
+    <!-- Card 5: Danger Zone -->
+    <div class="bg-rose-50/50 rounded-3xl p-6 border border-rose-200">
+      <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg mb-3">
         <i class="fa-solid fa-triangle-exclamation"></i>
       </div>
-      <h3 class="text-sm font-bold text-rose-900 mb-1">Danger Zone</h3>
-      <p class="text-xs text-rose-700 mb-4">Permanently delete your Axom AI account and all stored history.</p>
-      <button onclick="promptDeleteAccount()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl transition">
-        Delete My Account
+      <h4 class="text-sm font-extrabold text-rose-900 mb-1">Danger Zone</h4>
+      <p class="text-xs text-rose-700 mb-5 leading-relaxed">
+        Permanently deactivate your developer account. All active API keys will be immediately revoked, subscriptions cancelled, and cached tokens purged from memory.
+      </p>
+      <button onclick="openDeactivateModal()" class="w-full px-4 py-3 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition shadow-sm transform active:scale-95">
+        Deactivate Developer Account
       </button>
     </div>
 
   </div>
 
 </div>
+
+<!-- High-Security Deactivate Account Confirmation Modal -->
+<div id="deactivateModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 transform transition-all">
+    <div class="flex items-center gap-3 text-rose-600 mb-3">
+      <div class="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-lg shrink-0">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-extrabold text-slate-900">Deactivate Developer Account</h3>
+        <p class="text-[11px] text-slate-500">Irreversible authorization challenge</p>
+      </div>
+    </div>
+
+    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+      This action will immediately terminate your session, deactivate all <strong class="text-slate-900">{{ active_keys_count }} active API keys</strong>, and expire your current plan.
+    </p>
+
+    <div class="space-y-4 text-xs">
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">
+          Type <span class="font-mono text-rose-600 select-all bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">DELETE MY ACCOUNT</span> to confirm:
+        </label>
+        <input type="text" id="confirmPhraseInput" oninput="validateDeactivateForm()" placeholder="DELETE MY ACCOUNT" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-rose-500 font-mono">
+      </div>
+
+      <div>
+        <label class="block font-bold text-slate-700 mb-1">Enter your password to verify ownership:</label>
+        <input type="password" id="confirmPasswordInput" oninput="validateDeactivateForm()" placeholder="••••••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-rose-500">
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-end gap-3">
+      <button onclick="closeDeactivateModal()" class="px-4 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition">
+        Cancel
+      </button>
+      <button id="confirmDeactivateBtn" disabled onclick="executeAccountDeactivation()" class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition shadow-sm flex items-center gap-2">
+        <span>Permanently Deactivate</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
+  // Monitor Email input changes to prompt for password confirmation
+  const emailInput = document.getElementById('profEmail');
+  const initialEmail = (emailInput.dataset.initial || '').trim().toLowerCase();
+  const emailPasswordGroup = document.getElementById('emailPasswordGroup');
+
+  emailInput.addEventListener('input', function() {
+    const currentVal = (this.value || '').trim().toLowerCase();
+    if (currentVal !== initialEmail) {
+      emailPasswordGroup.classList.remove('hidden');
+    } else {
+      emailPasswordGroup.classList.add('hidden');
+    }
+  });
+
+  // Password visibility toggle
+  function togglePasswordVisibility(inputId, btn) {
+    const field = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (field.type === 'password') {
+      field.type = 'text';
+      icon.className = 'fa-solid fa-eye-slash text-xs text-indigo-600';
+    } else {
+      field.type = 'password';
+      icon.className = 'fa-solid fa-eye text-xs text-slate-400';
+    }
+  }
+
+  // Real-time Password Strength Meter
+  function checkPasswordStrength(val) {
+    let score = 0;
+    const lenPass = val.length >= 8;
+    const upperPass = /[A-Z]/.test(val);
+    const numPass = /[0-9]/.test(val);
+    const specialPass = /[^A-Za-z0-9]/.test(val);
+
+    if (lenPass) score += 25;
+    if (upperPass) score += 25;
+    if (numPass) score += 25;
+    if (specialPass) score += 25;
+
+    // Update rule indicator styling
+    updateRule('ruleLength', lenPass);
+    updateRule('ruleUpper', upperPass);
+    updateRule('ruleNumber', numPass);
+    updateRule('ruleSpecial', specialPass);
+
+    const bar = document.getElementById('strengthBar');
+    const label = document.getElementById('strengthLabel');
+    const pct = document.getElementById('strengthPct');
+
+    pct.textContent = score + '%';
+    bar.style.width = score + '%';
+
+    if (score === 0) {
+      bar.className = 'h-full bg-slate-300';
+      label.textContent = 'Enter password';
+      label.className = 'text-slate-400';
+    } else if (score <= 50) {
+      bar.className = 'h-full bg-rose-500';
+      label.textContent = 'Weak';
+      label.className = 'text-rose-600 font-bold';
+    } else if (score <= 75) {
+      bar.className = 'h-full bg-amber-500';
+      label.textContent = 'Medium';
+      label.className = 'text-amber-600 font-bold';
+    } else {
+      bar.className = 'h-full bg-emerald-500';
+      label.textContent = 'Strong (Excellent)';
+      label.className = 'text-emerald-600 font-bold';
+    }
+  }
+
+  function updateRule(elementId, isPassed) {
+    const el = document.getElementById(elementId);
+    if (isPassed) {
+      el.className = 'text-emerald-600 font-semibold';
+      el.querySelector('i').className = 'fa-solid fa-check text-[8px] mr-1';
+    } else {
+      el.className = 'text-slate-400';
+      el.querySelector('i').className = 'fa-solid fa-circle text-[6px] mr-1';
+    }
+  }
+
+  // Save Profile Changes
   async function saveProfile() {
+    const btn = document.getElementById('saveProfileBtn');
+    const emailVal = emailInput.value.trim().toLowerCase();
+    const isEmailChanged = (emailVal !== initialEmail);
+    const currentPwd = document.getElementById('emailConfirmPassword').value;
+
+    if (isEmailChanged && !currentPwd) {
+      showToast('Please enter your current password to authorize your email change.', 'error');
+      document.getElementById('emailConfirmPassword').focus();
+      return;
+    }
+
     const payload = {
       first_name: document.getElementById('profFirstName').value.trim(),
       last_name: document.getElementById('profLastName').value.trim(),
-      email: document.getElementById('profEmail').value.trim(),
+      email: emailVal,
+      current_password: currentPwd,
       phone: document.getElementById('profPhone').value.trim(),
+      bio: document.getElementById('profBio').value.trim(),
+      location: document.getElementById('profLocation').value.trim(),
       language: document.getElementById('profLang').value,
-      timezone: document.getElementById('profTimezone').value.trim()
+      timezone: document.getElementById('profTimezone').value.trim(),
+      notify_email: document.getElementById('notifyEmail').checked,
+      notify_product_updates: document.getElementById('notifyProduct').checked,
+      notify_inapp: document.getElementById('notifyInapp').checked
     };
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Saving Changes...</span>`;
+
     try {
       const res = await fetch('/profile/update/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.success) {
         showToast(data.message, 'success');
+        if (data.email_changed) {
+          setTimeout(() => window.location.reload(), 2000);
+        }
       } else {
-        showToast(data.error, 'error');
+        showToast(data.error || 'Failed to update profile.', 'error');
       }
     } catch (e) {
-      showToast('Error updating profile.', 'error');
+      showToast('An unexpected network error occurred.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Save Profile Changes</span>`;
     }
   }
 
+  // Change Password
   async function changePassword() {
+    const btn = document.getElementById('changePasswordBtn');
     const oldP = document.getElementById('oldPassword').value;
     const newP = document.getElementById('newPassword').value;
+    const confirmP = document.getElementById('confirmPassword').value;
+
     if (!oldP || !newP) {
-      showToast('Please fill all password fields.', 'error');
+      showToast('Please provide both current and new passwords.', 'error');
       return;
     }
+
+    if (newP !== confirmP) {
+      showToast('New passwords do not match.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Updating...</span>`;
+
     try {
       const res = await fetch('/profile/password/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        body: JSON.stringify({ old_password: oldP, new_password: newP })
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+          old_password: oldP,
+          new_password: newP,
+          confirm_password: confirmP
+        })
       });
       const data = await res.json();
       if (data.success) {
         showToast(data.message, 'success');
         document.getElementById('oldPassword').value = '';
         document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        checkPasswordStrength('');
       } else {
-        showToast(data.error, 'error');
+        showToast(data.error || 'Failed to change password.', 'error');
       }
     } catch (e) {
-      showToast('Error changing password.', 'error');
+      showToast('Network error while updating password.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="fa-solid fa-key"></i><span>Update Password</span>`;
     }
   }
 
-  async function promptDeleteAccount() {
-    const pass = prompt("⚠️ CAUTION: This will delete your account permanently. Enter your password to confirm:");
-    if (!pass) return;
+  // Resend Email Verification Link
+  async function resendVerificationLink(btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> Sending...`;
     try {
-      const res = await fetch('/delete-account/', {
+      const res = await fetch('/verify-email-resend/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        body: JSON.stringify({ password: pass })
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        }
       });
       const data = await res.json();
       if (data.success) {
-        alert('Account deleted successfully.');
-        window.location.href = '/';
+        showToast(data.message || 'Verification link sent to your inbox.', 'success');
       } else {
-        showToast(data.error, 'error');
+        showToast(data.error || 'Failed to resend verification link.', 'error');
       }
     } catch (e) {
-      showToast('Error deleting account.', 'error');
+      showToast('Network error while requesting verification link.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `Resend Verification Link`;
+    }
+  }
+
+  // Deactivate Account Modal Controls
+  function openDeactivateModal() {
+    document.getElementById('deactivateModal').classList.remove('hidden');
+    document.getElementById('confirmPhraseInput').value = '';
+    document.getElementById('confirmPasswordInput').value = '';
+    validateDeactivateForm();
+  }
+
+  function closeDeactivateModal() {
+    document.getElementById('deactivateModal').classList.add('hidden');
+  }
+
+  function validateDeactivateForm() {
+    const phrase = document.getElementById('confirmPhraseInput').value.trim();
+    const pass = document.getElementById('confirmPasswordInput').value;
+    const btn = document.getElementById('confirmDeactivateBtn');
+    btn.disabled = (phrase !== 'DELETE MY ACCOUNT' || pass.length === 0);
+  }
+
+  async function executeAccountDeactivation() {
+    const btn = document.getElementById('confirmDeactivateBtn');
+    const phrase = document.getElementById('confirmPhraseInput').value.trim();
+    const pass = document.getElementById('confirmPasswordInput').value;
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> Deactivating...`;
+
+    try {
+      const res = await fetch('/delete-account/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+          confirm_phrase: phrase,
+          password: pass
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Your developer account has been deactivated. All active API keys have been permanently revoked.');
+        window.location.href = '/login/';
+      } else {
+        showToast(data.error || 'Failed to deactivate account.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = `<span>Permanently Deactivate</span>`;
+      }
+    } catch (e) {
+      showToast('Network error during account deactivation.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = `<span>Permanently Deactivate</span>`;
     }
   }
 </script>

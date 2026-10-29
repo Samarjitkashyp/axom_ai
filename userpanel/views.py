@@ -3,8 +3,12 @@ import csv
 import json
 import time
 import hashlib
+import secrets
+import logging
 from functools import wraps
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -669,11 +673,54 @@ def dashboard(request):
 
 @user_login_required
 def profile_page(request):
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
-    unread_notif_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
+    """
+    Developer Account & Security Settings Dashboard.
+    Provides complete control over identity, credentials, active sessions, GDPR archives, and security policies.
+    """
+    user = request.user
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    user_plan = UserPlan.objects.filter(user=user, status='active').first()
+    plan_tier = (user_plan.plan if user_plan else 'free').lower()
+
+    tier_labels = {
+        'free': 'Free Developer Tier',
+        'starter': 'Starter Tier',
+        'pro': 'Pro Tier ⚡',
+        'enterprise': 'Enterprise Tier 🏢',
+    }
+    tier_label = tier_labels.get(plan_tier, plan_tier.title())
+
+    active_keys_count = DeveloperApiKey.objects.filter(user=user, is_active=True).count()
+    total_keys_count = DeveloperApiKey.objects.filter(user=user).count()
+
+    from axom_ai.security import get_client_ip
+    client_ip = get_client_ip(request)
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+    os_name = "Windows" if "Windows" in user_agent else ("macOS" if ("Macintosh" in user_agent or "Mac OS" in user_agent) else ("Linux" if "Linux" in user_agent else ("Android" if "Android" in user_agent else ("iOS" if ("iPhone" in user_agent or "iPad" in user_agent) else "Unknown OS"))))
+    browser_name = "Microsoft Edge" if "Edg" in user_agent else ("Google Chrome" if "Chrome" in user_agent else ("Mozilla Firefox" if "Firefox" in user_agent else ("Apple Safari" if "Safari" in user_agent else "Modern Browser")))
+
+    # Security health score assessment
+    security_score = 60
+    if profile.is_email_verified:
+        security_score += 20
+    if user.has_usable_password():
+        security_score += 20
+
+    unread_notif_count = InAppNotification.objects.filter(user=user, is_read=False).count()
+
     context = {
         'active': 'profile',
         'profile': profile,
+        'plan_tier': plan_tier,
+        'tier_label': tier_label,
+        'active_keys_count': active_keys_count,
+        'total_keys_count': total_keys_count,
+        'client_ip': client_ip,
+        'os_name': os_name,
+        'browser_name': browser_name,
+        'user_agent': user_agent,
+        'security_score': security_score,
         'unread_notif_count': unread_notif_count,
     }
     return render(request, 'userpanel/profile.html', context)
@@ -682,48 +729,127 @@ def profile_page(request):
 @user_login_required
 @require_POST
 def update_profile_api(request):
+    """
+    Updates developer profile details & notification preferences.
+    - Sanitizes all inputs against stored XSS.
+    - Rate-limited to max 15 updates per 5 minutes.
+    - Requires password challenge to change email address and triggers re-verification.
+    """
     try:
-        data = json.loads(request.body)
+        if _rate_limited(f"profile_update:{request.user.id}", max_calls=15, per_seconds=300):
+            return JsonResponse({'success': False, 'error': 'Too many update requests. Please wait a few minutes.'}, status=429)
+
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            data = request.POST or {}
+        if not data and request.POST:
+            data = request.POST
+
         user = request.user
         profile, _ = UserProfile.objects.get_or_create(user=user)
 
-        first_name = data.get('first_name', '').strip()
-        last_name = data.get('last_name', '').strip()
-        email = data.get('email', '').strip()
-        phone = data.get('phone', '').strip()
+        first_name = _sanitize_input(data.get('first_name', ''), max_len=60)
+        last_name = _sanitize_input(data.get('last_name', ''), max_len=60)
+        raw_email = data.get('email', '').strip().lower()
+        phone = _sanitize_input(data.get('phone', ''), max_len=25)
         language = data.get('language', 'as')
-        timezone_val = data.get('timezone', 'Asia/Kolkata')
+        timezone_val = _sanitize_input(data.get('timezone', 'Asia/Kolkata'), max_len=50)
+        bio = _sanitize_input(data.get('bio', ''), max_len=500)
+        location = _sanitize_input(data.get('location', ''), max_len=120)
 
-        if email and User.objects.filter(email=email).exclude(id=user.id).exists():
-            return JsonResponse({'success': False, 'error': 'This email is already associated with another account.'}, status=400)
+        # Update notification settings
+        if 'notify_email' in data:
+            profile.notify_email = str(data.get('notify_email')).lower() in ['true', '1', 'on']
+        if 'notify_product_updates' in data:
+            profile.notify_product_updates = str(data.get('notify_product_updates')).lower() in ['true', '1', 'on']
+        if 'notify_inapp' in data:
+            profile.notify_inapp = str(data.get('notify_inapp')).lower() in ['true', '1', 'on']
+
+        email_changed = False
+        if raw_email and raw_email != user.email.lower():
+            # Security verification: Requires password challenge to change account email
+            current_pwd = data.get('current_password', '')
+            if not current_pwd:
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Current password is required to change your primary developer email address.'
+                }, status=400)
+            if not user.check_password(current_pwd):
+                return JsonResponse({
+                    'success': False, 
+                    'error': 'Incorrect current password. Email modification denied.'
+                }, status=400)
+
+            # Validate email syntax
+            import re
+            if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', raw_email):
+                return JsonResponse({'success': False, 'error': 'Invalid email address format.'}, status=400)
+
+            # Check email uniqueness
+            if User.objects.filter(email=raw_email).exclude(id=user.id).exists():
+                return JsonResponse({'success': False, 'error': 'This email address is already associated with another account.'}, status=400)
+
+            user.email = raw_email
+            email_changed = True
+            profile.is_email_verified = False
+            token = secrets.token_urlsafe(32)
+            profile.email_verification_token = token
+            profile.email_verification_sent_at = timezone.now()
+
+            # Dispatch verification email via Zoho SMTP
+            from .emails import send_verification_email
+            send_verification_email(user, token, request=request)
 
         user.first_name = first_name
         user.last_name = last_name
-        if email:
-            user.email = email
-        user.save()
+        user.save(update_fields=['first_name', 'last_name', 'email'] if email_changed else ['first_name', 'last_name'])
 
+        if language in ['as', 'en', 'hi']:
+            profile.language = language
         profile.phone = phone
-        profile.language = language
         profile.timezone = timezone_val
+        profile.bio = bio
+        profile.location = location
         profile.save()
 
-        return JsonResponse({'success': True, 'message': 'Profile updated successfully.'})
+        msg = 'Developer profile updated successfully.'
+        if email_changed:
+            msg += ' Since you updated your primary email, a verification link has been sent to your new inbox.'
+
+        return JsonResponse({'success': True, 'message': msg, 'email_changed': email_changed})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        logger.error("Error updating profile: %s", e, exc_info=True)
+        return JsonResponse({'success': False, 'error': 'An internal error occurred while updating profile.'}, status=500)
 
 
 @user_login_required
 @require_POST
 def change_password_api(request):
+    """
+    Changes developer password with rate limiting and Django password validation.
+    """
     try:
         # Rate limit password change attempts
         if _rate_limited(f"pwd_change:{request.user.id}", max_calls=5, per_seconds=300):
             return JsonResponse({'success': False, 'error': 'Too many password attempts. Please wait 5 minutes.'}, status=429)
 
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            data = request.POST or {}
+        if not data and request.POST:
+            data = request.POST
+
         old_pass = data.get('old_password', '')
         new_pass = data.get('new_password', '')
+        confirm_pass = data.get('confirm_password', '')
+
+        if not old_pass or not new_pass:
+            return JsonResponse({'success': False, 'error': 'Current and new password are required.'}, status=400)
+
+        if confirm_pass and new_pass != confirm_pass:
+            return JsonResponse({'success': False, 'error': 'New password confirmation does not match.'}, status=400)
 
         if not request.user.check_password(old_pass):
             return JsonResponse({'success': False, 'error': 'Current password does not match.'}, status=400)
@@ -740,14 +866,15 @@ def change_password_api(request):
 
         InAppNotification.objects.create(
             user=request.user,
-            title="Password Changed",
-            message="Your account password was updated successfully.",
-            notif_type="success"
+            title="Password Changed 🔐",
+            message="Your account password was updated successfully. Your active session remains verified.",
+            notif_type="security"
         )
 
         return JsonResponse({'success': True, 'message': 'Password changed successfully.'})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        logger.error("Error changing password: %s", e, exc_info=True)
+        return JsonResponse({'success': False, 'error': 'Failed to change password.'}, status=500)
 
 
 @user_login_required
@@ -1624,22 +1751,66 @@ def close_ticket_api(request, ticket_id):
 
 @user_login_required
 def export_user_data_json(request):
+    """
+    GDPR & Developer Data Compliance Export.
+    Rate-limited to max 5 exports per 15 minutes.
+    """
+    if _rate_limited(f"data_export:{request.user.id}", max_calls=5, per_seconds=900):
+        return HttpResponse("Rate limit exceeded for data export. Please wait 15 minutes.", status=429)
+
     user = request.user
     profile, _ = UserProfile.objects.get_or_create(user=user)
 
+    # Fetch active keys metadata (masked)
+    keys_data = []
+    for k in DeveloperApiKey.objects.filter(user=user):
+        keys_data.append({
+            'name': k.name,
+            'key_prefix': k.key_prefix or (k.key[:8] + '...' if k.key else ''),
+            'tier': k.tier,
+            'permissions': k.permissions,
+            'is_active': k.is_active,
+            'monthly_quota': k.monthly_quota,
+            'current_usage': k.current_usage,
+            'rate_limit_per_minute': k.rate_limit_per_minute,
+            'created_at': k.created_at.isoformat() if k.created_at else None,
+            'last_used_at': k.last_used_at.isoformat() if k.last_used_at else None,
+        })
+
+    # Fetch active plan
+    user_plan = UserPlan.objects.filter(user=user).first()
+    plan_info = {
+        'plan': user_plan.plan if user_plan else 'free',
+        'status': user_plan.status if user_plan else 'active',
+        'expires_at': user_plan.expires_at.isoformat() if user_plan and user_plan.expires_at else None,
+    }
+
     data = {
+        'axom_developer_export_version': '1.0',
+        'export_timestamp': timezone.now().isoformat(),
         'account': {
+            'developer_id': f"axom_usr_{user.id:06d}",
             'username': user.username,
             'email': user.email,
             'first_name': user.first_name,
             'last_name': user.last_name,
+            'is_email_verified': profile.is_email_verified,
             'date_joined': user.date_joined.isoformat(),
         },
         'profile': {
             'phone': profile.phone,
             'language': profile.language,
             'timezone': profile.timezone,
+            'location': profile.location,
+            'bio': profile.bio,
+            'notification_preferences': {
+                'notify_email': profile.notify_email,
+                'notify_product_updates': profile.notify_product_updates,
+                'notify_inapp': profile.notify_inapp,
+            }
         },
+        'subscription': plan_info,
+        'developer_api_keys': keys_data,
         'payments': [
             {
                 'order_id': p.razorpay_order_id,
@@ -1649,31 +1820,49 @@ def export_user_data_json(request):
                 'status': p.status,
                 'created_at': p.created_at.isoformat(),
             }
-            for p in Payment.objects.filter(user=user)
+            for p in Payment.objects.filter(user=user).order_by('-created_at')
         ],
-        'tickets': [
+        'support_tickets': [
             {
                 'ticket_id': t.ticket_id,
                 'subject': t.subject,
+                'category': t.category,
+                'priority': t.priority,
                 'status': t.status,
                 'created_at': t.created_at.isoformat(),
             }
-            for t in SupportTicket.objects.filter(user=user)
+            for t in SupportTicket.objects.filter(user=user).order_by('-created_at')
         ]
     }
 
     response = HttpResponse(json.dumps(data, indent=2), content_type='application/json')
-    response['Content-Disposition'] = f'attachment; filename="axom_ai_data_{user.username}.json"'
+    response['Content-Disposition'] = f'attachment; filename="axom_developer_archive_{user.username}_{timezone.now().strftime("%Y%m%d")}.json"'
     return response
 
 
 @user_login_required
 @require_POST
 def delete_account_api(request):
-    """Soft delete pattern: marks account inactive, revokes all API keys & terminates session gracefully."""
+    """
+    Soft delete pattern: marks account inactive, revokes all API keys, expires plan & terminates session gracefully.
+    Requires password and exact confirmation phrase 'DELETE MY ACCOUNT'.
+    """
     try:
-        data = json.loads(request.body)
+        if _rate_limited(f"delete_account:{request.user.id}", max_calls=3, per_seconds=600):
+            return JsonResponse({'success': False, 'error': 'Too many attempts. Please wait.'}, status=429)
+
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            data = request.POST or {}
+        if not data and request.POST:
+            data = request.POST
+
         password = data.get('password', '')
+        confirm_phrase = data.get('confirm_phrase', '').strip()
+
+        if confirm_phrase != "DELETE MY ACCOUNT":
+            return JsonResponse({'success': False, 'error': 'Please type "DELETE MY ACCOUNT" exactly to confirm deactivation.'}, status=400)
 
         if not request.user.check_password(password):
             return JsonResponse({'success': False, 'error': 'Incorrect password.'}, status=400)
@@ -1681,13 +1870,13 @@ def delete_account_api(request):
         user = request.user
         # Soft delete user
         user.is_active = False
-        user.save()
+        user.save(update_fields=['is_active'])
 
         # Expire active plan
         user_plan = UserPlan.objects.filter(user=user).first()
         if user_plan:
             user_plan.status = 'expired'
-            user_plan.save()
+            user_plan.save(update_fields=['status'])
 
         # Revoke all developer API keys & purge from cache immediately
         user_keys = DeveloperApiKey.objects.filter(user=user, is_active=True)
@@ -1702,7 +1891,8 @@ def delete_account_api(request):
         logout(request)
         return JsonResponse({'success': True, 'message': 'Account deactivated and all API keys permanently revoked.'})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        logger.error("Error deleting account: %s", e, exc_info=True)
+        return JsonResponse({'success': False, 'error': 'An internal error occurred.'}, status=500)
 
 
 @user_login_required
