@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   Lock,
   ChevronRight,
+  ChevronDown,
   Clock,
   Play,
   RotateCcw,
@@ -109,6 +110,26 @@ export default function DeveloperDocsInteractive() {
   const [responseTimeMs, setResponseTimeMs] = useState<number | null>(null);
   const [responseViewMode, setResponseViewMode] = useState<'formatted' | 'raw'>('formatted');
   const [responseCopied, setResponseCopied] = useState<boolean>(false);
+
+  // Custom Dropdown states
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState<boolean>(false);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState<boolean>(false);
+  const modelDropdownRef = React.useRef<HTMLDivElement>(null);
+  const langDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target as Node)) {
+        setIsModelDropdownOpen(false);
+      }
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+        setIsLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Markdown renderer helper for clean formatted preview (removes raw ** and renders bold, bullets, headings)
   const renderMarkdownText = (text: string) => {
@@ -1132,17 +1153,178 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
 
               {playgroundEndpoint === 'chat' && (
                 <>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Target Model</label>
-                    <select
-                      value={chatModel}
-                      onChange={(e) => setChatModel(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  <div ref={modelDropdownRef} className="relative">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Cpu size={13} className="text-indigo-600 dark:text-indigo-400" />
+                        Target Model
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-normal">Active Neural Tier</span>
+                    </label>
+
+                    {/* Custom Dropdown Trigger */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsModelDropdownOpen(!isModelDropdownOpen);
+                        setIsLangDropdownOpen(false);
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-950/90 hover:bg-slate-50 dark:hover:bg-slate-900/90 text-left transition-all duration-150 flex items-center justify-between gap-2 shadow-xs group focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
                     >
-                      <option value="axom-indic-1">axom-indic-1 (Flagship Assamese/Indic)</option>
-                      <option value="axom-fast">axom-fast (Sub-second High-Throughput)</option>
-                      <option value="axom-pro">axom-pro (Deep Reasoning &amp; STEM)</option>
-                    </select>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/50 flex items-center justify-center shrink-0">
+                          {chatModel === 'axom-indic-1' ? (
+                            <Sparkles size={14} className="text-emerald-500" />
+                          ) : chatModel === 'axom-fast' ? (
+                            <Zap size={14} className="text-amber-500" />
+                          ) : (
+                            <Cpu size={14} className="text-purple-500" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
+                              {chatModel}
+                            </span>
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                              chatModel === 'axom-indic-1'
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                : chatModel === 'axom-fast'
+                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                            }`}>
+                              {chatModel === 'axom-indic-1' ? 'Flagship' : chatModel === 'axom-fast' ? 'Ultra Fast' : 'Deep Logic'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                            {chatModel === 'axom-indic-1'
+                              ? 'Native Assamese & Indic • 32k context'
+                              : chatModel === 'axom-fast'
+                              ? 'Sub-second real-time inference'
+                              : 'Multi-step STEM & deep reasoning'}
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronDown
+                        size={16}
+                        className={`text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-transform duration-200 shrink-0 ${
+                          isModelDropdownOpen ? 'rotate-180 text-indigo-500' : ''
+                        }`}
+                      />
+                    </button>
+
+                    {/* Custom Dropdown Menu Popover */}
+                    {isModelDropdownOpen && (
+                      <div className="absolute z-50 left-0 right-0 mt-2 p-1.5 rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 shadow-2xl backdrop-blur-2xl space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                        {/* Option 1: axom-indic-1 */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setChatModel('axom-indic-1');
+                            setIsModelDropdownOpen(false);
+                          }}
+                          className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 ${
+                            chatModel === 'axom-indic-1'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/50'
+                              : 'hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/50 flex items-center justify-center shrink-0 mt-0.5">
+                              <Sparkles size={15} className="text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
+                                  axom-indic-1
+                                </span>
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                  Recommended
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                Native Assamese &amp; Indic multimodal engine with script purification (ৰ/র).
+                              </p>
+                            </div>
+                          </div>
+                          {chatModel === 'axom-indic-1' && (
+                            <Check size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                          )}
+                        </button>
+
+                        {/* Option 2: axom-fast */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setChatModel('axom-fast');
+                            setIsModelDropdownOpen(false);
+                          }}
+                          className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 ${
+                            chatModel === 'axom-fast'
+                              ? 'bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50'
+                              : 'hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700/50 flex items-center justify-center shrink-0 mt-0.5">
+                              <Zap size={15} className="text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
+                                  axom-fast
+                                </span>
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                                  Sub-300ms
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                Ultra-fast throughput engine optimized for interactive bots &amp; edge apps.
+                              </p>
+                            </div>
+                          </div>
+                          {chatModel === 'axom-fast' && (
+                            <Check size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                          )}
+                        </button>
+
+                        {/* Option 3: axom-pro */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setChatModel('axom-pro');
+                            setIsModelDropdownOpen(false);
+                          }}
+                          className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 ${
+                            chatModel === 'axom-pro'
+                              ? 'bg-purple-50 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-700/50'
+                              : 'hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent'
+                          }`}
+                        >
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700/50 flex items-center justify-center shrink-0 mt-0.5">
+                              <Cpu size={15} className="text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
+                                  axom-pro
+                                </span>
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
+                                  Deep Logic
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                Multi-step STEM reasoning, complex coding, and 128k large document synthesis.
+                              </p>
+                            </div>
+                          </div>
+                          {chatModel === 'axom-pro' && (
+                            <Check size={16} className="text-purple-600 dark:text-purple-400 shrink-0" />
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -1196,17 +1378,77 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                         className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-500 font-mono"
                       />
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Target Language</label>
-                      <select
-                        value={translateTarget}
-                        onChange={(e) => setTranslateTarget(e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    <div ref={langDropdownRef} className="relative">
+                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+                        <Globe size={13} className="text-indigo-600 dark:text-indigo-400" />
+                        Target Language
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsLangDropdownOpen(!isLangDropdownOpen);
+                          setIsModelDropdownOpen(false);
+                        }}
+                        className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-950/90 hover:bg-slate-50 dark:hover:bg-slate-900/90 text-left transition-all duration-150 flex items-center justify-between gap-2 shadow-xs group focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
                       >
-                        <option value="as">as (Assamese - Purified)</option>
-                        <option value="hi">hi (Hindi)</option>
-                        <option value="bn">bn (Bengali)</option>
-                      </select>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-mono text-[11px] font-bold">
+                            {translateTarget}
+                          </span>
+                          <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">
+                            {translateTarget === 'as'
+                              ? 'Assamese (অসমীয়া)'
+                              : translateTarget === 'hi'
+                              ? 'Hindi (हिन्दी)'
+                              : translateTarget === 'bn'
+                              ? 'Bengali (বাংলা)'
+                              : 'English'}
+                          </span>
+                        </div>
+                        <ChevronDown
+                          size={15}
+                          className={`text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-transform duration-200 shrink-0 ${
+                            isLangDropdownOpen ? 'rotate-180 text-indigo-500' : ''
+                          }`}
+                        />
+                      </button>
+
+                      {/* Language Dropdown Popover */}
+                      {isLangDropdownOpen && (
+                        <div className="absolute z-50 left-0 right-0 mt-2 p-1.5 rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 shadow-2xl backdrop-blur-2xl space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                          {[
+                            { code: 'as', label: 'Assamese (অসমীয়া - Purified)', badge: 'Native' },
+                            { code: 'hi', label: 'Hindi (हिन्दी)', badge: 'Indic' },
+                            { code: 'bn', label: 'Bengali (বাংলা)', badge: 'Indic' },
+                            { code: 'en', label: 'English (US/UK)', badge: 'Global' }
+                          ].map((lang) => (
+                            <button
+                              key={lang.code}
+                              type="button"
+                              onClick={() => {
+                                setTranslateTarget(lang.code);
+                                setIsLangDropdownOpen(false);
+                              }}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition-all flex items-center justify-between text-xs ${
+                                translateTarget === lang.code
+                                  ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-900 dark:text-indigo-200 font-semibold border border-indigo-200 dark:border-indigo-800/50'
+                                  : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 border border-transparent'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                                  {lang.code}
+                                </span>
+                                <span>{lang.label}</span>
+                              </div>
+                              {translateTarget === lang.code && (
+                                <Check size={14} className="text-indigo-600 dark:text-indigo-400" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </>
