@@ -107,6 +107,134 @@ export default function DeveloperDocsInteractive() {
   const [apiResponse, setApiResponse] = useState<any | null>(null);
   const [httpStatus, setHttpStatus] = useState<number | null>(null);
   const [responseTimeMs, setResponseTimeMs] = useState<number | null>(null);
+  const [responseViewMode, setResponseViewMode] = useState<'formatted' | 'raw'>('formatted');
+  const [responseCopied, setResponseCopied] = useState<boolean>(false);
+
+  // Markdown renderer helper for clean formatted preview (removes raw ** and renders bold, bullets, headings)
+  const renderMarkdownText = (text: string) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+    const elements: React.ReactNode[] = [];
+
+    const formatInline = (str: string): React.ReactNode => {
+      const parts = str.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
+      return parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return (
+            <strong key={i} className="font-bold text-white">
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        if (part.startsWith('*') && part.endsWith('*')) {
+          return (
+            <em key={i} className="italic text-slate-300">
+              {part.slice(1, -1)}
+            </em>
+          );
+        }
+        if (part.startsWith('`') && part.endsWith('`')) {
+          return (
+            <code
+              key={i}
+              className="px-1.5 py-0.5 rounded bg-slate-800 text-purple-300 font-mono text-xs border border-purple-500/20"
+            >
+              {part.slice(1, -1)}
+            </code>
+          );
+        }
+        return part;
+      });
+    };
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        elements.push(<div key={`empty-${index}`} className="h-2" />);
+        return;
+      }
+
+      // Headings (###)
+      if (trimmed.startsWith('### ')) {
+        elements.push(
+          <h4
+            key={`h4-${index}`}
+            className="text-sm sm:text-base font-bold text-emerald-400 mt-3 mb-1 flex items-center gap-2"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            {formatInline(trimmed.slice(4))}
+          </h4>
+        );
+        return;
+      }
+      if (trimmed.startsWith('## ')) {
+        elements.push(
+          <h3
+            key={`h3-${index}`}
+            className="text-base sm:text-lg font-bold text-white mt-4 mb-1.5"
+          >
+            {formatInline(trimmed.slice(3))}
+          </h3>
+        );
+        return;
+      }
+      if (trimmed.startsWith('# ')) {
+        elements.push(
+          <h2
+            key={`h2-${index}`}
+            className="text-lg sm:text-xl font-bold text-white mt-4 mb-2"
+          >
+            {formatInline(trimmed.slice(2))}
+          </h2>
+        );
+        return;
+      }
+
+      // Bullet points (- or *)
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        elements.push(
+          <div key={`bullet-${index}`} className="flex items-start gap-2.5 ml-1 my-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 mt-2 shrink-0"></span>
+            <span className="text-slate-200 leading-relaxed text-xs sm:text-sm">
+              {formatInline(trimmed.slice(2))}
+            </span>
+          </div>
+        );
+        return;
+      }
+
+      // Normal paragraph
+      elements.push(
+        <p
+          key={`p-${index}`}
+          className="text-slate-200 leading-relaxed text-xs sm:text-sm my-1"
+        >
+          {formatInline(line)}
+        </p>
+      );
+    });
+
+    return elements;
+  };
+
+  const handleCopyResponse = () => {
+    if (!apiResponse) return;
+    let textToCopy = '';
+    if (responseViewMode === 'formatted') {
+      if (apiResponse?.choices?.[0]?.message?.content) {
+        textToCopy = apiResponse.choices[0].message.content;
+      } else if (apiResponse?.translated_text) {
+        textToCopy = apiResponse.translated_text;
+      } else {
+        textToCopy = JSON.stringify(apiResponse, null, 2);
+      }
+    } else {
+      textToCopy = JSON.stringify(apiResponse, null, 2);
+    }
+    navigator.clipboard.writeText(textToCopy);
+    setResponseCopied(true);
+    setTimeout(() => setResponseCopied(false), 2000);
+  };
 
   // Load key from sessionStorage on mount (never leaves user browser)
   useEffect(() => {
@@ -1119,42 +1247,180 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               </div>
             </div>
 
-            {/* Output Inspector Panel */}
+            {/* Output Inspector Panel with Formatted & Raw JSON View */}
             <div className="space-y-2 flex flex-col">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                <span>Live Server Response</span>
-                {httpStatus !== null && (
-                  <span className="flex items-center gap-2">
-                    <span
-                      className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${
-                        httpStatus === 200
-                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                          : httpStatus === 401
-                          ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
-                          : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                      }`}
-                    >
-                      HTTP {httpStatus}
-                    </span>
-                    {responseTimeMs !== null && (
-                      <span className="text-[11px] text-slate-400 font-mono font-normal">
-                        {responseTimeMs}ms
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                <div className="flex items-center gap-2">
+                  <span>Live Server Response</span>
+                  {httpStatus !== null && (
+                    <span className="flex items-center gap-1.5 normal-case font-normal">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold ${
+                          httpStatus === 200
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                            : httpStatus === 401
+                            ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                        }`}
+                      >
+                        HTTP {httpStatus}
                       </span>
-                    )}
-                  </span>
+                      {responseTimeMs !== null && (
+                        <span className="text-[11px] text-slate-400 font-mono font-normal">
+                          {responseTimeMs}ms
+                        </span>
+                      )}
+                    </span>
+                  )}
+                </div>
+
+                {/* View Mode Toggle: Formatted vs Raw JSON */}
+                {apiResponse && (
+                  <div className="flex items-center gap-2 normal-case font-normal">
+                    <div className="inline-flex items-center rounded-xl bg-slate-200/90 dark:bg-slate-800/90 p-0.5 border border-slate-300/80 dark:border-slate-700/80 shadow-xs">
+                      <button
+                        type="button"
+                        onClick={() => setResponseViewMode('formatted')}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                          responseViewMode === 'formatted'
+                            ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <Sparkles size={13} className={responseViewMode === 'formatted' ? 'text-emerald-500' : ''} />
+                        <span>Formatted Preview</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setResponseViewMode('raw')}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                          responseViewMode === 'raw'
+                            ? 'bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-300 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <Code size={13} className={responseViewMode === 'raw' ? 'text-purple-500' : ''} />
+                        <span>Raw JSON</span>
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyResponse}
+                      className="px-2.5 py-1 rounded-lg bg-slate-200/90 dark:bg-slate-800/90 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-all flex items-center gap-1 border border-slate-300/60 dark:border-slate-700/60"
+                      title="Copy response"
+                    >
+                      {responseCopied ? (
+                        <>
+                          <Check size={13} className="text-emerald-500" />
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={13} />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 )}
               </div>
 
-              <div className="flex-1 min-h-[260px] max-h-[360px] rounded-2xl bg-[#0b1220] p-4 text-slate-200 font-mono text-xs overflow-auto border border-slate-800">
+              <div className="flex-1 min-h-[280px] max-h-[420px] rounded-2xl bg-[#0b1220] p-4 sm:p-5 text-slate-200 overflow-auto border border-slate-800 shadow-inner">
                 {apiResponse ? (
-                  <pre className="text-emerald-300 whitespace-pre-wrap leading-relaxed">
-                    {JSON.stringify(apiResponse, null, 2)}
-                  </pre>
+                  responseViewMode === 'formatted' ? (
+                    /* Formatted Preview Mode */
+                    <div className="space-y-3 font-sans">
+                      {apiResponse?.choices?.[0]?.message?.content ? (
+                        <div>
+                          {/* Metadata Header */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                              <span className="font-semibold text-white">
+                                {apiResponse.model || 'Axom Model'}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 text-[10px] font-mono border border-emerald-500/30">
+                                Assistant Reply
+                              </span>
+                            </div>
+                            {apiResponse?.usage && (
+                              <div className="text-[11px] text-slate-400 font-mono">
+                                Total {apiResponse.usage.total_tokens} tokens ({apiResponse.usage.prompt_tokens} in • {apiResponse.usage.completion_tokens} out)
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Markdown Rendered Content */}
+                          <div className="space-y-2 text-slate-200">
+                            {renderMarkdownText(apiResponse.choices[0].message.content)}
+                          </div>
+                        </div>
+                      ) : apiResponse?.translated_text ? (
+                        /* Translation Result */
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-white/10">
+                            <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                              <Sparkles size={13} />
+                              Neural Translation Output
+                            </span>
+                            <span className="font-mono text-[11px]">
+                              {apiResponse.source_language || 'auto'} → {apiResponse.target_language || translateTarget}
+                            </span>
+                          </div>
+                          <div className="p-4 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-emerald-200 text-sm sm:text-base leading-relaxed">
+                            {apiResponse.translated_text}
+                          </div>
+                        </div>
+                      ) : apiResponse?.data && Array.isArray(apiResponse.data) ? (
+                        /* Models List */
+                        <div className="space-y-2">
+                          <div className="text-xs text-slate-400 pb-2 border-b border-white/10 flex items-center justify-between">
+                            <span>Available Production Models ({apiResponse.data.length})</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            {apiResponse.data.map((m: any, idx: number) => (
+                              <div key={idx} className="p-3 rounded-xl bg-slate-900 border border-white/10 flex items-center justify-between">
+                                <div className="space-y-0.5">
+                                  <div className="font-mono text-xs font-bold text-white">{m.id}</div>
+                                  <div className="text-[10px] text-slate-400">Owner: {m.owned_by || 'axom-ai'}</div>
+                                </div>
+                                <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                  Active
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : apiResponse?.error ? (
+                        /* API Error Presentation */
+                        <div className="p-4 rounded-xl bg-rose-950/50 border border-rose-500/40 text-rose-200 text-xs sm:text-sm space-y-2">
+                          <div className="flex items-center gap-2 font-bold text-rose-300">
+                            <AlertCircle size={16} />
+                            <span>{apiResponse.error.code ? `Error: ${apiResponse.error.code}` : 'API Error'}</span>
+                          </div>
+                          <p className="leading-relaxed">
+                            {apiResponse.error.message || JSON.stringify(apiResponse.error)}
+                          </p>
+                        </div>
+                      ) : (
+                        /* Generic Object Fallback */
+                        <pre className="text-emerald-300 whitespace-pre-wrap leading-relaxed font-mono text-xs">
+                          {JSON.stringify(apiResponse, null, 2)}
+                        </pre>
+                      )}
+                    </div>
+                  ) : (
+                    /* Raw JSON View */
+                    <pre className="text-emerald-300 whitespace-pre-wrap leading-relaxed font-mono text-xs">
+                      {JSON.stringify(apiResponse, null, 2)}
+                    </pre>
+                  )
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-slate-500 py-12 text-center">
                     <Terminal size={32} className="opacity-40 mb-2" />
                     <span>Click &quot;Send Live Request&quot; to test the endpoint.</span>
-                    <span className="text-[11px] opacity-70 mt-1">Real JSON output and timing will appear here.</span>
+                    <span className="text-[11px] opacity-70 mt-1">Formatted Preview and Raw JSON output will appear here.</span>
                   </div>
                 )}
               </div>
