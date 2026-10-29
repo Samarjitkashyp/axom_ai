@@ -65,11 +65,29 @@ def require_developer_api_key(view_func):
                 )
 
         # Rate Limit check (per minute window in cache)
+        from axom_ai.security import get_client_ip
+        client_ip = (get_client_ip(request) or '127.0.0.1')[:64]
         minute_window = int(time.time() // 60)
-        rate_key = f"rate_limit:{api_key.id}:{minute_window}"
+
+        is_demo_key = api_key.key.startswith('sk_live_axom_demo_')
+        if is_demo_key:
+            # Strictly limit demo key per IP: 5 requests per minute
+            rate_key = f"rate_limit:demo:{client_ip}:{minute_window}"
+            rate_limit = 5
+        else:
+            rate_key = f"rate_limit:{api_key.id}:{minute_window}"
+            rate_limit = api_key.rate_limit_per_minute
+        
         current_reqs = cache.get(rate_key, 0)
         
-        if current_reqs >= api_key.rate_limit_per_minute:
+        if current_reqs >= rate_limit:
+            if is_demo_key:
+                return openai_error_response(
+                    "Demo Rate Limit Exceeded: The public sandbox demo key is strictly limited to 5 requests per minute per IP. Please sign in to the Axom AI Developer Console at https://user.aiaxom.co.in to generate your own free personal API key with 1,000 monthly requests.",
+                    error_type="requests",
+                    code="demo_rate_limit_exceeded",
+                    status=429
+                )
             return openai_error_response(
                 f"Rate limit exceeded: You are allowed {api_key.rate_limit_per_minute} requests per minute on your {api_key.tier} tier.",
                 error_type="requests",
@@ -79,8 +97,8 @@ def require_developer_api_key(view_func):
             
         cache.set(rate_key, current_reqs + 1, timeout=70)
 
-        # Monthly Quota check
-        if not api_key.has_quota():
+        # Monthly Quota check (bypassed for public demo key which has per-minute IP throttling)
+        if not is_demo_key and not api_key.has_quota():
             return openai_error_response(
                 f"You have exhausted your monthly quota ({api_key.monthly_quota} requests). Please upgrade your plan at https://aiaxom.co.in",
                 error_type="insufficient_quota",

@@ -31,7 +31,10 @@ import {
   Sliders,
   Send,
   Trash2,
-  HelpCircle
+  Smartphone,
+  AppWindow,
+  FileCode,
+  Laptop
 } from 'lucide-react';
 
 interface ModelInfo {
@@ -43,6 +46,8 @@ interface ModelInfo {
   latency: string;
   bestFor: string;
 }
+
+const PUBLIC_DEMO_KEY = 'sk_live_axom_demo_public_preview_2026';
 
 const MODELS: ModelInfo[] = [
   {
@@ -81,8 +86,11 @@ export default function DeveloperDocsInteractive() {
   const [copiedKey, setCopiedKey] = useState<boolean>(false);
   const [copiedSnippet, setCopiedSnippet] = useState<boolean>(false);
 
-  // Active Snippet Tab
+  // Quickstart Tab
   const [activeTab, setActiveTab] = useState<'python' | 'node' | 'curl' | 'translate'>('python');
+
+  // Full-Stack Architecture Tab (Mobile, Web, PHP, Python, JS)
+  const [activeStack, setActiveStack] = useState<'mobile' | 'web' | 'php' | 'python' | 'node'>('mobile');
 
   // Active Endpoint Tab in Documentation
   const [activeEndpoint, setActiveEndpoint] = useState<'chat' | 'translate' | 'models'>('chat');
@@ -120,6 +128,11 @@ export default function DeveloperDocsInteractive() {
     } catch {}
   };
 
+  const handleUseDemoKey = () => {
+    handleSaveKey(PUBLIC_DEMO_KEY);
+    setShowKey(true);
+  };
+
   const handleClearKey = () => {
     setUserKey('');
     try {
@@ -138,7 +151,7 @@ export default function DeveloperDocsInteractive() {
     }
   };
 
-  // Masked Key helper for snippets
+  const isUsingDemo = userKey === PUBLIC_DEMO_KEY;
   const activeKeyForSnippets = userKey || 'sk_live_axom_••••••••••••••••••••••••••••••••••••••••';
 
   // Live Playground API Trigger
@@ -218,7 +231,7 @@ export default function DeveloperDocsInteractive() {
     }
   };
 
-  // Code Snippets
+  // Quickstart Code Snippets
   const pythonSnippet = `from openai import OpenAI
 import os
 
@@ -287,11 +300,159 @@ main();`;
     "target_lang": "as"
   }'`;
 
+  // Full-Stack Architecture Code Snippets
+  const flutterSnippet = `// Flutter / Dart (mobile app integration via your backend API proxy)
+// Security Standard: Never embed secret keys in APK binaries! Route calls through your backend.
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<String> askAxomAI(String userPrompt) async {
+  // Option A: Via your secure mobile backend proxy (Recommended)
+  final url = Uri.parse('https://your-api.com/api/chat');
+  
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'prompt': userPrompt,
+      'model': 'axom-indic-1'
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data['reply'];
+  } else {
+    throw Exception('Failed to connect to Axom AI');
+  }
+}`;
+
+  const nextjsSnippet = `// Next.js App Router (app/api/chat/route.ts)
+// Server-side Route Handler: Secret key is never exposed to the client browser!
+
+import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://aiaxom.co.in/v1',
+  apiKey: process.env.AXOM_API_KEY, // Stored safely in .env.local
+});
+
+export async function POST(req: Request) {
+  try {
+    const { message } = await req.json();
+
+    const completion = await client.chat.completions.create({
+      model: 'axom-indic-1',
+      messages: [
+        { role: 'system', content: 'You are Axom AI assistant.' },
+        { role: 'user', content: message }
+      ],
+      temperature: 0.7,
+    });
+
+    return NextResponse.json({ reply: completion.choices[0].message.content });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}`;
+
+  const phpSnippet = `<?php
+// PHP / Laravel / WordPress Backend Integration
+// Uses cURL to securely query Axom AI from your Linux server
+
+$apiKey = getenv('AXOM_API_KEY') ?: '${activeKeyForSnippets}';
+$apiUrl = 'https://aiaxom.co.in/v1/chat/completions';
+
+$payload = json_encode([
+    'model' => 'axom-indic-1',
+    'messages' => [
+        ['role' => 'system', 'content' => 'You are Axom AI assistant.'],
+        ['role' => 'user', 'content' => 'অসমৰ প্ৰধান পৰ্যটনস্থলীসমূহ কি কি?']
+    ],
+    'temperature' => 0.7
+]);
+
+$ch = curl_init($apiUrl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'Authorization: Bearer ' . $apiKey
+]);
+
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+$result = json_decode($response, true);
+echo $result['choices'][0]['message']['content'];
+?>`;
+
+  const fastapiSnippet = `# Python FastAPI Backend (main.py)
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from openai import OpenAI
+import os
+
+app = FastAPI()
+
+client = OpenAI(
+    base_url="https://aiaxom.co.in/v1",
+    api_key=os.environ.get("AXOM_API_KEY") # Safe backend environment
+)
+
+class ChatRequest(BaseModel):
+    prompt: str
+
+@app.post("/api/chat")
+async def chat_endpoint(req: ChatRequest):
+    try:
+        response = client.chat.completions.create(
+            model="axom-indic-1",
+            messages=[{"role": "user", "content": req.prompt}],
+            temperature=0.7
+        )
+        return {"content": response.choices[0].message.content}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))`;
+
+  const expressSnippet = `// Node.js Express Backend (server.js)
+import express from 'express';
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const app = express();
+app.use(express.json());
+
+const client = new OpenAI({
+  baseURL: 'https://aiaxom.co.in/v1',
+  apiKey: process.env.AXOM_API_KEY, // Stored safely on server
+});
+
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    const response = await client.chat.completions.create({
+      model: 'axom-indic-1',
+      messages: [{ role: 'user', content: prompt }],
+    });
+    res.json({ reply: response.choices[0].message.content });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));`;
+
   return (
-    <div className="space-y-16 py-6">
+    <div className="w-full space-y-16 py-6">
       {/* 1. Quick Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
             <Zap size={14} /> SDK Standard
           </div>
@@ -299,7 +460,7 @@ main();`;
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Drop-in replacement</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
             <Lock size={14} /> Security
           </div>
@@ -307,7 +468,7 @@ main();`;
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Strict TLS 1.3 encryption</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
             <Globe size={14} /> Languages
           </div>
@@ -315,7 +476,7 @@ main();`;
           <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Purified ৰ/র orthography</div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+        <div className="p-5 rounded-2xl bg-white/70 dark:bg-slate-900/70 border border-emerald-900/10 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
             <ShieldCheck size={14} /> Free Quota
           </div>
@@ -326,35 +487,35 @@ main();`;
 
       {/* 2. Official Key Management & Security Section */}
       <section id="api-keys" className="scroll-mt-24 space-y-6">
-        <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-emerald-500/30 dark:border-emerald-500/20 shadow-xl relative overflow-hidden">
+        <div className="w-full p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-emerald-500/30 dark:border-emerald-500/20 shadow-xl relative overflow-hidden">
           {/* Subtle Accent Glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
 
-          <div className="max-w-3xl space-y-4">
+          <div className="max-w-5xl space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
               <Key size={13} className="text-emerald-600 dark:text-emerald-400" />
               Cryptographic Key Management
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Generate &amp; Manage Your API Secret Keys
             </h2>
 
-            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
               To guarantee zero quota hijacking and adhere to strict industry security standards, Axom AI secret keys are cryptographically generated, user-bound, and managed inside the dedicated <strong>Axom AI Developer Console</strong>.
             </p>
 
             {/* Developer Console Launch Card */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-500/30 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-5 my-4">
-              <div className="space-y-1.5">
-                <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="w-full p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-500/30 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 my-6">
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   Official Developer Console
                 </div>
-                <div className="text-lg sm:text-xl font-extrabold text-white">
+                <div className="text-xl sm:text-2xl font-black text-white">
                   user.aiaxom.co.in
                 </div>
-                <p className="text-xs text-slate-300 max-w-md leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
                   Sign in with your developer account to generate new secret keys, monitor real-time monthly usage quotas, set burst rate limits, and instantly revoke compromised keys.
                 </p>
               </div>
@@ -363,53 +524,67 @@ main();`;
                 href="https://user.aiaxom.co.in/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-500/25 transition-all transform active:scale-95 shrink-0"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 transition-all transform active:scale-95 shrink-0"
               >
                 <span>Open Developer Console</span>
-                <ExternalLink size={15} />
+                <ExternalLink size={16} />
               </a>
             </div>
 
             {/* 3 Steps Visual Flow */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs">
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">1</div>
-                <div className="font-bold text-slate-900 dark:text-white">Sign In or Register</div>
-                <p className="text-slate-500 dark:text-slate-400 mt-1">Authenticate at user.aiaxom.co.in to protect your account quota.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">1</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm">Sign In or Register</div>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed">Authenticate at user.aiaxom.co.in to protect your account quota.</p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">2</div>
-                <div className="font-bold text-slate-900 dark:text-white">+ Create Secret Key</div>
-                <p className="text-slate-500 dark:text-slate-400 mt-1">Click Create Key and label your application (e.g. Web App, Mobile).</p>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">2</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm">+ Create Secret Key</div>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed">Click Create Key and label your application (e.g. Web App, Mobile).</p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
-                <div className="w-6 h-6 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">3</div>
-                <div className="font-bold text-slate-900 dark:text-white">Save in Environment</div>
-                <p className="text-slate-500 dark:text-slate-400 mt-1">Export as <code className="font-mono text-emerald-600 dark:text-emerald-400">AXOM_API_KEY</code> and use with standard OpenAI SDK.</p>
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold flex items-center justify-center text-xs mb-2">3</div>
+                <div className="font-bold text-slate-900 dark:text-white text-sm">Save in Environment</div>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed">Export as <code className="font-mono text-emerald-600 dark:text-emerald-400">AXOM_API_KEY</code> and use with standard OpenAI SDK.</p>
               </div>
             </div>
 
             {/* Interactive Key Sandbox Input for Live Playground & Snippets */}
-            <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                <label className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sliders size={14} className="text-indigo-600 dark:text-indigo-400" />
-                  Documentation Testing Key Sandbox
-                </label>
-                {userKey && (
+            <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                    <Sliders size={15} className="text-indigo-600 dark:text-indigo-400" />
+                    Documentation Testing Key Sandbox
+                  </label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Paste your own key or click <strong>&quot;⚡ Use Public Demo Key&quot;</strong> to test live endpoints right on this page.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
                   <button
-                    onClick={handleClearKey}
-                    className="text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 self-start sm:self-auto"
+                    type="button"
+                    onClick={handleUseDemoKey}
+                    className="px-3.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
                   >
-                    <Trash2 size={12} /> Clear from browser memory
+                    <Sparkles size={13} className="text-indigo-600 dark:text-indigo-400" />
+                    <span>⚡ Use Public Demo Key</span>
                   </button>
-                )}
+
+                  {userKey && (
+                    <button
+                      onClick={handleClearKey}
+                      className="px-3 py-1.5 rounded-xl text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-1 transition"
+                    >
+                      <Trash2 size={12} /> Clear
+                    </button>
+                  )}
+                </div>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                Paste your secret key below to automatically update the code snippets and test live API endpoints directly on this page.
-              </p>
 
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
@@ -417,8 +592,8 @@ main();`;
                     type={showKey ? 'text' : 'password'}
                     value={userKey}
                     onChange={(e) => handleSaveKey(e.target.value)}
-                    placeholder="Paste your sk_live_axom_... key here"
-                    className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                    placeholder="Paste your sk_live_axom_... key or click '⚡ Use Public Demo Key'"
+                    className="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-inner"
                   />
                   <button
                     type="button"
@@ -433,12 +608,24 @@ main();`;
                   type="button"
                   onClick={() => copyToClipboard(userKey || '')}
                   disabled={!userKey}
-                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-40"
+                  className="px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-40"
                 >
                   {copiedKey ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
                   <span>{copiedKey ? 'Copied' : 'Copy'}</span>
                 </button>
               </div>
+
+              {isUsingDemo && (
+                <div className="mt-2.5 p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-900 dark:text-indigo-200 flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <strong>Demo Key Active:</strong> Strictly rate-limited to <strong>5 requests per minute per IP</strong>.
+                  </span>
+                  <a href="https://user.aiaxom.co.in" target="_blank" className="font-bold underline text-indigo-600 dark:text-indigo-400 hover:text-indigo-700">
+                    Get 1K Free Personal Key →
+                  </a>
+                </div>
+              )}
 
               <div className="mt-2 text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
                 <Lock size={12} className="text-emerald-600" />
@@ -464,7 +651,7 @@ main();`;
         </div>
 
         {/* Code Editor Window */}
-        <div className="rounded-2xl border border-slate-800 bg-[#0b1220] text-slate-200 shadow-2xl overflow-hidden">
+        <div className="w-full rounded-2xl border border-slate-800 bg-[#0b1220] text-slate-200 shadow-2xl overflow-hidden">
           {/* Header Bar */}
           <div className="flex flex-wrap items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950/60 gap-3">
             <div className="flex items-center gap-2">
@@ -557,7 +744,168 @@ main();`;
         </div>
       </section>
 
-      {/* 4. LIVE INTERACTIVE API PLAYGROUND */}
+      {/* 4. FULL-STACK INTEGRATION GUIDES (Mobile, Web, PHP, Python, JS Backend) */}
+      <section id="stacks" className="scroll-mt-24 space-y-5">
+        <div>
+          <div className="inline-flex items-center gap-2 text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-1">
+            <Layers size={14} /> Full-Stack Architecture
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+            Integration Guides for Mobile, Web &amp; Backends
+          </h2>
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1">
+            Best practices and production code snippets for every major software architecture.
+          </p>
+        </div>
+
+        {/* Stack Selector Pills */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+          <button
+            type="button"
+            onClick={() => setActiveStack('mobile')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              activeStack === 'mobile'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+            }`}
+          >
+            <Smartphone size={16} />
+            <span>Mobile Apps (Flutter &amp; React Native)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveStack('web')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              activeStack === 'web'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+            }`}
+          >
+            <AppWindow size={16} />
+            <span>Websites &amp; Next.js</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveStack('php')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              activeStack === 'php'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+            }`}
+          >
+            <FileCode size={16} />
+            <span>PHP &amp; Laravel</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveStack('python')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              activeStack === 'python'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+            }`}
+          >
+            <Laptop size={16} />
+            <span>Python (FastAPI / Django)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveStack('node')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              activeStack === 'node'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+            }`}
+          >
+            <Server size={16} />
+            <span>Node.js / Express</span>
+          </button>
+        </div>
+
+        {/* Stack Content Display */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
+          {activeStack === 'mobile' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200">
+                <ShieldAlert size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Critical Mobile Security Rule:</strong> Never bundle your secret API key inside an Android APK or iOS IPA binary. Attackers can decompile APKs in seconds and steal your key. Instead, route your mobile app requests through your own secure backend proxy.
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-[#0b1220] p-4 sm:p-6 text-slate-200 font-mono text-xs overflow-x-auto">
+                <pre className="text-emerald-300">{flutterSnippet}</pre>
+              </div>
+            </div>
+          )}
+
+          {activeStack === 'web' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-900 dark:text-indigo-200">
+                <ShieldCheck size={18} className="text-indigo-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Server-Side Next.js Integration:</strong> By using a Next.js App Router Route Handler (<code className="font-mono">app/api/chat/route.ts</code>), your secret key remains 100% on the server and is never exposed to browser developer tools.
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-[#0b1220] p-4 sm:p-6 text-slate-200 font-mono text-xs overflow-x-auto">
+                <pre className="text-emerald-300">{nextjsSnippet}</pre>
+              </div>
+            </div>
+          )}
+
+          {activeStack === 'php' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs text-purple-900 dark:text-purple-200">
+                <Server size={18} className="text-purple-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>PHP / WordPress Integration:</strong> Perfect for connecting WordPress plugins, custom CMS portals, or enterprise Laravel applications to Axom AI via standard cURL with Bearer headers.
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-[#0b1220] p-4 sm:p-6 text-slate-200 font-mono text-xs overflow-x-auto">
+                <pre className="text-emerald-300">{phpSnippet}</pre>
+              </div>
+            </div>
+          )}
+
+          {activeStack === 'python' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-200">
+                <Zap size={18} className="text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Python FastAPI &amp; Django:</strong> Leverage the official <code className="font-mono">openai</code> Python library as a drop-in replacement. Set <code className="font-mono">base_url=&quot;https://aiaxom.co.in/v1&quot;</code> and run asynchronous inference pipelines.
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-[#0b1220] p-4 sm:p-6 text-slate-200 font-mono text-xs overflow-x-auto">
+                <pre className="text-emerald-300">{fastapiSnippet}</pre>
+              </div>
+            </div>
+          )}
+
+          {activeStack === 'node' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 text-xs text-teal-900 dark:text-teal-200">
+                <Laptop size={18} className="text-teal-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Node.js &amp; Express Microservices:</strong> High-throughput server-side integration using Node.js, Bun, or Deno with standard OpenAI npm packages.
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-800 bg-[#0b1220] p-4 sm:p-6 text-slate-200 font-mono text-xs overflow-x-auto">
+                <pre className="text-emerald-300">{expressSnippet}</pre>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 5. LIVE INTERACTIVE API PLAYGROUND */}
       <section id="playground" className="scroll-mt-24 space-y-4">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider mb-1">
@@ -571,66 +919,87 @@ main();`;
           </p>
         </div>
 
-        <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+        <div className="w-full p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
           {/* Endpoint Selector Tabs */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-4">
-            <button
-              type="button"
-              onClick={() => {
-                setPlaygroundEndpoint('chat');
-                setApiResponse(null);
-                setHttpStatus(null);
-              }}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                playgroundEndpoint === 'chat'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-              }`}
-            >
-              <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
-              <span>/v1/chat/completions</span>
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setPlaygroundEndpoint('chat');
+                  setApiResponse(null);
+                  setHttpStatus(null);
+                }}
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                  playgroundEndpoint === 'chat'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
+                <span>/v1/chat/completions</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setPlaygroundEndpoint('translate');
-                setApiResponse(null);
-                setHttpStatus(null);
-              }}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                playgroundEndpoint === 'translate'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-              }`}
-            >
-              <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
-              <span>/v1/translate</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPlaygroundEndpoint('translate');
+                  setApiResponse(null);
+                  setHttpStatus(null);
+                }}
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                  playgroundEndpoint === 'translate'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
+                <span>/v1/translate</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setPlaygroundEndpoint('models');
-                setApiResponse(null);
-                setHttpStatus(null);
-              }}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                playgroundEndpoint === 'models'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-              }`}
-            >
-              <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">GET</span>
-              <span>/v1/models</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPlaygroundEndpoint('models');
+                  setApiResponse(null);
+                  setHttpStatus(null);
+                }}
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                  playgroundEndpoint === 'models'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">GET</span>
+                <span>/v1/models</span>
+              </button>
+            </div>
+
+            {/* Quick Demo Key Injector in Sandbox Header */}
+            {!userKey && (
+              <button
+                type="button"
+                onClick={handleUseDemoKey}
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-xs font-bold shadow-md hover:from-indigo-600 hover:to-violet-700 transition flex items-center gap-1.5"
+              >
+                <Sparkles size={13} />
+                <span>Try with Public Demo Key</span>
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Input Config Panel */}
             <div className="space-y-4">
-              <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                Request Payload Configuration
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Request Payload Configuration
+                </span>
+                {isUsingDemo && (
+                  <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                    ⚡ Demo Key (Max 5 req/min)
+                  </span>
+                )}
               </div>
 
               {playgroundEndpoint === 'chat' && (
@@ -644,7 +1013,7 @@ main();`;
                     >
                       <option value="axom-indic-1">axom-indic-1 (Flagship Assamese/Indic)</option>
                       <option value="axom-fast">axom-fast (Sub-second Groq/Llama-3)</option>
-                      <option value="axom-pro">axom-pro (Deep Reasoning & STEM)</option>
+                      <option value="axom-pro">axom-pro (Deep Reasoning &amp; STEM)</option>
                     </select>
                   </div>
 
@@ -732,7 +1101,7 @@ main();`;
                   {isLoading ? (
                     <>
                       <RotateCcw size={16} className="animate-spin" />
-                      <span>Sending Request...</span>
+                      <span>Executing Request...</span>
                     </>
                   ) : (
                     <>
@@ -744,7 +1113,7 @@ main();`;
                 {!userKey && (
                   <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-2 flex items-center gap-1">
                     <AlertCircle size={12} />
-                    <span>No testing key set above. This request will test 401 Unauthorized handling!</span>
+                    <span>No key entered. Click &quot;Try with Public Demo Key&quot; above or test 401 Unauthorized handling.</span>
                   </p>
                 )}
               </div>
@@ -794,7 +1163,7 @@ main();`;
         </div>
       </section>
 
-      {/* 5. Enterprise Security & Architecture Section */}
+      {/* 6. Enterprise Security & Architecture Section */}
       <section id="security" className="scroll-mt-24 space-y-6">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
@@ -871,7 +1240,7 @@ main();`;
         </div>
       </section>
 
-      {/* 6. Models Specification */}
+      {/* 7. Models Specification */}
       <section id="models" className="scroll-mt-24 space-y-6">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
@@ -924,7 +1293,7 @@ main();`;
         </div>
       </section>
 
-      {/* 7. API Endpoints Reference */}
+      {/* 8. API Endpoints Reference */}
       <section id="endpoints" className="scroll-mt-24 space-y-6">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
@@ -1182,7 +1551,7 @@ main();`;
         )}
       </section>
 
-      {/* 8. Rate Limits & Error Handling */}
+      {/* 9. Rate Limits & Error Handling */}
       <section id="rate-limits" className="scroll-mt-24 space-y-6">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
@@ -1245,26 +1614,26 @@ main();`;
         </div>
       </section>
 
-      {/* 9. Need Help / Enterprise CTA */}
-      <div className="p-8 rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-800 text-white shadow-xl relative overflow-hidden">
-        <div className="max-w-2xl relative z-10 space-y-3">
-          <span className="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold uppercase tracking-wider">
+      {/* 10. Need Help / Enterprise CTA */}
+      <div className="w-full p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-700 to-slate-900 text-white shadow-2xl relative overflow-hidden">
+        <div className="max-w-3xl relative z-10 space-y-4">
+          <span className="px-3.5 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider">
             Enterprise &amp; Sovereign AI
           </span>
-          <h3 className="text-2xl sm:text-3xl font-bold">Need Higher Limits or On-Premise Deployment?</h3>
+          <h3 className="text-2xl sm:text-4xl font-extrabold tracking-tight">Need Higher Limits or On-Premise Deployment?</h3>
           <p className="text-emerald-100 text-sm sm:text-base leading-relaxed">
             For Assam Government departments, banks, universities, or high-volume enterprise pipelines, we offer custom dedicated instances, private VPC peering, and air-gapped on-premise model installations.
           </p>
-          <div className="pt-2 flex flex-wrap items-center gap-4">
+          <div className="pt-3 flex flex-wrap items-center gap-4">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-emerald-900 font-bold text-sm shadow hover:bg-emerald-50 active:scale-98 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-emerald-950 font-bold text-sm shadow hover:bg-emerald-50 active:scale-98 transition-all"
             >
               Contact Solutions Team <ArrowRight size={15} />
             </Link>
             <Link
               href="/pricing"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm transition-all border border-white/20"
             >
               Compare Plans
             </Link>

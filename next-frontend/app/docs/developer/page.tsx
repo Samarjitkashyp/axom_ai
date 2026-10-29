@@ -122,14 +122,14 @@ export default async function DeveloperDocsPage() {
 
       <main className="min-h-screen relative overflow-hidden pt-28 pb-20 flex-1">
         {/* Ambient Gradient Glows (matching use-cases) */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none z-0">
-          <div className="absolute top-10 left-1/4 w-[28rem] h-[28rem] bg-fuchsia-600/15 rounded-full blur-[140px]" />
-          <div className="absolute top-20 right-1/4 w-[28rem] h-[28rem] bg-purple-600/15 rounded-full blur-[140px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1600px] h-[750px] pointer-events-none z-0">
+          <div className="absolute top-10 left-1/4 w-[36rem] h-[36rem] bg-fuchsia-600/15 rounded-full blur-[160px]" />
+          <div className="absolute top-20 right-1/4 w-[36rem] h-[36rem] bg-purple-600/15 rounded-full blur-[160px]" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
           {/* ==================== HERO SECTION (USE-CASES PATTERN) ==================== */}
-          <section className="text-center max-w-4xl mx-auto mb-14 sm:mb-16">
+          <section className="text-center max-w-5xl mx-auto mb-14 sm:mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/15 via-purple-500/10 to-indigo-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold mb-5 shadow-sm">
               <Sparkles size={14} className="text-fuchsia-700 dark:text-fuchsia-400" />
               <span>⚡ Native Assamese &amp; Indic LLMs • OpenAI-Compatible v1 API</span>
@@ -142,8 +142,8 @@ export default async function DeveloperDocsPage() {
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-8">
-              Build world-class apps, websites, and bots powered by Assam&apos;s first indigenous AI platform. Seamless drop-in replacement for OpenAI SDKs in Python, Node.js, and cURL with automatic Assamese grammar purification and sub-second latency.
+            <p className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-slate-300 leading-relaxed max-w-4xl mx-auto mb-8">
+              Build world-class apps, websites, and bots powered by Assam&apos;s first indigenous AI platform. Seamless drop-in replacement for OpenAI SDKs across Python, Node.js, PHP, Flutter, and Next.js with automatic Assamese grammar purification and sub-second latency.
             </p>
 
             {/* Quick Filter / Jump Bar (Pill buttons from use-cases) */}
@@ -156,25 +156,32 @@ export default async function DeveloperDocsPage() {
                 <span>Get API Key</span>
               </a>
               <a
-                href="#quickstart"
-                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
-              >
-                <Code size={15} className="text-purple-600 dark:text-purple-400" />
-                <span>Quickstart SDK</span>
-              </a>
-              <a
                 href="#playground"
                 className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-indigo-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <Play size={15} className="text-indigo-600 dark:text-indigo-400" />
-                <span>Live Sandbox</span>
+                <span>Live Sandbox (Demo Key)</span>
+              </a>
+              <a
+                href="#stacks"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-purple-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Layers size={15} className="text-purple-600 dark:text-purple-400" />
+                <span>Full-Stack Guides</span>
+              </a>
+              <a
+                href="#quickstart"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Code size={15} className="text-fuchsia-600 dark:text-fuchsia-400" />
+                <span>SDK Quickstart</span>
               </a>
               <a
                 href="#security"
                 className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <ShieldCheck size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Security Architecture</span>
+                <span>Security Standards</span>
               </a>
               <a
                 href="#models"
@@ -187,8 +194,8 @@ export default async function DeveloperDocsPage() {
                 href="#endpoints"
                 className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
-                <Layers size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Endpoints</span>
+                <Terminal size={15} className="text-emerald-600 dark:text-emerald-400" />
+                <span>REST Endpoints</span>
               </a>
               <a
                 href="#rate-limits"
@@ -201,7 +208,7 @@ export default async function DeveloperDocsPage() {
           </section>
 
           {/* ==================== AEO DIRECT OVERVIEW BOX ==================== */}
-          <section className="mb-14 max-w-4xl mx-auto">
+          <section className="mb-14 max-w-5xl mx-auto">
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-100/40 dark:from-purple-950/40 via-white/60 dark:via-slate-900/60 to-indigo-100/40 dark:to-indigo-950/40 border border-purple-500/25 shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
               <div className="flex items-start gap-4 sm:gap-5 relative z-10">
