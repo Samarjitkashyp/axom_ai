@@ -30,6 +30,7 @@ const DEFAULT_COLS = [
       { id: 10, title: 'Frequently Asked Questions', url: '/faq', is_external: false },
       { id: 11, title: 'Help & Support', url: 'https://user.aiaxom.co.in/support/', is_external: true },
       { id: 12, title: 'AI Tools Directory', url: '/tools', is_external: false },
+      { id: 17, title: 'Developer API Docs', url: '/docs/developer', is_external: false },
     ],
   },
   {
@@ -88,7 +89,7 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
             setFooter(data.footer);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [initialFooter]);
 
