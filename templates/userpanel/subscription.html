@@ -1,182 +1,696 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}Subscription & Plans — Axom AI{% endblock %}
-{% block heading %}Subscription & Plans{% endblock %}
+{% block title %}Developer API Plans & Capacity — Axom AI{% endblock %}
+{% block heading %}API Plans & Capacity Limits{% endblock %}
 
 {% block extra_head %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+  .pricing-card-popular {
+    position: relative;
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.04) 0%, rgba(255, 255, 255, 1) 35%);
+  }
+  .pricing-glow {
+    box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.25);
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<!-- Current Plan Summary Card -->
-<div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-  <div>
-    <div class="flex items-center space-x-2.5">
-      <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase {% if limits.is_active %}bg-emerald-100 text-emerald-800{% else %}bg-slate-100 text-slate-700{% endif %}">
-        {% if limits.is_active %}ACTIVE SUBSCRIPTION{% else %}FREE PLAN{% endif %}
-      </span>
-      {% if limits.is_active %}
-      <span class="text-xs text-slate-500">• Renews on {{ limits.plan_obj.expires_at|date:"d M Y" }}</span>
-      {% endif %}
+<!-- Developer Plans Hero Header -->
+<div class="mb-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden border border-slate-800">
+  <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div class="max-w-2xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
+        <i class="fa-solid fa-layer-group text-indigo-400"></i>
+        <span>Developer API Quotas & Capacity Limits</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+        Scale Your Apps with Predictable AI Infrastructure
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+        High burst rate limits, zero artificial queuing, and full programmatic access to Axom Indic language models and deep STEM reasoning engines. Transparent pricing in Indian Rupees (INR).
+      </p>
     </div>
-    <h2 class="text-2xl font-black text-slate-900 mt-2">
-      {% if limits.is_active %}{{ limits.plan_obj.get_plan_display|default:limits.plan_name }}{% else %}Axom AI Free Tier{% endif %}
-    </h2>
-    <p class="text-xs text-slate-500 mt-1 max-w-lg">
-      {% if limits.is_active %}
-      You have full access to high-priority Gemini models, higher daily image quotas, and live Tavily search.
-      {% else %}
-      You are on the free starter tier with basic search and limited image generation tokens.
-      {% endif %}
-    </p>
-  </div>
 
-  <div class="flex items-center space-x-3 shrink-0">
-    {% if limits.is_active %}
-    <button onclick="promptCancelSubscription()" class="px-4 py-2.5 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-600 font-semibold text-xs rounded-xl transition">
-      Cancel Subscription
-    </button>
-    {% endif %}
+    <!-- Monthly / Annual Billing Switch -->
+    <div class="flex flex-col items-start lg:items-end gap-2 shrink-0">
+      <div class="bg-slate-800/90 p-1.5 rounded-2xl border border-slate-700/80 inline-flex items-center shadow-inner">
+        <button id="btnMonthlyToggle" onclick="switchBillingCycle('monthly')" type="button" class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 bg-indigo-600 text-white shadow-md">
+          Monthly Billing
+        </button>
+        <button id="btnYearlyToggle" onclick="switchBillingCycle('yearly')" type="button" class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 text-slate-300 hover:text-white flex items-center gap-1.5">
+          <span>Annual Billing</span>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-extrabold border border-emerald-500/30">SAVE 20%</span>
+        </button>
+      </div>
+      <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+        <i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i>
+        <span>Instant plan activation via UPI, Netbanking & Cards</span>
+      </span>
+    </div>
   </div>
 </div>
 
-<!-- Plan Comparison Matrix -->
-<div class="mb-8">
-  <div class="text-center max-w-xl mx-auto mb-8">
-    <h3 class="text-xl font-black text-slate-900">Choose the perfect plan for your workflow</h3>
-    <p class="text-xs text-slate-500 mt-1">Upgrade or renew anytime with instant activation via UPI, Card, or Netbanking.</p>
-  </div>
-
-  <div class="max-w-md mx-auto mb-8 bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center space-x-2">
-    <div class="text-slate-400 pl-2"><i class="fa-solid fa-ticket text-indigo-500"></i></div>
-    <input type="text" id="promoCouponInput" placeholder="Have a discount coupon code? (e.g. AXOM20)" class="flex-1 text-xs text-slate-800 placeholder-slate-400 font-mono uppercase focus:outline-none">
-    <span class="text-[11px] text-slate-400 font-semibold pr-2">Auto-applied at checkout</span>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    {% for p in plans_list %}
-    <div class="bg-white rounded-3xl p-6 border {% if p.is_current %}border-indigo-500 ring-2 ring-indigo-500/20 shadow-lg{% else %}border-slate-200/80 shadow-sm{% endif %} flex flex-col justify-between relative">
-      {% if p.is_current %}
-      <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wider shadow">
-        Current Plan
-      </div>
-      {% endif %}
-
-      <div>
-        <div class="text-sm font-bold text-slate-900">{{ p.label }}</div>
-        <div class="mt-4 flex items-baseline">
-          <span class="text-3xl font-black text-slate-900">₹{{ p.price|floatformat:0 }}</span>
-          <span class="text-xs text-slate-400 ml-1">/ {{ p.days }} days</span>
-        </div>
-
-        <ul class="mt-6 space-y-3 text-xs text-slate-600 border-t border-slate-100 pt-6">
-          <li class="flex items-center space-x-2.5">
-            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
-            <span><strong>{{ p.images_limit }}</strong> Images / day</span>
-          </li>
-          <li class="flex items-center space-x-2.5">
-            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
-            <span><strong>{{ p.searches_limit }}</strong> Web Searches / day</span>
-          </li>
-          <li class="flex items-center space-x-2.5">
-            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
-            <span>Fast AI responses (Gemini & Groq)</span>
-          </li>
-          <li class="flex items-center space-x-2.5">
-            <i class="fa-solid fa-check text-emerald-500 text-xs"></i>
-            <span>PDF Converter & AI Doc summaries</span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="mt-8 pt-4">
-        {% if p.is_current %}
-        <button disabled class="w-full py-3 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl cursor-default">
-          Current Active Plan
-        </button>
+<!-- Current Active Plan Status Banner -->
+<div class="mb-8 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+  <div class="flex items-start gap-4">
+    <div class="w-12 h-12 rounded-2xl {% if is_active_plan %}bg-emerald-50 text-emerald-600 border border-emerald-200{% else %}bg-indigo-50 text-indigo-600 border border-indigo-200{% endif %} flex items-center justify-center shrink-0 text-lg shadow-sm">
+      <i class="fa-solid {% if is_active_plan %}fa-shield-check{% else %}fa-code-branch{% endif %}"></i>
+    </div>
+    <div>
+      <div class="flex flex-wrap items-center gap-2.5">
+        <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider {% if is_active_plan %}bg-emerald-100 text-emerald-800 border border-emerald-200{% else %}bg-slate-100 text-slate-700 border border-slate-200{% endif %}">
+          {% if is_active_plan %}ACTIVE SUBSCRIPTION{% else %}FREE DEVELOPER TIER{% endif %}
+        </span>
+        {% if is_active_plan %}
+        <span class="text-xs font-semibold text-slate-600">
+          • Expires on {{ active_plan.expires_at|date:"d M Y" }} ({{ days_left }} days left)
+        </span>
         {% else %}
-        <button onclick="buyPlan('{{ p.key }}')" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center justify-center space-x-2">
-          <span>Upgrade to {{ p.label }}</span>
-          <i class="fa-solid fa-bolt text-amber-300 text-xs"></i>
-        </button>
+        <span class="text-xs text-slate-500 font-medium">
+          • No credit card required • Sandbox access
+        </span>
         {% endif %}
       </div>
+      <h3 class="text-xl font-black text-slate-900 mt-1.5 flex items-center gap-2">
+        <span>{{ current_tier.name }}</span>
+        {% if is_active_plan %}
+        <span class="text-xs font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200/60 font-mono">
+          {{ current_billing_cycle|title }}
+        </span>
+        {% endif %}
+      </h3>
+      <p class="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
+        {% if is_active_plan %}
+        Your developer plan provides <strong>{{ current_tier.monthly_quota_str }}</strong> API calls/month, a burst rate limit of <strong>{{ current_tier.rate_limit }} req/min</strong>, and up to <strong>{{ current_tier.max_keys }} active secret keys</strong>.
+        {% else %}
+        You are currently on the Free Developer Sandbox with <strong>1,000 requests/month</strong> and <strong>60 req/min</strong> burst limit. Upgrade anytime for higher volume and the Axom Pro reasoning model.
+        {% endif %}
+      </p>
     </div>
-    {% endfor %}
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3 shrink-0">
+    {% if is_active_plan %}
+    <button onclick="openCancelModal()" type="button" class="px-4 py-2.5 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-600 font-bold text-xs rounded-xl border border-slate-200/80 transition flex items-center gap-1.5">
+      <i class="fa-solid fa-ban text-[11px]"></i>
+      <span>Cancel Plan</span>
+    </button>
+    {% endif %}
+    <a href="#comparison-table" class="px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl border border-indigo-200/60 transition flex items-center gap-1.5">
+      <i class="fa-solid fa-table-columns text-[11px]"></i>
+      <span>Compare Specs</span>
+    </a>
+  </div>
+</div>
+
+<!-- Promo Coupon Box -->
+<div class="max-w-xl mx-auto mb-10 bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center gap-2">
+  <div class="flex items-center gap-2 px-3 text-slate-400 w-full sm:w-auto">
+    <i class="fa-solid fa-ticket text-indigo-600"></i>
+    <span class="text-xs font-bold text-slate-600 uppercase tracking-wider hidden sm:inline">Promo Code:</span>
+  </div>
+  <input type="text" id="promoCouponInput" placeholder="Enter coupon (e.g. AXOM20, BUILDER50)" class="w-full sm:flex-1 text-xs px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-slate-900 font-mono uppercase focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 placeholder-slate-400">
+  <span class="text-[11px] text-emerald-600 font-bold px-2 flex items-center gap-1 shrink-0">
+    <i class="fa-solid fa-check text-[10px]"></i>
+    <span>Auto-applied at checkout</span>
+  </span>
+</div>
+
+<!-- 4-Tier Developer Pricing Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 items-stretch">
+  {% for tier in dev_tiers %}
+  <div class="bg-white rounded-3xl p-6 sm:p-7 border {% if tier.popular %}border-indigo-500 ring-2 ring-indigo-500/25 shadow-xl pricing-card-popular pricing-glow{% else %}border-slate-200/80 shadow-sm hover:shadow-md{% endif %} flex flex-col justify-between transition-all duration-200 relative">
+    
+    <!-- Popular / Current Badge -->
+    {% if tier.popular %}
+    <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-[10px] font-black uppercase tracking-widest shadow-md shadow-indigo-500/30 flex items-center gap-1">
+      <i class="fa-solid fa-bolt text-amber-300 text-[10px]"></i>
+      <span>MOST POPULAR</span>
+    </div>
+    {% endif %}
+
+    <div>
+      <!-- Header & Badges -->
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {% if tier.popular %}bg-indigo-100 text-indigo-700{% elif tier.is_free %}bg-slate-100 text-slate-600{% else %}bg-violet-50 text-violet-700{% endif %}">
+          {{ tier.badge }}
+        </span>
+        {% if tier.is_current %}
+        <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold uppercase border border-emerald-200">
+          Current Tier
+        </span>
+        {% endif %}
+      </div>
+
+      <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">{{ tier.name }}</h3>
+      <p class="text-xs text-slate-500 mt-1 min-h-[36px] leading-relaxed">{{ tier.tagline }}</p>
+
+      <!-- Pricing Display (Dynamic via Monthly/Yearly toggle) -->
+      <div class="mt-5 pb-5 border-b border-slate-100">
+        {% if tier.is_free %}
+        <div class="flex items-baseline">
+          <span class="text-3xl sm:text-4xl font-black text-slate-900">₹0</span>
+          <span class="text-xs text-slate-400 font-semibold ml-1.5">/ forever</span>
+        </div>
+        <div class="text-[11px] text-slate-400 mt-1 font-medium">Free developer sandbox forever</div>
+        {% else %}
+        <!-- Monthly Price Display -->
+        <div class="tier-price-monthly flex items-baseline">
+          <span class="text-3xl sm:text-4xl font-black text-slate-900">₹{{ tier.price_monthly }}</span>
+          <span class="text-xs text-slate-400 font-semibold ml-1.5">/ month</span>
+        </div>
+        <div class="tier-price-monthly text-[11px] text-slate-400 mt-1 font-medium">
+          Billed monthly (taxes included)
+        </div>
+
+        <!-- Yearly Price Display (Hidden by default, toggled via JS) -->
+        <div class="tier-price-yearly hidden flex items-baseline">
+          <span class="text-3xl sm:text-4xl font-black text-slate-900">₹{{ tier.effective_monthly_yearly }}</span>
+          <span class="text-xs text-slate-400 font-semibold ml-1.5">/ month</span>
+        </div>
+        <div class="tier-price-yearly hidden text-[11px] text-emerald-600 font-bold mt-1">
+          ₹{{ tier.price_yearly }}/yr (Billed annually — Save ₹{{ tier.annual_saving }})
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Key Developer Metrics Highlights -->
+      <div class="my-5 grid grid-cols-2 gap-2 text-center">
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+          <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Monthly Calls</div>
+          <div class="text-sm font-extrabold text-slate-900 font-mono mt-0.5">{{ tier.monthly_quota_str }}</div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+          <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Burst Rate</div>
+          <div class="text-sm font-extrabold text-slate-900 font-mono mt-0.5">{{ tier.rate_limit }} RPM</div>
+        </div>
+      </div>
+
+      <!-- Feature Checklist -->
+      <ul class="space-y-3 text-xs text-slate-600">
+        {% for feat in tier.features %}
+        <li class="flex items-start gap-2.5">
+          <i class="fa-solid fa-check text-emerald-500 text-xs mt-0.5 shrink-0"></i>
+          <span class="leading-snug">{{ feat }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Tier Action Button -->
+    <div class="mt-8 pt-4 border-t border-slate-100">
+      {% if tier.is_current %}
+      <button disabled class="w-full py-3 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl cursor-default flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
+        <span>Current Active Tier</span>
+      </button>
+      {% elif tier.is_free %}
+      <button disabled class="w-full py-3 bg-slate-100 text-slate-500 font-bold text-xs rounded-xl cursor-default">
+        Standard Free Sandbox
+      </button>
+      {% else %}
+      <button 
+        onclick="initiateCheckout('{{ tier.id }}')" 
+        id="btn-checkout-{{ tier.id }}"
+        data-monthly-key="{{ tier.plan_key_monthly }}"
+        data-yearly-key="{{ tier.plan_key_yearly }}"
+        class="w-full py-3 rounded-xl font-bold text-xs text-white shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 {% if tier.popular %}bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-indigo-600/25{% else %}bg-slate-900 hover:bg-slate-800 shadow-slate-900/20{% endif %}">
+        <span>Upgrade to {{ tier.name }}</span>
+        <i class="fa-solid fa-arrow-right text-[11px]"></i>
+      </button>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Detailed API Technical Feature Comparison Matrix Table -->
+<div id="comparison-table" class="mb-16">
+  <div class="text-center max-w-2xl mx-auto mb-8">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold mb-2 border border-indigo-200/60">
+      <i class="fa-solid fa-table-list text-indigo-600"></i>
+      <span>Deep Specification Matrix</span>
+    </div>
+    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Full Developer Technical Comparison</h3>
+    <p class="text-xs text-slate-500 mt-1">Side-by-side engineering specifications for high-load API integrations.</p>
+  </div>
+
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse min-w-[700px]">
+        <thead>
+          <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
+            <th class="py-4 px-6 w-1/3">Capability / Metric</th>
+            <th class="py-4 px-4 text-center">Free Sandbox</th>
+            <th class="py-4 px-4 text-center">Starter</th>
+            <th class="py-4 px-4 text-center bg-indigo-50/50 text-indigo-900 font-extrabold border-x border-indigo-100">
+              Pro (Popular)
+            </th>
+            <th class="py-4 px-4 text-center">Enterprise</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          <!-- Section 1: Quotas & Throughput -->
+          <tr class="bg-slate-50/40">
+            <td colspan="5" class="py-2.5 px-6 font-bold text-slate-900 uppercase tracking-wider text-[10px] bg-slate-50">
+              <i class="fa-solid fa-chart-line mr-1.5 text-indigo-600"></i> Quotas & Rate Limits
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Monthly Included API Requests</td>
+            <td class="py-3.5 px-4 text-center font-mono">1,000</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold">5,000</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">25,000</td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">100,000</td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Burst Rate Limit (Requests / Min)</td>
+            <td class="py-3.5 px-4 text-center font-mono">60 RPM</td>
+            <td class="py-3.5 px-4 text-center font-mono">90 RPM</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">120 RPM</td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">300 RPM</td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Max Concurrent Connections</td>
+            <td class="py-3.5 px-4 text-center font-mono">2</td>
+            <td class="py-3.5 px-4 text-center font-mono">5</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">15</td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">50</td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Active API Keys Limit</td>
+            <td class="py-3.5 px-4 text-center font-mono">1 Key</td>
+            <td class="py-3.5 px-4 text-center font-mono">2 Keys</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">Up to 5 Keys</td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">Up to 10 Keys</td>
+          </tr>
+
+          <!-- Section 2: Model Access & Context -->
+          <tr class="bg-slate-50/40">
+            <td colspan="5" class="py-2.5 px-6 font-bold text-slate-900 uppercase tracking-wider text-[10px] bg-slate-50">
+              <i class="fa-solid fa-microchip mr-1.5 text-indigo-600"></i> AI Models & Token Windows
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">
+              <div>Axom Indic-1 (Assamese & Indic Flagship)</div>
+              <div class="text-[11px] text-slate-400 font-normal">Native orthography, grammar purification & Indic translation</div>
+            </td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">
+              <div>Axom Turbo (Low-Latency High-Speed)</div>
+              <div class="text-[11px] text-slate-400 font-normal">Sub-second generation for autocomplete, chat & UI prompts</div>
+            </td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">
+              <div>Axom Pro (Deep Reasoning STEM Engine)</div>
+              <div class="text-[11px] text-slate-400 font-normal">Complex math, coding, legal analysis & multi-step tool agents</div>
+            </td>
+            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Max Context Window Length</td>
+            <td class="py-3.5 px-4 text-center font-mono">8,192 tokens</td>
+            <td class="py-3.5 px-4 text-center font-mono">16,384 tokens</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">32,768 tokens</td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">128,000 tokens</td>
+          </tr>
+
+          <!-- Section 3: Security & Enterprise Controls -->
+          <tr class="bg-slate-50/40">
+            <td colspan="5" class="py-2.5 px-6 font-bold text-slate-900 uppercase tracking-wider text-[10px] bg-slate-50">
+              <i class="fa-solid fa-shield-halved mr-1.5 text-indigo-600"></i> Security & Integration
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Cryptographic SHA-256 Hashing</td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Granular Scoped Keys (Chat / Translation)</td>
+            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">IP Whitelisting & CIDR Ranges</td>
+            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Dedicated Processing Pool & Zero Queuing</td>
+            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-slate-300 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+
+          <!-- Section 4: SLA & Support -->
+          <tr class="bg-slate-50/40">
+            <td colspan="5" class="py-2.5 px-6 font-bold text-slate-900 uppercase tracking-wider text-[10px] bg-slate-50">
+              <i class="fa-solid fa-headset mr-1.5 text-indigo-600"></i> Support & SLAs
+            </td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Developer Support Level</td>
+            <td class="py-3.5 px-4 text-center text-slate-600">Discord & Docs</td>
+            <td class="py-3.5 px-4 text-center text-slate-700">Email (24h SLA)</td>
+            <td class="py-3.5 px-4 text-center font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">Priority (4h SLA)</td>
+            <td class="py-3.5 px-4 text-center font-extrabold text-slate-900">Dedicated Slack / WhatsApp</td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Guaranteed Uptime SLA</td>
+            <td class="py-3.5 px-4 text-center text-slate-400">Best Effort</td>
+            <td class="py-3.5 px-4 text-center text-slate-600">99.0%</td>
+            <td class="py-3.5 px-4 text-center font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">99.5%</td>
+            <td class="py-3.5 px-4 text-center font-extrabold text-emerald-600">99.9% Financial SLA</td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">GST-Compliant Tax Invoices</td>
+            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
+            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Developer FAQ Accordion -->
+<div class="mb-12">
+  <div class="text-center max-w-xl mx-auto mb-8">
+    <h3 class="text-xl font-black text-slate-900 tracking-tight">Frequently Asked Questions</h3>
+    <p class="text-xs text-slate-500 mt-1">Everything developers need to know about billing, quotas, and model access.</p>
+  </div>
+
+  <div class="max-w-3xl mx-auto space-y-3">
+    <!-- FAQ 1 -->
+    <details class="group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+      <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+        <span>What happens if my production application exceeds its monthly quota?</span>
+        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+      </summary>
+      <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        When your monthly quota is exhausted, the API gracefully returns an HTTP <code>429 Too Many Requests</code> with a structured error payload (<code>error: quota_exceeded</code>). Your credit card or bank account is <strong>never charged surprise overages</strong>. You can seamlessly upgrade to the next tier anytime with immediate quota restoration.
+      </p>
+    </details>
+
+    <!-- FAQ 2 -->
+    <details class="group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+      <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+        <span>How does burst rate limiting work (Requests Per Minute)?</span>
+        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+      </summary>
+      <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        Burst rate limits are evaluated on a 60-second sliding window per API key. Every API response includes standard HTTP rate limit headers (<code>x-ratelimit-remaining</code> and <code>retry-after</code>) so your backend client can implement exponential backoff if required.
+      </p>
+    </details>
+
+    <!-- FAQ 3 -->
+    <details class="group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+      <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+        <span>Can I switch between Monthly and Annual plans?</span>
+        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+      </summary>
+      <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        Yes! When you upgrade from Monthly to Annual billing, the 365-day annual duration is added directly to your remaining active days, and your account unlocks the 20% annual discount.
+      </p>
+    </details>
+
+    <!-- FAQ 4 -->
+    <details class="group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+      <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+        <span>How do scoped permissions and IP whitelisting secure my API keys?</span>
+        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+      </summary>
+      <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        On Starter, Pro, and Enterprise tiers, you can restrict keys to specific endpoints (e.g. <code>Translation Only</code> for a mobile app) and lock them to your backend servers' static IP addresses or CIDR ranges. Even if a secret key is accidentally leaked, unauthorized hosts are immediately blocked with HTTP 403.
+      </p>
+    </details>
+
+    <!-- FAQ 5 -->
+    <details class="group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+      <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+        <span>Where can I download GST-compliant tax invoices for my company?</span>
+        <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+      </summary>
+      <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        Every successful payment generates a verifiable receipt with Razorpay payment ID, tax breakdown, and date. You can view, search, and download past invoices anytime under <a href="/payments/" class="text-indigo-600 font-bold underline">Billing & Receipts</a>.
+      </p>
+    </details>
+  </div>
+</div>
+
+<!-- Cancellation Confirmation Modal (Safe & Compliant) -->
+<div id="cancelSubModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-200 transform transition-all">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h4 class="text-base font-extrabold text-slate-900">Cancel Subscription</h4>
+      </div>
+      <button onclick="closeCancelModal()" class="text-slate-400 hover:text-slate-600 text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="mt-4 space-y-3">
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Are you sure you want to cancel your <strong>{{ current_tier.name }}</strong>? If you proceed:
+      </p>
+      <ul class="text-xs text-slate-500 space-y-1.5 pl-3 list-disc">
+        <li>Your monthly request quota will return to <strong>1,000 requests/month</strong>.</li>
+        <li>Burst rate limit will drop to <strong>60 requests/minute</strong>.</li>
+        <li>Access to <code>Axom Pro</code> reasoning model will be suspended.</li>
+      </ul>
+
+      <div class="mt-4">
+        <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+          Help us improve: Reason for cancelling (Optional)
+        </label>
+        <textarea id="cancelReasonInput" rows="3" placeholder="e.g. Project concluded, need specific feature..." class="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"></textarea>
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+      <button onclick="closeCancelModal()" type="button" class="px-4 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+        Keep Subscription
+      </button>
+      <button onclick="confirmCancelSubscription()" id="btnConfirmCancel" type="button" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md shadow-rose-600/20 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-ban text-[11px]"></i>
+        <span>Confirm Cancellation</span>
+      </button>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-  async function buyPlan(planKey) {
-    try {
-      showToast('Initializing payment gateway...', 'info');
-      const couponVal = (document.getElementById('promoCouponInput')?.value || '').trim();
-      const res = await fetch('/api/payments/create-order/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        body: JSON.stringify({ plan: planKey, coupon: couponVal })
-      });
-      const data = await res.json();
-      if (!data.order_id) {
-        showToast(data.error || 'Could not initiate Razorpay order.', 'error');
-        return;
-      }
+  let activeCycle = 'monthly';
 
-      const options = {
-        key: '{{ razorpay_key }}' || data.key,
-        amount: data.amount,
-        currency: 'INR',
-        name: 'Axom AI',
-        description: 'Subscription Plan: ' + planKey,
-        order_id: data.order_id,
-        handler: async function (response) {
-          showToast('Verifying payment signature...', 'info');
-          const verifyRes = await fetch('/api/payments/verify-payment/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            })
-          });
-          const verifyData = await verifyRes.json();
-          if (verifyData.status === 'ok') {
-            showToast('🎉 Payment successful! Plan activated.', 'success');
-            setTimeout(() => location.reload(), 1000);
-          } else {
-            showToast('Payment verification failed: ' + verifyData.error, 'error');
-          }
-        },
-        theme: { color: '#4f46e5' }
-      };
+  // Toggle between Monthly and Annual pricing
+  function switchBillingCycle(cycle) {
+    activeCycle = cycle;
+    const btnMonthly = document.getElementById('btnMonthlyToggle');
+    const btnYearly = document.getElementById('btnYearlyToggle');
+    const monthlyPrices = document.querySelectorAll('.tier-price-monthly');
+    const yearlyPrices = document.querySelectorAll('.tier-price-yearly');
 
-      const rzp = new Razorpay(options);
-      rzp.open();
-    } catch (e) {
-      showToast('Error connecting to payments.', 'error');
+    if (cycle === 'yearly') {
+      btnYearly.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+      btnYearly.classList.remove('text-slate-300');
+      btnMonthly.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+      btnMonthly.classList.add('text-slate-300');
+
+      monthlyPrices.forEach(el => el.classList.add('hidden'));
+      yearlyPrices.forEach(el => el.classList.remove('hidden'));
+    } else {
+      btnMonthly.classList.add('bg-indigo-600', 'text-white', 'shadow-md');
+      btnMonthly.classList.remove('text-slate-300');
+      btnYearly.classList.remove('bg-indigo-600', 'text-white', 'shadow-md');
+      btnYearly.classList.add('text-slate-300');
+
+      yearlyPrices.forEach(el => el.classList.add('hidden'));
+      monthlyPrices.forEach(el => el.classList.remove('hidden'));
     }
   }
 
-  async function promptCancelSubscription() {
-    const reason = prompt("We're sorry to see you go! Please share why you are cancelling (optional):");
-    if (reason === null) return;
+  // Secure Razorpay Checkout Flow
+  async function initiateCheckout(tierId) {
+    const btn = document.getElementById(`btn-checkout-${tierId}`);
+    if (!btn) return;
+
+    const planKey = activeCycle === 'yearly' ? btn.dataset.yearlyKey : btn.dataset.monthlyKey;
+    const couponVal = (document.getElementById('promoCouponInput')?.value || '').trim();
+
+    const originalBtnHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Initiating Gateway...</span>`;
+
     try {
+      showToast('Generating secure payment session...', 'info');
+      const res = await fetch('/api/payment/create-order/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+          plan: planKey,
+          coupon: couponVal
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.order_id) {
+        showToast(data.error || 'Failed to initiate payment order.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
+        return;
+      }
+
+      // Configure Razorpay Checkout
+      const options = {
+        key: data.key_id || '{{ razorpay_key }}',
+        amount: data.amount,
+        currency: data.currency || 'INR',
+        name: 'Axom AI Developer Platform',
+        description: data.plan_label || `Subscription Plan: ${planKey}`,
+        order_id: data.order_id,
+        prefill: {
+          name: data.user_name || '',
+          email: data.user_email || ''
+        },
+        handler: async function (response) {
+          showToast('Verifying payment signature with bank...', 'info');
+          try {
+            const verifyRes = await fetch('/api/payment/verify/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+
+            const verifyData = await verifyRes.json();
+            if (verifyData.ok || verifyData.status === 'ok') {
+              showToast('🚀 Payment verified! Plan activated successfully.', 'success');
+              setTimeout(() => location.reload(), 1200);
+            } else {
+              showToast('Payment verification failed: ' + (verifyData.error || 'Unknown error'), 'error');
+              btn.disabled = false;
+              btn.innerHTML = originalBtnHtml;
+            }
+          } catch (err) {
+            showToast('Network error during signature verification.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+          }
+        },
+        theme: {
+          color: '#4f46e5'
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.on('payment.failed', function (failResp) {
+        showToast('Payment failed: ' + (failResp.error?.description || 'Declined by bank'), 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
+      });
+      rzp.open();
+    } catch (e) {
+      showToast('Error connecting to payment gateway.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = originalBtnHtml;
+    }
+  }
+
+  // Cancel Subscription Modal
+  function openCancelModal() {
+    document.getElementById('cancelSubModal')?.classList.remove('hidden');
+  }
+
+  function closeCancelModal() {
+    document.getElementById('cancelSubModal')?.classList.add('hidden');
+  }
+
+  async function confirmCancelSubscription() {
+    const btn = document.getElementById('btnConfirmCancel');
+    const reason = (document.getElementById('cancelReasonInput')?.value || '').trim();
+
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Cancelling...</span>`;
+    }
+
+    try {
+      showToast('Processing cancellation request...', 'info');
       const res = await fetch('/subscription/cancel/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
         body: JSON.stringify({ reason: reason })
       });
+
       const data = await res.json();
       if (data.success) {
         showToast(data.message, 'success');
-        setTimeout(() => location.reload(), 800);
+        closeCancelModal();
+        setTimeout(() => location.reload(), 1000);
       } else {
-        showToast(data.error, 'error');
+        showToast(data.error || 'Failed to cancel subscription.', 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-ban text-[11px]"></i><span>Confirm Cancellation</span>`;
+        }
       }
     } catch (e) {
-      showToast('Error cancelling subscription.', 'error');
+      showToast('Network error while processing cancellation.', 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-ban text-[11px]"></i><span>Confirm Cancellation</span>`;
+      }
     }
   }
 </script>

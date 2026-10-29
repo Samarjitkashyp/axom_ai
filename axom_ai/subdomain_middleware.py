@@ -58,6 +58,8 @@ class SubdomainMiddleware(MiddlewareMixin):
 
         # user.aiaxom.co.in  →  /axomai-user/*
         if host in USER_HOSTS:
+            if path.startswith('/api/'):
+                return None
             if path.startswith('/axomai-user'):
                 # Clean URL redirect: strip internal /axomai-user prefix so the user never sees it in the browser
                 clean_path = path[len('/axomai-user'):]

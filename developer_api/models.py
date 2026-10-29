@@ -10,6 +10,7 @@ def generate_key_string():
 class DeveloperApiKey(models.Model):
     TIER_CHOICES = [
         ('free', 'Free Tier (1,000 req/mo)'),
+        ('starter', 'Starter Tier (5,000 req/mo)'),
         ('developer', 'Developer Tier (25,000 req/mo)'),
         ('business', 'Business Tier (100,000 req/mo)'),
         ('enterprise', 'Enterprise Tier (Custom)'),

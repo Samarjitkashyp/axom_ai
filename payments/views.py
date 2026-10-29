@@ -216,6 +216,47 @@ def _activate_plan(user, payment) -> UserPlan:
         except Exception:
             pass
 
+    # Synchronize developer API keys with newly activated plan tier
+    try:
+        from developer_api.models import DeveloperApiKey
+        from userpanel.models import InAppNotification
+        
+        if 'business' in payment.plan:
+            k_tier = 'business'
+            k_quota = 100000
+            k_rate = 300
+            tier_display = 'Enterprise API'
+        elif 'pro' in payment.plan:
+            k_tier = 'developer'
+            k_quota = 25000
+            k_rate = 120
+            tier_display = 'Pro Developer'
+        elif 'starter' in payment.plan:
+            k_tier = 'starter'
+            k_quota = 5000
+            k_rate = 90
+            tier_display = 'Starter Developer'
+        else:
+            k_tier = 'free'
+            k_quota = 1000
+            k_rate = 60
+            tier_display = 'Free Developer'
+
+        DeveloperApiKey.objects.filter(user=user, is_active=True).update(
+            tier=k_tier,
+            monthly_quota=k_quota,
+            rate_limit_per_minute=k_rate
+        )
+
+        InAppNotification.objects.create(
+            user=user,
+            title="Subscription Activated 🚀",
+            message=f"Your {tier_display} plan is now active! All your active API keys have been upgraded to {k_quota:,} monthly requests and {k_rate} req/min burst limit.",
+            notif_type="info"
+        )
+    except Exception as e:
+        log.warning(f"Could not auto-sync API keys for user {user.id}: {e}")
+
     return user_plan
 
 

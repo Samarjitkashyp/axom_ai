@@ -16,3 +16,4 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(verify_existing_profiles, reverse_verify),
     ]
+

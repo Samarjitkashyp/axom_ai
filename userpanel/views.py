@@ -613,6 +613,20 @@ def dashboard(request):
     if limits['plan_obj'] and limits['plan_obj'].is_active():
         days_left = max(0, (limits['plan_obj'].expires_at - timezone.now()).days)
 
+    # Determine max active keys based on plan
+    current_plan_name = limits.get('plan_name', 'free')
+    if limits.get('is_active', False):
+        if 'business' in current_plan_name:
+            max_allowed_keys = 10
+        elif 'pro' in current_plan_name:
+            max_allowed_keys = 5
+        elif 'starter' in current_plan_name:
+            max_allowed_keys = 2
+        else:
+            max_allowed_keys = 1
+    else:
+        max_allowed_keys = 1
+
     # Scoped chat sessions (user FK + session fallback)
     recent_chats = ChatSession.objects.filter(
         Q(user=user) | Q(session_key=request.session.session_key)
@@ -634,6 +648,7 @@ def dashboard(request):
         'api_keys': api_keys,
         'revoked_keys': revoked_keys,
         'total_active_keys': total_active_keys,
+        'max_allowed_keys': max_allowed_keys,
         'total_api_calls': total_api_calls,
         'total_monthly_quota': total_monthly_quota,
         'quota_percent': quota_percent,
@@ -737,35 +752,181 @@ def change_password_api(request):
 
 @user_login_required
 def subscription_page(request):
+    """
+    Industry-Standard Developer API Subscription & Plan Management.
+    - Pure developer/API perspective: quotas, burst rate limits, concurrent connections,
+      model access (Axom Indic-1, Axom Turbo, Axom Pro), token context windows, IP whitelisting.
+    - Interactive Monthly vs Yearly billing switch with transparent annual savings.
+    - Server-verified Razorpay order checkout and cryptographic HMAC signature activation.
+    - Live active plan status, days remaining, and safe cancellation management.
+    """
     user = request.user
     limits = _get_user_limits(user)
-    plans_catalog = PLAN_CATALOG
-    overrides = {o.plan_key: o for o in CustomPlanOverride.objects.all()}
-
-    plans_list = []
-    for key, info in plans_catalog.items():
-        override = overrides.get(key)
-        plans_list.append({
-            'key': key,
-            'label': override.name if override else info['label'],
-            'price': float(override.price_in_rupees) if override else info['amount'] / 100.0,
-            'days': override.duration_days if override else info['days'],
-            'images_limit': override.images_per_day if override else (5 if 'starter' in key else (25 if 'pro' in key else 'Unlimited')),
-            'searches_limit': override.searches_per_day if override else (15 if 'starter' in key else (50 if 'pro' in key else 'Unlimited')),
-            'is_current': limits['plan_name'] == key and limits['is_active'],
-        })
+    
+    # Active plan info
+    active_plan = limits.get('plan_obj')
+    is_active_plan = limits.get('is_active', False)
+    plan_name = limits.get('plan_name', 'free')
 
     days_left = 0
-    if limits['plan_obj'] and limits['plan_obj'].is_active():
-        days_left = max(0, (limits['plan_obj'].expires_at - timezone.now()).days)
+    if active_plan and is_active_plan and active_plan.expires_at:
+        days_left = max(0, (active_plan.expires_at - timezone.now()).days)
+
+    # Active API Keys count & user stats
+    active_keys_count = DeveloperApiKey.objects.filter(user=user, is_active=True).count()
+
+    # Developer Tier Catalog (Specifications purely tailored for software engineers & apps)
+    dev_tiers = [
+        {
+            'id': 'free',
+            'name': 'Free Developer',
+            'badge': 'Starter Sandbox',
+            'tagline': 'Ideal for prototyping, learning APIs, and personal hobby projects.',
+            'is_free': True,
+            'price_monthly': 0,
+            'price_yearly': 0,
+            'effective_monthly_yearly': 0,
+            'annual_saving': 0,
+            'monthly_quota_str': '1,000',
+            'monthly_quota_num': 1000,
+            'rate_limit': 60,
+            'max_keys': 1,
+            'context_window': '8,192 tokens (~6,000 words)',
+            'concurrency': 2,
+            'models_badge': 'Axom Indic-1 & Turbo',
+            'support_sla': 'Community Discord & Docs',
+            'features': [
+                '1,000 monthly API requests',
+                '60 requests / minute burst rate',
+                '1 active API secret key',
+                'Axom Indic-1 (Assamese & Indic)',
+                'Axom Turbo (Low-latency reasoning)',
+                '8k token context window (~6k words)',
+                'Community support & official documentation',
+            ],
+            'is_current': not is_active_plan or plan_name == 'free',
+        },
+        {
+            'id': 'starter',
+            'name': 'Starter Developer',
+            'badge': 'Indie & Builders',
+            'tagline': 'For developers shipping production prototypes and lightweight client apps.',
+            'is_free': False,
+            'plan_key_monthly': 'starter_monthly',
+            'plan_key_yearly': 'starter_yearly',
+            'price_monthly': 199,
+            'price_yearly': 1908,
+            'effective_monthly_yearly': 159,
+            'annual_saving': 480,
+            'monthly_quota_str': '5,000',
+            'monthly_quota_num': 5000,
+            'rate_limit': 90,
+            'max_keys': 2,
+            'context_window': '16,384 tokens (~12,000 words)',
+            'concurrency': 5,
+            'models_badge': 'Axom Indic-1 & Turbo',
+            'support_sla': 'Standard Email (24h SLA)',
+            'features': [
+                '5,000 monthly API requests',
+                '90 requests / minute burst rate',
+                'Up to 2 active API secret keys',
+                'IP Whitelisting & Scoped Keys',
+                'Axom Indic-1 & Axom Turbo access',
+                '16k token context window (~12k words)',
+                'Standard email developer support (24h SLA)',
+            ],
+            'is_current': is_active_plan and 'starter' in plan_name,
+        },
+        {
+            'id': 'pro',
+            'name': 'Pro Developer',
+            'badge': '⚡ Most Popular',
+            'popular': True,
+            'tagline': 'Engineered for scaling SaaS apps, commercial mobile backends, and AI agents.',
+            'is_free': False,
+            'plan_key_monthly': 'pro_monthly',
+            'plan_key_yearly': 'pro_yearly',
+            'price_monthly': 499,
+            'price_yearly': 4788,
+            'effective_monthly_yearly': 399,
+            'annual_saving': 1200,
+            'monthly_quota_str': '25,000',
+            'monthly_quota_num': 25000,
+            'rate_limit': 120,
+            'max_keys': 5,
+            'context_window': '32,768 tokens (~25,000 words)',
+            'concurrency': 15,
+            'models_badge': 'All Models + Axom Pro Reasoning',
+            'support_sla': 'Priority Developer Support (4h SLA)',
+            'features': [
+                '25,000 monthly API requests',
+                '120 requests / minute burst rate',
+                'Up to 5 active API secret keys',
+                'Axom Pro Deep Reasoning Engine',
+                'Full STEM, Math & Coding reasoning',
+                '32k extended context window (~25k words)',
+                'Priority Developer Support (4h SLA)',
+            ],
+            'is_current': is_active_plan and 'pro' in plan_name,
+        },
+        {
+            'id': 'business',
+            'name': 'Enterprise API',
+            'badge': 'High Throughput',
+            'tagline': 'High-volume production workloads, enterprise apps, and commercial platforms.',
+            'is_free': False,
+            'plan_key_monthly': 'business_monthly',
+            'plan_key_yearly': 'business_yearly',
+            'price_monthly': 1499,
+            'price_yearly': 14388,
+            'effective_monthly_yearly': 1199,
+            'annual_saving': 3600,
+            'monthly_quota_str': '100,000',
+            'monthly_quota_num': 100000,
+            'rate_limit': 300,
+            'max_keys': 10,
+            'context_window': '128,000 tokens (~100,000 words)',
+            'concurrency': 50,
+            'models_badge': 'All Models + Zero Queuing Pool',
+            'support_sla': '99.9% Uptime + Dedicated SLA',
+            'features': [
+                '100,000 monthly API requests',
+                '300 requests / minute burst rate',
+                'Up to 10 active API secret keys',
+                'Zero Queuing High-Priority Processing',
+                '128k massive context window (~100k words)',
+                'Custom Domain & Endpoint Whitelisting',
+                'Dedicated Technical Support & 99.9% SLA',
+            ],
+            'is_current': is_active_plan and 'business' in plan_name,
+        },
+    ]
+
+    # Current tier info for header card
+    current_tier_id = 'free'
+    if is_active_plan:
+        if 'business' in plan_name:
+            current_tier_id = 'business'
+        elif 'pro' in plan_name:
+            current_tier_id = 'pro'
+        elif 'starter' in plan_name:
+            current_tier_id = 'starter'
+            
+    current_tier = next((t for t in dev_tiers if t['id'] == current_tier_id), dev_tiers[0])
+    current_billing_cycle = 'yearly' if 'yearly' in plan_name else 'monthly'
 
     unread_notif_count = InAppNotification.objects.filter(user=user, is_read=False).count()
 
     context = {
         'active': 'subscription',
         'limits': limits,
-        'plans_list': plans_list,
+        'dev_tiers': dev_tiers,
+        'current_tier': current_tier,
+        'current_billing_cycle': current_billing_cycle,
+        'is_active_plan': is_active_plan,
+        'active_plan': active_plan,
         'days_left': days_left,
+        'active_keys_count': active_keys_count,
         'razorpay_key': getattr(settings, 'RAZORPAY_KEY_ID', ''),
         'unread_notif_count': unread_notif_count,
     }
@@ -775,24 +936,61 @@ def subscription_page(request):
 @user_login_required
 @require_POST
 def cancel_subscription_api(request):
+    """
+    Safe and idempotent developer subscription cancellation.
+    - Rate limited to prevent denial-of-service abuse.
+    - Sanitizes optional developer cancellation feedback.
+    - Marks UserPlan as expired and safely resets active keys to Free tier quotas.
+    - Creates audit log and in-app confirmation notification.
+    """
     try:
-        data = json.loads(request.body)
-        reason = data.get('reason', 'User requested cancellation')
+        if _rate_limited(f"cancel_sub:{request.user.id}", max_calls=3, per_seconds=600):
+            return JsonResponse({
+                'success': False,
+                'error': 'Too many cancellation attempts. Please try again in a few minutes.'
+            }, status=429)
+
+        data = {}
+        if request.body:
+            try:
+                data = json.loads(request.body.decode('utf-8'))
+            except Exception:
+                pass
+        raw_reason = data.get('reason', 'Developer requested cancellation')
+        reason = _sanitize_input(raw_reason, max_len=300)
 
         user_plan = UserPlan.objects.filter(user=request.user).first()
-        if user_plan:
+        if user_plan and user_plan.is_active():
             user_plan.status = 'expired'
-            user_plan.save()
+            user_plan.save(update_fields=['status', 'updated_at'])
 
-        InAppNotification.objects.create(
-            user=request.user,
-            title="Subscription Cancelled",
-            message=f"Your subscription has been cancelled. Reason noted: {reason}",
-            notif_type="info"
-        )
-        return JsonResponse({'success': True, 'message': 'Subscription cancelled successfully.'})
+            # Synchronize active API keys down to free tier safely
+            DeveloperApiKey.objects.filter(user=request.user, is_active=True).update(
+                tier='free',
+                monthly_quota=1000,
+                rate_limit_per_minute=60
+            )
+
+            InAppNotification.objects.create(
+                user=request.user,
+                title="Subscription Cancelled",
+                message=f"Your subscription was cancelled. You are now on the Free Developer tier (1,000 req/mo). Reason noted: {reason}",
+                notif_type="info"
+            )
+            return JsonResponse({
+                'success': True,
+                'message': 'Subscription cancelled successfully. Your account has returned to the Free Developer tier.'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'No active paid subscription found to cancel.'
+            }, status=400)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        return JsonResponse({
+            'success': False,
+            'error': 'An internal error occurred while processing your cancellation.'
+        }, status=500)
 
 
 @user_login_required
@@ -1136,12 +1334,41 @@ def create_api_key_api(request):
             'error': 'Too many key creation requests. Please wait a few minutes.'
         }, status=429)
 
-    # Check active keys cap (max 5 active keys per user)
+    # Determine tier & quota based on active UserPlan
+    plan_obj = UserPlan.objects.filter(user=user).first()
+    plan_name = plan_obj.plan if (plan_obj and plan_obj.is_active()) else 'free'
+    
+    if 'business' in plan_name:
+        tier = 'business'
+        tier_label = 'Enterprise API'
+        monthly_quota = 100000
+        rate_limit = 300
+        max_allowed_keys = 10
+    elif 'pro' in plan_name:
+        tier = 'developer'
+        tier_label = 'Pro Developer'
+        monthly_quota = 25000
+        rate_limit = 120
+        max_allowed_keys = 5
+    elif 'starter' in plan_name:
+        tier = 'starter'
+        tier_label = 'Starter Developer'
+        monthly_quota = 5000
+        rate_limit = 90
+        max_allowed_keys = 2
+    else:
+        tier = 'free'
+        tier_label = 'Free Developer'
+        monthly_quota = 1000
+        rate_limit = 60
+        max_allowed_keys = 1
+
+    # Check active keys cap (enforced per developer subscription tier)
     active_count = DeveloperApiKey.objects.filter(user=user, is_active=True).count()
-    if active_count >= 5:
+    if active_count >= max_allowed_keys:
         return JsonResponse({
             'success': False,
-            'error': 'Active key limit reached. You can have a maximum of 5 active API keys. Please revoke an unused key before creating a new one.'
+            'error': f'Active key limit reached ({max_allowed_keys} max for your {tier_label} tier). Please upgrade your subscription plan or revoke an unused key before creating a new one.'
         }, status=400)
     
     # Parse key name, allowed_ips, permissions from JSON or POST body
@@ -1166,23 +1393,6 @@ def create_api_key_api(request):
     key_name = _sanitize_input(raw_name, max_len=80) or f"Secret Key {active_count + 1}"
     allowed_ips = _sanitize_input(raw_ips, max_len=500).strip()
     permissions = raw_perms if raw_perms in ('all', 'chat', 'translate') else 'all'
-    
-    # Determine tier & quota based on active UserPlan
-    plan_obj = UserPlan.objects.filter(user=user).first()
-    plan_name = plan_obj.plan if (plan_obj and plan_obj.is_active()) else 'free'
-    
-    if 'business' in plan_name:
-        tier = 'business'
-        monthly_quota = 100000
-        rate_limit = 300
-    elif 'pro' in plan_name:
-        tier = 'developer'
-        monthly_quota = 25000
-        rate_limit = 120
-    else:
-        tier = 'free'
-        monthly_quota = 1000
-        rate_limit = 60
     
     import secrets
     # Generate cryptographically secure random key

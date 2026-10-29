@@ -161,3 +161,4 @@ https://aiaxom.co.in
     except Exception as e:
         log.exception("Failed to send verification email to %s: %s", user.email, e)
         return False
+
