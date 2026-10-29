@@ -39,7 +39,7 @@ export const DETAILED_PLANS: DetailedPlan[] = [
       'Community & Help Center support',
     ],
     notIncluded: [
-      'Advanced flagship models (Claude 3.5 Sonnet, Llama 70B)',
+      'Advanced Axom Pro & Deep Reasoning Models',
       'Scanned Document OCR (Assamese/English)',
       'Full PDF Editor & Compressor',
       'Speech-to-Text Voice Mode',
@@ -68,7 +68,7 @@ export const DETAILED_PLANS: DetailedPlan[] = [
       'Priority email customer support',
     ],
     notIncluded: [
-      'Claude 3.5 Sonnet & Llama 70B',
+      'Axom Pro & Axom Turbo Models',
       'Scanned Document OCR',
       'Team collaboration & API keys',
     ],
@@ -87,7 +87,7 @@ export const DETAILED_PLANS: DetailedPlan[] = [
     features: [
       '250,000 words per month',
       'Ultra-fast GPU Compute (Zero Queue)',
-      'Claude 3.5 Sonnet & Llama 3.3 70B',
+      'Axom Pro & Axom Turbo Models',
       'Unlimited 20+ PDF & Office Tools',
       'Smart OCR (Extract scanned Assamese/English text)',
       'Interactive Ask-PDF AI Assistant',
@@ -173,7 +173,7 @@ export const COMPARISON_CATEGORIES = [
     items: [
       { feature: 'Monthly Word Quota', free: '5,000 words', starter: '50,000 words', pro: '250,000 words', business: '1,000,000 words (1M)' },
       { feature: 'Basic AI Models (Llama 8B, Gemma 2)', free: true, starter: true, pro: true, business: true },
-      { feature: 'Flagship Models (Claude 3.5 Sonnet, Llama 70B)', free: false, starter: false, pro: true, business: true },
+      { feature: 'Flagship Models (Axom Pro, Axom Turbo)', free: false, starter: false, pro: true, business: true },
       { feature: 'Native Assamese Fine-Tuning & Nuance', free: true, starter: true, pro: true, business: true },
       { feature: 'Real-Time Web Search & Citations', free: 'Standard', starter: 'Fast', pro: 'Ultra-Fast', business: 'Instant Priority' },
     ],

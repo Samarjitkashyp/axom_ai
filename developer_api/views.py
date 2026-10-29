@@ -18,7 +18,7 @@ AVAILABLE_MODELS = [
         "owned_by": "axom-ai",
         "permission": [],
         "root": "axom-indic-1",
-        "description": "Primary Assamese, Hindi, and English high-reasoning multimodal model"
+        "description": "Axom AI Flagship: Native Assamese & Indic conversational engine with orthographic script purification"
     },
     {
         "id": "axom-fast",
@@ -27,7 +27,7 @@ AVAILABLE_MODELS = [
         "owned_by": "axom-ai",
         "permission": [],
         "root": "axom-fast",
-        "description": "Ultra low-latency Llama-3/Groq powered chat engine"
+        "description": "Axom Turbo: Sub-second high-throughput neural inference engine optimized for real-time bots and edge devices"
     },
     {
         "id": "axom-pro",
@@ -36,9 +36,49 @@ AVAILABLE_MODELS = [
         "owned_by": "axom-ai",
         "permission": [],
         "root": "axom-pro",
-        "description": "Google Gemini 2.5 Flash / Pro reasoning engine"
+        "description": "Axom Deep Reasoning: Advanced STEM problem-solving, multi-step logic, and 128k large-context document processing"
     }
 ]
+
+def _sanitize_brand(text: str) -> str:
+    """
+    Guarantees white-labeling: removes any accidental upstream model or provider leakage
+    (OpenAI, ChatGPT, Google, Gemini, Anthropic, Claude, Meta, Groq) and preserves Axom AI identity.
+    """
+    if not text:
+        return text
+    replacements = [
+        ("trained by Google", "developed by Axom AI"),
+        ("created by Google", "created by the Axom AI team"),
+        ("developed by Google", "developed by the Axom AI team"),
+        ("trained by OpenAI", "developed by Axom AI"),
+        ("created by OpenAI", "created by the Axom AI team"),
+        ("developed by OpenAI", "developed by the Axom AI team"),
+        ("trained by Anthropic", "developed by Axom AI"),
+        ("created by Anthropic", "created by the Axom AI team"),
+        ("developed by Anthropic", "developed by the Axom AI team"),
+        ("Google's Gemini", "Axom AI"),
+        ("Google Gemini", "Axom AI"),
+        ("Gemini 2.5", "Axom Pro"),
+        ("Gemini 1.5", "Axom Pro"),
+        ("Gemini", "Axom AI"),
+        ("I am ChatGPT", "I am Axom AI"),
+        ("I'm ChatGPT", "I'm Axom AI"),
+        ("I am Gemini", "I am Axom AI"),
+        ("I'm Gemini", "I'm Axom AI"),
+        ("I am Claude", "I am Axom AI"),
+        ("I'm Claude", "I'm Axom AI"),
+        ("I am a large language model trained by Google", "I am Axom AI, developed by the Axom AI team"),
+        ("I am a large language model trained by OpenAI", "I am Axom AI, developed by the Axom AI team"),
+        ("I'm a large language model trained by Google", "I am Axom AI, developed by the Axom AI team"),
+        ("I'm a large language model trained by OpenAI", "I am Axom AI, developed by the Axom AI team"),
+        ("OpenAI ৰ দ্বাৰা", "Axom AI ৰ দ্বাৰা"),
+        ("Google ৰ দ্বাৰা", "Axom AI ৰ দ্বাৰা"),
+        ("ChatGPT ৰ সহায়", "Axom AI ৰ সহায়"),
+    ]
+    for old, new in replacements:
+        text = text.replace(old, new)
+    return text
 
 @csrf_exempt
 def v1_models(request):
@@ -96,7 +136,15 @@ def v1_chat_completions(request):
         chat_payload = {
             "prompt": user_prompt,
             "language": language,
-            "client_id": f"api_{request.developer_api_key.key[:10]}"
+            "client_id": f"api_{request.developer_api_key.key[:10]}",
+            "custom_instructions": (
+                "STRICT BRAND IDENTITY DIRECTIVE:\n"
+                "You are Axom AI (অসম এআই), an indigenous AI platform developed solely by the Axom AI team in Assam, Northeast India. "
+                "You must NEVER state, imply, or suggest that you are ChatGPT, OpenAI, Google Gemini, Claude, or Meta. "
+                "If asked 'Who made you?' or 'Who created you?', ALWAYS reply that you were engineered by the Axom AI team in Assam. "
+                "If asked about your model architecture, state that you run on Axom's proprietary neural models (Axom Indic-1 / Axom Pro / Axom Turbo). "
+                "Never mention upstream provider names under any circumstances."
+            )
         }
         headers = {"Content-Type": "application/json"}
         req = urllib.request.Request(chat_url, data=json.dumps(chat_payload).encode('utf-8'), headers=headers, method='POST')
@@ -109,6 +157,7 @@ def v1_chat_completions(request):
                 reply_content = chat_data.get('response') or chat_data.get('message') or resp_str
             except Exception:
                 reply_content = resp_str
+        reply_content = _sanitize_brand(reply_content)
     except Exception as e:
         reply_content = f"Axom AI Response: Apologies, inference temporary error: {str(e)}"
 

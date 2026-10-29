@@ -112,7 +112,7 @@ export const PRIVACY_SECTIONS: PrivacySection[] = [
         subtitle: 'Our Non-Negotiable Training Protections',
         paragraphs: [
           '1. No Unauthorized Public Training: Axom AI does NOT sell your personal conversations, customer data, or uploaded documents to third-party data brokers, nor do we use your private data to train public foundation models without explicit affirmative opt-in consent.',
-          '2. Isolated Inference: Prompt execution through our model pipelines (including IndicTrans2, Gemini, Claude, and Llama 3 via Groq) operates in secure stateless API containers where inputs are discarded after generating the response.',
+          '2. Isolated Inference: Prompt execution through our model pipelines (including Axom Indic-1, Axom Pro, and Axom Turbo) operates in secure stateless API containers where inputs are discarded after generating the response.',
           '3. Opt-In Annotation Only: Only prompts that you explicitly choose to flag via the "Submit Feedback" or "Share Output" buttons may be reviewed by human annotators to correct Assamese linguistic errors (e.g., orthographic errors in যুক্তাক্ষৰ or spellings).',
         ],
       },

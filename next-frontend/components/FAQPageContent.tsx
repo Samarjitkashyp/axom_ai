@@ -88,7 +88,7 @@ export default function FAQPageContent({
 
           <p className="text-base sm:text-lg text-slate-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-8 font-normal">
             {faqConfig?.subheading ||
-              'Everything you need to know about Axom AI: Assamese language reasoning, AI models (Gemini, Claude, FLUX), pricing plans, scanned document OCR, and privacy.'}
+              'Everything you need to know about Axom AI: Assamese language reasoning, AI models (Axom Indic-1, Axom Pro, Axom Vision), pricing plans, scanned document OCR, and privacy.'}
           </p>
 
           {/* GLOWING SEARCH BAR */}

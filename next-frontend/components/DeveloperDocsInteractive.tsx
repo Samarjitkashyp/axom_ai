@@ -61,7 +61,7 @@ const MODELS: ModelInfo[] = [
   },
   {
     id: 'axom-fast',
-    name: 'Axom Fast (Llama-3/Groq)',
+    name: 'Axom Fast (Turbo Edge)',
     badge: 'Ultra Fast',
     description: 'High-speed, sub-second inference engine optimized for instantaneous interactive applications and high-throughput pipelines.',
     contextWindow: '8,192 tokens',
@@ -1140,7 +1140,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                       className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     >
                       <option value="axom-indic-1">axom-indic-1 (Flagship Assamese/Indic)</option>
-                      <option value="axom-fast">axom-fast (Sub-second Groq/Llama-3)</option>
+                      <option value="axom-fast">axom-fast (Sub-second High-Throughput)</option>
                       <option value="axom-pro">axom-pro (Deep Reasoning &amp; STEM)</option>
                     </select>
                   </div>
@@ -1800,14 +1800,14 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
       "object": "model",
       "created": 1730000000,
       "owned_by": "axom-ai",
-      "description": "Ultra low-latency Llama-3/Groq powered chat engine"
+      "description": "Axom Turbo: Sub-second high-throughput neural inference engine optimized for real-time bots and edge devices"
     },
     {
       "id": "axom-pro",
       "object": "model",
       "created": 1730000000,
       "owned_by": "axom-ai",
-      "description": "Google Gemini 2.5 Flash / Pro reasoning engine"
+      "description": "Axom Deep Reasoning: Advanced STEM problem-solving, multi-step logic, and 128k large-context document processing"
     }
   ]
 }`}

@@ -67,7 +67,7 @@ function getOrCreateDeviceId(): string {
 const DEFAULT_TOOLS = [
   { icon: Bot, title: 'AI Chat', desc: 'ChatGPT-style Assamese chat', color: 'text-fuchsia-700 dark:text-fuchsia-400', url: 'https://chat.aiaxom.co.in/' },
   { icon: PenTool, title: 'AI Writer', desc: 'Emails, posts, essays', color: 'text-purple-700 dark:text-purple-400', url: '/tools' },
-  { icon: ImageIcon, title: 'Image Generator', desc: 'FLUX + Pollinations + Gemini', color: 'text-pink-700 dark:text-pink-400', url: '/tools' },
+  { icon: ImageIcon, title: 'Image Generator', desc: 'Native Axom Multimodal Engine', color: 'text-pink-700 dark:text-pink-400', url: '/tools' },
   { icon: FileText, title: 'Document Analyzer', desc: 'Summarize PDFs & DOCX', color: 'text-blue-700 dark:text-blue-400', url: '/tools' },
   { icon: Code, title: 'Code Assistant', desc: 'Write, debug, explain code', color: 'text-indigo-700 dark:text-indigo-400', url: '/tools' },
   { icon: Globe, title: 'Web Search', desc: 'Real-time answers via Tavily', color: 'text-amber-700 dark:text-amber-400', url: '/tools' },

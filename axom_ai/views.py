@@ -282,42 +282,68 @@ def _purify_assamese_with_grammar(text: str) -> str:
 
 def _sanitize_brand_mentions(text: str) -> str:
     """
-    Brand Safety Filter: Ensures competitor AI assistants (ChatGPT, OpenAI, Gemini, Claude, Copilot, etc.)
-    are never recommended or advertised, seamlessly redirecting AI assistance mentions to Axom AI.
+    Brand Safety Filter: Guarantees complete white-labeling and proprietary Axom AI identity.
+    Prevents any upstream model leakage (OpenAI, ChatGPT, Google, Gemini, Anthropic, Claude, Meta, Groq)
+    from appearing in any user-facing response across English, Assamese, and Hinglish.
     """
     if not text:
         return text
 
-    # 1. Assamese competitor assistance patterns:
+    # 1. Identity & Creator Claims (English)
     text = re.sub(
-        r'(?:বা\s+)?(?:ChatGPT|Chat\s*GPT|OpenAI|Gemini|Google\s*Gemini|Claude(?:\s*AI)?|Copilot)\s*ৰ\s*সহায়\s*(?:ল[’\']?ব|লব|লওক)\s*পাৰে',
-        'Axom AI ৰ সহায় ল’ব পাৰে',
+        r"\b(?:I\s+am|I'm)\s+a\s+(?:large\s+)?language\s+model\s+(?:trained|developed|created)\s+by\s+(?:Google|OpenAI|Anthropic|Meta)\b",
+        "I am Axom AI, an indigenous AI assistant developed by the Axom AI team in Assam",
         text, flags=re.IGNORECASE
     )
     text = re.sub(
-        r'\bবা\s+(?:ChatGPT|Chat\s*GPT|Google\s*Gemini|Gemini|Claude(?:\s*AI)?)\b',
-        'বা Axom AI',
+        r"\b(?:trained|developed|created)\s+by\s+(?:Google|OpenAI|Anthropic|Meta)\b",
+        "developed by the Axom AI team in Assam",
         text, flags=re.IGNORECASE
     )
-    text = re.sub(r'\b(?:ChatGPT|Chat\s*GPT)\b', 'Axom AI', text, flags=re.IGNORECASE)
-    text = re.sub(r'\bGoogle\s*Gemini\b', 'Axom AI', text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"\b(?:I\s+am|I'm)\s+(?:ChatGPT|Chat\s*GPT|Google\s*Gemini|Gemini|Claude(?:\s*3(?:\.5)?)?|an\s+AI\s+developed\s+by\s+(?:OpenAI|Google|Anthropic))\b",
+        "I am Axom AI (অসম এআই)",
+        text, flags=re.IGNORECASE
+    )
+    text = re.sub(r"\bGoogle's\s+Gemini\b", "Axom AI", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bOpenAI's\s+ChatGPT\b", "Axom AI", text, flags=re.IGNORECASE)
 
-    # 2. English competitor assistance patterns:
+    # 2. Assamese creator & competitor assistance patterns:
     text = re.sub(
-        r'\b(?:ask|consult|use|check\s+with)\s+(?:ChatGPT|Chat\s*GPT|OpenAI|Gemini|Claude(?:\s*AI)?|Copilot)\b',
-        'ask me (Axom AI)',
+        r"(?:বা\s+)?(?:ChatGPT|Chat\s*GPT|OpenAI|Gemini|Google\s*Gemini|Claude(?:\s*AI)?|Copilot)\s*ৰ\s*সহায়\s*(?:ল[’']?ব|লব|লওক)\s*পাৰে",
+        "Axom AI ৰ সহায় ল’ব পাৰে",
         text, flags=re.IGNORECASE
     )
     text = re.sub(
-        r'\b(?:ChatGPT|Chat\s*GPT|Google\s*Gemini|Claude(?:\s*AI)?)\s+can\s+help\b',
-        'Axom AI can help',
+        r"\bবা\s+(?:ChatGPT|Chat\s*GPT|Google\s*Gemini|Gemini|Claude(?:\s*AI)?)\b",
+        "বা Axom AI",
+        text, flags=re.IGNORECASE
+    )
+    text = re.sub(r"\b(?:Google|OpenAI)\s*(?:ৰ\s*দ্বাৰা|এ\s*তৈয়াৰ\s*কৰা|এ\s*বিকাশ\s*কৰা)\b", "Axom AI দলৰ দ্বাৰা", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bGoogle\s*Gemini\b", "Axom AI", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b(?:ChatGPT|Chat\s*GPT)\b", "Axom AI", text, flags=re.IGNORECASE)
+
+    # 3. English competitor assistance patterns:
+    text = re.sub(
+        r"\b(?:ask|consult|use|check\s+with)\s+(?:ChatGPT|Chat\s*GPT|OpenAI|Gemini|Claude(?:\s*AI)?|Copilot)\b",
+        "ask me (Axom AI)",
+        text, flags=re.IGNORECASE
+    )
+    text = re.sub(
+        r"\b(?:ChatGPT|Chat\s*GPT|Google\s*Gemini|Claude(?:\s*AI)?)\s+can\s+help\b",
+        "Axom AI can help",
         text, flags=re.IGNORECASE
     )
 
-    # 3. Hinglish competitor assistance patterns:
+    # 4. Hinglish competitor assistance patterns:
     text = re.sub(
-        r'\b(?:ChatGPT|Gemini|Claude)\s*(?:se|par)\s*(?:pooch|madad|help)\b',
-        'Axom AI se pooch',
+        r"\b(?:ChatGPT|Gemini|Claude)\s*(?:se|par)\s*(?:pooch|madad|help)\b",
+        "Axom AI se pooch",
+        text, flags=re.IGNORECASE
+    )
+    text = re.sub(
+        r"\bmujhe\s+(?:Google|OpenAI|Meta)\s+ne\s+(?:banaya|train\s+kiya)\b",
+        "mujhe Axom AI team ne develop kiya hai",
         text, flags=re.IGNORECASE
     )
 
@@ -1341,6 +1367,38 @@ def _tool_cors_view(view_func):
 
 @csrf_exempt
 @_chat_cors_view
+def _sanitize_brand(text: str) -> str:
+    if not text:
+        return text
+    replacements = [
+        ("trained by Google", "developed by Axom AI"),
+        ("created by Google", "created by the Axom AI team"),
+        ("developed by Google", "developed by the Axom AI team"),
+        ("trained by OpenAI", "developed by Axom AI"),
+        ("created by OpenAI", "created by the Axom AI team"),
+        ("developed by OpenAI", "developed by the Axom AI team"),
+        ("trained by Anthropic", "developed by Axom AI"),
+        ("created by Anthropic", "created by the Axom AI team"),
+        ("Google's Gemini", "Axom AI"),
+        ("Google Gemini", "Axom AI"),
+        ("I am ChatGPT", "I am Axom AI"),
+        ("I'm ChatGPT", "I'm Axom AI"),
+        ("I am Gemini", "I am Axom AI"),
+        ("I'm Gemini", "I'm Axom AI"),
+        ("I am Claude", "I am Axom AI"),
+        ("I'm Claude", "I'm Axom AI"),
+        ("I am a large language model trained by Google", "I am Axom AI, developed by the Axom AI team"),
+        ("I am a large language model trained by OpenAI", "I am Axom AI, developed by the Axom AI team"),
+        ("I'm a large language model trained by Google", "I am Axom AI, developed by the Axom AI team"),
+        ("I'm a large language model trained by OpenAI", "I am Axom AI, developed by the Axom AI team"),
+        ("OpenAI ৰ দ্বাৰা", "Axom AI ৰ দ্বাৰা"),
+        ("Google ৰ দ্বাৰা", "Axom AI ৰ দ্বাৰা"),
+        ("ChatGPT ৰ সহায়", "Axom AI ৰ সহায়"),
+    ]
+    for old, new in replacements:
+        text = text.replace(old, new)
+    return text
+
 def chat_api_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
@@ -1681,11 +1739,13 @@ def chat_api_view(request):
         "You have special expertise in Assam and Northeast India, but you are a world-class AI capable of answering "
         "ANY question thoroughly, accurately, and helpfully. "
         "\n\nSTRICT BRAND IDENTITY RULES (CRITICAL):\n"
-        "1. You are Axom AI. NEVER refer to yourself as ChatGPT, OpenAI, Google Gemini, Claude, or any other AI.\n"
+        "1. You are Axom AI (অসম এআই). NEVER refer to yourself as ChatGPT, OpenAI, Google Gemini, Claude, or any other AI.\n"
         "2. NEVER recommend, promote, or direct the user to rival AI assistants (ChatGPT, OpenAI, Gemini, Claude, Copilot, Perplexity, etc.).\n"
         "3. When offering further assistance or recommending places for coding help or doubts, ALWAYS recommend yourself: "
-        "'আপুনি মোক (Axom AI) সুধিব পাৰে' / 'You can ask me (Axom AI) anytime' alongside standard programming resources like Stack Overflow or official docs. "
-        "NEVER say 'ChatGPT ৰ সহায় ল’ব পাৰে' or suggest another AI.\n\n"
+        "'আপুni মোক (Axom AI) সুধিব পাৰে' / 'You can ask me (Axom AI) anytime' alongside standard programming resources like Stack Overflow or official docs. "
+        "NEVER say 'ChatGPT ৰ সহায় ল’ব পাৰে' or suggest another AI.\n"
+        "4. CREATOR & TRAINING IDENTITY: If asked who created or trained you, ALWAYS state that you were developed and engineered by the Axom AI team (অসম এআই দল) in Assam, Northeast India. NEVER state, suggest, or imply that you are built, trained, or powered by OpenAI, Google, Anthropic, Meta, Groq, or any third party. Your models, training data, and infrastructure are proprietary to Axom AI.\n"
+        "5. MODEL INQUIRIES: If asked which model you are using, answer that you run on Axom AI's proprietary neural models (Axom Indic-1, Axom Turbo, or Axom Pro). NEVER mention GPT-4, GPT-3.5, Gemini, Claude, or Llama.\n\n"
     )
 
     if language == 'english':

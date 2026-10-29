@@ -20,7 +20,7 @@ export const FULL_FAQS_LIST: FullFaqItem[] = [
     id: 2,
     question: 'How does Axom AI work?',
     answer:
-      'Axom AI uses a hybrid architecture combining fine-tuned regional language models, Retrieval-Augmented Generation (RAG) indexed over 25,000+ Assamese historical and educational articles, ultra-fast Groq LPU compute, and leading foundation models (Gemini 2.5, Claude 3.5 Sonnet, and FLUX). When you ask a query, it routes to the optimal model to deliver authentic, sub-second responses.',
+      'Axom AI uses a hybrid architecture combining fine-tuned regional language models, Retrieval-Augmented Generation (RAG) indexed over 25,000+ Assamese historical and educational articles, ultra-fast Groq LPU compute, and indigenous Axom neural models (Axom Indic-1, Axom Pro, and Axom Vision). When you ask a query, it routes to the optimal model to deliver authentic, sub-second responses.',
     category: 'general',
     tags: ['how it works', 'architecture', 'technology', 'rag'],
   },
@@ -88,9 +88,9 @@ export const FULL_FAQS_LIST: FullFaqItem[] = [
     id: 10,
     question: 'What AI models power Axom AI?',
     answer:
-      'Axom AI employs an intelligent multi-model ensemble: Google Gemini 2.5 Pro / Flash for fast reasoning, Claude 3.5 Sonnet and Llama 3.3 70B for deep research and programming, FLUX.1 and Imagen for photorealistic visuals, and fine-tuned IndicTrans2 for Indic NLP.',
+      'Axom AI employs a proprietary indigenous multi-model ensemble: Axom Indic-1 for native Assamese & Indic NLP and script purification, Axom Pro for deep STEM reasoning and document analysis, and Axom Vision for photorealistic visual generation.',
     category: 'features',
-    tags: ['models', 'gemini', 'claude', 'flux', 'llama'],
+    tags: ['models', 'axom-indic', 'axom-pro', 'axom-turbo', 'vision'],
   },
   {
     id: 11,
@@ -128,7 +128,7 @@ export const FULL_FAQS_LIST: FullFaqItem[] = [
     id: 15,
     question: 'Can Axom AI generate AI images and artwork?',
     answer:
-      'Yes. You can generate stunning photorealistic artwork, cinematic landscapes, logos, and Assamese cultural imagery (like Bihu dance, Kaziranga rhinos, and tea gardens) using state-of-the-art text-to-image models including FLUX.1 and Gemini Imagen.',
+      'Yes. You can generate stunning photorealistic artwork, cinematic landscapes, logos, and Assamese cultural imagery (like Bihu dance, Kaziranga rhinos, and tea gardens) using state-of-the-art native Axom Vision image generation models.',
     category: 'features',
     tags: ['image generation', 'flux', 'art', 'graphics'],
   },
@@ -154,7 +154,7 @@ export const FULL_FAQS_LIST: FullFaqItem[] = [
     id: 18,
     question: 'What are the paid pricing plans for Axom AI in Indian Rupees (INR)?',
     answer:
-      'Axom AI offers 4 clear tiers: Free (₹0/mo), Starter (₹199/mo or ₹159/mo yearly with 50,000 words & PDF editor), Pro (₹499/mo or ₹399/mo yearly with 250,000 words, Claude 3.5 Sonnet, OCR, and voice mode), and Business (₹1,499/mo with 1M words, 5 team seats, and REST APIs).',
+      'Axom AI offers 4 clear tiers: Free (₹0/mo), Starter (₹199/mo or ₹159/mo yearly with 50,000 words & PDF editor), Pro (₹499/mo or ₹399/mo yearly with 250,000 words, Axom Pro Reasoning, OCR, and voice mode), and Business (₹1,499/mo with 1M words, 5 team seats, and REST APIs).',
     category: 'pricing',
     tags: ['pricing plans', 'starter', 'pro', 'business', 'inr'],
   },
