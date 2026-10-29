@@ -1505,7 +1505,13 @@ def create_ticket_api(request):
         if _rate_limited(f"create_ticket:{request.user.id}", max_calls=5, per_seconds=600):
             return JsonResponse({'success': False, 'error': 'Ticket submission limit reached. Please wait a few minutes.'}, status=429)
 
-        data = json.loads(request.body.decode('utf-8'))
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            data = request.POST or {}
+        if not data and request.POST:
+            data = request.POST
+
         raw_subject = data.get('subject', '').strip()
         raw_category = data.get('category', 'general').strip()
         raw_priority = data.get('priority', 'medium').strip()
@@ -1562,7 +1568,13 @@ def reply_ticket_api(request, ticket_id):
         if _rate_limited(f"reply_ticket:{request.user.id}", max_calls=15, per_seconds=300):
             return JsonResponse({'success': False, 'error': 'Too many replies submitted. Please wait a moment.'}, status=429)
 
-        data = json.loads(request.body.decode('utf-8'))
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            data = request.POST or {}
+        if not data and request.POST:
+            data = request.POST
+
         raw_message = data.get('message', '').strip()
         message = _sanitize_input(raw_message, max_len=5000)
 
