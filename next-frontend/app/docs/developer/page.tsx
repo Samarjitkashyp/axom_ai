@@ -9,13 +9,11 @@ import {
   Sparkles,
   Terminal,
   Code,
-  BookOpen,
   Key,
-  ShieldCheck,
   ChevronRight,
-  ExternalLink,
   Layers,
-  ArrowRight
+  Cpu,
+  Lock
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -106,7 +104,7 @@ export default async function DeveloperDocsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#030712] text-slate-800 dark:text-slate-100 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
+    <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
       {/* Schema Injection */}
       <script
         type="application/ld+json"
@@ -120,75 +118,113 @@ export default async function DeveloperDocsPage() {
       {/* Global Navbar */}
       <Navbar header={cms?.header} />
 
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative pt-28 pb-12 sm:pt-36 sm:pb-16 overflow-hidden border-b border-emerald-900/10 dark:border-white/5">
-          {/* Ambient Lighting Backgrounds */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-emerald-600/20 via-teal-500/15 to-transparent blur-[120px] pointer-events-none rounded-full" />
-          <div className="absolute top-20 right-10 w-96 h-96 bg-cyan-500/10 blur-[100px] pointer-events-none rounded-full" />
+      <main className="min-h-screen relative overflow-hidden pt-28 pb-20 flex-1">
+        {/* Ambient Gradient Glows (matching use-cases) */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none z-0">
+          <div className="absolute top-10 left-1/4 w-[28rem] h-[28rem] bg-fuchsia-600/15 rounded-full blur-[140px]" />
+          <div className="absolute top-20 right-1/4 w-[28rem] h-[28rem] bg-purple-600/15 rounded-full blur-[140px]" />
+        </div>
 
-          <div className="max-w-7xl mx-auto px-5 relative z-10">
-            {/* Breadcrumb Navigation */}
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400 mb-6">
-              <Link href="/" className="hover:text-emerald-600 transition-colors">Home</Link>
-              <ChevronRight size={12} />
-              <span>Docs</span>
-              <ChevronRight size={12} />
-              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Developer API</span>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb Navigation */}
+          <nav className="flex items-center space-x-2 text-xs text-slate-600 dark:text-gray-400 mb-8 font-medium">
+            <Link href="/" className="hover:text-emerald-950 dark:hover:text-white transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <span className="hover:text-emerald-950 dark:hover:text-white transition-colors">
+              Docs
+            </span>
+            <span>/</span>
+            <span className="text-emerald-900 dark:text-emerald-300 font-semibold">
+              Developer API
+            </span>
+          </nav>
+
+          {/* ==================== HERO SECTION (USE-CASES PATTERN) ==================== */}
+          <section className="text-center max-w-4xl mx-auto mb-14 sm:mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/15 via-purple-500/10 to-indigo-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold mb-5 shadow-sm">
+              <Sparkles size={14} className="text-fuchsia-700 dark:text-fuchsia-400" />
+              <span>⚡ Native Assamese &amp; Indic LLMs • OpenAI-Compatible v1 API</span>
             </div>
 
-            {/* Badge & Title */}
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fef9c3] dark:bg-amber-950/40 border border-[#fde047] dark:border-amber-700/50 text-[#854d0e] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-4">
-                <Terminal size={13} className="text-amber-600" /> Axom AI Developer Platform
-              </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight sm:leading-tight mb-5">
+              Developer API Platform{' '}
+              <span className="gradient-text">
+                for Native Assamese &amp; Indic AI
+              </span>
+            </h1>
 
-              <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.15] mb-4">
-                Native Assamese &amp; Indic LLMs. <br className="hidden sm:inline" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">
-                  OpenAI-Compatible API.
-                </span>
-              </h1>
+            <p className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-8">
+              Build world-class apps, websites, and bots powered by Assam&apos;s first indigenous AI platform. Seamless drop-in replacement for OpenAI SDKs in Python, Node.js, and cURL with automatic Assamese grammar purification and sub-second latency.
+            </p>
 
-              <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed mb-8">
-                Integrate Assam&apos;s indigenous AI into your mobile apps, web services, and bots. Drop-in replacement for OpenAI SDKs (<code className="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 font-mono text-xs text-emerald-800 dark:text-emerald-300">base_url=&quot;https://aiaxom.co.in/v1&quot;</code>) with automatic Assamese grammar purification and sub-second inference.
-              </p>
+            {/* Quick Filter / Jump Bar (Pill buttons from use-cases) */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
+              <a
+                href="#api-keys"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Key size={15} className="text-fuchsia-600 dark:text-fuchsia-400" />
+                <span>Get API Key</span>
+              </a>
+              <a
+                href="#quickstart"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Code size={15} className="text-purple-600 dark:text-purple-400" />
+                <span>Quickstart SDK</span>
+              </a>
+              <a
+                href="#models"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Cpu size={15} className="text-indigo-600 dark:text-indigo-400" />
+                <span>Model Specs</span>
+              </a>
+              <a
+                href="#endpoints"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Layers size={15} className="text-emerald-600 dark:text-emerald-400" />
+                <span>Endpoints</span>
+              </a>
+              <a
+                href="#rate-limits"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Lock size={15} className="text-amber-600 dark:text-amber-400" />
+                <span>Rate Limits &amp; Security</span>
+              </a>
+            </div>
+          </section>
 
-              {/* Quick Navigation Anchor Links */}
-              <div className="flex flex-wrap items-center gap-3 text-xs font-semibold">
-                <a
-                  href="#api-keys"
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 active:scale-98 transition-all inline-flex items-center gap-1.5"
-                >
-                  <Key size={13} /> Get API Key
-                </a>
-                <a
-                  href="#quickstart"
-                  className="px-4 py-2 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all inline-flex items-center gap-1.5"
-                >
-                  <Code size={13} /> Quickstart
-                </a>
-                <a
-                  href="#models"
-                  className="px-4 py-2 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all inline-flex items-center gap-1.5"
-                >
-                  <Layers size={13} /> Models
-                </a>
-                <a
-                  href="#endpoints"
-                  className="px-4 py-2 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 transition-all inline-flex items-center gap-1.5"
-                >
-                  <BookOpen size={13} /> Endpoints
-                </a>
+          {/* ==================== AEO DIRECT OVERVIEW BOX ==================== */}
+          <section className="mb-14 max-w-4xl mx-auto">
+            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-100/40 dark:from-purple-950/40 via-white/60 dark:via-slate-900/60 to-indigo-100/40 dark:to-indigo-950/40 border border-purple-500/25 shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="flex items-start gap-4 sm:gap-5 relative z-10">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-700 dark:text-purple-300 shrink-0 mt-1 shadow-inner">
+                  <Terminal size={24} className="text-fuchsia-700 dark:text-fuchsia-400" />
+                </div>
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
+                    <span>Official OpenAI Compatibility Specification</span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-emerald-950 dark:text-white tracking-tight">
+                    One Base URL. Zero Code Rewrites.
+                  </h2>
+                  <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+                    Axom AI provides a standard OpenAI-compliant REST interface. Any existing codebase, library, or agentic framework (LangChain, LlamaIndex, LiteLLM, AutoGen, CrewAI) connects immediately by simply pointing <code className="font-mono text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 px-1.5 py-0.5 rounded">base_url=&quot;https://aiaxom.co.in/v1&quot;</code> and passing an Axom API Key.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Documentation Content Area */}
-        <section className="max-w-7xl mx-auto px-5 py-8">
+          {/* ==================== INTERACTIVE DOCS & KEY GENERATOR ==================== */}
           <DeveloperDocsInteractive />
-        </section>
+        </div>
       </main>
 
       {/* Global Footer */}
@@ -196,4 +232,3 @@ export default async function DeveloperDocsPage() {
     </div>
   );
 }
-
