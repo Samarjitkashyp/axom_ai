@@ -995,11 +995,78 @@ def cancel_subscription_api(request):
 
 @user_login_required
 def payments_page(request):
-    payments = Payment.objects.filter(user=request.user).order_by('-created_at')
-    unread_notif_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
+    """
+    Developer Billing, Receipts & Tax Invoices Dashboard.
+    - Tracks all Razorpay payment transactions with instant status (paid, created, failed).
+    - Summary KPI cards: Total spent (INR), active subscription, billing cycle, renewal date.
+    - Filter transactions by status ('all', 'paid', 'pending', 'failed').
+    - Direct access to printable & downloadable GST tax invoices.
+    """
+    user = request.user
+    limits = _get_user_limits(user)
+    is_active_plan = limits.get('is_active', False)
+    plan_name = limits.get('plan_name', 'free')
+
+    # Current subscription details
+    if is_active_plan and 'business' in plan_name:
+        current_tier_label = 'Enterprise API'
+    elif is_active_plan and 'pro' in plan_name:
+        current_tier_label = 'Pro Developer'
+    elif is_active_plan and 'starter' in plan_name:
+        current_tier_label = 'Starter Developer'
+    else:
+        current_tier_label = 'Free Developer Sandbox'
+
+    billing_cycle = 'Annual' if 'yearly' in plan_name else 'Monthly'
+
+    days_left = 0
+    renewal_date = 'No active paid subscription'
+    active_plan_obj = limits.get('plan_obj')
+    if is_active_plan and active_plan_obj and active_plan_obj.expires_at:
+        days_left = max(0, (active_plan_obj.expires_at - timezone.now()).days)
+        renewal_date = active_plan_obj.expires_at.strftime('%d %b %Y')
+
+    # Query payments
+    all_payments = Payment.objects.filter(user=user).order_by('-created_at')
+    
+    # Financial metrics
+    paid_payments = all_payments.filter(status='paid')
+    total_spent_paise = sum(p.amount for p in paid_payments)
+    total_spent_rupees = total_spent_paise / 100.0
+    total_transactions_count = all_payments.count()
+    paid_count = paid_payments.count()
+    failed_count = all_payments.filter(status='failed').count()
+    pending_count = all_payments.filter(status='created').count()
+
+    # Filter by status if requested
+    status_filter = request.GET.get('status', 'all').strip().lower()
+    if status_filter == 'paid':
+        filtered_payments = paid_payments
+    elif status_filter == 'pending':
+        filtered_payments = all_payments.filter(status='created')
+    elif status_filter == 'failed':
+        filtered_payments = all_payments.filter(status='failed')
+    else:
+        status_filter = 'all'
+        filtered_payments = all_payments
+
+    unread_notif_count = InAppNotification.objects.filter(user=user, is_read=False).count()
+
     context = {
         'active': 'payments',
-        'payments': payments,
+        'current_tier_label': current_tier_label,
+        'billing_cycle': billing_cycle,
+        'is_active_plan': is_active_plan,
+        'active_plan_obj': active_plan_obj,
+        'days_left': days_left,
+        'renewal_date': renewal_date,
+        'payments': filtered_payments,
+        'total_spent_rupees': total_spent_rupees,
+        'total_transactions_count': total_transactions_count,
+        'paid_count': paid_count,
+        'pending_count': pending_count,
+        'failed_count': failed_count,
+        'status_filter': status_filter,
         'unread_notif_count': unread_notif_count,
     }
     return render(request, 'userpanel/payments.html', context)
@@ -1007,12 +1074,40 @@ def payments_page(request):
 
 @user_login_required
 def invoice_view(request, payment_id):
+    """
+    Standard GST-Compliant Developer Tax Invoice.
+    - Strictly authenticated and owner-authorized (prevents IDOR vulnerability).
+    - Rate-limited to prevent automated scraping.
+    - Provides SAC code, GST breakdown (18%), and verified Razorpay payment authorization.
+    """
+    if _rate_limited(f"invoice:{request.user.id}", max_calls=30, per_seconds=60):
+        return HttpResponse("Too many invoice requests. Please wait a minute.", status=429)
+
     payment = get_object_or_404(Payment, id=payment_id, user=request.user)
+
+    # Tax breakdown (18% GST calculation included in total)
+    total_amount = payment.amount / 100.0
+    base_amount = round(total_amount / 1.18, 2)
+    gst_amount = round(total_amount - base_amount, 2)
+    cgst_amount = round(gst_amount / 2.0, 2)
+    sgst_amount = round(gst_amount - cgst_amount, 2)
+
+    invoice_number = f"INV-AXOM-{payment.created_at:%Y%m}-{payment.id:04d}"
+    
+    # Get developer profile for telephone if available
+    profile = getattr(request.user, 'userpanel_profile', None)
+
     context = {
         'payment': payment,
+        'invoice_number': invoice_number,
         'user': request.user,
+        'profile': profile,
         'date': payment.paid_at or payment.created_at,
-        'amount_rs': payment.amount / 100.0,
+        'amount_rs': total_amount,
+        'base_amount': base_amount,
+        'gst_amount': gst_amount,
+        'cgst_amount': cgst_amount,
+        'sgst_amount': sgst_amount,
     }
     return render(request, 'userpanel/invoice.html', context)
 

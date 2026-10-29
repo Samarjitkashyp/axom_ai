@@ -1,72 +1,283 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}Payments & Invoices — Axom AI{% endblock %}
-{% block heading %}Payment History & Invoices{% endblock %}
+{% block title %}Billing & Receipts — Axom AI{% endblock %}
+{% block heading %}Billing & Receipts{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
-  <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-    <div>
-      <h3 class="text-base font-bold text-slate-900">Billing History</h3>
-      <p class="text-xs text-slate-500 mt-0.5">View and download your official transaction receipts and invoices</p>
+<!-- Developer Hero Header -->
+<div class="mb-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden border border-slate-800">
+  <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  
+  <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div class="max-w-2xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
+        <i class="fa-solid fa-file-invoice-dollar text-indigo-400"></i>
+        <span>Developer Billing • GST Tax Invoices</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+        Billing History & Verified Receipts
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+        Access official tax invoices, track subscription billing periods, review payment reference numbers, and download GST receipts for business accounting.
+      </p>
+    </div>
+
+    <!-- Quick CTA to Plan Management -->
+    <div class="flex items-center gap-3 shrink-0">
+      <a href="/subscription/" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition transform active:scale-95">
+        <i class="fa-solid fa-layer-group text-xs"></i>
+        <span>Upgrade / Manage Plans</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 4 Financial & Billing KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+  
+  <!-- Current Plan Tier -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Active Tier</span>
+      <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <i class="fa-solid fa-shield-halved text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-xl font-black text-slate-900 tracking-tight">
+        {{ current_tier_label }}
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        {% if is_active_plan %}
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="font-semibold text-emerald-600">{{ billing_cycle }} Billing Active</span>
+        {% else %}
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+        <span>Free Sandbox Access</span>
+        {% endif %}
+      </div>
     </div>
   </div>
 
+  <!-- Total Platform Investment -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Total Spent</span>
+      <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <i class="fa-solid fa-indian-rupee-sign text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-2xl font-black text-slate-900 tracking-tight font-mono">
+        ₹{{ total_spent_rupees|floatformat:2 }}
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        <span>Across {{ paid_count }} verified payments</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next Renewal Date -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Renewal Date</span>
+      <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+        <i class="fa-solid fa-calendar-day text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-base font-extrabold text-slate-900 tracking-tight font-mono">
+        {{ renewal_date }}
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        {% if is_active_plan %}
+        <span class="font-semibold text-indigo-600">{{ days_left }} days remaining</span>
+        {% else %}
+        <span>Zero recurring charges</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Security Standard -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Payment Gateway</span>
+      <div class="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center">
+        <i class="fa-solid fa-lock text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5">
+        <span class="text-indigo-600 font-black">Razorpay</span>
+        <span>256-Bit SSL</span>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+        <i class="fa-solid fa-circle-check text-emerald-500 text-[10px]"></i>
+        <span>UPI • Netbanking • Cards</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Filter Tabs & Transactions Table Card -->
+<div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
+  
+  <!-- Header with Filter Tabs -->
+  <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h3 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+        <span>Payment Transactions</span>
+        <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
+          {{ total_transactions_count }} Total
+        </span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-0.5">Every transaction is logged with its bank reference ID and verified cryptographic signature</p>
+    </div>
+
+    <!-- Status Filters -->
+    <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold">
+      <a href="?status=all" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'all' %}bg-white text-slate-900 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+        All ({{ total_transactions_count }})
+      </a>
+      <a href="?status=paid" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'paid' %}bg-white text-emerald-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+        Paid ({{ paid_count }})
+      </a>
+      <a href="?status=pending" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'pending' %}bg-white text-amber-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+        Pending ({{ pending_count }})
+      </a>
+      <a href="?status=failed" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'failed' %}bg-white text-rose-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+        Failed ({{ failed_count }})
+      </a>
+    </div>
+  </div>
+
+  <!-- Table -->
   <div class="overflow-x-auto">
-    <table class="w-full text-left text-xs">
-      <thead class="bg-slate-50/80 border-b border-slate-100 text-slate-500 uppercase text-[11px] font-bold">
+    <table class="w-full text-left text-xs border-collapse">
+      <thead class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
         <tr>
-          <th class="py-3.5 px-6">Transaction Date</th>
-          <th class="py-3.5 px-6">Plan Description</th>
-          <th class="py-3.5 px-6">Amount</th>
+          <th class="py-3.5 px-6">Date & Time</th>
+          <th class="py-3.5 px-6">Plan Tier</th>
+          <th class="py-3.5 px-6">Amount (INR)</th>
           <th class="py-3.5 px-6">Order ID & Payment ID</th>
-          <th class="py-3.5 px-6">Status</th>
-          <th class="py-3.5 px-6 text-right">Invoice</th>
+          <th class="py-3.5 px-6 text-center">Status</th>
+          <th class="py-3.5 px-6 text-right">Tax Invoice</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100 text-slate-700">
         {% for p in payments %}
         <tr class="hover:bg-slate-50/60 transition">
-          <td class="py-4 px-6 font-semibold text-slate-900">{{ p.created_at|date:"d M Y, H:i" }}</td>
-          <td class="py-4 px-6 font-medium">{{ p.plan }}</td>
-          <td class="py-4 px-6 font-bold text-slate-900">
-            ₹{{ p.amount|stringformat:"d"|slice:":-2" }}.{{ p.amount|stringformat:"d"|slice:"-2:" }}
+          <!-- Date -->
+          <td class="py-4 px-6 font-semibold text-slate-900 text-xs">
+            <div>{{ p.created_at|date:"d M Y" }}</div>
+            <div class="text-[11px] text-slate-400 font-mono">{{ p.created_at|date:"H:i:s" }} UTC</div>
           </td>
+
+          <!-- Plan Label -->
+          <td class="py-4 px-6 font-medium">
+            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+              <span>{{ p.plan_label }}</span>
+              {% if p.coupon_code %}
+              <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200/60" title="Coupon Code: {{ p.coupon_code }}">
+                {{ p.coupon_code }}
+              </span>
+              {% endif %}
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono mt-0.5">{{ p.plan }}</div>
+          </td>
+
+          <!-- Amount -->
+          <td class="py-4 px-6 font-mono font-black text-slate-900 text-sm">
+            ₹{{ p.amount_rupees|floatformat:2 }}
+            <span class="text-[10px] text-slate-400 font-sans font-normal ml-0.5">INR</span>
+          </td>
+
+          <!-- Order ID / Payment ID -->
           <td class="py-4 px-6 font-mono text-[11px] text-slate-500">
-            <div>{{ p.razorpay_order_id }}</div>
-            {% if p.razorpay_payment_id %}<div class="text-indigo-600">{{ p.razorpay_payment_id }}</div>{% endif %}
+            <div class="flex items-center gap-1.5">
+              <span class="text-slate-400 text-[10px] uppercase font-sans font-bold">Order:</span>
+              <span class="text-slate-700 font-semibold">{{ p.razorpay_order_id }}</span>
+              <button onclick="navigator.clipboard.writeText('{{ p.razorpay_order_id }}'); showToast('Copied Order ID: {{ p.razorpay_order_id }}')" title="Copy Order ID" class="text-slate-400 hover:text-indigo-600 transition">
+                <i class="fa-regular fa-copy text-[11px]"></i>
+              </button>
+            </div>
+            {% if p.razorpay_payment_id %}
+            <div class="flex items-center gap-1.5 text-indigo-600 mt-1 font-semibold">
+              <span class="text-slate-400 text-[10px] uppercase font-sans font-bold">Pay ID:</span>
+              <span>{{ p.razorpay_payment_id }}</span>
+              <button onclick="navigator.clipboard.writeText('{{ p.razorpay_payment_id }}'); showToast('Copied Payment ID: {{ p.razorpay_payment_id }}')" title="Copy Payment ID" class="text-indigo-400 hover:text-indigo-700 transition">
+                <i class="fa-regular fa-copy text-[11px]"></i>
+              </button>
+            </div>
+            {% endif %}
           </td>
-          <td class="py-4 px-6">
+
+          <!-- Status -->
+          <td class="py-4 px-6 text-center">
             {% if p.status == 'paid' %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
-              Paid
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
+              <i class="fa-solid fa-circle-check text-[10px]"></i>
+              <span>Paid</span>
             </span>
             {% elif p.status == 'created' %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-100 text-amber-800">
-              Pending
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-50 text-amber-700 border border-amber-200">
+              <i class="fa-solid fa-clock text-[10px]"></i>
+              <span>Pending</span>
             </span>
             {% else %}
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-rose-100 text-rose-800">
-              {{ p.status }}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-rose-50 text-rose-700 border border-rose-200">
+              <i class="fa-solid fa-circle-xmark text-[10px]"></i>
+              <span>{{ p.status }}</span>
             </span>
             {% endif %}
           </td>
+
+          <!-- Invoice Download -->
           <td class="py-4 px-6 text-right">
             {% if p.status == 'paid' %}
-            <a href="/payments/invoice/{{ p.id }}/" target="_blank" class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 rounded-xl text-xs font-semibold transition">
-              <i class="fa-solid fa-file-invoice"></i> <span>Invoice PDF</span>
+            <a href="/payments/invoice/{{ p.id }}/" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs border border-indigo-200/60 shadow-sm transition">
+              <i class="fa-solid fa-file-invoice text-indigo-600"></i>
+              <span>Invoice PDF</span>
             </a>
             {% else %}
-            <span class="text-slate-400">—</span>
+            <span class="text-slate-300 font-mono text-xs">—</span>
             {% endif %}
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="6" class="py-12 text-center text-slate-400">No payment transactions found.</td>
+          <td colspan="6" class="py-12 text-center text-slate-400 font-sans">
+            <i class="fa-solid fa-receipt text-3xl text-slate-300 mb-2 block"></i>
+            <div class="text-sm font-bold text-slate-700">No payment transactions found</div>
+            <div class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              You haven't made any paid transactions yet. Subscribe to a plan to unlock higher API rate limits and Axom Pro reasoning.
+            </div>
+            <a href="/subscription/" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+              <span>Explore Developer Plans</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- GST Compliance & Security Note -->
+<div class="bg-gradient-to-r from-indigo-50/60 via-purple-50/40 to-slate-50 border border-indigo-100 rounded-3xl p-6 sm:p-7 flex flex-col sm:flex-row items-start gap-4">
+  <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 text-sm shadow-md shadow-indigo-600/20">
+    <i class="fa-solid fa-file-shield"></i>
+  </div>
+  <div class="text-xs text-slate-600 leading-relaxed space-y-1.5">
+    <div class="font-extrabold text-slate-900 text-sm">GST Compliance & Financial Transparency</div>
+    <p>
+      • <strong>Tax Invoices with SAC Code 998314:</strong> All Axom AI subscription receipts are issued in compliance with Indian GST regulations under SAC Code 998314 (Information Technology and Cloud AI Computing Services).
+    </p>
+    <p>
+      • <strong>Automated Razorpay Webhook Reconciliation:</strong> Every payment undergoes automatic cryptographic HMAC signature verification. Your plan activates immediately without manual approval delays.
+    </p>
   </div>
 </div>
 {% endblock %}

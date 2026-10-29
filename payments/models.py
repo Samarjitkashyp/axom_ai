@@ -69,5 +69,21 @@ class Payment(models.Model):
             ),
         ]
 
+    @property
+    def amount_rupees(self) -> float:
+        return self.amount / 100.0
+
+    @property
+    def plan_label(self) -> str:
+        labels = {
+            'starter_monthly': 'Starter Developer (Monthly)',
+            'pro_monthly': 'Pro Developer (Monthly)',
+            'business_monthly': 'Enterprise API (Monthly)',
+            'starter_yearly': 'Starter Developer (Annual)',
+            'pro_yearly': 'Pro Developer (Annual)',
+            'business_yearly': 'Enterprise API (Annual)',
+        }
+        return labels.get(self.plan, PLAN_CATALOG.get(self.plan, {}).get('label', self.plan))
+
     def __str__(self):
         return f"{self.user} · {self.plan} · {self.status} · ₹{self.amount/100:.2f}"

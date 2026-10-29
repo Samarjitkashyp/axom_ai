@@ -2,100 +2,224 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Invoice #{{ payment.razorpay_order_id }} — Axom AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tax Invoice #{{ invoice_number }} — Axom AI</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-  body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+  body { 
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; 
+    background-color: #f8fafc;
+  }
+  .font-mono-code { 
+    font-family: 'JetBrains Mono', monospace; 
+  }
   @media print {
-    .no-print { display: none; }
+    body { background-color: #ffffff; padding: 0; }
+    .no-print { display: none !important; }
+    .invoice-card { 
+      box-shadow: none !important; 
+      border: 1px solid #e2e8f0 !important; 
+      padding: 24px !important; 
+      max-width: 100% !important;
+    }
   }
 </style>
 </head>
-<body class="bg-slate-100 p-6 sm:p-12 text-slate-800">
+<body class="p-4 sm:p-8 md:p-12 text-slate-800">
 
-<div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 sm:p-12 shadow-md border border-slate-200">
-  
-  <div class="no-print flex justify-between items-center mb-8 pb-4 border-b border-slate-100">
-    <a href="/payments/" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">← Back to Payments</a>
-    <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow">
-      🖨️ Print / Save as PDF
-    </button>
-  </div>
+<div class="max-w-4xl mx-auto">
 
-  <!-- Header -->
-  <div class="flex justify-between items-start mb-8">
-    <div>
-      <div class="text-2xl font-black text-slate-900 tracking-tight">Axom<span class="text-indigo-600">AI</span></div>
-      <div class="text-xs text-slate-500 mt-1">First Bilingual Assamese & English AI Platform</div>
-      <div class="text-xs text-slate-500">https://aiaxom.co.in</div>
-    </div>
-    <div class="text-right">
-      <div class="text-xl font-black text-slate-900">INVOICE</div>
-      <div class="text-xs font-mono text-slate-500 mt-1">#{{ payment.razorpay_order_id }}</div>
-      <div class="text-xs text-slate-500 mt-0.5">Date: {{ date|date:"d M Y, H:i" }}</div>
+  <!-- Action Bar (Hidden on Print) -->
+  <div class="no-print flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
+    <a href="/payments/" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-indigo-600 transition">
+      <i class="fa-solid fa-arrow-left text-xs"></i>
+      <span>Back to Payments & Receipts</span>
+    </a>
+    <div class="flex items-center gap-3">
+      <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 transition transform active:scale-95">
+        <i class="fa-solid fa-print text-xs"></i>
+        <span>Print / Save as PDF</span>
+      </button>
     </div>
   </div>
 
-  <!-- Bill To -->
-  <div class="grid grid-cols-2 gap-8 mb-8 pb-8 border-b border-slate-100 text-xs">
-    <div>
-      <div class="font-bold text-slate-400 uppercase tracking-wider text-[10px] mb-1">Billed To</div>
-      <div class="font-bold text-slate-900 text-sm">{{ user.first_name }} {{ user.last_name }}</div>
-      <div class="text-slate-600">@{{ user.username }}</div>
-      <div class="text-slate-600">{{ user.email }}</div>
-    </div>
-    <div>
-      <div class="font-bold text-slate-400 uppercase tracking-wider text-[10px] mb-1">Payment Method</div>
-      <div class="font-semibold text-slate-800">Razorpay Gateway (Online)</div>
-      <div class="font-mono text-slate-500 text-[11px]">Payment ID: {{ payment.razorpay_payment_id|default:"Pending" }}</div>
-      <div class="mt-1"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">PAID & VERIFIED</span></div>
-    </div>
-  </div>
+  <!-- Printable Invoice Document -->
+  <div class="invoice-card bg-white rounded-3xl p-8 sm:p-12 shadow-lg border border-slate-200/90 relative overflow-hidden">
+    
+    <!-- Top Decorative Line -->
+    <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600"></div>
 
-  <!-- Line items -->
-  <table class="w-full text-left text-xs mb-8">
-    <thead class="border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
-      <tr>
-        <th class="py-2.5">Item & Description</th>
-        <th class="py-2.5 text-right">Qty</th>
-        <th class="py-2.5 text-right">Price</th>
-        <th class="py-2.5 text-right">Total</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-slate-100 text-slate-800 font-medium">
-      <tr>
-        <td class="py-4">
-          <div class="font-bold text-slate-900">{{ payment.plan }}</div>
-          <div class="text-slate-500 text-[11px]">Axom AI Premium Service Tier</div>
-        </td>
-        <td class="py-4 text-right">1</td>
-        <td class="py-4 text-right">₹{{ amount_rs|floatformat:2 }}</td>
-        <td class="py-4 text-right font-bold text-slate-900">₹{{ amount_rs|floatformat:2 }}</td>
-      </tr>
-    </tbody>
-  </table>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start gap-6 pb-8 border-b border-slate-200">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-black text-white text-base shadow-md shadow-indigo-500/20">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-slate-900 tracking-tight">Axom<span class="text-indigo-600">AI</span></div>
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Developer Cloud Infrastructure</div>
+          </div>
+        </div>
 
-  <!-- Total Summary -->
-  <div class="flex justify-end mb-12">
-    <div class="w-64 space-y-2 text-xs">
-      <div class="flex justify-between text-slate-600">
-        <span>Subtotal:</span>
-        <span class="font-semibold">₹{{ amount_rs|floatformat:2 }}</span>
+        <div class="mt-4 text-xs text-slate-500 space-y-0.5">
+          <div class="font-bold text-slate-800">Axom AI Technologies</div>
+          <div>Guwahati, Assam 781001, India</div>
+          <div>Website: <a href="https://aiaxom.co.in" class="text-indigo-600">https://aiaxom.co.in</a></div>
+          <div>Support: <span class="font-mono">support@aiaxom.co.in</span></div>
+          <div>Service SAC Code: <strong class="text-slate-700 font-mono">998314</strong> (IT Software Cloud AI Services)</div>
+        </div>
       </div>
-      <div class="flex justify-between text-slate-600">
-        <span>GST / Taxes:</span>
-        <span class="font-semibold">₹0.00</span>
-      </div>
-      <div class="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-200">
-        <span>Total Paid:</span>
-        <span class="text-indigo-600 font-black">₹{{ amount_rs|floatformat:2 }} INR</span>
+
+      <!-- Invoice Reference Info -->
+      <div class="text-left sm:text-right">
+        <div class="inline-block px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-extrabold uppercase tracking-wider border border-indigo-200/60 mb-2">
+          TAX INVOICE
+        </div>
+        <div class="text-xl font-black text-slate-900 font-mono-code">{{ invoice_number }}</div>
+        <div class="text-xs text-slate-500 mt-1 font-mono-code">Date: {{ date|date:"d M Y, H:i:s" }} UTC</div>
+        
+        <div class="mt-3">
+          {% if payment.status == 'paid' %}
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <i class="fa-solid fa-circle-check text-[11px]"></i>
+            <span>PAID & VERIFIED</span>
+          </span>
+          {% else %}
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
+            <span>{{ payment.status|upper }}</span>
+          </span>
+          {% endif %}
+        </div>
       </div>
     </div>
+
+    <!-- Billed To & Payment Method Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 my-8 pb-8 border-b border-slate-200 text-xs">
+      <div>
+        <div class="font-bold text-slate-400 uppercase tracking-wider text-[10px] mb-2">Billed To (Developer / Organization)</div>
+        <div class="font-extrabold text-slate-900 text-sm">{{ user.get_full_name|default:user.username }}</div>
+        <div class="text-slate-500 font-mono-code mt-0.5">@{{ user.username }}</div>
+        <div class="text-slate-600 mt-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-envelope text-slate-400 text-[10px]"></i>
+          <span>{{ user.email }}</span>
+        </div>
+        {% if profile and profile.phone %}
+        <div class="text-slate-600 mt-0.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-phone text-slate-400 text-[10px]"></i>
+          <span>{{ profile.phone }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="sm:text-right">
+        <div class="font-bold text-slate-400 uppercase tracking-wider text-[10px] mb-2">Payment Details</div>
+        <div class="font-bold text-slate-900 flex sm:justify-end items-center gap-1.5">
+          <span>Razorpay Verified Payment Gateway</span>
+          <i class="fa-solid fa-shield-check text-indigo-600"></i>
+        </div>
+        <div class="font-mono-code text-slate-600 text-[11px] mt-1">
+          Order ID: <strong class="text-slate-800">{{ payment.razorpay_order_id }}</strong>
+        </div>
+        {% if payment.razorpay_payment_id %}
+        <div class="font-mono-code text-slate-600 text-[11px] mt-0.5">
+          Payment ID: <strong class="text-indigo-600">{{ payment.razorpay_payment_id }}</strong>
+        </div>
+        {% endif %}
+        {% if payment.coupon_code %}
+        <div class="text-purple-700 font-bold text-[11px] mt-1 font-mono-code">
+          Coupon Applied: {{ payment.coupon_code }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Line Items Table -->
+    <div class="mb-8 overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold">
+          <tr>
+            <th class="py-3 px-4">Item & Description</th>
+            <th class="py-3 px-4 text-center">SAC Code</th>
+            <th class="py-3 px-4 text-center">Qty</th>
+            <th class="py-3 px-4 text-right">Taxable Value</th>
+            <th class="py-3 px-4 text-right">Total (INR)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700 font-medium">
+          <tr>
+            <td class="py-4 px-4">
+              <div class="font-extrabold text-slate-900 text-sm">{{ payment.plan_label }}</div>
+              <div class="text-slate-500 text-[11px] mt-0.5">
+                Axom AI Developer API Platform Subscription Tier (OpenAI-compatible endpoints, Indic models & Pro reasoning)
+              </div>
+            </td>
+            <td class="py-4 px-4 text-center font-mono-code text-slate-500">998314</td>
+            <td class="py-4 px-4 text-center font-mono-code font-bold">1</td>
+            <td class="py-4 px-4 text-right font-mono-code">₹{{ base_amount|floatformat:2 }}</td>
+            <td class="py-4 px-4 text-right font-mono-code font-extrabold text-slate-900">₹{{ amount_rs|floatformat:2 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Financial Summary Breakdown Box -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-8 border-b border-slate-200">
+      <div class="text-xs text-slate-500 max-w-sm space-y-1">
+        <div class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Terms & Authorization</div>
+        <p class="leading-relaxed">
+          This is a computer-generated tax invoice verified by the Axom AI billing engine via Razorpay SSL Gateway. Eligible for GST Input Tax Credit (ITC) under SAC 998314.
+        </p>
+      </div>
+
+      <div class="w-full sm:w-80 space-y-2 text-xs">
+        <div class="flex justify-between text-slate-600">
+          <span>Taxable Amount:</span>
+          <span class="font-mono-code font-semibold">₹{{ base_amount|floatformat:2 }}</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>CGST (9%):</span>
+          <span class="font-mono-code font-semibold">₹{{ cgst_amount|floatformat:2 }}</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>SGST (9%):</span>
+          <span class="font-mono-code font-semibold">₹{{ sgst_amount|floatformat:2 }}</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>Total GST (18% Included):</span>
+          <span class="font-mono-code font-semibold">₹{{ gst_amount|floatformat:2 }}</span>
+        </div>
+        
+        <div class="flex justify-between text-base font-black text-slate-900 pt-3 border-t-2 border-slate-900">
+          <span>Total Paid:</span>
+          <span class="font-mono-code text-indigo-600 font-extrabold">₹{{ amount_rs|floatformat:2 }} INR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Digital Authorization Seal & Footer -->
+    <div class="mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-stamp text-indigo-500 text-base"></i>
+        <span>Digitally Authorized by Axom AI Payment Gateway Engine</span>
+      </div>
+      <div class="text-center sm:text-right font-mono-code text-[11px] text-slate-400">
+        Signature Hash: {{ payment.razorpay_signature|truncatechars:24|default:"AUTH_VERIFIED_OK" }}
+      </div>
+    </div>
+
   </div>
 
-  <div class="text-center text-[11px] text-slate-400 border-t border-slate-100 pt-6">
-    Thank you for supporting Axom AI! For queries, visit user.aiaxom.co.in or contact support.
+  <!-- Help & Support Footer -->
+  <div class="no-print mt-6 text-center text-xs text-slate-400 space-x-3">
+    <span>Need help with this receipt?</span>
+    <a href="/support/" class="text-indigo-600 font-bold hover:underline">Contact Developer Support</a>
+    <span>•</span>
+    <a href="/subscription/" class="text-indigo-600 font-bold hover:underline">Manage Subscription</a>
   </div>
 
 </div>
