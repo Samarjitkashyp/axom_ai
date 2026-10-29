@@ -1408,11 +1408,63 @@ def delete_chat_api(request, session_id):
 
 @user_login_required
 def support_page(request):
-    tickets = SupportTicket.objects.filter(user=request.user).order_by('-created_at')
-    unread_notif_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
+    """
+    Developer Support & Engineering Desk.
+    - Displays active support tickets with filtering (all, open, resolved).
+    - Plan-based Support SLA indicators (Community, Standard 24h, Priority 4h, Enterprise).
+    - Ticket creator with developer categories (API Integration, Rate Limits, Billing, Inference).
+    """
+    user = request.user
+    limits = _get_user_limits(user)
+    is_active_plan = limits.get('is_active', False)
+    plan_name = limits.get('plan_name', 'free')
+
+    if is_active_plan and 'business' in plan_name:
+        current_tier_label = 'Enterprise API'
+        support_sla = '99.9% Uptime + Dedicated Engineer (1h SLA)'
+        sla_badge = '1-Hour Priority'
+    elif is_active_plan and 'pro' in plan_name:
+        current_tier_label = 'Pro Developer'
+        support_sla = 'Priority Developer Support (4h SLA) ⚡'
+        sla_badge = '4-Hour Priority'
+    elif is_active_plan and 'starter' in plan_name:
+        current_tier_label = 'Starter Developer'
+        support_sla = 'Standard Email Support (24h SLA)'
+        sla_badge = '24-Hour Standard'
+    else:
+        current_tier_label = 'Free Developer Sandbox'
+        support_sla = 'Community Discord & Official Docs'
+        sla_badge = 'Community Tier'
+
+    all_tickets = SupportTicket.objects.filter(user=user).order_by('-updated_at')
+    total_tickets = all_tickets.count()
+    open_tickets_count = all_tickets.filter(status__in=['open', 'in_progress']).count()
+    resolved_tickets_count = all_tickets.filter(status__in=['resolved', 'closed']).count()
+
+    status_filter = request.GET.get('status', 'all').strip().lower()
+    if status_filter == 'open':
+        tickets = all_tickets.filter(status__in=['open', 'in_progress'])
+    elif status_filter == 'resolved':
+        tickets = all_tickets.filter(status__in=['resolved', 'closed'])
+    else:
+        status_filter = 'all'
+        tickets = all_tickets
+
+    unread_notif_count = InAppNotification.objects.filter(user=user, is_read=False).count()
+
     context = {
         'active': 'support',
+        'current_tier_label': current_tier_label,
+        'support_sla': support_sla,
+        'sla_badge': sla_badge,
+        'is_active_plan': is_active_plan,
         'tickets': tickets,
+        'total_tickets': total_tickets,
+        'open_tickets_count': open_tickets_count,
+        'resolved_tickets_count': resolved_tickets_count,
+        'status_filter': status_filter,
+        'categories': SupportTicket.CATEGORY_CHOICES,
+        'priorities': SupportTicket.PRIORITY_CHOICES,
         'unread_notif_count': unread_notif_count,
     }
     return render(request, 'userpanel/support.html', context)
@@ -1420,6 +1472,14 @@ def support_page(request):
 
 @user_login_required
 def ticket_detail_view(request, ticket_id):
+    """
+    Developer Support Ticket Thread & Reply Center.
+    - Owner-authorized: Prevents IDOR (Insecure Direct Object Reference).
+    - Rate-limited against rapid refreshes.
+    """
+    if _rate_limited(f"view_ticket:{request.user.id}", max_calls=40, per_seconds=60):
+        return HttpResponse("Too many requests. Please wait a moment.", status=429)
+
     ticket = get_object_or_404(SupportTicket, id=ticket_id, user=request.user)
     replies = ticket.replies.all().order_by('created_at')
     unread_notif_count = InAppNotification.objects.filter(user=request.user, is_read=False).count()
@@ -1435,19 +1495,33 @@ def ticket_detail_view(request, ticket_id):
 @user_login_required
 @require_POST
 def create_ticket_api(request):
+    """
+    Creates a new support ticket for authenticated developers.
+    - Rate-limited to max 5 tickets per 10 minutes to prevent spam.
+    - Input sanitization against XSS attacks.
+    - Creates initial reply message and notification.
+    """
     try:
-        # Rate limiting: max 5 tickets per 10 minutes per user
         if _rate_limited(f"create_ticket:{request.user.id}", max_calls=5, per_seconds=600):
             return JsonResponse({'success': False, 'error': 'Ticket submission limit reached. Please wait a few minutes.'}, status=429)
 
-        data = json.loads(request.body)
-        subject = data.get('subject', '').strip()
-        category = data.get('category', 'general')
-        priority = data.get('priority', 'medium')
-        message = data.get('message', '').strip()
+        data = json.loads(request.body.decode('utf-8'))
+        raw_subject = data.get('subject', '').strip()
+        raw_category = data.get('category', 'general').strip()
+        raw_priority = data.get('priority', 'medium').strip()
+        raw_message = data.get('message', '').strip()
+
+        subject = _sanitize_input(raw_subject, max_len=200)
+        message = _sanitize_input(raw_message, max_len=5000)
 
         if not subject or not message:
             return JsonResponse({'success': False, 'error': 'Subject and message are required.'}, status=400)
+
+        valid_categories = [c[0] for c in SupportTicket.CATEGORY_CHOICES]
+        category = raw_category if raw_category in valid_categories else 'general'
+
+        valid_priorities = [p[0] for p in SupportTicket.PRIORITY_CHOICES]
+        priority = raw_priority if raw_priority in valid_priorities else 'medium'
 
         ticket = SupportTicket.objects.create(
             ticket_id=SupportTicket.generate_ticket_id(),
@@ -1464,20 +1538,34 @@ def create_ticket_api(request):
             message=message
         )
 
-        return JsonResponse({'success': True, 'message': f'Ticket {ticket.ticket_id} created successfully.'})
+        InAppNotification.objects.create(
+            user=request.user,
+            title="Ticket Created 🎫",
+            message=f"Support ticket #{ticket.ticket_id} ('{subject[:40]}...') has been submitted. Our engineering team will review it shortly.",
+            notif_type="info"
+        )
+
+        return JsonResponse({'success': True, 'ticket_id': ticket.id, 'ticket_ref': ticket.ticket_id, 'message': f'Ticket #{ticket.ticket_id} created successfully.'})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        return JsonResponse({'success': False, 'error': 'An internal error occurred while submitting your ticket.'}, status=500)
 
 
 @user_login_required
 @require_POST
 def reply_ticket_api(request, ticket_id):
+    """
+    Adds a developer reply to an existing support ticket.
+    - Strictly verified against ticket ownership.
+    - Sanitizes message and reopens resolved tickets if new inquiry is added.
+    """
     try:
         if _rate_limited(f"reply_ticket:{request.user.id}", max_calls=15, per_seconds=300):
-            return JsonResponse({'success': False, 'error': 'Too many replies submitted. Please wait.'}, status=429)
+            return JsonResponse({'success': False, 'error': 'Too many replies submitted. Please wait a moment.'}, status=429)
 
-        data = json.loads(request.body)
-        message = data.get('message', '').strip()
+        data = json.loads(request.body.decode('utf-8'))
+        raw_message = data.get('message', '').strip()
+        message = _sanitize_input(raw_message, max_len=5000)
+
         if not message:
             return JsonResponse({'success': False, 'error': 'Reply message cannot be empty.'}, status=400)
 
@@ -1489,11 +1577,37 @@ def reply_ticket_api(request, ticket_id):
             message=message
         )
         ticket.status = 'open'
-        ticket.save()
+        ticket.save(update_fields=['status', 'updated_at'])
 
-        return JsonResponse({'success': True, 'message': 'Reply submitted.'})
+        return JsonResponse({'success': True, 'message': 'Reply submitted successfully.'})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        return JsonResponse({'success': False, 'error': 'Failed to post reply.'}, status=500)
+
+
+@user_login_required
+@require_POST
+def close_ticket_api(request, ticket_id):
+    """
+    Allows developers to resolve or close their own support tickets.
+    """
+    try:
+        if _rate_limited(f"close_ticket:{request.user.id}", max_calls=10, per_seconds=300):
+            return JsonResponse({'success': False, 'error': 'Too many requests. Please wait a moment.'}, status=429)
+
+        ticket = get_object_or_404(SupportTicket, id=ticket_id, user=request.user)
+        ticket.status = 'resolved'
+        ticket.save(update_fields=['status', 'updated_at'])
+
+        TicketReply.objects.create(
+            ticket=ticket,
+            user=request.user,
+            is_admin=False,
+            message="[Ticket marked as resolved by developer]"
+        )
+
+        return JsonResponse({'success': True, 'message': f'Ticket #{ticket.ticket_id} has been marked as resolved.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': 'Could not close ticket.'}, status=500)
 
 
 @user_login_required

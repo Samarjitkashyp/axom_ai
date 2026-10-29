@@ -1,59 +1,131 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}Ticket #{{ ticket.ticket_id }} — Axom AI{% endblock %}
-{% block heading %}Support Ticket Discussion{% endblock %}
+{% block title %}Ticket #{{ ticket.ticket_id }} — Axom AI Support{% endblock %}
+{% block heading %}Ticket #{{ ticket.ticket_id }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-6 mb-12">
+
+  <!-- Action Bar & Back Link -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+    <a href="/support/" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-indigo-600 transition">
+      <i class="fa-solid fa-arrow-left text-xs"></i>
+      <span>Back to All Support Tickets</span>
+    </a>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2.5">
+      {% if ticket.status != 'resolved' and ticket.status != 'closed' %}
+      <button onclick="closeCurrentTicket()" id="btnCloseTicket" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200/80 transition shadow-sm">
+        <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+        <span>Mark as Resolved</span>
+      </button>
+      {% endif %}
+    </div>
+  </div>
 
   <!-- Ticket Header Card -->
-  <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+  <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm relative overflow-hidden">
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-6 border-b border-slate-100">
       <div>
-        <div class="flex items-center space-x-2 text-xs">
-          <span class="font-mono font-bold text-indigo-600">#{{ ticket.ticket_id }}</span>
-          <span class="text-slate-400">•</span>
-          <span class="text-slate-500 font-medium">Category: {{ ticket.get_category_display }}</span>
-          <span class="text-slate-400">•</span>
-          <span class="text-slate-400">Created {{ ticket.created_at|date:"d M Y, H:i" }}</span>
+        <div class="flex items-center gap-2 flex-wrap text-xs mb-2">
+          <span class="font-mono font-black text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded border border-indigo-200/60">
+            #{{ ticket.ticket_id }}
+          </span>
+          <span class="text-slate-300">•</span>
+          <span class="font-bold text-slate-700 flex items-center gap-1">
+            <i class="fa-solid fa-folder text-slate-400 text-[10px]"></i>
+            <span>{{ ticket.get_category_display }}</span>
+          </span>
+          <span class="text-slate-300">•</span>
+          <span class="font-medium text-slate-500">
+            Created on {{ ticket.created_at|date:"d M Y, H:i" }} UTC
+          </span>
         </div>
-        <h2 class="text-xl font-bold text-slate-900 mt-1">{{ ticket.subject }}</h2>
+
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{{ ticket.subject }}</h2>
       </div>
 
-      <div>
-        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase {% if ticket.status == 'open' %}bg-amber-100 text-amber-800{% elif ticket.status == 'resolved' %}bg-emerald-100 text-emerald-800{% else %}bg-slate-100 text-slate-700{% endif %}">
-          Status: {{ ticket.status }}
+      <!-- Status & Priority Badges -->
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase {% if ticket.priority == 'urgent' or ticket.priority == 'high' %}bg-rose-50 text-rose-700 border border-rose-200{% else %}bg-slate-100 text-slate-700{% endif %}">
+          {{ ticket.priority }} Priority
         </span>
+
+        {% if ticket.status == 'open' %}
+        <span class="px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>Open</span>
+        </span>
+        {% elif ticket.status == 'in_progress' %}
+        <span class="px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+          <span>In Progress</span>
+        </span>
+        {% elif ticket.status == 'resolved' %}
+        <span class="px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          <span>Resolved</span>
+        </span>
+        {% else %}
+        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-slate-100 text-slate-600">
+          Closed
+        </span>
+        {% endif %}
       </div>
     </div>
 
-    <!-- Messages List -->
+    <!-- Messages / Discussion Stream -->
     <div class="py-6 space-y-4">
       {% for r in replies %}
-      <div class="p-4 rounded-2xl {% if r.is_admin %}bg-indigo-50/70 border border-indigo-100 text-indigo-950{% else %}bg-slate-50 border border-slate-100 text-slate-800{% endif %} text-xs">
-        <div class="flex items-center justify-between mb-2">
-          <div class="font-bold flex items-center space-x-2">
+      <div class="p-5 rounded-2xl {% if r.is_admin %}bg-gradient-to-r from-indigo-50/70 via-purple-50/50 to-indigo-50/70 border border-indigo-200/80 shadow-sm text-indigo-950{% else %}bg-slate-50 border border-slate-200/70 text-slate-800{% endif %} text-xs leading-relaxed">
+        <div class="flex items-center justify-between mb-3 pb-2 {% if r.is_admin %}border-b border-indigo-200/50{% else %}border-b border-slate-200/50{% endif %}">
+          <div class="font-extrabold flex items-center gap-2">
             {% if r.is_admin %}
-            <span class="px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px] uppercase font-bold">Axom AI Support</span>
+            <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-shield-halved"></i>
+            </span>
+            <span class="text-indigo-900 font-black">Axom AI Engineering Support</span>
+            <span class="px-2 py-0.5 rounded text-[9px] uppercase font-extrabold bg-indigo-600 text-white">STAFF</span>
             {% else %}
-            <span>{{ r.user.username }} (You)</span>
+            <span class="w-6 h-6 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-user"></i>
+            </span>
+            <span class="text-slate-900 font-bold">{{ r.user.get_full_name|default:r.user.username }}</span>
+            <span class="text-slate-400 font-normal font-mono text-[10px]">@{{ r.user.username }}</span>
             {% endif %}
           </div>
-          <span class="text-[10px] text-slate-400">{{ r.created_at|date:"d M Y, H:i" }}</span>
+          <span class="text-[10px] text-slate-400 font-mono">{{ r.created_at|date:"d M Y, H:i" }} UTC</span>
         </div>
-        <div class="whitespace-pre-wrap leading-relaxed">{{ r.message }}</div>
+
+        <div class="whitespace-pre-wrap font-sans text-xs sm:text-[13px] leading-relaxed">{{ r.message }}</div>
       </div>
       {% endfor %}
     </div>
 
     <!-- Reply Box -->
-    <div class="pt-4 border-t border-slate-100 text-xs">
-      <h4 class="font-bold text-slate-800 mb-2">Add a Reply</h4>
-      <textarea id="replyMessage" rows="3" placeholder="Type your reply or additional information here..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white"></textarea>
+    <div class="pt-6 border-t border-slate-100">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+          <i class="fa-solid fa-reply text-indigo-600 text-xs"></i>
+          <span>Post a Reply</span>
+        </h4>
+        {% if ticket.status == 'resolved' or ticket.status == 'closed' %}
+        <span class="text-[11px] text-amber-600 font-medium">
+          Note: Posting a reply will automatically reopen this ticket.
+        </span>
+        {% endif %}
+      </div>
+
+      <textarea id="replyMessage" rows="4" placeholder="Add further context, stack trace, curl output, or request status..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white placeholder-slate-400"></textarea>
       
-      <div class="mt-3 flex items-center justify-between">
-        <a href="/support/" class="text-slate-500 hover:text-slate-800 font-medium">← Back to all tickets</a>
-        <button onclick="sendReply()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow transition">
-          Send Reply
+      <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="text-[11px] text-slate-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
+          <span>Encrypted response thread • Monitored 24/7 by engineering desk</span>
+        </div>
+        <button onclick="sendTicketReply()" id="btnSendReply" class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/20 transition transform active:scale-95 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane text-xs"></i>
+          <span>Send Reply</span>
         </button>
       </div>
     </div>
@@ -65,27 +137,84 @@
 
 {% block extra_scripts %}
 <script>
-  async function sendReply() {
+  async function sendTicketReply() {
     const msg = document.getElementById('replyMessage').value.trim();
+    const btn = document.getElementById('btnSendReply');
+
     if (!msg) {
       showToast('Please type a message before submitting.', 'error');
       return;
     }
+
+    const originalBtnHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Submitting...</span>`;
+
     try {
+      showToast('Posting reply...', 'info');
       const res = await fetch('/support/reply/{{ ticket.id }}/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
         body: JSON.stringify({ message: msg })
       });
+
       const data = await res.json();
       if (data.success) {
-        showToast(data.message, 'success');
+        showToast(data.message || 'Reply posted successfully!', 'success');
         setTimeout(() => location.reload(), 700);
       } else {
-        showToast(data.error, 'error');
+        showToast(data.error || 'Failed to send reply.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
       }
     } catch (e) {
-      showToast('Error sending reply.', 'error');
+      showToast('Network error while posting reply.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = originalBtnHtml;
+    }
+  }
+
+  async function closeCurrentTicket() {
+    if (!confirm('Are you sure you want to mark this support ticket as resolved?')) {
+      return;
+    }
+
+    const btn = document.getElementById('btnCloseTicket');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Closing...</span>`;
+    }
+
+    try {
+      showToast('Resolving ticket...', 'info');
+      const res = await fetch('/support/close/{{ ticket.id }}/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        }
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'Ticket resolved!', 'success');
+        setTimeout(() => location.reload(), 700);
+      } else {
+        showToast(data.error || 'Failed to close ticket.', 'error');
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i><span>Mark as Resolved</span>`;
+        }
+      }
+    } catch (e) {
+      showToast('Network error while closing ticket.', 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i><span>Mark as Resolved</span>`;
+      }
     }
   }
 </script>

@@ -28,6 +28,7 @@ urlpatterns = [
     path('support/ticket/<int:ticket_id>/', views.ticket_detail_view, name='ticket_detail'),
     path('support/create/', views.create_ticket_api, name='create_ticket'),
     path('support/reply/<int:ticket_id>/', views.reply_ticket_api, name='reply_ticket'),
+    path('support/close/<int:ticket_id>/', views.close_ticket_api, name='close_ticket'),
     path('export-data/', views.export_user_data_json, name='export_data'),
     path('delete-account/', views.delete_account_api, name='delete_account'),
     path('notifications/read-all/', views.mark_notifications_read_api, name='read_notifications'),

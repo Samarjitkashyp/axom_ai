@@ -1,107 +1,337 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}Help & Support — Axom AI{% endblock %}
-{% block heading %}Help & Support Center{% endblock %}
+{% block title %}Developer Support & Engineering Desk — Axom AI{% endblock %}
+{% block heading %}Developer Support & Engineering Desk{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-
-  <!-- Tickets list & Creator (2 cols) -->
-  <div class="lg:col-span-2 space-y-6">
-
-    <!-- Create Ticket Card -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
-      <h3 class="text-base font-bold text-slate-900 mb-1">Open a Support Ticket</h3>
-      <p class="text-xs text-slate-500 mb-5">Have an issue with payments, API access, or features? We respond within 24 hours.</p>
-
-      <form id="ticketForm" class="space-y-4 text-xs">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1.5">Subject</label>
-          <input type="text" id="ticketSubject" required placeholder="Brief description of the issue" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Category</label>
-            <select id="ticketCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
-              <option value="general">General Inquiry</option>
-              <option value="billing">Billing & Payments</option>
-              <option value="technical">Technical Bug / AI Output</option>
-              <option value="feature">Feature Request</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Priority</label>
-            <select id="ticketPriority" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white">
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-bold text-slate-700 mb-1.5">Detailed Message</label>
-          <textarea id="ticketMessage" rows="4" required placeholder="Please describe what happened, order IDs if applicable, or steps to reproduce..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white"></textarea>
-        </div>
-
-        <button type="button" onclick="submitTicket()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow transition">
-          Submit Support Ticket
-        </button>
-      </form>
+<!-- Developer Support Hero Header -->
+<div class="mb-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden border border-slate-800">
+  <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  
+  <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div class="max-w-2xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
+        <i class="fa-solid fa-headset text-indigo-400"></i>
+        <span>Engineering Desk • {{ sla_badge }}</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+        Developer Support & Technical Assistance
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+        Direct assistance for OpenAI-compatible API integrations, custom quota increases, model performance, and billing questions. We are committed to unblocking your software builds.
+      </p>
     </div>
 
-    <!-- My Tickets History -->
-    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm">
-      <h3 class="text-base font-bold text-slate-900 mb-4">Your Support Tickets</h3>
-      <div class="space-y-3 text-xs">
+    <!-- Direct Contact & Docs CTAs -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+      <a href="https://aiaxom.co.in/docs/developer" target="_blank" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold backdrop-blur-sm border border-white/10 transition">
+        <i class="fa-solid fa-book-open text-xs"></i>
+        <span>API Docs ↗</span>
+      </a>
+      <a href="#new-ticket-section" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition transform active:scale-95">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Open Ticket</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- 4 Support KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+  
+  <!-- Plan Support SLA Card -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Your Support SLA</span>
+      <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <i class="fa-solid fa-clock text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-base font-extrabold text-slate-900 tracking-tight">
+        {{ sla_badge }}
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span class="truncate">{{ current_tier_label }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Support Tickets Card -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Active Tickets</span>
+      <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+        <i class="fa-solid fa-ticket text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-2xl font-black text-slate-900 tracking-tight font-mono">
+        {{ open_tickets_count }} <span class="text-xs font-semibold text-slate-400">/ {{ total_tickets }} total</span>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        <span>{{ resolved_tickets_count }} resolved tickets</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- API System Status -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">System Status</span>
+      <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <i class="fa-solid fa-server text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-base font-extrabold text-emerald-600 tracking-tight flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>All Systems Operational</span>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+        <span>99.9% Uptime across all endpoints</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direct Technical Email -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Engineering Desk</span>
+      <div class="w-8 h-8 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center">
+        <i class="fa-solid fa-envelope text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-xs font-bold font-mono text-slate-900 truncate">
+        support@aiaxom.co.in
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+        <i class="fa-brands fa-discord text-indigo-500 text-[11px]"></i>
+        <span>Developer Discord community</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Main Layout: Tickets List (Left 2 cols) & Create Ticket / FAQ (Right 1 col) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 items-start">
+
+  <!-- Left: My Support Tickets History -->
+  <div class="lg:col-span-2 space-y-6">
+    
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <!-- Card Header with Filter Tabs -->
+      <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <span>Your Support Inquiries</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
+              {{ total_tickets }}
+            </span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">Track ticket responses, discussions, and resolution status</p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold">
+          <a href="?status=all" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'all' %}bg-white text-slate-900 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+            All ({{ total_tickets }})
+          </a>
+          <a href="?status=open" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'open' %}bg-white text-amber-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+            Open ({{ open_tickets_count }})
+          </a>
+          <a href="?status=resolved" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'resolved' %}bg-white text-emerald-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+            Resolved ({{ resolved_tickets_count }})
+          </a>
+        </div>
+      </div>
+
+      <!-- Tickets List -->
+      <div class="p-5 space-y-3">
         {% for t in tickets %}
-        <a href="/support/ticket/{{ t.id }}/" class="p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:bg-slate-100/80 transition flex items-center justify-between block">
-          <div class="truncate mr-4">
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-slate-900">{{ t.subject }}</span>
-              <span class="text-slate-400 font-mono text-[10px]">#{{ t.ticket_id }}</span>
+        <a href="/support/ticket/{{ t.id }}/" class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-indigo-300 hover:bg-slate-50 hover:shadow-sm transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 block group">
+          <div class="truncate">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-slate-900 group-hover:text-indigo-600 transition text-sm">{{ t.subject }}</span>
+              <span class="text-slate-400 font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200">#{{ t.ticket_id }}</span>
             </div>
-            <div class="text-[11px] text-slate-500 mt-1">Category: {{ t.get_category_display }} • Updated {{ t.updated_at|date:"d M Y, H:i" }}</div>
+            
+            <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-500 mt-2">
+              <span class="flex items-center gap-1 font-medium">
+                <i class="fa-solid fa-folder text-slate-400 text-[10px]"></i>
+                <span>{{ t.get_category_display }}</span>
+              </span>
+              <span>•</span>
+              <span class="flex items-center gap-1">
+                <i class="fa-solid fa-signal text-[10px] {% if t.priority == 'urgent' or t.priority == 'high' %}text-rose-500{% else %}text-slate-400{% endif %}"></i>
+                <span class="capitalize">{{ t.priority }} Priority</span>
+              </span>
+              <span>•</span>
+              <span class="text-slate-400">
+                Updated {{ t.updated_at|date:"d M Y, H:i" }}
+              </span>
+            </div>
           </div>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase shrink-0 {% if t.status == 'open' %}bg-amber-100 text-amber-800{% elif t.status == 'resolved' %}bg-emerald-100 text-emerald-800{% else %}bg-slate-200 text-slate-700{% endif %}">
-            {{ t.status }}
-          </span>
+
+          <div class="flex items-center gap-3 shrink-0">
+            <!-- Status Badge -->
+            {% if t.status == 'open' %}
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <span>Open</span>
+            </span>
+            {% elif t.status == 'in_progress' %}
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+              <span>In Progress</span>
+            </span>
+            {% elif t.status == 'resolved' %}
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+              <i class="fa-solid fa-check text-[10px]"></i>
+              <span>Resolved</span>
+            </span>
+            {% else %}
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-slate-100 text-slate-600">
+              Closed
+            </span>
+            {% endif %}
+
+            <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-indigo-500 text-xs transition"></i>
+          </div>
         </a>
         {% empty %}
-        <div class="text-slate-400 text-center py-6">You have not submitted any support tickets.</div>
+        <div class="py-12 text-center text-slate-400 font-sans">
+          <i class="fa-solid fa-comments text-3xl text-slate-300 mb-2 block"></i>
+          <div class="text-sm font-bold text-slate-700">No support tickets found</div>
+          <div class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+            You don't have any support tickets under this filter. Have a question or request? Use the form to open a ticket.
+          </div>
+        </div>
         {% endfor %}
+      </div>
+    </div>
+
+    <!-- Developer Technical FAQs Accordion -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm">
+      <div class="mb-5">
+        <h3 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-indigo-600 text-sm"></i>
+          <span>Developer Technical FAQs</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-0.5">Quick answers to common developer integration and billing questions</p>
+      </div>
+
+      <div class="space-y-3">
+        <!-- FAQ 1 -->
+        <details class="group bg-slate-50/70 rounded-2xl border border-slate-200/70 p-4 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+            <span>How do I request an immediate API quota or burst rate limit increase?</span>
+            <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+          </summary>
+          <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-200/60 pt-3">
+            Open a support ticket with the category <strong>Quota & Rate Limit Increase</strong>. Please mention your estimated monthly volume, target concurrent connections, and your use case. Our engineering team can deploy custom overrides to your account within 2–4 hours.
+          </p>
+        </details>
+
+        <!-- FAQ 2 -->
+        <details class="group bg-slate-50/70 rounded-2xl border border-slate-200/70 p-4 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+            <span>Are Axom AI endpoints compatible with official OpenAI SDKs?</span>
+            <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+          </summary>
+          <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-200/60 pt-3">
+            Yes! In Python, pass <code>base_url="https://aiaxom.co.in/v1"</code> and your secret key to <code>openai.OpenAI()</code>. In Node.js / TypeScript, set <code>baseURL: 'https://aiaxom.co.in/v1'</code> in the OpenAI client constructor.
+          </p>
+        </details>
+
+        <!-- FAQ 3 -->
+        <details class="group bg-slate-50/70 rounded-2xl border border-slate-200/70 p-4 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+            <span>How should production backend clients handle 429 Rate Limits?</span>
+            <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+          </summary>
+          <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-200/60 pt-3">
+            Every 429 response includes the standard <code>retry-after</code> HTTP header indicating wait duration. We recommend using an exponential backoff with full jitter to avoid synchronous burst stampedes against the neural gateway.
+          </p>
+        </details>
+
+        <!-- FAQ 4 -->
+        <details class="group bg-slate-50/70 rounded-2xl border border-slate-200/70 p-4 shadow-sm transition [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex items-center justify-between cursor-pointer font-bold text-xs text-slate-900">
+            <span>Where can I download GST tax invoices for company accounting?</span>
+            <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
+          </summary>
+          <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-200/60 pt-3">
+            Visit the <a href="/payments/" class="text-indigo-600 font-bold underline">Billing & Receipts</a> tab. Every completed payment generates an official tax invoice under SAC Code 998314 with 18% GST breakdown.
+          </p>
+        </details>
       </div>
     </div>
 
   </div>
 
-  <!-- FAQs Accordion (1 col) -->
-  <div class="space-y-4">
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
-      <h3 class="text-base font-bold text-slate-900 mb-4"><i class="fa-solid fa-circle-question text-indigo-600 mr-2"></i> Frequently Asked Questions</h3>
-      
-      <div class="space-y-3 text-xs text-slate-600">
-        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
-          <summary class="font-bold text-slate-800">How do I upgrade my daily quota limits?</summary>
-          <p class="mt-2 text-slate-500">Go to Subscription & Plans tab, choose Starter, Pro, or Business, and complete the instant Razorpay checkout.</p>
-        </details>
-
-        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
-          <summary class="font-bold text-slate-800">Can Axom AI generate images in Assamese?</summary>
-          <p class="mt-2 text-slate-500">Yes! Axom AI automatically translates Assamese visual prompts and renders high-definition AI images using FLUX and Pollinations.</p>
-        </details>
-
-        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
-          <summary class="font-bold text-slate-800">How do refunds work?</summary>
-          <p class="mt-2 text-slate-500">If you experienced a technical issue, open a ticket with your Order ID, and our support team will process a full refund to your original payment method.</p>
-        </details>
-
-        <details class="p-3 bg-slate-50 rounded-xl border border-slate-100 cursor-pointer">
-          <summary class="font-bold text-slate-800">Where can I download my billing invoices?</summary>
-          <p class="mt-2 text-slate-500">Visit the Payments & Invoices tab to download printable PDF invoices for all your past purchases.</p>
-        </details>
+  <!-- Right: Open New Support Ticket Form -->
+  <div class="space-y-6" id="new-ticket-section">
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm sticky top-6">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <div>
+          <h3 class="text-base font-extrabold text-slate-900 tracking-tight">Open a Support Ticket</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Submit technical inquiries directly to our engineering desk</p>
+        </div>
+        <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </span>
       </div>
+
+      <form id="developerTicketForm" class="space-y-4 text-xs">
+        <!-- Category Selector -->
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1.5">Inquiry Category</label>
+          <select id="ticketCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white">
+            {% for cat in categories %}
+            <option value="{{ cat.0 }}">{{ cat.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Priority Selector -->
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1.5">Priority Level</label>
+          <select id="ticketPriority" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white">
+            <option value="low">Low (General guidance)</option>
+            <option value="medium" selected>Medium (Standard inquiry)</option>
+            <option value="high">High (Production blocked)</option>
+            <option value="urgent">Urgent (Critical production outage)</option>
+          </select>
+        </div>
+
+        <!-- Subject Input -->
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1.5">Subject</label>
+          <input type="text" id="ticketSubject" required placeholder="e.g. Rate limit increase request for production app" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white placeholder-slate-400">
+        </div>
+
+        <!-- Detailed Message Textarea -->
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1.5">Detailed Message & Context</label>
+          <textarea id="ticketMessage" rows="5" required placeholder="Please provide endpoint URL, sample curl request, error payload, or details to help us troubleshoot faster..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white placeholder-slate-400"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+          <button type="button" onclick="submitDeveloperTicket()" id="btnSubmitTicket" class="w-full py-3 bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+            <span>Submit Support Ticket</span>
+          </button>
+        </div>
+
+        <div class="text-[11px] text-slate-400 text-center flex items-center justify-center gap-1.5 mt-2">
+          <i class="fa-solid fa-shield-halved text-emerald-500 text-[10px]"></i>
+          <span>Encrypted • Reviewed by Axom AI Engineering</span>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -110,32 +340,58 @@
 
 {% block extra_scripts %}
 <script>
-  async function submitTicket() {
+  async function submitDeveloperTicket() {
     const subject = document.getElementById('ticketSubject').value.trim();
     const category = document.getElementById('ticketCategory').value;
     const priority = document.getElementById('ticketPriority').value;
     const message = document.getElementById('ticketMessage').value.trim();
+    const btn = document.getElementById('btnSubmitTicket');
 
     if (!subject || !message) {
-      showToast('Please fill in both subject and message.', 'error');
+      showToast('Subject and message are required.', 'error');
       return;
     }
 
+    const originalBtnHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i><span>Submitting Ticket...</span>`;
+
     try {
+      showToast('Submitting ticket to engineering desk...', 'info');
       const res = await fetch('/support/create/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        body: JSON.stringify({ subject: subject, category: category, priority: priority, message: message })
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+          subject: subject,
+          category: category,
+          priority: priority,
+          message: message
+        })
       });
+
       const data = await res.json();
       if (data.success) {
-        showToast(data.message, 'success');
-        setTimeout(() => location.reload(), 800);
+        showToast(data.message || 'Ticket submitted successfully!', 'success');
+        document.getElementById('developerTicketForm').reset();
+        setTimeout(() => {
+          if (data.ticket_id) {
+            window.location.href = `/support/ticket/${data.ticket_id}/`;
+          } else {
+            location.reload();
+          }
+        }, 900);
       } else {
-        showToast(data.error, 'error');
+        showToast(data.error || 'Failed to submit support ticket.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
       }
     } catch (e) {
-      showToast('Error submitting support ticket.', 'error');
+      showToast('Network error while submitting support ticket.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = originalBtnHtml;
     }
   }
 </script>

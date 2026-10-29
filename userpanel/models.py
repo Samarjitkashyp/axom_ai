@@ -39,10 +39,13 @@ class SupportTicket(models.Model):
         ("urgent", "Urgent"),
     ]
     CATEGORY_CHOICES = [
-        ("general", "General Inquiry"),
-        ("billing", "Billing & Payments"),
-        ("technical", "Technical Issue / Bug"),
-        ("feature", "Feature Request"),
+        ("api_integration", "API Integration & SDKs"),
+        ("rate_limits", "Quota & Rate Limit Increase"),
+        ("billing", "Billing, Payments & GST Invoices"),
+        ("technical", "Technical Issue / Model Inference"),
+        ("security_auth", "API Keys, Scoped Auth & IP Whitelisting"),
+        ("feature", "Custom Feature & Enterprise Model Request"),
+        ("general", "General Developer Inquiry"),
     ]
 
     ticket_id = models.CharField(max_length=20, unique=True, db_index=True)
