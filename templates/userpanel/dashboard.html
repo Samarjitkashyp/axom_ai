@@ -608,6 +608,17 @@ main();</code></pre>
 <script>
   let targetRevokeId = null;
 
+  // Welcome Toast if email was verified
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === '1') {
+      setTimeout(() => {
+        showToast('🎉 Email verified successfully! Welcome to your Developer Console.', 'success');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }, 500);
+    }
+  });
+
   // Language Tabs
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(btn => {

@@ -24,3 +24,4 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(populate_hashed_keys, reverse_populate),
     ]
+

@@ -6,6 +6,7 @@ from django.views.static import serve
 from . import views
 import knowledge.views as knowledge_views
 import contentcms.api_views as contentcms_api
+import userpanel.views as userpanel_views
 from . import contact_api
 from . import tts_api
 from . import stt_api
@@ -147,6 +148,9 @@ urlpatterns = [
 
     # New: Content CMS panel  (content.aiaxom.co.in  ->  /axomai-content/ via middleware)
     path('axomai-content/', include('contentcms.urls')),
+
+    # Direct email verification fallback
+    path('verify-email/<str:token>/', userpanel_views.verify_email_view, name='global_verify_email'),
 
     # Serve uploaded media (partner logos, avatars, documents)
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),

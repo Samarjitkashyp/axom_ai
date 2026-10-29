@@ -282,6 +282,38 @@
             </div>
             {% endif %}
           </div>
+          {% elif verified %}
+          <!-- Verification Success Banner -->
+          <div class="mb-5 p-3.5 sm:p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs sm:text-sm flex items-start gap-3 shadow-lg shadow-emerald-950/20 animate-in fade-in">
+            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+              <i class="fa-solid fa-circle-check text-xs"></i>
+            </div>
+            <div class="space-y-0.5">
+              <div class="font-bold text-emerald-100">Email Verified Successfully!</div>
+              <div class="text-[11px] text-emerald-300 leading-relaxed">Your developer account is now active. Please sign in below.</div>
+            </div>
+          </div>
+          {% elif unverified_email %}
+          <!-- Unverified Email Alert Banner -->
+          <div class="mb-5 p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs sm:text-sm flex flex-col gap-2.5 shadow-lg shadow-amber-950/20 animate-shake">
+            <div class="flex items-start gap-3">
+              <div class="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i class="fa-solid fa-envelope-open-text text-xs"></i>
+              </div>
+              <div class="space-y-0.5 flex-1">
+                <div class="font-bold text-amber-100">Email Verification Required</div>
+                <div class="text-[11px] text-amber-300 leading-relaxed">
+                  We sent a verification link to <strong class="text-white">{{ unverified_email }}</strong>. Please check your inbox and click the link to activate your account.
+                </div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-amber-500/20 flex items-center justify-between">
+              <span class="text-[10px] text-amber-400/80">Didn't receive it? Check spam.</span>
+              <button type="button" onclick="resendVerification('{{ unverified_email }}')" id="resendBtn" class="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold rounded-lg border border-amber-500/30 transition">
+                Resend Link
+              </button>
+            </div>
+          </div>
           {% elif error %}
           <!-- Standard Error Alert Banner -->
           <div class="mb-5 p-3.5 sm:p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-xs sm:text-sm flex items-start gap-3 animate-shake shadow-lg shadow-rose-950/20">
@@ -292,18 +324,6 @@
               <div class="font-bold text-rose-100">Authentication Failed</div>
               <div class="text-[11px] text-rose-300 leading-relaxed">{{ error }}</div>
             </div>
-          </div>
-          {% endif %}
-
-          <!-- Google One-Click Login -->
-          {% if not is_locked %}
-          <div class="mb-4">
-            <div id="googleBtn" class="flex justify-center w-full"></div>
-          </div>
-          <div class="flex items-center my-4">
-            <div class="flex-grow border-t border-slate-800"></div>
-            <span class="flex-shrink mx-3 text-slate-500 text-[11px] font-semibold uppercase tracking-wider">Or with username</span>
-            <div class="flex-grow border-t border-slate-800"></div>
           </div>
           {% endif %}
 
@@ -459,66 +479,35 @@
   </div>
 </footer>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-// Google Sign-In Setup
-const GOOGLE_CLIENT_ID = "514662966676-fo4atqrjblkn8sadd2t0enhqi5mch5aq.apps.googleusercontent.com";
-function getOrCreateDeviceId() {
+// Resend Verification Email Link
+async function resendVerification(email) {
+  const btn = document.getElementById('resendBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Sending...';
+  }
   try {
-    let devId = localStorage.getItem('axom_device_uid');
-    if (!devId) {
-      devId = 'axom_dev_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-      localStorage.setItem('axom_device_uid', devId);
-    }
-    return devId;
-  } catch(e) { return ''; }
-}
-
-function handleCredentialResponse(response) {
-  if (!response || !response.credential) return;
-  const deviceId = getOrCreateDeviceId();
-  fetch('/api/auth/google/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Device-Id': deviceId
-    },
-    body: JSON.stringify({ credential: response.credential, device_id: deviceId })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      window.location.href = '/';
-    } else {
-      alert(data.error || 'Google sign-in failed.');
-    }
-  })
-  .catch(err => {
-    alert('Error during Google sign-in. Please try again.');
-  });
-}
-
-function initGoogle() {
-  if (window.google && window.google.accounts && window.google.accounts.id) {
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse
+    const res = await fetch('/verify-email-resend/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: email })
     });
-    const btn = document.getElementById('googleBtn');
+    const data = await res.json();
+    alert(data.message || data.error);
     if (btn) {
-      window.google.accounts.id.renderButton(btn, {
-        theme: 'filled_black',
-        size: 'large',
-        width: Math.min(window.innerWidth - 64, 380),
-        text: 'signin_with',
-        shape: 'rectangular'
-      });
+      btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Sent!';
     }
-  } else {
-    setTimeout(initGoogle, 100);
+  } catch(e) {
+    alert('Network error while resending link. Please try again.');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Resend Link';
+    }
   }
 }
-window.addEventListener('DOMContentLoaded', initGoogle);
 
 // Password Visibility Toggle
 function togglePasswordVisibility() {

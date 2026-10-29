@@ -39,6 +39,7 @@ def user_login_required(view_func):
     Enforces authentication for userpanel pages.
     - Redirects cleanly to '/login/?next=...' when on user subdomain ('user.aiaxom.co.in' / 'user.aiaxom.local').
     - Ensures inactive/deactivated users are logged out immediately.
+    - Requires verified email to access dashboard and features.
     """
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
@@ -59,6 +60,12 @@ def user_login_required(view_func):
             logout(request)
             login_url = '/login/' if is_user_host else '/axomai-user/login/'
             return redirect(login_url)
+
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        if not profile.is_email_verified:
+            logout(request)
+            login_url = '/login/' if is_user_host else '/axomai-user/login/'
+            return redirect(f"{login_url}?unverified=1")
             
         return view_func(request, *args, **kwargs)
     return _wrapped
@@ -180,13 +187,22 @@ def login_view(request):
     is_user_host = host in USER_HOSTS
     default_home = '/' if is_user_host else '/axomai-user/'
 
+    verified_banner = bool(request.GET.get('verified'))
+    unverified_param = bool(request.GET.get('unverified'))
+
     if request.user.is_authenticated and request.user.is_active:
-        return redirect(default_home)
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        if profile.is_email_verified:
+            return redirect(default_home)
 
     client_ip = _client_ip(request)
     user_agent = request.META.get('HTTP_USER_AGENT', '')
     lockout_info = None
     remaining_attempts = 3
+    unverified_email = None
+
+    if unverified_param:
+        error = "Please verify your email address to access your developer console."
 
     # Check pre-existing IP lockout
     active_lock = _get_active_lockout(client_ip, '')
@@ -248,6 +264,18 @@ def login_view(request):
         elif not user.is_active:
             error = 'This account has been deactivated. Please contact support.'
         else:
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            if not profile.is_email_verified:
+                unverified_email = user.email
+                return render(request, 'userpanel/login.html', {
+                    'error': None,
+                    'unverified_email': unverified_email,
+                    'is_locked': False,
+                    'lockout_info': None,
+                    'remaining_attempts': 3,
+                    'client_ip': client_ip
+                })
+
             _clear_failed_attempts(client_ip, u)
             login(request, user)
             UserProfile.objects.get_or_create(user=user)
@@ -263,6 +291,8 @@ def login_view(request):
 
     return render(request, 'userpanel/login.html', {
         'error': error,
+        'verified': verified_banner,
+        'unverified_email': unverified_email,
         'is_locked': False,
         'lockout_info': lockout_info,
         'remaining_attempts': remaining_attempts,
@@ -286,6 +316,7 @@ def signup_view(request):
         record_device_registration,
     )
     import re
+    import secrets
 
     ip = get_client_ip(request)
     device_id = get_device_id(request)
@@ -321,35 +352,47 @@ def signup_view(request):
             error = 'Username must be at least 3 characters.'
         elif not re.match(r'^[a-zA-Z0-9_.-]+$', u):
             error = 'Username can only contain letters, numbers, dots, and underscores.'
+        elif not email or not re.match(r'^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$', email):
+            error = 'A valid email address is required for account verification and activation.'
         elif len(p1) < 6:
             error = 'Password must be at least 6 characters long.'
         elif p1 != p2:
             error = 'Passwords do not match.'
         elif User.objects.filter(username__iexact=u).exists():
             error = 'This username is already taken. Please choose another.'
-        elif email and User.objects.filter(email__iexact=email).exists():
-            error = 'An account with this email address already exists.'
+        elif User.objects.filter(email__iexact=email).exists():
+            error = 'An account with this email address already exists. Please sign in or use another email.'
         else:
             try:
+                # Generate cryptographic verification token
+                token = secrets.token_urlsafe(32)
+
                 user = User.objects.create_user(
                     username=u,
-                    email=email if email else f"{u}@user.aiaxom.co.in",
+                    email=email,
                     password=p1,
                 )
-                UserProfile.objects.get_or_create(user=user)
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.is_email_verified = False
+                profile.email_verification_token = token
+                profile.email_verification_sent_at = timezone.now()
+                profile.save(update_fields=['is_email_verified', 'email_verification_token', 'email_verification_sent_at', 'updated_at'])
+
                 record_device_registration(
                     user=user,
                     ip=ip,
                     device_id=device_id,
                     user_agent=request.META.get('HTTP_USER_AGENT', ''),
                 )
-                login(request, user)
 
-                # Link existing chats
-                if request.session.session_key:
-                    ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
+                # Send verification email via Zoho SMTP
+                from .emails import send_verification_email
+                send_verification_email(user, token, request=request)
 
-                response = redirect(default_home)
+                response = render(request, 'userpanel/signup.html', {
+                    'verification_sent': True,
+                    'email': email,
+                })
                 response.set_cookie(
                     'axom_device_uid',
                     device_id,
@@ -366,6 +409,123 @@ def signup_view(request):
         'device_blocked': device_blocked,
     })
 
+
+def verify_email_view(request, token):
+    """
+    Verifies user's email address using the token sent to their inbox.
+    Upon successful verification:
+    - Marks profile.is_email_verified = True
+    - Clears token
+    - Activates user (is_active = True)
+    - Auto logs the developer in
+    - Redirects directly to the account dashboard ('/')
+    """
+    token = (token or '').strip()
+    profile = UserProfile.objects.filter(email_verification_token=token).select_related('user').first()
+
+    if not profile or not token:
+        return render(request, 'userpanel/verify_result.html', {
+            'success': False,
+            'title': 'Invalid Verification Link',
+            'message': 'This verification link is invalid, already used, or expired.',
+            'can_resend': False
+        })
+
+    # Check 24-hour expiration
+    now = timezone.now()
+    if profile.email_verification_sent_at and (now - profile.email_verification_sent_at).total_seconds() > 86400:
+        return render(request, 'userpanel/verify_result.html', {
+            'success': False,
+            'title': 'Verification Link Expired',
+            'message': 'This verification link has expired (24-hour limit exceeded). Please click below to request a fresh link.',
+            'can_resend': True,
+            'email': profile.user.email
+        })
+
+    user = profile.user
+    user.is_active = True
+    user.save(update_fields=['is_active'])
+
+    profile.is_email_verified = True
+    profile.email_verification_token = ''
+    profile.save(update_fields=['is_email_verified', 'email_verification_token', 'updated_at'])
+
+    # Log user in
+    login(request, user)
+
+    if request.session.session_key:
+        ChatSession.objects.filter(session_key=request.session.session_key, user__isnull=True).update(user=user)
+
+    InAppNotification.objects.create(
+        user=user,
+        title="Email Verified",
+        message="Your email address has been verified. Welcome to the Axom AI Developer Platform!",
+        notif_type="success"
+    )
+
+    host = request.get_host().split(':')[0].lower()
+    from axom_ai.subdomain_middleware import USER_HOSTS
+    dest = '/?verified=1' if host in USER_HOSTS else '/axomai-user/?verified=1'
+    return redirect(dest)
+
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+@require_POST
+def resend_verification_api(request):
+    """
+    API endpoint to resend an email verification link.
+    Rate limited to 3 resends per hour per IP / email.
+    """
+    raw_email = ''
+    if request.content_type == 'application/json':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            raw_email = body.get('email', '')
+        except Exception:
+            pass
+    if not raw_email:
+        raw_email = request.POST.get('email', '')
+
+    email = _sanitize_input(raw_email, max_len=254).strip().lower()
+    if not email:
+        return JsonResponse({'success': False, 'error': 'Please provide a valid email address.'}, status=400)
+
+    ip = _client_ip(request)
+    if _rate_limited(f"resend_verify:{ip}:{email}", max_calls=3, per_seconds=3600):
+        return JsonResponse({
+            'success': False,
+            'error': 'Too many verification emails requested. Please wait an hour before requesting again.'
+        }, status=429)
+
+    user = User.objects.filter(email__iexact=email).first()
+    if not user:
+        return JsonResponse({
+            'success': True,
+            'message': 'If an account exists with this email, a new verification link has been sent.'
+        })
+
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    if profile.is_email_verified:
+        return JsonResponse({
+            'success': True,
+            'message': 'This email address is already verified. You can sign in directly.'
+        })
+
+    import secrets
+    new_token = secrets.token_urlsafe(32)
+    profile.email_verification_token = new_token
+    profile.email_verification_sent_at = timezone.now()
+    profile.save(update_fields=['email_verification_token', 'email_verification_sent_at', 'updated_at'])
+
+    from .emails import send_verification_email
+    send_verification_email(user, new_token, request=request)
+
+    return JsonResponse({
+        'success': True,
+        'message': f'A fresh verification link has been sent to {email}. Please check your inbox and spam folder.'
+    })
 
 
 def logout_view(request):

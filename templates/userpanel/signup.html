@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Register Developer Account — Axom AI</title>
+<link rel="icon" type="image/png" href="https://aiaxom.co.in/axom-browser-logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
 </style>
@@ -14,6 +15,47 @@
 <body class="min-h-full bg-slate-50 flex items-center justify-center p-4 relative py-12">
 
 <div class="w-full max-w-md bg-white border border-slate-200/80 rounded-3xl p-8 shadow-xl relative z-10">
+  
+  {% if verification_sent %}
+  <!-- Verification Email Sent State -->
+  <div class="text-center py-4">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 text-3xl shadow-sm mb-5 border border-emerald-100">
+      <i class="fa-solid fa-envelope-circle-check"></i>
+    </div>
+    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Check Your Email</h1>
+    <p class="text-xs text-slate-600 mt-2 leading-relaxed max-w-xs mx-auto">
+      We sent a secure verification link to <strong class="text-slate-900 font-semibold">{{ email }}</strong>.
+    </p>
+
+    <!-- Info Box -->
+    <div class="my-6 p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100/80 text-left text-xs text-slate-600 space-y-2">
+      <div class="flex items-start gap-2.5">
+        <i class="fa-solid fa-circle-info text-indigo-600 mt-0.5 shrink-0"></i>
+        <span class="leading-relaxed">
+          Click the link in your email to instantly activate your developer account and access your API key console.
+        </span>
+      </div>
+      <div class="text-[11px] text-slate-400 pl-5">
+        Link valid for 24 hours &bull; Check spam folder if not received.
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="space-y-3">
+      <button type="button" onclick="resendVerification('{{ email }}')" id="resendBtn" class="inline-flex items-center justify-center w-full py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition gap-2">
+        <i class="fa-solid fa-paper-plane text-xs"></i>
+        <span>Resend Verification Email</span>
+      </button>
+
+      <a href="/login/" class="inline-flex items-center justify-center w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/20 transition gap-2">
+        <span>Proceed to Sign In</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+  </div>
+
+  {% else %}
+  
   <div class="text-center mb-6">
     <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white text-2xl shadow-lg shadow-indigo-600/25 mb-4">
       <i class="fa-solid fa-user-plus"></i>
@@ -26,7 +68,7 @@
   <div class="mb-5 bg-amber-50 border border-amber-200/70 text-amber-800 text-xs px-3.5 py-2.5 rounded-xl flex items-start space-x-2">
     <i class="fa-solid fa-shield-halved text-amber-600 mt-0.5 shrink-0"></i>
     <span class="leading-relaxed">
-      <strong>Device Security Policy:</strong> To protect fair usage, only <strong>1 account</strong> is allowed per device and IP network.
+      <strong>Security &amp; Device Policy:</strong> 1 developer account per device. A valid email address is required for activation.
     </span>
   </div>
 
@@ -51,17 +93,8 @@
     </a>
   </div>
   {% else %}
-  <!-- Google One-Click Sign Up -->
-  <div class="mb-4">
-    <div id="googleBtn" class="flex justify-center w-full min-h-[44px]"></div>
-  </div>
-  <div class="flex items-center my-4">
-    <div class="flex-grow border-t border-slate-200"></div>
-    <span class="flex-shrink mx-3 text-slate-400 text-xs font-semibold uppercase">Or register with password</span>
-    <div class="flex-grow border-t border-slate-200"></div>
-  </div>
 
-  <form method="post" class="space-y-4">
+  <form method="post" class="space-y-4" onsubmit="handleSignupSubmit(event)">
     {% csrf_token %}
     <div>
       <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Username *</label>
@@ -69,18 +102,19 @@
         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
           <i class="fa-solid fa-user text-sm"></i>
         </div>
-        <input type="text" name="username" required autofocus placeholder="Choose a username (e.g. rahul_as)" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition">
+        <input type="text" name="username" required autofocus placeholder="Choose a username (e.g. dev_samarjit)" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition">
       </div>
     </div>
 
     <div>
-      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email Address (Optional)</label>
+      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Email Address *</label>
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
           <i class="fa-solid fa-envelope text-sm"></i>
         </div>
-        <input type="email" name="email" placeholder="yourname@gmail.com" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition">
+        <input type="email" name="email" required placeholder="name@company.com" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition">
       </div>
+      <p class="text-[11px] text-slate-400 mt-1">We will send an activation link to this email.</p>
     </div>
 
     <div>
@@ -103,11 +137,14 @@
       </div>
     </div>
 
-    <button type="submit" class="w-full mt-2 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm rounded-xl shadow-md shadow-indigo-600/20 transition duration-200 flex items-center justify-center space-x-2">
-      <span>Register & Sign In</span>
-      <i class="fa-solid fa-arrow-right text-xs"></i>
+    <button type="submit" id="signupSubmitBtn" class="w-full mt-2 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm rounded-xl shadow-md shadow-indigo-600/20 transition duration-200 flex items-center justify-center space-x-2">
+      <span id="btnText">Register &amp; Send Verification Link</span>
+      <i class="fa-solid fa-arrow-right text-xs" id="btnIcon"></i>
+      <i class="fa-solid fa-spinner fa-spin text-xs hidden" id="btnSpinner"></i>
     </button>
   </form>
+  {% endif %}
+
   {% endif %}
 
   <div class="mt-8 pt-6 border-t border-slate-100 text-center text-xs text-slate-500 space-y-2">
@@ -125,68 +162,47 @@
   </div>
 </div>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-  const GOOGLE_CLIENT_ID = "514662966676-fo4atqrjblkn8sadd2t0enhqi5mch5aq.apps.googleusercontent.com";
-  function getOrCreateDeviceId() {
-    try {
-      let devId = localStorage.getItem('axom_device_uid');
-      if (!devId) {
-        devId = 'axom_dev_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-        localStorage.setItem('axom_device_uid', devId);
-      }
-      return devId;
-    } catch(e) { return ''; }
-  }
-
-  function handleCredentialResponse(response) {
-    if (!response || !response.credential) return;
-    const deviceId = getOrCreateDeviceId();
-    fetch('/api/auth/google/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Device-Id': deviceId
-      },
-      body: JSON.stringify({ credential: response.credential, device_id: deviceId })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        window.location.href = '/';
-      } else {
-        alert(data.error || 'Google registration failed.');
-        if (data.code === 'DEVICE_REGISTRATION_RESTRICTED') {
-          window.location.reload();
-        }
-      }
-    })
-    .catch(err => {
-      alert('Error during Google registration. Please try again.');
-    });
-  }
-
-  function initGoogle() {
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse
-      });
-      const btn = document.getElementById('googleBtn');
-      if (btn) {
-        window.google.accounts.id.renderButton(btn, {
-          theme: 'outline',
-          size: 'large',
-          width: Math.min(window.innerWidth - 64, 380),
-          text: 'signup_with',
-          shape: 'rectangular'
-        });
-      }
-    } else {
-      setTimeout(initGoogle, 100);
+  function handleSignupSubmit(e) {
+    const btn = document.getElementById('signupSubmitBtn');
+    const text = document.getElementById('btnText');
+    const icon = document.getElementById('btnIcon');
+    const spinner = document.getElementById('btnSpinner');
+    if (btn && text && spinner) {
+      btn.disabled = true;
+      text.innerText = 'Creating Account & Sending Email...';
+      if (icon) icon.classList.add('hidden');
+      spinner.classList.remove('hidden');
     }
   }
-  window.addEventListener('DOMContentLoaded', initGoogle);
+
+  async function resendVerification(email) {
+    const btn = document.getElementById('resendBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Sending...';
+    }
+    try {
+      const res = await fetch('/verify-email-resend/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email })
+      });
+      const data = await res.json();
+      alert(data.message || data.error);
+      if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Sent!';
+      }
+    } catch(e) {
+      alert('Network error while resending link.');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i> <span>Resend Verification Email</span>';
+      }
+    }
+  }
 </script>
 </body>
 </html>

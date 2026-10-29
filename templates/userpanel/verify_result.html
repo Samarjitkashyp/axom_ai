@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en" class="h-full bg-[#07090e] text-slate-100">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+<meta name="theme-color" content="#07090e">
+<title>{{ title }} — Axom AI</title>
+<link rel="icon" type="image/png" href="https://aiaxom.co.in/axom-browser-logo.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  body { 
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #07090e;
+  }
+  .glass-card-obsidian {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 15, 30, 0.95) 100%);
+    backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 50px -10px rgba(99, 102, 241, 0.15);
+  }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-md glass-card-obsidian rounded-3xl p-8 sm:p-10 text-center relative z-10 border border-slate-800">
+  {% if success %}
+  <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto text-2xl shadow-lg shadow-emerald-950/30 mb-5">
+    <i class="fa-solid fa-circle-check"></i>
+  </div>
+  <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">{{ title }}</h1>
+  <p class="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">{{ message }}</p>
+
+  <div class="mt-8">
+    <a href="/" class="inline-flex items-center justify-center w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition gap-2">
+      <span>Open Developer Console</span>
+      <i class="fa-solid fa-arrow-right text-xs"></i>
+    </a>
+  </div>
+  {% else %}
+  <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto text-2xl shadow-lg shadow-rose-950/30 mb-5">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+  </div>
+  <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">{{ title }}</h1>
+  <p class="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">{{ message }}</p>
+
+  <div class="mt-8 space-y-3">
+    {% if can_resend and email %}
+    <button onclick="resendVerification('{{ email }}')" id="resendBtn" class="inline-flex items-center justify-center w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition gap-2">
+      <i class="fa-solid fa-paper-plane text-xs"></i>
+      <span>Resend Verification Email</span>
+    </button>
+    {% endif %}
+    <a href="/login/" class="inline-flex items-center justify-center w-full py-3 bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-bold text-xs rounded-xl border border-slate-700/80 transition gap-2">
+      <span>Back to Sign In</span>
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+async function resendVerification(email) {
+  const btn = document.getElementById('resendBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Sending...';
+  }
+  try {
+    const res = await fetch('/verify-email-resend/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: email })
+    });
+    const data = await res.json();
+    alert(data.message || data.error);
+    if (btn) {
+      btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Sent!';
+    }
+  } catch(e) {
+    alert('Network error while resending link.');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = 'Resend Verification Email';
+    }
+  }
+}
+</script>
+
+</body>
+</html>
