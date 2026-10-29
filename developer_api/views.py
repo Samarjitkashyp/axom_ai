@@ -170,6 +170,9 @@ def v1_chat_completions(request):
     completion_id = f"chatcmpl-axom-{uuid.uuid4().hex[:12]}"
     created_ts = int(time.time())
 
+    request.developer_api_model_used = model_name
+    request.developer_api_tokens_used = total_tokens
+
     # Return standard OpenAI specification
     return JsonResponse({
         "id": completion_id,
@@ -232,6 +235,9 @@ def v1_translate(request):
                 translated = resp_str
     except Exception as e:
         translated = f"Translation error: {str(e)}"
+
+    request.developer_api_model_used = 'axom-indic-1'
+    request.developer_api_tokens_used = max(1, len(text.split()))
 
     return JsonResponse({
         "success": True,

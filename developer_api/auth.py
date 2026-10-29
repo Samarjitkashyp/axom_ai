@@ -139,6 +139,21 @@ def require_developer_api_key(view_func):
                     code="demo_rate_limit_exceeded",
                     status=429
                 )
+            try:
+                from developer_api.models import DeveloperApiRequestLog
+                DeveloperApiRequestLog.objects.create(
+                    api_key=api_key,
+                    user=api_key.user,
+                    endpoint=request.path_info,
+                    method=request.method,
+                    model_name='axom-indic-1',
+                    status_code=429,
+                    ip_address=client_ip,
+                    tokens_used=0,
+                    latency_ms=1,
+                )
+            except Exception:
+                pass
             return openai_error_response(
                 f"Rate limit exceeded: You are allowed {api_key.rate_limit_per_minute} requests per minute on your {api_key.tier} tier.",
                 error_type="requests",
@@ -150,6 +165,21 @@ def require_developer_api_key(view_func):
 
         # 5. Monthly Quota check (bypassed for public demo key which has per-minute IP throttling)
         if not is_demo_key and not api_key.has_quota():
+            try:
+                from developer_api.models import DeveloperApiRequestLog
+                DeveloperApiRequestLog.objects.create(
+                    api_key=api_key,
+                    user=api_key.user,
+                    endpoint=request.path_info,
+                    method=request.method,
+                    model_name='axom-indic-1',
+                    status_code=429,
+                    ip_address=client_ip,
+                    tokens_used=0,
+                    latency_ms=1,
+                )
+            except Exception:
+                pass
             return openai_error_response(
                 f"You have exhausted your monthly quota ({api_key.monthly_quota} requests). Please upgrade your plan at https://aiaxom.co.in",
                 error_type="insufficient_quota",
@@ -158,11 +188,32 @@ def require_developer_api_key(view_func):
             )
 
         # Record usage
+        request.developer_api_start_time = time.time()
         api_key.record_usage()
         
         # Attach to request for view to use if needed
         request.developer_api_key = api_key
 
-        return view_func(request, *args, **kwargs)
+        response = view_func(request, *args, **kwargs)
+
+        # Log successful developer API request
+        try:
+            latency = int((time.time() - getattr(request, 'developer_api_start_time', time.time())) * 1000)
+            from developer_api.models import DeveloperApiRequestLog
+            DeveloperApiRequestLog.objects.create(
+                api_key=api_key,
+                user=api_key.user,
+                endpoint=request.path_info,
+                method=request.method,
+                model_name=getattr(request, 'developer_api_model_used', 'axom-indic-1'),
+                status_code=getattr(response, 'status_code', 200),
+                ip_address=client_ip,
+                tokens_used=getattr(request, 'developer_api_tokens_used', 0),
+                latency_ms=max(1, latency),
+            )
+        except Exception:
+            pass
+
+        return response
 
     return wrapped_view

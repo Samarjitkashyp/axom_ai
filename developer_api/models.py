@@ -67,3 +67,40 @@ class DeveloperApiKey(models.Model):
         self.current_usage += 1
         self.last_used_at = timezone.now()
         self.save(update_fields=['current_usage', 'last_used_at'])
+
+
+class DeveloperApiRequestLog(models.Model):
+    """
+    Granular audit logging for all developer API requests.
+    Tracks endpoint, model, status, tokens, latency, and client IP.
+    """
+    api_key = models.ForeignKey(DeveloperApiKey, on_delete=models.CASCADE, related_name='request_logs')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='api_request_logs')
+    endpoint = models.CharField(max_length=100, db_index=True)
+    method = models.CharField(max_length=10, default='POST')
+    model_name = models.CharField(max_length=60, blank=True, default='axom-indic-1')
+    status_code = models.IntegerField(default=200, db_index=True)
+    ip_address = models.CharField(max_length=64, blank=True, default='')
+    tokens_used = models.IntegerField(default=0)
+    latency_ms = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        db_table = 'developer_api_request_logs'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['api_key', '-created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.endpoint} ({self.status_code}) - {self.created_at:%Y-%m-%d %H:%M:%S}"
+
+    @property
+    def masked_ip(self):
+        if not self.ip_address:
+            return '—'
+        parts = self.ip_address.split('.')
+        if len(parts) == 4:
+            return f"{parts[0]}.{parts[1]}.***.***"
+        return self.ip_address[:8] + '***'
