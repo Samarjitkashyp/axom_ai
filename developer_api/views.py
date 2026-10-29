@@ -194,10 +194,18 @@ def v1_translate(request):
 @csrf_exempt
 def manage_keys_api(request):
     """
-    Endpoint for generating and managing Developer API keys
-    GET: list keys (requires superuser / auth)
-    POST: create new key
+    Protected endpoint: API key generation and management requires authenticated user login.
+    All developers must generate and manage keys via the Developer Console at https://user.aiaxom.co.in
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "error": {
+                "message": "Authentication required. Please sign in to the Axom AI Developer Console at https://user.aiaxom.co.in to generate and manage your secret keys.",
+                "type": "authentication_error",
+                "code": "login_required"
+            }
+        }, status=401)
+
     if request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -218,9 +226,10 @@ def manage_keys_api(request):
         monthly_quota = quotas.get(tier, 1000)
 
         new_key = DeveloperApiKey.objects.create(
+            user=request.user,
             name=name,
             tier=tier,
-            owner_email=email,
+            owner_email=request.user.email or email,
             monthly_quota=monthly_quota
         )
 
@@ -238,7 +247,10 @@ def manage_keys_api(request):
         })
 
     elif request.method == 'GET':
-        keys = DeveloperApiKey.objects.all().order_by('-created_at')[:50]
+        if request.user.is_staff or request.user.is_superuser:
+            keys = DeveloperApiKey.objects.all().order_by('-created_at')[:50]
+        else:
+            keys = DeveloperApiKey.objects.filter(user=request.user).order_by('-created_at')[:50]
         out = []
         for k in keys:
             out.append({

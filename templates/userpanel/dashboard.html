@@ -1,6 +1,6 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}Dashboard — Axom AI User Account{% endblock %}
-{% block heading %}Welcome back, {{ request.user.first_name|default:request.user.username }} 👋{% endblock %}
+{% block title %}Developer Console — Axom AI{% endblock %}
+{% block heading %}API Keys & Credentials{% endblock %}
 
 {% block content %}
 <!-- Global Announcement Banner -->
@@ -15,180 +15,696 @@
 </div>
 {% endif %}
 
-<!-- Top Stat Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+<!-- Developer Welcome & Quick Action Header -->
+<div class="mb-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden border border-slate-800">
+  <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="max-w-2xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
+        <i class="fa-solid fa-bolt text-indigo-400"></i>
+        <span>Developer Hub • OpenAI-Compatible v1 Endpoints</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+        Welcome, {{ request.user.first_name|default:request.user.username }} 👋
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+        Generate and manage secret API keys to integrate Axom AI reasoning models and Assamese language engines directly into your websites, mobile apps, and backend services.
+      </p>
+    </div>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+      <button onclick="openCreateKeyModal()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition transform active:scale-95">
+        <i class="fa-solid fa-plus text-xs"></i>
+        <span>Create New Secret Key</span>
+      </button>
+      <a href="https://aiaxom.co.in/docs/developer" target="_blank" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold backdrop-blur-sm border border-white/10 transition">
+        <i class="fa-solid fa-book-open text-xs"></i>
+        <span>API Docs ↗</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Metrics & Quota Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
   
-  <!-- Active Plan Card -->
-  <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 text-white rounded-2xl p-5 shadow-lg shadow-indigo-500/15 relative overflow-hidden flex flex-col justify-between">
-    <div>
-      <div class="flex items-center justify-between">
-        <span class="text-[11px] uppercase tracking-wider font-semibold opacity-80">Current Subscription</span>
-        <span class="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-bold uppercase">
-          {% if limits.is_active %}{{ limits.plan_name }}{% else %}FREE TIER{% endif %}
-        </span>
-      </div>
-      <div class="text-2xl font-black mt-2 tracking-tight">
-        {% if limits.is_active %}
-        {{ limits.plan_obj.get_plan_display|default:limits.plan_name }}
-        {% else %}
-        Axom AI Basic
-        {% endif %}
-      </div>
-      <div class="text-xs opacity-80 mt-1">
-        {% if limits.is_active %}
-        {{ days_left }} days remaining on your plan
-        {% else %}
-        Upgrade to unlock unlimited high-speed AI tools
-        {% endif %}
-      </div>
-    </div>
-    <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-      <a href="/axomai-user/subscription/" class="inline-flex items-center text-xs font-bold bg-white text-indigo-700 px-3 py-1.5 rounded-xl hover:bg-indigo-50 transition shadow-sm">
-        {% if limits.is_active %}Manage Plan →{% else %}Upgrade Now ⚡{% endif %}
-      </a>
-      {% if limits.is_active %}
-      <span class="text-[11px] opacity-75">Renews {{ limits.plan_obj.expires_at|date:"d M Y" }}</span>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Images Quota Today -->
+  <!-- Active Keys Card -->
   <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-    <div>
-      <div class="flex items-center justify-between text-slate-400">
-        <span class="text-xs uppercase font-bold tracking-wider">AI Images Today</span>
-        <i class="fa-solid fa-image text-purple-500 text-sm"></i>
-      </div>
-      <div class="text-2xl font-extrabold text-slate-900 mt-2">
-        {{ today_images }} <span class="text-xs font-normal text-slate-400">/ {% if limits.img_limit == -1 %}Unlimited{% else %}{{ limits.img_limit }}{% endif %}</span>
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Active API Keys</span>
+      <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <i class="fa-solid fa-key text-xs"></i>
       </div>
     </div>
-    <div class="w-full mt-3">
-      <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div class="h-full bg-purple-500 rounded-full" style="width: {% if limits.img_limit == -1 %}20%{% else %}{% widthratio today_images limits.img_limit 100 %}0%{% endif %};"></div>
+    <div class="mt-3">
+      <div class="text-2xl font-black text-slate-900 tracking-tight">
+        {{ total_active_keys }} <span class="text-xs font-semibold text-slate-400">/ 5 max</span>
       </div>
-      <div class="flex justify-between text-[11px] text-slate-400 mt-1.5">
-        <span>Resets at midnight</span>
-        <span>Daily Cap</span>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>Standard production limit</span>
       </div>
     </div>
   </div>
 
-  <!-- Web Searches Quota -->
+  <!-- Monthly API Usage -->
   <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-    <div>
-      <div class="flex items-center justify-between text-slate-400">
-        <span class="text-xs uppercase font-bold tracking-wider">Web Searches Today</span>
-        <i class="fa-solid fa-compass text-emerald-500 text-sm"></i>
-      </div>
-      <div class="text-2xl font-extrabold text-slate-900 mt-2">
-        {{ today_searches }} <span class="text-xs font-normal text-slate-400">/ {% if limits.search_limit == -1 %}Unlimited{% else %}{{ limits.search_limit }}{% endif %}</span>
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Monthly API Usage</span>
+      <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+        <i class="fa-solid fa-chart-line text-xs"></i>
       </div>
     </div>
-    <div class="w-full mt-3">
-      <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div class="h-full bg-emerald-500 rounded-full" style="width: {% if limits.search_limit == -1 %}15%{% else %}{% widthratio today_searches limits.search_limit 100 %}0%{% endif %};"></div>
+    <div class="mt-3">
+      <div class="text-2xl font-black text-slate-900 tracking-tight">
+        {{ total_api_calls }} <span class="text-xs font-semibold text-slate-400">/ {{ total_monthly_quota }} reqs</span>
       </div>
-      <div class="flex justify-between text-[11px] text-slate-400 mt-1.5">
-        <span>Live Tavily search</span>
-        <span>Daily Cap</span>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Quick Launch Hub -->
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-  <a href="/" class="bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-300 card-hover transition flex items-center space-x-4">
-    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shrink-0">
-      <i class="fa-solid fa-comments"></i>
-    </div>
-    <div>
-      <div class="font-bold text-sm text-slate-900">Start AI Chat</div>
-      <div class="text-xs text-slate-500">Ask questions in Assamese & English</div>
-    </div>
-  </a>
-
-  <a href="/tools/" class="bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-300 card-hover transition flex items-center space-x-4">
-    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
-      <i class="fa-solid fa-wand-magic-sparkles"></i>
-    </div>
-    <div>
-      <div class="font-bold text-sm text-slate-900">AI Tool Suite</div>
-      <div class="text-xs text-slate-500">Image generator, PDF tool, summarizer</div>
-    </div>
-  </a>
-
-  <a href="/axomai-user/subscription/" class="bg-white p-5 rounded-2xl border border-slate-200/80 hover:border-indigo-300 card-hover transition flex items-center space-x-4">
-    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
-      <i class="fa-solid fa-crown"></i>
-    </div>
-    <div>
-      <div class="font-bold text-sm text-slate-900">Upgrade Plan</div>
-      <div class="text-xs text-slate-500">Explore Pro & Business advantages</div>
-    </div>
-  </a>
-</div>
-
-<!-- Recent Chats & Support Overview -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-  <!-- Recent Saved Chats -->
-  <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-bold text-slate-900 flex items-center">
-        <i class="fa-solid fa-book-bookmark text-indigo-600 mr-2"></i> Recent Conversations
-      </h3>
-      <a href="/axomai-user/library/" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
-        View All →
-      </a>
-    </div>
-
-    <div class="space-y-2.5 text-xs">
-      {% for c in recent_chats %}
-      <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-slate-100/80 transition">
-        <div class="truncate mr-3">
-          <div class="font-bold text-slate-800 truncate">{{ c.title }}</div>
-          <div class="text-[10px] text-slate-400 mt-0.5">Updated {{ c.updated_at|date:"d M Y, H:i" }}</div>
+      <div class="w-full mt-2">
+        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full {% if quota_percent > 85 %}bg-rose-500{% elif quota_percent > 60 %}bg-amber-500{% else %}bg-indigo-600{% endif %} rounded-full" style="width: {{ quota_percent }}%;"></div>
         </div>
-        <a href="/?session={{ c.client_id }}" class="px-2.5 py-1 bg-white border border-slate-200 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 rounded-lg text-xs font-semibold shrink-0 transition">
-          Open
+        <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+          <span>{{ quota_percent }}% consumed</span>
+          <span>Resets monthly</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Burst Rate Limit -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Burst Rate Limit</span>
+      <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <i class="fa-solid fa-gauge-high text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-2xl font-black text-slate-900 tracking-tight">
+        {{ rate_limit_per_minute }} <span class="text-xs font-semibold text-slate-400">req / min</span>
+      </div>
+      <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>Per-minute sliding window</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Developer Tier -->
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div class="flex items-center justify-between text-slate-400">
+      <span class="text-xs uppercase font-bold tracking-wider text-slate-500">Developer Tier</span>
+      <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+        <i class="fa-solid fa-crown text-xs"></i>
+      </div>
+    </div>
+    <div class="mt-3">
+      <div class="text-lg font-black text-slate-900 truncate">
+        {% if limits.is_active %}{{ limits.plan_obj.get_plan_display|default:limits.plan_name }}{% else %}Free Tier (1K/mo){% endif %}
+      </div>
+      <div class="mt-1 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500">
+          {% if limits.is_active %}{{ days_left }} days left{% else %}Upgrade for 100K+{% endif %}
+        </span>
+        <a href="/axomai-user/subscription/" class="text-xs font-bold text-indigo-600 hover:text-indigo-700">
+          {% if limits.is_active %}Manage →{% else %}Upgrade ⚡{% endif %}
         </a>
       </div>
-      {% empty %}
-      <div class="text-slate-400 text-center py-6">No recent chats saved in this browser.</div>
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- Recent Tickets -->
-  <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-bold text-slate-900 flex items-center">
-        <i class="fa-solid fa-headset text-blue-600 mr-2"></i> Support Tickets
-      </h3>
-      <a href="/axomai-user/support/" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
-        + New Ticket
-      </a>
-    </div>
-
-    <div class="space-y-2.5 text-xs">
-      {% for t in recent_tickets %}
-      <a href="/axomai-user/support/ticket/{{ t.id }}/" class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between hover:bg-slate-100/80 transition block">
-        <div class="truncate mr-3">
-          <div class="font-bold text-slate-800 truncate">{{ t.subject }}</div>
-          <div class="text-[10px] text-slate-400 mt-0.5">{{ t.ticket_id }} • {{ t.created_at|date:"d M Y" }}</div>
-        </div>
-        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase shrink-0 {% if t.status == 'open' %}bg-amber-100 text-amber-700{% elif t.status == 'resolved' %}bg-emerald-100 text-emerald-700{% else %}bg-slate-200 text-slate-700{% endif %}">
-          {{ t.status }}
-        </span>
-      </a>
-      {% empty %}
-      <div class="text-slate-400 text-center py-6">No open support inquiries. Need help? Open a ticket!</div>
-      {% endfor %}
     </div>
   </div>
 
 </div>
+
+<!-- Primary Section: API Secret Keys Management -->
+<div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
+  <!-- Card Header -->
+  <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <h3 class="text-base font-bold text-slate-900">Secret API Keys</h3>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+          {{ total_active_keys }} Active
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-1">
+        Secret keys authenticate your API requests. Keep them secure in environment variables. Do not share them in public repositories.
+      </p>
+    </div>
+    <button onclick="openCreateKeyModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition shrink-0 self-start sm:self-auto">
+      <i class="fa-solid fa-plus text-xs"></i>
+      <span>Create Secret Key</span>
+    </button>
+  </div>
+
+  <!-- API Keys Table / Empty State -->
+  {% if api_keys %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-xs text-slate-600">
+      <thead class="bg-slate-50 text-slate-400 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-100">
+        <tr>
+          <th class="py-3.5 px-6">Name / Label</th>
+          <th class="py-3.5 px-6">Secret Key</th>
+          <th class="py-3.5 px-6">Tier & Limit</th>
+          <th class="py-3.5 px-6">Requests</th>
+          <th class="py-3.5 px-6">Created</th>
+          <th class="py-3.5 px-6">Last Used</th>
+          <th class="py-3.5 px-6">Status</th>
+          <th class="py-3.5 px-6 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 font-medium" id="keysTableBody">
+        {% for k in api_keys %}
+        <tr class="hover:bg-slate-50/80 transition" id="key-row-{{ k.id }}">
+          <td class="py-4 px-6 text-slate-900 font-bold">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-key"></i>
+              </span>
+              <div>
+                <div>{{ k.name }}</div>
+                <div class="text-[10px] text-slate-400 font-normal">ID: #{{ k.id }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-6 font-mono-code text-slate-700">
+            <div class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200/80">
+              <span class="tracking-wider">{{ k.masked_key }}</span>
+              <button onclick="copyToClipboard('{{ k.masked_key }}', 'Masked key copied')" title="Copy masked key reference" class="text-slate-400 hover:text-slate-700 transition">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </td>
+          <td class="py-4 px-6">
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 capitalize">
+              {{ k.tier }} ({{ k.rate_limit_per_minute }}/min)
+            </span>
+          </td>
+          <td class="py-4 px-6 text-slate-800">
+            <span class="font-bold">{{ k.current_usage }}</span>
+            <span class="text-slate-400 text-[11px]">/ {{ k.monthly_quota }}</span>
+          </td>
+          <td class="py-4 px-6 text-slate-500 whitespace-nowrap">
+            {{ k.created_at|date:"d M Y" }}
+          </td>
+          <td class="py-4 px-6 text-slate-500 whitespace-nowrap">
+            {% if k.last_used_at %}
+              {{ k.last_used_at|date:"d M, H:i" }}
+            {% else %}
+              <span class="text-slate-400 italic">Never</span>
+            {% endif %}
+          </td>
+          <td class="py-4 px-6">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Active
+            </span>
+          </td>
+          <td class="py-4 px-6 text-right whitespace-nowrap">
+            <button onclick="confirmRevokeKey({{ k.id }}, '{{ k.name|escapejs }}')" class="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition border border-rose-200">
+              Revoke
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <!-- Empty State -->
+  <div class="p-12 text-center" id="emptyKeysState">
+    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-2xl shadow-sm mb-4">
+      <i class="fa-solid fa-key"></i>
+    </div>
+    <h4 class="text-base font-bold text-slate-900">You don't have any active API keys yet</h4>
+    <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-6 leading-relaxed">
+      Create a secret API key to authenticate requests from your apps, backend code, or command line using the OpenAI SDK format.
+    </p>
+    <button onclick="openCreateKeyModal()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md transition">
+      <i class="fa-solid fa-plus text-xs"></i>
+      <span>Generate Secret API Key</span>
+    </button>
+  </div>
+  {% endif %}
+
+  <!-- Revoked Keys Accordion (if any) -->
+  {% if revoked_keys %}
+  <div class="border-t border-slate-100 p-4 bg-slate-50/50">
+    <details class="group">
+      <summary class="cursor-pointer text-xs font-semibold text-slate-500 hover:text-slate-700 flex items-center justify-between list-none">
+        <span class="flex items-center gap-2">
+          <i class="fa-solid fa-trash-can text-slate-400"></i>
+          <span>Revoked Keys ({{ revoked_keys.count }})</span>
+        </span>
+        <i class="fa-solid fa-chevron-down text-[10px] transition group-open:rotate-180"></i>
+      </summary>
+      <div class="mt-3 space-y-2 text-xs">
+        {% for rk in revoked_keys %}
+        <div class="p-3 rounded-xl bg-white border border-slate-200 flex items-center justify-between opacity-60">
+          <div>
+            <div class="font-bold text-slate-800">{{ rk.name }}</div>
+            <div class="font-mono-code text-[11px] text-slate-500">{{ rk.masked_key }}</div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600 uppercase">
+            Revoked
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </details>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Quickstart Code Integration Section -->
+<div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 lg:p-8 mb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div>
+      <div class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">
+        <i class="fa-solid fa-code"></i> Integration Quickstart
+      </div>
+      <h3 class="text-lg font-bold text-slate-900">Connect to Axom AI in Under 2 Minutes</h3>
+      <p class="text-xs text-slate-500 mt-0.5">Axom AI endpoints are 100% compatible with the OpenAI API format.</p>
+    </div>
+    
+    <!-- Code Language Tabs -->
+    <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold shrink-0">
+      <button onclick="switchTab('curl')" id="tab-btn-curl" class="tab-btn px-3 py-1.5 rounded-lg bg-white text-indigo-700 shadow-sm transition">cURL</button>
+      <button onclick="switchTab('python')" id="tab-btn-python" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Python</button>
+      <button onclick="switchTab('node')" id="tab-btn-node" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Node.js</button>
+      <button onclick="switchTab('translate')" id="tab-btn-translate" class="tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Translation API</button>
+    </div>
+  </div>
+
+  <!-- Tab 1: cURL -->
+  <div id="tab-pane-curl" class="tab-pane">
+    <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
+      <button onclick="copySnippet('curl-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+        <i class="fa-regular fa-copy"></i>
+        <span>Copy</span>
+      </button>
+      <pre id="curl-snippet"><code>curl https://aiaxom.co.in/v1/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer <span class="text-amber-400">YOUR_AXOM_API_KEY</span>"   -d '{
+    "model": "axom-gpt-4o",
+    "messages": [
+      {"role": "system", "content": "You are Axom AI assistant."},
+      {"role": "user", "content": "Hello! How do you say welcome in Assamese?"}
+    ]
+  }'</code></pre>
+    </div>
+  </div>
+
+  <!-- Tab 2: Python -->
+  <div id="tab-pane-python" class="tab-pane hidden">
+    <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
+      <button onclick="copySnippet('python-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+        <i class="fa-regular fa-copy"></i>
+        <span>Copy</span>
+      </button>
+      <pre id="python-snippet"><code><span class="text-purple-400">from</span> openai <span class="text-purple-400">import</span> OpenAI
+
+<span class="text-slate-400"># Point the standard OpenAI SDK to Axom AI Base URL</span>
+client = OpenAI(
+    api_key=<span class="text-emerald-400">"YOUR_AXOM_API_KEY"</span>,
+    base_url=<span class="text-emerald-400">"https://aiaxom.co.in/v1"</span>
+)
+
+response = client.chat.completions.create(
+    model=<span class="text-emerald-400">"axom-gpt-4o"</span>,
+    messages=[
+        {<span class="text-emerald-400">"role"</span>: <span class="text-emerald-400">"system"</span>, <span class="text-emerald-400">"content"</span>: <span class="text-emerald-400">"You are an expert bilingual AI assistant."</span>},
+        {<span class="text-emerald-400">"role"</span>: <span class="text-emerald-400">"user"</span>, <span class="text-emerald-400">"content"</span>: <span class="text-emerald-400">"Explain quantum computing in simple words."</span>}
+    ]
+)
+
+<span class="text-indigo-400">print</span>(response.choices[<span class="text-amber-400">0</span>].message.content)</code></pre>
+    </div>
+  </div>
+
+  <!-- Tab 3: Node.js -->
+  <div id="tab-pane-node" class="tab-pane hidden">
+    <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
+      <button onclick="copySnippet('node-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+        <i class="fa-regular fa-copy"></i>
+        <span>Copy</span>
+      </button>
+      <pre id="node-snippet"><code><span class="text-purple-400">import</span> OpenAI <span class="text-purple-400">from</span> <span class="text-emerald-400">"openai"</span>;
+
+<span class="text-slate-400">// Point the official OpenAI npm library to Axom AI</span>
+<span class="text-purple-400">const</span> client = <span class="text-purple-400">new</span> OpenAI({
+  apiKey: <span class="text-emerald-400">"YOUR_AXOM_API_KEY"</span>,
+  baseURL: <span class="text-emerald-400">"https://aiaxom.co.in/v1"</span>
+});
+
+<span class="text-purple-400">async function</span> <span class="text-indigo-400">main</span>() {
+  <span class="text-purple-400">const</span> response = <span class="text-purple-400">await</span> client.chat.completions.create({
+    model: <span class="text-emerald-400">"axom-gpt-4o"</span>,
+    messages: [
+      { role: <span class="text-emerald-400">"user"</span>, content: <span class="text-emerald-400">"Build a Next.js component in TypeScript."</span> }
+    ],
+  });
+
+  console.log(response.choices[<span class="text-amber-400">0</span>].message.content);
+}
+
+main();</code></pre>
+    </div>
+  </div>
+
+  <!-- Tab 4: Translation API -->
+  <div id="tab-pane-translate" class="tab-pane hidden">
+    <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
+      <button onclick="copySnippet('translate-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+        <i class="fa-regular fa-copy"></i>
+        <span>Copy</span>
+      </button>
+      <pre id="translate-snippet"><code>curl -X POST https://aiaxom.co.in/v1/translate   -H "Content-Type: application/json"   -H "Authorization: Bearer <span class="text-amber-400">YOUR_AXOM_API_KEY</span>"   -d '{
+    "text": "Artificial Intelligence is transforming Assam.",
+    "source_lang": "en",
+    "target_lang": "as"
+  }'</code></pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- Core Endpoints Quick Reference -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+  
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono-code text-[10px] font-bold">POST</span>
+        <span class="font-mono-code text-xs font-bold text-slate-800">/v1/chat/completions</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+        Full OpenAI schema compatibility. Supports streaming, multi-turn conversation, JSON mode, and reasoning models.
+      </p>
+    </div>
+    <a href="https://aiaxom.co.in/docs/developer#chat-completions" target="_blank" class="mt-4 text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+      <span>View Chat Schema</span>
+      <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </a>
+  </div>
+
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono-code text-[10px] font-bold">POST</span>
+        <span class="font-mono-code text-xs font-bold text-slate-800">/v1/translate</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+        Neural translation with Assamese orthography purification (Bengali script clean-up and proper grammatical conjuncts).
+      </p>
+    </div>
+    <a href="https://aiaxom.co.in/docs/developer#translate" target="_blank" class="mt-4 text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+      <span>View Translation Docs</span>
+      <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </a>
+  </div>
+
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono-code text-[10px] font-bold">GET</span>
+        <span class="font-mono-code text-xs font-bold text-slate-800">/v1/models</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+        Query the active model catalog, reasoning flags, context length specifications, and supported token windows.
+      </p>
+    </div>
+    <a href="https://aiaxom.co.in/docs/developer#models" target="_blank" class="mt-4 text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+      <span>View Models Docs</span>
+      <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </a>
+  </div>
+
+</div>
+
+
+<!-- ========================================================================= -->
+<!-- MODAL 1: Create New Key -->
+<!-- ========================================================================= -->
+<div id="createKeyModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 transform transition-all animate-in fade-in zoom-in-95 duration-200">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+          <i class="fa-solid fa-key"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-900">Create New Secret Key</h3>
+      </div>
+      <button onclick="closeCreateKeyModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form id="createKeyForm" onsubmit="submitCreateKey(event)">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Key Name / Label</label>
+          <input type="text" id="newKeyName" required placeholder="e.g. Production Web App, Mobile Client, Python CLI" maxlength="80" class="w-full px-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 focus:bg-white transition">
+          <p class="text-[11px] text-slate-400 mt-1">An identifier to help you organize and identify where this key is deployed.</p>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Inherited Tier:</span>
+            <span class="font-bold text-slate-800 capitalize">{% if limits.is_active %}{{ limits.plan_name }}{% else %}Free Developer Tier{% endif %}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Rate Limit:</span>
+            <span class="font-bold text-slate-800">{{ rate_limit_per_minute }} requests / min</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">Active Keys Limit:</span>
+            <span class="font-bold text-slate-800">{{ total_active_keys }} of 5 used</span>
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeCreateKeyModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+            Cancel
+          </button>
+          <button type="submit" id="submitCreateKeyBtn" class="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition">
+            <span>Create Secret Key</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ========================================================================= -->
+<!-- MODAL 2: Secret Key Reveal Modal (Shown ONLY ONCE upon creation!) -->
+<!-- ========================================================================= -->
+<div id="revealKeyModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 transform transition-all animate-in fade-in zoom-in-95 duration-200">
+    <div class="text-center mb-5">
+      <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl mb-3 shadow-sm">
+        <i class="fa-solid fa-shield-check"></i>
+      </div>
+      <h3 class="text-lg font-extrabold text-slate-900">Save Your Secret Key</h3>
+      <p class="text-xs text-slate-500 mt-1">Please copy this secret key and store it somewhere safe now.</p>
+    </div>
+
+    <!-- Security Warning Alert -->
+    <div class="mb-5 p-3.5 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-800 text-xs flex items-start gap-2.5">
+      <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
+      <div class="leading-relaxed">
+        <strong>Important Security Notice:</strong> For your security, you will <strong>never be able to view this secret key again</strong>. If you lose it, you will need to generate a new key and revoke this one.
+      </div>
+    </div>
+
+    <!-- Raw Key Display & Copy Field -->
+    <div class="mb-6">
+      <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Secret Key</label>
+      <div class="flex items-center gap-2">
+        <input type="text" id="rawKeyDisplayInput" readonly class="w-full px-3.5 py-3 rounded-xl bg-slate-100 border border-slate-200 font-mono-code text-xs text-slate-900 font-bold select-all focus:outline-none">
+        <button onclick="copyRawKey()" id="copyRawKeyBtn" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-sm">
+          <i class="fa-regular fa-copy"></i>
+          <span>Copy</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button onclick="closeRevealModalAndReload()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-md">
+        Done, I Have Saved My Key
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========================================================================= -->
+<!-- MODAL 3: Revoke Confirmation Modal -->
+<!-- ========================================================================= -->
+<div id="revokeKeyModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+    <div class="text-center mb-5">
+      <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-2xl mb-3 shadow-sm">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-900">Revoke API Key?</h3>
+      <p class="text-xs text-slate-500 mt-1">
+        Are you sure you want to revoke <span class="font-bold text-slate-800" id="revokeKeyNameText"></span>?
+      </p>
+    </div>
+
+    <div class="mb-6 p-3.5 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-800 text-xs leading-relaxed">
+      <strong>Destructive Action:</strong> Any services, applications, or scripts currently using this API key will immediately start receiving <code class="bg-rose-100 px-1 py-0.5 rounded font-mono">401 Unauthorized</code> errors. This action cannot be undone.
+    </div>
+
+    <div class="flex items-center justify-end gap-3">
+      <button onclick="closeRevokeKeyModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+        Cancel
+      </button>
+      <button onclick="submitRevokeKey()" id="submitRevokeBtn" class="px-5 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md transition">
+        Yes, Revoke Key
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let targetRevokeId = null;
+
+  // Language Tabs
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+    });
+    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
+
+    const activeBtn = document.getElementById(`tab-btn-${tab}`);
+    const activePane = document.getElementById(`tab-pane-${tab}`);
+    if (activeBtn) activeBtn.className = 'tab-btn px-3 py-1.5 rounded-lg bg-white text-indigo-700 shadow-sm transition font-bold';
+    if (activePane) activePane.classList.remove('hidden');
+  }
+
+  function copySnippet(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText);
+    showToast('Code snippet copied to clipboard!');
+  }
+
+  function copyToClipboard(text, msg = 'Copied to clipboard!') {
+    navigator.clipboard.writeText(text);
+    showToast(msg);
+  }
+
+  // Create Key Modal
+  function openCreateKeyModal() {
+    document.getElementById('newKeyName').value = '';
+    document.getElementById('createKeyModal').classList.remove('hidden');
+    document.getElementById('newKeyName').focus();
+  }
+
+  function closeCreateKeyModal() {
+    document.getElementById('createKeyModal').classList.add('hidden');
+  }
+
+  async function submitCreateKey(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitCreateKeyBtn');
+    const nameInput = document.getElementById('newKeyName');
+    const keyName = nameInput.value.trim();
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Generating...';
+
+    try {
+      const resp = await fetch('/axomai-user/api-keys/create/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrftoken
+        },
+        body: new URLSearchParams({ name: keyName })
+      });
+
+      const data = await resp.json();
+
+      if (data.success && data.api_key) {
+        closeCreateKeyModal();
+        // Show raw key reveal modal
+        document.getElementById('rawKeyDisplayInput').value = data.api_key.raw_key;
+        document.getElementById('revealKeyModal').classList.remove('hidden');
+      } else {
+        showToast(data.error || 'Failed to create key.', 'error');
+      }
+    } catch (err) {
+      showToast('Network error while creating key.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Create Secret Key</span>';
+    }
+  }
+
+  function copyRawKey() {
+    const input = document.getElementById('rawKeyDisplayInput');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    const btn = document.getElementById('copyRawKeyBtn');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Copied!</span>';
+    btn.className = 'px-4 py-3 bg-emerald-600 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-sm';
+    showToast('Secret Key copied to clipboard! Keep it safe.');
+  }
+
+  function closeRevealModalAndReload() {
+    document.getElementById('revealKeyModal').classList.add('hidden');
+    location.reload();
+  }
+
+  // Revoke Key Modal
+  function confirmRevokeKey(id, name) {
+    targetRevokeId = id;
+    document.getElementById('revokeKeyNameText').innerText = name;
+    document.getElementById('revokeKeyModal').classList.remove('hidden');
+  }
+
+  function closeRevokeKeyModal() {
+    targetRevokeId = null;
+    document.getElementById('revokeKeyModal').classList.add('hidden');
+  }
+
+  async function submitRevokeKey() {
+    if (!targetRevokeId) return;
+    const btn = document.getElementById('submitRevokeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Revoking...';
+
+    try {
+      const resp = await fetch(`/axomai-user/api-keys/revoke/${targetRevokeId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken
+        }
+      });
+      const data = await resp.json();
+      if (data.success) {
+        showToast(data.message, 'success');
+        closeRevokeKeyModal();
+        // Remove or update row
+        const row = document.getElementById(`key-row-${targetRevokeId}`);
+        if (row) {
+          row.style.opacity = '0.3';
+          setTimeout(() => location.reload(), 600);
+        } else {
+          location.reload();
+        }
+      } else {
+        showToast(data.error || 'Could not revoke key.', 'error');
+      }
+    } catch (err) {
+      showToast('Network error while revoking key.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Yes, Revoke Key';
+    }
+  }
+</script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 import secrets
 
 def generate_key_string():
@@ -13,6 +14,7 @@ class DeveloperApiKey(models.Model):
         ('enterprise', 'Enterprise Tier (Custom)'),
     ]
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='developer_api_keys')
     key = models.CharField(max_length=80, unique=True, db_index=True, default=generate_key_string)
     name = models.CharField(max_length=120, default='Default API Key')
     owner_email = models.EmailField(blank=True, null=True)
@@ -33,6 +35,12 @@ class DeveloperApiKey(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.key[:16]}...) - {self.tier}"
+
+    @property
+    def masked_key(self):
+        if len(self.key) <= 18:
+            return self.key
+        return f"{self.key[:14]}{'•' * 20}{self.key[-4:]}"
 
     def has_quota(self):
         return self.is_active and (self.current_usage < self.monthly_quota)

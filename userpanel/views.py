@@ -20,6 +20,7 @@ from django.views.decorators.http import require_POST
 from payments.models import Payment, UserPlan, PLAN_CATALOG
 from superadmin.models import CustomPlanOverride, SystemSetting, CouponCode, UserCustomQuota
 from knowledge.models import ChatSession, ChatMessage
+from developer_api.models import DeveloperApiKey, generate_key_string
 from .models import (
     UserProfile,
     SupportTicket,
@@ -29,6 +30,18 @@ from .models import (
     DeviceRegistration,
     UserLoginAttempt,
 )
+
+
+def _rate_limited(key: str, max_calls: int, per_seconds: int) -> bool:
+    """Sliding-window rate limit backed by Django's cache."""
+    now = time.time()
+    hits = [t for t in (cache.get(key) or []) if t > now - per_seconds]
+    if len(hits) >= max_calls:
+        cache.set(key, hits, timeout=per_seconds + 5)
+        return True
+    hits.append(now)
+    cache.set(key, hits, timeout=per_seconds + 5)
+    return False
 
 
 def _client_ip(request):
@@ -375,6 +388,16 @@ def dashboard(request):
     limits = _get_user_limits(user)
 
     # Calculate today's usage
+    # Developer API Keys Management
+    api_keys = DeveloperApiKey.objects.filter(user=user, is_active=True).order_by('-created_at')
+    revoked_keys = DeveloperApiKey.objects.filter(user=user, is_active=False).order_by('-created_at')[:10]
+    total_active_keys = api_keys.count()
+    total_api_calls = sum(k.current_usage for k in api_keys)
+    total_monthly_quota = sum(k.monthly_quota for k in api_keys) if api_keys.exists() else 1000
+    quota_percent = min(100, int((total_api_calls / max(1, total_monthly_quota)) * 100))
+    rate_limit_per_minute = max([k.rate_limit_per_minute for k in api_keys], default=60)
+    first_key = api_keys.first()
+
     today_start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
     today_images = UsageRecord.objects.filter(user=user, action_type='image', created_at__gte=today_start).count()
     today_searches = UsageRecord.objects.filter(user=user, action_type='search', created_at__gte=today_start).count()
@@ -402,6 +425,14 @@ def dashboard(request):
         'active': 'dashboard',
         'profile': profile,
         'limits': limits,
+        'api_keys': api_keys,
+        'revoked_keys': revoked_keys,
+        'total_active_keys': total_active_keys,
+        'total_api_calls': total_api_calls,
+        'total_monthly_quota': total_monthly_quota,
+        'quota_percent': quota_percent,
+        'rate_limit_per_minute': rate_limit_per_minute,
+        'first_key': first_key,
         'today_images': today_images,
         'today_searches': today_searches,
         'today_pdf': today_pdf,
@@ -590,6 +621,8 @@ def usage_page(request):
     total_searches = UsageRecord.objects.filter(user=user, action_type='search').count()
     total_pdf = UsageRecord.objects.filter(user=user, action_type='pdf').count()
     total_summaries = UsageRecord.objects.filter(user=user, action_type='summarize').count()
+    dev_keys = DeveloperApiKey.objects.filter(user=user)
+    total_api_requests = sum(k.current_usage for k in dev_keys)
 
     labels = []
     daily_images = []
@@ -615,6 +648,7 @@ def usage_page(request):
         'total_searches': total_searches,
         'total_pdf': total_pdf,
         'total_summaries': total_summaries,
+        'total_api_requests': total_api_requests,
         'labels_json': json.dumps(labels),
         'images_json': json.dumps(daily_images),
         'searches_json': json.dumps(daily_searches),
@@ -864,3 +898,146 @@ def delete_account_api(request):
 def mark_notifications_read_api(request):
     InAppNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
     return JsonResponse({'success': True})
+
+
+@login_required(login_url='/axomai-user/login/')
+@require_POST
+def create_api_key_api(request):
+    """
+    Industry-standard secure API Key Generation for authenticated developers.
+    - Limits active keys per developer to 5.
+    - Determines tier & rate limits based on active UserPlan.
+    - Returns the raw secret key ONCE in response for secure storage.
+    """
+    user = request.user
+    
+    # Rate limit key generation to prevent abuse (max 5 keys per 10 minutes)
+    if _rate_limited(f"create_key:{user.id}", max_calls=5, per_seconds=600):
+        return JsonResponse({
+            'success': False,
+            'error': 'Too many key creation requests. Please wait a few minutes.'
+        }, status=429)
+
+    # Check active keys cap (max 5 active keys per user)
+    active_count = DeveloperApiKey.objects.filter(user=user, is_active=True).count()
+    if active_count >= 5:
+        return JsonResponse({
+            'success': False,
+            'error': 'Active key limit reached. You can have a maximum of 5 active API keys. Please revoke an unused key before creating a new one.'
+        }, status=400)
+    
+    # Parse key name from JSON or POST body
+    raw_name = ''
+    if request.content_type == 'application/json':
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+            raw_name = body.get('name', '')
+        except Exception:
+            pass
+    if not raw_name:
+        raw_name = request.POST.get('name', '')
+        
+    key_name = _sanitize_input(raw_name, max_len=80) or f"Secret Key {active_count + 1}"
+    
+    # Determine tier & quota based on active UserPlan
+    plan_obj = UserPlan.objects.filter(user=user).first()
+    plan_name = plan_obj.plan if (plan_obj and plan_obj.is_active()) else 'free'
+    
+    if 'business' in plan_name:
+        tier = 'business'
+        monthly_quota = 100000
+        rate_limit = 300
+    elif 'pro' in plan_name:
+        tier = 'developer'
+        monthly_quota = 25000
+        rate_limit = 120
+    else:
+        tier = 'free'
+        monthly_quota = 1000
+        rate_limit = 60
+    
+    # Generate secure random key
+    raw_key = generate_key_string()
+    
+    api_key_obj = DeveloperApiKey.objects.create(
+        user=user,
+        key=raw_key,
+        name=key_name,
+        owner_email=user.email or f"{user.username}@user.aiaxom.co.in",
+        tier=tier,
+        is_active=True,
+        monthly_quota=monthly_quota,
+        current_usage=0,
+        rate_limit_per_minute=rate_limit,
+    )
+    
+    # Record in UsageRecord
+    UsageRecord.objects.create(
+        user=user,
+        action_type='chat',
+        details=f"Created API Key '{key_name}' (ID: {api_key_obj.id})"
+    )
+    
+    # In-App Notification
+    InAppNotification.objects.create(
+        user=user,
+        title="New API Key Generated",
+        message=f"Secret key '{key_name}' was created successfully.",
+        notif_type="success"
+    )
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'API Key generated successfully!',
+        'api_key': {
+            'id': api_key_obj.id,
+            'name': api_key_obj.name,
+            'raw_key': raw_key,  # Transmitted ONLY ONCE
+            'masked_key': api_key_obj.masked_key,
+            'tier': api_key_obj.get_tier_display(),
+            'monthly_quota': api_key_obj.monthly_quota,
+            'rate_limit_per_minute': api_key_obj.rate_limit_per_minute,
+            'created_at': api_key_obj.created_at.strftime('%d %b %Y'),
+        }
+    })
+
+
+@login_required(login_url='/axomai-user/login/')
+@require_POST
+def revoke_api_key_api(request, key_id):
+    """
+    Securely revoke an API key owned by the authenticated developer.
+    Clears active status and invalidates cache.
+    """
+    user = request.user
+    key_obj = get_object_or_404(DeveloperApiKey, id=key_id, user=user)
+    
+    if not key_obj.is_active:
+        return JsonResponse({
+            'success': False,
+            'error': 'This API key has already been revoked.'
+        }, status=400)
+    
+    key_obj.is_active = False
+    key_obj.save(update_fields=['is_active'])
+    
+    # Invalidate cache key lookup immediately
+    cache.delete(f"api_key_lookup:{key_obj.key}")
+    
+    UsageRecord.objects.create(
+        user=user,
+        action_type='chat',
+        details=f"Revoked API Key '{key_obj.name}' (ID: {key_obj.id})"
+    )
+    
+    InAppNotification.objects.create(
+        user=user,
+        title="API Key Revoked",
+        message=f"Secret key '{key_obj.name}' has been permanently revoked.",
+        notif_type="warning"
+    )
+    
+    return JsonResponse({
+        'success': True,
+        'message': f"API Key '{key_obj.name}' has been permanently revoked."
+    })

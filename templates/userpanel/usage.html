@@ -4,9 +4,14 @@
 
 {% block content %}
 <!-- Metrics -->
-<div class="grid grid-cols-1 sm:grid-cols-4 gap-5 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-6">
   <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Images Rendered</div>
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">API Requests</div>
+    <div class="text-2xl font-black text-indigo-600 mt-2">{{ total_api_requests }}</div>
+    <div class="text-[11px] text-slate-400 mt-1">All developer keys</div>
+  </div>
+  <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Images</div>
     <div class="text-2xl font-black text-purple-600 mt-2">{{ total_images }}</div>
     <div class="text-[11px] text-slate-400 mt-1">Lifetime total</div>
   </div>
