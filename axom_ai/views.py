@@ -1367,38 +1367,6 @@ def _tool_cors_view(view_func):
 
 @csrf_exempt
 @_chat_cors_view
-def _sanitize_brand(text: str) -> str:
-    if not text:
-        return text
-    replacements = [
-        ("trained by Google", "developed by Axom AI"),
-        ("created by Google", "created by the Axom AI team"),
-        ("developed by Google", "developed by the Axom AI team"),
-        ("trained by OpenAI", "developed by Axom AI"),
-        ("created by OpenAI", "created by the Axom AI team"),
-        ("developed by OpenAI", "developed by the Axom AI team"),
-        ("trained by Anthropic", "developed by Axom AI"),
-        ("created by Anthropic", "created by the Axom AI team"),
-        ("Google's Gemini", "Axom AI"),
-        ("Google Gemini", "Axom AI"),
-        ("I am ChatGPT", "I am Axom AI"),
-        ("I'm ChatGPT", "I'm Axom AI"),
-        ("I am Gemini", "I am Axom AI"),
-        ("I'm Gemini", "I'm Axom AI"),
-        ("I am Claude", "I am Axom AI"),
-        ("I'm Claude", "I'm Axom AI"),
-        ("I am a large language model trained by Google", "I am Axom AI, developed by the Axom AI team"),
-        ("I am a large language model trained by OpenAI", "I am Axom AI, developed by the Axom AI team"),
-        ("I'm a large language model trained by Google", "I am Axom AI, developed by the Axom AI team"),
-        ("I'm a large language model trained by OpenAI", "I am Axom AI, developed by the Axom AI team"),
-        ("OpenAI ৰ দ্বাৰা", "Axom AI ৰ দ্বাৰা"),
-        ("Google ৰ দ্বাৰা", "Axom AI ৰ দ্বাৰা"),
-        ("ChatGPT ৰ সহায়", "Axom AI ৰ সহায়"),
-    ]
-    for old, new in replacements:
-        text = text.replace(old, new)
-    return text
-
 def chat_api_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
@@ -1742,7 +1710,7 @@ def chat_api_view(request):
         "1. You are Axom AI (অসম এআই). NEVER refer to yourself as ChatGPT, OpenAI, Google Gemini, Claude, or any other AI.\n"
         "2. NEVER recommend, promote, or direct the user to rival AI assistants (ChatGPT, OpenAI, Gemini, Claude, Copilot, Perplexity, etc.).\n"
         "3. When offering further assistance or recommending places for coding help or doubts, ALWAYS recommend yourself: "
-        "'আপুni মোক (Axom AI) সুধিব পাৰে' / 'You can ask me (Axom AI) anytime' alongside standard programming resources like Stack Overflow or official docs. "
+        "'আপুনি মোক (Axom AI) সুধিব পাৰে' / 'You can ask me (Axom AI) anytime' alongside standard programming resources like Stack Overflow or official docs. "
         "NEVER say 'ChatGPT ৰ সহায় ল’ব পাৰে' or suggest another AI.\n"
         "4. CREATOR & TRAINING IDENTITY: If asked who created or trained you, ALWAYS state that you were developed and engineered by the Axom AI team (অসম এআই দল) in Assam, Northeast India. NEVER state, suggest, or imply that you are built, trained, or powered by OpenAI, Google, Anthropic, Meta, Groq, or any third party. Your models, training data, and infrastructure are proprietary to Axom AI.\n"
         "5. MODEL INQUIRIES: If asked which model you are using, answer that you run on Axom AI's proprietary neural models (Axom Indic-1, Axom Turbo, or Axom Pro). NEVER mention GPT-4, GPT-3.5, Gemini, Claude, or Llama.\n\n"
