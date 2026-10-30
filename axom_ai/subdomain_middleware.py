@@ -47,6 +47,10 @@ class SubdomainMiddleware(MiddlewareMixin):
         if path.startswith('/media/') or path.startswith('/static/'):
             return None
 
+        # Never rewrite robots.txt or sitemap.xml on any subdomain (served by global views)
+        if path in ('/robots.txt', '/sitemap.xml', '/sitemap-pages.xml', '/sitemap-blog.xml', '/sitemap-tools.xml'):
+            return None
+
         # admin.aiaxom.co.in  →  /axomai-admin/*
         # /admin-panel and /api/ paths are served directly (no rewrite).
         if host in ADMIN_HOSTS and not path.startswith('/axomai-admin'):

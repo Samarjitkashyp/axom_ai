@@ -591,10 +591,26 @@ def _get_user_limits(user):
     }
 
 
-@user_login_required
 def dashboard(request):
+    host = request.get_host().split(':')[0].lower()
+    from axom_ai.subdomain_middleware import USER_HOSTS
+    is_user_host = host in USER_HOSTS
+
+    if not request.user.is_authenticated:
+        return login_view(request)
+
+    if not request.user.is_active:
+        logout(request)
+        login_url = '/login/' if is_user_host else '/axomai-user/login/'
+        return redirect(login_url)
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    if not profile.is_email_verified:
+        logout(request)
+        login_url = '/login/' if is_user_host else '/axomai-user/login/'
+        return redirect(f"{login_url}?unverified=1")
+
     user = request.user
-    profile, _ = UserProfile.objects.get_or_create(user=user)
     limits = _get_user_limits(user)
 
     # Calculate today's usage

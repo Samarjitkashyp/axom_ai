@@ -1,5 +1,9 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}Developer Console — Axom AI{% endblock %}
+{% block title %}Axom AI Developer Portal — API Key Management, Usage & Quotas{% endblock %}
+{% block meta_title %}Axom AI Developer Portal — API Key Management, Usage & Quotas{% endblock %}
+{% block meta_description %}Axom AI Developer Portal — Manage secret API keys, inspect real-time token quotas, monitor burst rate limits, and integrate OpenAI-compatible Assamese & Indic language AI inference models.{% endblock %}
+{% block meta_keywords %}Axom AI developer portal, API keys, AI developer console, OpenAI compatible API, Assamese AI API, Indic LLM API, token usage monitoring, API quota management, AI inference API India{% endblock %}
+{% block canonical_url %}https://user.aiaxom.co.in/{% endblock %}
 {% block heading %}API Keys & Credentials{% endblock %}
 
 {% block content %}
@@ -519,6 +523,69 @@ main();</code></pre>
     </a>
   </div>
 
+</div>
+
+<!-- Developer Integration Guide & Quick Reference (SEO/GEO/AEO Semantic Block) -->
+<div class="mt-8 bg-slate-900 text-slate-100 rounded-3xl p-6 lg:p-8 border border-slate-800 shadow-xl space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-2">
+        <i class="fa-solid fa-code"></i>
+        <span>SDK Integration Guide</span>
+      </div>
+      <h3 class="text-xl font-bold text-white tracking-tight">Connect with OpenAI Python & Node.js SDKs</h3>
+      <p class="text-xs text-slate-400 mt-1">Zero code overhaul. Replace the base URL and pass your Axom secret key.</p>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20">
+        <i class="fa-solid fa-check text-[10px] mr-1"></i> Base URL: https://aiaxom.co.in/v1
+      </span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Python SDK Box -->
+    <div class="rounded-2xl bg-slate-950/90 border border-slate-800 p-4 font-mono-code text-xs space-y-2">
+      <div class="flex items-center justify-between text-slate-400 text-[11px] pb-2 border-b border-slate-800">
+        <span class="flex items-center gap-1.5 text-indigo-300 font-bold">
+          <i class="fa-brands fa-python text-sm"></i> Python (openai &gt;= 1.0.0)
+        </span>
+        <button onclick="navigator.clipboard.writeText('from openai import OpenAI\n\nclient = OpenAI(\n    base_url=\x22https://aiaxom.co.in/v1\x22,\n    api_key=\x22YOUR_AXOM_SECRET_KEY\x22\n)\nresponse = client.chat.completions.create(\n    model=\x22axom-indic\x22,\n    messages=[{\x22role\x22: \x22user\x22, \x22content\x22: \x22Hello Axom AI\x22}]\n)\nprint(response.choices[0].message.content)'); showToast('Python code copied to clipboard!')" class="text-slate-400 hover:text-white transition text-[11px] flex items-center gap-1">
+          <i class="fa-regular fa-copy"></i> Copy
+        </button>
+      </div>
+      <pre class="text-[11px] text-indigo-200 overflow-x-auto p-1 leading-relaxed"><code><span class="text-purple-400">from</span> openai <span class="text-purple-400">import</span> OpenAI
+
+client = OpenAI(
+    base_url=<span class="text-emerald-300">"https://aiaxom.co.in/v1"</span>,
+    api_key=<span class="text-emerald-300">"YOUR_AXOM_SECRET_KEY"</span>
+)
+response = client.chat.completions.create(
+    model=<span class="text-emerald-300">"axom-indic"</span>,
+    messages=[{<span class="text-emerald-300">"role"</span>: <span class="text-emerald-300">"user"</span>, <span class="text-emerald-300">"content"</span>: <span class="text-emerald-300">"Hello Axom AI"</span>}]
+)
+<span class="text-purple-400">print</span>(response.choices[<span class="text-amber-300">0</span>].message.content)</code></pre>
+    </div>
+
+    <!-- cURL Box -->
+    <div class="rounded-2xl bg-slate-950/90 border border-slate-800 p-4 font-mono-code text-xs space-y-2">
+      <div class="flex items-center justify-between text-slate-400 text-[11px] pb-2 border-b border-slate-800">
+        <span class="flex items-center gap-1.5 text-sky-300 font-bold">
+          <i class="fa-solid fa-terminal text-sm"></i> cURL Terminal Command
+        </span>
+        <button onclick="navigator.clipboard.writeText('curl -X POST https://aiaxom.co.in/v1/chat/completions \\\n  -H \x22Authorization: Bearer YOUR_AXOM_SECRET_KEY\x22 \\\n  -H \x22Content-Type: application/json\x22 \\\n  -d \x27{\x22model\x22: \x22axom-indic\x22, \x22messages\x22: [{\x22role\x22: \x22user\x22, \x22content\x22: \x22Hello\x22}]}\x27'); showToast('cURL command copied to clipboard!')" class="text-slate-400 hover:text-white transition text-[11px] flex items-center gap-1">
+          <i class="fa-regular fa-copy"></i> Copy
+        </button>
+      </div>
+      <pre class="text-[11px] text-sky-200 overflow-x-auto p-1 leading-relaxed"><code>curl -X POST https://aiaxom.co.in/v1/chat/completions \
+  -H <span class="text-emerald-300">"Authorization: Bearer YOUR_AXOM_SECRET_KEY"</span> \
+  -H <span class="text-emerald-300">"Content-Type: application/json"</span> \
+  -d <span class="text-amber-300">'{
+    "model": "axom-indic",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'</span></code></pre>
+    </div>
+  </div>
 </div>
 
 

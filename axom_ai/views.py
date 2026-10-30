@@ -1007,10 +1007,91 @@ def robots_txt_view(request):
 
     host = request.get_host().split(':')[0].lower()
 
-    # admin, user, content subdomains — block everything from all crawlers
-    if host in ('admin.aiaxom.co.in', 'user.aiaxom.co.in', 'content.aiaxom.co.in'):
+    # admin & content subdomains — internal backends, block crawlers
+    if host in ('admin.aiaxom.co.in', 'content.aiaxom.co.in'):
         content = "User-agent: *\nDisallow: /\n"
         return HttpResponse(content, content_type="text/plain; charset=utf-8")
+
+    # user.aiaxom.co.in — Axom AI Developer Portal (Extreme SEO, GEO, AEO)
+    if host in ('user.aiaxom.co.in', 'user.aiaxom.local'):
+        content = """# ===================================================================
+# robots.txt — user.aiaxom.co.in (Axom AI Developer Portal)
+# SEO + AEO (Answer Engine Optimization) + GEO (Generative Engine Optimization)
+# ===================================================================
+
+User-agent: *
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+# Disallow authenticated session actions & mutating endpoints
+Disallow: /api-keys/create/
+Disallow: /api-keys/revoke/
+Disallow: /profile/update/
+Disallow: /profile/password/
+Disallow: /subscription/cancel/
+Disallow: /payments/invoice/
+Disallow: /usage/export/
+Disallow: /support/create/
+Disallow: /support/ticket/
+Disallow: /export-data/
+Disallow: /delete-account/
+Disallow: /verify-email/
+Disallow: /notifications/
+
+# Explicitly welcome Search Engines and Generative AI / LLM Crawlers (GEO / AEO)
+User-agent: Googlebot
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: Bingbot
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: GPTBot
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: Google-Extended
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+User-agent: Applebot-Extended
+Allow: /
+Allow: /login/
+Allow: /signup/
+
+# Crawl-delay for polite non-Google crawlers
+Crawl-delay: 1
+
+Sitemap: https://user.aiaxom.co.in/sitemap.xml
+Host: https://user.aiaxom.co.in
+"""
+        return HttpResponse(content.strip(), content_type="text/plain; charset=utf-8")
 
     # chat.aiaxom.co.in — allow homepage only, block APIs
     if host == 'chat.aiaxom.co.in':
@@ -1194,9 +1275,34 @@ def sitemap_xml_view(request):
     host = request.get_host().split(':')[0].lower()
     now_str = timezone.now().strftime('%Y-%m-%d')
 
-    # admin, user, content subdomains — no sitemap (blocked in robots.txt)
-    if host in ('admin.aiaxom.co.in', 'user.aiaxom.co.in', 'content.aiaxom.co.in'):
+    # admin & content subdomains — internal backends, no public sitemap
+    if host in ('admin.aiaxom.co.in', 'content.aiaxom.co.in'):
         return HttpResponse(status=404)
+
+    # user.aiaxom.co.in — Axom AI Developer Portal Sitemap
+    if host in ('user.aiaxom.co.in', 'user.aiaxom.local'):
+        xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://user.aiaxom.co.in/</loc>
+    <lastmod>{now_str}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://user.aiaxom.co.in/login/</loc>
+    <lastmod>{now_str}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://user.aiaxom.co.in/signup/</loc>
+    <lastmod>{now_str}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>"""
+        return HttpResponse(xml, content_type="application/xml; charset=utf-8")
 
     # chat.aiaxom.co.in — minimal sitemap with just the chat homepage
     if host == 'chat.aiaxom.co.in':

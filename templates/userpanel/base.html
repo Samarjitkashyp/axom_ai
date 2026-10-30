@@ -3,7 +3,99 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}Developer Console — Axom AI{% endblock %}</title>
+<title>{% block title %}Axom AI Developer Portal — API Key Management, Usage & Quotas{% endblock %}</title>
+
+<!-- Primary SEO Meta Tags -->
+<meta name="title" content="{% block meta_title %}Axom AI Developer Portal — API Key Management, Usage & Quotas{% endblock %}">
+<meta name="description" content="{% block meta_description %}Axom AI Developer Portal — Generate secret API keys, monitor real-time token usage and quotas, configure rate limits, and integrate high-performance OpenAI-compatible Assamese & Indic language AI inference models.{% endblock %}">
+<meta name="keywords" content="{% block meta_keywords %}Axom AI developer portal, API keys, AI developer console, OpenAI compatible API, Assamese AI API, Indic LLM API, token usage monitoring, API quota management, AI inference API India, Guwahati AI platform{% endblock %}">
+<meta name="author" content="Axom AI Engineering">
+<meta name="robots" content="{% block meta_robots %}index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1{% endblock %}">
+<link rel="canonical" href="{% block canonical_url %}https://user.aiaxom.co.in{{ request.path }}{% endblock %}">
+
+<!-- Open Graph / Facebook / LinkedIn -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Axom AI Developer Platform">
+<meta property="og:url" content="https://user.aiaxom.co.in{{ request.path }}">
+<meta property="og:title" content="{% block og_title %}Axom AI Developer Portal — API Key Management & Indic AI Inference{% endblock %}">
+<meta property="og:description" content="{% block og_description %}Enterprise developer console to generate OpenAI-compatible API secret keys, inspect real-time token usage, and deploy bilingual Assamese and Indic AI reasoning models.{% endblock %}">
+<meta property="og:image" content="https://aiaxom.co.in/axom-browser-logo.png">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@AxomAI">
+<meta name="twitter:title" content="{% block twitter_title %}Axom AI Developer Portal — API Secret Keys & Usage Console{% endblock %}">
+<meta name="twitter:description" content="{% block twitter_description %}Generate and manage OpenAI-compatible API secret keys, inspect real-time token quotas, and access Assamese & Indic AI inference models.{% endblock %}">
+<meta name="twitter:image" content="https://aiaxom.co.in/axom-browser-logo.png">
+
+<!-- Regional / GEO Targeting Meta Tags (Guwahati, Assam, India) -->
+<meta name="geo.region" content="IN-AS">
+<meta name="geo.placename" content="Guwahati, Assam, India">
+<meta name="geo.position" content="26.1445;91.7362">
+<meta name="ICBM" content="26.1445, 91.7362">
+<meta name="DC.title" content="Axom AI Developer Portal">
+<meta name="DC.creator" content="Axom AI">
+<meta name="DC.subject" content="Artificial Intelligence, Developer API, Assamese Language Model, LLM Inference">
+<meta name="DC.coverage" content="World, India, Assam, Guwahati">
+
+<!-- Favicon & Touch Icons -->
+<link rel="icon" type="image/png" href="https://aiaxom.co.in/axom-browser-logo.png">
+<link rel="apple-touch-icon" href="https://aiaxom.co.in/axom-browser-logo.png">
+<meta name="theme-color" content="#4f46e5">
+
+<!-- Structured Data: Organization & SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://aiaxom.co.in/#organization",
+      "name": "Axom AI",
+      "url": "https://aiaxom.co.in",
+      "logo": "https://aiaxom.co.in/axom-browser-logo.png",
+      "sameAs": [
+        "https://twitter.com/AxomAI",
+        "https://github.com/axom-ai",
+        "https://www.linkedin.com/company/axom-ai"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@aiaxom.co.in",
+        "contactType": "developer support",
+        "areaServed": "IN",
+        "availableLanguage": ["English", "Assamese", "Hindi"]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://user.aiaxom.co.in/#website",
+      "url": "https://user.aiaxom.co.in/",
+      "name": "Axom AI Developer Portal",
+      "description": "Developer platform to generate API secret keys, monitor real-time token quotas, and build with Assamese & Indic language AI models.",
+      "publisher": { "@id": "https://aiaxom.co.in/#organization" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://user.aiaxom.co.in/#application",
+      "name": "Axom AI Developer Platform & API Console",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "AI Inference API Platform",
+      "operatingSystem": "Cloud API / All Platforms (Python, JavaScript, REST)",
+      "url": "https://user.aiaxom.co.in/",
+      "featureList": [
+        "OpenAI SDK Compatible v1 REST Endpoints (/v1/chat/completions)",
+        "Instant Secret API Key Generation (axom-bearer tokens)",
+        "Real-Time Token Usage, Quotas & Burst Rate Limit Monitoring",
+        "Assamese Native Orthography & Indic Multilingual Reasoning Engines",
+        "Automated GST Tax Invoicing and Razorpay Payment Integration",
+        "Comprehensive Developer Engineering Support and Documentation"
+      ]
+    }
+  ]
+}
+</script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">

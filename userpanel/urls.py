@@ -1,9 +1,12 @@
 from django.urls import path
 from . import views
+from axom_ai.views import robots_txt_view, sitemap_xml_view
 
 app_name = 'userpanel'
 
 urlpatterns = [
+    path('robots.txt', robots_txt_view, name='robots_txt'),
+    path('sitemap.xml', sitemap_xml_view, name='sitemap_xml'),
     path('', views.dashboard, name='dashboard'),
     path('login/', views.login_view, name='login'),
     path('signup/', views.signup_view, name='signup'),
