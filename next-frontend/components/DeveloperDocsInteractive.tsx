@@ -87,6 +87,9 @@ export default function DeveloperDocsInteractive() {
   const [copiedKey, setCopiedKey] = useState<boolean>(false);
   const [copiedSnippet, setCopiedSnippet] = useState<boolean>(false);
 
+  // Developer Subscription Pricing Cycle State (Monthly vs Annual - Save 20%)
+  const [pricingCycle, setPricingCycle] = useState<'monthly' | 'yearly'>('monthly');
+
   // Quickstart Tab
   const [activeTab, setActiveTab] = useState<'python' | 'node' | 'curl' | 'translate'>('python');
 
@@ -781,6 +784,408 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                 <span>Zero telemetry: Key is kept strictly in your local browser sessionStorage and only used for your direct requests.</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2.5 Developer Subscription Pricing & Capacity Tiers (Placed Above Quickstart) */}
+      <section id="pricing" className="scroll-mt-24 space-y-6">
+        <div className="w-full p-6 sm:p-10 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-emerald-500/30 dark:border-emerald-500/20 shadow-xl relative overflow-hidden">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute top-0 left-1/3 w-96 h-96 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
+
+          <div className="relative z-10 space-y-6">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-300 dark:border-indigo-700/50 text-indigo-800 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-3">
+                  <Layers size={13} className="text-indigo-600 dark:text-indigo-400" />
+                  API Plans &amp; Capacity Tiers
+                </div>
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  Transparent Developer Pricing
+                </h2>
+                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-2 leading-relaxed">
+                  Start in the free sandbox, scale seamlessly as your application grows. High burst rate limits, zero artificial queuing, and transparent billing in Indian Rupees (INR).
+                </p>
+              </div>
+
+              {/* Monthly / Annual Billing Toggle */}
+              <div className="bg-slate-100 dark:bg-slate-800/90 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700/80 inline-flex items-center shadow-inner self-start lg:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setPricingCycle('monthly')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
+                    pricingCycle === 'monthly'
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Monthly Billing
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPricingCycle('yearly')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
+                    pricingCycle === 'yearly'
+                      ? 'bg-indigo-600 text-white shadow-md'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <span>Annual Billing</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold border border-emerald-500/30">
+                    SAVE 20%
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Pricing Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch pt-2">
+              
+              {/* Plan 1: Free Developer Sandbox */}
+              <div className="rounded-3xl p-6 bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col justify-between hover:shadow-lg transition-all duration-200">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      Sandbox Tier
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      Instant Access
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Free Developer</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[36px] leading-relaxed">
+                    Ideal for prototyping, testing SDKs, hackathons, and personal experimentation.
+                  </p>
+
+                  <div className="mt-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex items-baseline">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">₹0</span>
+                      <span className="text-xs text-slate-400 font-semibold ml-1.5">/ forever</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1 font-medium">No credit card required</div>
+                  </div>
+
+                  <div className="my-4 grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                      <div className="text-[10px] uppercase font-bold text-slate-400">Monthly Calls</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">1,000</div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                      <div className="text-[10px] uppercase font-bold text-slate-400">Burst Rate</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">60 RPM</div>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>1,000 monthly API requests</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>60 requests / minute burst rate</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>1 active API secret key</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Axom Indic-1 AI Model</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Standard community support</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <a
+                    href="https://user.aiaxom.co.in/signup/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-xs transition gap-2"
+                  >
+                    <span>Get Free API Key</span>
+                    <ArrowRight size={13} />
+                  </a>
+                </div>
+              </div>
+
+              {/* Plan 2: Starter Developer */}
+              <div className="rounded-3xl p-6 bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col justify-between hover:shadow-lg transition-all duration-200">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950/60 text-violet-800 dark:text-violet-300">
+                      Starter Plan
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                      Light Production
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Starter Developer</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[36px] leading-relaxed">
+                    Designed for indie hackers, commercial mobile backends, and early-stage MVPs.
+                  </p>
+
+                  <div className="mt-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex items-baseline">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">
+                        ₹{pricingCycle === 'yearly' ? '159' : '199'}
+                      </span>
+                      <span className="text-xs text-slate-400 font-semibold ml-1.5">/ month</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                      {pricingCycle === 'yearly' ? '₹1,908 billed annually (Save ₹480)' : 'Billed monthly (taxes included)'}
+                    </div>
+                  </div>
+
+                  <div className="my-4 grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                      <div className="text-[10px] uppercase font-bold text-slate-400">Monthly Calls</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">5,000</div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                      <div className="text-[10px] uppercase font-bold text-slate-400">Burst Rate</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">90 RPM</div>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>5,000</strong> monthly API requests</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>90 req/min</strong> burst rate limit</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Up to <strong>2 active secret keys</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Axom Indic-1 &amp; Turbo access</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Automated GST tax invoices</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <a
+                    href="https://user.aiaxom.co.in/login/?next=/subscription/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition gap-2"
+                  >
+                    <span>Subscribe to Starter</span>
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+              </div>
+
+              {/* Plan 3: Pro Developer (Featured / Popular) */}
+              <div className="rounded-3xl p-6 bg-gradient-to-b from-indigo-50/50 via-white to-white dark:from-indigo-950/30 dark:via-slate-900/90 dark:to-slate-900/90 border-2 border-indigo-500 shadow-xl shadow-indigo-500/10 flex flex-col justify-between relative">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-[10px] font-black uppercase tracking-widest shadow-md shadow-indigo-500/30 flex items-center gap-1">
+                  <Sparkles size={11} className="text-amber-300" />
+                  <span>MOST POPULAR</span>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2 mt-1">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300">
+                      ⚡ High Scale
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                      Production Ready
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Pro Developer</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[36px] leading-relaxed">
+                    Scaling SaaS platforms, commercial backends, and multi-tenant AI agents.
+                  </p>
+
+                  <div className="mt-4 pb-4 border-b border-indigo-200 dark:border-indigo-800/60">
+                    <div className="flex items-baseline">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">
+                        ₹{pricingCycle === 'yearly' ? '399' : '499'}
+                      </span>
+                      <span className="text-xs text-slate-400 font-semibold ml-1.5">/ month</span>
+                    </div>
+                    <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">
+                      {pricingCycle === 'yearly' ? '₹4,788 billed annually (Save ₹1,200)' : 'Billed monthly (taxes included)'}
+                    </div>
+                  </div>
+
+                  <div className="my-4 grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800/60">
+                      <div className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Monthly Calls</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">25,000</div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800/60">
+                      <div className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Burst Rate</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">120 RPM</div>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>25,000</strong> monthly API requests</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>120 req/min</strong> burst rate limit</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Up to <strong>5 active secret keys</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Axom Pro Deep Reasoning Engine</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Priority Developer Support (4h SLA)</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-indigo-200 dark:border-indigo-800/60">
+                  <a
+                    href="https://user.aiaxom.co.in/login/?next=/subscription/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-md shadow-indigo-500/25 transition gap-2"
+                  >
+                    <span>Subscribe to Pro</span>
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+              </div>
+
+              {/* Plan 4: Enterprise API */}
+              <div className="rounded-3xl p-6 bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col justify-between hover:shadow-lg transition-all duration-200">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
+                      Enterprise
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400">
+                      Zero Queuing
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Enterprise API</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[36px] leading-relaxed">
+                    Heavy-volume workloads, institutional platforms, and high-concurrency systems.
+                  </p>
+
+                  <div className="mt-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex items-baseline">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">
+                        ₹{pricingCycle === 'yearly' ? '1,199' : '1,499'}
+                      </span>
+                      <span className="text-xs text-slate-400 font-semibold ml-1.5">/ month</span>
+                    </div>
+                    <div className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">
+                      {pricingCycle === 'yearly' ? '₹14,388 billed annually (Save ₹3,600)' : 'Billed monthly (taxes included)'}
+                    </div>
+                  </div>
+
+                  <div className="my-4 grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                      <div className="text-[10px] uppercase font-bold text-slate-400">Monthly Calls</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">100,000</div>
+                    </div>
+                    <div className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                      <div className="text-[10px] uppercase font-bold text-slate-400">Burst Rate</div>
+                      <div className="text-xs font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">300 RPM</div>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>100,000</strong> monthly API requests</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>300 req/min</strong> burst rate limit</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Up to <strong>10 active secret keys</strong></span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Zero-queuing priority model pool</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Dedicated Account Manager &amp; 99.9% SLA</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <a
+                    href="https://user.aiaxom.co.in/login/?next=/subscription/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition gap-2"
+                  >
+                    <span>Subscribe to Enterprise</span>
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Account Required Security & Billing Notice */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-6">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Lock size={16} />
+                </div>
+                <div>
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                    Account Authentication Required to Subscribe
+                  </div>
+                  <div className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                    To activate paid tiers, bind secret API keys, and process payments via Razorpay (UPI, Netbanking, Cards), you must sign in or register on the Developer Console.
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5 shrink-0">
+                <a
+                  href="https://user.aiaxom.co.in/login/?next=/subscription/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5"
+                >
+                  <span>Sign In to Subscribe</span>
+                  <ExternalLink size={12} />
+                </a>
+                <a
+                  href="https://user.aiaxom.co.in/signup/?next=/subscription/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-xs border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5"
+                >
+                  <span>Create Account</span>
+                  <ArrowRight size={12} />
+                </a>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>

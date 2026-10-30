@@ -170,6 +170,13 @@ export default async function DeveloperDocsPage() {
                 <span>Full-Stack Guides</span>
               </a>
               <a
+                href="#pricing"
+                className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Layers size={15} className="text-emerald-600 dark:text-emerald-400" />
+                <span>API Pricing</span>
+              </a>
+              <a
                 href="#quickstart"
                 className="px-4 py-2 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
