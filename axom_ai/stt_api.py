@@ -37,7 +37,7 @@ SILENCE_DBFS = -50.0            # a recording quieter than this (after cleaning)
 DEFAULT_FREE = 40
 DEFAULT_PRO = 400
 FFMPEG = shutil.which('ffmpeg') or '/usr/bin/ffmpeg'
-DEADLINE_SECONDS = 28            # the whole of Gemini + the second reader: a person is never kept waiting longer than this
+DEADLINE_SECONDS = 8            # the whole of Gemini + the second reader: a person is never kept waiting longer than this
 OPENAI_MODEL = os.getenv('STT_OPENAI_MODEL', 'gpt-4o-mini-transcribe')
 OPENAI_LANG = {'english': 'en', 'hinglish': 'hi'}          # OpenAI refuses the code 'as' (Assamese) and, given an Assamese prompt, says the prompt back when it hears only noise:
 #                                                            for Assamese it is told nothing and finds the language by itself (tried: it does, in Assamese script)
@@ -47,7 +47,7 @@ MIN_DYNAMICS_APP = 2.2                                      # the mobile app rec
 SILENCE_DBFS_APP = -54.0                                    # and a headset mic is quieter
 MIN_DYNAMICS = 3.2                                          # as recorded by a browser (Opus): steady noise / a hum / a fan 1.2-3.0, speech 34+ (4.1+ with a noisy room; only speech as loud as the noise itself falls to 2.2-2.9)
 HALLUCINATIONS = {'thank you', 'thanks for watching', 'thank you for watching', 'you', 'bye', 'bye bye', 'okay', 'the end', 'subtitles by the amara.org community'}
-MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-2.5-flash,gemini-flash-latest,gemini-flash-lite-latest,gemini-2.5-flash-lite').split(',') if m]
+MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.1-flash-lite,gemini-3.1-flash-lite-preview,gemini-3.6-flash,gemini-flash-lite-latest').split(',') if m]
 
 # rumble out, speech band only, even loudness, silence at both ends cut. No heavy noise reduction here: tried on noisy recordings it made the
 # result slightly worse (Gemini copes with noise better than a spectral filter does); the browser's own noise suppression runs before this.
@@ -185,11 +185,11 @@ def transcribe(wav, language):
     second reader. STT_PRIMARY=openai puts them the other way round."""
     deadline = time.monotonic() + DEADLINE_SECONDS
     if PRIMARY == 'gemini' or not os.getenv('OPENAI_API_KEY'):
-        text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=6)       # the first choice, not for long
+        text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=3.5)       # fast primary flash model
         if text is None:
-            text = _openai(wav, language, deadline)
+            text = _openai(wav, language, deadline)                                     # ultra-fast 1.2s OpenAI fallback
         if text is None:
-            text = _gemini(wav, language, deadline, models=MODELS[1:], per_call=18)  # the other Gemini models, with what is left of the time
+            text = _gemini(wav, language, deadline, models=MODELS[1:], per_call=4)     # fallback models
         return text
     text = _openai(wav, language, deadline)
     if text is None:

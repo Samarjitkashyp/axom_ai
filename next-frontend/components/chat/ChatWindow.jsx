@@ -190,7 +190,7 @@ export default function ChatWindow({
   // 2. Client-side Assamese script purification (Bengali 'র' -> Assamese 'ৰ', proper 'ৱ', and punctuation).
   // 3. Simultaneous HD audio recording: upon pause/finish, audio is verified with Axom AI's backend STT
   //    (Gemini 2.5 Flash + Assamese grammar base + number conversion) to achieve extreme dictionary-grade accuracy.
-  const VOICE_VAD = { tickMs: 100, calibrateMs: 500, pauseMs: 2500, waitForSpeechMs: 10000, maxMs: 45000, minSpeechMs: 250 };
+  const VOICE_VAD = { tickMs: 100, calibrateMs: 350, pauseMs: 700, waitForSpeechMs: 7000, maxMs: 45000, minSpeechMs: 200 };
   const micStreamRef = useRef(null);
   const recorderRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -230,7 +230,7 @@ export default function ChatWindow({
 
   const sttLanguage = () => (language === 'english' ? 'english' : language === 'assamese' ? 'assamese' : 'hinglish');
 
-  const langCode = () => (language === 'english' ? 'en-IN' : language === 'assamese' ? 'as-IN' : 'hi-IN');
+  const langCode = () => (language === 'english' ? 'en-IN' : language === 'assamese' ? 'bn-IN' : 'hi-IN');
 
   const stopAllVoice = () => {
     isListeningRef.current = false;
@@ -259,7 +259,7 @@ export default function ChatWindow({
       fd.append('audio', blob, 'speech.' + (blob.type.includes('mp4') ? 'm4a' : blob.type.includes('ogg') ? 'ogg' : 'webm'));
       fd.append('language', sttLanguage());
       const controller = new AbortController();
-      const giveUp = setTimeout(() => controller.abort(), 25000);
+      const giveUp = setTimeout(() => controller.abort(), 7000);
       let res;
       try {
         res = await fetch('/api/stt/', { method: 'POST', credentials: 'include', body: fd, signal: controller.signal });
