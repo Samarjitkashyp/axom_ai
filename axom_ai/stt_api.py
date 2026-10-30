@@ -43,6 +43,8 @@ OPENAI_LANG = {'english': 'en', 'hinglish': 'hi'}          # OpenAI refuses the 
 #                                                            for Assamese it is told nothing and finds the language by itself (tried: it does, in Assamese script)
 PRIMARY = os.getenv('STT_PRIMARY', 'gemini')                # who reads first. Measured on the server (Assamese speech, quiet and noisy rooms): both read about as well, Gemini was the steadier one
 #                                                             (OpenAI now and then drops a whole sentence or waits 25 s) and follows 'write English words in English letters'; STT_PRIMARY=openai puts OpenAI first
+MIN_DYNAMICS_APP = 2.2                                      # the mobile app records with its own noise suppression and auto gain: a little more room than a browser recording
+SILENCE_DBFS_APP = -54.0                                    # and a headset mic is quieter
 MIN_DYNAMICS = 3.2                                          # as recorded by a browser (Opus): steady noise / a hum / a fan 1.2-3.0, speech 34+ (4.1+ with a noisy room; only speech as loud as the noise itself falls to 2.2-2.9)
 HALLUCINATIONS = {'thank you', 'thanks for watching', 'thank you for watching', 'you', 'bye', 'bye bye', 'okay', 'the end', 'subtitles by the amara.org community'}
 MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-2.5-flash,gemini-flash-latest,gemini-flash-lite-latest,gemini-2.5-flash-lite').split(',') if m]
@@ -97,8 +99,8 @@ def clean_audio(raw):
     return wav, seconds, (20 * math.log10(rms / 32768.0) if rms > 0 else -120.0)
 
 
-def has_speech(seconds, dbfs):
-    return seconds >= MIN_SECONDS and dbfs > SILENCE_DBFS
+def has_speech(seconds, dbfs, app=False):
+    return seconds >= MIN_SECONDS and dbfs > (SILENCE_DBFS_APP if app else SILENCE_DBFS)
 
 
 def speech_dynamics(wav):
@@ -265,7 +267,8 @@ def stt_api(request):
         return _error(str(e), 400)
     if seconds > MAX_SECONDS:
         return _error('This recording is too long (%d seconds at most).' % MAX_SECONDS, 413)
-    if not has_speech(seconds, dbfs) or speech_dynamics(wav) < MIN_DYNAMICS:
+    from_app = request.META.get("HTTP_USER_AGENT", "").startswith("Dart/")        # the Flutter app
+    if not has_speech(seconds, dbfs, from_app) or speech_dynamics(wav) < (MIN_DYNAMICS_APP if from_app else MIN_DYNAMICS):
         return JsonResponse({'success': True, 'text': '', 'seconds': round(seconds, 1)})     # nothing to write down (silence or only noise): nothing is asked or counted
     text = transcribe(wav, language)
     if text is None:
