@@ -45,7 +45,7 @@ PRIMARY = os.getenv('STT_PRIMARY', 'gemini')                # who reads first. M
 #                                                             (OpenAI now and then drops a whole sentence or waits 25 s) and follows 'write English words in English letters'; STT_PRIMARY=openai puts OpenAI first
 MIN_DYNAMICS = 3.2                                          # as recorded by a browser (Opus): steady noise / a hum / a fan 1.2-3.0, speech 34+ (4.1+ with a noisy room; only speech as loud as the noise itself falls to 2.2-2.9)
 HALLUCINATIONS = {'thank you', 'thanks for watching', 'thank you for watching', 'you', 'bye', 'bye bye', 'okay', 'the end', 'subtitles by the amara.org community'}
-MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.5-flash-lite,gemini-flash-lite-latest,gemini-flash-latest').split(',') if m]
+MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-2.5-flash,gemini-flash-latest,gemini-flash-lite-latest,gemini-2.5-flash-lite').split(',') if m]
 
 # rumble out, speech band only, even loudness, silence at both ends cut. No heavy noise reduction here: tried on noisy recordings it made the
 # result slightly worse (Gemini copes with noise better than a spectral filter does); the browser's own noise suppression runs before this.
@@ -275,4 +275,10 @@ def stt_api(request):
         text = numbers_to_digits(text, audio_training.number_words())      # "দুই হাজাৰ চৌবিশ" -> "2024" (rules, not AI)
     if text:
         text = audio_training.fix_heard(text)           # the corrections added in the admin (Audio Training)
+    if text and language == 'assamese':
+        try:
+            from axom_ai.views import _purify_assamese_with_grammar
+            text = _purify_assamese_with_grammar(text)
+        except Exception:
+            pass
     return JsonResponse({'success': True, 'text': text, 'seconds': round(seconds, 1)})
