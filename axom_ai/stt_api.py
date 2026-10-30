@@ -46,7 +46,20 @@ PRIMARY = os.getenv('STT_PRIMARY', 'gemini')                # who reads first. M
 MIN_DYNAMICS_APP = 2.2                                      # the mobile app records with its own noise suppression and auto gain: a little more room than a browser recording
 SILENCE_DBFS_APP = -54.0                                    # and a headset mic is quieter
 MIN_DYNAMICS = 3.2                                          # as recorded by a browser (Opus): steady noise / a hum / a fan 1.2-3.0, speech 34+ (4.1+ with a noisy room; only speech as loud as the noise itself falls to 2.2-2.9)
-HALLUCINATIONS = {'thank you', 'thanks for watching', 'thank you for watching', 'you', 'bye', 'bye bye', 'okay', 'the end', 'subtitles by the amara.org community'}
+HALLUCINATIONS = {'thank you', 'thanks for watching', 'thank you for watching', 'you', 'bye', 'bye bye', 'okay', 'the end', 'subtitles by the amara.org community', 'no_speech'}
+
+
+def is_gibberish(text):
+    if not text:
+        return True
+    t = text.strip()
+    if t.lower().strip(' .!?,') in HALLUCINATIONS:
+        return True
+    # If text is pure Latin and has 4+ consecutive consonants or no vowels
+    words = t.split()
+    if words and all(len(w) >= 3 and not any(c in 'aeiouyAEIOUY' for c in w) and w.isalpha() for w in words):
+        return True
+    return False
 MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.1-flash-lite,gemini-3.1-flash-lite-preview,gemini-3.6-flash,gemini-flash-lite-latest').split(',') if m]
 
 # rumble out, speech band only, even loudness, silence at both ends cut. No heavy noise reduction here: tried on noisy recordings it made the
@@ -278,6 +291,8 @@ def stt_api(request):
         text = numbers_to_digits(text, audio_training.number_words())      # "দুই হাজাৰ চৌবিশ" -> "2024" (rules, not AI)
     if text:
         text = audio_training.fix_heard(text)           # the corrections added in the admin (Audio Training)
+    if text and is_gibberish(text):
+        text = ''
     if text and language == 'assamese':
         try:
             from axom_ai.views import _purify_assamese_with_grammar

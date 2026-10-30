@@ -201,9 +201,26 @@ export default function ChatWindow({
 
   const cleanAssameseLive = (text) => {
     if (!text) return '';
-    // Standardize Bengali 'র' (U+09B0) -> Assamese 'ৰ' (U+09F0)
-    let s = text.replace(/\u09b0/g, '\u09f0');
-    // Common Assamese spoken forms with 'ৱ'
+    // 1. Filter out random Latin consonant mash / mic noise hallucinations (e.g. "jjdkldkkd", "kkk")
+    const words = text.split(/\s+/).filter((w) => {
+      if (!w) return false;
+      const stripped = w.replace(/[^a-zA-Z]/g, '');
+      if (stripped.length >= 3) {
+        // Pure consonants with no vowel = mic artifact/hallucination
+        if (!/[aeiouyAEIOUY]/.test(stripped)) return false;
+        // 3+ identical repeating letters = keyboard/mic glitch
+        if (/(.)\1{2,}/.test(stripped)) return false;
+        // 4+ consonants in a row
+        if (/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{4,}/.test(stripped)) return false;
+      }
+      return true;
+    });
+    let s = words.join(' ');
+
+    // 2. Standardize Bengali 'র' (U+09B0) -> Assamese 'ৰ' (U+09F0)
+    s = s.replace(/\u09b0/g, '\u09f0');
+
+    // 3. Common Assamese spoken forms with 'ৱ' (U+09F1)
     s = s.replace(/কোবা/g, 'কোৱা')
          .replace(/খোবা/g, 'খোৱা')
          .replace(/যোবা/g, 'যোৱা')
@@ -211,7 +228,10 @@ export default function ChatWindow({
          .replace(/লোবা/g, 'লোৱা')
          .replace(/শোবা/g, 'শোৱা')
          .replace(/দিবা/g, 'দিৱা')
-         .replace(/\bহব\b/g, 'হ’ব');
+         .replace(/নহবা/g, 'নহ’বা')
+         .replace(/\bহব\b/g, 'হ’ব')
+         .replace(/\bনহব\b/g, 'নহ’ব');
+
     s = s.replace(/[ \t]+/g, ' ');
     s = s.replace(/\s+([।?!,])/g, '$1');
     return s;
@@ -331,20 +351,23 @@ export default function ChatWindow({
         rec.maxAlternatives = 1;
         rec.lang = langCode();
 
-        let accumulatedFinal = '';
-
         rec.onresult = (event) => {
-          let interim = '';
-          for (let i = event.resultIndex; i < event.results.length; i++) {
+          let finalStr = '';
+          let interimStr = '';
+          for (let i = 0; i < event.results.length; i++) {
             const res = event.results[i];
             const alt = res[0];
+            if (!alt || !alt.transcript) continue;
+            // Filter out low-confidence background hiss/noise
+            if (res.isFinal && alt.confidence > 0 && alt.confidence < 0.2) continue;
+
             if (res.isFinal) {
-              accumulatedFinal += (accumulatedFinal ? ' ' : '') + alt.transcript.trim();
+              finalStr += alt.transcript + ' ';
             } else {
-              interim += alt.transcript;
+              interimStr += alt.transcript;
             }
           }
-          let heard = (accumulatedFinal + (interim ? ' ' + interim : '')).trim();
+          let heard = (finalStr + interimStr).trim();
           if (language === 'assamese') {
             heard = cleanAssameseLive(heard);
           }
