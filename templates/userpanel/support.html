@@ -287,24 +287,53 @@
 
       <form id="developerTicketForm" class="space-y-4 text-xs">
         <!-- Category Selector -->
-        <div>
+        <div class="relative" id="supportCatWrapper">
           <label class="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1.5">Inquiry Category</label>
-          <select id="ticketCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white">
+          <input type="hidden" id="ticketCategory" value="{{ categories.0.0|default:'api_integration' }}">
+          <button type="button" id="supportCatTrigger" onclick="toggleSupportDropdown('supportCatMenu', 'supportCatChevron', event)" class="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-indigo-300 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 group shadow-xs">
+            <span class="font-semibold text-slate-900 text-xs truncate" id="supportCatLabel">
+              {{ categories.0.1|default:'API Integration & SDKs' }}
+            </span>
+            <i id="supportCatChevron" class="fa-solid fa-chevron-down text-slate-400 group-hover:text-slate-600 text-[10px] transition-transform duration-200 shrink-0 ml-2"></i>
+          </button>
+          <div id="supportCatMenu" class="hidden absolute left-0 right-0 mt-1.5 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 space-y-1 max-h-56 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
             {% for cat in categories %}
-            <option value="{{ cat.0 }}">{{ cat.1 }}</option>
+            <button type="button" onclick="selectSupportCat('{{ cat.0 }}', '{{ cat.1 }}')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if forloop.first %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} cat-opt" data-val="{{ cat.0 }}">
+              <span class="text-xs truncate font-medium">{{ cat.1 }}</span>
+              <span class="cat-check {% if forloop.first %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
             {% endfor %}
-          </select>
+          </div>
         </div>
 
         <!-- Priority Selector -->
-        <div>
+        <div class="relative" id="supportPriWrapper">
           <label class="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1.5">Priority Level</label>
-          <select id="ticketPriority" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white">
-            <option value="low">Low (General guidance)</option>
-            <option value="medium" selected>Medium (Standard inquiry)</option>
-            <option value="high">High (Production blocked)</option>
-            <option value="urgent">Urgent (Critical production outage)</option>
-          </select>
+          <input type="hidden" id="ticketPriority" value="medium">
+          <button type="button" id="supportPriTrigger" onclick="toggleSupportDropdown('supportPriMenu', 'supportPriChevron', event)" class="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-indigo-300 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 group shadow-xs">
+            <span class="font-semibold text-slate-900 text-xs truncate" id="supportPriLabel">
+              Medium (Standard inquiry)
+            </span>
+            <i id="supportPriChevron" class="fa-solid fa-chevron-down text-slate-400 group-hover:text-slate-600 text-[10px] transition-transform duration-200 shrink-0 ml-2"></i>
+          </button>
+          <div id="supportPriMenu" class="hidden absolute left-0 right-0 mt-1.5 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+            <button type="button" onclick="selectSupportPri('low', 'Low (General guidance)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent pri-opt" data-val="low">
+              <span class="text-xs truncate font-medium">Low (General guidance)</span>
+              <span class="pri-check hidden text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
+            <button type="button" onclick="selectSupportPri('medium', 'Medium (Standard inquiry)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 pri-opt" data-val="medium">
+              <span class="text-xs truncate font-medium">Medium (Standard inquiry)</span>
+              <span class="pri-check text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
+            <button type="button" onclick="selectSupportPri('high', 'High (Production blocked)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent pri-opt" data-val="high">
+              <span class="text-xs truncate font-medium">High (Production blocked)</span>
+              <span class="pri-check hidden text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
+            <button type="button" onclick="selectSupportPri('urgent', 'Urgent (Critical production outage)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent pri-opt" data-val="urgent">
+              <span class="text-xs truncate font-medium text-rose-600 font-bold">Urgent (Critical production outage)</span>
+              <span class="pri-check hidden text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
+          </div>
         </div>
 
         <!-- Subject Input -->
@@ -394,5 +423,85 @@
       btn.innerHTML = originalBtnHtml;
     }
   }
+
+  // Support Custom Dropdowns
+  function toggleSupportDropdown(menuId, chevronId, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const menu = document.getElementById(menuId);
+    const chevron = document.getElementById(chevronId);
+    const isOpen = !menu.classList.contains('hidden');
+
+    closeSupportDropdowns();
+
+    if (!isOpen) {
+      menu.classList.remove('hidden');
+      if (chevron) chevron.classList.add('rotate-180', 'text-indigo-600');
+    }
+  }
+
+  function closeSupportDropdowns() {
+    const cMenu = document.getElementById('supportCatMenu');
+    const pMenu = document.getElementById('supportPriMenu');
+    const cChev = document.getElementById('supportCatChevron');
+    const pChev = document.getElementById('supportPriChevron');
+
+    if (cMenu) cMenu.classList.add('hidden');
+    if (pMenu) pMenu.classList.add('hidden');
+    if (cChev) cChev.classList.remove('rotate-180', 'text-indigo-600');
+    if (pChev) pChev.classList.remove('rotate-180', 'text-indigo-600');
+  }
+
+  function selectSupportCat(val, label) {
+    document.getElementById('ticketCategory').value = val;
+    document.getElementById('supportCatLabel').textContent = label;
+
+    document.querySelectorAll('.cat-opt').forEach(btn => {
+      const isSel = (btn.getAttribute('data-val') === val);
+      const check = btn.querySelector('.cat-check');
+      if (isSel) {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 cat-opt';
+        if (check) check.classList.remove('hidden');
+      } else {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent cat-opt';
+        if (check) check.classList.add('hidden');
+      }
+    });
+
+    closeSupportDropdowns();
+  }
+
+  function selectSupportPri(val, label) {
+    document.getElementById('ticketPriority').value = val;
+    document.getElementById('supportPriLabel').textContent = label;
+
+    document.querySelectorAll('.pri-opt').forEach(btn => {
+      const isSel = (btn.getAttribute('data-val') === val);
+      const check = btn.querySelector('.pri-check');
+      if (isSel) {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 pri-opt';
+        if (check) check.classList.remove('hidden');
+      } else {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent pri-opt';
+        if (check) check.classList.add('hidden');
+      }
+    });
+
+    closeSupportDropdowns();
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#supportCatWrapper') && !e.target.closest('#supportPriWrapper')) {
+      closeSupportDropdowns();
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeSupportDropdowns();
+    }
+  });
 </script>
 {% endblock %}

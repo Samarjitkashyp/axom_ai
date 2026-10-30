@@ -485,13 +485,32 @@ main();</code></pre>
           <p class="text-[11px] text-slate-400 mt-1">An identifier to help you organize and identify where this key is deployed.</p>
         </div>
 
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Permissions Scope</label>
-          <select id="newKeyPermissions" class="w-full px-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-50 focus:bg-white transition font-medium text-slate-800">
-            <option value="all">All Endpoints (Chat + Translation)</option>
-            <option value="chat">Chat Completions Only (/v1/chat/completions)</option>
-            <option value="translate">Translation Only (/v1/translate)</option>
-          </select>
+        <div class="relative" id="keyPermWrapper">
+          <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+            <span>Permissions Scope</span>
+            <span class="text-[10px] text-indigo-600 font-semibold" id="keyPermBadge">Full Access</span>
+          </label>
+          <input type="hidden" id="newKeyPermissions" value="all">
+          <button type="button" id="keyPermTrigger" onclick="toggleKeyPermDropdown(event)" class="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-indigo-300 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 group shadow-xs">
+            <span class="font-semibold text-slate-900 text-xs truncate" id="keyPermLabel">
+              All Endpoints (Chat + Translation)
+            </span>
+            <i id="keyPermChevron" class="fa-solid fa-chevron-down text-slate-400 group-hover:text-slate-600 text-[10px] transition-transform duration-200 shrink-0 ml-2"></i>
+          </button>
+          <div id="keyPermMenu" class="hidden absolute left-0 right-0 mt-1.5 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+            <button type="button" onclick="selectKeyPerm('all', 'All Endpoints (Chat + Translation)', 'Full Access')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 perm-opt" data-val="all">
+              <span class="text-xs truncate font-medium">All Endpoints (Chat + Translation)</span>
+              <span class="perm-check text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
+            <button type="button" onclick="selectKeyPerm('chat', 'Chat Completions Only (/v1/chat/completions)', 'Chat Scoped')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent perm-opt" data-val="chat">
+              <span class="text-xs truncate font-medium">Chat Completions Only (/v1/chat/completions)</span>
+              <span class="perm-check hidden text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
+            <button type="button" onclick="selectKeyPerm('translate', 'Translation Only (/v1/translate)', 'Translate Scoped')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent perm-opt" data-val="translate">
+              <span class="text-xs truncate font-medium">Translation Only (/v1/translate)</span>
+              <span class="perm-check hidden text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+            </button>
+          </div>
           <p class="text-[11px] text-slate-400 mt-1">Limit this key strictly to the endpoints your application requires.</p>
         </div>
 
@@ -647,8 +666,7 @@ main();</code></pre>
   // Create Key Modal
   function openCreateKeyModal() {
     document.getElementById('newKeyName').value = '';
-    const permEl = document.getElementById('newKeyPermissions');
-    if (permEl) permEl.value = 'all';
+    selectKeyPerm('all', 'All Endpoints (Chat + Translation)', 'Full Access');
     const ipEl = document.getElementById('newKeyAllowedIps');
     if (ipEl) ipEl.value = '';
     document.getElementById('createKeyModal').classList.remove('hidden');
@@ -657,7 +675,60 @@ main();</code></pre>
 
   function closeCreateKeyModal() {
     document.getElementById('createKeyModal').classList.add('hidden');
+    closeKeyPermDropdown();
   }
+
+  function toggleKeyPermDropdown(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const menu = document.getElementById('keyPermMenu');
+    const chevron = document.getElementById('keyPermChevron');
+    const isOpen = !menu.classList.contains('hidden');
+
+    closeKeyPermDropdown();
+    if (!isOpen) {
+      menu.classList.remove('hidden');
+      if (chevron) chevron.classList.add('rotate-180', 'text-indigo-600');
+    }
+  }
+
+  function closeKeyPermDropdown() {
+    const menu = document.getElementById('keyPermMenu');
+    const chevron = document.getElementById('keyPermChevron');
+    if (menu) menu.classList.add('hidden');
+    if (chevron) chevron.classList.remove('rotate-180', 'text-indigo-600');
+  }
+
+  function selectKeyPerm(val, label, badge) {
+    const permInput = document.getElementById('newKeyPermissions');
+    const permLabel = document.getElementById('keyPermLabel');
+    const permBadge = document.getElementById('keyPermBadge');
+    if (permInput) permInput.value = val;
+    if (permLabel) permLabel.textContent = label;
+    if (permBadge) permBadge.textContent = badge;
+
+    document.querySelectorAll('.perm-opt').forEach(btn => {
+      const isSel = (btn.getAttribute('data-val') === val);
+      const check = btn.querySelector('.perm-check');
+      if (isSel) {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 perm-opt';
+        if (check) check.classList.remove('hidden');
+      } else {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent perm-opt';
+        if (check) check.classList.add('hidden');
+      }
+    });
+
+    closeKeyPermDropdown();
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#keyPermWrapper')) {
+      closeKeyPermDropdown();
+    }
+  });
 
   async function submitCreateKey(e) {
     e.preventDefault();

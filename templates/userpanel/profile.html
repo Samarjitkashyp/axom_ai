@@ -236,26 +236,181 @@
 
         <!-- Language & Timezone Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Console & Prompt Language</label>
-            <select id="profLang" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white transition">
-              <option value="as" {% if profile.language == 'as' %}selected{% endif %}>Assamese (অসমীয়া) — Native Indic Orthography</option>
-              <option value="en" {% if profile.language == 'en' %}selected{% endif %}>English (US / Global)</option>
-              <option value="hi" {% if profile.language == 'hi' %}selected{% endif %}>Hindi / Hinglish</option>
-            </select>
+          
+          <!-- Custom Language Dropdown -->
+          <div class="relative" id="profLangWrapper">
+            <label class="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+              <span>Console &amp; Prompt Language</span>
+              <span class="text-[10px] text-indigo-600 font-semibold" id="profLangBadge">
+                {% if profile.language == 'as' %}Indic Flagship{% elif profile.language == 'hi' %}Bilingual{% else %}Global Standard{% endif %}
+              </span>
+            </label>
+            <input type="hidden" id="profLang" value="{{ profile.language|default:'as' }}">
+            
+            <!-- Custom Trigger -->
+            <button type="button" id="profLangTrigger" onclick="toggleCustomSelect('profLangMenu', 'profLangChevron', event)" class="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-indigo-300 rounded-xl px-4 py-3 text-slate-900 text-xs flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 group shadow-xs">
+              <div class="flex items-center gap-3 truncate">
+                <div class="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-language text-xs"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-xs truncate" id="profLangLabel">
+                  {% if profile.language == 'as' %}Assamese (অসমীয়া) — Native Indic Orthography{% elif profile.language == 'hi' %}Hindi / Hinglish (हिन्दी){% else %}English (US / Global){% endif %}
+                </span>
+              </div>
+              <i id="profLangChevron" class="fa-solid fa-chevron-down text-slate-400 group-hover:text-slate-600 text-[10px] transition-transform duration-200 shrink-0 ml-2"></i>
+            </button>
+
+            <!-- Custom Menu Popover -->
+            <div id="profLangMenu" class="hidden absolute left-0 right-0 mt-1.5 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+              <!-- Assamese Option -->
+              <button type="button" onclick="selectCustomLang('as', 'Assamese (অসমীয়া) — Native Indic Orthography', 'Indic Flagship')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.language == 'as' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} lang-opt" data-val="as">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">অ</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">Assamese (অসমীয়া)</div>
+                    <div class="text-[10px] text-slate-400 truncate">Native Indic Orthography • Clean Bengali Script Free</div>
+                  </div>
+                </div>
+                <span class="lang-check {% if profile.language == 'as' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- English Option -->
+              <button type="button" onclick="selectCustomLang('en', 'English (US / Global)', 'Global Standard')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.language == 'en' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} lang-opt" data-val="en">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">EN</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">English (US / Global)</div>
+                    <div class="text-[10px] text-slate-400 truncate">Standard International Technical English</div>
+                  </div>
+                </div>
+                <span class="lang-check {% if profile.language == 'en' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- Hindi Option -->
+              <button type="button" onclick="selectCustomLang('hi', 'Hindi / Hinglish (हिन्दी)', 'Bilingual')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.language == 'hi' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} lang-opt" data-val="hi">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">हि</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">Hindi / Hinglish (हिन्दी)</div>
+                    <div class="text-[10px] text-slate-400 truncate">Conversational Hindi &amp; Hinglish Mixed Prompting</div>
+                  </div>
+                </div>
+                <span class="lang-check {% if profile.language == 'hi' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+            </div>
           </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1.5">Primary Timezone</label>
-            <select id="profTimezone" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white font-mono transition">
-              <option value="Asia/Kolkata" {% if profile.timezone == 'Asia/Kolkata' %}selected{% endif %}>Asia/Kolkata (IST • UTC+05:30)</option>
-              <option value="UTC" {% if profile.timezone == 'UTC' %}selected{% endif %}>UTC (Coordinated Universal Time)</option>
-              <option value="America/New_York" {% if profile.timezone == 'America/New_York' %}selected{% endif %}>America/New_York (EST/EDT)</option>
-              <option value="America/Los_Angeles" {% if profile.timezone == 'America/Los_Angeles' %}selected{% endif %}>America/Los_Angeles (PST/PDT)</option>
-              <option value="Europe/London" {% if profile.timezone == 'Europe/London' %}selected{% endif %}>Europe/London (GMT/BST)</option>
-              <option value="Asia/Singapore" {% if profile.timezone == 'Asia/Singapore' %}selected{% endif %}>Asia/Singapore (SGT • UTC+08:00)</option>
-              <option value="Asia/Tokyo" {% if profile.timezone == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo (JST • UTC+09:00)</option>
-            </select>
+
+          <!-- Custom Timezone Dropdown -->
+          <div class="relative" id="profTzWrapper">
+            <label class="block font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+              <span>Primary Timezone</span>
+              <span class="text-[10px] text-slate-400 font-mono font-normal">System Schedules</span>
+            </label>
+            <input type="hidden" id="profTimezone" value="{{ profile.timezone|default:'Asia/Kolkata' }}">
+
+            <!-- Custom Trigger -->
+            <button type="button" id="profTzTrigger" onclick="toggleCustomSelect('profTzMenu', 'profTzChevron', event)" class="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-indigo-300 rounded-xl px-4 py-3 text-slate-900 text-xs flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 group shadow-xs">
+              <div class="flex items-center gap-3 truncate font-mono">
+                <div class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center shrink-0">
+                  <i class="fa-regular fa-clock text-xs"></i>
+                </div>
+                <span class="font-bold text-slate-900 text-xs truncate" id="profTzLabel">
+                  {% if profile.timezone == 'UTC' %}UTC (Coordinated Universal Time • UTC+00:00){% elif profile.timezone == 'America/New_York' %}America/New_York (EST/EDT • UTC-05:00){% elif profile.timezone == 'America/Los_Angeles' %}America/Los_Angeles (PST/PDT • UTC-08:00){% elif profile.timezone == 'Europe/London' %}Europe/London (GMT/BST • UTC+00:00){% elif profile.timezone == 'Asia/Singapore' %}Asia/Singapore (SGT • UTC+08:00){% elif profile.timezone == 'Asia/Tokyo' %}Asia/Tokyo (JST • UTC+09:00){% else %}Asia/Kolkata (IST • UTC+05:30){% endif %}
+                </span>
+              </div>
+              <i id="profTzChevron" class="fa-solid fa-chevron-down text-slate-400 group-hover:text-slate-600 text-[10px] transition-transform duration-200 shrink-0 ml-2"></i>
+            </button>
+
+            <!-- Custom Menu Popover -->
+            <div id="profTzMenu" class="hidden absolute left-0 right-0 mt-1.5 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 space-y-1 max-h-64 overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+              
+              <!-- Asia/Kolkata -->
+              <button type="button" onclick="selectCustomTz('Asia/Kolkata', 'Asia/Kolkata (IST • UTC+05:30)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.timezone == 'Asia/Kolkata' or not profile.timezone %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} tz-opt" data-val="Asia/Kolkata">
+                <div class="flex items-center gap-2.5 min-w-0 font-mono">
+                  <span class="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 font-bold text-[10px] flex items-center justify-center shrink-0">IST</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">Asia/Kolkata</div>
+                    <div class="text-[10px] text-slate-400 truncate">IST • UTC+05:30 (India Standard Time)</div>
+                  </div>
+                </div>
+                <span class="tz-check {% if profile.timezone == 'Asia/Kolkata' or not profile.timezone %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- UTC -->
+              <button type="button" onclick="selectCustomTz('UTC', 'UTC (Coordinated Universal Time • UTC+00:00)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.timezone == 'UTC' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} tz-opt" data-val="UTC">
+                <div class="flex items-center gap-2.5 min-w-0 font-mono">
+                  <span class="w-6 h-6 rounded-md bg-slate-200 text-slate-700 font-bold text-[10px] flex items-center justify-center shrink-0">UTC</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">UTC</div>
+                    <div class="text-[10px] text-slate-400 truncate">Coordinated Universal Time • UTC+00:00</div>
+                  </div>
+                </div>
+                <span class="tz-check {% if profile.timezone == 'UTC' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- America/New_York -->
+              <button type="button" onclick="selectCustomTz('America/New_York', 'America/New_York (EST/EDT • UTC-05:00)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.timezone == 'America/New_York' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} tz-opt" data-val="America/New_York">
+                <div class="flex items-center gap-2.5 min-w-0 font-mono">
+                  <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px] flex items-center justify-center shrink-0">EST</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">America/New_York</div>
+                    <div class="text-[10px] text-slate-400 truncate">Eastern Time • UTC-05:00</div>
+                  </div>
+                </div>
+                <span class="tz-check {% if profile.timezone == 'America/New_York' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- America/Los_Angeles -->
+              <button type="button" onclick="selectCustomTz('America/Los_Angeles', 'America/Los_Angeles (PST/PDT • UTC-08:00)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.timezone == 'America/Los_Angeles' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} tz-opt" data-val="America/Los_Angeles">
+                <div class="flex items-center gap-2.5 min-w-0 font-mono">
+                  <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px] flex items-center justify-center shrink-0">PST</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">America/Los_Angeles</div>
+                    <div class="text-[10px] text-slate-400 truncate">Pacific Time • UTC-08:00</div>
+                  </div>
+                </div>
+                <span class="tz-check {% if profile.timezone == 'America/Los_Angeles' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- Europe/London -->
+              <button type="button" onclick="selectCustomTz('Europe/London', 'Europe/London (GMT/BST • UTC+00:00)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.timezone == 'Europe/London' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} tz-opt" data-val="Europe/London">
+                <div class="flex items-center gap-2.5 min-w-0 font-mono">
+                  <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px] flex items-center justify-center shrink-0">GMT</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">Europe/London</div>
+                    <div class="text-[10px] text-slate-400 truncate">Greenwich Mean Time • UTC+00:00</div>
+                  </div>
+                </div>
+                <span class="tz-check {% if profile.timezone == 'Europe/London' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- Asia/Singapore -->
+              <button type="button" onclick="selectCustomTz('Asia/Singapore', 'Asia/Singapore (SGT • UTC+08:00)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.timezone == 'Asia/Singapore' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} tz-opt" data-val="Asia/Singapore">
+                <div class="flex items-center gap-2.5 min-w-0 font-mono">
+                  <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px] flex items-center justify-center shrink-0">SGT</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">Asia/Singapore</div>
+                    <div class="text-[10px] text-slate-400 truncate">Singapore Time • UTC+08:00</div>
+                  </div>
+                </div>
+                <span class="tz-check {% if profile.timezone == 'Asia/Singapore' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+              <!-- Asia/Tokyo -->
+              <button type="button" onclick="selectCustomTz('Asia/Tokyo', 'Asia/Tokyo (JST • UTC+09:00)')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 {% if profile.timezone == 'Asia/Tokyo' %}bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60{% else %}hover:bg-slate-50 text-slate-700 border border-transparent{% endif %} tz-opt" data-val="Asia/Tokyo">
+                <div class="flex items-center gap-2.5 min-w-0 font-mono">
+                  <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px] flex items-center justify-center shrink-0">JST</span>
+                  <div class="min-w-0">
+                    <div class="font-bold text-xs truncate text-slate-900">Asia/Tokyo</div>
+                    <div class="text-[10px] text-slate-400 truncate">Japan Standard Time • UTC+09:00</div>
+                  </div>
+                </div>
+                <span class="tz-check {% if profile.timezone == 'Asia/Tokyo' %}{% else %}hidden{% endif %} text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
+              </button>
+
+            </div>
           </div>
+
         </div>
 
         <!-- Notification Preferences Section -->
@@ -769,5 +924,87 @@
       btn.innerHTML = `<span>Permanently Deactivate</span>`;
     }
   }
+
+  // Custom Dropdown Controls for Language & Timezone
+  function toggleCustomSelect(menuId, chevronId, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const menu = document.getElementById(menuId);
+    const chevron = document.getElementById(chevronId);
+    const isCurrentlyOpen = !menu.classList.contains('hidden');
+
+    closeAllCustomDropdowns();
+
+    if (!isCurrentlyOpen) {
+      menu.classList.remove('hidden');
+      if (chevron) chevron.classList.add('rotate-180', 'text-indigo-600');
+    }
+  }
+
+  function closeAllCustomDropdowns() {
+    const lMenu = document.getElementById('profLangMenu');
+    const tMenu = document.getElementById('profTzMenu');
+    const lChev = document.getElementById('profLangChevron');
+    const tChev = document.getElementById('profTzChevron');
+
+    if (lMenu) lMenu.classList.add('hidden');
+    if (tMenu) tMenu.classList.add('hidden');
+    if (lChev) lChev.classList.remove('rotate-180', 'text-indigo-600');
+    if (tChev) tChev.classList.remove('rotate-180', 'text-indigo-600');
+  }
+
+  function selectCustomLang(val, label, badge) {
+    document.getElementById('profLang').value = val;
+    document.getElementById('profLangLabel').textContent = label;
+    document.getElementById('profLangBadge').textContent = badge;
+
+    document.querySelectorAll('.lang-opt').forEach(btn => {
+      const isSel = (btn.getAttribute('data-val') === val);
+      const check = btn.querySelector('.lang-check');
+      if (isSel) {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 lang-opt';
+        if (check) check.classList.remove('hidden');
+      } else {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent lang-opt';
+        if (check) check.classList.add('hidden');
+      }
+    });
+
+    closeAllCustomDropdowns();
+  }
+
+  function selectCustomTz(val, label) {
+    document.getElementById('profTimezone').value = val;
+    document.getElementById('profTzLabel').textContent = label;
+
+    document.querySelectorAll('.tz-opt').forEach(btn => {
+      const isSel = (btn.getAttribute('data-val') === val);
+      const check = btn.querySelector('.tz-check');
+      if (isSel) {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 tz-opt';
+        if (check) check.classList.remove('hidden');
+      } else {
+        btn.className = 'w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent tz-opt';
+        if (check) check.classList.add('hidden');
+      }
+    });
+
+    closeAllCustomDropdowns();
+  }
+
+  // Close custom dropdowns on click outside or escape key
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#profLangWrapper') && !e.target.closest('#profTzWrapper')) {
+      closeAllCustomDropdowns();
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAllCustomDropdowns();
+    }
+  });
 </script>
 {% endblock %}
