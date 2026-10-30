@@ -6,29 +6,16 @@ import Footer from '../../../components/Footer';
 import DeveloperDocsInteractive from '../../../components/DeveloperDocsInteractive';
 import { getLandingCMS } from '../../../lib/api';
 import {
-  Sparkles,
   Terminal,
   Code,
   Key,
-  ChevronRight,
   Layers,
   Cpu,
   Lock,
   Play,
   ShieldCheck,
-  CheckCircle2,
   HelpCircle,
-  Globe2,
-  Zap,
-  Server,
   FileCode2,
-  ArrowRight,
-  Database,
-  Building2,
-  Languages,
-  Compass,
-  Check,
-  ExternalLink
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -126,7 +113,7 @@ export const metadata: Metadata = {
 export default async function DeveloperDocsPage() {
   const cms = await getLandingCMS().catch(() => null);
 
-  // Multi-Graph Schema.org Structured Data (Extreme SEO, GEO, AEO)
+  // Multi-Graph Schema.org Structured Data (Invisible in UI, 100% Crawlable for SEO/GEO/AEO)
   const schemaGraph = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -146,9 +133,9 @@ export default async function DeveloperDocsPage() {
         ],
         address: {
           '@type': 'PostalAddress',
-          'addressLocality': 'Guwahati',
-          'addressRegion': 'Assam',
-          'addressCountry': 'IN',
+          addressLocality: 'Guwahati',
+          addressRegion: 'Assam',
+          addressCountry: 'IN',
         },
         geo: {
           '@type': 'GeoCoordinates',
@@ -318,121 +305,96 @@ export default async function DeveloperDocsPage() {
       {/* Global Navbar */}
       <Navbar header={cms?.header} />
 
-      <main className="min-h-screen relative overflow-hidden pt-28 pb-20 flex-1">
+      <main className="min-h-screen relative overflow-hidden pt-24 sm:pt-28 pb-16 sm:pb-20 flex-1">
         {/* Ambient Gradient Glows */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1600px] h-[750px] pointer-events-none z-0">
           <div className="absolute top-10 left-1/4 w-[36rem] h-[36rem] bg-fuchsia-600/15 rounded-full blur-[160px]" />
           <div className="absolute top-20 right-1/4 w-[36rem] h-[36rem] bg-purple-600/15 rounded-full blur-[160px]" />
         </div>
 
-        <div className="relative z-10 w-full max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12">
-          {/* ==================== SEMANTIC BREADCRUMBS ==================== */}
-          <nav aria-label="Breadcrumbs" className="mb-6 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <Link href="/" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-              Home
-            </Link>
-            <ChevronRight size={12} className="text-slate-400" />
-            <Link href="/docs/developer" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-              Documentation
-            </Link>
-            <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
-              Developer API Platform (OpenAI-Compatible)
-            </span>
-          </nav>
-
-          {/* ==================== HERO SECTION (HIGH CONVERSION & SEARCH AUTHORITY) ==================== */}
-          <section className="text-center max-w-5xl mx-auto mb-12 sm:mb-14">
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-fuchsia-500/15 via-purple-500/10 to-indigo-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold shadow-sm">
-                <Sparkles size={14} className="text-fuchsia-700 dark:text-fuchsia-400" />
-                <span>⚡ Native Assamese &amp; Indic LLMs • OpenAI-Compatible v1 REST API</span>
-              </div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold shadow-sm">
-                <Globe2 size={13} className="text-emerald-600 dark:text-emerald-400" />
-                <span>🇮🇳 Sovereign AI Infrastructure • Guwahati, Assam</span>
-              </div>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight sm:leading-tight mb-5">
+        {/* Outer Container (Full Width, Centered, Standardized Max Width) */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* ==================== HERO SECTION (CENTERED & CLEAN) ==================== */}
+          <section className="text-center max-w-4xl mx-auto mb-10 sm:mb-14 w-full">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight sm:leading-tight mb-4 sm:mb-6">
               Developer API Platform{' '}
               <span className="gradient-text">
                 for Native Assamese &amp; Indic AI
               </span>
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-slate-300 leading-relaxed max-w-4xl mx-auto mb-8">
-              Build production apps, enterprise bots, and bilingual platforms powered by Assam&apos;s first sovereign AI engine. Seamless drop-in replacement for OpenAI SDKs in Python, Node.js, PHP, Next.js, and Flutter with sub-280ms latency, zero code rewrites, and 100% pure Assamese orthography.
+            <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-8 sm:mb-10">
+              Build world-class apps, websites, and bots powered by Assam&apos;s first indigenous AI platform. Seamless drop-in replacement for OpenAI SDKs across Python, Node.js, PHP, Flutter, and Next.js with automatic Assamese grammar purification and sub-second latency.
             </p>
 
             {/* Quick Navigation Jump Bar (All Key Anchors) */}
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-xs sm:text-sm">
               <a
-                href="#specifications"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm"
-              >
-                <Server size={14} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Fact Sheet (AEO)</span>
-              </a>
-              <a
-                href="#linguistic-engine"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-purple-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-purple-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-purple-500/40 transition-all flex items-center gap-1.5 shadow-sm"
-              >
-                <Languages size={14} className="text-purple-600 dark:text-purple-400" />
-                <span>Sovereign Architecture (GEO)</span>
-              </a>
-              <a
                 href="#pricing"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm font-semibold"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm font-semibold"
               >
                 <Layers size={14} className="text-emerald-600 dark:text-emerald-400" />
                 <span>API Pricing</span>
               </a>
               <a
                 href="#quickstart"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-fuchsia-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-fuchsia-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <Code size={14} className="text-fuchsia-600 dark:text-fuchsia-400" />
                 <span>SDK Quickstart</span>
               </a>
               <a
                 href="#api-keys"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <Key size={14} className="text-fuchsia-600 dark:text-fuchsia-400" />
                 <span>Get API Key</span>
               </a>
               <a
                 href="#playground"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-indigo-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-indigo-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-indigo-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <Play size={14} className="text-indigo-600 dark:text-indigo-400" />
                 <span>Live Sandbox</span>
               </a>
               <a
                 href="#stacks"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-purple-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-purple-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-purple-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-purple-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-purple-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-purple-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <FileCode2 size={14} className="text-purple-600 dark:text-purple-400" />
                 <span>Frameworks</span>
               </a>
               <a
                 href="#models"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-indigo-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-indigo-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-indigo-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-indigo-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-indigo-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <Cpu size={14} className="text-indigo-600 dark:text-indigo-400" />
                 <span>Model Specs</span>
               </a>
               <a
+                href="#endpoints"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Terminal size={14} className="text-emerald-600 dark:text-emerald-400" />
+                <span>REST Endpoints</span>
+              </a>
+              <a
                 href="#security"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all flex items-center gap-1.5 shadow-sm"
               >
                 <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-400" />
                 <span>Security</span>
               </a>
               <a
+                href="#rate-limits"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-amber-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-amber-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-amber-500/40 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <Lock size={14} className="text-amber-600 dark:text-amber-400" />
+                <span>Rate Limits</span>
+              </a>
+              <a
                 href="#faq"
-                className="px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-white/5 hover:bg-amber-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-amber-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-amber-500/40 transition-all flex items-center gap-1.5 shadow-sm font-semibold"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/80 dark:bg-white/5 hover:bg-amber-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-amber-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 hover:border-amber-500/40 transition-all flex items-center gap-1.5 shadow-sm font-semibold"
               >
                 <HelpCircle size={14} className="text-amber-600 dark:text-amber-400" />
                 <span>Developer FAQ</span>
@@ -440,208 +402,58 @@ export default async function DeveloperDocsPage() {
             </div>
           </section>
 
-          {/* ==================== AEO DIRECT SPECIFICATION BOX ==================== */}
-          <section className="mb-10 max-w-5xl mx-auto">
-            <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-100/40 dark:from-purple-950/40 via-white/60 dark:via-slate-900/60 to-indigo-100/40 dark:to-indigo-950/40 border border-purple-500/25 shadow-xl relative overflow-hidden group">
+          {/* ==================== ONE BASE URL SPECIFICATION BOX (FULL WIDTH) ==================== */}
+          <section className="mb-10 sm:mb-14 w-full mx-auto">
+            <div className="w-full p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-purple-100/40 dark:from-purple-950/40 via-white/60 dark:via-slate-900/60 to-indigo-100/40 dark:to-indigo-950/40 border border-purple-500/25 shadow-xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="flex items-start gap-4 sm:gap-5 relative z-10">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-700 dark:text-purple-300 shrink-0 mt-1 shadow-inner">
-                  <Terminal size={24} className="text-fuchsia-700 dark:text-fuchsia-400" />
+              <div className="flex items-start gap-3.5 sm:gap-5 relative z-10">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-700 dark:text-purple-300 shrink-0 mt-0.5 shadow-inner">
+                  <Terminal size={22} className="text-fuchsia-700 dark:text-fuchsia-400" />
                 </div>
-                <div className="space-y-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs font-semibold">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-[11px] sm:text-xs font-semibold">
                     <span>Official OpenAI Compatibility Specification</span>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-emerald-950 dark:text-white tracking-tight">
+                  <h2 className="text-lg sm:text-2xl font-bold text-emerald-950 dark:text-white tracking-tight">
                     One Base URL. Zero Code Rewrites.
                   </h2>
-                  <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
-                    Axom AI provides a standard OpenAI-compliant REST interface. Any existing codebase, library, or agentic framework (LangChain, LlamaIndex, LiteLLM, AutoGen, CrewAI) connects immediately by simply pointing <code className="font-mono text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 px-1.5 py-0.5 rounded">base_url=&quot;https://aiaxom.co.in/v1&quot;</code> and passing an Axom API Key.
+                  <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-base leading-relaxed">
+                    Axom AI provides a standard OpenAI-compliant REST interface. Any existing codebase, library, or agentic framework (LangChain, LlamaIndex, LiteLLM, AutoGen, CrewAI) connects immediately by simply pointing <code className="font-mono text-xs text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 px-1.5 py-0.5 rounded break-all">base_url=&quot;https://aiaxom.co.in/v1&quot;</code> and passing an Axom API Key.
                   </p>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* ==================== AEO DEVELOPER FACT SHEET & KEY SPECIFICATIONS ==================== */}
-          <section id="specifications" className="mb-14 max-w-5xl mx-auto scroll-mt-24">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-lg backdrop-blur-sm">
-              <div className="flex items-center justify-between flex-wrap gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
-                    <Server size={18} />
-                  </div>
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-                      Axom AI Developer API Fact Sheet &amp; Specifications (AEO)
-                    </h2>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Standard technical specifications for Google AI Overviews, Perplexity, SearchGPT &amp; LLM agents
-                    </p>
-                  </div>
-                </div>
-                <span className="text-xs px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono font-medium">
-                  REST v1.0 Spec
-                </span>
-              </div>
+          {/* ==================== INTERACTIVE DOCS & KEY GENERATOR (FULL WIDTH) ==================== */}
+          <div className="w-full">
+            <DeveloperDocsInteractive />
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm">
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">Base REST Endpoint</span>
-                  <code className="text-emerald-700 dark:text-emerald-400 font-mono font-bold block text-xs break-all">
-                    https://aiaxom.co.in/v1
-                  </code>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block pt-1">
-                    OpenAI SDK drop-in base_url
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">Authentication Scheme</span>
-                  <div className="font-mono text-purple-700 dark:text-purple-300 font-bold text-xs">
-                    Bearer axom-...
-                  </div>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block pt-1">
-                    Via <code className="bg-slate-200/50 dark:bg-slate-700/50 px-1 rounded">Authorization</code> HTTP Header
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">Primary LLM Models</span>
-                  <div className="text-slate-900 dark:text-white font-semibold text-xs space-y-0.5">
-                    <div><code>axom-indic-1</code> (Bilingual Flagship)</div>
-                    <div><code>axom-turbo-v2</code> (Sub-280ms)</div>
-                    <div><code>axom-pro</code> (Deep STEM Reasoning)</div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">Supported Languages</span>
-                  <div className="text-slate-900 dark:text-white font-semibold text-xs space-y-0.5">
-                    <div>Assamese (অসমীয়া • <code>as-IN</code>)</div>
-                    <div>Bengali, Bodo, Hindi &amp; English</div>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">Inference Latency</span>
-                  <div className="text-emerald-700 dark:text-emerald-400 font-bold text-sm">
-                    &lt; 280ms TTFT
-                  </div>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block pt-1">
-                    Time To First Token on Indian GPU clusters
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">Data Residency &amp; Cloud</span>
-                  <div className="text-slate-900 dark:text-white font-semibold text-xs">
-                    AWS Asia-South-1 (Mumbai, India)
-                  </div>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block pt-1">
-                    DPDP Act 2023 &amp; ISO 27001 TLS 1.3
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">SDK Compatibility</span>
-                  <div className="text-slate-900 dark:text-white font-semibold text-xs">
-                    Python, Node.js, PHP, Dart, cURL
-                  </div>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block pt-1">
-                    LangChain, LlamaIndex, LiteLLM, CrewAI
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 space-y-1">
-                  <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold block">Free Sandbox Tier</span>
-                  <div className="text-emerald-700 dark:text-emerald-400 font-bold text-sm">
-                    ₹0 / Month
-                  </div>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block pt-1">
-                    50 req/day • Instant Developer Key
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ==================== GEO SOVEREIGN LINGUISTIC ARCHITECTURE ==================== */}
-          <section id="linguistic-engine" className="mb-14 max-w-5xl mx-auto scroll-mt-24">
-            <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-white/90 via-emerald-50/30 to-purple-50/30 dark:from-slate-900/90 dark:via-emerald-950/20 dark:to-purple-950/20 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden">
-              <div className="max-w-4xl space-y-4">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
-                  <Languages size={14} /> Sovereign Indic Linguistic Engine (GEO)
-                </div>
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                  Why Global AI Fails at Assamese — And How Axom AI Solves It
-                </h2>
-                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
-                  Most international LLMs (GPT-4, Claude, Gemini) produce substandard Assamese outputs because their tokenizers treat Assamese as a low-resource dialect of Bengali. This introduces severe script contamination, orthographic hallucinations, and broken grammar. Axom AI was built from the ground up to solve these sovereign linguistic challenges.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-sm">
-                      ১
-                    </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Pristine Assamese Orthography</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Rigid Unicode script enforcement ensures Assamese characters <strong className="text-emerald-600 dark:text-emerald-400">ৰ (U+09F0)</strong> and <strong className="text-emerald-600 dark:text-emerald-400">ৱ (U+09F1)</strong> are never corrupted into Bengali glyphs (<code className="text-red-500">র</code> and <code className="text-red-500">ব</code>).
-                    </p>
-                  </div>
-
-                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
-                    <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-sm">
-                      ২
-                    </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">Northeast Cultural Grounding</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Pre-trained on historical Ahom chronicles (Buranji), Sankardev&apos;s Borgeet, regional Assam administrative vocabulary, and local geography across all 35 Assam districts.
-                    </p>
-                  </div>
-
-                  <div className="p-5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm space-y-2">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-sm">
-                      ৩
-                    </div>
-                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">India Data Sovereign Hosting</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Hosted locally in India (Asia-South-1) ensuring compliance with the Digital Personal Data Protection (DPDP) Act 2023 with ultra-low latency for Indian telecom networks.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ==================== INTERACTIVE DOCS & KEY GENERATOR ==================== */}
-          <DeveloperDocsInteractive />
-
-          {/* ==================== AEO / GEO COMPREHENSIVE DEVELOPER FAQ SECTION ==================== */}
-          <section id="faq" className="mt-20 mb-14 max-w-5xl mx-auto scroll-mt-24 space-y-6">
-            <div className="text-center max-w-3xl mx-auto space-y-3">
+          {/* ==================== DEVELOPER FAQ SECTION (FULL WIDTH & CENTERED) ==================== */}
+          <section id="faq" className="mt-16 sm:mt-20 mb-12 sm:mb-16 w-full mx-auto scroll-mt-24 space-y-6">
+            <div className="text-center max-w-3xl mx-auto space-y-2 sm:space-y-3 px-2">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold uppercase tracking-wider">
                 <HelpCircle size={14} /> Developer Q&amp;A Knowledge Base (AEO / FAQ)
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Frequently Asked Questions — Axom AI Developer Platform
               </h2>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+              <p className="text-xs sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
                 Direct answers to common developer questions regarding API keys, OpenAI SDK compatibility, Indic language capabilities, rate limits, and enterprise pricing.
               </p>
             </div>
 
-            <div className="space-y-4 pt-4">
+            <div className="w-full space-y-3.5 sm:space-y-4 pt-2 sm:pt-4">
               {/* FAQ Item 1 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>What is the Axom AI Developer API?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
                     The <strong>Axom AI Developer API</strong> is an enterprise-grade, OpenAI-compatible REST API providing developers direct programmatic access to Assam&apos;s first indigenous Large Language Models (LLMs) and Indic neural intelligence engines. It enables developers to integrate high-speed chat completions (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/chat/completions</code>), model listings (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/models</code>), and neural Assamese translation (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/translate</code>) into web applications, mobile apps, bots, and automated workflows with sub-280ms response times.
                   </p>
@@ -649,14 +461,14 @@ export default async function DeveloperDocsPage() {
               </details>
 
               {/* FAQ Item 2 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>How does Axom AI achieve 100% OpenAI compatibility?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
                     Axom AI adheres strictly to the OpenAI REST specification. Developers can use official OpenAI SDKs in Python (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">openai</code>), Node.js/TypeScript (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">openai</code>), PHP, cURL, or frameworks like LangChain, LlamaIndex, LiteLLM, and AutoGen simply by setting <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">base_url=&quot;https://aiaxom.co.in/v1&quot;</code> and passing an Axom AI API key in the <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">Authorization: Bearer &lt;axom-api-key&gt;</code> header. <strong>No code rewrites or custom adapter packages are required.</strong>
                   </p>
@@ -664,14 +476,14 @@ export default async function DeveloperDocsPage() {
               </details>
 
               {/* FAQ Item 3 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>How do I obtain an Axom AI API key?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
                     You can generate secret API keys by registering or signing in to the official Developer Console at <a href="https://user.aiaxom.co.in/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 dark:text-emerald-400 font-semibold underline underline-offset-4">user.aiaxom.co.in</a>. Once logged in, navigate to the <strong>API Keys &amp; Credentials</strong> tab, click &quot;Create New Secret Key&quot;, and copy your cryptographically signed bearer token (prefixed with <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">axom-</code>). Free Sandbox tier accounts immediately receive starter credits and 50 requests/day.
                   </p>
@@ -679,14 +491,14 @@ export default async function DeveloperDocsPage() {
               </details>
 
               {/* FAQ Item 4 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>What models are supported on the Axom AI Developer Platform?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>Axom AI provides three production-grade model tiers accessible via the API:</p>
                   <ul className="list-disc pl-5 space-y-1 pt-1">
                     <li><strong className="text-slate-900 dark:text-white font-mono">axom-indic-1</strong>: Flagship pedagogical and bilingual Assamese-English reasoning model with native Indic orthography and literature grounding.</li>
@@ -697,14 +509,14 @@ export default async function DeveloperDocsPage() {
               </details>
 
               {/* FAQ Item 5 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>How does Axom AI handle Assamese orthography and Bengali script contamination?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
                     Standard global LLMs frequently contaminate Assamese text by confusing Assamese characters <strong>ৰ (Ra)</strong> and <strong>ৱ (Va)</strong> with Bengali glyphs (র and ব). Axom AI features a proprietary Assamese grammatical purifier and custom Indic BPE tokenizer trained on regional literary, historical, scientific, and administrative corpora to ensure 100% grammatically and orthographically accurate Assamese output.
                   </p>
@@ -712,14 +524,14 @@ export default async function DeveloperDocsPage() {
               </details>
 
               {/* FAQ Item 6 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>What are the pricing plans and token quotas for the Axom AI API?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>Axom AI provides transparent, developer-friendly pricing with monthly and annual discount options:</p>
                   <ul className="list-disc pl-5 space-y-1 pt-1">
                     <li><strong>Free Sandbox:</strong> ₹0/month — 50 req/day, 1 key, community support.</li>
@@ -727,21 +539,21 @@ export default async function DeveloperDocsPage() {
                     <li><strong>Pro Tier (Most Popular):</strong> ₹499/month (₹399/month billed annually) — 25,000 req/month, unlimited API keys, priority inference queue.</li>
                     <li><strong>Enterprise Tier:</strong> ₹1,499/month (₹1,199/month billed annually) — 100,000 req/month, 99.9% SLA, dedicated engineering support.</li>
                   </ul>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 pt-1">
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 pt-1">
                     * Payments are securely processed via Razorpay (UPI, Credit/Debit Cards, Netbanking) through the Developer Console.
                   </p>
                 </div>
               </details>
 
               {/* FAQ Item 7 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>What rate limits apply to the Axom AI API?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
                     Rate limits operate on an in-memory sliding-window cache to prevent abusive bot scraping and guarantee consistent latency for all clients:
                   </p>
@@ -751,21 +563,21 @@ export default async function DeveloperDocsPage() {
                     <li>Pro Tier: 300 requests/minute and 25,000 requests/month.</li>
                     <li>Enterprise Tier: Custom burst limits up to 1,000+ requests/minute with dedicated GPU allocation.</li>
                   </ul>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 pt-1">
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 pt-1">
                     When limits are reached, the API returns HTTP 429 with standard <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Retry-After</code> response headers.
                   </p>
                 </div>
               </details>
 
               {/* FAQ Item 8 */}
-              <details className="group p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
-                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-base sm:text-lg text-slate-900 dark:text-white">
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">
                   <span>Is data processed by Axom AI secure and compliant with Indian data regulations?</span>
-                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-xl shrink-0 ml-4">
+                  <span className="transition group-open:rotate-180 text-emerald-600 dark:text-emerald-400 font-mono text-lg sm:text-xl shrink-0 ml-3">
                     ▾
                   </span>
                 </summary>
-                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-sm leading-relaxed space-y-2">
+                <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
                     Yes. All API traffic is strictly encrypted in transit using <strong>TLS 1.3 with SHA-256 ciphers</strong>. Axom AI complies with India&apos;s <strong>Digital Personal Data Protection (DPDP) Act 2023</strong>. Developer API payloads and completions are strictly stateless, never cached permanently, and <strong>never used to train base foundation models</strong> without explicit enterprise consent. Infrastructure is hosted securely within India (Asia-South-1).
                   </p>

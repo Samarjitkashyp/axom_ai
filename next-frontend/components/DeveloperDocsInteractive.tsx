@@ -643,7 +643,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
           {/* Subtle Accent Glow */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
 
-          <div className="max-w-5xl space-y-5">
+          <div className="w-full space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
               <Key size={13} className="text-emerald-600 dark:text-emerald-400" />
               Cryptographic Key Management
@@ -653,7 +653,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               Generate &amp; Manage Your API Secret Keys
             </h2>
 
-            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-4xl">
+            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
               To guarantee zero quota hijacking and adhere to strict industry security standards, Axom AI secret keys are cryptographically generated, user-bound, and managed inside the dedicated <strong>Axom AI Developer Console</strong>.
             </p>
 
@@ -1218,7 +1218,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
             </div>
 
             {/* Language Selector Tabs */}
-            <div className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 overflow-x-auto max-w-full">
               <button
                 type="button"
                 onClick={() => setActiveTab('python')}
@@ -2221,7 +2221,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
         </div>
 
         {/* Endpoint Selector Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
           <button
             type="button"
             onClick={() => setActiveEndpoint('chat')}
