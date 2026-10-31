@@ -2945,8 +2945,8 @@ def convert_file_api(request):
         return JsonResponse({'error': 'Too many requests. Please wait a moment.'}, status=429)
 
     target = (request.POST.get('target', '') or '').lower().strip()
-    if target not in ('pdf', 'docx', 'png', 'jpg', 'webp', 'svg'):
-        return JsonResponse({'error': 'Invalid target. Use pdf, docx, png, jpg, webp or svg.'}, status=400)
+    if target not in ('pdf', 'docx', 'png', 'jpg', 'webp', 'svg', 'compress'):
+        return JsonResponse({'error': 'Invalid target. Use pdf, docx, png, jpg, webp, svg or compress.'}, status=400)
 
     files = request.FILES.getlist('files') or (
         [request.FILES['file']] if 'file' in request.FILES else [])
@@ -2957,6 +2957,58 @@ def convert_file_api(request):
     for f in files:
         if f.size > max_size:
             return JsonResponse({'error': 'A file exceeds the 25MB limit.'}, status=400)
+
+    # ─── FREE DAILY LIMIT & IP/DEVICE-BASED RESTRICTION ─────────────────────
+    from django.core.cache import cache
+    from django.utils import timezone
+
+    is_premium, plan_name, _ = _check_user_premium_status(request)
+    FREE_CONVERSION_DAILY_LIMIT = 20
+    today_str = timezone.localdate().strftime('%Y-%m-%d')
+    client_ip = _client_ip(request)
+
+    device_id = (
+        request.headers.get('X-Device-Id', '').strip()
+        or request.COOKIES.get('axom_device_uid', '').strip()
+        or request.COOKIES.get('axom_device_id', '').strip()
+    )
+
+    ip_key = f"axom_w2p_daily_ip_{client_ip}_{today_str}"
+    dev_key = f"axom_w2p_daily_dev_{device_id}_{today_str}" if device_id else None
+
+    user = getattr(request, 'user', None)
+    user_key = f"axom_w2p_daily_user_{user.id}_{today_str}" if (user and getattr(user, 'is_authenticated', False)) else None
+
+    current_used = 0
+    if not is_premium:
+        used_ip = cache.get(ip_key, 0)
+        used_dev = cache.get(dev_key, 0) if dev_key else 0
+        used_user = cache.get(user_key, 0) if user_key else 0
+
+        current_used = max(used_ip, used_dev, used_user)
+        num_requested = len(files)
+
+        if current_used >= FREE_CONVERSION_DAILY_LIMIT:
+            return JsonResponse({
+                'success': False,
+                'error': f'Daily free limit reached ({FREE_CONVERSION_DAILY_LIMIT}/{FREE_CONVERSION_DAILY_LIMIT} files converted today on this device/IP). Upgrade to Axom AI Premium for unlimited conversions.',
+                'limit_reached': True,
+                'daily_limit': FREE_CONVERSION_DAILY_LIMIT,
+                'used': current_used,
+                'plan': 'free',
+            }, status=429)
+
+        if current_used + num_requested > FREE_CONVERSION_DAILY_LIMIT:
+            remaining = max(0, FREE_CONVERSION_DAILY_LIMIT - current_used)
+            return JsonResponse({
+                'success': False,
+                'error': f'Converting {num_requested} files exceeds your daily free limit. You have {remaining} free conversion(s) remaining today.',
+                'limit_reached': True,
+                'daily_limit': FREE_CONVERSION_DAILY_LIMIT,
+                'used': current_used,
+                'remaining': remaining,
+                'plan': 'free',
+            }, status=429)
 
     import uuid
     media_root = settings.MEDIA_ROOT
@@ -3028,23 +3080,62 @@ def convert_file_api(request):
                 out = os.path.join(out_dir, f"{stem}_{uid}.zip")
                 fc.zip_files(imgs, out)
                 out_name = f"{stem}_images.zip"
-        elif target in ('png', 'jpg', 'webp') and src_ext in (
+        elif target in ('png', 'jpg', 'webp', 'compress') and src_ext in (
                 '.jfif', '.webp', '.bmp', '.tiff', '.tif', '.gif', '.ico',
                 '.avif', '.heic', '.heif', '.png', '.jpg', '.jpeg'):
             from PIL import Image as PILImage
-            out = os.path.join(out_dir, f"{stem}_{uid}.{target}")
-            img = PILImage.open(saved[0][0])
-            if img.mode in ('RGBA', 'LA', 'P') and target == 'jpg':
-                img = img.convert('RGB')
-            elif img.mode not in ('RGB', 'RGBA'):
-                img = img.convert('RGBA' if target == 'png' else 'RGB')
-            save_opts = {}
-            if target == 'webp':
-                save_opts = {'quality': 90}
-            elif target == 'jpg':
-                save_opts = {'quality': 95}
-            img.save(out, **save_opts)
-            out_name = f"{stem}.{target}"
+            actual_target = target
+            if target == 'compress':
+                if src_ext in ('.jpg', '.jpeg', '.jfif'):
+                    actual_target = 'jpg'
+                elif src_ext == '.webp':
+                    actual_target = 'webp'
+                else:
+                    actual_target = 'png'
+
+            req_quality = request.POST.get('quality', '')
+            try:
+                user_q = int(req_quality) if req_quality else None
+            except ValueError:
+                user_q = None
+
+            if len(saved) > 1:
+                compressed_outputs = []
+                for s_path, s_ext, s_stem in saved:
+                    cur_out = os.path.join(out_dir, f"{s_stem}_{uid}.{actual_target}")
+                    img = PILImage.open(s_path)
+                    if img.mode in ('RGBA', 'LA', 'P') and actual_target == 'jpg':
+                        img = img.convert('RGB')
+                    elif img.mode not in ('RGB', 'RGBA'):
+                        img = img.convert('RGBA' if actual_target == 'png' else 'RGB')
+                    save_opts = {}
+                    if actual_target == 'webp':
+                        save_opts = {'quality': user_q if user_q and 1 <= user_q <= 100 else (75 if target == 'compress' else 90)}
+                    elif actual_target == 'jpg':
+                        save_opts = {'quality': user_q if user_q and 1 <= user_q <= 100 else (75 if target == 'compress' else 95), 'optimize': True}
+                    elif actual_target == 'png':
+                        save_opts = {'optimize': True}
+                    img.save(cur_out, **save_opts)
+                    compressed_outputs.append(cur_out)
+                out = os.path.join(out_dir, f"compressed_{uid}.zip")
+                fc.zip_files(compressed_outputs, out)
+                out_name = f"compressed_{len(compressed_outputs)}_images.zip"
+            else:
+                out = os.path.join(out_dir, f"{stem}_{uid}.{actual_target}")
+                img = PILImage.open(saved[0][0])
+                if img.mode in ('RGBA', 'LA', 'P') and actual_target == 'jpg':
+                    img = img.convert('RGB')
+                elif img.mode not in ('RGB', 'RGBA'):
+                    img = img.convert('RGBA' if actual_target == 'png' else 'RGB')
+                save_opts = {}
+                if actual_target == 'webp':
+                    save_opts = {'quality': user_q if user_q and 1 <= user_q <= 100 else (75 if target == 'compress' else 90)}
+                elif actual_target == 'jpg':
+                    save_opts = {'quality': user_q if user_q and 1 <= user_q <= 100 else (75 if target == 'compress' else 95), 'optimize': True}
+                elif actual_target == 'png':
+                    save_opts = {'optimize': True}
+                img.save(out, **save_opts)
+                out_name = f"{stem}_compressed.{actual_target}" if target == 'compress' else f"{stem}.{actual_target}"
         elif target in ('png', 'jpg', 'webp') and src_ext == '.svg':
             import cairosvg
             out = os.path.join(out_dir, f"{stem}_{uid}.{target}")
@@ -3097,13 +3188,34 @@ def convert_file_api(request):
     size = os.path.getsize(out)
     size_str = (f"{size / 1024:.1f} KB" if size < 1024 * 1024
                 else f"{size / (1024 * 1024):.2f} MB")
+    if not is_premium:
+        new_usage = current_used + len(files)
+        cache_ttl = 86400  # 24 hours
+        cache.set(ip_key, new_usage, cache_ttl)
+        if dev_key:
+            cache.set(dev_key, new_usage, cache_ttl)
+        if user_key:
+            cache.set(user_key, new_usage, cache_ttl)
+    else:
+        new_usage = 0
+
+    orig_total_size = sum(os.path.getsize(s[0]) for s in saved if os.path.exists(s[0]))
+    saved_bytes = max(0, orig_total_size - size)
+    saved_percent = round((saved_bytes / orig_total_size) * 100, 1) if orig_total_size > 0 else 0.0
+
     return JsonResponse({
         'success': True,
         'filename': fname,
         'output_name': out_name,
         'download_url': f"/api/download-converted-file/{fname}",
         'file_size': size_str,
+        'orig_size_bytes': orig_total_size,
+        'output_size_bytes': size,
+        'saved_percent': saved_percent,
         'message': f"Converted to {out_name}",
+        'daily_used': new_usage,
+        'daily_limit': -1 if is_premium else FREE_CONVERSION_DAILY_LIMIT,
+        'is_pro': is_premium,
     })
 
 

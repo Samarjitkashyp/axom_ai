@@ -112,7 +112,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/pdf-to-word';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
-    ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
+    ? Array.from(new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS]))
     : TARGET_KEYWORDS;
 
   return {
@@ -474,119 +474,44 @@ export default async function PdfToWordPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition text-center relative group">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
+            <div className="grid grid-cols-1 gap-4 max-w-3xl mx-auto">
+              <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition flex flex-col sm:flex-row items-start sm:items-center gap-4 text-left relative group">
+                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 font-bold text-lg shrink-0 group-hover:scale-110 transition">
                   1
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_1_title || 'Upload PDF File'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.step_1_desc ||
-                    'Drag and drop your PDF document into the converter box above or choose it from your local storage.'}
-                </p>
+                <div>
+                  <h3 className="text-base font-bold text-white mb-1">{cms?.step_1_title || 'Upload PDF File'}</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {cms?.step_1_desc ||
+                      'Drag and drop your PDF document into the converter box above or choose it from your local storage.'}
+                  </p>
+                </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition text-center relative group">
-                <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/25 flex items-center justify-center text-fuchsia-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
+              <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition flex flex-col sm:flex-row items-start sm:items-center gap-4 text-left relative group">
+                <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/25 flex items-center justify-center text-fuchsia-400 font-bold text-lg shrink-0 group-hover:scale-110 transition">
                   2
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_2_title || 'Instant Layout Reconstruction'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.step_2_desc ||
-                    'Click Convert to Word Now. Our deep extraction engine reconstructs text, tables, images, and styles in 2–3 seconds.'}
-                </p>
+                <div>
+                  <h3 className="text-base font-bold text-white mb-1">{cms?.step_2_title || 'Instant Layout Reconstruction'}</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {cms?.step_2_desc ||
+                      'Click Convert to Word Now. Our deep extraction engine reconstructs text, tables, images, and styles in 2–3 seconds.'}
+                  </p>
+                </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition text-center relative group">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
+              <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition flex flex-col sm:flex-row items-start sm:items-center gap-4 text-left relative group">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 font-bold text-lg shrink-0 group-hover:scale-110 transition">
                   3
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_3_title || 'Download Editable DOCX'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.step_3_desc ||
-                    'Download your clean, watermark-free Microsoft Word document ready to edit in Word, Google Docs, or Pages.'}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 2: WHY AXOM AI */}
-          <section className="mb-20">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-                {cms?.why_title || 'Why Axom AI is the Best Free PDF to Word Converter Online'}
-              </h2>
-              <p className="text-slate-400 text-sm max-w-xl mx-auto">
-                {cms?.why_subheading ||
-                  'Engineered for students, legal professionals, accountants, and businesses who need exact formatting and privacy.'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center mb-4">
-                  <Award size={20} />
+                <div>
+                  <h3 className="text-base font-bold text-white mb-1">{cms?.step_3_title || 'Download Editable DOCX'}</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {cms?.step_3_desc ||
+                      'Download your clean, watermark-free Microsoft Word document ready to edit in Word, Google Docs, or Pages.'}
+                  </p>
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_1_title || 'Lossless Table & Font Preservation'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_1_desc ||
-                    'Complex financial spreadsheets, multi-column tables, custom typography, headers, and footers are converted into native editable Word tables.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-4">
-                  <Shield size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_2_title || 'Zero Watermarks, 100% Clean'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_2_desc ||
-                    'No promotional stamps, logo overlays, or page limits hidden behind paywalls. Converted files are clean and professional.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center mb-4">
-                  <Lock size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_3_title || 'Bank-Grade SSL Privacy'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_3_desc ||
-                    'Files are protected with 256-bit encryption during transfer and processed in isolated RAM. Uploaded files are automatically deleted immediately after conversion.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-fuchsia-500/15 text-fuchsia-400 flex items-center justify-center mb-4">
-                  <Smartphone size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_4_title || 'Universal Mobile & Desktop Support'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_4_desc ||
-                    'Works seamlessly on iOS, Android, Windows, macOS, and Linux web browsers. Convert documents anywhere without installing Adobe Acrobat or MS Office.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center mb-4">
-                  <Zap size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_5_title || 'Sub-3-Second Conversion Engine'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_5_desc ||
-                    'Powered by optimized cloud workers that convert standard PDF files in 2 to 3 seconds with minimal bandwidth usage and zero lag.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center mb-4">
-                  <Layers size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_6_title || 'Pro Batch Conversion Mode'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_6_desc ||
-                    'Convert up to 20 PDF documents at once in 1 click with Axom AI Pro. All converted Word documents are packaged into a high-speed ZIP archive.'}
-                </p>
               </div>
             </div>
           </section>

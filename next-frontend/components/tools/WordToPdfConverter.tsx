@@ -340,7 +340,7 @@ export default function WordToPdfConverter({
                   <span className="text-slate-500">•</span>
                   <a
                     href="https://chat.aiaxom.co.in/subscription"
-                    className="text-fuchsia-400 hover:text-fuchsia-300 underline font-medium flex items-center gap-1 transition"
+                    className="text-fuchsia-400 hover:text-fuchsia-300 no-underline font-medium flex items-center gap-1 transition"
                   >
                     <span>Upgrade for Unlimited</span>
                     <ArrowRight size={11} />

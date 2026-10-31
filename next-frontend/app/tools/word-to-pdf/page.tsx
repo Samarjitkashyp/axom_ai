@@ -110,7 +110,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = cms?.canonical_url || 'https://aiaxom.co.in/tools/word-to-pdf';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
-    ? [...new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS])]
+    ? Array.from(new Set([...cms.meta_keywords.split(',').map((k) => k.trim()).filter(Boolean), ...TARGET_KEYWORDS]))
     : TARGET_KEYWORDS;
 
   return {
@@ -472,122 +472,49 @@ export default async function WordToPdfPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition text-center relative group">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
+            <div className="grid grid-cols-1 gap-4 max-w-3xl mx-auto">
+              <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition flex flex-col sm:flex-row items-start sm:items-center gap-4 text-left relative group">
+                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/25 flex items-center justify-center text-purple-400 font-bold text-lg shrink-0 group-hover:scale-110 transition">
                   1
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_1_title || 'Upload Your Word File'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.step_1_desc ||
-                    'Drag and drop your DOCX or DOC file into the converter box above or choose it from your local storage.'}
-                </p>
+                <div>
+                  <h3 className="text-base font-bold text-white mb-1">{cms?.step_1_title || 'Upload Your Word File'}</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {cms?.step_1_desc ||
+                      'Drag and drop your DOCX or DOC file into the converter box above or choose it from your local storage.'}
+                  </p>
+                </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition text-center relative group">
-                <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/25 flex items-center justify-center text-fuchsia-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
+              <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition flex flex-col sm:flex-row items-start sm:items-center gap-4 text-left relative group">
+                <div className="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/25 flex items-center justify-center text-fuchsia-400 font-bold text-lg shrink-0 group-hover:scale-110 transition">
                   2
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_2_title || 'Instant Conversion'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.step_2_desc ||
-                    'Click Convert. Our high-fidelity document engine parses structures, styles, margins, and media in seconds.'}
-                </p>
+                <div>
+                  <h3 className="text-base font-bold text-white mb-1">{cms?.step_2_title || 'Instant Conversion'}</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {cms?.step_2_desc ||
+                      'Click Convert. Our high-fidelity document engine parses structures, styles, margins, and media in seconds.'}
+                  </p>
+                </div>
               </div>
 
-              <div className="p-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition text-center relative group">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 font-bold text-lg mx-auto mb-4 group-hover:scale-110 transition">
+              <div className="p-5 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-purple-500/30 transition flex flex-col sm:flex-row items-start sm:items-center gap-4 text-left relative group">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 font-bold text-lg shrink-0 group-hover:scale-110 transition">
                   3
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.step_3_title || 'Download PDF'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.step_3_desc ||
-                    'Download your clean, publication-ready PDF document directly to your device. No watermarks, ever.'}
-                </p>
+                <div>
+                  <h3 className="text-base font-bold text-white mb-1">{cms?.step_3_title || 'Download PDF'}</h3>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                    {cms?.step_3_desc ||
+                      'Download your clean, publication-ready PDF document directly to your device. No watermarks, ever.'}
+                  </p>
+                </div>
               </div>
             </div>
           </section>
 
-          {/* SECTION 2: WHY AXOM AI (BENEFITS & ARCHITECTURE) */}
-          <section className="mb-20">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-                {cms?.why_title || 'Why Axom AI Word to PDF is the Superior Choice'}
-              </h2>
-              <p className="text-slate-400 text-sm max-w-xl mx-auto">
-                {cms?.why_subheading ||
-                  'Engineered for students, educators, legal professionals, and businesses who demand accuracy and privacy.'}
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center mb-4">
-                  <Award size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_1_title || 'Lossless Layout Fidelity'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_1_desc ||
-                    'Headers, footers, footnotes, complex tables, embedded charts, and custom fonts stay strictly aligned without shifting pages.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mb-4">
-                  <Shield size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_2_title || 'Zero Watermarks, 100% Free'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_2_desc ||
-                    'No hidden subscription traps or promotional watermarks stamped across your pages. Clean documents ready for official submissions.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center mb-4">
-                  <Lock size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_3_title || 'Automatic File Purging'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_3_desc ||
-                    'Documents are processed securely via SSL encryption and purged automatically from our server memory right after conversion.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-fuchsia-500/15 text-fuchsia-400 flex items-center justify-center mb-4">
-                  <Smartphone size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_4_title || 'Universal Device Support'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_4_desc ||
-                    'Works seamlessly on iOS, Android, macOS, Windows, and Linux. No apps or browser extensions needed.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center mb-4">
-                  <Zap size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_5_title || 'Sub-3-Second Speed'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_5_desc ||
-                    'High-speed optimized micro-services convert standard documents in less than 3 seconds with minimal bandwidth usage.'}
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-purple-500/30 transition">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center mb-4">
-                  <Layers size={20} />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2">{cms?.benefit_6_title || 'Multi-Format Compatibility'}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  {cms?.benefit_6_desc ||
-                    'Handles DOCX, DOC, RTF, TXT, and ODT with automatic format detection and smart structure extraction.'}
-                </p>
-              </div>
-            </div>
-          </section>
 
           {/* SECTION 2.5: TAILORED USE CASES FOR GEO & USER PERSONAS */}
           <section className="mb-20">

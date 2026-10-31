@@ -25,7 +25,7 @@ import websockets
 from axom_ai.voice_assistant_views import (
     SYSTEM_PROMPT_CONVERSATIONAL,
     _clean_voice_text,
-    _generate_assistant_text,
+    _process_tri_model_voice_pipeline,
     _synthesize_audio,
     _process_incoming_audio,
     _transcribe_audio_fast,
@@ -131,18 +131,13 @@ class VoiceSession:
         await self.send_json({"event": "user_transcript", "text": user_text})
         await self.send_json({"event": "status", "state": "thinking", "text": "Axom AI ভাবি আছোঁ... (Thinking)"})
 
-        # 3. Build context & generate Assamese response
-        context_str = ""
-        for turn in self.history[-4:]:
-            context_str += f"{turn.get('role', 'user').capitalize()}: {turn.get('text', '')}\n"
-
-        user_prompt = (
-            f"{context_str}"
-            f"User ({self.user_name}): {user_text}\n"
-            f"Axom AI (Respond in 1 short, lively, spoken conversational Assamese sentence of max 12-15 words with 100% pure Assamese orthography and zero Bengali):"
+        # 3. Process via High-Speed Tri-Model Reasoning Pipeline (Gemini -> OpenAI gpt-4o -> Gemini)
+        reply_text = await asyncio.to_thread(
+            _process_tri_model_voice_pipeline,
+            user_text,
+            user_name=self.user_name,
+            history=self.history,
         )
-
-        reply_text = await asyncio.to_thread(_generate_assistant_text, SYSTEM_PROMPT_CONVERSATIONAL, user_prompt)
         if not reply_text:
             reply_text = "হয়, মই আপোনাৰ কথা বুজি পালোঁ। কওকচোন আজি মই আপোনাক আৰু কিদৰে সহায় কৰিম?"
 
