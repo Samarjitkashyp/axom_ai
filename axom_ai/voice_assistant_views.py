@@ -408,7 +408,7 @@ def voice_assistant_converse_api(request):
     user_prompt = (
         f"{context_str}"
         f"User ({user_name}): {user_message}\n"
-        f"Axom AI (Respond in 1-2 short, energetic, spoken conversational Assamese sentences with 100% pure Assamese orthography and zero Bengali):"
+        f"Axom AI (Respond in 1 short, lively, spoken conversational Assamese sentence of max 12-15 words with 100% pure Assamese orthography and zero Bengali):"
     )
 
     reply_text = _generate_assistant_text(SYSTEM_PROMPT_CONVERSATIONAL, user_prompt)

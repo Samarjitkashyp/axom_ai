@@ -129,6 +129,7 @@ class VoiceSession:
             return
 
         await self.send_json({"event": "user_transcript", "text": user_text})
+        await self.send_json({"event": "status", "state": "thinking", "text": "Axom AI ভাবি আছোঁ... (Thinking)"})
 
         # 3. Build context & generate Assamese response
         context_str = ""
@@ -149,14 +150,33 @@ class VoiceSession:
         self.history.append({"role": "user", "text": user_text})
         self.history.append({"role": "assistant", "text": reply_text})
 
-        # 4. Synthesize speech using high-fidelity model
-        audio_b64 = await asyncio.to_thread(_synthesize_audio, reply_text, voice=self.voice)
+        # 4. Sentence-level streaming synthesis pipeline
+        clean = reply_text.replace('\n', ' ').strip()
+        raw_sentences = [s.strip() for s in re.split(r'[।!?.]', clean) if s.strip()]
+        sentences = raw_sentences[:2] if raw_sentences else [clean]
 
+        first_audio = None
+        for idx, sentence in enumerate(sentences):
+            is_final = (idx == len(sentences) - 1)
+            chunk_audio = await asyncio.to_thread(_synthesize_audio, sentence, voice=self.voice)
+            if chunk_audio:
+                if first_audio is None:
+                    first_audio = chunk_audio
+                await self.send_json({
+                    "event": "assistant_chunk",
+                    "chunk_id": idx + 1,
+                    "total_chunks": len(sentences),
+                    "text": sentence,
+                    "audio": chunk_audio,
+                    "is_final": is_final
+                })
+
+        # Backwards compatible full reply event
         await self.send_json({
             "event": "reply",
             "user_text": user_text,
             "reply_text": reply_text,
-            "audio": audio_b64,
+            "audio": first_audio,
             "audio_format": "audio/mpeg"
         })
 
