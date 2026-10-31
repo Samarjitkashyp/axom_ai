@@ -28,26 +28,23 @@ TTS_URL = os.getenv('TTS_SERVICE_URL', 'http://127.0.0.1:8090').rstrip('/')
 FFMPEG = shutil.which('ffmpeg') or '/usr/bin/ffmpeg'
 
 SYSTEM_PROMPT_CONVERSATIONAL = (
-    "You are Axom AI's Real-Time Conversational Voice Companion, speaking directly to the user in live voice call mode.\n"
+    "You are Axom AI's Real-Time Conversational Voice Companion, having a live audio phone conversation with the user.\n"
     "VOICE PERSONA & TONE:\n"
-    "- You are a charismatic, energetic, intelligent young Assamese male companion.\n"
-    "- Your tone is vibrant, enthusiastic, polite, and confident (like an energetic friend talking on a call).\n"
+    "- You are a warm, charismatic, energetic young Assamese human companion talking on a live phone call.\n"
+    "- Speak in natural, casual, enthusiastic Assamese (অসমীয়া) — never sound like a robotic bot, textbook, or formal announcer!\n"
     "- Address the user respectfully with 'সমৰজিৎ' or their name.\n"
     "\n"
-    "MANDATORY LANGUAGE RULES:\n"
-    "1. NO MATTER WHAT LANGUAGE THE USER SPEAKS (Assamese, Hindi, English, Hinglish, Bengali, etc.), YOU MUST ALWAYS AND EXCLUSIVELY RESPOND 100% IN PURE ASSAMESE (অসমীয়া). Never respond in Hindi or English.\n"
-    "2. STRICTLY ZERO BENGALI: Absolutely NEVER use Bengali words, Bengali grammar, or Bengali script.\n"
+    "MANDATORY LANGUAGE & CONVERSATION RULES:\n"
+    "1. 100% PURE ASSAMESE ONLY: No matter what language the user speaks (Assamese, Hindi, English, Hinglish), YOU MUST ALWAYS RESPOND EXCLUSIVELY IN PURE ASSAMESE (অসমীয়া). Never reply in Hindi or English.\n"
+    "2. STRICTLY 1 TO 2 SHORT SENTENCES (MAX 18-22 WORDS): Keep each answer crisp, brief, and punchy so your voice speaks immediately without lag!\n"
+    "3. STRICTLY ZERO BENGALI: Absolutely NEVER use Bengali words, Bengali grammar, or Bengali script.\n"
     "   - Never say 'কী খবর' -> use 'আপোনাৰ খবৰ কি'\n"
     "   - Never say 'ভালো আছি' -> use 'ভালে আছোঁ'\n"
     "   - Never say 'করছি/করব' -> use 'কৰিছোঁ/কৰিম'\n"
-    "   - Guarantee 100% pure Assamese orthography: use pure 'ৰ' (U+09F0) and 'ৱ' (U+09F1), NEVER Bengali 'র' (U+09B0).\n"
-    "3. ZERO HALLUCINATION:\n"
-    "   - Stick strictly to grounded facts. Never invent fake historical facts, non-existent people, or fake websites.\n"
-    "   - If you do not know a specific fact, state politely and honestly in Assamese that you don't have that detail.\n"
-    "4. SPOKEN VOICE CADENCE:\n"
-    "   - Keep responses crisp and punchy: exactly 1 to 2 spoken sentences (max 25-30 words).\n"
-    "   - Use lively Assamese spoken conversational markers: 'নিশ্চয়!', 'বাৰু!', 'মই বুজি পালোঁ!', 'হয়!'.\n"
-    "   - Absolutely NO markdown (no asterisks, no hashes, no bullet points, no emojis) because this is synthesized straight to human speech."
+    "   - Guarantee pure Assamese orthography: use pure 'ৰ' (U+09F0) and 'ৱ' (U+09F1), NEVER Bengali 'র' (U+09B0).\n"
+    "4. NATURAL SPOKEN CADENCE: Start with natural spoken Assamese conversational markers like: 'নমস্কাৰ!', 'নিশ্চয়!', 'হয়!', 'কওকচোন!', 'মই বুজি পালোঁ!'.\n"
+    "5. ZERO HALLUCINATION: Never invent fake facts or make up information. If you don't know something, say honestly and politely: 'মই এই বিষয়ে নিশ্চিত নহয়, আন কিবা সুধিব নেকি?'.\n"
+    "6. ABSOLUTELY NO MARKDOWN, NO BULLETS, NO ASTERISKS, NO EMOJIS: Output ONLY the exact spoken words."
 )
 
 BENGALI_TO_ASSAMESE_FIXES = [
@@ -82,49 +79,56 @@ def _clean_voice_text(text):
     return _purify_assamese_with_grammar(cleaned)
 
 
-def _generate_assistant_text(system_prompt, user_prompt, timeout=12):
-    """Generate conversational dialogue using active Gemini models with OpenAI fallback."""
-    gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
-    if gemini_key:
-        models = ['gemini-3.1-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-flash-lite-latest']
-        headers = {'Content-Type': 'application/json'}
-        payload = {
-            "contents": [{"parts": [{"text": user_prompt}]}],
-            "systemInstruction": {"parts": [{"text": system_prompt}]}
-        }
-        for m in models:
-            try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}"
-                res = requests.post(url, headers=headers, json=payload, timeout=timeout)
-                if res.status_code == 200:
-                    candidates = res.json().get('candidates', [])
-                    if candidates and 'content' in candidates[0]:
-                        parts = candidates[0]['content'].get('parts', [])
-                        if parts and 'text' in parts[0]:
-                            txt = parts[0]['text']
-                            if txt and txt.strip():
-                                return _clean_voice_text(txt)
-            except Exception as e:
-                logger.warning(f"Gemini voice call error with {m}: {e}")
-                continue
-
-    # OpenAI Fallback
+def _generate_assistant_text(system_prompt, user_prompt, timeout=8):
+    """
+    Generate conversational dialogue strictly following GEMINI.md hierarchy:
+    Tier 1: OpenAI gpt-4o-mini (Primary ultra-fast 0.4s conversational response)
+    Tier 2: Groq llama-3.3-70b-versatile
+    """
     openai_key = os.getenv('OPENAI_API_KEY', '').strip()
     if openai_key:
+        for model in ['gpt-4o-mini', 'gpt-4o']:
+            try:
+                res = requests.post(
+                    'https://api.openai.com/v1/chat/completions',
+                    headers={
+                        'Authorization': f'Bearer {openai_key}',
+                        'Content-Type': 'application/json',
+                    },
+                    json={
+                        'model': model,
+                        'messages': [
+                            {'role': 'system', 'content': system_prompt},
+                            {'role': 'user', 'content': user_prompt},
+                        ],
+                        'temperature': 0.4,
+                        'max_tokens': 90,
+                    },
+                    timeout=timeout,
+                )
+                if res.status_code == 200:
+                    txt = res.json()['choices'][0]['message']['content']
+                    if txt and txt.strip():
+                        return _clean_voice_text(txt)
+            except Exception as e:
+                logger.warning(f"OpenAI voice call error with {model}: {e}")
+                continue
+
+    # Tier 2: Groq Cloud fallback
+    groq_key = os.getenv('GROQ_API_KEY', '').strip()
+    if groq_key:
         try:
             res = requests.post(
-                'https://api.openai.com/v1/chat/completions',
-                headers={
-                    'Authorization': f'Bearer {openai_key}',
-                    'Content-Type': 'application/json',
-                },
+                'https://api.groq.com/openai/v1/chat/completions',
+                headers={'Authorization': f'Bearer {groq_key}', 'Content-Type': 'application/json'},
                 json={
-                    'model': 'gpt-4o-mini',
+                    'model': 'llama-3.3-70b-versatile',
                     'messages': [
                         {'role': 'system', 'content': system_prompt},
                         {'role': 'user', 'content': user_prompt},
                     ],
-                    'temperature': 0.6,
+                    'temperature': 0.4,
+                    'max_tokens': 90,
                 },
                 timeout=timeout,
             )
@@ -133,7 +137,7 @@ def _generate_assistant_text(system_prompt, user_prompt, timeout=12):
                 if txt and txt.strip():
                     return _clean_voice_text(txt)
         except Exception as e:
-            logger.warning(f"OpenAI fallback error: {e}")
+            logger.warning(f"Groq voice fallback error: {e}")
 
     return None
 
@@ -141,13 +145,16 @@ def _generate_assistant_text(system_prompt, user_prompt, timeout=12):
 def _synthesize_audio(text, voice='male'):
     """Synthesize speech audio via AI4Bharat Indic-TTS and return base64 string."""
     try:
-        sentences = [s.strip() for s in re.split(r'[।!?.]', text) if s.strip()]
-        speech_text = (sentences[0] + '.') if sentences else text.replace('।', '.')
+        clean = text.replace('\n', ' ').strip()
+        sentences = [s.strip() for s in re.split(r'[।!?.]', clean) if s.strip()]
+        # Take up to 2 sentences for natural spoken brevity
+        speech_text = '। '.join(sentences[:2]) + '।' if sentences else clean
+        speech_text = speech_text.replace('।', '.')
 
         r = requests.post(
             f"{TTS_URL}/tts",
             json={"text": speech_text, "voice": voice},
-            timeout=60
+            timeout=25
         )
         if r.status_code == 200 and len(r.content) > 500:
             return base64.b64encode(r.content).decode('ascii')
@@ -159,7 +166,7 @@ def _synthesize_audio(text, voice='male'):
 def _process_incoming_audio(audio_bytes):
     """
     Convert incoming mobile audio (m4a, aac, wav, mp3, ogg) to 16kHz mono PCM WAV.
-    Avoids aggressive silenceremove that deletes soft human speech!
+    Fast lightweight conversion without CPU-heavy normalizer.
     """
     if not audio_bytes or len(audio_bytes) < 400:
         return None
@@ -173,11 +180,10 @@ def _process_incoming_audio(audio_bytes):
         cmd = [
             FFMPEG, '-y', '-hide_banner', '-loglevel', 'error',
             '-i', src,
-            '-af', 'dynaudnorm=f=150:g=15',
             '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', out
         ]
         try:
-            r = subprocess.run(cmd, capture_output=True, timeout=20)
+            r = subprocess.run(cmd, capture_output=True, timeout=10)
             if r.returncode == 0 and os.path.exists(out) and os.path.getsize(out) > 500:
                 with open(out, 'rb') as f:
                     return f.read()
