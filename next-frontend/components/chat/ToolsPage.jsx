@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Search, X, ArrowRight, Sun, Moon, Sparkles, Layers, FileUp, FileType2, Image as ImageIcon, Combine, Scissors, FileOutput, Minimize2, Droplets, Eraser, Lock, Unlock, Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, Wrench, Shapes, GraduationCap, ImageDown } from 'lucide-react';
+import { ChevronLeft, Search, Mic, X, ArrowRight, Sun, Moon, Sparkles, Layers, FileUp, FileType2, Image as ImageIcon, Combine, Scissors, FileOutput, Minimize2, Droplets, Eraser, Lock, Unlock, Presentation, FileSpreadsheet, ScanText, MessagesSquare, Languages, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, Wrench, Shapes, GraduationCap, ImageDown } from 'lucide-react';
 import { ALL_TOOLS, TOOL_CATEGORIES } from './utils/toolsData';
 import { getCsrfToken } from './utils/security';
 import ToolWorkspace from './ToolWorkspace';
@@ -10,6 +10,7 @@ import Navbar from '../Navbar';
 import Footer from '../Footer';
 
 const ICON_MAP = {
+  Mic,
   FileType2,
   ImageDown,
   ImageIcon,
@@ -223,7 +224,7 @@ export default function ToolsPage({
       merge: 'merge-pdf', split: 'split-pdf',
       watermark: 'watermark-pdf', protect: 'protect-pdf',
       chatpdf: 'chat-with-pdf',
-      'ai-notes-generator': 'ai-notes-generator', notesgen: 'ai-notes-generator',
+      'ai-notes-generator': 'ai-notes-generator', 'voice-notes-generator': 'voice-notes-generator', voicenotes: 'voice-notes-generator', notesgen: 'ai-notes-generator',
       ppt2pdf: 'ppt-to-pdf', excel2pdf: 'excel-to-pdf',
     };
     const slug = TOOL_ROUTES[t.id];

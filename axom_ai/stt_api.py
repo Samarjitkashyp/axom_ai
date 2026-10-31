@@ -39,7 +39,7 @@ DEFAULT_PRO = 400
 FFMPEG = shutil.which('ffmpeg') or '/usr/bin/ffmpeg'
 DEADLINE_SECONDS = 8            # the whole of Gemini + the second reader: a person is never kept waiting longer than this
 OPENAI_MODEL = os.getenv('STT_OPENAI_MODEL', 'gpt-4o-mini-transcribe')
-OPENAI_LANG = {'english': 'en', 'hinglish': 'hi'}          # OpenAI refuses the code 'as' (Assamese) and, given an Assamese prompt, says the prompt back when it hears only noise:
+OPENAI_LANG = {'english': 'en', 'hinglish': 'hi', 'hindi': 'hi'}          # OpenAI refuses the code 'as' (Assamese) and, given an Assamese prompt, says the prompt back when it hears only noise:
 #                                                            for Assamese it is told nothing and finds the language by itself (tried: it does, in Assamese script)
 PRIMARY = os.getenv('STT_PRIMARY', 'gemini')                # who reads first. Measured on the server (Assamese speech, quiet and noisy rooms): both read about as well, Gemini was the steadier one
 #                                                             (OpenAI now and then drops a whole sentence or waits 25 s) and follows 'write English words in English letters'; STT_PRIMARY=openai puts OpenAI first
@@ -71,7 +71,9 @@ CHAIN = ('highpass=f=80,lowpass=f=7500,dynaudnorm=f=150:g=7,'
 LANGUAGES = {
     'assamese': 'Assamese (অসমীয়া), written in Assamese script (use ৰ and ৱ, not Bengali র). English words the speaker says are written in English letters',
     'english': 'English (Indian accent)',
+    'hindi': 'Hindi, written in Devanagari script. English words the speaker says are written in English letters',
     'hinglish': 'Hindi, written in Devanagari script. English words the speaker says are written in English letters',
+    'multilingual': 'any spoken language (Assamese, Hindi, English, Hinglish). Detect the spoken language automatically. Transcribe speech exactly as spoken in its natural script: if Assamese, transcribe in pure Assamese script using \u09f0 and \u09f1 (never Bengali \u09b0); if Hindi, transcribe in Devanagari; if English, transcribe in English letters.',
 }
 
 PROMPT = (

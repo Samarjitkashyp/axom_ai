@@ -22,14 +22,20 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: 'Axom AI Developer API Docs — OpenAI-Compatible Assamese & Indic LLMs | REST Endpoints, SDKs & Pricing',
+  title: 'Axom AI Developer Platform — OpenAI-Compatible Assamese & Indic LLMs, Speech-to-Text Voice API & SDKs',
   description:
-    'Official Axom AI Developer Documentation. Integrate OpenAI-compatible REST endpoints (/v1/chat/completions, /v1/models, /v1/translate) for native Assamese & Indic LLMs. Complete SDK quickstarts (Python, Node.js, PHP, cURL, Flutter), API keys, live sandbox, pricing, and latency benchmarks.',
+    'Official Axom AI Developer Documentation. Integrate OpenAI-compatible REST endpoints (/v1/chat/completions, /v1/audio/transcriptions, /v1/models, /v1/translate) for native Assamese & Indic LLMs and high-precision Speech-to-Text voice models. Complete SDK quickstarts (Python, Node.js, PHP, cURL, Flutter), API keys, live sandbox, pricing, and latency benchmarks.',
   keywords: [
     'Axom AI Developer API',
+    'Assamese Speech-to-Text API',
+    'Axom Voice Indic API',
     'Assamese AI API documentation',
     'OpenAI compatible API Assam',
     'Indic LLM API endpoints',
+    'Assamese voice typing API',
+    'Assamese audio transcription API',
+    'OpenAI Whisper alternative Assamese',
+    'Voice AI Assam',
     'Assamese chatbot API',
     'Assamese neural translation API',
     'Northeast India AI developer platform',
@@ -37,10 +43,12 @@ export const metadata: Metadata = {
     'Guwahati AI platform API',
     'Bhashini alternative Assam AI',
     'v1 chat completions Assamese',
+    'v1 audio transcriptions Assamese',
     'Axom Indic-1 model',
+    'axom-voice-indic model',
     'Assamese LLM API keys',
     'AI developer pricing India',
-    'Indic NLP API',
+    'Indic NLP and STT API',
     'Assam artificial intelligence',
     'OpenAI drop-in replacement Indic',
     'Assamese language model API',
@@ -222,9 +230,64 @@ export default async function DeveloperDocsPage() {
         ],
       },
       {
+        '@type': 'HowTo',
+        '@id': 'https://aiaxom.co.in/docs/developer#howto-voice',
+        name: 'How to Transcribe Assamese Audio using OpenAI Python SDK and Axom AI',
+        description: 'Step-by-step instructions for transcribing Assamese speech into authentic Assamese text using standard OpenAI SDK and the axom-voice-indic model.',
+        step: [
+          {
+            '@type': 'HowToStep',
+            name: 'Initialize OpenAI Client',
+            text: 'Set base_url="https://aiaxom.co.in/v1" and pass your Axom Developer API Key.',
+          },
+          {
+            '@type': 'HowToStep',
+            name: 'Upload Audio Recording',
+            text: 'Call client.audio.transcriptions.create() specifying model="axom-voice-indic" and language="as".',
+          },
+          {
+            '@type': 'HowToStep',
+            name: 'Receive Purified Assamese Transcript',
+            text: 'Axom AI acoustic neural cascade transcribes the speech with zero-hallucination guardrails and authentic orthography (ৰ/ৱ).',
+          },
+        ],
+      },
+      {
         '@type': 'FAQPage',
         '@id': 'https://aiaxom.co.in/docs/developer#faq',
         mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Does Axom AI provide an Assamese Speech-to-Text (STT) Voice API?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Yes! Axom AI provides axom-voice-indic via the standard OpenAI endpoint POST /v1/audio/transcriptions. It delivers high-accuracy Assamese audio transcription with proprietary acoustic phoneme decoding, silence trimming, anti-hallucination guardrails, and native script purification (ৰ/ৱ correction).',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'How is the Axom AI Voice STT API priced?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Axom AI Voice STT is priced at a flat ₹0.25 per minute (₹0.004 per second) with fair per-second metering. In addition, all standard plans include bundled voice minutes: Free Tier (30 mins), Starter Tier (300 mins / 5 hrs), Pro Tier (1,500 mins / 25 hrs), and Enterprise Tier (6,000 mins / 100 hrs).',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Why is Axom Voice Indic better than OpenAI Whisper or Google Cloud for Assamese?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Standard OpenAI Whisper and Google Cloud Speech frequently misclassify Assamese as Bengali (outputting র instead of ৰ and mixing up ৱ), and often hallucinate repetitive consonant strings on low-audio inputs. Axom AI features specialized regional fine-tuning, dynamic acoustic thresholds, and an orthographic purification engine ensuring 99%+ grammatical accuracy.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'How do I transcribe Assamese audio in Python with OpenAI SDK?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Initialize client = OpenAI(base_url="https://aiaxom.co.in/v1", api_key="sk_live_..."), then run transcript = client.audio.transcriptions.create(model="axom-voice-indic", file=open("speech.mp3", "rb"), language="as"). The response includes the verified Assamese text transcript.',
+            },
+          },
           {
             '@type': 'Question',
             name: 'What is the Axom AI Developer API?',
@@ -445,6 +508,59 @@ export default async function DeveloperDocsPage() {
             </div>
 
             <div className="w-full space-y-3.5 sm:space-y-4 pt-2 sm:pt-4">
+              {/* FAQ Item Voice 1 */}
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-violet-500/20 shadow-sm hover:border-violet-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />
+                    Does Axom AI provide an Assamese Speech-to-Text (Voice STT) API?
+                  </span>
+                  <span className="text-violet-500 group-open:rotate-180 transition-transform duration-200">
+                    ▼
+                  </span>
+                </summary>
+                <div className="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
+                  <p>
+                    <strong>Yes, 100%!</strong> Axom AI provides <code className="font-mono text-violet-600 dark:text-violet-400 font-bold bg-violet-100 dark:bg-violet-950 px-1.5 py-0.5 rounded">axom-voice-indic</code>, an indigenous Speech-to-Text neural model accessible via the standard OpenAI-compliant <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.5 rounded">POST /v1/audio/transcriptions</code> endpoint. It supports MP3, WAV, M4A, WEBM, and OGG formats with phoneme decoding, anti-hallucination filters, and native Assamese orthography (<code className="font-bold">ৰ</code> and <code className="font-bold">ৱ</code>) purification.
+                  </p>
+                </div>
+              </details>
+
+              {/* FAQ Item Voice 2 */}
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-violet-500/20 shadow-sm hover:border-violet-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />
+                    How is the Audio Voice STT API priced and metered?
+                  </span>
+                  <span className="text-violet-500 group-open:rotate-180 transition-transform duration-200">
+                    ▼
+                  </span>
+                </summary>
+                <div className="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
+                  <p>
+                    Axom AI offers completely transparent, <strong>per-second metering</strong> at <strong>₹0.25 per minute</strong> (₹0.004 / second). There are zero token rounding penalties—if your audio is 10 seconds long, you only pay for 10 seconds. In addition, all developer subscription tiers include bundled monthly voice minutes: <strong>Free (30 mins)</strong>, <strong>Starter (300 mins / 5 hrs)</strong>, <strong>Pro (1,500 mins / 25 hrs)</strong>, and <strong>Enterprise (6,000 mins / 100 hrs)</strong>.
+                  </p>
+                </div>
+              </details>
+
+              {/* FAQ Item Voice 3 */}
+              <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-violet-500/20 shadow-sm hover:border-violet-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />
+                    Why is Axom Voice Indic better than OpenAI Whisper or Google Cloud for Assamese?
+                  </span>
+                  <span className="text-violet-500 group-open:rotate-180 transition-transform duration-200">
+                    ▼
+                  </span>
+                </summary>
+                <div className="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
+                  <p>
+                    Standard Whisper and generic hyperscaler APIs treat Assamese as a low-resource language and frequently introduce Bengali script contamination (<code className="font-bold">র</code> instead of <code className="font-bold">ৰ</code>, missing <code className="font-bold">ৱ</code>), or produce repetitive hallucinated gibberish when background audio is soft. Axom AI deploys proprietary acoustic normalization, silence detection, and grammatical script filters specifically tuned for regional Assamese dialects.
+                  </p>
+                </div>
+              </details>
               {/* FAQ Item 1 */}
               <details className="group p-4 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm hover:border-emerald-500/40 transition-all [&_summary::-webkit-details-marker]:hidden">
                 <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-lg text-slate-900 dark:text-white">

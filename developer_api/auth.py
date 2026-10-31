@@ -122,9 +122,9 @@ def require_developer_api_key(view_func):
         minute_window = int(time.time() // 60)
         is_demo_key = (api_key.key and api_key.key.startswith('sk_live_axom_demo_')) or (api_key.key_prefix and 'demo' in api_key.key_prefix)
         if is_demo_key:
-            # Strictly limit demo key per IP: 5 requests per minute
+            # Sandbox demo key per IP: 30 requests per minute for smooth developer prototyping
             rate_key = f"rate_limit:demo:{client_ip}:{minute_window}"
-            rate_limit = 5
+            rate_limit = 30
         else:
             rate_key = f"rate_limit:{api_key.id}:{minute_window}"
             rate_limit = api_key.rate_limit_per_minute

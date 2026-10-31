@@ -1,4 +1,4 @@
-import { FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, ArrowDownToLine, GraduationCap, ImageDown } from 'lucide-react';
+import { Mic, FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, ArrowDownToLine, GraduationCap, ImageDown } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
   { id: 'all', name: 'All Tools' },
@@ -199,6 +199,15 @@ export const ALL_TOOLS = [
 
 
   // AI Tools
+  {
+    id: 'voice-notes-generator',
+    name: 'Voice Notes Generator',
+    cat: 'AI Tools',
+    icon: Mic,
+    badge: 'HOT',
+    hint: 'Assamese & English speech-to-text',
+    desc: 'Speak naturally into your mic. Real-time auto-typing and instant structured smart notes, summaries, and Word (.docx) export.',
+  },
   {
     id: 'ai-notes-generator',
     name: 'AI Notes Generator',

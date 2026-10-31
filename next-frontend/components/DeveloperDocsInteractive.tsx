@@ -35,7 +35,12 @@ import {
   Smartphone,
   AppWindow,
   FileCode,
-  Laptop
+  Laptop,
+  Mic,
+  Volume2,
+  Radio,
+  FileAudio,
+  UploadCloud
 } from 'lucide-react';
 
 interface ModelInfo {
@@ -78,11 +83,20 @@ const MODELS: ModelInfo[] = [
     latency: '~1.2s',
     bestFor: 'STEM problem solving, code generation, in-depth research, and legal/financial drafting.',
   },
+  {
+    id: 'axom-voice-indic',
+    name: 'Axom Voice Indic (STT)',
+    badge: 'Sovereign Audio',
+    description: 'Indigenous Assamese & Indic Speech-to-Text neural pipeline with acoustic phoneme decoding, anti-hallucination guardrails, and pure orthography (ৰ/ৱ).',
+    contextWindow: '25 MB / 10 mins',
+    latency: '< 1.2s',
+    bestFor: 'Assamese voice typing, media transcription, WhatsApp voice bots, IVR customer support, and legal court documentation.',
+  },
 ];
 
 export default function DeveloperDocsInteractive() {
   // Developer Testing Key State (Session Only)
-  const [userKey, setUserKey] = useState<string>('');
+  const [userKey, setUserKey] = useState<string>(PUBLIC_DEMO_KEY);
   const [showKey, setShowKey] = useState<boolean>(false);
   const [copiedKey, setCopiedKey] = useState<boolean>(false);
   const [copiedSnippet, setCopiedSnippet] = useState<boolean>(false);
@@ -91,21 +105,32 @@ export default function DeveloperDocsInteractive() {
   const [pricingCycle, setPricingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   // Quickstart Tab
-  const [activeTab, setActiveTab] = useState<'python' | 'node' | 'curl' | 'translate'>('python');
+  const [activeTab, setActiveTab] = useState<'python' | 'node' | 'curl' | 'translate' | 'voice'>('python');
 
   // Full-Stack Architecture Tab (Mobile, Web, PHP, Python, JS)
   const [activeStack, setActiveStack] = useState<'mobile' | 'web' | 'php' | 'python' | 'node'>('mobile');
 
   // Active Endpoint Tab in Documentation
-  const [activeEndpoint, setActiveEndpoint] = useState<'chat' | 'translate' | 'models'>('chat');
+  const [activeEndpoint, setActiveEndpoint] = useState<'chat' | 'audio' | 'translate' | 'models'>('chat');
 
   // Live Playground State
-  const [playgroundEndpoint, setPlaygroundEndpoint] = useState<'chat' | 'translate' | 'models'>('chat');
+  const [playgroundEndpoint, setPlaygroundEndpoint] = useState<'chat' | 'audio' | 'translate' | 'models'>('chat');
   const [chatModel, setChatModel] = useState<string>('axom-indic-1');
   const [chatPrompt, setChatPrompt] = useState<string>('নমস্কাৰ! আপুনি মোক কি কি বিষয়ত সহায় কৰিব পাৰিব?');
   const [temperature, setTemperature] = useState<number>(0.7);
   const [translateText, setTranslateText] = useState<string>('Artificial Intelligence is empowering the youth of Assam.');
-  const [translateTarget, setTranslateTarget] = useState<string>('as');
+    const [translateTarget, setTranslateTarget] = useState<string>('as');
+
+  // Audio Playground State
+  const [audioModel, setAudioModel] = useState<string>('axom-voice-indic');
+  const [audioLanguage, setAudioLanguage] = useState<string>('as');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
+  const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
+  const [selectedAudioFile, setSelectedAudioFile] = useState<File | null>(null);
+  const mediaRecorderRef = React.useRef<any>(null);
+  const audioChunksRef = React.useRef<Blob[]>([]);
+  const timerIntervalRef = React.useRef<any>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [apiResponse, setApiResponse] = useState<any | null>(null);
@@ -247,6 +272,8 @@ export default function DeveloperDocsInteractive() {
     if (responseViewMode === 'formatted') {
       if (apiResponse?.choices?.[0]?.message?.content) {
         textToCopy = apiResponse.choices[0].message.content;
+      } else if (apiResponse?.text) {
+        textToCopy = apiResponse.text;
       } else if (apiResponse?.translated_text) {
         textToCopy = apiResponse.translated_text;
       } else {
@@ -306,6 +333,75 @@ export default function DeveloperDocsInteractive() {
   const isUsingDemo = userKey === PUBLIC_DEMO_KEY;
   const activeKeyForSnippets = userKey || 'sk_live_axom_••••••••••••••••••••••••••••••••••••••••';
 
+  // Helper to generate a small valid 16kHz mono WAV tone blob for instant testing without mic
+  const writeString = (view: DataView, offset: number, string: string) => {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  };
+
+  const createSampleAudioBlob = (): Blob => {
+    const sampleRate = 16000;
+    const duration = 1.0;
+    const numSamples = Math.floor(sampleRate * duration);
+    const buffer = new ArrayBuffer(44 + numSamples * 2);
+    const view = new DataView(buffer);
+
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + numSamples * 2, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(view, 36, 'data');
+    view.setUint32(40, numSamples * 2, true);
+
+    for (let i = 0; i < numSamples; i++) {
+      const sample = Math.sin((2 * Math.PI * 440 * i) / sampleRate) * 0.2;
+      view.setInt16(44 + i * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+    }
+    return new Blob([buffer], { type: 'audio/wav' });
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setRecordedAudioBlob(blob);
+        setSelectedAudioFile(null);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+      setRecordingSeconds(0);
+      timerIntervalRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } catch (err: any) {
+      alert('Microphone access denied or unavailable: ' + (err?.message || ''));
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      clearInterval(timerIntervalRef.current);
+    }
+  };
+
   // Live Playground API Trigger
   const runLiveTest = async () => {
     setIsLoading(true);
@@ -351,6 +447,30 @@ export default function DeveloperDocsInteractive() {
             target_lang: translateTarget,
           }),
         };
+      } else if (playgroundEndpoint === 'audio') {
+        url = '/v1/audio/transcriptions';
+        const formData = new FormData();
+        if (selectedAudioFile) {
+          formData.append('file', selectedAudioFile);
+        } else if (recordedAudioBlob) {
+          formData.append('file', recordedAudioBlob, 'recording.webm');
+        } else {
+          const sampleBlob = createSampleAudioBlob();
+          formData.append('file', sampleBlob, 'sample_assamese.wav');
+        }
+        formData.append('model', audioModel || 'axom-voice-indic');
+        formData.append('language', audioLanguage || 'as');
+        formData.append('response_format', 'verbose_json');
+
+        const audioHeaders: Record<string, string> = {};
+        if (userKey) {
+          audioHeaders['Authorization'] = `Bearer ${userKey}`;
+        }
+        options = {
+          method: 'POST',
+          headers: audioHeaders,
+          body: formData,
+        };
       } else if (playgroundEndpoint === 'models') {
         url = '/v1/models';
         options = {
@@ -384,6 +504,28 @@ export default function DeveloperDocsInteractive() {
   };
 
   // Quickstart Code Snippets
+  const voiceSnippet = `from openai import OpenAI
+import os
+
+# 1. Initialize client with Axom AI base URL
+client = OpenAI(
+    base_url="https://aiaxom.co.in/v1",
+    api_key=os.environ.get("AXOM_API_KEY", "${activeKeyForSnippets}")
+)
+
+# 2. Transcribe Assamese audio with authentic orthography (ৰ/ৱ) & anti-hallucination
+with open("speech.mp3", "rb") as audio_file:
+    transcript = client.audio.transcriptions.create(
+        model="axom-voice-indic",
+        file=audio_file,
+        language="as",
+        response_format="verbose_json"
+    )
+
+# 3. Print verified Assamese transcript
+print("Transcript:", transcript.text)
+print("Duration:", transcript.duration, "seconds")`;
+
   const pythonSnippet = `from openai import OpenAI
 import os
 
@@ -883,6 +1025,10 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                       <span>1,000 monthly API requests</span>
                     </li>
                     <li className="flex items-start gap-2">
+                      <Mic size={14} className="text-violet-500 shrink-0 mt-0.5" />
+                      <span><strong>30 Minutes</strong> Voice STT included</span>
+                    </li>
+                    <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                       <span>60 requests / minute burst rate</span>
                     </li>
@@ -957,6 +1103,10 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                       <span><strong>5,000</strong> monthly API requests</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Mic size={14} className="text-violet-500 shrink-0 mt-0.5" />
+                      <span><strong>300 Mins (5 hrs)</strong> Voice STT included</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -1040,6 +1190,10 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                       <span><strong>25,000</strong> monthly API requests</span>
                     </li>
                     <li className="flex items-start gap-2">
+                      <Mic size={14} className="text-violet-500 shrink-0 mt-0.5" />
+                      <span><strong>1,500 Mins (25 hrs)</strong> Voice STT included</span>
+                    </li>
+                    <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                       <span><strong>120 req/min</strong> burst rate limit</span>
                     </li>
@@ -1114,6 +1268,10 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                       <span><strong>100,000</strong> monthly API requests</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Mic size={14} className="text-violet-500 shrink-0 mt-0.5" />
+                      <span><strong>6,000 Mins (100 hrs)</strong> Voice STT included</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -1497,6 +1655,24 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               <button
                 type="button"
                 onClick={() => {
+                  setPlaygroundEndpoint('audio');
+                  setApiResponse(null);
+                  setHttpStatus(null);
+                }}
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                  playgroundEndpoint === 'audio'
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
+                <Mic size={13} className="text-amber-400" />
+                <span>/v1/audio/transcriptions</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setPlaygroundEndpoint('translate');
                   setApiResponse(null);
                   setHttpStatus(null);
@@ -1761,6 +1937,111 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                 </>
               )}
 
+              {playgroundEndpoint === 'audio' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Cpu size={13} className="text-violet-600 dark:text-violet-400" />
+                        Speech-to-Text Model
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-normal">Active Audio Tier</span>
+                    </label>
+                    <div className="p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Radio size={16} className="text-violet-600 dark:text-violet-400 animate-pulse" />
+                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">axom-voice-indic</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300">
+                          Sovereign Audio
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">₹0.25/min (₹0.004/s)</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                      Target Language ISO
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { code: 'as', label: 'Assamese (অসমীয়া)' },
+                        { code: 'en', label: 'English' },
+                        { code: 'hi', label: 'Hindi (हिंदी)' },
+                      ].map((lang) => (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => setAudioLanguage(lang.code)}
+                          className={`p-2 rounded-xl text-xs font-semibold border text-center transition ${
+                            audioLanguage === lang.code
+                              ? 'bg-violet-50 dark:bg-violet-950/50 border-violet-500 text-violet-700 dark:text-violet-300 shadow-xs'
+                              : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50'
+                          }`}
+                        >
+                          {lang.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Audio Recording / Upload Box */}
+                  <div className="p-4 rounded-2xl border-2 border-dashed border-violet-300 dark:border-violet-800/60 bg-violet-50/30 dark:bg-violet-950/20 space-y-3 text-center">
+                    <div className="flex flex-wrap items-center justify-center gap-2.5">
+                      {!isRecording ? (
+                        <button
+                          type="button"
+                          onClick={startRecording}
+                          className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5"
+                        >
+                          <Mic size={14} />
+                          <span>Record with Mic</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={stopRecording}
+                          className="px-3.5 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 animate-pulse"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-red-500 inline-block animate-ping" />
+                          <span>Stop ({recordingSeconds}s)</span>
+                        </button>
+                      )}
+
+                      <label className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                        <UploadCloud size={14} />
+                        <span>Upload Audio File</span>
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              setSelectedAudioFile(e.target.files[0]);
+                              setRecordedAudioBlob(null);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {selectedAudioFile ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center justify-center gap-1">
+                          <CheckCircle2 size={13} /> Selected: {selectedAudioFile.name} ({(selectedAudioFile.size / 1024).toFixed(1)} KB)
+                        </span>
+                      ) : recordedAudioBlob ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center justify-center gap-1">
+                          <CheckCircle2 size={13} /> Microphone Recording Ready ({(recordedAudioBlob.size / 1024).toFixed(1)} KB)
+                        </span>
+                      ) : (
+                        <span>Ready to test. You can also click <strong>&quot;Send Request&quot;</strong> directly to test with our built-in Assamese speech audio tone!</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {playgroundEndpoint === 'translate' && (
                 <>
                   <div>
@@ -1978,7 +2259,36 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                   responseViewMode === 'formatted' ? (
                     /* Formatted Preview Mode */
                     <div className="space-y-3 font-sans">
-                      {apiResponse?.choices?.[0]?.message?.content ? (
+                      {apiResponse?.text !== undefined ? (
+                        <div>
+                          {/* Audio Metadata Header */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse"></span>
+                              <span className="font-semibold text-white">
+                                {apiResponse.model || 'axom-voice-indic'}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 text-[10px] font-mono border border-violet-500/30">
+                                Transcribed Audio
+                              </span>
+                            </div>
+                            {apiResponse?.duration && (
+                              <div className="text-[11px] text-emerald-400 font-mono">
+                                Processed {apiResponse.duration}s Audio (Language: {apiResponse.language || 'assamese'})
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+                            <div className="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5">
+                              <Mic size={13} className="text-violet-400" />
+                              <span>Purified Assamese Transcription Result:</span>
+                            </div>
+                            <p className="text-base sm:text-lg font-bold text-white leading-relaxed">
+                              {apiResponse.text || <span className="text-slate-400 italic">Zero speech detected (Audio below minimum silence threshold)</span>}
+                            </p>
+                          </div>
+                        </div>
+                      ) : apiResponse?.choices?.[0]?.message?.content ? (
                         <div>
                           {/* Metadata Header */}
                           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 text-xs">
@@ -2236,6 +2546,19 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
           </button>
           <button
             type="button"
+            onClick={() => setActiveEndpoint('audio')}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+              activeEndpoint === 'audio'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <span className="px-1.5 py-0.5 rounded bg-black/20 text-xs font-mono">POST</span>
+            <Mic size={13} className="text-amber-300" />
+            /v1/audio/transcriptions
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveEndpoint('translate')}
             className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
               activeEndpoint === 'translate'
@@ -2341,6 +2664,107 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
     "completion_tokens": 32,
     "total_tokens": 46
   }
+}`}
+              </pre>
+            </div>
+          </div>
+        )}
+
+        {/* Tab: /v1/audio/transcriptions */}
+        {activeEndpoint === 'audio' && (
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-4">
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 rounded bg-violet-100 dark:bg-violet-950/60 text-violet-800 dark:text-violet-300 font-mono text-xs font-bold">
+                  POST
+                </span>
+                <code className="text-base sm:text-lg font-mono font-bold text-slate-900 dark:text-white">
+                  https://aiaxom.co.in/v1/audio/transcriptions
+                </code>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Standard OpenAI-compatible Speech-to-Text endpoint. Transcribes binary audio files (mp3, wav, m4a, webm, ogg) into authentic Assamese and Indic text with automatic Bengali script purification (ৰ/ৱ correction) and acoustic anti-hallucination guardrails.
+              </p>
+            </div>
+
+            {/* Request Headers */}
+            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-3">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Request Headers</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400">
+                      <th className="py-2 font-mono">Header</th>
+                      <th className="py-2">Type</th>
+                      <th className="py-2">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono text-slate-600 dark:text-slate-300">
+                    <tr>
+                      <td className="py-2.5 font-bold text-emerald-600 dark:text-emerald-400">Authorization</td>
+                      <td className="py-2.5 text-slate-400">string</td>
+                      <td className="py-2.5 font-sans">Required. Bearer authentication token: <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">Bearer sk_live_...</code></td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-bold text-emerald-600 dark:text-emerald-400">Content-Type</td>
+                      <td className="py-2.5 text-slate-400">string</td>
+                      <td className="py-2.5 font-sans">Required. Must be <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">multipart/form-data</code>.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Request Form Parameters */}
+            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-3">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">Multipart Form Parameters</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400">
+                      <th className="py-2 font-mono">Parameter</th>
+                      <th className="py-2">Type</th>
+                      <th className="py-2">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono text-slate-600 dark:text-slate-300">
+                    <tr>
+                      <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400">file</td>
+                      <td className="py-2.5 text-slate-400">binary</td>
+                      <td className="py-2.5 font-sans">Required. Binary audio recording. Max size 25MB. Supports MP3, WAV, M4A, WEBM, OGG.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400">model</td>
+                      <td className="py-2.5 text-slate-400">string</td>
+                      <td className="py-2.5 font-sans">Optional. Default: <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;axom-voice-indic&quot;</code>.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400">language</td>
+                      <td className="py-2.5 text-slate-400">string</td>
+                      <td className="py-2.5 font-sans">Optional. ISO 639-1 language code (<code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;as&quot;</code> for Assamese, <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;en&quot;</code>, <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;hi&quot;</code>).</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400">response_format</td>
+                      <td className="py-2.5 text-slate-400">string</td>
+                      <td className="py-2.5 font-sans">Optional. <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;json&quot;</code> (default) or <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;verbose_json&quot;</code> (includes duration and metadata).</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Response Example */}
+            <div className="p-6 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+              <h3 className="text-base font-bold text-white flex items-center justify-between">
+                <span>Response Specification (200 OK)</span>
+                <span className="text-xs font-mono text-emerald-400">application/json</span>
+              </h3>
+              <pre className="text-xs font-mono text-emerald-400 overflow-x-auto leading-relaxed">
+{`{
+  "task": "transcribe",
+  "language": "assamese",
+  "duration": 4.25,
+  "text": "নমস্কাৰ! আপোনাৰ দিনটো শুভ হওক।"
 }`}
               </pre>
             </div>

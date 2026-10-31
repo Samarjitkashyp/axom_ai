@@ -12,6 +12,8 @@ from . import tts_api
 from . import stt_api
 from . import whatsapp_api
 from . import ai_notes_views
+from . import voice_notes_views
+from . import voice_assistant_views
 from . import chat_enhancements
 
 urlpatterns = [
@@ -35,6 +37,8 @@ urlpatterns = [
     path('tools/word-to-pdf', views.home_view, name='tools_word_to_pdf_no_slash'),
     path('tools/ai-notes-generator/', views.home_view, name='tools_ai_notes_generator'),
     path('tools/ai-notes-generator', views.home_view, name='tools_ai_notes_generator_no_slash'),
+    path('tools/voice-notes-generator/', views.home_view, name='tools_voice_notes_generator'),
+    path('tools/voice-notes-generator', views.home_view, name='tools_voice_notes_generator_no_slash'),
     path('upgrade/', views.home_view, name='upgrade'),
     path('upgrade', views.home_view, name='upgrade_no_slash'),
     path('subscription/', views.home_view, name='subscription'),
@@ -114,6 +118,11 @@ urlpatterns = [
     path('api/ai-notes/ask/', ai_notes_views.ai_notes_ask_api, name='ai_notes_ask_api'),
     path('api/ai-notes/study-tools/', ai_notes_views.ai_notes_study_tools_api, name='ai_notes_study_tools_api'),
     path('api/ai-notes/export-docx/', ai_notes_views.ai_notes_export_docx_api, name='ai_notes_export_docx_api'),
+    path('api/voice-notes/synthesize/', voice_notes_views.voice_notes_synthesize_api, name='voice_notes_synthesize_api'),
+    path('api/voice-notes/translate/', voice_notes_views.voice_notes_translate_api, name='voice_notes_translate_api'),
+    path('api/voice-notes/export-docx/', voice_notes_views.voice_notes_export_docx_api, name='voice_notes_export_docx_api'),
+    path('api/voice-assistant/greeting/', voice_assistant_views.voice_assistant_greeting_api, name='voice_assistant_greeting_api'),
+    path('api/voice-assistant/converse/', voice_assistant_views.voice_assistant_converse_api, name='voice_assistant_converse_api'),
     path('api/tools/', views.tools_api_view, name='tools_api'),
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),

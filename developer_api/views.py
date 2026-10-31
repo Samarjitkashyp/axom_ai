@@ -1,6 +1,8 @@
 import json
 import time
 import uuid
+import re
+import logging
 import urllib.request
 import urllib.error
 from django.http import JsonResponse, HttpResponse
@@ -9,6 +11,8 @@ from django.core.cache import cache
 
 from .auth import require_developer_api_key, openai_error_response
 from .models import DeveloperApiKey
+
+logger = logging.getLogger(__name__)
 
 AVAILABLE_MODELS = [
     {
@@ -37,6 +41,15 @@ AVAILABLE_MODELS = [
         "permission": [],
         "root": "axom-pro",
         "description": "Axom Deep Reasoning: Advanced STEM problem-solving, multi-step logic, and 128k large-context document processing"
+    },
+    {
+        "id": "axom-voice-indic",
+        "object": "model",
+        "created": 1730000000,
+        "owned_by": "axom-ai",
+        "permission": [],
+        "root": "axom-voice-indic",
+        "description": "Axom Sovereign Voice: Ultra-accurate Assamese & Indic Speech-to-Text with phoneme decoding, anti-hallucination guardrails, and pure orthography (ৰ/ৱ)"
     }
 ]
 
@@ -125,10 +138,24 @@ def v1_chat_completions(request):
         return openai_error_response("No user message found in 'messages'", status=400)
 
     # Detect language preference from messages or prompt
-    language = "assamese"
     raw_lang = body.get('language')
     if raw_lang:
         language = str(raw_lang).lower()
+    else:
+        # Natural language auto-detection for developer API
+        if re.search(r'[\u0980-\u09FF]', user_prompt):
+            language = "assamese"
+        elif re.search(r'[\u0900-\u097F]', user_prompt):
+            language = "hinglish"
+        else:
+            language = "english"
+
+    # Tailor persona instructions by requested model
+    model_directive = "You run on Axom Indic-1 flagship bilingual model with native Assamese orthography."
+    if 'fast' in model_name.lower():
+        model_directive = "You run on Axom Fast (Turbo Edge). Respond rapidly, directly, and concisely without fluff."
+    elif 'pro' in model_name.lower():
+        model_directive = "You run on Axom Pro (Deep Logic & STEM). Provide structured, rigorous, and logically sound reasoning."
 
     # Call Axom AI internal Brain on port 8000
     reply_content = ""
@@ -137,13 +164,14 @@ def v1_chat_completions(request):
         chat_payload = {
             "prompt": user_prompt,
             "language": language,
+            "model": model_name,
             "client_id": f"api_{request.developer_api_key.key[:10]}",
             "custom_instructions": (
                 "STRICT BRAND IDENTITY DIRECTIVE:\n"
                 "You are Axom AI (অসম এআই), an indigenous AI platform developed solely by the Axom AI team in Assam, Northeast India. "
+                f"{model_directive} "
                 "You must NEVER state, imply, or suggest that you are ChatGPT, OpenAI, Google Gemini, Claude, or Meta. "
                 "If asked 'Who made you?' or 'Who created you?', ALWAYS reply that you were engineered by the Axom AI team in Assam. "
-                "If asked about your model architecture, state that you run on Axom's proprietary neural models (Axom Indic-1 / Axom Pro / Axom Turbo). "
                 "Never mention upstream provider names under any circumstances."
             )
         }
@@ -246,6 +274,77 @@ def v1_translate(request):
         "original_text": text,
         "translated_text": translated
     })
+
+@csrf_exempt
+@require_developer_api_key
+def v1_audio_transcriptions(request):
+    """
+    Standard OpenAI-compatible POST /v1/audio/transcriptions
+    Accepts multipart/form-data:
+      - file (or audio): binary audio file
+      - model: 'axom-voice-indic' (default)
+      - language: 'as' / 'assamese' / 'en' / 'hi' (optional)
+      - response_format: 'json' (default) or 'verbose_json'
+    """
+    if request.method != 'POST':
+        return openai_error_response("Only POST method is allowed", status=405)
+
+    audio_file = request.FILES.get('file') or request.FILES.get('audio')
+    if not audio_file:
+        return openai_error_response("No audio file provided in 'file' parameter. Please submit binary audio multipart/form-data.", status=400)
+
+    if audio_file.size > 25 * 1024 * 1024:
+        return openai_error_response("Audio file exceeds maximum size limit of 25MB", status=413)
+
+    model_name = request.POST.get('model', 'axom-voice-indic')
+    target_lang = (request.POST.get('language') or 'as').lower().strip()
+    response_format = (request.POST.get('response_format') or 'json').lower().strip()
+
+    lang_map = {
+        'as': 'assamese',
+        'assamese': 'assamese',
+        'en': 'english',
+        'english': 'english',
+        'hi': 'hindi',
+        'hindi': 'hindi'
+    }
+    stt_lang = lang_map.get(target_lang, 'assamese')
+
+    try:
+        from axom_ai.stt_api import clean_audio, transcribe, is_gibberish
+        from axom_ai.views import _purify_assamese_with_grammar
+
+        raw_bytes = audio_file.read()
+        wav, seconds, dbfs = clean_audio(raw_bytes)
+
+        if seconds <= 0.3:
+            transcribed_text = ""
+        else:
+            transcribed_text = transcribe(wav, stt_lang)
+
+            if stt_lang == 'assamese' and transcribed_text:
+                transcribed_text = _purify_assamese_with_grammar(transcribed_text)
+
+            if is_gibberish(transcribed_text):
+                transcribed_text = ""
+
+        # Usage tracking in developer API
+        request.developer_api_model_used = model_name
+        request.developer_api_tokens_used = max(1, int(seconds * 10))
+
+        if response_format == 'verbose_json':
+            return JsonResponse({
+                "task": "transcribe",
+                "language": stt_lang,
+                "duration": round(seconds, 2),
+                "text": transcribed_text
+            })
+        else:
+            return JsonResponse({"text": transcribed_text})
+
+    except Exception as e:
+        logger.error(f"v1_audio_transcriptions error: {e}", exc_info=True)
+        return openai_error_response(f"Audio transcription failed: {str(e)}", status=500)
 
 @csrf_exempt
 def manage_keys_api(request):
