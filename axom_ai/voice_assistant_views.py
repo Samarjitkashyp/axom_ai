@@ -198,7 +198,7 @@ def _transcribe_with_gemini_multimodal(wav_bytes):
     gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
     if not gemini_key or not wav_bytes:
         return ""
-    models = ['gemini-3.1-flash-lite', 'gemini-3.6-flash', 'gemini-flash-lite-latest']
+    models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
     prompt = (
         "Transcribe the user's speech in this audio exactly as spoken. "
         "The language may be Assamese (অসমীয়া), Hindi, or English. "
@@ -217,7 +217,7 @@ def _transcribe_with_gemini_multimodal(wav_bytes):
     for m in models:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}"
-            res = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=8)
+            res = requests.post(url, headers={'Content-Type': 'application/json'}, json=payload, timeout=6)
             if res.status_code == 200:
                 candidates = res.json().get('candidates', [])
                 if candidates and 'content' in candidates[0]:
@@ -230,6 +230,58 @@ def _transcribe_with_gemini_multimodal(wav_bytes):
             logger.warning(f"Gemini multimodal STT error with {m}: {e}")
             continue
     return ""
+
+
+def _transcribe_audio_fast(wav_bytes):
+    """
+    Sub-second speech transcription pipeline:
+    1. Groq Whisper Large V3 Turbo (~250ms ultra-low latency)
+    2. OpenAI Whisper-1 (~1.0s flagship accuracy)
+    3. Gemini Multimodal (fallback)
+    """
+    if not wav_bytes:
+        return ""
+
+    from .stt_api import is_gibberish
+
+    # 1. Groq Whisper Large V3 Turbo (0.25s)
+    groq_key = os.getenv('GROQ_API_KEY', '').strip()
+    if groq_key:
+        try:
+            r = requests.post(
+                "https://api.groq.com/openai/v1/audio/transcriptions",
+                headers={"Authorization": f"Bearer {groq_key}"},
+                files={"file": ("speech.wav", wav_bytes, "audio/wav")},
+                data={"model": "whisper-large-v3-turbo"},
+                timeout=4,
+            )
+            if r.status_code == 200:
+                txt = (r.json().get('text') or '').strip()
+                if txt and not is_gibberish(txt):
+                    return txt
+        except Exception as e:
+            logger.warning(f"Groq whisper STT error: {e}")
+
+    # 2. OpenAI Whisper-1 (1.0s)
+    openai_key = os.getenv('OPENAI_API_KEY', '').strip()
+    if openai_key:
+        try:
+            r = requests.post(
+                "https://api.openai.com/v1/audio/transcriptions",
+                headers={"Authorization": f"Bearer {openai_key}"},
+                files={"file": ("speech.wav", wav_bytes, "audio/wav")},
+                data={"model": "whisper-1"},
+                timeout=6,
+            )
+            if r.status_code == 200:
+                txt = (r.json().get('text') or '').strip()
+                if txt and not is_gibberish(txt):
+                    return txt
+        except Exception as e:
+            logger.warning(f"OpenAI whisper STT error: {e}")
+
+    # 3. Gemini Multimodal
+    return _transcribe_with_gemini_multimodal(wav_bytes)
 
 
 @csrf_exempt
@@ -318,19 +370,8 @@ def voice_assistant_converse_api(request):
                 # 1. Cleanly convert incoming mobile audio without destructive silence gate
                 wav_bytes = _process_incoming_audio(audio_file.read())
                 if wav_bytes:
-                    # 2. Try Primary Multilingual STT
-                    try:
-                        from .stt_api import transcribe
-                        user_message = transcribe(wav_bytes, 'multilingual') or ""
-                    except Exception as e:
-                        logger.warning(f"Primary transcribe failed: {e}")
-                        user_message = ""
-
-                    # 3. Robust fallback: Direct Gemini Multimodal Audio transcription
-                    if not user_message:
-                        user_message = _transcribe_with_gemini_multimodal(wav_bytes)
-
-                    # 4. If Assamese, purify script
+                    # Low-latency multi-tier transcription
+                    user_message = _transcribe_audio_fast(wav_bytes)
                     if user_message:
                         user_message = _purify_assamese_with_grammar(user_message)
             except Exception as e:

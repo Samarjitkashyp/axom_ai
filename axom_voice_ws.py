@@ -28,6 +28,7 @@ from axom_ai.voice_assistant_views import (
     _generate_assistant_text,
     _synthesize_audio,
     _process_incoming_audio,
+    _transcribe_audio_fast,
     _transcribe_with_gemini_multimodal,
 )
 from axom_ai.stt_api import transcribe
@@ -113,14 +114,8 @@ class VoiceSession:
             })
             return
 
-        # 2. Transcribe using STT
-        try:
-            user_text = await asyncio.to_thread(transcribe, wav_bytes, 'multilingual') or ""
-        except Exception:
-            user_text = ""
-
-        if not user_text:
-            user_text = await asyncio.to_thread(_transcribe_with_gemini_multimodal, wav_bytes)
+        # 2. Transcribe using fast multi-tier STT
+        user_text = await asyncio.to_thread(_transcribe_audio_fast, wav_bytes)
 
         if not user_text:
             fallback = "মই আপোনাৰ মাতটো ভালদৰে শুনিলোঁ নাই, অনুগ্ৰহ কৰি আকৌ এবাৰ কওকচোন?"
@@ -143,7 +138,7 @@ class VoiceSession:
         user_prompt = (
             f"{context_str}"
             f"User ({self.user_name}): {user_text}\n"
-            f"Axom AI (Respond in 1-2 short, energetic, spoken conversational Assamese sentences with 100% pure Assamese orthography and zero Bengali):"
+            f"Axom AI (Respond in 1 short, lively, spoken conversational Assamese sentence of max 12-15 words with 100% pure Assamese orthography and zero Bengali):"
         )
 
         reply_text = await asyncio.to_thread(_generate_assistant_text, SYSTEM_PROMPT_CONVERSATIONAL, user_prompt)

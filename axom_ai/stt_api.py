@@ -38,10 +38,10 @@ DEFAULT_FREE = 40
 DEFAULT_PRO = 400
 FFMPEG = shutil.which('ffmpeg') or '/usr/bin/ffmpeg'
 DEADLINE_SECONDS = 8            # the whole of Gemini + the second reader: a person is never kept waiting longer than this
-OPENAI_MODEL = os.getenv('STT_OPENAI_MODEL', 'gpt-4o-mini-transcribe')
+OPENAI_MODEL = os.getenv('STT_OPENAI_MODEL', 'whisper-1')
 OPENAI_LANG = {'english': 'en', 'hinglish': 'hi', 'hindi': 'hi'}          # OpenAI refuses the code 'as' (Assamese) and, given an Assamese prompt, says the prompt back when it hears only noise:
 #                                                            for Assamese it is told nothing and finds the language by itself (tried: it does, in Assamese script)
-PRIMARY = os.getenv('STT_PRIMARY', 'gemini')                # who reads first. Measured on the server (Assamese speech, quiet and noisy rooms): both read about as well, Gemini was the steadier one
+PRIMARY = os.getenv('STT_PRIMARY', 'openai')                # who reads first. OpenAI whisper-1 reads in ~1s
 #                                                             (OpenAI now and then drops a whole sentence or waits 25 s) and follows 'write English words in English letters'; STT_PRIMARY=openai puts OpenAI first
 MIN_DYNAMICS_APP = 2.2                                      # the mobile app records with its own noise suppression and auto gain: a little more room than a browser recording
 SILENCE_DBFS_APP = -54.0                                    # and a headset mic is quieter
@@ -60,7 +60,7 @@ def is_gibberish(text):
     if words and all(len(w) >= 3 and not any(c in 'aeiouyAEIOUY' for c in w) and w.isalpha() for w in words):
         return True
     return False
-MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.1-flash-lite,gemini-3.1-flash-lite-preview,gemini-3.6-flash,gemini-flash-lite-latest').split(',') if m]
+MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-2.5-flash,gemini-1.5-flash,gemini-flash-latest').split(',') if m]
 
 # rumble out, speech band only, even loudness, silence at both ends cut. No heavy noise reduction here: tried on noisy recordings it made the
 # result slightly worse (Gemini copes with noise better than a spectral filter does); the browser's own noise suppression runs before this.
