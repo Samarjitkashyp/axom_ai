@@ -24,6 +24,9 @@ RATE_LIMIT = int(os.getenv('CHAT_RATE_LIMIT', '20'))       # messages
 RATE_WINDOW = int(os.getenv('CHAT_RATE_WINDOW', '60'))     # per this many seconds
 _RATE_HITS = {}
 
+# Daily free word allowance per user / guest session
+MAX_DAILY_WORDS = int(os.getenv('MAX_DAILY_WORDS', '5000'))
+
 # Memory management knobs.
 MEMORY_CHAR_BUDGET = int(os.getenv('MEMORY_CHAR_BUDGET', '3500'))   # conversation context budget
 
@@ -515,19 +518,36 @@ def _save_chat(request, client_id, user_text, assistant_text, title=None):
         if not request.session.session_key:
             request.session.save()
         key = request.session.session_key
-        if not key or not client_id:
+        if not client_id:
             return
         user = request.user if (hasattr(request, 'user') and request.user.is_authenticated) else None
-        sess, created = ChatSession.objects.get_or_create(
-            session_key=key, client_id=client_id,
-            defaults={'title': ((title or user_text) or 'New Chat')[:60], 'user': user},
-        )
-        if user and not sess.user:
-            sess.user = user
-            sess.save(update_fields=['user'])
+
+        sess = None
+        if user:
+            sess = ChatSession.objects.filter(user=user, client_id=client_id).first()
+        if not sess and key:
+            sess = ChatSession.objects.filter(session_key=key, client_id=client_id).first()
+
+        if not sess:
+            sess_key = key or (f"usr_{user.id}" if user else 'guest')
+            sess, _ = ChatSession.objects.get_or_create(
+                session_key=sess_key, client_id=client_id,
+                defaults={'title': ((title or user_text) or 'New Chat')[:60], 'user': user},
+            )
+        else:
+            if user and not sess.user:
+                sess.user = user
+                sess.save(update_fields=['user'])
+
         ChatMessage.objects.create(session=sess, role='user', text=user_text)
         if assistant_text:
             ChatMessage.objects.create(session=sess, role='assistant', text=assistant_text)
+            try:
+                word_count = len((user_text or '').split()) + len((assistant_text or '').split())
+                if word_count > 0:
+                    _deduct_user_words(request, word_count)
+            except Exception:
+                pass
         sess.save(update_fields=['updated_at'])
 
         # --- storage limits ---
@@ -535,11 +555,19 @@ def _save_chat(request, client_id, user_text, assistant_text, title=None):
         msg_ids = list(sess.messages.order_by('-created_at').values_list('id', flat=True))
         if len(msg_ids) > MAX_MSGS_PER_SESSION:
             ChatMessage.objects.filter(id__in=msg_ids[MAX_MSGS_PER_SESSION:]).delete()
-        # 2. cap non-pinned sessions per browser (drop the oldest beyond the limit)
-        extra = list(
-            ChatSession.objects.filter(session_key=key, pinned=False)
-            .order_by('-updated_at').values_list('id', flat=True)[MAX_SESSIONS_PER_KEY:]
-        )
+        # 2. cap non-pinned sessions per user/browser (drop the oldest beyond the limit)
+        if user:
+            extra = list(
+                ChatSession.objects.filter(user=user, pinned=False)
+                .order_by('-updated_at').values_list('id', flat=True)[MAX_SESSIONS_PER_KEY:]
+            )
+        elif key:
+            extra = list(
+                ChatSession.objects.filter(session_key=key, user__isnull=True, pinned=False)
+                .order_by('-updated_at').values_list('id', flat=True)[MAX_SESSIONS_PER_KEY:]
+            )
+        else:
+            extra = []
         if extra:
             ChatSession.objects.filter(id__in=extra).delete()
     except Exception:
@@ -585,25 +613,52 @@ def feedback_view(request):
 
 
 def chat_history_view(request):
-    """Return this browser-session's saved conversations (newest first)."""
+    """Return saved conversations (newest first) for authenticated user or browser session."""
+    if request.method == 'OPTIONS':
+        from django.http import HttpResponse
+        return _apply_cross_subdomain_cors(request, HttpResponse(status=204))
+
     from knowledge.models import ChatSession
-    key = request.session.session_key
+    user = request.user if (hasattr(request, 'user') and request.user.is_authenticated) else None
+    if hasattr(request, 'session') and not request.session.session_key:
+        try:
+            request.session.save()
+        except Exception:
+            pass
+    key = request.session.session_key if hasattr(request, 'session') else None
     out = []
-    if key:
-        qs = ChatSession.objects.filter(session_key=key).prefetch_related('messages')[:200]
-        for s in qs:
-            out.append({
-                'id': s.client_id,
-                'title': s.title,
-                'time': s.updated_at.strftime('%b %d, %H:%M'),
-                'pinned': s.pinned,
-                'messages': [{'role': m.role, 'text': m.text} for m in s.messages.all()],
-            })
-    return JsonResponse({'sessions': out})
+
+    if user:
+        if key:
+            ChatSession.objects.filter(session_key=key, user__isnull=True).update(user=user)
+        qs = ChatSession.objects.filter(user=user).prefetch_related('messages').order_by('-pinned', '-updated_at')[:200]
+    elif key:
+        qs = ChatSession.objects.filter(session_key=key, user__isnull=True).prefetch_related('messages').order_by('-pinned', '-updated_at')[:200]
+    else:
+        qs = []
+
+    for s in qs:
+        out.append({
+            'id': s.client_id,
+            'title': s.title,
+            'time': s.updated_at.strftime('%b %d, %H:%M'),
+            'pinned': s.pinned,
+            'messages': [{'role': m.role, 'text': m.text} for m in s.messages.all()],
+        })
+    resp = JsonResponse({'sessions': out})
+    try:
+        _attach_global_auth_cookies(request, resp)
+    except Exception:
+        pass
+    return _apply_cross_subdomain_cors(request, resp)
 
 
+@csrf_exempt
 def chat_action_view(request):
-    """Manage saved chats: pin/unpin, delete one, or clear all — for this session."""
+    """Manage saved chats: pin/unpin, delete one, or clear all — for this user or session."""
+    if request.method == 'OPTIONS':
+        from django.http import HttpResponse
+        return _apply_cross_subdomain_cors(request, HttpResponse(status=204))
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST is allowed'}, status=405)
     from knowledge.models import ChatSession
@@ -612,32 +667,43 @@ def chat_action_view(request):
     except Exception:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-    key = request.session.session_key
-    if not key:
-        return JsonResponse({'ok': True})
+    user = request.user if (hasattr(request, 'user') and request.user.is_authenticated) else None
+    key = request.session.session_key if hasattr(request, 'session') else None
+    if not user and not key:
+        resp = JsonResponse({'ok': True})
+        return _apply_cross_subdomain_cors(request, resp)
 
     action = data.get('action')
-    qs = ChatSession.objects.filter(session_key=key)
+    if user:
+        qs = ChatSession.objects.filter(user=user)
+    else:
+        qs = ChatSession.objects.filter(session_key=key, user__isnull=True)
 
     if action == 'clear':
         qs.delete()
-        return JsonResponse({'ok': True})
+        resp = JsonResponse({'ok': True})
+        return _apply_cross_subdomain_cors(request, resp)
 
     cid = data.get('session_id')
     if not cid:
-        return JsonResponse({'error': 'session_id required'}, status=400)
+        resp = JsonResponse({'error': 'session_id required'}, status=400)
+        return _apply_cross_subdomain_cors(request, resp)
     sess = qs.filter(client_id=cid).first()
     if not sess:
-        return JsonResponse({'ok': True})
+        resp = JsonResponse({'ok': True})
+        return _apply_cross_subdomain_cors(request, resp)
 
     if action == 'delete':
         sess.delete()
-        return JsonResponse({'ok': True})
+        resp = JsonResponse({'ok': True})
+        return _apply_cross_subdomain_cors(request, resp)
     if action == 'pin':
         sess.pinned = not sess.pinned
         sess.save(update_fields=['pinned'])
-        return JsonResponse({'ok': True, 'pinned': sess.pinned})
-    return JsonResponse({'error': 'Unknown action'}, status=400)
+        resp = JsonResponse({'ok': True, 'pinned': sess.pinned})
+        return _apply_cross_subdomain_cors(request, resp)
+    resp = JsonResponse({'error': 'Unknown action'}, status=400)
+    return _apply_cross_subdomain_cors(request, resp)
 
 
 def health_view(request):
@@ -713,11 +779,57 @@ def _gemini_generate(api_key, system, prompt, models):
     return None
 
 
+def _gemini_vision_analyze(api_key, image_b64, image_mime='image/jpeg', user_query="", timeout=25):
+    """Multimodal visual inspection via Google Gemini Flash.
+    Gemini inspects the uploaded image, reads all text/handwriting, diagrams, and passes the visual facts to OpenAI."""
+    if not api_key or not image_b64:
+        return None
+    headers = {'Content-Type': 'application/json'}
+    models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
+    vision_prompt = (
+        f"You are the visual inspection and OCR analysis engine for Axom AI. Examine this image carefully.\n"
+        f"User question/instruction: {user_query or 'Perform complete visual analysis and OCR text extraction.'}\n\n"
+        "Please provide:\n"
+        "1. Complete, verbatim transcription of any text, signs, handwritten notes, equations, or labels visible.\n"
+        "2. Detailed description of the visual scene, objects, people, diagrams, charts, or artwork.\n"
+        "3. Specific visual details and evidence that directly answer the user's question."
+    )
+    payload = {
+        "contents": [{
+            "parts": [
+                {"text": vision_prompt},
+                {
+                    "inlineData": {
+                        "mimeType": image_mime or "image/jpeg",
+                        "data": image_b64
+                    }
+                }
+            ]
+        }],
+        "systemInstruction": {
+            "parts": [{"text": "You are a precise, comprehensive multimodal visual analysis and OCR engine."}]
+        }
+    }
+    for model_id in models:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}"
+            res = http_session.post(url, headers=headers, json=payload, timeout=timeout)
+            if res.status_code == 200:
+                cands = res.json().get('candidates', [])
+                if cands:
+                    parts = cands[0].get('content', {}).get('parts', [])
+                    if parts and parts[0].get('text', '').strip():
+                        return parts[0]['text'].strip()
+        except Exception:
+            continue
+    return None
+
+
 # Groq — OpenAI-compatible API, very fast, generous free tier. Used as the
 # automatic fallback when Gemini fails (e.g. its free daily quota is exhausted),
 # so users still get a real answer instead of an error.
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-GROQ_MODEL = os.getenv('GROQ_MODEL', 'openai/gpt-oss-120b')
+GROQ_MODEL = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
 GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 
@@ -1440,7 +1552,17 @@ def _chat_cors_view(view_func):
         if request.method == 'OPTIONS':
             from django.http import HttpResponse
             return _apply_cross_subdomain_cors(request, HttpResponse(status=204))
+        if hasattr(request, 'session') and not request.session.session_key:
+            try:
+                request.session.save()
+            except Exception:
+                pass
         resp = view_func(request, *args, **kwargs)
+        try:
+            if hasattr(request, 'session') and request.session.session_key:
+                _attach_global_auth_cookies(request, resp)
+        except Exception:
+            pass
         return _apply_cross_subdomain_cors(request, resp)
     return wrapped
 
@@ -1483,6 +1605,16 @@ def chat_api_view(request):
             status=429,
         )
 
+    # Daily word quota enforcement for free and guest tiers
+    usage = _get_user_word_usage(request)
+    if not usage.get('is_unlimited', False) and usage.get('remaining_words', 0) <= 0:
+        return JsonResponse({
+            'error': 'Daily word limit of 5,000 words reached. Please upgrade to Pro for unlimited usage.',
+            'limit_reached': True,
+            'remaining_words': 0,
+            'max_words': MAX_DAILY_WORDS,
+        }, status=403)
+
     try:
         data = json.loads(request.body.decode('utf-8'))
         prompt = data.get('prompt', '').strip()
@@ -1501,8 +1633,20 @@ def chat_api_view(request):
             history = []
         custom_instructions = data.get('custom_instructions') or data.get('system_persona') or ''
         persona_mode = data.get('persona_mode') or ''
+        file_uploaded_only = bool(data.get('file_uploaded_only'))
+        attached_filename = (data.get('attached_filename') or '').strip()
+        attached_img = data.get('attached_image') or ''
+        has_attached_img = bool(data.get('has_attached_image') or attached_img)
+        attached_pdf = data.get('attached_pdf') or ''
     except Exception:
         return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
+    # If user uploaded a document or image without asking a question (prompt is empty)
+    if not prompt and (attached_img or attached_pdf or file_uploaded_only or attached_filename):
+        if attached_img or has_attached_img:
+            prompt = f"[User uploaded image: \"{attached_filename or 'image'}\" without asking a question]"
+        else:
+            prompt = f"[User uploaded document: \"{attached_filename or 'document'}\" without asking a question]"
 
     if not prompt:
         return JsonResponse({'error': 'Prompt cannot be empty'}, status=400)
@@ -1510,6 +1654,8 @@ def chat_api_view(request):
     MAX_PROMPT_CHARS = 4000
     if len(prompt) > MAX_PROMPT_CHARS:
         prompt = prompt[:MAX_PROMPT_CHARS]
+    raw_prompt = prompt
+    gemini_vision_notes = None
 
     import re
 
@@ -1611,18 +1757,30 @@ def chat_api_view(request):
                 ref_image_mime=attached_img_mime,
             )
             if img_data_uri:
-                resp_text = (
-                    f"আপোনাৰ অনুৰোধ অনুসৰি প্ৰস্তুত কৰা ছবিখন:\n\n**বিৱৰণ:** *{prompt}*"
-                    if language == 'assamese'
-                    else (
-                        f"Aapke anurodh ke anusaar banayi gayi tasveer:\n\n**Description:** *{prompt}*"
-                        if language == 'hinglish'
-                        else f"Here is the image generated based on your request:\n\n**Prompt:** *{prompt}*"
-                    )
+                oai_caption_sys = (
+                    "You are Axom AI. An image has been created based on the user's prompt. "
+                    "Write a short, engaging presentation message (1-2 sentences) introducing the generated image in the user's language. "
+                    f"Language: {language}."
                 )
-                _save_chat(request, client_id, prompt, resp_text)
+                caption = None
+                try:
+                    from model_router.router import openai_generate
+                    caption, _ = openai_generate(oai_caption_sys, f"User request: {prompt}", timeout=15)
+                except Exception:
+                    pass
+                if not caption:
+                    caption = (
+                        f"আপোনাৰ অনুৰোধ অনুসৰি প্ৰস্তুত কৰা ছবিখন:\n\n**বিৱৰণ:** *{prompt}*"
+                        if language == 'assamese'
+                        else (
+                            f"Aapke anurodh ke anusaar banayi gayi tasveer:\n\n**Description:** *{prompt}*"
+                            if language == 'hinglish'
+                            else f"Here is the image generated based on your request:\n\n**Prompt:** *{prompt}*"
+                        )
+                    )
+                _save_chat(request, client_id, prompt, caption)
                 return JsonResponse({
-                    'response': resp_text,
+                    'response': caption,
                     'image': img_data_uri,
                     'image_url': img_data_uri,
                     'image_prompt': visual_prompt or prompt,
@@ -1633,6 +1791,19 @@ def chat_api_view(request):
                     'from_database': False,
                     'web_search': False,
                 })
+
+        # Multimodal Vision Pipeline: Gemini inspects image -> passes visual findings to OpenAI
+        if attached_img_b64:
+            gk = os.getenv('GEMINI_API_KEY', '').strip()
+            gemini_vision_notes = _gemini_vision_analyze(
+                gk, attached_img_b64, attached_img_mime, prompt
+            )
+            if gemini_vision_notes:
+                prompt = (
+                    f"[Gemini Vision Multimodal Analysis of Uploaded Image ({attached_filename or 'image'})]:\n"
+                    f"{gemini_vision_notes}\n\n"
+                    f"{prompt}"
+                )
 
     # -----------------------------------------------------------------------
     # WEB SEARCH FAST PATH — Google Custom Search API (with Tavily fallback).
@@ -1725,7 +1896,7 @@ def chat_api_view(request):
             f"Answer in pure, natural Assamese (অসমীয়া script):"
         )
 
-        # Primary: OpenAI rotation (free-tier models first)
+        # Tier 1: OpenAI rotation (flagship models first)
         answer = None
         try:
             from model_router.router import openai_generate
@@ -1734,17 +1905,17 @@ def chat_api_view(request):
                 answer = oai_text
         except Exception:
             pass
-        # Fallback 1: Groq
-        if not answer:
-            answer = _groq_generate(ws_system, ws_prompt, timeout=45)
-        # Fallback 2: Gemini
+        # Tier 2: Google Gemini Fallback
         if not answer:
             gk = os.getenv('GEMINI_API_KEY', '').strip()
             if gk:
                 answer = _gemini_generate(
                     gk, ws_system, ws_prompt,
-                    ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-lite-latest'],
+                    ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest'],
                 )
+        # Tier 3: Groq Cloud Safety Net
+        if not answer:
+            answer = _groq_generate(ws_system, ws_prompt, timeout=45)
         if not answer:
             return JsonResponse({
                 'error': 'AI service is busy. Please try again in a moment.',
@@ -1769,6 +1940,13 @@ def chat_api_view(request):
                 asm, _ = _oai_fix(asm_fix_sys, answer, timeout=30)
             except Exception:
                 pass
+            if not asm:
+                gk = os.getenv('GEMINI_API_KEY', '').strip()
+                if gk:
+                    asm = _gemini_generate(
+                        gk, asm_fix_sys, answer,
+                        ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest'],
+                    )
             if not asm:
                 asm = _groq_generate(asm_fix_sys, answer, timeout=30)
             if asm and asm.strip():
@@ -1878,6 +2056,21 @@ def chat_api_view(request):
 
     system_instruction = base_intro + lang_instruction
 
+    # Document & Image Grounding Rules
+    doc_image_instruction = (
+        "\n\nDOCUMENT & IMAGE WORKFLOW RULES:\n"
+        "1. FILE UPLOAD WITHOUT QUESTION: If the user uploaded a document or image without asking a specific question "
+        "(e.g. prompt contains '[User uploaded document' or '[User uploaded image' without asking a question), "
+        "warmly acknowledge receipt of the file by name. Give a brief 1-2 sentence preview of its contents or visual subject. "
+        "Then politely ask what the user would like to do with this file, offering 4-5 clear, numbered options "
+        "(e.g. 1. Comprehensive summary & takeaways, 2. Answer specific questions, 3. Translation/rewriting, 4. Generate study notes/key points, 5. Extract tables/data).\n"
+        "2. FILE UPLOAD WITH QUESTION: Thoroughly read the attached document text or Gemini vision data, and answer the user's question directly, "
+        "pedagogically, and comprehensively, grounding facts strictly in the file (ChatGPT style).\n"
+        "3. MULTIMODAL VISION: When Gemini Multimodal Vision analysis is included in the prompt, leverage all transcribed text, visual objects, "
+        "and details to provide a thorough, accurate answer to the user's question.\n"
+    )
+    system_instruction += doc_image_instruction
+
     if persona_mode == 'assam_exam':
         from .chat_enhancements import ASSAM_EXAM_SYSTEM_PROMPT
         system_instruction += "\n\n" + ASSAM_EXAM_SYSTEM_PROMPT
@@ -1950,27 +2143,14 @@ def chat_api_view(request):
 
     # 5. Ollama local model skipped — GPT gives much better answers.
 
-    # 6. Primary and Fallback Engines
-    api_key = os.getenv('GEMINI_API_KEY')
-    if not api_key:
-        if custom_context:
-            return JsonResponse({
-                'response': f"Information from Database Knowledge Base:\n\n{custom_context}",
-                'from_database': True,
-                'source_docs': source_docs
-            })
-        return JsonResponse({'error': 'Local model unavailable and Gemini API key is not configured on the server.'}, status=500)
-
-    # Gemini Candidate models strictly conforming to GEMINI.md:
+    # 6. Primary and Fallback Engines (Strict Cascade: Tier 1 OpenAI -> Tier 2 Gemini -> Tier 3 Groq)
+    api_key = os.getenv('GEMINI_API_KEY', '').strip()
     candidate_models = [
-        'gemini-flash-latest',
         'gemini-2.5-flash',
         'gemini-1.5-flash',
-        'gemini-3.5-flash-lite',
+        'gemini-flash-latest',
         'gemini-flash-lite-latest',
-        'gemini-3.5-flash',
-        'gemini-3-flash-preview',
-    ]
+    ] if api_key else []
 
     def _purify_stream(gen):
         """Wrap text-chunk generator: purify Assamese if language is Assamese, and sanitize rival brands."""
@@ -1979,6 +2159,104 @@ def chat_api_view(request):
             return
         for chunk in gen:
             yield _sanitize_brand_mentions(chunk)
+
+    # -------------------------------------------------------------------------
+    # Collaborative Image Q&A Pipeline:
+    # 1. Gemini handles image inspection (OCR, objects, layout).
+    # 2. OpenAI synthesizes pedagogical reasoning & answers the question.
+    # 3. OpenAI passes response to Gemini.
+    # 4. Gemini delivers the final streamed response to user.
+    # -------------------------------------------------------------------------
+    is_pure_upload = bool(file_uploaded_only or (raw_prompt and raw_prompt.strip().startswith('[User uploaded')))
+    if attached_img_b64 and not is_pure_upload and not web_search and api_key:
+        try:
+            from model_router.router import openai_generate
+            oai_img_prompt = (
+                f"{hist_block}"
+                f"[Visual Findings & OCR from Gemini Vision ({attached_filename or 'image'})]:\n"
+                f"{gemini_vision_notes or 'Visual content'}\n\n"
+                f"User Question: {raw_prompt}\n\n"
+                f"Analyze the image observations and provide a complete, pedagogically sound, and accurate answer to the user's question."
+            )
+            oai_analysis, _ = openai_generate(system_instruction, oai_img_prompt, timeout=45)
+            if oai_analysis:
+                gemini_sys = (
+                    f"{system_instruction}\n\n"
+                    f"FINAL RESPONSE DELIVERY RULE: You are Axom AI delivering the verified response directly to the user. "
+                    f"Deliver the response naturally in {language}. "
+                    f"STRICT RULE: Do NOT use any emojis. Maintain clean markdown formatting."
+                )
+                gemini_deliv_prompt = (
+                    f"Verified Analysis from OpenAI:\n{oai_analysis}\n\n"
+                    f"User Question: {raw_prompt}\n\n"
+                    f"Deliver the final answer to the user:"
+                )
+                for model_id in candidate_models:
+                    try:
+                        s_url = (f"https://generativelanguage.googleapis.com/v1beta/models/"
+                                 f"{model_id}:streamGenerateContent?alt=sse&key={api_key}")
+                        g_res = http_session.post(
+                            s_url,
+                            json={
+                                "contents": [{"parts": [{"text": gemini_deliv_prompt}]}],
+                                "systemInstruction": {"parts": [{"text": gemini_sys}]},
+                            },
+                            stream=True, timeout=30,
+                        )
+                        if g_res.status_code == 200:
+                            def gemini_stream_img(resp=g_res):
+                                from axom_ai import number_words as nw
+                                acc = []
+                                numbers = nw.NumberWordStream() if language == 'assamese' else None
+                                try:
+                                    for raw in resp.iter_lines():
+                                        if not raw:
+                                            continue
+                                        line = raw.decode('utf-8', 'ignore')
+                                        if not line.startswith('data:'):
+                                            continue
+                                        data_str = line[5:].strip()
+                                        if not data_str:
+                                            continue
+                                        try:
+                                            obj = json.loads(data_str)
+                                        except Exception:
+                                            continue
+                                        for cand in obj.get('candidates', []):
+                                            for part in cand.get('content', {}).get('parts', []):
+                                                if part.get('text'):
+                                                    chunk = part['text']
+                                                    if language == 'assamese':
+                                                        chunk = numbers.feed(_purify_assamese_with_grammar(chunk))
+                                                    else:
+                                                        chunk = _sanitize_brand_mentions(chunk)
+                                                    if chunk:
+                                                        acc.append(chunk)
+                                                        yield chunk
+                                    if numbers is not None:
+                                        tail = numbers.flush()
+                                        if tail:
+                                            acc.append(tail)
+                                            yield tail
+                                finally:
+                                    resp.close()
+                                    try:
+                                        _save_chat(request, client_id, raw_prompt, ''.join(acc))
+                                    except Exception:
+                                        pass
+
+                            sresp = StreamingHttpResponse(gemini_stream_img(), content_type='text/plain; charset=utf-8')
+                            sresp['X-Engine'] = f'gemini-via-openai:{model_id}'
+                            sresp['X-From-Database'] = 'false'
+                            sresp['X-Source-Docs'] = '[]'
+                            sresp['X-Source'] = ''
+                            sresp['Cache-Control'] = 'no-cache'
+                            sresp['X-Accel-Buffering'] = 'no'
+                            return sresp
+                    except Exception:
+                        continue
+        except Exception as e:
+            logger.warning(f"Error in Gemini-OpenAI collaborative image Q&A pipeline: {e}")
 
     # -------------------------------------------------------------------------
     # Tier 1 (Streaming): OpenAI model cascade (gpt-4o -> o3-mini -> gpt-4o-mini)
@@ -2008,7 +2286,7 @@ def chat_api_view(request):
     # -------------------------------------------------------------------------
     # Tier 2 (Streaming): Google Gemini Fallback
     # -------------------------------------------------------------------------
-    if not web_search:
+    if not web_search and api_key:
         for model_id in candidate_models:
             try:
                 s_url = (f"https://generativelanguage.googleapis.com/v1beta/models/"

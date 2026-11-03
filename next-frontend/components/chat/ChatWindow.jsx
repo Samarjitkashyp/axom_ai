@@ -470,11 +470,13 @@ export default function ChatWindow({
 
     setAttachedFile(fileObj);
     if (docFileInputRef.current) docFileInputRef.current.value = '';
+    if (imageFileInputRef.current) imageFileInputRef.current.value = '';
   };
 
   const handleClearAttachedFile = () => {
     setAttachedFile(null);
     if (docFileInputRef.current) docFileInputRef.current.value = '';
+    if (imageFileInputRef.current) imageFileInputRef.current.value = '';
   };
 
   const handleExecuteConvertDoc = async (fileToUse) => {
@@ -895,10 +897,11 @@ export default function ChatWindow({
     const text = (textToSend !== undefined ? textToSend : inputText).trim();
     if (!text && !attachedFile) return;
 
-    if (remainingWords <= 0 && !user.isAuthenticated) {
+    const isPremiumUser = user?.planLabel === 'Pro' || user?.planLabel === 'Premium' || !!user?.isStaff;
+    if (remainingWords <= 0 && !isPremiumUser) {
       setInputText('');
       if (textareaRef.current) textareaRef.current.style.height = 'auto';
-      onUpgrade();
+      if (onUpgrade) onUpgrade();
       return;
     }
 
@@ -918,6 +921,7 @@ export default function ChatWindow({
     } : {};
     setAttachedFile(null);
 
+    const hasNoUserText = !text;
     let fullPrompt = text;
     let userDisplayPrompt = text;
 
@@ -926,11 +930,23 @@ export default function ChatWindow({
         userDisplayPrompt = currentFile.isImage ? `📷 ${currentFile.name}` : `📎 ${currentFile.name}`;
       }
       if (currentFile.isImage) {
-        fullPrompt = text ? text : 'Please inspect this image, read any visible text, and explain what is depicted in detail.';
+        if (text) {
+          fullPrompt = `[Attached Image: ${currentFile.name}]\nUser Question: ${text}`;
+        } else {
+          fullPrompt = `[User uploaded image: "${currentFile.name}" without asking a question]`;
+        }
       } else if (currentFile.textSnippet) {
-        fullPrompt = `${fullPrompt ? fullPrompt + '\n\n' : ''}[Attached Document: ${currentFile.name}]\nDocument Content:\n${currentFile.textSnippet.slice(0, 4500)}`;
+        if (text) {
+          fullPrompt = `[Attached Document: ${currentFile.name}]\n\nDocument Content:\n${currentFile.textSnippet.slice(0, 5000)}\n\nUser Question:\n${text}`;
+        } else {
+          fullPrompt = `[User uploaded document: "${currentFile.name}" without asking a question]\n\nDocument Content Snippet:\n${currentFile.textSnippet.slice(0, 5000)}`;
+        }
       } else {
-        fullPrompt = `${fullPrompt ? fullPrompt + '\n\n' : ''}[Attached Document: ${currentFile.name}]`;
+        if (text) {
+          fullPrompt = `[Attached Document: ${currentFile.name}]\n\nUser Question:\n${text}`;
+        } else {
+          fullPrompt = `[User uploaded document: "${currentFile.name}" without asking a question]`;
+        }
       }
     }
 
@@ -979,6 +995,9 @@ export default function ChatWindow({
           web_search: webSearch,
           session_id: sessionId,
           language,
+          file_uploaded_only: hasNoUserText && !!currentFile,
+          attached_filename: currentFile?.name || null,
+          is_image_upload: !!(currentFile?.isImage),
           custom_instructions: typeof window !== 'undefined' ? (
             (localStorage.getItem('axom_custom_persona_about') ? 'User Profile: ' + localStorage.getItem('axom_custom_persona_about') + '\n' : '') +
             (localStorage.getItem('axom_custom_persona_response') ? 'Response Style: ' + localStorage.getItem('axom_custom_persona_response') : '')
@@ -1107,6 +1126,9 @@ export default function ChatWindow({
         if (data && (data.remaining_today === 0 || res.status === 429)) {
           setRemainingSearches(0);
         }
+        if (data && (data.limit_reached || res.status === 403)) {
+          if (onUpgrade) onUpgrade();
+        }
         let err = data?.error;
         if (!err) {
           if (res.status === 403) {
@@ -1158,12 +1180,25 @@ export default function ChatWindow({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Hidden file input for document and image attachments */}
+      {/* Hidden file input for document attachments */}
       <input
         type="file"
         ref={docFileInputRef}
         style={{ display: 'none' }}
-        accept=".docx,.doc,.txt,.rtf,.md,.pdf,.png,.jpg,.jpeg,.webp,.gif"
+        accept=".pdf,.docx,.doc,.txt,.md,.rtf,.csv,.xlsx,.xls"
+        onChange={(e) => {
+          if (e.target.files && e.target.files[0]) {
+            handleFileSelect(e.target.files[0]);
+          }
+        }}
+      />
+
+      {/* Hidden file input for image attachments */}
+      <input
+        type="file"
+        ref={imageFileInputRef}
+        style={{ display: 'none' }}
+        accept="image/*,.png,.jpg,.jpeg,.webp,.gif"
         onChange={(e) => {
           if (e.target.files && e.target.files[0]) {
             handleFileSelect(e.target.files[0]);
@@ -1739,78 +1774,6 @@ export default function ChatWindow({
                   <X size={16} />
                 </button>
               </div>
-
-              {/* Quick Action Chips: ONLY shown when user has NOT asked/typed a question */}
-              {!inputText.trim() && (
-                <>
-                  <div style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: '2px' }}>
-                    এই ফাইলটোৰ সৈতে আপুনি কি কৰিব বিচাৰে? (Choose an action or type a message below)
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', paddingTop: '2px' }}>
-                    {/* 1. Ask / Chat */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setInputText(`Explain what is in this file (${attachedFile.name})`);
-                        textareaRef.current?.focus();
-                      }}
-                      className="file-action-chip"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(59, 130, 246, 0.15)', border: '1px solid rgba(59, 130, 246, 0.3)', color: '#60a5fa', cursor: 'pointer', fontWeight: 600 }}
-                    >
-                      <MessageSquare size={13} />
-                      <span>Ask / Chat</span>
-                    </button>
-
-                    {/* 2. OCR Text Extraction */}
-                    <button
-                      type="button"
-                      onClick={() => handleExtractOcr(attachedFile)}
-                      className="file-action-chip"
-                      disabled={isOcrLoading}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', color: '#c084fc', cursor: 'pointer', fontWeight: 600 }}
-                    >
-                      {isOcrLoading ? <Loader2 size={13} className="spin-icon" /> : <ScanText size={13} />}
-                      <span>{isOcrLoading ? 'Extracting OCR...' : 'Extract OCR Text'}</span>
-                    </button>
-
-                    {/* 3. Summarize */}
-                    <button
-                      type="button"
-                      onClick={handleExecuteSummarize}
-                      className="file-action-chip"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', cursor: 'pointer', fontWeight: 600 }}
-                    >
-                      <FileText size={13} />
-                      <span>Summarize & Notes</span>
-                    </button>
-
-                    {/* 4. Image Generation / Editing */}
-                    <button
-                      type="button"
-                      onClick={() => handleExecuteGeminiImage()}
-                      className="file-action-chip"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', color: '#fbbf24', cursor: 'pointer', fontWeight: 600 }}
-                    >
-                      <Sparkles size={13} />
-                      <span>{attachedFile.isImage ? 'AI Image Edit' : 'Generate Image'}</span>
-                    </button>
-
-                    {/* 5. Convert to PDF (Only for document files) */}
-                    {!attachedFile.isImage && (
-                      <button
-                        type="button"
-                        onClick={() => handleExecuteConvertDoc()}
-                        className="file-action-chip"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', padding: '5px 12px', borderRadius: '16px', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', cursor: 'pointer', fontWeight: 600 }}
-                      >
-                        <Download size={13} />
-                        <span>Convert to PDF</span>
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
             </div>
           )}
 
@@ -1891,11 +1854,11 @@ export default function ChatWindow({
                     }}
                   >
                     <div className="popover-icon-box" style={{ background: 'rgba(52, 211, 153, 0.15)', color: '#34d399' }}>
-                      <FileText size={15} />
+                      <FileText size={16} />
                     </div>
                     <div>
-                      <div>Upload Document</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>PDF, Word (.docx), TXT</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>File Upload</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>PDF, Word (.docx), TXT, Excel</div>
                     </div>
                   </button>
 
@@ -1904,67 +1867,15 @@ export default function ChatWindow({
                     className="attachment-popover-item"
                     onClick={() => {
                       setIsAttachMenuOpen(false);
-                      docFileInputRef.current?.click();
+                      imageFileInputRef.current?.click();
                     }}
                   >
                     <div className="popover-icon-box" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
-                      <ImageIcon size={15} />
+                      <ImageIcon size={16} />
                     </div>
                     <div>
-                      <div>Upload Image & Scan</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>PNG, JPG, WebP OCR analysis</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="attachment-popover-item"
-                    onClick={() => {
-                      setIsAttachMenuOpen(false);
-                      docFileInputRef.current?.click();
-                    }}
-                  >
-                    <div className="popover-icon-box" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>
-                      <ScanText size={15} />
-                    </div>
-                    <div>
-                      <div>Scan Document / OCR</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>Extract Assamese & English Text</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="attachment-popover-item"
-                    onClick={() => {
-                      setIsAttachMenuOpen(false);
-                      setIsGeneratingImage(true);
-                      setInputText('/image A cinematic portrait in Assam tea gardens, 8k resolution');
-                    }}
-                  >
-                    <div className="popover-icon-box" style={{ background: 'rgba(251, 191, 36, 0.15)', color: '#fbbf24' }}>
-                      <Sparkles size={15} />
-                    </div>
-                    <div>
-                      <div>Generate AI Image</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>Create images from prompt</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="attachment-popover-item"
-                    onClick={() => {
-                      setIsAttachMenuOpen(false);
-                      toggleSpeechRecognition();
-                    }}
-                  >
-                    <div className="popover-icon-box" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}>
-                      <Mic size={15} />
-                    </div>
-                    <div>
-                      <div>Voice Dictation</div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>Speak in Assamese/English</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Image Upload</div>
+                      <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 400 }}>Photos, Screenshots, JPG, PNG, WebP</div>
                     </div>
                   </button>
                 </div>
