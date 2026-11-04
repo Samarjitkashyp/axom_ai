@@ -32,8 +32,8 @@ export default function PricingSection({ header }: PricingSectionProps) {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider mb-4">
-            <Sparkles className="w-3.5 h-3.5" /> {header.badge || 'Pricing'}
+          <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider mb-4">
+            <span>{header.badge || 'Pricing'}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
             {header.title_prefix || 'Simple,'}{' '}
@@ -95,17 +95,10 @@ export default function PricingSection({ header }: PricingSectionProps) {
                     : 'bg-white/70 dark:bg-slate-900/60 border-emerald-900/15 dark:border-white/10 hover:border-emerald-900/25 dark:hover:border-white/20'
                 }`}
               >
-                {p.featured && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                    {p.badge || 'Most Popular'}
-                  </div>
-                )}
+                
 
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <i className={(p.icon_class || 'fa-solid fa-sparkles') + ' text-base ' + (p.color_class || 'text-fuchsia-700 dark:text-fuchsia-400')}></i>
-                    <div className="text-xs font-semibold text-slate-600 dark:text-gray-400">{p.badge}</div>
-                  </div>
+                  
                   <div className="text-2xl font-black text-emerald-950 dark:text-white mb-2">{p.name}</div>
                   <p className="text-xs text-slate-600 dark:text-gray-400 mb-6 min-h-[36px]">{p.desc}</p>
 
@@ -146,22 +139,7 @@ export default function PricingSection({ header }: PricingSectionProps) {
           })}
         </div>
 
-        {/* Deep Link to Dedicated Pricing Page */}
-        <div className="mt-12 text-center">
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 hover:text-emerald-950 dark:hover:text-white transition shadow-lg group"
-          >
-            <span>View Full Side-by-Side Feature Comparison &amp; Student Rebates</span>
-            <ArrowRight className="w-4 h-4 text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform" />
-          </Link>
         </div>
-
-        {header.footer_note && (
-          <p className="text-center text-xs text-slate-600 dark:text-gray-500 mt-10">{header.footer_note}</p>
-        )}
-
-      </div>
     </section>
   );
 }

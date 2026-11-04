@@ -249,24 +249,10 @@ export default function PricingPlansInteractive({
                   : 'bg-white dark:bg-[#0b1220] border border-[#e2e8f0] dark:border-[#1f2f46] shadow-sm hover:shadow-md'
               }`}
             >
-              {isPro && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#10b981] text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
-                  MOST POPULAR
-                </div>
-              )}
+              
 
               <div>
-                {/* Header Tag / Badge */}
-                <div className="flex items-center gap-1.5 text-xs mb-2">
-                  <i className={defaultIcon} />
-                  <span
-                    className={`font-semibold ${
-                      isPro ? 'text-amber-700 dark:text-amber-400 font-bold' : 'text-slate-500 dark:text-slate-400'
-                    }`}
-                  >
-                    {plan.badge || (isPro ? 'Most Popular' : plan.name)}
-                  </span>
-                </div>
+                
 
                 <div className="text-2xl font-black text-[#0f172a] dark:text-white mb-2 tracking-tight">
                   {plan.name}

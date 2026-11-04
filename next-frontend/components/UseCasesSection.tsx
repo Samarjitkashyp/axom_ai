@@ -283,9 +283,8 @@ export default function UseCasesSection({ header }: UseCasesSectionProps) {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-            <Layers className="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400" />
-            <span>{header?.badge || 'Use Cases & Production Solutions'}</span>
+          <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+            <span>{header?.badge || 'Use Cases'}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
             {header?.title_prefix || 'Built for'}{' '}
@@ -318,15 +317,7 @@ export default function UseCasesSection({ header }: UseCasesSectionProps) {
           })}
         </div>
 
-        {/* Tab Context Banner */}
-        <div className="mb-8 text-center max-w-2xl mx-auto">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1">
-            {current.headline}
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-gray-400">
-            {current.subheading}
-          </p>
-        </div>
+
 
         {/* 3 High-Impact Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
