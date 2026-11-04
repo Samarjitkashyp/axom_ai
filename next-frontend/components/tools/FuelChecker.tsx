@@ -629,19 +629,29 @@ export default function FuelChecker() {
               </div>
 
               {/* Right Side: Vehicle Dynamic Image */}
-              <div className="relative w-full md:w-80 h-48 sm:h-56 md:h-60 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex-shrink-0 shadow-inner group">
+              <div className="relative w-full md:w-80 h-48 sm:h-56 md:h-60 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 shadow-inner group">
                 <img
                   src={report.vehicle.image}
                   alt={report.vehicle.name}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   onError={(e) => {
-                    (e.target as any).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700';
+                    const fallback = report.vehicle.category === 'scooter'
+                      ? 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800'
+                      : report.vehicle.category === 'bike'
+                      ? 'https://images.unsplash.com/photo-1558980664-769d59546b3d?w=800'
+                      : 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800';
+                    (e.target as any).src = fallback;
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent flex items-end p-3 sm:p-4">
-                  <span className="text-white text-[11px] sm:text-xs font-bold bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/20">
-                    {report.vehicle.brand} • {report.vehicle.name}
-                  </span>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent flex items-end p-3 sm:p-4">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wider block">
+                      {report.vehicle.category} • {report.vehicle.brand}
+                    </span>
+                    <span className="text-white text-xs sm:text-sm font-extrabold block truncate drop-shadow-md">
+                      {report.vehicle.name}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -58,7 +58,7 @@ VEHICLE_CATALOG = [
         "years_start": 2020,
         "years_end": 2026,
         "engine": "109.51 cc / 124 cc PGM-FI",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80",
         "description": "India's highest selling scooter with PGM-FI and eSP technology.",
         "manual_source": "HMSI OBD-2 Fuel Compliance Bulletin & Activa Owner Manual",
         "manual_quote": "Honda Motorcycle & Scooter India (HMSI) certified 2023+ Activa OBD-2 models for E20 blended petrol. Pre-2023 BS6 Phase-1 models were calibrated for E10 (max 10% ethanol)."
@@ -71,7 +71,7 @@ VEHICLE_CATALOG = [
         "years_start": 2012,
         "years_end": 2019,
         "engine": "109.2 cc Carbureted HET Engine",
-        "image": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&auto=format&fit=crop&q=80",
         "description": "Carbureted legacy generation of Honda Activa with steel fuel tank.",
         "manual_source": "HMSI Activa BS4 Specification Handbook",
         "manual_quote": "Designed strictly for commercial unleaded petrol with up to 5-10% ethanol (E10 max). Carburetor jets and float needles degrade under higher alcohol concentrations."
@@ -84,7 +84,7 @@ VEHICLE_CATALOG = [
         "years_start": 2014,
         "years_end": 2026,
         "engine": "109.5 cc / 123.92 cc PGM-FI",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80",
         "description": "Sporty moto-scooter with digital cluster and Smart Key.",
         "manual_source": "Honda Dio Owner's Manual (Fuel System Section)",
         "manual_quote": "OBD-2 Phase-2 versions (2023+) are factory rated for E20 petrol. Earlier BS4/BS6-1 units recommend commercial E10."
@@ -97,7 +97,7 @@ VEHICLE_CATALOG = [
         "years_start": 2013,
         "years_end": 2026,
         "engine": "109.7 cc / 124.8 cc ET-Fi",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80",
         "description": "Popular family scooter with metal body and Ecothrust FI.",
         "manual_source": "TVS Motor Co. OBD-2 Compliance Declaration",
         "manual_quote": "TVS Jupiter manufactured after April 2023 conforms to BS6 Phase-2 (OBD-2) E20 fuel norms. 2013-2022 units are approved for up to E10."
@@ -110,7 +110,7 @@ VEHICLE_CATALOG = [
         "years_start": 2018,
         "years_end": 2026,
         "engine": "124.8 cc 3-Valve CVTi-REFi",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80",
         "description": "Performance 125cc scooter with Bluetooth SmartXonnect.",
         "manual_source": "TVS Ntorq 125 User Manual",
         "manual_quote": "2023+ OBD-2 Race XP and standard models feature ethanol-resistant fuel injectors and Viton hoses rated for E20."
@@ -123,7 +123,7 @@ VEHICLE_CATALOG = [
         "years_start": 2016,
         "years_end": 2026,
         "engine": "124 cc SEP (Suzuki Eco Performance) FI",
-        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&auto=format&fit=crop&q=80",
         "description": "Retro-styled 125cc commuter scooter with SEP technology.",
         "manual_source": "Suzuki Motorcycle India E20 Compliance Notice",
         "manual_quote": "Suzuki Access 125 and Burgman Street manufactured after April 2023 carry the E20 fuel filler badge and OBD-2 diagnostics."
@@ -136,7 +136,7 @@ VEHICLE_CATALOG = [
         "years_start": 2018,
         "years_end": 2026,
         "engine": "110.9 cc / 124.6 cc xSens FI",
-        "image": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&auto=format&fit=crop&q=80",
         "description": "Lightweight city scooters with Hero xSens fuel injection.",
         "manual_source": "Hero MotoCorp OBD2 Technical Specification Bulletin",
         "manual_quote": "Hero Pleasure+ and Destini produced after April 2023 feature E20-ready fuel lines. Pre-2023 models are certified for E10."
@@ -149,7 +149,7 @@ VEHICLE_CATALOG = [
         "years_start": 2020,
         "years_end": 2026,
         "engine": "125 cc Blue Core Hybrid with SMG",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80",
         "description": "Ultra-lightweight micro-hybrid 125cc scooter (99 kg).",
         "manual_source": "India Yamaha Motor E20 Announcement",
         "manual_quote": "Yamaha updated its entire 125cc hybrid scooter lineup with E20-compatible fuel tanks, hoses, and ECU in early 2023."
@@ -162,7 +162,7 @@ VEHICLE_CATALOG = [
         "years_start": 2021,
         "years_end": 2026,
         "engine": "155 cc Liquid-Cooled 4V VVA Engine",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?w=800&auto=format&fit=crop&q=80",
         "description": "Maxi-sports scooter powered by the R15 derived VVA liquid-cooled engine.",
         "manual_source": "Yamaha Aerox 155 User Manual (Fuel Specs)",
         "manual_quote": "2023+ OBD-2 compliant Aerox 155 models feature traction control and E20 fuel hardware compatibility."
@@ -179,7 +179,7 @@ VEHICLE_CATALOG = [
         "years_start": 2004,
         "years_end": 2026,
         "engine": "97.2 cc / 124.7 cc xSens FI (Carburetor on Pre-2020)",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&auto=format&fit=crop&q=80",
         "description": "World's largest selling motorcycle with proven reliability.",
         "manual_source": "Hero MotoCorp Official Circular & Splendor Owner's Manual",
         "manual_quote": "Hero MotoCorp confirmed: All 2023+ Splendor Plus OBD-2 motorcycles are E20 compatible. Legacy BS3/BS4 carburetor models must stick to standard commercial fuel (E10 max)."
@@ -192,7 +192,7 @@ VEHICLE_CATALOG = [
         "years_start": 2012,
         "years_end": 2026,
         "engine": "97.2 cc Air-Cooled 4-Stroke Single",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&auto=format&fit=crop&q=80",
         "description": "Entry-level commuter bike with high fuel economy.",
         "manual_source": "Hero MotoCorp Owner's Handbook",
         "manual_quote": "2023+ models comply with OBD-2 and E20 fuel norms. Pre-2023 BS4/BS6 Phase-1 units are calibrated for E10."
@@ -205,7 +205,7 @@ VEHICLE_CATALOG = [
         "years_start": 2005,
         "years_end": 2026,
         "engine": "124.7 cc Fuel Injected Engine",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1571607388263-1044f9ea01dd?w=800&auto=format&fit=crop&q=80",
         "description": "Executive 125cc commuter with digital console and i3S.",
         "manual_source": "Hero Glamour User Manual",
         "manual_quote": "OBD-2 compliant models (post-April 2023) are factory certified for 20% ethanol blended gasoline."
@@ -218,7 +218,7 @@ VEHICLE_CATALOG = [
         "years_start": 2019,
         "years_end": 2026,
         "engine": "199.6 cc Oil-Cooled 4-Valve FI",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80",
         "description": "Affordable dual-sport adventure motorcycle.",
         "manual_source": "Hero Xpulse 200 4V Manual",
         "manual_quote": "2023+ Xpulse 200 4V features OBD-2 diagnostics and updated closed-loop ECU mapping compatible with E20 fuel."
@@ -231,7 +231,7 @@ VEHICLE_CATALOG = [
         "years_start": 2006,
         "years_end": 2026,
         "engine": "123.94 cc PGM-FI eSP Engine",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1571607388263-1044f9ea01dd?w=800&auto=format&fit=crop&q=80",
         "description": "India's highest selling 125cc motorcycle.",
         "manual_source": "HMSI Shine 125 OBD-2 Owner Manual",
         "manual_quote": "HMSI transitioned Shine 125 and SP 125 to OBD-2 / E20 compliance in March 2023. Older models are verified for up to E10."
@@ -244,7 +244,7 @@ VEHICLE_CATALOG = [
         "years_start": 2005,
         "years_end": 2026,
         "engine": "162.7 cc PGM-FI Engine",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1571607388263-1044f9ea01dd?w=800&auto=format&fit=crop&q=80",
         "description": "Smooth and refined 160cc commuter bike.",
         "manual_source": "HMSI Unicorn 160 User Manual",
         "manual_quote": "Post-April 2023 models feature E20 fuel filler cap decal and OBD-2 sensors. Older BS4 models were designed for E10."
@@ -257,7 +257,7 @@ VEHICLE_CATALOG = [
         "years_start": 2020,
         "years_end": 2026,
         "engine": "348.36 cc Air-Cooled Single with Assist Slipper Clutch",
-        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=800&auto=format&fit=crop&q=80",
         "description": "Modern-classic roadster with Honda Selectable Torque Control.",
         "manual_source": "Honda BigWing CB350 Manual",
         "manual_quote": "2023+ OBD-2 BigWing models are factory-certified for E20. 2020-2022 BS6 Phase-1 units tolerate E20 with minor fuel trim adjustment."
@@ -270,7 +270,7 @@ VEHICLE_CATALOG = [
         "years_start": 2001,
         "years_end": 2026,
         "engine": "149.5 cc / 124.4 cc Twin Spark DTS-i",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80",
         "description": "Iconic Indian sports commuter motorcycle with DTS-i technology.",
         "manual_source": "Bajaj Auto OBD-2 Service Manual & SIAM Filing",
         "manual_quote": "Bajaj Auto upgraded the entire Pulsar range to BS6 Phase-2 / OBD-2 compliance in early 2023, certifying fuel components for E20."
@@ -283,7 +283,7 @@ VEHICLE_CATALOG = [
         "years_start": 2012,
         "years_end": 2026,
         "engine": "199.5 cc Triple Spark 4-Valve Liquid Cooled",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=800&auto=format&fit=crop&q=80",
         "description": "Naked streetfighter with perimeter frame and USD forks.",
         "manual_source": "Bajaj Auto NS200 Owner Handbook",
         "manual_quote": "2023+ USD fork models carry OBD-2 and E20 fuel injection certification."
@@ -296,7 +296,7 @@ VEHICLE_CATALOG = [
         "years_start": 2021,
         "years_end": 2026,
         "engine": "164.82 cc / 249.07 cc Oil-Cooled FI",
-        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=800&auto=format&fit=crop&q=80",
         "description": "Next-gen Pulsar platform with dual-channel ABS.",
         "manual_source": "Bajaj Pulsar N-Series Manual",
         "manual_quote": "Factory rated for E20 petrol on all 2023+ manufactured units."
@@ -309,7 +309,7 @@ VEHICLE_CATALOG = [
         "years_start": 2006,
         "years_end": 2026,
         "engine": "102 cc / 115.45 cc DTS-i with ComforTec",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&auto=format&fit=crop&q=80",
         "description": "High-mileage commuter bike with long-travel suspension.",
         "manual_source": "Bajaj Platina Owner Handbook",
         "manual_quote": "2023+ OBD-2 models are verified for E20. Older models require commercial E10."
@@ -322,7 +322,7 @@ VEHICLE_CATALOG = [
         "years_start": 2009,
         "years_end": 2026,
         "engine": "349 cc J-Series Single / 346 cc UCE (Pre-2021)",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981420-87aa9dad1c89?w=800&auto=format&fit=crop&q=80",
         "description": "Cult modern classic with timeless thump and J-platform engine.",
         "manual_source": "Royal Enfield Official OBD-2 Circular & User Manual",
         "manual_quote": "Royal Enfield certified that all J-series models manufactured from April 2023 onwards are fully E20 compliant. Older UCE models (pre-2021) should use standard E10 fuel."
@@ -335,7 +335,7 @@ VEHICLE_CATALOG = [
         "years_start": 2022,
         "years_end": 2026,
         "engine": "349 cc J-Series Air-Oil Cooled Engine",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=800&auto=format&fit=crop&q=80",
         "description": "Agile, urban roadster built on the J-platform.",
         "manual_source": "Royal Enfield Hunter 350 Manual",
         "manual_quote": "All 2023+ manufactured Hunter 350 units are OBD-2 and E20 material certified. 2022 initial batch units tolerate E20 without mechanical damage."
@@ -348,7 +348,7 @@ VEHICLE_CATALOG = [
         "years_start": 2000,
         "years_end": 2026,
         "engine": "349 cc J-Series / Cast Iron & UCE",
-        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981420-87aa9dad1c89?w=800&auto=format&fit=crop&q=80",
         "description": "The longest continuous-production motorcycle in history.",
         "manual_source": "Royal Enfield Bullet Specification Manual",
         "manual_quote": "J-series Bullet (2023+) is 100% E20 compliant. Vintage Cast Iron / UCE Bullets should never run high ethanol blends due to carburetor float degradation."
@@ -361,7 +361,7 @@ VEHICLE_CATALOG = [
         "years_start": 2016,
         "years_end": 2026,
         "engine": "452 cc Sherpa Liquid-Cooled / 411 cc LS410",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80",
         "description": "All-terrain adventure tourer with Sherpa 450 DOHC engine.",
         "manual_source": "Royal Enfield Sherpa 450 Technical Guide",
         "manual_quote": "The Sherpa 450 (Himalayan 450, 2023+) was engineered from the ground up for global markets and is 100% E20 compatible. The older 411 is rated for E10."
@@ -374,7 +374,7 @@ VEHICLE_CATALOG = [
         "years_start": 2006,
         "years_end": 2026,
         "engine": "159.7 cc 4-Valve Oil Cooled RT-Fi",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80",
         "description": "Racing DNA street naked with ride modes and GTT.",
         "manual_source": "TVS Apache RTR 160 4V Owner Manual",
         "manual_quote": "2023+ Apache RTR 160 4V models with OBD-2 are rated for E20 fuel. Older models support up to E10."
@@ -387,7 +387,7 @@ VEHICLE_CATALOG = [
         "years_start": 2021,
         "years_end": 2026,
         "engine": "124.8 cc 3-Valve Air & Oil Cooled",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=800&auto=format&fit=crop&q=80",
         "description": "Sporty 125cc commuter with Eco/Power ride modes.",
         "manual_source": "TVS Raider 125 User Manual",
         "manual_quote": "2023+ manufactured units conform to BS6 Phase-2 OBD-2 and E20 fuel specifications."
@@ -400,7 +400,7 @@ VEHICLE_CATALOG = [
         "years_start": 2008,
         "years_end": 2026,
         "engine": "149 cc Blue Core Fuel Injected",
-        "image": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=800&auto=format&fit=crop&q=80",
         "description": "Muscular street commuter with monocross suspension.",
         "manual_source": "Yamaha India E20 Official Release",
         "manual_quote": "Yamaha India updated the FZ-S Fi V4 in 2023 with E20 fuel capability and traction control system."
@@ -413,7 +413,7 @@ VEHICLE_CATALOG = [
         "years_start": 2019,
         "years_end": 2026,
         "engine": "155 cc Liquid-Cooled 4V SOHC VVA",
-        "image": "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=800&auto=format&fit=crop&q=80",
         "description": "High-revving liquid-cooled streetfighter with DeltaBox frame.",
         "manual_source": "Yamaha MT-15 V2 Owner Manual",
         "manual_quote": "All 2023+ OBD-2 compliant models with quickshifter/traction control are rated for E20 petrol."
@@ -426,7 +426,7 @@ VEHICLE_CATALOG = [
         "years_start": 2012,
         "years_end": 2026,
         "engine": "199.5 cc / 248.8 cc / 398.7 cc DOHC Liquid-Cooled",
-        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1558980664-769d59546b3d?w=800&auto=format&fit=crop&q=80",
         "description": "Aggressive street naked with trellis frame and WP Apex suspension.",
         "manual_source": "KTM India / Bajaj Auto OBD-2 Fuel Compliance Bulletin",
         "manual_quote": "All Gen-3 and 2023+ OBD-2 KTM Duke models feature E20-tolerant Viton fuel seals and closed-loop Bosch EFI."
@@ -443,7 +443,7 @@ VEHICLE_CATALOG = [
         "years_start": 2005,
         "years_end": 2026,
         "engine": "1.2L Z12E / DualJet K12N Petrol",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop&q=80",
         "description": "India's favorite hatchback with high fuel efficiency.",
         "manual_source": "Maruti Suzuki Swift Owner's Manual 2024 (Section 1: Fuel Info)",
         "manual_quote": "Maruti Suzuki: 'All vehicles manufactured from 1st April 2023 onwards are BS6 Phase-2 (RDE / OBD-2) and E20 material compliant.' Vehicles from 2020-2022 are tuned for E10."
@@ -456,7 +456,7 @@ VEHICLE_CATALOG = [
         "years_start": 2015,
         "years_end": 2026,
         "engine": "1.2L DualJet Petrol with Idle Start-Stop",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop&q=80",
         "description": "Premium hatchback sold via Nexa with 360 camera and HUD.",
         "manual_source": "Nexa Baleno Owner Manual (Fuel Requirements)",
         "manual_quote": "2023+ models are certified for E20 blend. 2015-2022 BS4/BS6-1 units should use commercial petrol (up to E10)."
@@ -469,7 +469,7 @@ VEHICLE_CATALOG = [
         "years_start": 2016,
         "years_end": 2026,
         "engine": "1.5L K15C DualJet Dual VVT Petrol",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Compact SUV with robust build and smart hybrid tech.",
         "manual_source": "Maruti Brezza Owner's Manual",
         "manual_quote": "K15C engine in 2023+ Brezza is calibrated for E20 petrol with updated fuel delivery lines and OBD-2 sensors."
@@ -482,7 +482,7 @@ VEHICLE_CATALOG = [
         "years_start": 2023,
         "years_end": 2026,
         "engine": "1.2L DualJet / 1.0L BoosterJet Turbo",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Coupe-styled compact SUV launched in 2023.",
         "manual_source": "Maruti Suzuki Fronx Official Specification Guide",
         "manual_quote": "Since Fronx was introduced in 2023, 100% of all Fronx cars ever produced in India are factory certified for E20 blended petrol."
@@ -495,7 +495,7 @@ VEHICLE_CATALOG = [
         "years_start": 2008,
         "years_end": 2026,
         "engine": "1.2L Z-Series / DualJet Petrol",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
         "description": "India's highest selling compact sedan with 5-star safety.",
         "manual_source": "Maruti Dzire User Handbook",
         "manual_quote": "2023+ Dzire models are E20 certified. Older generation models (2008-2022) were designed for E10."
@@ -508,7 +508,7 @@ VEHICLE_CATALOG = [
         "years_start": 1999,
         "years_end": 2026,
         "engine": "1.0L K10C / 1.2L K12N DualJet",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
         "description": "Tallboy family hatchback with massive cabin space.",
         "manual_source": "Maruti Wagon R Owner Manual",
         "manual_quote": "2023+ models comply with E20 fuel and OBD-2. Older pre-2020 models are calibrated strictly for E10."
@@ -521,7 +521,7 @@ VEHICLE_CATALOG = [
         "years_start": 2022,
         "years_end": 2026,
         "engine": "1.5L Mild Hybrid / Strong Hybrid e-CVT",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Mid-size SUV with AWD and strong hybrid powertrain.",
         "manual_source": "Maruti Grand Vitara Specifications Bulletin",
         "manual_quote": "All 2023+ Grand Vitara models are certified for E20. 2022 introductory batch is material compatible with E20."
@@ -534,7 +534,7 @@ VEHICLE_CATALOG = [
         "years_start": 2015,
         "years_end": 2026,
         "engine": "1.5L MPi Petrol / 1.5L Turbo GDi",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "India's undisputed king of the mid-size SUV segment.",
         "manual_source": "Hyundai Motor India Creta Owner's Manual (Fuel Requirements)",
         "manual_quote": "Hyundai Motor India: 'Vehicles manufactured after April 1, 2023 are engineered for unleaded petrol blended with up to 20% ethanol (E20).' Earlier BS6 Phase-1 and BS4 models recommend E10 (max 10% ethanol)."
@@ -547,7 +547,7 @@ VEHICLE_CATALOG = [
         "years_start": 2019,
         "years_end": 2026,
         "engine": "1.2L Kappa MPi / 1.0L Turbo GDi",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Sub-4-meter compact SUV with connected car tech.",
         "manual_source": "Hyundai Venue User Handbook",
         "manual_quote": "2023+ models feature OBD-2 diagnostics and E20 fuel compliance. 2019-2022 units are tuned for E10."
@@ -560,7 +560,7 @@ VEHICLE_CATALOG = [
         "years_start": 2008,
         "years_end": 2026,
         "engine": "1.2L Kappa Petrol / 1.0L Turbo GDi",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop&q=80",
         "description": "Premium hatchback with European styling and Bose audio.",
         "manual_source": "Hyundai i20 Owner Manual",
         "manual_quote": "Post-April 2023 i20 models are E20 certified. Older models support up to E10."
@@ -573,7 +573,7 @@ VEHICLE_CATALOG = [
         "years_start": 2023,
         "years_end": 2026,
         "engine": "1.2L 4-Cylinder Kappa Petrol",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Micro-SUV launched in 2023 with 6 standard airbags.",
         "manual_source": "Hyundai Motor India Exter Product Manual",
         "manual_quote": "All Hyundai Exter models are 100% factory compliant with E20 blended fuel and OBD-2 norms from day one."
@@ -586,7 +586,7 @@ VEHICLE_CATALOG = [
         "years_start": 2017,
         "years_end": 2026,
         "engine": "1.2L Revotron Turbocharged Petrol",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "5-star GNCAP rated compact SUV with futuristic design.",
         "manual_source": "Tata Motors Passenger Vehicles E20 Circular & Nexon Manual",
         "manual_quote": "Tata Motors: 'All passenger vehicles produced post-April 2023 are BS6 Phase 2 (RDE) compliant and material compatible with E20 fuel.' Older BS4/early BS6 units recommend maximum 10% ethanol (E10)."
@@ -599,7 +599,7 @@ VEHICLE_CATALOG = [
         "years_start": 2021,
         "years_end": 2026,
         "engine": "1.2L Revotron 3-Cylinder Petrol",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Sub-compact SUV with 5-star GNCAP safety rating.",
         "manual_source": "Tata Punch Owner's Handbook",
         "manual_quote": "2023+ Punch models are certified for E20. 2021-2022 models are BS6 Phase-1 (E10 calibrated)."
@@ -612,7 +612,7 @@ VEHICLE_CATALOG = [
         "years_start": 2020,
         "years_end": 2026,
         "engine": "1.2L Revotron / 1.2L i-Turbo",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop&q=80",
         "description": "Premium 5-star safety hatchback on ALFA architecture.",
         "manual_source": "Tata Altroz Owner Manual",
         "manual_quote": "2023+ models comply with E20 fuel standards. 2020-2022 units are tuned for E10."
@@ -625,7 +625,7 @@ VEHICLE_CATALOG = [
         "years_start": 2016,
         "years_end": 2026,
         "engine": "1.2L 3-Cylinder Revotron Petrol",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
         "description": "Entry-level safe hatchback with 4-star safety.",
         "manual_source": "Tata Tiago Specification Guide",
         "manual_quote": "2023+ Tiago models are E20 compliant. Pre-2023 units are calibrated for E10."
@@ -638,7 +638,7 @@ VEHICLE_CATALOG = [
         "years_start": 2020,
         "years_end": 2026,
         "engine": "2.0L mStallion 150 TGDi Turbo Petrol",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80",
         "description": "Iconic 4x4 off-roader with high-output mStallion turbo petrol.",
         "manual_source": "Mahindra & Mahindra Thar Owner's Manual (Fuel System Section)",
         "manual_quote": "Mahindra certified 2023+ mStallion TGDi engines for E20. 2020-2022 units tolerate E20 with minimal fuel trim adaptation."
@@ -651,7 +651,7 @@ VEHICLE_CATALOG = [
         "years_start": 2021,
         "years_end": 2026,
         "engine": "2.0L mStallion 200 TGDi Turbo Petrol",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80",
         "description": "Flagship 200 PS SUV with ADAS and dual 10.25-inch screens.",
         "manual_source": "Mahindra XUV700 Owner Handbook",
         "manual_quote": "2023+ OBD-2 compliant models are rated for E20 fuel. 2021-2022 models are BS6 Phase-1 (E10)."
@@ -664,7 +664,7 @@ VEHICLE_CATALOG = [
         "years_start": 2022,
         "years_end": 2026,
         "engine": "2.0L mStallion TGDi Petrol (203 PS)",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80",
         "description": "Big Daddy of SUVs with ladder frame chassis and powerful turbo petrol.",
         "manual_source": "Mahindra Scorpio-N Manual",
         "manual_quote": "All 2023+ Scorpio-N petrol models are certified for E20 blended gasoline."
@@ -677,7 +677,7 @@ VEHICLE_CATALOG = [
         "years_start": 2008,
         "years_end": 2026,
         "engine": "1.5L i-VTEC DOHC with VTC / e:HEV Hybrid",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
         "description": "Benchmark mid-size sedan with legendary i-VTEC engine.",
         "manual_source": "Honda Cars India Official FAQ & Lok Sabha Ethanol Report",
         "manual_quote": "Honda Cars India officially confirmed: 'All Honda cars manufactured in India from 2009 onwards are material compatible with E20 fuel.' 2023+ models add full factory ECU calibration."
@@ -690,7 +690,7 @@ VEHICLE_CATALOG = [
         "years_start": 2013,
         "years_end": 2026,
         "engine": "1.2L 4-Cylinder i-VTEC Petrol",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
         "description": "Comfortable compact sedan with smooth CVT gearbox.",
         "manual_source": "Honda Amaze Owner Manual",
         "manual_quote": "All Honda Amaze cars manufactured since inception (2013+) have E20 material-resistant fuel components. 2023+ models are OBD-2 compliant."
@@ -703,7 +703,7 @@ VEHICLE_CATALOG = [
         "years_start": 2023,
         "years_end": 2026,
         "engine": "1.5L i-VTEC DOHC Petrol",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Mid-size SUV launched in 2023 with high ground clearance.",
         "manual_source": "Honda Elevate Technical Specification Sheet",
         "manual_quote": "100% of all Honda Elevate units are factory built to BS6 Phase-2 OBD-2 and E20 fuel standards."
@@ -716,7 +716,7 @@ VEHICLE_CATALOG = [
         "years_start": 2022,
         "years_end": 2026,
         "engine": "1.5L Neo Drive / 1.5L Strong Hybrid",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Hybrid mid-size SUV with segment-leading fuel economy.",
         "manual_source": "Toyota Kirloskar Motor E20 Announcement",
         "manual_quote": "Toyota announced 100% E20 material and engine tuning compatibility for all vehicles produced from 1 April 2023."
@@ -729,7 +729,7 @@ VEHICLE_CATALOG = [
         "years_start": 2019,
         "years_end": 2026,
         "engine": "1.2L K-Series Dual VVT Petrol",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop&q=80",
         "description": "Feature-packed premium hatchback by Toyota.",
         "manual_source": "Toyota Glanza Owner Manual",
         "manual_quote": "2023+ models are certified for E20. 2019-2022 units recommend commercial E10 fuel."
@@ -742,7 +742,7 @@ VEHICLE_CATALOG = [
         "years_start": 2022,
         "years_end": 2026,
         "engine": "2.0L TNGA Petrol / Strong Hybrid",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80",
         "description": "Premium MPV on monocoque TNGA-C platform.",
         "manual_source": "Toyota Innova Hycross Specification Manual",
         "manual_quote": "All 2023+ Hycross vehicles are engineered and certified for E20 blended gasoline."
@@ -755,7 +755,7 @@ VEHICLE_CATALOG = [
         "years_start": 2019,
         "years_end": 2026,
         "engine": "1.5L Smartstream MPi / 1.5L Turbo GDi",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Sharp mid-size SUV with panoramic sunroof and dual 10.25-inch displays.",
         "manual_source": "Kia India Seltos Owner's Manual (Fuel Requirements)",
         "manual_quote": "Kia India certified 2023+ facelift and OBD-2 models for E20 fuel. Pre-2023 units recommend E10."
@@ -768,7 +768,7 @@ VEHICLE_CATALOG = [
         "years_start": 2020,
         "years_end": 2026,
         "engine": "1.2L Smartstream / 1.0L Turbo GDi",
-        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Feature-rich compact SUV with ventilated seats.",
         "manual_source": "Kia Sonet User Handbook",
         "manual_quote": "2023+ models comply with E20 fuel and OBD-2 standards. 2020-2022 units are calibrated for E10."
@@ -781,7 +781,7 @@ VEHICLE_CATALOG = [
         "years_start": 2022,
         "years_end": 2026,
         "engine": "1.0L TSI (115 PS) / 1.5L TSI EVO (150 PS)",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
         "description": "5-star GNCAP German engineered sedan on MQB-A0-IN platform.",
         "manual_source": "Volkswagen India Compatibility Statement & Manual",
         "manual_quote": "Volkswagen India stated: All petrol BS-VI vehicles manufactured from 1st April 2020 are component compatible with E20 fuel. 2023+ models feature full OBD-2 mapping."
@@ -794,7 +794,7 @@ VEHICLE_CATALOG = [
         "years_start": 2021,
         "years_end": 2026,
         "engine": "1.0L TSI / 1.5L TSI EVO DSG",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "Safe, dynamic German mid-size SUV on MQB-A0-IN platform.",
         "manual_source": "Volkswagen Taigun Owner Manual",
         "manual_quote": "Factory component compatible with E20 for all BS6 models; 2023+ models include OBD-2 phase-2 calibration."
@@ -807,7 +807,7 @@ VEHICLE_CATALOG = [
         "years_start": 2010,
         "years_end": 2022,
         "engine": "1.0L TSI / 1.2L MPI / 1.2L TSI",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop&q=80",
         "description": "Legendary hot-hatch with solid German sheet metal and handling.",
         "manual_source": "Volkswagen Polo Owner's Manual",
         "manual_quote": "2020-2022 BS6 Phase-1 Polo TSI models have E20-resistant fuel lines. Pre-2020 BS4 Polo models must stick to standard commercial petrol (up to E10)."
@@ -820,7 +820,7 @@ VEHICLE_CATALOG = [
         "years_start": 2022,
         "years_end": 2026,
         "engine": "1.0L TSI / 1.5L TSI ACT",
-        "image": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80",
         "description": "Elegant European mid-size sedan with large 521-liter boot.",
         "manual_source": "Skoda Auto India Fuel Compatibility Bulletin",
         "manual_quote": "Skoda Auto India certified that all MQB-A0-IN petrol engines post-April 2023 are fully E20 compliant. 2022 models have material resistance."
@@ -833,7 +833,7 @@ VEHICLE_CATALOG = [
         "years_start": 2021,
         "years_end": 2026,
         "engine": "1.0L TSI / 1.5L TSI EVO",
-        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=700&auto=format&fit=crop&q=80",
+        "image": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
         "description": "5-star GNCAP rated mid-size SUV from Skoda.",
         "manual_source": "Skoda Kushaq User Handbook",
         "manual_quote": "OBD-2 Phase-2 versions (2023+) are rated for E20. 2021-2022 units are material compliant for up to E20."
