@@ -233,9 +233,17 @@ export default function ChatWindow({
         return;
       }
       if (res.status === 413 || res.status === 400) { setErrorMsg(data.error || 'That recording could not be used. Please try again.'); return; }
+      if (sttLanguage() === 'assamese') {
+        setErrorMsg(data.error || 'কথাবোৰ স্পষ্টকৈ শুনা নগ'ল। অনুগ্ৰহ কৰি মাইক্ৰ'ফোনৰ ওচৰত পুনৰ কওক।');
+        return;
+      }
       sttModeRef.current = 'browser';                              // switched off, or the server voice typing is down
       setErrorMsg('Server voice typing is not available right now. Tap the microphone again to use your browser voice typing.');
     } catch (e) {
+      if (sttLanguage() === 'assamese') {
+        setErrorMsg('ভইচ সংযোগত সমস্যা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।');
+        return;
+      }
       sttModeRef.current = 'browser';
       setErrorMsg('Voice typing could not reach the server. Tap the microphone again to use your browser voice typing.');
     } finally {
@@ -263,6 +271,10 @@ export default function ChatWindow({
       recorder = new window.MediaRecorder(stream, mime ? { mimeType: mime, audioBitsPerSecond: 32000 } : undefined);
     } catch (err) {
       releaseMic();
+      if (sttLanguage() === 'assamese') {
+        setErrorMsg('মাইক্ৰ\'ফোন ৰেকৰ্ডাৰ আৰম্ভ কৰিব পৰা নগ\'ল।');
+        return;
+      }
       sttModeRef.current = 'browser';
       startBrowserRecognition();
       return;
@@ -341,6 +353,10 @@ export default function ChatWindow({
   };
 
   const startBrowserRecognition = async () => {
+    if (sttLanguage() === 'assamese') {
+      setErrorMsg('ব্ৰাউজাৰৰ স্পীচ ৰিকগনিচনে অসমীয়া ভাষা সমৰ্থন নকৰে। আমাৰ ছাৰ্ভাৰ মাইক্ৰ\'ফোন ব্যৱহাৰ কৰক।');
+      return;
+    }
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
       setErrorMsg('Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.');
@@ -416,7 +432,7 @@ export default function ChatWindow({
       return;
     }
     const canRecord = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    if (sttModeRef.current === 'server' && canRecord) await startServerRecording();
+    if ((sttLanguage() === 'assamese' || sttModeRef.current === 'server') && canRecord) await startServerRecording();
     else await startBrowserRecognition();
   };
 
