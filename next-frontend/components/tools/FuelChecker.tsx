@@ -529,7 +529,7 @@ export default function FuelChecker() {
               >
                 {availableYears.map((yr) => (
                   <option key={yr} value={yr}>
-                    {yr} {yr >= 2023 ? '— BS6 Phase-2 (E20 Ready)' : yr >= 2020 ? '— BS6 Phase-1 (E10 Calibrated)' : yr >= 2016 ? '— BS4 Norms (E10 Max)' : '— BS3 (Pre-Ethanol)'}
+                    {yr} {yr >= 2023 ? '(BS6 Phase-2 / OBD-2 / E20 Ready)' : yr >= 2020 ? '(BS6 Phase-1 / E10 Calibrated)' : yr >= 2016 ? '(BS-IV Norms / E10 Max)' : '(BS-III / Older Carburetor)'}
                   </option>
                 ))}
               </select>

@@ -48,46 +48,4 @@ export const HOME_FAQS: HomeFaqItem[] = [
       'Yes. Through our Chat with PDF and Document OCR suite (https://aiaxom.co.in/tools/chat-with-pdf/), Axom AI utilizes specialized vision models capable of transcribing scanned and degraded Assamese typography found in Jamabandi land records, Chitha revenue registers, government gazettes, and historical manuscripts. Users can upload scanned PDFs and ask detailed bilingual questions in Assamese or English.',
     category: 'tools',
   },
-  {
-    id: 7,
-    question: 'What is the multi-tiered inference architecture powering Axom AI?',
-    answer:
-      'Axom AI employs a resilient three-tier model cascade to ensure zero downtime and sub-second latency: Tier-1 routes complex reasoning and pedagogical tasks to OpenAI flagship models (GPT-4o, o3-mini); Tier-2 provides large-context multimodal processing via Google Gemini; and Tier-3 acts as an ultra-fast failover via Groq Cloud (Llama-3.3 70B), ensuring users never encounter 500 or 504 server timeouts.',
-    category: 'infrastructure',
-  },
-  {
-    id: 8,
-    question: 'What speech and voice synthesis technologies are built into Axom AI?',
-    answer:
-      'Axom AI incorporates two pioneering speech technologies: Xuna, a 600M Conformer-based automatic speech recognition engine that transcribes real-world spoken Assamese even in noisy market environments, and Puhor, a Diffusion Transformer voice model that synthesizes natural 24kHz Assamese speech with authentic local intonation, rhythm, and cadence.',
-    category: 'models',
-  },
-  {
-    id: 9,
-    question: 'Is Axom AI free to use for students, educators, and creators?',
-    answer:
-      'Yes. Axom AI provides a generous free tier that includes monthly word allocations, daily conversational chat, document analysis, and full access to public utilities like Axom FuelCheck with zero credit card required. For heavy academic, legal, and commercial usage, affordable Pro subscriptions are available starting at ₹199/month with instant UPI checkout via Razorpay.',
-    category: 'pricing',
-  },
-  {
-    id: 10,
-    question: 'How can regional businesses and startups in Assam deploy Axom AI?',
-    answer:
-      'MSMEs, retail brands, and institutions across Guwahati, Dibrugarh, Silchar, and Jorhat use Axom AI to automate 24/7 bilingual customer care in Assamese and English, translate procurement tenders, convert business catalogs and invoices to protected PDF formats, and generate cultural marketing copy tailored to regional consumers.',
-    category: 'business',
-  },
-  {
-    id: 11,
-    question: 'How can developers access the Axom AI API and developer SDK?',
-    answer:
-      'Developers can access Axom AI models, OCR pipelines, and translation bridges via our official Developer API portal at https://aiaxom.co.in/docs/developer/. We provide standard REST endpoints, Python SDKs, and streaming completion APIs compatible with modern web, mobile, and enterprise backend architectures.',
-    category: 'developers',
-  },
-  {
-    id: 12,
-    question: 'How does Axom AI guarantee enterprise data privacy and Indian regulatory compliance?',
-    answer:
-      'All data transmissions are protected by Cloudflare Full-strict SSL/TLS encryption in transit and AES-256 encryption at rest. Axom AI strictly complies with India’s Digital Personal Data Protection (DPDP) Act. User documents and uploaded files are processed statelessly and are never sold or used to train public third-party foundation models.',
-    category: 'privacy',
-  },
 ];
