@@ -1036,66 +1036,57 @@ function Pricing() {
 
   const defaultPlans = [
     {
-      id: 'free', name: 'Free', badge: 'Starter AI', icon_class: 'fa-solid fa-sparkles', color_class: 'text-gray-400',
-      desc: 'Ideal for casual queries, students & basic Assamese chat.',
+      id: 'free', name: 'Free', badge: 'For Everyone', icon_class: 'fa-solid fa-sparkles', color_class: 'text-gray-400',
+      desc: 'Explore Axom AI and get started with essential AI tools.',
       monthlyPrice: 0, yearlyPrice: 0, monthlyWords: '5,000 words',
       cta: 'Get Started Free', href: CHAT_URL, featured: false,
       features: [
-        '5,000 words per month',
-        'Standard Assamese generation',
-        'Llama 3 8B (Fast Basic AI)',
-        'Basic document conversions (5/day)',
-        'Web chat history (30 days)',
-        'Community support',
+        '5,000 AI words per month',
+        'Standard AI Chat (Assamese, English & Hindi)',
+        'Basic AI model access',
+        '5 document conversions per day',
+        'Basic PDF & Image Tools',
+        'AI Notes Generator (limited)',
+        '30-day Chat History',
+        'Standard Processing Speed',
       ],
     },
     {
-      id: 'starter', name: 'Starter', badge: 'Individual', icon_class: 'fa-solid fa-bolt', color_class: 'text-sky-400',
-      desc: 'Perfect for researchers, creators and daily regular users.',
+      id: 'starter', name: 'Starter', badge: 'For Regular Users', icon_class: 'fa-solid fa-bolt', color_class: 'text-sky-400',
+      desc: 'More AI power for researchers, students and content creators.',
       monthlyPrice: 199, yearlyPrice: 159, monthlyWords: '50,000 words',
       cta: 'Upgrade to Starter', href: UPGRADE_URL, featured: false,
       features: [
-        '50,000 words per month',
-        '2x Faster response speed',
-        'Access to GPT-4o Mini & Gemma 2',
-        '50 Document conversions/mo',
-        'Full PDF Editor (Signatures & Text)',
-        'PDF Compressor (Extreme Mode)',
-        'Export chat history to PDF & Word',
-        'Priority email support',
+        '50,000 AI words per month',
+        'Access to Advanced AI Models',
+        'Faster AI Response Processing',
+        '50 Document Conversions per month',
+        'Full PDF Editing & Compression',
+        'AI Notes & Document Generator',
+        'Chat with PDF (limited)',
+        'AI Diagram Generator',
+        'Chat History Export (PDF & Word)',
+        'Priority Email Support',
       ],
     },
     {
-      id: 'pro', name: 'Pro', badge: '⭐ Most Popular', icon_class: 'fa-solid fa-crown', color_class: 'text-fuchsia-400',
-      desc: 'Unleash full power: advanced models, OCR & 20+ file tools.',
+      id: 'pro', name: 'Pro', badge: 'Most Popular', icon_class: 'fa-solid fa-crown', color_class: 'text-fuchsia-400',
+      desc: 'Unlock the complete Axom AI experience with advanced AI capabilities.',
       monthlyPrice: 499, yearlyPrice: 399, monthlyWords: '250,000 words',
       cta: 'Upgrade to Pro', href: UPGRADE_URL, featured: true,
       features: [
-        '250,000 words per month',
-        'Ultra-fast GPU Compute (Zero Queue)',
-        'Claude 3.5 Sonnet & Llama 3.3 70B',
-        'Unlimited 20+ PDF & Office Tools',
-        'Smart OCR (Extract scanned Assamese/English text)',
-        'Interactive Ask-PDF AI Assistant',
-        'Speech Voice Mode (Assamese Audio)',
-        'Unlimited chat history & folders',
-        '24/7 Priority Support',
-      ],
-    },
-    {
-      id: 'business', name: 'Business', badge: 'Team & API', icon_class: 'fa-solid fa-building', color_class: 'text-amber-400',
-      desc: 'For offices, institutions & teams needing high volume & API.',
-      monthlyPrice: 1499, yearlyPrice: 1199, monthlyWords: '1,000,000 words',
-      cta: 'Upgrade to Business', href: UPGRADE_URL, featured: false,
-      features: [
-        '1,000,000 words per month (1M)',
-        'Up to 5 Team member seats',
-        'Custom Knowledge Base (RAG) upload',
-        'Dedicated REST API Access & keys',
-        'Highest Priority Compute & SLAs',
-        'All 20+ PDF & OCR tools included',
-        'Custom invoice & GST billing',
-        'Dedicated account manager',
+        '250,000 AI words per month',
+        'Access to Premium AI Models',
+        'Priority AI Processing',
+        'Full Access to 20+ PDF & Office Tools',
+        'Advanced OCR (Assamese & English)',
+        'AI Chat with PDF & Documents',
+        'Assamese AI Voice Mode – Puhor',
+        'AI Image Generation',
+        'AI Diagram & Screenshot-to-Code',
+        'Advanced Image & Video Tools',
+        'Extended Chat History & Folders',
+        'Priority Support',
       ],
     },
   ];
@@ -1124,7 +1115,7 @@ function Pricing() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {plans.map((p, i) => {
             const iconClass = p.icon_class || 'fa-solid fa-sparkles';
             const colorClass = p.color_class || 'text-fuchsia-400';
@@ -1136,7 +1127,7 @@ function Pricing() {
               <div key={i} className={"relative rounded-2xl p-7 border transition " + (p.featured ? "bg-gradient-to-b from-fuchsia-500/12 to-transparent border-fuchsia-500/40 shadow-2xl shadow-fuchsia-500/15" : "bg-white/[0.02] border-white/8 hover:border-white/15")}>
                 {p.featured && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                    {p.badge || "⭐ Most Popular"}
+                    {p.badge || "Most Popular"}
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-2">
@@ -1213,7 +1204,7 @@ function Insights() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {posts.map((p, i) => (
             <a key={i} href={p.link || "#"} className="card group overflow-hidden flex flex-col">
               <div className={"h-40 bg-gradient-to-br " + (p.color || "from-fuchsia-500 to-purple-600") + " relative overflow-hidden shrink-0"}>

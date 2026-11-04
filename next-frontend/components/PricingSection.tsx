@@ -97,7 +97,7 @@ export default function PricingSection({ header }: PricingSectionProps) {
               >
                 {p.featured && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                    {p.badge || '⭐ Most Popular'}
+                    {p.badge || 'Most Popular'}
                   </div>
                 )}
 

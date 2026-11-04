@@ -135,7 +135,7 @@ export default async function PricingPage() {
           return {
             id: p.id || fallback?.id || 'plan',
             name: p.name || fallback?.name || 'Plan',
-            badge: p.badge || fallback?.badge || (p.featured ? '⭐ Most Popular' : ''),
+            badge: p.badge || fallback?.badge || (p.featured ? 'Most Popular' : ''),
             desc: p.desc || fallback?.desc || '',
             monthlyPrice: Number(p.monthlyPrice) || 0,
             yearlyPrice: Number(p.yearlyPrice) || 0,

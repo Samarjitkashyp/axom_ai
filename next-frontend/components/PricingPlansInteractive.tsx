@@ -251,7 +251,7 @@ export default function PricingPlansInteractive({
             >
               {isPro && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#10b981] text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
-                  ★ MOST POPULAR
+                  MOST POPULAR
                 </div>
               )}
 
@@ -264,7 +264,7 @@ export default function PricingPlansInteractive({
                       isPro ? 'text-amber-700 dark:text-amber-400 font-bold' : 'text-slate-500 dark:text-slate-400'
                     }`}
                   >
-                    {plan.badge || (isPro ? '★ Most Popular' : plan.name)}
+                    {plan.badge || (isPro ? 'Most Popular' : plan.name)}
                   </span>
                 </div>
 
