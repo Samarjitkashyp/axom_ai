@@ -71,7 +71,7 @@ const TARGET_KEYWORDS = [
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Axom AI Pricing — Simple, Transparent Plans in INR (₹) | Free, Pro & Business';
+  const title = 'Axom AI Pricing — Simple, Transparent Plans in INR (₹) | Free, Starter & Pro';
   const description =
     'Explore Axom AI pricing plans starting at ₹0/month. Transparent Indian Rupee (INR) pricing with UPI, GST invoice, native Assamese LLM, OCR, and 20+ file tools.';
   const canonicalUrl = 'https://aiaxom.co.in/pricing/';
@@ -376,7 +376,7 @@ export default async function PricingPage() {
                         {/* Category Row */}
                         <tr className="bg-white/[0.02] border-y border-emerald-900/15 dark:border-white/10">
                           <td
-                            colSpan={5}
+                            colSpan={4}
                             className="p-3.5 px-5 text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/5"
                           >
                             {cat.category}
@@ -432,18 +432,7 @@ export default async function PricingPage() {
                               )}
                             </td>
 
-                            {/* Business */}
-                            <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                              {typeof item.business === 'boolean' ? (
-                                item.business ? (
-                                  <Check size={16} className="text-teal-700 dark:text-teal-400 mx-auto" />
-                                ) : (
-                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                                )
-                              ) : (
-                                <span>{item.business}</span>
-                              )}
-                            </td>
+
                           </tr>
                         ))}
                       </React.Fragment>

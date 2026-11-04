@@ -231,8 +231,8 @@ export default function PricingPlansInteractive({
         </div>
       )}
 
-      {/* 4 Plan Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-7 items-stretch">
+      {/* Plan Cards Grid */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${plans.length <= 3 ? 'lg:grid-cols-3 max-w-5xl mx-auto' : 'lg:grid-cols-4'} gap-6 lg:gap-7 items-stretch`}>
         {plans.map((plan) => {
           const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
           const isPro = plan.popular;

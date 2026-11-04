@@ -42,7 +42,7 @@ class SiteHeroConfig(models.Model):
     pricing_glance_title = models.CharField(max_length=200, default='Axom AI Pricing at a Glance')
     pricing_glance_badge = models.CharField(max_length=100, default='Zero Foreign Markups')
     pricing_glance_text = models.TextField(
-        default='Free (₹0/mo) Ideal for casual queries, students & basic Assamese chat. Starter (₹199/mo or ₹159 billed yearly) Perfect for researchers, creators and daily regular users. Pro (₹499/mo or ₹399 billed yearly) Unleash full power: advanced models, OCR & 20+ file tools. Business (₹1499/mo or ₹1199 billed yearly) For offices, institutions & teams needing high volume & API.',
+        default='Free (₹0/mo) Ideal for casual queries, students & basic Assamese chat. Starter (₹199/mo or ₹159 billed yearly) Perfect for researchers, creators and daily regular users. Pro (₹499/mo or ₹399 billed yearly) Unleash full power: advanced models, OCR & 20+ file tools.',
         blank=True
     )
     pricing_glance_active = models.BooleanField(default=True)

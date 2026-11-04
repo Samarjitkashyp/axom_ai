@@ -1,15 +1,10 @@
-export interface PricingFaqItem {
-  q: string;
-  a: string;
-}
-
 export interface DetailedPlan {
   id: string;
   name: string;
   badge: string;
   desc: string;
   monthlyPrice: number;
-  yearlyPrice: number; // monthly price when billed yearly
+  yearlyPrice: number;
   monthlyWords: string;
   popular: boolean;
   ctaText: string;
@@ -18,39 +13,44 @@ export interface DetailedPlan {
   notIncluded: string[];
 }
 
+export interface PricingFaqItem {
+  q: string;
+  a: string;
+}
+
 export const DETAILED_PLANS: DetailedPlan[] = [
   {
     id: 'free',
     name: 'Free',
     badge: 'Starter AI',
-    desc: 'Ideal for students, casual queries & basic Assamese chat.',
+    desc: 'Ideal for students, casual queries & basic Assamese exploration.',
     monthlyPrice: 0,
     yearlyPrice: 0,
     monthlyWords: '5,000 words',
     popular: false,
-    ctaText: 'Get Started Free',
+    ctaText: 'Start Free Forever',
     ctaUrl: 'https://chat.aiaxom.co.in/',
     features: [
-      '5,000 words per month',
-      'Standard Assamese generation',
-      'Llama 3 8B (Fast Basic AI)',
-      'Basic document conversions (5 files/day)',
-      'Chat history retention (30 days)',
-      'Community & Help Center support',
+      '5,000 words per month in Assamese & English',
+      'Basic Assamese Chatbot & Reasoning',
+      'Standard Document Conversions (5 files / day)',
+      'Basic Image Format Converter (JPG, PNG, WebP)',
+      'Standard community web search',
+      'Saved chat history for 30 days',
+      'Guwahati Edge Cloud (Low-latency access)',
     ],
     notIncluded: [
-      'Advanced Axom Pro & Deep Reasoning Models',
-      'Scanned Document OCR (Assamese/English)',
-      'Full PDF Editor & Compressor',
-      'Speech-to-Text Voice Mode',
-      'REST API access',
+      'Smart OCR for scanned Jamabandi / Assamese land records',
+      'Flagship Axom Pro & Turbo models',
+      'Interactive Ask-PDF AI Assistant',
+      'Priority compute during peak hours',
     ],
   },
   {
     id: 'starter',
     name: 'Starter',
     badge: 'Individual',
-    desc: 'Perfect for researchers, creators and daily regular users.',
+    desc: 'Perfect for researchers, creators & daily regular users.',
     monthlyPrice: 199,
     yearlyPrice: 159, // billed ₹1,908/yr
     monthlyWords: '50,000 words',
@@ -58,19 +58,18 @@ export const DETAILED_PLANS: DetailedPlan[] = [
     ctaText: 'Upgrade to Starter',
     ctaUrl: 'https://chat.aiaxom.co.in',
     features: [
-      '50,000 words per month',
-      '2x Faster response speed',
-      'Access to GPT-4o Mini & Gemma 2',
-      '50 Document conversions per month',
-      'Full PDF Editor (Signatures & Text)',
-      'PDF Compressor (Extreme Mode)',
-      'Export chat history to PDF & Word',
-      'Priority email customer support',
+      '50,000 words per month in Assamese & English',
+      'Fast AI Streaming & Accelerated Responses',
+      '50 Document Conversions per month',
+      'AI Image Generator (25 high-res images / mo)',
+      'Web Search with live verified citations',
+      'Full PDF tools (Merge, Split, Watermark, Protect)',
+      'Standard Email & Community Support',
     ],
     notIncluded: [
-      'Axom Pro & Axom Turbo Models',
-      'Scanned Document OCR',
-      'Team collaboration & API keys',
+      'Smart OCR for scanned historical Assamese texts',
+      'Axom Pro & Turbo flagship models',
+      'Interactive Ask-PDF AI Assistant',
     ],
   },
   {
@@ -85,8 +84,7 @@ export const DETAILED_PLANS: DetailedPlan[] = [
     ctaText: 'Upgrade to Pro',
     ctaUrl: 'https://chat.aiaxom.co.in',
     features: [
-      '250,000 words per month',
-      'Ultra-fast GPU Compute (Zero Queue)',
+      '250,000 words per month (Quarter-Million)',
       'Axom Pro & Axom Turbo Models',
       'Unlimited 20+ PDF & Office Tools',
       'Smart OCR (Extract scanned Assamese/English text)',
@@ -96,38 +94,15 @@ export const DETAILED_PLANS: DetailedPlan[] = [
       '24/7 Priority WhatsApp & Ticket Support',
     ],
     notIncluded: [
-      'Custom Team workspace & API keys',
+      'Custom Team workspace & multi-seat billing',
     ],
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    badge: 'Team & API',
-    desc: 'For offices, institutions & teams needing high volume & API.',
-    monthlyPrice: 1499,
-    yearlyPrice: 1199, // billed ₹14,388/yr
-    monthlyWords: '1,000,000 words',
-    popular: false,
-    ctaText: 'Upgrade to Business',
-    ctaUrl: 'https://chat.aiaxom.co.in',
-    features: [
-      '1,000,000 words per month (1M words)',
-      'Up to 5 Team member seats included',
-      'Custom Knowledge Base (RAG) upload & indexing',
-      'Dedicated REST API Access & API keys',
-      'Highest Priority Compute & Enterprise SLAs',
-      'All 20+ PDF, Word, & Smart OCR tools',
-      'Custom GST invoice & Business billing',
-      'Dedicated Account Manager in Guwahati/India',
-    ],
-    notIncluded: [],
   },
 ];
 
 export const PRICING_FAQS: PricingFaqItem[] = [
   {
     q: 'How much does Axom AI cost in Indian Rupees (INR)?',
-    a: 'Axom AI offers four straightforward plans: Free (₹0/month), Starter (₹199/month, or ₹159/mo yearly), Pro (₹499/month, or ₹399/mo yearly), and Business (₹1,499/month, or ₹1,199/mo yearly). All prices are in Indian Rupees (INR) with no hidden conversion or overseas transaction charges.',
+    a: 'Axom AI offers three straightforward plans: Free (₹0/month), Starter (₹199/month, or ₹159/mo yearly), and Pro (₹499/month, or ₹399/mo yearly). All prices are in Indian Rupees (INR) with no hidden conversion or overseas transaction charges.',
   },
   {
     q: 'Is Axom AI free to use?',
@@ -147,7 +122,7 @@ export const PRICING_FAQS: PricingFaqItem[] = [
   },
   {
     q: 'Do you offer GST invoices for businesses and companies in India?',
-    a: 'Yes. On all paid plans (Starter, Pro, and Business), you can enter your company name and GSTIN at checkout or in your Billing Settings to receive automated, GST-compliant tax invoices for input tax credit claims.',
+    a: 'Yes. On all paid plans (Starter and Pro), you can enter your company name and GSTIN at checkout or in your Billing Settings to receive automated, GST-compliant tax invoices for input tax credit claims.',
   },
   {
     q: 'What is the advantage of Axom AI Pro compared to OpenAI ChatGPT Plus?',
@@ -159,11 +134,11 @@ export const PRICING_FAQS: PricingFaqItem[] = [
   },
   {
     q: 'What happens if I reach my monthly word limit?',
-    a: 'If you exhaust your monthly quota before the 1st of the month, you can either upgrade to a higher tier with instant prorated activation or top up your quota without losing existing chats and settings.',
+    a: 'If you exhaust your monthly quota before the 1st of the month, you can either upgrade to Pro with instant prorated activation or top up your quota without losing existing chats and settings.',
   },
   {
-    q: 'Is API access included in the pricing plans?',
-    a: 'Yes. The Business plan includes dedicated REST API keys with high rate limits, allowing developers, agencies, and enterprises to integrate Axom AI’s Assamese LLM and OCR capabilities directly into their web and mobile applications.',
+    q: 'Do you offer custom enterprise solutions for organizations?',
+    a: 'Yes. For government departments, academic institutions, and enterprises requiring dedicated on-premise LLMs, private RAG knowledge bases, or high-volume custom SLAs, please contact enterprise sales at support@aiaxom.co.in.',
   },
 ];
 
@@ -171,40 +146,38 @@ export const COMPARISON_CATEGORIES = [
   {
     category: 'Core AI Models & Intelligence',
     items: [
-      { feature: 'Monthly Word Quota', free: '5,000 words', starter: '50,000 words', pro: '250,000 words', business: '1,000,000 words (1M)' },
-      { feature: 'Basic AI Models (Llama 8B, Gemma 2)', free: true, starter: true, pro: true, business: true },
-      { feature: 'Flagship Models (Axom Pro, Axom Turbo)', free: false, starter: false, pro: true, business: true },
-      { feature: 'Native Assamese Fine-Tuning & Nuance', free: true, starter: true, pro: true, business: true },
-      { feature: 'Real-Time Web Search & Citations', free: 'Standard', starter: 'Fast', pro: 'Ultra-Fast', business: 'Instant Priority' },
+      { feature: 'Monthly Word Quota', free: '5,000 words', starter: '50,000 words', pro: '250,000 words' },
+      { feature: 'Basic AI Models (Llama 8B, Gemma 2)', free: true, starter: true, pro: true },
+      { feature: 'Flagship Models (Axom Pro, Axom Turbo)', free: false, starter: false, pro: true },
+      { feature: 'Native Assamese Fine-Tuning & Nuance', free: true, starter: true, pro: true },
+      { feature: 'Real-Time Web Search & Citations', free: 'Standard', starter: 'Fast', pro: 'Ultra-Fast' },
     ],
   },
   {
     category: 'Document & Tool Utilities',
     items: [
-      { feature: 'Daily Document Conversions', free: '5 files / day', starter: '50 files / mo', pro: 'Unlimited', business: 'Unlimited' },
-      { feature: 'PDF to Word & Word to PDF Tools', free: 'Standard', starter: 'Full Access', pro: 'Full Access', business: 'Full Access' },
-      { feature: 'Image Format Converter (JPG, PNG, WebP)', free: '20 files / day', starter: 'Unlimited', pro: 'Batch Mode (20 files)', business: 'Batch Mode' },
-      { feature: 'Smart OCR (Scanned Assamese/English Docs)', free: false, starter: false, pro: true, business: true },
-      { feature: 'Interactive Ask-PDF Document Assistant', free: false, starter: 'Up to 10 MB', pro: 'Up to 25 MB', business: 'Up to 100 MB' },
+      { feature: 'Daily Document Conversions', free: '5 files / day', starter: '50 files / mo', pro: 'Unlimited' },
+      { feature: 'PDF to Word & Word to PDF Tools', free: 'Standard', starter: 'Full Access', pro: 'Full Access' },
+      { feature: 'Image Format Converter (JPG, PNG, WebP)', free: '20 files / day', starter: 'Unlimited', pro: 'Batch Mode (20 files)' },
+      { feature: 'Smart OCR (Scanned Assamese/English Docs)', free: false, starter: false, pro: true },
+      { feature: 'Interactive Ask-PDF Document Assistant', free: false, starter: 'Up to 10 MB', pro: 'Up to 25 MB' },
     ],
   },
   {
     category: 'Creative & Multimodal Suites',
     items: [
-      { feature: 'AI Image Generation (FLUX & Imagen)', free: '3 images / day', starter: '25 images / mo', pro: '100 images / mo', business: 'Unlimited' },
-      { feature: 'Speech Voice Mode (Assamese Audio)', free: false, starter: false, pro: true, business: true },
-      { feature: 'Chat History Export (PDF & DOCX)', free: false, starter: true, pro: true, business: true },
+      { feature: 'AI Image Generation (FLUX & Imagen)', free: '3 images / day', starter: '25 images / mo', pro: '100 images / mo' },
+      { feature: 'Speech Voice Mode (Assamese Audio)', free: false, starter: false, pro: true },
+      { feature: 'Chat History Export (PDF & DOCX)', free: false, starter: true, pro: true },
     ],
   },
   {
-    category: 'Security, Team & Enterprise',
+    category: 'Security, Privacy & Support',
     items: [
-      { feature: 'Data Residency in India (DPDP Act 2023)', free: true, starter: true, pro: true, business: true },
-      { feature: 'Team Member Seats', free: '1 user', starter: '1 user', pro: '1 user', business: 'Up to 5 users' },
-      { feature: 'Custom Knowledge Base (RAG) Indexing', free: false, starter: false, pro: false, business: true },
-      { feature: 'Dedicated REST API Keys', free: false, starter: false, pro: false, business: true },
-      { feature: 'GST Invoicing & Input Tax Credit', free: false, starter: true, pro: true, business: true },
-      { feature: 'Customer Support SLA', free: 'Community', starter: 'Email Support', pro: '24/7 Priority WhatsApp', business: 'Dedicated Account Manager' },
+      { feature: 'Data Residency in India (DPDP Act 2023)', free: true, starter: true, pro: true },
+      { feature: 'Team Member Seats', free: '1 user', starter: '1 user', pro: '1 user' },
+      { feature: 'GST Invoicing & Input Tax Credit', free: false, starter: true, pro: true },
+      { feature: 'Customer Support SLA', free: 'Community', starter: 'Email Support', pro: '24/7 Priority WhatsApp' },
     ],
   },
 ];

@@ -192,9 +192,9 @@ export default async function DeveloperDocsPage() {
         offers: {
           '@type': 'AggregateOffer',
           lowPrice: '0',
-          highPrice: '1499',
+          highPrice: '499',
           priceCurrency: 'INR',
-          offerCount: '4',
+          offerCount: '3',
         },
         featureList: [
           'OpenAI v1 REST Drop-in Replacement (/v1/chat/completions, /v1/models, /v1/translate)',
