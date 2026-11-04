@@ -1,4 +1,4 @@
-import { Mic, FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, ArrowDownToLine, GraduationCap, ImageDown } from 'lucide-react';
+import { Mic, FileType2, Image as ImageIcon, Combine, Scissors, Minimize2, Droplets, Lock, Presentation, FileSpreadsheet, MessagesSquare, PenTool, Signature, ImagePlus, Images, Video, Network, RefreshCw, QrCode, Palette, Code, Laugh, ArrowDownToLine, GraduationCap, ImageDown, Fuel } from 'lucide-react';
 
 export const TOOL_CATEGORIES = [
   { id: 'all', name: 'All Tools' },
@@ -199,6 +199,15 @@ export const ALL_TOOLS = [
 
 
   // AI Tools
+  {
+    id: 'fuel-checker',
+    name: 'Fuel Compatibility Checker',
+    cat: 'AI Tools',
+    icon: Fuel,
+    badge: 'NEW',
+    hint: 'E5, E10, E20, E85 & E100 Check',
+    desc: 'Check if your Bike, Scooter or Car supports E10, E20 or Flex-Fuel with verified manufacturer citations.',
+  },
   {
     id: 'voice-notes-generator',
     name: 'Voice Notes Generator',

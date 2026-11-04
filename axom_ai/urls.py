@@ -15,6 +15,7 @@ from . import ai_notes_views
 from . import voice_notes_views
 from . import voice_assistant_views
 from . import chat_enhancements
+from . import fuel_checker_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,6 +40,8 @@ urlpatterns = [
     path('tools/ai-notes-generator', views.home_view, name='tools_ai_notes_generator_no_slash'),
     path('tools/voice-notes-generator/', views.home_view, name='tools_voice_notes_generator'),
     path('tools/voice-notes-generator', views.home_view, name='tools_voice_notes_generator_no_slash'),
+    path('tools/fuel-checker/', views.home_view, name='tools_fuel_checker'),
+    path('tools/fuel-checker', views.home_view, name='tools_fuel_checker_no_slash'),
     path('upgrade/', views.home_view, name='upgrade'),
     path('upgrade', views.home_view, name='upgrade_no_slash'),
     path('subscription/', views.home_view, name='subscription'),
@@ -124,6 +127,12 @@ urlpatterns = [
     path('api/voice-notes/export-docx/', voice_notes_views.voice_notes_export_docx_api, name='voice_notes_export_docx_api'),
     path('api/voice-assistant/greeting/', voice_assistant_views.voice_assistant_greeting_api, name='voice_assistant_greeting_api'),
     path('api/voice-assistant/converse/', voice_assistant_views.voice_assistant_converse_api, name='voice_assistant_converse_api'),
+    # Axom FuelCheck APIs
+    path('api/fuel-check/catalog/', fuel_checker_views.fuel_check_catalog_api, name='fuel_check_catalog_api'),
+    path('api/fuel-check/search/', fuel_checker_views.fuel_check_search_api, name='fuel_check_search_api'),
+    path('api/fuel-check/evaluate/', fuel_checker_views.fuel_check_evaluate_api, name='fuel_check_evaluate_api'),
+    path('api/fuel-check/ask/', fuel_checker_views.fuel_check_ask_api, name='fuel_check_ask_api'),
+
     path('api/tools/', views.tools_api_view, name='tools_api'),
     path('api/download-converted-file/<str:filename>', views.download_converted_file_view, name='download_converted_file_raw'),
     path('api/download-converted-file/<str:filename>/', views.download_converted_file_view, name='download_converted_file'),
