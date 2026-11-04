@@ -518,13 +518,13 @@ export default function ChatWindow({
   const handleFileSelect = (file) => handleFilesSelect(file ? [file] : []);
 
   const handleExecuteConvertDoc = async (fileToUse) => {
-    const file = fileToUse || attachedFile?.file;
+    const file = fileToUse || attachedFiles.find(f => !f.isImage)?.file || attachedFiles[0]?.file;
     if (!file) return;
 
     setErrorMsg(null);
     setIsConvertingDoc(true);
     setConvertingFileName(file.name);
-    setAttachedFile(null);
+    setAttachedFiles([]);
 
     const fileMeta = {
       attached_file: {
@@ -559,10 +559,16 @@ export default function ChatWindow({
         throw new Error(data.error || 'Failed to convert document.');
       }
 
+      const convertSuccessMsg = language === 'hinglish'
+        ? `Aapka document (**${data.original_name}**) safalta-purvak PDF me convert ho gaya hai. Neeche diye gaye button se aap PDF preview ya download kar sakte hain:`
+        : language === 'english'
+        ? `Your document (**${data.original_name}**) has been successfully converted to PDF. You can preview or download the PDF below:`
+        : `আপোনাৰ নথিপত্ৰখন (**${data.original_name}**) সফলতাৰে PDF লৈ ৰূপান্তৰ কৰা হৈছে। তলৰ বুটামৰ পৰা আপুনি PDF ডাউনলোড বা প্ৰিভিউ কৰিব পাৰে:`;
+
       onAddMessage(
         sessionId,
         'assistant',
-        `আপোনাৰ নথিপত্ৰখন (**${data.original_name}**) সফলতাৰে PDF লৈ ৰূপান্তৰ কৰা হৈছে। তলৰ বুটামৰ পৰা আপুনি PDF ডাউনলোড বা প্ৰিভিউ কৰিব পাৰে:`,
+        convertSuccessMsg,
         'Axom AI',
         {
           doc_conversion: data,
@@ -591,7 +597,7 @@ export default function ChatWindow({
     setIsLoading(true);
     setErrorMsg(null);
 
-    const currentFile = attachedFile;
+    const currentFile = attachedFiles.find(f => f.isImage) || attachedFiles[0] || null;
     const fileMeta = currentFile ? {
       attached_file: {
         name: currentFile.name,
@@ -610,7 +616,7 @@ export default function ChatWindow({
       onAddMessage(sessionId, 'user', userPromptDisplay, 'Axom AI', fileMeta);
     }
 
-    setAttachedFile(null);
+    setAttachedFiles([]);
     setInputText('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
 
@@ -952,6 +958,21 @@ export default function ChatWindow({
     const currentFiles = [...attachedFiles];
     const images = currentFiles.filter(f => f.isImage);
     const docs = currentFiles.filter(f => !f.isImage);
+    const currentFile = currentFiles[0] || null;
+
+    // Check if user specifically requested PDF conversion of attached document
+    const isPdfConvertRequest = Boolean(
+      docs.length > 0 &&
+      text &&
+      (
+        /(pdf.*(convert|bana|banado|change|ruparantar|বনা|ৰূপান্তৰ)|(convert|change|bana|banado|ruparantar|বনা|ৰূপান্তৰ).*pdf|pdf\s*chahiye|pdf\s*format)/i.test(text) ||
+        /\b(convert\s+to\s+pdf|make\s+pdf|generate\s+pdf)\b/i.test(text)
+      )
+    );
+    if (isPdfConvertRequest) {
+      handleExecuteConvertDoc(docs[0].file);
+      return;
+    }
 
     const fileMeta = currentFiles.length > 0 ? {
       attached_file: {
