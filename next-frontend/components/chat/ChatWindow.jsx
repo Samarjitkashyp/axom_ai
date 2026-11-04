@@ -234,14 +234,14 @@ export default function ChatWindow({
       }
       if (res.status === 413 || res.status === 400) { setErrorMsg(data.error || 'That recording could not be used. Please try again.'); return; }
       if (sttLanguage() === 'assamese') {
-        setErrorMsg(data.error || 'কথাবোৰ স্পষ্টকৈ শুনা নগ'ল। অনুগ্ৰহ কৰি মাইক্ৰ'ফোনৰ ওচৰত পুনৰ কওক।');
+        setErrorMsg(data.error || "কথাবোৰ স্পষ্টকৈ শুনা নগ'ল। অনুগ্ৰহ কৰি মাইক্ৰ'ফোনৰ ওচৰত পুনৰ কওক।");
         return;
       }
       sttModeRef.current = 'browser';                              // switched off, or the server voice typing is down
       setErrorMsg('Server voice typing is not available right now. Tap the microphone again to use your browser voice typing.');
     } catch (e) {
       if (sttLanguage() === 'assamese') {
-        setErrorMsg('ভইচ সংযোগত সমস্যা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।');
+        setErrorMsg("ভইচ সংযোগত সমস্যা হৈছে। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।");
         return;
       }
       sttModeRef.current = 'browser';
@@ -272,7 +272,7 @@ export default function ChatWindow({
     } catch (err) {
       releaseMic();
       if (sttLanguage() === 'assamese') {
-        setErrorMsg('মাইক্ৰ\'ফোন ৰেকৰ্ডাৰ আৰম্ভ কৰিব পৰা নগ\'ল।');
+        setErrorMsg("মাইক্ৰ'ফোন ৰেকৰ্ডাৰ আৰম্ভ কৰিব পৰা নগ'ল।");
         return;
       }
       sttModeRef.current = 'browser';
@@ -354,7 +354,7 @@ export default function ChatWindow({
 
   const startBrowserRecognition = async () => {
     if (sttLanguage() === 'assamese') {
-      setErrorMsg('ব্ৰাউজাৰৰ স্পীচ ৰিকগনিচনে অসমীয়া ভাষা সমৰ্থন নকৰে। আমাৰ ছাৰ্ভাৰ মাইক্ৰ\'ফোন ব্যৱহাৰ কৰক।');
+      setErrorMsg("ব্ৰাউজাৰৰ স্পীচ ৰিকগনিচনে অসমীয়া ভাষা সমৰ্থন নকৰে। আমাৰ ছাৰ্ভাৰ মাইক্ৰ'ফোন ব্যৱহাৰ কৰক।");
       return;
     }
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
