@@ -194,14 +194,29 @@ _WB_START = r'(?<![\u0980-\u09ff])'
 _WB_END = r'(?![\u0980-\u09ff])'
 
 
+def _canon_indic(t: str) -> str:
+    """Canonicalize decomposed Indic characters (Nukta forms) and standardize script."""
+    if not t:
+        return t
+    return (t.replace('\u09af\u09bc', '\u09df')
+             .replace('\u09a1\u09bc', '\u09dd')
+             .replace('\u09a2\u09bc', '\u09de')
+             .replace('\u09ac\u09bc', '\u09f1')
+             .replace('\u09f0\u09bc', '\u09f0')
+             .replace('\u09b0', '\u09f0'))
+
+
 def _wb(pat: str):
-    """Enclose pattern in a non-capturing group with strict Indic word boundaries."""
-    return re.compile(_WB_START + r'(?:' + pat + r')' + _WB_END)
+    """Enclose pattern in a non-capturing group with strict Indic word boundaries and canonical script."""
+    return re.compile(_WB_START + r'(?:' + _canon_indic(pat) + r')' + _WB_END)
 
 
 _ASSAMESE_PURIFY_RULES = [
     # 1. Script, Brand & Orthography
     (_wb(r'অসোম\s*এআই|অকোম\s*এআই'), 'অসম এআই'),
+    (_wb(r'অবশ্যই|অৱশ্যই|অবশ্যেই|অৱশ্যেই'), 'নিশ্চয়'),
+    (_wb(r'অবশ্য|অবশ্যে'), 'অৱশ্যে'),
+    (_wb(r'ভাল\s+লাগিব'), 'ভাল পাম'),
     (_wb(r'হব'), 'হ’ব'),
     (_wb(r'কব'), 'ক’ব'),
     (_wb(r'লব'), 'ল’ব'),
@@ -245,13 +260,16 @@ _ASSAMESE_PURIFY_RULES = [
     (_wb(r'আপনার|আপনাৰ|আপুনাৰ'), 'আপোনাৰ'),
     (_wb(r'আপনাদেরকে|আপনাদেৰকে'), 'আপোনালোকক'),
     (_wb(r'আপনাদের|আপনাদেৰ'), 'আপোনালোকৰ'),
-    (_wb(r'তাদেরকে|তাদেৰকে'), 'তেওঁলোকক'),
-    (_wb(r'তাদের|তাদেৰ'), 'তেওঁলোকৰ'),
-    (_wb(r'তাকে'), 'তেওঁক'),
-    (_wb(r'এদেরকে|এদেৰকে'), 'এইবোৰক'),
-    (_wb(r'এদের|এদেৰ'), 'এইবোৰৰ'),
-    (_wb(r'ওদেরকে|ওদেৰকে'), 'সেইবোৰক'),
-    (_wb(r'ওদের|ওদেৰ'), 'সেইবোৰৰ'),
+    (_wb(r'তারা|তাঁরা'), 'তেওঁলোকে'),
+    (_wb(r'তাদেরকে|তাদেৰকে|তাঁদেরকে'), 'তেওঁলোকক'),
+    (_wb(r'তাদের|তাদেৰ|তাঁদের'), 'তেওঁলোকৰ'),
+    (_wb(r'তাকে|তাঁকে'), 'তেওঁক'),
+    (_wb(r'এরা|এঁরা'), 'এওঁলোকে'),
+    (_wb(r'এদেরকে|এদেৰকে|এঁদেরকে'), 'এইবোৰক'),
+    (_wb(r'এদের|এদেৰ|এঁদের'), 'এইবোৰৰ'),
+    (_wb(r'ওরা|ওঁরা'), 'সেইবোৰ'),
+    (_wb(r'ওদেরকে|ওদেৰকে|ওঁদেরকে'), 'সেইবোৰক'),
+    (_wb(r'ওদের|ওদেৰ|ওঁদের'), 'সেইবোৰৰ'),
     (_wb(r'কাকে'), 'কাক'),
     (_wb(r'কাদের|কাদেৰ'), 'কাৰ'),
     (_wb(r'নিজের|নিজেৰ'), 'নিজৰ'),
@@ -279,7 +297,7 @@ _ASSAMESE_PURIFY_RULES = [
     (_wb(r'কেমন\s+আছেন'), 'কেনে আছে'),
     (_wb(r'কেমন\s+কৰে|কেমন\s+করে'), 'কেনেকৈ'),
     (_wb(r'কেমন'), 'কেনে'),
-    (_wb(r'কিভাবে|কিভাৱে'), 'কেনেকৈ'),
+    (_wb(r'কীভাবে|কিভাবে|কীভাৱে|কিভাৱে'), 'কেনেকৈ'),
     (_wb(r'সেভাবে|সেভাৱে'), 'তেনেকৈ'),
     (_wb(r'এভাবে|এভাৱে'), 'এনেকৈ'),
     (_wb(r'যেভাবে|যেভাৱে'), 'যেনেদৰে'),
@@ -326,6 +344,11 @@ _ASSAMESE_PURIFY_RULES = [
     (_wb(r'নিচে'), 'তলত'),
     (_wb(r'পাশে'), 'কাষত'),
     (_wb(r'বিনা'), 'বিনে'),
+    (_wb(r'ভেতরে|ভিতরে|ভেতৰে|ভিতৰে'), 'ভিতৰত'),
+    (_wb(r'বাইরে|বাইৰে'), 'বাহিৰত'),
+    (_wb(r'সামনে'), 'আগত'),
+    (_wb(r'পিছনে|পেছনে'), 'পিছফালে'),
+    (_wb(r'মাঝে'), 'মাজত'),
 
     # 6. Negatives & Negative Verbs
     (_wb(r'কৰতে\s+পাৰি\s+না|করতে\s+পারি\s+না|কৰিব\s+পাৰি\s+না|কৰিব\s+পাৰে\s+না'), 'কৰিব নোৱাৰোঁ'),
@@ -429,6 +452,8 @@ _ASSAMESE_PURIFY_RULES = [
     (_wb(r'মনে\s+ৰাখবেন|মনে\s+রাখবেন'), 'মনত ৰাখিব'),
     (_wb(r'মনে\s+ৰাখুন|মনে\s+রাখুন'), 'মনত ৰাখক'),
     (_wb(r'বলুন'), 'কওক'),
+    (_wb(r'জানান'), 'জনাওক'),
+    (_wb(r'জানাবেন'), 'জনাব'),
     (_wb(r'করুন|কৰুন'), 'কৰক'),
     (_wb(r'আসুন'), 'আহক'),
     (_wb(r'যান'), 'যাওক'),
@@ -448,6 +473,10 @@ _ASSAMESE_PURIFY_RULES = [
     (_wb(r'করছি|কৰছি'), 'কৰিছোঁ'),
     (_wb(r'করছে|কৰছে'), 'কৰিছে'),
     (_wb(r'করছেন|কৰছেন'), 'কৰিছে'),
+    (_wb(r'করেছি|কৰেছি'), 'কৰিছোঁ'),
+    (_wb(r'করেছিল|কৰেছিল'), 'কৰিছিল'),
+    (_wb(r'করেছিলেন|কৰেছিলেন'), 'কৰিছিল'),
+    (_wb(r'করব|কৰব'), 'কৰিম'),
     (_wb(r'করেছেন|কৰেছেন'), 'কৰিছে'),
     (_wb(r'করেছে|কৰেছে'), 'কৰিছে'),
     (_wb(r'করবে|কৰবে'), 'কৰিব'),
@@ -471,6 +500,7 @@ _ASSAMESE_PURIFY_RULES = [
     (_wb(r'যেতে\s+হবে|যেতে\s+হ’ব'), 'যাব লাগিব'),
     (_wb(r'যেতে'), 'যাবলৈ'),
     (_wb(r'গেছে|গিয়েছে'), 'গৈছে'),
+    (_wb(r'গেছেন|গিয়েছেন'), 'গৈছে'),
     (_wb(r'গিয়েছিল'), 'গৈছিল'),
     (_wb(r'গেল|গেলো'), 'গ’ল'),
 
@@ -548,6 +578,16 @@ _ASSAMESE_PURIFY_RULES = [
     (_wb(r'সহায়\s+কৰিব\s+পাৰো'), 'সহায় কৰিব পাৰোঁ'),
     (_wb(r'সহায়\s+কৰিব\s+পাৰিম'), 'সহায় কৰিব পাৰোঁ'),
     (_wb(r'সহায়\s+কৰব|সহায়\s+করব'), 'সহায় কৰোঁ'),
+    (_wb(r'সহায়\s+(?:কৰিবলৈ|কৰিব)\s+পাৰিব'), 'সহায় কৰিব পাৰোঁ'),
+    (_wb(r'সহায়\s+কৰতে\s+পাৰি|সহায়\s+কৰতে\s+পাৰিব|সাহায্য\s+কৰতে\s+পাৰি'), 'সহায় কৰিব পাৰোঁ'),
+    (_wb(r'দয়া\s+করে|দয়া\s+করে|দয়া\s+কৰি|দয়া\s+কৰি'), 'অনুগ্ৰহ কৰি'),
+    (_wb(r'ভাল\s+আছি|ভালো\s+আছি|ভালে\s+আছি'), 'ভালে আছোঁ'),
+    (_wb(r'ভাল\s+আছো|ভালো\s+আছো'), 'ভালে আছা'),
+    (_wb(r'ভাল\s+আছেন|ভালো\s+আছেন'), 'ভালে আছে'),
+    (_wb(r'কি\s+খবর|কী\s+খবর'), 'কি খবৰ'),
+    (_wb(r'কোনো\s+অসুবিধা\s+নেই|কোনো\s+অসুবিধা\s+নাই'), 'কোনো অসুবিধা নাই'),
+    (_wb(r'কোন\s+অসুবিধা\s+নেই'), 'কোনো অসুবিধা নাই'),
+    (_wb(r'কোন\s+সমস্যা\s+নেই'), 'কোনো সমস্যা নাই'),
     (_wb(r'স্পষ্ট\s+কৰি\s+দিব'), 'স্পষ্ট কৰি দিয়ক'),
     (re.compile(r'কৰি\s+দিব(?=[\s।!\?]|\Z)'), 'কৰি দিয়ক'),
     (_wb(r'মই\s+কৰিব\s+পাৰে'), 'মই কৰিব পাৰোঁ'),
@@ -588,7 +628,7 @@ _ASSAMESE_PURIFY_RULES = [
 
 
 def _assamese_stream(chunks):
-    """The chunks of a streamed Assamese answer: buffered to word boundaries, purified, and numbers written as words."""
+    """The chunks of a streamed Assamese answer: buffered to sentence/phrase boundaries, purified, and numbers written as words."""
     from axom_ai import number_words as nw
     numbers = nw.NumberWordStream()
     buffer = ""
@@ -603,18 +643,28 @@ def _assamese_stream(chunks):
             yield out
             continue
 
-        # Look for safe word/punctuation boundary to flush complete words
-        split_pos = -1
-        for match in re.finditer(r"[\s\.\?!।,:;\(\)\[\]\"']", buffer):
-            split_pos = match.end()
-
-        if split_pos > 0:
-            ready = buffer[:split_pos]
-            buffer = buffer[split_pos:]
+        # 1. Flush at clause/sentence boundary
+        if re.search(r'[।\.\?!\n,;:]', buffer):
+            punct_matches = list(re.finditer(r'[।\.\?!\n,;:]', buffer))
+            cut = punct_matches[-1].end()
+            ready = buffer[:cut]
+            buffer = buffer[cut:]
             purified = _purify_assamese_with_grammar(ready)
             out = numbers.feed(purified)
             if out:
                 yield out
+        else:
+            # 2. Safety sliding window for long clauses without punctuation
+            spaces = list(re.finditer(r'\s+', buffer.strip()))
+            if len(spaces) >= 7:
+                match = list(re.finditer(r'\s+', buffer))[-4]
+                cut = match.end()
+                ready = buffer[:cut]
+                buffer = buffer[cut:]
+                purified = _purify_assamese_with_grammar(ready)
+                out = numbers.feed(purified)
+                if out:
+                    yield out
 
     # Flush remainder
     if buffer:
@@ -632,6 +682,7 @@ def _purify_assamese_with_grammar(text: str) -> str:
     Purifies Assamese generated text using curated rules from the Axom AI RAG Grammar Base
     (Assamese Grammar Seed through Vol 10).
     - Eliminates Bengali script contamination (Bengali 'র' -> Assamese 'ৰ').
+    - Canonicalizes decomposed Indic nukta forms (y+nukta -> U+09DF, d+nukta -> U+09DD, b+nukta -> U+09F1).
     - Eliminates all false friends, Bengali postpositions, pronouns, verbs, and calques.
     - Ensures proper 1st-person self-reference inflections ('পাৰোঁ', 'কৰোঁ', 'আছোঁ').
     - Fixes animal gender and classifiers ('মহিলা হাতী' -> 'মাইকী হাতী', 'গৰাকী হাতী' -> 'টা হাতী').
@@ -640,15 +691,15 @@ def _purify_assamese_with_grammar(text: str) -> str:
     if not text:
         return text
 
-    # 1. Standardize script: Bengali 'র' (U+09B0) -> Assamese 'ৰ' (U+09F0)
-    text = text.replace('\u09b0', '\u09f0')
+    # 1. Canonicalize decomposed Indic characters (Nukta forms) & Bengali script
+    text = _canon_indic(text)
 
     # 2. Apply all pre-compiled purification rules
     for pat, repl in _ASSAMESE_PURIFY_RULES:
         text = pat.sub(repl, text)
 
     # 3. Tidy excessive spacing
-    text = re.sub(r'[ \t]{2,}', ' ', text)
+    text = re.sub(r'[ 	]{2,}', ' ', text)
     # 4. Sanitize rival AI brands
     text = _sanitize_brand_mentions(text)
     return text
