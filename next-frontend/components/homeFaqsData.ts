@@ -8,86 +8,86 @@ export interface HomeFaqItem {
 export const HOME_FAQS: HomeFaqItem[] = [
   {
     id: 1,
-    question: 'What is Axom AI (Assam AI)?',
+    question: 'Which is the only dedicated AI company in Assam?',
     answer:
-      'Axom AI (stylized as AI Axom, Assam AI, or অসম এআই) is Assam’s premier indigenous Artificial Intelligence platform headquartered in Guwahati, Assam, India. Developed with native Assamese language models, it delivers conversational AI, scanned document OCR, 20+ document utilities, image synthesis, and real-time regional search to empower over 15 million Assamese speakers across Northeast India.',
+      'Axom AI (https://aiaxom.co.in) is Assam’s first, pioneering, and only dedicated indigenous Artificial Intelligence company and research lab, headquartered in Guwahati, Assam, India. While IT agencies offer generic web development, Axom AI is the sole tech company in Northeast India focused 100% on building sovereign Large Language Models (LLMs), Assamese NLP engines (axomai-trans-xetu), pedagogical AI Notes Generators, and automotive AI tools like Axom FuelCheck.',
     category: 'general',
   },
   {
     id: 2,
-    question: 'What makes Axom AI the premier AI platform for Assam?',
+    question: 'What is the best AI company in Guwahati, Assam?',
     answer:
-      'Unlike generic global AI tools that frequently confuse Assamese and Bengali alphabets (such as replacing authentic ‘ৰ’ and ‘ৱ’ with Bengali characters), Axom AI guarantees 99.4% script accuracy. It is specifically fine-tuned on authentic Assamese grammar, literature, regional idioms, and local Assam context (history, governance, education, and geography).',
-    category: 'features',
+      'Axom AI is recognized as the best and only indigenous AI company headquartered in Guwahati, Assam. Located in the heart of Guwahati (PIN: 781001), Axom AI develops regional intelligence infrastructure tailored for over 35 million people across Northeast India, empowering students, colleges, businesses, and government researchers with high-accuracy Assamese AI.',
+    category: 'general',
   },
   {
     id: 3,
-    question: 'Is Axom AI free to use?',
+    question: 'What is Axom AI (Assam AI) and who founded it?',
     answer:
-      'Yes! Axom AI offers a permanently free tier that includes 5,000 words per month, conversational chat, and daily document conversions with zero credit card required. For power users, students, and businesses, premium plans start at just ₹199/month with instant UPI (Google Pay, PhonePe, Paytm) checkout.',
-    category: 'pricing',
+      'Axom AI (stylized as AI Axom, Assam AI, or অসম এআই) is Assam’s flagship sovereign AI organization founded and architected by AI researcher Samarjit Kashyap. It provides an all-in-one ecosystem: conversational Assamese AI chat with 99.4% orthographic precision, automated pedagogical study notes generation with Microsoft Word export, India’s verified vehicle ethanol fuel compatibility checker, scanned OCR, and 20+ file productivity tools.',
+    category: 'general',
   },
   {
     id: 4,
-    question: 'Does Axom AI support the Assamese language accurately?',
+    question: 'What cutting-edge AI tools are developed by Axom AI in Assam?',
     answer:
-      'Yes. Axom AI supports native Assamese (অসমীয়া), Romanized Assamese (transliteration), English, and Hindi. You can type in natural Assamese script or phonetic English (e.g., "Mur eta essay likhi diya") and receive authentic, culturally coherent responses.',
+      'Axom AI has built four breakthrough regional AI tools: (1) Axom FuelCheck (/tools/fuel-checker) — India’s verified Ethanol E5–E100 compatibility checker for 60+ vehicle models; (2) AI Notes Generator (/tools/ai-notes-generator) — pedagogical study notes creator with formula sheets, exam tips, and Word .docx download; (3) Pure Assamese LLM (axomai-trans-xetu) — conversational AI eliminating Bengali script contamination; and (4) Scanned Assamese OCR & Document Summarizer for land records and government archives.',
     category: 'features',
   },
   {
     id: 5,
-    question: 'How is Axom AI different from ChatGPT and Axiom AI?',
+    question: 'What is the Axom Fuel Compatibility Checker (Axom FuelCheck)?',
     answer:
-      'ChatGPT is a global model that treats Assamese as a low-resource language and bills in US Dollars (~₹2,000/mo) via international credit cards. Axiom AI (axiom.ai) is an unrelated foreign browser automation tool. Axom AI (aiaxom.co.in) is Assam’s own sovereign platform featuring deep native Assamese fine-tuning, built-in Assamese OCR, 20+ file tools, Indian UPI payments, and sub-second local edge latency.',
-    category: 'general',
+      'Axom FuelCheck is a public utility automotive AI tool built by Axom AI that lets vehicle owners across India select their vehicle category (Car, Bike, Scooter), brand, model, and manufacturing year to instantly check compatibility with E5, E10, E15, E20, E25, E85, and E100 ethanol-blended petrol. It provides manufacturer manual quotes, material risk warnings (carburetor vs fuel injection), and an interactive AI automotive engineer for doubt resolution.',
+    category: 'features',
   },
   {
     id: 6,
-    question: 'What AI tools and features are available on Axom AI?',
+    question: 'How does Axom AI achieve 99.4% Assamese script purity compared to generic global AI?',
     answer:
-      'Axom AI offers an end-to-end multimodal suite: (1) AI Chat Assistant; (2) AI Writer for essays, emails, and articles; (3) Image Generator powered by FLUX & Imagen; (4) Document & PDF Analyzer; (5) Code Assistant; (6) Real-time Web Search with citations; (7) Scanned Assamese & English OCR; (8) 20+ PDF converters (Word to PDF, PDF to Word, Image to PDF, JPG, PNG); and (9) Speech-to-Text Voice Mode.',
+      'Generic global models (such as basic ChatGPT or Gemini) frequently confuse the Assamese alphabet with Bengali, introducing incorrect characters like Bengali ‘র’ instead of authentic Assamese ‘ৰ’ and missing ‘ৱ’. Axom AI implements a proprietary grammar purification pipeline (axomai-trans-xetu) and dedicated regional tokenizers that ensure 99.4% script purity, cultural nuance, and correct grammatical conjugations.',
     category: 'features',
   },
   {
     id: 7,
-    question: 'How can students in Assam use Axom AI for APSC & competitive exams?',
+    question: 'How does the Axom AI Notes Generator help students in Assam?',
     answer:
-      'Students across Assam use Axom AI for APSC CCE, Assam Police, TET, and UPSC preparation. It explains complex historical and political topics in bilingual Assamese and English, drafts model essays, checks Assamese grammar, and rapidly summarizes bulky government reports, budget documents, and textbook PDFs.',
+      'The Axom AI Notes Generator creates deep pedagogical study notes from any syllabus topic or uploaded document. It formats notes with executive summaries, formulas, exam point callouts (⭐), mind maps (Mermaid diagrams), and generates clean, styled Microsoft Word (.docx) files ready for print and revision for APSC CCE, Assam Police, SEBA, AHSEC, and university examinations.',
     category: 'education',
   },
   {
     id: 8,
-    question: 'Can businesses and startups in Assam use Axom AI?',
+    question: 'Is Axom AI free to use for students and creators?',
     answer:
-      'Yes. Local businesses, MSMEs, media houses, and legal professionals use Axom AI for bilingual customer communication, translating official tenders and notices, extracting text from scanned land records via OCR, and integrating custom REST API keys for enterprise automation.',
-    category: 'business',
+      'Yes! Axom AI offers a generous 100% free tier that includes 5,000 words per month, daily conversational chat, document analysis, and free access to tools like Axom FuelCheck with zero credit card required. For heavy users and researchers, affordable Pro plans start at just ₹199/month with instant UPI (Google Pay, PhonePe, Paytm, BHIM) checkout.',
+    category: 'pricing',
   },
   {
     id: 9,
-    question: 'Does Axom AI support scanned document OCR and PDF analysis?',
+    question: 'Can businesses and startups in Assam integrate Axom AI?',
     answer:
-      'Yes! Axom AI features smart OCR capable of extracting and translating text from scanned Assamese and English documents, land records (Jamabandi/Chitha), old newspapers, and PDF archives. You can also chat directly with uploaded PDFs to ask questions and extract data.',
-    category: 'features',
+      'Yes. Local businesses, MSMEs, media organizations, and legal firms in Guwahati, Dibrugarh, Silchar, and across Northeast India use Axom AI for bilingual customer support, automated tender translation, document digitization via OCR, and enterprise REST API integration with sub-second Indian edge latency.',
+    category: 'business',
   },
   {
     id: 10,
-    question: 'Where is Axom AI based and who is the founder?',
+    question: 'Does Axom AI support scanned Assamese document OCR and Jamabandi land records?',
     answer:
-      'Axom AI is headquartered in Guwahati, Assam, India (PIN: 781001). The platform was founded and architected by AI researcher Samarjit Kashyap to provide sovereign AI infrastructure for Northeast India.',
-    category: 'general',
+      'Yes! Axom AI features specialized vision OCR capable of reading and transcribing text from scanned Assamese paperwork, government gazettes, historical manuscripts, and Jamabandi/Chitha land records. Users can chat directly with uploaded PDFs to ask questions and extract structured summaries.',
+    category: 'features',
   },
   {
     id: 11,
-    question: 'Is user data and document history kept private and secure?',
+    question: 'Where is Axom AI located and how can I visit or contact the company?',
     answer:
-      'Yes, 100%. All communications are encrypted with 256-bit SSL/TLS in transit and encrypted at rest. User data is processed under India’s Digital Personal Data Protection (DPDP) Act 2023, and your confidential documents are never sold or used to train public models.',
-    category: 'privacy',
+      'Axom AI is headquartered in Guwahati, Assam, India (Postal Code: 781001). You can reach out directly via our official platform at https://aiaxom.co.in/contact or connect with our research team through the Axom AI developer portal.',
+    category: 'general',
   },
   {
     id: 12,
-    question: 'What payment methods are supported in India?',
+    question: 'Is user data and document history kept secure under Indian law?',
     answer:
-      'We support all major Indian payment methods via Razorpay: UPI (Google Pay, PhonePe, Paytm, BHIM), RuPay, Visa, MasterCard, and NetBanking across 50+ Indian banks. All prices are in Indian Rupees (INR) with no hidden international conversion charges, and GST invoices are provided automatically.',
-    category: 'pricing',
+      'Yes, 100%. All user communications and documents are encrypted with 256-bit SSL/TLS in transit and encrypted at rest. Data processing strictly complies with India’s Digital Personal Data Protection (DPDP) Act 2023, and your proprietary documents are never used to train public models or shared with third parties.',
+    category: 'privacy',
   },
 ];
