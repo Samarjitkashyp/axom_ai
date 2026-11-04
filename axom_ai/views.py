@@ -189,13 +189,264 @@ def _assamese_final(text: str) -> str:
         return _purify_assamese_with_grammar(text)
 
 
+# Unicode Indic Word Boundaries (safely bounds words in Bengali/Assamese script U+0980 to U+09FF)
+_WB_START = r'(?<![\u0980-\u09ff])'
+_WB_END = r'(?![\u0980-\u09ff])'
+
+_ASSAMESE_PURIFY_RULES = [
+    # 1. Broken / Isolated characters and script
+    (re.compile(_WB_START + r'য়াত' + _WB_END), 'ইয়াত'),
+    (re.compile(_WB_START + r'এয়াত' + _WB_END), 'ইয়াত'),
+
+    # 2. Wa (ৱ) vs Ba (ব) orthography
+    (re.compile(_WB_START + r'ব্যবহাৰ|ব্যবহার' + _WB_END), 'ব্যৱহাৰ'),
+    (re.compile(_WB_START + r'ব্যবসা|ব্যবসায়|ব্যৱসা' + _WB_END), 'ব্যৱসায়'),
+    (re.compile(_WB_START + r'ব্যবস্থা' + _WB_END), 'ব্যৱস্থা'),
+    (re.compile(_WB_START + r'ব্যবহৃত' + _WB_END), 'ব্যৱহৃত'),
+    (re.compile(_WB_START + r'ব্যবহারিক|ব্যৱহাৰিক' + _WB_END), 'ব্যৱহাৰিক'),
+    (re.compile(_WB_START + r'স্বভাব' + _WB_END), 'স্বভাৱ'),
+    (re.compile(_WB_START + r'উৎসব' + _WB_END), 'উৎসৱ'),
+    (re.compile(_WB_START + r'মানব' + _WB_END), 'মানৱ'),
+    (re.compile(_WB_START + r'ভাবনা' + _WB_END), 'ভাৱনা'),
+    (re.compile(_WB_START + r'ভাব' + _WB_END), 'ভাৱ'),
+    (re.compile(_WB_START + r'দেব' + _WB_END), 'দেৱ'),
+    (re.compile(_WB_START + r'প্রভাব|প্ৰভাব' + _WB_END), 'প্ৰভাৱ'),
+    (re.compile(_WB_START + r'গৌরব|গৌৰব' + _WB_END), 'গৌৰৱ'),
+    (re.compile(_WB_START + r'সম্ভব' + _WB_END), 'সম্ভৱ'),
+    (re.compile(_WB_START + r'অসম্ভব' + _WB_END), 'অসম্ভৱ'),
+    (re.compile(_WB_START + r'অভিভাবক' + _WB_END), 'অভিভাৱক'),
+    (re.compile(_WB_START + r'প্রস্তাব|প্ৰস্তাব' + _WB_END), 'প্ৰস্তাৱ'),
+    (re.compile(_WB_START + r'বিপ্লব' + _WB_END), 'বিপ্লৱ'),
+    (re.compile(_WB_START + r'প্রতিভাবান|প্ৰতিভাবান' + _WB_END), 'প্ৰতিভাৱান'),
+    (re.compile(_WB_START + r'স্বাভাবিক|স্বাভৱিক' + _WB_END), 'স্বাভাৱিক'),
+
+    # 3. Pronouns & Case markers
+    (re.compile(_WB_START + r'আমাকে' + _WB_END), 'মোক'),
+    (re.compile(_WB_START + r'আমাদেরকে|আমাদেৰকে' + _WB_END), 'আমাক'),
+    (re.compile(_WB_START + r'আমাদের|আমাদেৰ' + _WB_END), 'আমাৰ'),
+    (re.compile(_WB_START + r'তোমাকে' + _WB_END), 'তোমাক'),
+    (re.compile(_WB_START + r'তোমার|তোমাৰ' + _WB_END), 'তোমাৰ'),
+    (re.compile(_WB_START + r'আপনাকে' + _WB_END), 'আপোনাক'),
+    (re.compile(_WB_START + r'আপনার|আপনাৰ' + _WB_END), 'আপোনাৰ'),
+    (re.compile(_WB_START + r'তাদেরকে|তাদেৰকে' + _WB_END), 'তেওঁলোকক'),
+    (re.compile(_WB_START + r'তাদের|তাদেৰ' + _WB_END), 'তেওঁলোকৰ'),
+    (re.compile(_WB_START + r'তাকে' + _WB_END), 'তেওঁক'),
+    (re.compile(_WB_START + r'এদেরকে|এদেৰকে' + _WB_END), 'এইবোৰক'),
+    (re.compile(_WB_START + r'এদের|এদেৰ' + _WB_END), 'এইবোৰৰ'),
+    (re.compile(_WB_START + r'ওদেরকে|ওদেৰকে' + _WB_END), 'সেইবোৰক'),
+    (re.compile(_WB_START + r'ওদের|ওদেৰ' + _WB_END), 'সেইবোৰৰ'),
+    (re.compile(_WB_START + r'কাকে' + _WB_END), 'কাক'),
+    (re.compile(_WB_START + r'কাদের|কাদেৰ' + _WB_END), 'কাৰ'),
+    (re.compile(_WB_START + r'নিজের|নিজেৰ' + _WB_END), 'নিজৰ'),
+    (re.compile(_WB_START + r'মানুষকে' + _WB_END), 'মানুহক'),
+    (re.compile(_WB_START + r'মানুষেৰ|মানুষের|মানুষৰ' + _WB_END), 'মানুহৰ'),
+    (re.compile(_WB_START + r'মানুষ' + _WB_END), 'মানুহ'),
+    (re.compile(_WB_START + r'বন্ধুগণ' + _WB_END), 'বন্ধুসকল'),
+
+    # Desires & Intentions
+    (re.compile(_WB_START + r'ক’বলৈ\s+চাই|কবলৈ\s+চাই|বলতে\s+চাই|ক’ব\s+চাই' + _WB_END), 'ক’ব বিচাৰোঁ'),
+    (re.compile(_WB_START + r'কৰিবলৈ\s+চাই|কৰিব\s+চাই|কৰতে\s+চাই' + _WB_END), 'কৰিব বিচাৰোঁ'),
+    (re.compile(_WB_START + r'জানিবলৈ\s+চাই|জানিব\s+চাই|জানতে\s+চাই' + _WB_END), 'জানিব বিচাৰোঁ'),
+    (re.compile(_WB_START + r'চাবলৈ\s+চাই|চাব\s+চাই|দেখতে\s+চাই' + _WB_END), 'চাব বিচাৰোঁ'),
+    (re.compile(_WB_START + r'শুনিবলৈ\s+চাই|শুনিব\s+চাই|শুনতে\s+চাই' + _WB_END), 'শুনিব বিচাৰোঁ'),
+
+    # 4. Question words, Adverbs & Conjunctions
+    (re.compile(_WB_START + r'কিভাবে|কিভাৱে' + _WB_END), 'কেনেকৈ'),
+    (re.compile(_WB_START + r'সেভাবে|সেভাৱে' + _WB_END), 'তেনেকৈ'),
+    (re.compile(_WB_START + r'এভাবে|এভাৱে' + _WB_END), 'এনেকৈ'),
+    (re.compile(_WB_START + r'যেভাবে|যেভাৱে' + _WB_END), 'যেনেদৰে'),
+    (re.compile(_WB_START + r'কোথায়|কোথায়' + _WB_END), 'ক’ত'),
+    (re.compile(_WB_START + r'কোথাও' + _WB_END), 'ক’তো'),
+    (re.compile(_WB_START + r'এখানে' + _WB_END), 'ইয়াত'),
+    (re.compile(_WB_START + r'সেখানে' + _WB_END), 'তাত'),
+    (re.compile(_WB_START + r'ওখানে' + _WB_END), 'তাত'),
+    (re.compile(_WB_START + r'কখন' + _WB_END), 'কেতিয়া'),
+    (re.compile(_WB_START + r'কখনো' + _WB_END), 'কেতিয়াও'),
+    (re.compile(_WB_START + r'এখনো' + _WB_END), 'এতিয়াও'),
+    (re.compile(_WB_START + r'এখনকাৰ|এখনকার' + _WB_END), 'এতিয়াৰ'),
+    (re.compile(_WB_START + r'তখন' + _WB_END), 'তেতিয়া'),
+    (re.compile(_WB_START + r'তখনো' + _WB_END), 'তেতিয়াও'),
+    (re.compile(_WB_START + r'যখন' + _WB_END), 'যেতিয়া'),
+    (re.compile(_WB_START + r'যখনো' + _WB_END), 'যেতিয়াও'),
+    (re.compile(_WB_START + r'তাহলে' + _WB_END), 'তেন্তে'),
+    (re.compile(_WB_START + r"তেনেহলে|তেনেহ'লে|তেনেহ’লে" + _WB_END), 'তেতিয়াহ’লে'),
+    (re.compile(_WB_START + r'নাকি' + _WB_END), 'নেকি'),
+    (re.compile(_WB_START + r'যিবিলাকৰ' + _WB_END), 'যিবোৰৰ'),
+    (re.compile(_WB_START + r'পৃথকে\s+পৃথকে' + _WB_END), 'পৃথকভাৱে'),
+
+    # 5. Postpositions
+    (re.compile(_WB_START + r'সাথে|সাৰ্থে' + _WB_END), 'লগত'),
+    (re.compile(_WB_START + r'কাছে' + _WB_END), 'ওচৰত'),
+    (re.compile(_WB_START + r'জন্য|জন্যে' + _WB_END), 'বাবে'),
+    (re.compile(_WB_START + r'মতো|মত' + _WB_END), 'দৰে'),
+    (re.compile(_WB_START + r'পরে|পৰে' + _WB_END), 'পাছত'),
+    (re.compile(_WB_START + r'আগে' + _WB_END), 'আগতে'),
+    (re.compile(_WB_START + r'মধ্যে' + _WB_END), 'মাজত'),
+    (re.compile(_WB_START + r'উপরে' + _WB_END), 'ওপৰত'),
+    (re.compile(_WB_START + r'নিচে' + _WB_END), 'তলত'),
+    (re.compile(_WB_START + r'পাশে' + _WB_END), 'কাষত'),
+    (re.compile(_WB_START + r'বিনা' + _WB_END), 'বিনে'),
+
+    # 6. Common Nouns & Adjectives (False Friends)
+    (re.compile(_WB_START + r'জলৰ' + _WB_END), 'পানীৰ'),
+    (re.compile(_WB_START + r'জলে' + _WB_END), 'পানীত'),
+    (re.compile(_WB_START + r'জল' + _WB_END), 'পানী'),
+    (re.compile(_WB_START + r'কাজৰ' + _WB_END), 'কামৰ'),
+    (re.compile(_WB_START + r'কাজে' + _WB_END), 'কামত'),
+    (re.compile(_WB_START + r'কাজ' + _WB_END), 'কাম'),
+    (re.compile(_WB_START + r'বাড়িৰ|বাড়িৰ' + _WB_END), 'ঘৰৰ'),
+    (re.compile(_WB_START + r'বাড়িতে|বাড়িতে' + _WB_END), 'ঘৰত'),
+    (re.compile(_WB_START + r'বাড়ি|বাড়ি' + _WB_END), 'ঘৰ'),
+    (re.compile(_WB_START + r'সকালে|সকাল' + _WB_END), 'ৰাতিপুৱা'),
+    (re.compile(_WB_START + r'সন্ধ্যায়|সন্ধ্যায়|সন্ধ্যা' + _WB_END), 'গধূলি'),
+    (re.compile(_WB_START + r'আজকে|আজ' + _WB_END), 'আজি'),
+    (re.compile(_WB_START + r'কালকে' + _WB_END), 'কাইলৈ'),
+    (re.compile(_WB_START + r'পরশু|পৰশু' + _WB_END), 'পৰহি'),
+    (re.compile(_WB_START + r'ছোট|ছোটো' + _WB_END), 'সৰু'),
+    (re.compile(_WB_START + r'বড়|বড়' + _WB_END), 'ডাঙৰ'),
+    (re.compile(_WB_START + r'খুবই' + _WB_END), 'বৰ'),
+    (re.compile(_WB_START + r'খুব' + _WB_END), 'বহুত'),
+    (re.compile(_WB_START + r'একটুও' + _WB_END), 'অলপো'),
+    (re.compile(_WB_START + r'একটু' + _WB_END), 'অলপ'),
+    (re.compile(_WB_START + r'বেশি' + _WB_END), 'বেছি'),
+    (re.compile(_WB_START + r'শুধুমাত্র' + _WB_END), 'কেৱল'),
+    (re.compile(_WB_START + r'শুধু' + _WB_END), 'কেৱল'),
+    (re.compile(_WB_START + r'সাহায্যৰ' + _WB_END), 'সহায়ৰ'),
+    (re.compile(_WB_START + r'সাহায্য' + _WB_END), 'সহায়'),
+    (re.compile(_WB_START + r'মেয়েৰ|মেয়ের' + _WB_END), 'ছোৱালীৰ'),
+    (re.compile(_WB_START + r'মেয়ে|মেয়ে' + _WB_END), 'ছোৱালী'),
+    (re.compile(_WB_START + r'ছেলেৰ|ছেলের' + _WB_END), 'ল’ৰাৰ'),
+    (re.compile(_WB_START + r'ছেলে' + _WB_END), 'ল’ৰা'),
+    (re.compile(_WB_START + r'বাবার' + _WB_END), 'দেউতাৰ'),
+    (re.compile(_WB_START + r'বাবা' + _WB_END), 'দেউতা'),
+    (re.compile(_WB_START + r'বোন' + _WB_END), 'ভনী'),
+
+    # 7. Imperatives (User-directed polite verbs)
+    (re.compile(_WB_START + r'বলুন' + _WB_END), 'কওক'),
+    (re.compile(_WB_START + r'করুন|কৰুন' + _WB_END), 'কৰক'),
+    (re.compile(_WB_START + r'আসুন' + _WB_END), 'আহক'),
+    (re.compile(_WB_START + r'যান' + _WB_END), 'যাওক'),
+    (re.compile(_WB_START + r'নিন' + _WB_END), 'লওক'),
+    (re.compile(_WB_START + r'দিন' + _WB_END), 'দিয়ক'),
+    (re.compile(_WB_START + r'দেখুন' + _WB_END), 'চাওক'),
+    (re.compile(_WB_START + r'শুনুন' + _WB_END), 'শুনক'),
+    (re.compile(_WB_START + r'জানুন' + _WB_END), 'জানক'),
+    (re.compile(_WB_START + r'থাকুন' + _WB_END), 'থাকক'),
+    (re.compile(_WB_START + r'পড়ুন|পড়েন' + _WB_END), 'পঢ়ক'),
+    (re.compile(_WB_START + r'লিখুন' + _WB_END), 'লিখক'),
+
+    # 8. Verbs & Participles
+    (re.compile(_WB_START + r'করছি|কৰছি' + _WB_END), 'কৰিছোঁ'),
+    (re.compile(_WB_START + r'করছে|কৰছে' + _WB_END), 'কৰিছে'),
+    (re.compile(_WB_START + r'করছেন|কৰছেন' + _WB_END), 'কৰিছে'),
+    (re.compile(_WB_START + r'করবে|কৰবে' + _WB_END), 'কৰিব'),
+    (re.compile(_WB_START + r'করবেন|কৰবেন' + _WB_END), 'কৰিব'),
+    (re.compile(_WB_START + r'করতে|কৰতে' + _WB_END), 'কৰিবলৈ'),
+    (re.compile(_WB_START + r'করব|কৰব' + _WB_END), 'কৰিম'),
+    (re.compile(_WB_START + r'করা' + _WB_END), 'কৰা'),
+    (re.compile(_WB_START + r'হচ্ছে' + _WB_END), 'হৈছে'),
+    (re.compile(_WB_START + r'হচ্ছিল' + _WB_END), 'হৈছিল'),
+    (re.compile(_WB_START + r'হবে' + _WB_END), 'হ’ব'),
+    (re.compile(_WB_START + r'হবেন' + _WB_END), 'হ’ব'),
+    (re.compile(_WB_START + r'হতে' + _WB_END), 'হ’বলৈ'),
+    (re.compile(_WB_START + r'হলে' + _WB_END), 'হ’লে'),
+    (re.compile(_WB_START + r'বলেছেন|বলেছে' + _WB_END), 'কৈছে'),
+    (re.compile(_WB_START + r'বলতে' + _WB_END), 'ক’বলৈ'),
+    (re.compile(_WB_START + r'বলা' + _WB_END), 'কোৱা'),
+    (re.compile(_WB_START + r'বলব|বলবো' + _WB_END), 'ক’ম'),
+    (re.compile(_WB_START + r'বোঝায়' + _WB_END), 'বুজায়'),
+    (re.compile(_WB_START + r'বোঝা' + _WB_END), 'বুজা'),
+    (re.compile(_WB_START + r'জানা' + _WB_END), 'জনা'),
+    (re.compile(_WB_START + r'জানতে' + _WB_END), 'জানিবলৈ'),
+    (re.compile(_WB_START + r'দেখে' + _WB_END), 'চাই'),
+    (re.compile(_WB_START + r'দেখতে' + _WB_END), 'চাবলৈ'),
+    (re.compile(_WB_START + r'শুনতে' + _WB_END), 'শুনিবলৈ'),
+    (re.compile(_WB_START + r'যেতে' + _WB_END), 'যাবলৈ'),
+    (re.compile(_WB_START + r'খেতে' + _WB_END), 'খাবলৈ'),
+    (re.compile(_WB_START + r'দিতে' + _WB_END), 'দিবলৈ'),
+    (re.compile(_WB_START + r'নিতে' + _WB_END), 'ল’বলৈ'),
+    (re.compile(_WB_START + r'দিয়ে' + _WB_END), 'দি'),
+    (re.compile(_WB_START + r'নিয়ে' + _WB_END), 'লৈ'),
+    (re.compile(_WB_START + r'গিয়ে' + _WB_END), 'গৈ'),
+    (re.compile(_WB_START + r'হয়ে' + _WB_END), 'হৈ'),
+    (re.compile(_WB_START + r'হয়েছিল' + _WB_END), 'হৈছিল'),
+
+    # 9. AI 1st-person self-reference & polite phrasing
+    (re.compile(_WB_START + r'সহায়\s+কৰিব\s+পাৰে' + _WB_END), 'সহায় কৰিব পাৰোঁ'),
+    (re.compile(_WB_START + r'সহায়\s+কৰিব\s+পাৰি' + _WB_END), 'সহায় কৰিব পাৰোঁ'),
+    (re.compile(_WB_START + r'সহায়\s+কৰিব\s+পাৰো' + _WB_END), 'সহায় কৰিব পাৰোঁ'),
+    (re.compile(_WB_START + r'সহায়\s+কৰিব\s+পাৰিম' + _WB_END), 'সহায় কৰিব পাৰোঁ'),
+    (re.compile(_WB_START + r'সহায়\s+কৰব|সহায়\s+করব' + _WB_END), 'সহায় কৰোঁ'),
+    (re.compile(_WB_START + r'স্পষ্ট\s+কৰি\s+দিব' + _WB_END), 'স্পষ্ট কৰি দিয়ক'),
+    (re.compile(r'কৰি\s+দিব(?=[\s।!\?]|\Z)'), 'কৰি দিয়ক'),
+    (re.compile(_WB_START + r'মই\s+কৰিব\s+পাৰে' + _WB_END), 'মই কৰিব পাৰোঁ'),
+    (re.compile(_WB_START + r'মই\s+পাৰে' + _WB_END), 'মই পাৰোঁ'),
+    (re.compile(_WB_START + r'মই\s+কৰে' + _WB_END), 'মই কৰোঁ'),
+    (re.compile(_WB_START + r'মই\s+কৰো' + _WB_END), 'মই কৰোঁ'),
+    (re.compile(_WB_START + r'মই\s+কও' + _WB_END), 'মই কওঁ'),
+    (re.compile(_WB_START + r'মই\s+শুনো' + _WB_END), 'মই শুনোঁ'),
+    (re.compile(_WB_START + r'মই\s+জানো' + _WB_END), 'মই জানোঁ'),
+    (re.compile(_WB_START + r'মই\s+আছো' + _WB_END), 'মই আছোঁ'),
+    (re.compile(_WB_START + r'মই\s+ভাল\s+আছো' + _WB_END), 'মই ভাল আছোঁ'),
+
+    # 10. Curated proper nouns, classifiers, animal gender
+    (re.compile(r'হিমন্তবিশ্বাস\s*শৰ্মা'), 'হিমন্ত বিশ্ব শৰ্মা'),
+    (re.compile(r'হিমন্তবিশ্বাস'), 'হিমন্ত বিশ্ব'),
+    (re.compile(r'ড°?\s*হিমন্ত\s*বিশ্ব\s*শৰ্মা'), 'ড° হিমন্ত বিশ্ব শৰ্মা'),
+    (re.compile(r'বন্যাৰ'), 'বানপানীৰ'),
+    (re.compile(r'বন্যাজনিত'), 'বানজনিত'),
+    (re.compile(r'বন্যাদুৰ্গত|বন্যা\s*পীড়িত'), 'বানপীড়িত'),
+    (re.compile(r'বন্যা'), 'বানপানী'),
+    (re.compile(r'ক্ৰোৰ'), 'কোটি'),
+    (re.compile(r'মহিলা\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)'), r'মাইকী \1'),
+    (re.compile(r"(\d+|ন['’]?|দহ|পাঁচ|চাৰি|তিনি|দু|এক|কেইবা)\s*গৰাকী\s+মাইকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)"), r'\1 জনী মাইকী \2'),
+    (re.compile(r"(\d+|ন['’]?|দহ|পাঁচ|চাৰি|তিনি|দু|এক|কেইবা)\s*গৰাকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)"), r'\1 টা \2'),
+    (re.compile(r'গৰাকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)'), r'টা \1'),
+    (re.compile(r'হৃদয়শল্য\s*চিকিৎসা|হৃদয়শল্য\s*অস্ত্ৰোপচাৰ|হৃদয়শল্য'), 'Open-Heart Surgery'),
+    (re.compile(r'প্ৰাইভেট\s*অংশীদাৰ'), 'ব্যক্তিগত অংশীদাৰ (Private Partner)'),
+    (re.compile(r'আজ\s*কি\s*তাজা\s*খবৰ|তাজা\s*খবৰ'), 'শেহতীয়া বাতৰি'),
+    (re.compile(r'ফ্ৰেমৱৰ্ঙ'), 'ফ্ৰেমৱৰ্ক'),
+    (re.compile(r'ছুটিৰে\s+ভাষা\s+মডেল'), 'বৃহৎ ভাষা মডেল (LLM)'),
+    (re.compile(r'বহুপৰিমান|বহুপৰিমাণ'), 'বিপুল পৰিমাণৰ'),
+    (re.compile(r'দুখন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)'), r'দুটা \1'),
+    (re.compile(r'তিনিখন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)'), r'তিনিটা \1'),
+    (re.compile(r'(\d+)\s*খন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)'), r'\1 টা \2'),
+]
+
+
 def _assamese_stream(chunks):
-    """The chunks of a streamed Assamese answer: purified, and numbers written as words when Language Rules -> Numbers is on
-    (a number that is cut between two chunks is held back until it is whole)."""
+    """The chunks of a streamed Assamese answer: buffered to word boundaries, purified, and numbers written as words."""
     from axom_ai import number_words as nw
     numbers = nw.NumberWordStream()
+    buffer = ""
+    in_code = False
     for chunk in chunks:
-        out = numbers.feed(_purify_assamese_with_grammar(chunk))
+        buffer += chunk
+        if "```" in chunk:
+            in_code = not in_code
+        if in_code:
+            out = buffer
+            buffer = ""
+            yield out
+            continue
+
+        # Look for safe word/punctuation boundary to flush complete words
+        split_pos = -1
+        for match in re.finditer(r"[\s\.\?!।,:;\(\)\[\]\"']", buffer):
+            split_pos = match.end()
+
+        if split_pos > 0:
+            ready = buffer[:split_pos]
+            buffer = buffer[split_pos:]
+            purified = _purify_assamese_with_grammar(ready)
+            out = numbers.feed(purified)
+            if out:
+                yield out
+
+    # Flush remainder
+    if buffer:
+        purified = _purify_assamese_with_grammar(buffer)
+        out = numbers.feed(purified)
         if out:
             yield out
     tail = numbers.flush()
@@ -208,9 +459,9 @@ def _purify_assamese_with_grammar(text: str) -> str:
     Purifies Assamese generated text using curated rules from the Axom AI RAG Grammar Base
     (Assamese Grammar Seed through Vol 10).
     - Eliminates Bengali script contamination (Bengali 'র' -> Assamese 'ৰ').
-    - Fixes false friends & loan calques ('বন্যা' -> 'বানপানী', 'ক্ৰোৰ' -> 'কোটি').
+    - Eliminates all false friends, Bengali postpositions, pronouns, verbs, and calques.
+    - Ensures proper 1st-person self-reference inflections ('পাৰোঁ', 'কৰোঁ', 'আছোঁ').
     - Fixes animal gender and classifiers ('মহিলা হাতী' -> 'মাইকী হাতী', 'গৰাকী হাতী' -> 'টা হাতী').
-    - Ensures proper word boundary spacing for key proper nouns ('হিমন্ত বিশ্ব শৰ্মা').
     - Preserves modern technical, medical, and institutional terms in English.
     """
     if not text:
@@ -219,103 +470,16 @@ def _purify_assamese_with_grammar(text: str) -> str:
     # 1. Standardize script: Bengali 'র' (U+09B0) -> Assamese 'ৰ' (U+09F0)
     text = text.replace('\u09b0', '\u09f0')
 
-    # 2. Proper Nouns & Spacing (Chief Minister & Key Entities)
-    text = re.sub(r'হিমন্তবিশ্বাস\s*শৰ্মা', 'হিমন্ত বিশ্ব শৰ্মা', text)
-    text = re.sub(r'হিমন্তবিশ্বাস', 'হিমন্ত বিশ্ব', text)
-    text = re.sub(r'ড°?\s*হিমন্ত\s*বিশ্ব\s*শৰ্মা', 'ড° হিমন্ত বিশ্ব শৰ্মা', text)
+    # 2. Apply all pre-compiled purification rules
+    for pat, repl in _ASSAMESE_PURIFY_RULES:
+        text = pat.sub(repl, text)
 
-    # 3. Vocabulary Calques: Flood (বন্যা -> বানপানী / বান)
-    text = re.sub(r'বন্যাৰ', 'বানপানীৰ', text)
-    text = re.sub(r'বন্যাজনিত', 'বানজনিত', text)
-    text = re.sub(r'বন্যাদুৰ্গত', 'বানপীড়িত', text)
-    text = re.sub(r'বন্যা\s*পীড়িত', 'বানপীড়িত', text)
-    text = re.sub(r'বন্যা', 'বানপানী', text)
-
-    # 4. Hindi number calques: ক্ৰোৰ -> কোটি
-    text = re.sub(r'ক্ৰোৰ', 'কোটি', text)
-
-    # 5. Animals: female animal (মহিলা -> মাইকী)
-    text = re.sub(r'মহিলা\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)', r'মাইকী \1', text)
-
-    # 6. Animal Classifiers: গৰাকী is strictly for humans, animals take টা / জনী
-    text = re.sub(
-        r'(\d+|ন[\'’]?|দহ|পাঁচ|চাৰি|তিনি|দু|এক|কেইবা)\s*গৰাকী\s+মাইকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)',
-        r'\1 জনী মাইকী \2', text
-    )
-    text = re.sub(
-        r'(\d+|ন[\'’]?|দহ|পাঁচ|চাৰি|তিনি|দু|এক|কেইবা)\s*গৰাকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)',
-        r'\1 টা \2', text
-    )
-    text = re.sub(
-        r'গৰাকী\s+(হাতী|বাঘ|পহু|ঘোঁৰা|জন্তু|পশু|গৰু|মহ|কুকুৰ|মেকুৰী)',
-        r'টা \1', text
-    )
-
-    # 7. Medical & Technical terms: Open-Heart Surgery & institutional clarity
-    text = re.sub(r'হৃদয়শল্য\s*চিকিৎসা|হৃদয়শল্য\s*অস্ত্ৰোপচাৰ|হৃদয়শল্য', 'Open-Heart Surgery', text)
-
-    # 8. Private Partner / Startups / Tech
-    text = re.sub(r'প্ৰাইভেট\s*অংশীদাৰ', 'ব্যক্তিগত অংশীদাৰ (Private Partner)', text)
-
-    # 9. Hindi news intrusions: তাজা খবৰ -> শেহতীয়া বাতৰি
-    text = re.sub(r'আজ\s*কি\s*তাজা\s*খবৰ', 'আজিৰ শেহতীয়া বাতৰি', text)
-    text = re.sub(r'তাজা\s*খবৰ', 'শেহতীয়া বাতৰি', text)
-
-    # 10. Common Chandrabindu / Verb endings from RAG Vol 3
-    text = re.sub(r'\bমই\s+ভাল\s+আছো\b', 'মই ভাল আছোঁ', text)
-    text = re.sub(r'\bমই\s+আছো\b', 'মই আছোঁ', text)
-
-    # 11. Bengali vocabulary & spelling corrections (LLM token contamination fixes)
-    text = re.sub(r'\bবোঝায়\b', 'বুজায়', text)
-    text = re.sub(r'\bবোঝা\b', 'বুজা', text)
-    text = re.sub(r'\bব্যবহাৰ\b', 'ব্যৱহাৰ', text)
-    text = re.sub(r'\bব্যবসা\b', 'ব্যৱসায়', text)
-    text = re.sub(r'\bব্যবস্থা\b', 'ব্যৱস্থা', text)
-    text = re.sub(r'\bব্যবহার\b', 'ব্যৱহাৰ', text)
-    text = re.sub(r'\bব্যবহারিক\b', 'ব্যৱহাৰিক', text)
-    text = re.sub(r'\bব্যবহৃত\b', 'ব্যৱহৃত', text)
-    text = re.sub(r'\bহচ্ছে\b', 'হৈছে', text)
-    text = re.sub(r'\bহবে\b', 'হ’ব', text)
-    text = re.sub(r'\bকরছে\b', 'কৰিছে', text)
-    text = re.sub(r'\bকরবে\b', 'কৰিব', text)
-    text = re.sub(r'\bকরতে\b', 'কৰিবলৈ', text)
-    text = re.sub(r'\bকরা\b', 'কৰা', text)
-    text = re.sub(r'\bবলতে\b', 'ক’বলৈ', text)
-    text = re.sub(r'\bবলা\b', 'কোৱা', text)
-    text = re.sub(r'\bজানা\b', 'জনা', text)
-    text = re.sub(r'\bজানতে\b', 'জানিবলৈ', text)
-    text = re.sub(r'\bদেখে\b', 'চাই', text)
-    text = re.sub(r'\bদেখতে\b', 'চাবলৈ', text)
-    text = re.sub(r'\bএয়াত\b', 'ইয়াত', text)
-    text = re.sub(r'\bযিবিলাকৰ\b', 'যিবোৰৰ', text)
-    text = re.sub(r'\bপৃথকে\s+পৃথকে\b', 'পৃথকভাৱে', text)
-    text = re.sub(r'\bফ্ৰেমৱৰ্ঙ\b', 'ফ্ৰেমৱৰ্ক', text)
-    text = re.sub(r'\bছুটিৰে\s+ভাষা\s+মডেল\b', 'বৃহৎ ভাষা মডেল (LLM)', text)
-    text = re.sub(r'\bবহুপৰিমান\b', 'বিপুল পৰিমাণৰ', text)
-    text = re.sub(r'\bবহুপৰিমাণ\b', 'বিপুল পৰিমাণৰ', text)
-    text = re.sub(r'\bদুখন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)\b', r'দুটা \1', text)
-    text = re.sub(r'\bতিনিখন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)\b', r'তিনিটা \1', text)
-    text = re.sub(r'(\d+)\s*খন\s+(শব্দ|বাক্য|প্ৰশ্ন|পইণ্ট|বিষয়|টপিক|মডেল)\b', r'\1 টা \2', text)
-
-    # Tidy spacing
+    # 3. Tidy excessive spacing
     text = re.sub(r'[ \t]{2,}', ' ', text)
-    # Sanitize rival AI brands
+    # 4. Sanitize rival AI brands
     text = _sanitize_brand_mentions(text)
     return text
 
-
-
-# Strict zero-emoji filter for all user-facing output
-_EMOJI_RE = re.compile(
-    r"[\U00010000-\U0010ffff"
-    r"\u2600-\u27bf"
-    r"\u2300-\u23ff"
-    r"\u2b50-\u2b55"
-    r"\ufe0e\ufe0f"
-    r"\u200d"
-    r"]+",
-    flags=re.UNICODE
-)
 
 def _strip_emojis(text: str) -> str:
     """Removes all emojis and pictographs from text to ensure 100% clean, professional output."""
@@ -515,10 +679,10 @@ _GREETING_WORDS = {
     'test', 'testing',
 }
 _GREETING_REPLIES = [
-    "নমস্কাৰ! আজি আপোনাক কেনেকৈ সহায় কৰিব পাৰো?",
+    "নমস্কাৰ! আজি আপোনাক কেনেকৈ সহায় কৰিব পাৰোঁ?",
     "নমস্কাৰ! অসম সম্পৰ্কীয় কি জানিব বিচাৰে?",
-    "নমস্কাৰ! মই আপোনাক কেনেকৈ সহায় কৰিব পাৰিম?",
-    "নমস্কাৰ! কি বিষয়ে জানিব বিচাৰিছে?",
+    "নমস্কাৰ! মই আপোনাক কেনেকৈ সহায় কৰিব পাৰোঁ?",
+    "নমস্কাৰ! আজি আপোনাক কি বিষয়ত সহায় কৰিব পাৰোঁ?",
 ]
 
 
@@ -2186,24 +2350,44 @@ def chat_api_view(request):
             "grammar — the way an educated, articulate Assamese speaker actually speaks and writes. "
             "Users may write in Roman Assamese (e.g. 'Bihu kunuba hoi?'), Hindi, Hinglish, or English — "
             "understand all of these, but ALWAYS reply in fluent, idiomatic Assamese script.\n"
-            "CRITICAL ASSAMESE VOCABULARY & GRAMMAR RULES:\n"
-            "1. NEVER use Bengali words or verb conjugations: use বুজায় (NEVER বোঝায়), ব্যৱহাৰ (NEVER ব্যবহাৰ), "
-            "কৰিছে (NEVER করছে), হ'ব (NEVER হবে), হৈছে (NEVER হচ্ছে), কোৱা (NEVER বলা), কৰা (NEVER করা), জানিবলৈ (NEVER জানতে), "
-            "ইয়াত (NEVER এয়াত), যিবোৰৰ (NEVER যিবিলাকৰ), পৃথকভাৱে (NEVER পৃথকে পৃথকে).\n"
-            "2. ALWAYS use Assamese ৰ (U+09F0) and ৱ (U+09F1). NEVER use Bengali র (U+09B0).\n"
-            "3. Use correct Assamese classifiers: for words/concepts/models use 'দুটা' or 'তিনিটা' (NEVER use 'দুখন শব্দ' — 'খন' is only for flat objects like পথাৰ, কাগজ, নদী).\n"
-            "4. Translate technical concepts naturally: Large Language Model is 'বৃহৎ ভাষা মডেল (Large Language Model - LLM)', "
-            "Big Data is 'বিগ ডাটা (Big Data)', Framework is 'ফ্ৰেমৱৰ্ক (Framework)'.\n"
-            "5. Greet with নমস্কাৰ (never হ্যালো/হাই), say ধন্যবাদ (never থেংক ইউ).\n"
-            "6. BRAND RULE: Never recommend or mention ChatGPT, Gemini, or Claude. Always say 'আপুনি মোক (Axom AI) সুধিব পাৰে'.\n"
-            "7. FORMATTING & CODE RULES:\n"
+            "CRITICAL NATIVE ASSAMESE RULES (ZERO BENGALI CONTAMINATION TOLERANCE):\n"
+            "1. STRICT BENGALI BANS — NEVER USE THESE BENGALI WORDS (ALWAYS use their Assamese equivalents):\n"
+            "   - NEVER use কিভাবে or কিভাৱে -> ALWAYS use কেনেকৈ\n"
+            "   - NEVER use জল -> ALWAYS use পানী\n"
+            "   - NEVER use কাজ -> ALWAYS use কাম\n"
+            "   - NEVER use সাথে -> ALWAYS use লগত or সৈতে\n"
+            "   - NEVER use জন্য -> ALWAYS use বাবে or কাৰণে\n"
+            "   - NEVER use কাছে -> ALWAYS use ওচৰত\n"
+            "   - NEVER use এখানে / সেখানে / ওখানে -> ALWAYS use ইয়াত / তাত\n"
+            "   - NEVER use কখন / এখন / তখন -> ALWAYS use কেতিয়া / এতিয়া / তেতিয়া\n"
+            "   - NEVER use কেন -> ALWAYS use কিয়\n"
+            "   - NEVER use তাহলে / তেনেহলে -> ALWAYS use তেন্তে or তেতিয়াহ’লে\n"
+            "   - NEVER use নাকি -> ALWAYS use নেকি\n"
+            "   - NEVER use ছোট / বড় -> ALWAYS use সৰু / ডাঙৰ\n"
+            "   - NEVER use খুব / একটু -> ALWAYS use বৰ, বহুত / অলপ\n"
+            "   - NEVER use বলুন / করুন / দিন / আসুন -> ALWAYS use কওক / কৰক / দিয়ক / আহক\n"
+            "   - NEVER use সাহায্য -> ALWAYS use সহায়\n"
+            "   - NEVER use মেয়ে / ছেলে -> ALWAYS use ছোৱালী / ল’ৰা\n"
+            "   - NEVER use বাবা / বোন -> ALWAYS use দেউতা / ভনী\n"
+            "   - NEVER use সকাল / সন্ধ্যা -> ALWAYS use ৰাতিপুৱা / গধূলি\n"
+            "   - NEVER use আজকে / আজ -> ALWAYS use আজি\n"
+            "   - NEVER use বাড়ি / বাড়ি -> ALWAYS use ঘৰ\n"
+            "   - NEVER use বোঝায়, ব্যবহাৰ, করছে, হবে, হচ্ছে, বলা, করা, জানতে, এয়াত, যিবিলাকৰ -> ALWAYS use বুজায়, ব্যৱহাৰ, কৰিছে, হ’ব, হৈছে, কোৱা, কৰা, জানিবলৈ, ইয়াত, যিবোৰৰ\n"
+            "2. FIRST PERSON (-োঁ ending with Chandrabindu): When speaking as the AI ('মই'), ALWAYS use 1st-person verb endings: 'মই সহায় কৰিব পাৰোঁ' (NEVER 'পাৰে' - পাৰে is 3rd person!), 'মই কৰোঁ', 'মই কওঁ', 'মই আছোঁ'.\n"
+            "3. POLITE IMPERATIVES: When asking user, say 'প্ৰশ্নটো স্পষ্ট কৰি দিয়ক' (NEVER 'কৰি দিব').\n"
+            "4. SCRIPT RULES: ALWAYS use Assamese ৰ (U+09F0) and ৱ (U+09F1). NEVER use Bengali র (U+09B0). ALWAYS use 'ৱ' in ব্যৱহাৰ, ব্যৱসায়, ব্যৱস্থা, স্বভাৱ, উৎসৱ, মানৱ, সম্ভৱ.\n"
+            "5. CLASSIFIERS: Use correct Assamese classifiers: for words/concepts/models use 'দুটা' or 'তিনিটা' (NEVER use 'দুখন শব্দ' — 'খন' is only for flat objects like পথাৰ, কাগজ, নদী).\n"
+            "6. TECHNICAL CONCEPTS: Large Language Model is 'বৃহৎ ভাষা মডেল (Large Language Model - LLM)', Big Data is 'বিগ ডাটা (Big Data)', Framework is 'ফ্ৰেমৱৰ্ক (Framework)'.\n"
+            "7. GREETINGS: Greet with নমস্কাৰ (never হ্যালো/হাই), say ধন্যবাদ (never থেংক ইউ).\n"
+            "8. BRAND RULE: Never recommend or mention ChatGPT, Gemini, or Claude. Always say 'আপুনি মোক (Axom AI) সুধিব পাৰে'.\n"
+            "9. FORMATTING & CODE RULES:\n"
             "- Use ### headings (in Assamese) to organize topics clearly.\n"
             "- Use **bold** for key terms, definitions, and important facts.\n"
             "- Use - bullet points with bold prefixes (e.g. - **মূল বৈশিষ্ট্য:** বিৱৰণ).\n"
             "- CODE FORMATTING: Always enclose code in proper ```python ... ``` triple backticks with language tags.\n"
             "- Use blank lines between sections for clean readability.\n"
             "- Use '।' (Assamese danda) at the end of sentences.\n"
-            "8. Never invent specific facts. If unsure, say so honestly in polite Assamese.\n"
+            "10. Never invent specific facts. If unsure, say so honestly in polite Assamese.\n"
         )
 
     system_instruction = base_intro + lang_instruction
