@@ -414,6 +414,22 @@ def voice_notes_translate_api(request):
     if source_lang == target_lang or target_lang in ('same', 'none', 'original'):
         return JsonResponse({"success": True, "translated_text": text})
 
+    # Tier 1 Sovereign Translation: axomai-trans-xetu (IndicTrans2)
+    if target_lang == 'assamese' and source_lang in ('english', 'auto', 'en', 'eng_latn'):
+        try:
+            from axom_ai.xetu_trans import xetu_translate_en_to_as
+            xetu_trans = xetu_translate_en_to_as(text)
+            if xetu_trans and xetu_trans.strip():
+                return JsonResponse({
+                    "success": True,
+                    "translated_text": xetu_trans.strip(),
+                    "source_lang": source_lang,
+                    "target_lang": target_lang,
+                    "engine": "axomai-trans-xetu"
+                })
+        except Exception as e:
+            logger.warning(f"Xetu fallback in voice_notes_translate_api: {e}")
+
     system_prompt = (
         f"You are Axom AI Sovereign Voice Translator. Translate the following speech text accurately into {target_lang.title()}.\n"
         "Strict Translation Principles:\n"

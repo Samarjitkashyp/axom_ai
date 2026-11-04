@@ -163,10 +163,28 @@ def _optimize_search_query(raw_query: str) -> str:
 
 
 def _assamese_final(text: str) -> str:
-    """A whole Assamese answer: purified, and its numbers written as words when Language Rules -> Numbers is on."""
+    """A whole Assamese answer: purified, English sections translated via sovereign Xetu, and its numbers written as words."""
     from axom_ai import number_words as nw
     try:
-        return nw.finish(_purify_assamese_with_grammar(text))
+        purified = _purify_assamese_with_grammar(text)
+        # If any full English sentences exist in the Assamese response, translate via Xetu
+        if re.search(r'[a-zA-Z]{5,}', purified):
+            try:
+                from axom_ai.xetu_trans import xetu_translate_en_to_as
+                lines = purified.split('\n')
+                new_lines = []
+                for line in lines:
+                    words = line.strip().split()
+                    # If line is largely Latin/English and not a code block or URL
+                    if len(words) >= 3 and not line.strip().startswith('```') and not line.strip().startswith('http'):
+                        if sum(1 for w in words if re.match(r'^[a-zA-Z]+$', w)) > len(words) * 0.7:
+                            new_lines.append(xetu_translate_en_to_as(line))
+                            continue
+                    new_lines.append(line)
+                purified = '\n'.join(new_lines)
+            except Exception:
+                pass
+        return nw.finish(purified)
     except Exception:
         return _purify_assamese_with_grammar(text)
 
@@ -763,19 +781,33 @@ USE_INDICTRANS = os.getenv('USE_INDICTRANS', 'True').lower() in ('true', '1', 't
 
 
 def _indic_translate(text):
-    """English -> Assamese via the IndicTrans2 service. Returns None on any failure."""
-    if not USE_INDICTRANS or not text.strip():
+    """English -> Assamese via sovereign axomai-trans-xetu with pure Assamese orthography and zero Bengali contamination."""
+    if not text or not text.strip():
         return None
+    # Tier 1: Proprietary Sovereign Xetu Engine
     try:
-        r = http_session.post(f"{INDICTRANS_URL}/translate",
-                              json={'text': text}, timeout=60)
-        if r.status_code == 200:
-            arr = r.json().get('translations') or []
-            if arr and arr[0].strip():
-                return arr[0].strip()
-    except requests.RequestException:
-        pass
+        from axom_ai.xetu_trans import xetu_translate_en_to_as
+        xetu_res = xetu_translate_en_to_as(text)
+        if xetu_res and xetu_res.strip():
+            return xetu_res.strip()
+    except Exception as e:
+        logger.warning(f"Xetu translation error: {e}")
+
+    # Tier 2: HTTP service fallback if configured
+    if USE_INDICTRANS:
+        try:
+            r = http_session.post(f"{INDICTRANS_URL}/translate",
+                                  json={'text': text}, timeout=60)
+            if r.status_code == 200:
+                arr = r.json().get('translations') or []
+                if arr and arr[0].strip():
+                    return arr[0].strip()
+        except requests.RequestException:
+            pass
     return None
+
+
+
 
 
 def _gemini_generate(api_key, system, prompt, models):
@@ -1630,6 +1662,53 @@ def _tool_cors_view(view_func):
         resp = view_func(request, *args, **kwargs)
         return _apply_tool_cors(request, resp)
     return wrapped
+
+
+@csrf_exempt
+@_chat_cors_view
+def translate_api_view(request):
+    """
+    POST /api/translate/
+    Body: {"text": "...", "source_lang": "en", "target_lang": "as"}
+    Sovereign neural translation powered by axom-ai/axomai-trans-xetu.
+    """
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST required"}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    text = (data.get('text') or '').strip()
+    if not text:
+        return JsonResponse({"success": True, "translated_text": ""})
+
+    src = data.get('source_lang', 'en').lower().strip()
+    tgt = data.get('target_lang', 'as').lower().strip()
+
+    if tgt in ('as', 'assamese', 'asm_beng'):
+        try:
+            from axom_ai.xetu_trans import xetu_translate_en_to_as
+            res = xetu_translate_en_to_as(text)
+            if res:
+                return JsonResponse({
+                    "success": True,
+                    "translated_text": res,
+                    "source_lang": src,
+                    "target_lang": tgt,
+                    "engine": "axomai-trans-xetu"
+                })
+        except Exception as e:
+            logger.warning(f"translate_api_view error: {e}")
+
+    fallback = _indic_translate(text) or text
+    return JsonResponse({
+        "success": True,
+        "translated_text": fallback,
+        "source_lang": src,
+        "target_lang": tgt,
+        "engine": "fallback"
+    })
 
 
 @csrf_exempt

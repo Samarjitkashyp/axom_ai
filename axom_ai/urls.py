@@ -52,6 +52,7 @@ urlpatterns = [
     path('api/chat/export-docx/', chat_enhancements.api_chat_export_docx, name='chat_export_docx_api'),
     path('api/tts/speak/', tts_api.tts_speak_api, name='tts_speak_api'),
     path('api/stt/', stt_api.stt_api, name='stt_api'),
+    path('api/translate/', views.translate_api_view, name='translate_api'),
     path('api/whatsapp/webhook/', whatsapp_api.whatsapp_webhook, name='whatsapp_webhook'),
     path('api/whatsapp/webhook', whatsapp_api.whatsapp_webhook),
     path('v1/', include('developer_api.urls')),
