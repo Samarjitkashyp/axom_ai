@@ -1690,7 +1690,7 @@ def translate_api_view(request):
         try:
             from axom_ai.xetu_trans import xetu_translate_en_to_as
             res = xetu_translate_en_to_as(text)
-            if res:
+            if res and res.strip() and res.strip() != text.strip():
                 return JsonResponse({
                     "success": True,
                     "translated_text": res,

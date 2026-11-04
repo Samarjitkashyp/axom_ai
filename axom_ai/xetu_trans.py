@@ -65,18 +65,18 @@ def _patch_indictrans_files_if_needed(model_dir):
         if os.path.exists(mod_file):
             with open(mod_file, 'r', encoding='utf-8') as f:
                 content = f.read()
-            modified = False
-            if "def tie_weights(self):" in content:
-                content = content.replace("def tie_weights(self):", "def tie_weights(self, *args, **kwargs):", 1)
-                modified = True
-            if "self._tie_or_clone_weights(self.model.decoder.embed_tokens, self.lm_head)" in content:
-                content = content.replace(
-                    "self._tie_or_clone_weights(self.model.decoder.embed_tokens, self.lm_head)",
-                    "if hasattr(self, '_tie_or_clone_weights'):\n                self._tie_or_clone_weights(self.model.decoder.embed_tokens, self.lm_head)\n            elif hasattr(self, '_tie_weights'):\n                self._tie_weights(self.lm_head, self.model.decoder.embed_tokens)\n            else:\n                self.lm_head.weight = self.model.decoder.embed_tokens.weight",
-                    1
+            if "# AXOM_TIED_WEIGHTS_PATCHED" not in content:
+                content = re.sub(
+                    r'    def tie_weights\([^\)]*\):[\s\S]*?(?=\n    def get_encoder)',
+                    '''    def tie_weights(self, *args, **kwargs):
+        # AXOM_TIED_WEIGHTS_PATCHED
+        if getattr(self.config, 'share_decoder_input_output_embed', False):
+            try:
+                self.lm_head.weight = self.model.decoder.embed_tokens.weight
+            except Exception:
+                pass''',
+                    content
                 )
-                modified = True
-            if modified:
                 with open(mod_file, 'w', encoding='utf-8') as f:
                     f.write(content)
     except Exception as e:
