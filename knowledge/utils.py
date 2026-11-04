@@ -436,10 +436,12 @@ def find_manual_answer(query, threshold=0.6):
         if _normalize(qa.question) == qn:
             return qa
         p_tokens = _keywords(qa.question)
-        inter = len(q_tokens & p_tokens)
-        if not p_tokens or not inter:
+        if not p_tokens:
             continue
-        score = inter / min(len(q_tokens), len(p_tokens)) + (inter / len(q_tokens | p_tokens)) * 0.001
+        inter = len(q_tokens & p_tokens)
+        if inter < 2:
+            continue
+        score = (2.0 * inter) / (len(q_tokens) + len(p_tokens))
         if score > best_score:
             best, best_score = qa, score
     return best if best_score >= threshold else None
