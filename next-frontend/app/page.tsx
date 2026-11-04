@@ -107,6 +107,82 @@ const TARGET_KEYWORDS = [
   'AI notes generator with docx export India'
 ];
 
+
+const PRODUCTION_CAPABILITIES = [
+  {
+    id: 1,
+    title: 'Axom FuelCheck™ Engine',
+    badge: 'Automotive AI',
+    tagline: 'MoRTH & SIAM E20 Compatibility',
+    description:
+      'India’s verified automotive compliance engine. Evaluate 60+ Bikes, Scooters, and Cars across 15+ OEMs for E5, E10, E20, and E100 petrol with official manual citations and real-time AI doubt clearing.',
+    icon: Fuel,
+    action_url: '/tools/fuel-checker',
+    action_text: 'Launch Fuel Checker',
+    accent: 'from-blue-500/20 to-cyan-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30',
+  },
+  {
+    id: 2,
+    title: 'Pedagogical AI Notes Generator',
+    badge: 'Study & Exams',
+    tagline: 'APSC, AHSEC & Word .docx Export',
+    description:
+      'Converts textbook chapters, syllabus PDFs, and lecture topics into structured study notes with executive summaries, formulas, high-yield exam tips, mind maps, and instant Microsoft Word (.docx) export.',
+    icon: BookOpen,
+    action_url: '/tools/ai-notes-generator',
+    action_text: 'Generate AI Notes',
+    accent: 'from-amber-500/20 to-orange-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30',
+  },
+  {
+    id: 3,
+    title: 'Sovereign Assamese Language LLM',
+    badge: 'Indigenous Model',
+    tagline: 'Progya 2B & 68K Vernacular Tokenizer',
+    description:
+      'Assam’s foundational intelligence eliminating Bengali script confusion with 99.4% orthographic precision. Grounded in Assam history, literature, administrative terminology, and regional culture.',
+    icon: Bot,
+    action_url: 'https://chat.aiaxom.co.in/',
+    action_text: 'Start Assamese Chat',
+    accent: 'from-emerald-500/20 to-teal-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+  },
+  {
+    id: 4,
+    title: 'Scanned Assamese Document & Jamabandi OCR',
+    badge: 'Document Vision',
+    tagline: 'Historical Land Records & Gazettes',
+    description:
+      'Extracts and transcribes handwritten or degraded Assamese typography from Jamabandi land records, Chitha registers, court summons, and government gazettes with bilingual query answers.',
+    icon: FileText,
+    action_url: '/tools/chat-with-pdf',
+    action_text: 'Chat with Scanned Docs',
+    accent: 'from-teal-500/20 to-emerald-500/10 text-teal-600 dark:text-teal-400 border-teal-500/30',
+  },
+  {
+    id: 5,
+    title: 'Vernacular Speech & Studio Voice AI',
+    badge: 'Audio AI',
+    tagline: 'Xuna Conformer ASR & Puhor TTS',
+    description:
+      'Studio-grade 24kHz Flow-Matching Diffusion voice synthesis and vernacular ASR operating at 0.261x RTF on CPU, capturing authentic Brahmaputra valley dialects, accents, and cadence.',
+    icon: Languages,
+    action_url: '/tools/voice-notes-generator',
+    action_text: 'Try Voice Intelligence',
+    accent: 'from-purple-500/20 to-indigo-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30',
+  },
+  {
+    id: 6,
+    title: 'Creative Visual Studio & FLUX Art',
+    badge: 'Generative Studio',
+    tagline: 'FLUX & Diffusion Art Synthesis',
+    description:
+      'High-definition visual generation powered by FLUX diffusion models. Translates Assamese cultural prompts and modern design briefs into 4K wallpapers, marketing creatives, and custom illustrations.',
+    icon: ImageIcon,
+    action_url: '/tools/ai-image-generator',
+    action_text: 'Open Image Studio',
+    accent: 'from-fuchsia-500/20 to-pink-500/10 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/30',
+  },
+];
+
 export async function generateMetadata(): Promise<Metadata> {
   const cms = await getLandingCMS().catch(() => null);
   const seo = cms?.seo;
@@ -925,74 +1001,82 @@ export default async function HomePage() {
         </section>
 
         {/* ==================== EXPLORE AI PLATFORM CAPABILITIES ==================== */}
-        {explore?.active && (
-          <section id="tools" className="py-20 md:py-28 relative bg-[#f0fdf4] dark:bg-[#0b1220]">
-            <div className="max-w-7xl mx-auto px-5">
-              <div className="text-center max-w-3xl mx-auto mb-14">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-                  <Cpu className="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400" />
-                  <span>Platform Infrastructure &amp; AI Capabilities</span>
-                </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
-                  {explore.title_prefix || 'A Complete AI Toolkit'}{' '}
-                  <span className="gradient-text">{explore.title_highlight || 'for Modern Needs'}</span>
-                </h2>
-                <p className="text-slate-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
-                  {explore.subheading || 'Everything you need to be more productive, creative and informed — built with sovereign models and high-throughput edge compute.'}
-                </p>
+        <section id="tools" className="py-20 md:py-28 relative bg-[#f0fdf4] dark:bg-[#0b1220]">
+          <div className="max-w-7xl mx-auto px-5">
+            <div className="text-center max-w-3xl mx-auto mb-14">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                <Cpu className="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400" />
+                <span>Platform Infrastructure &amp; AI Capabilities</span>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(explore.features || []).map((f, i) => {
-                  const Icon = TOOL_ICONS[f.icon_class] || Bot;
-                  return (
-                    <div
-                      key={f.id || i}
-                      className="glass-card rounded-2xl p-7 flex flex-col justify-between group hover:border-fuchsia-500/50 hover:shadow-xl hover:shadow-fuchsia-500/5 transition-all duration-300"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-5">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-purple-600/10 border border-fuchsia-500/30 grid place-items-center">
-                            <Icon className="w-6 h-6 text-fuchsia-700 dark:text-fuchsia-400" />
-                          </div>
-                          {f.badge && (
-                            <span className="px-2.5 py-1 rounded-full bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 text-[10px] uppercase font-bold tracking-wider text-fuchsia-700 dark:text-fuchsia-300">
-                              {f.badge}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-xl font-bold text-emerald-950 dark:text-white mb-2 group-hover:text-fuchsia-700 dark:group-hover:text-fuchsia-300 transition-colors">
-                          {f.title}
-                        </h3>
-                        <div className="text-xs text-fuchsia-700/90 dark:text-fuchsia-400/90 font-medium mb-3">{f.tagline}</div>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed mb-6">{f.description}</p>
-                      </div>
-
-                      <a
-                        href={f.action_url || CHAT_URL}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-fuchsia-700 dark:text-fuchsia-400 group-hover:gap-2.5 transition-all pt-4 border-t border-emerald-900/10 dark:border-white/5"
-                      >
-                        <span>Launch Capability</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Bottom Directory Button */}
-              <div className="mt-12 text-center">
-                <Link
-                  href="/tools"
-                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-fuchsia-500 text-slate-900 dark:text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5"
-                >
-                  <span>Explore All 20+ Production AI Tools</span>
-                  <ArrowRight className="w-4 h-4 text-fuchsia-600 dark:text-fuchsia-400" />
-                </Link>
-              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
+                A Complete AI Toolkit <span className="gradient-text">for Modern Needs</span>
+              </h2>
+              <p className="text-slate-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
+                State-of-the-art regional language models, verified automotive engineering utilities, pedagogical revision engines, and high-throughput document intelligence.
+              </p>
             </div>
-          </section>
-        )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {PRODUCTION_CAPABILITIES.map((f, i) => {
+                const Icon = f.icon;
+                const isExternal = f.action_url.startsWith('http');
+                return (
+                  <div
+                    key={f.id || i}
+                    className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col justify-between group hover:border-slate-400 dark:hover:border-white/20 hover:shadow-xl transition-all duration-300"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-5">
+                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.accent} border grid place-items-center`}>
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        {f.badge && (
+                          <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-[10px] uppercase font-bold tracking-wider text-slate-700 dark:text-slate-300">
+                            {f.badge}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-fuchsia-600 dark:group-hover:text-fuchsia-400 transition-colors">
+                        {f.title}
+                      </h3>
+                      <div className="text-xs text-fuchsia-700 dark:text-fuchsia-400 font-semibold mb-3">{f.tagline}</div>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed mb-6">{f.description}</p>
+                    </div>
+
+                    {isExternal ? (
+                      <a
+                        href={f.action_url}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white group-hover:gap-2.5 transition-all pt-4 border-t border-slate-200 dark:border-white/5"
+                      >
+                        <span>{f.action_text}</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400" />
+                      </a>
+                    ) : (
+                      <Link
+                        href={f.action_url}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white group-hover:gap-2.5 transition-all pt-4 border-t border-slate-200 dark:border-white/5"
+                      >
+                        <span>{f.action_text}</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-fuchsia-600 dark:text-fuchsia-400" />
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Bottom Directory Button */}
+            <div className="mt-12 text-center">
+              <Link
+                href="/tools"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-slate-500 text-slate-900 dark:text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5"
+              >
+                <span>Explore All 20+ Production AI Tools</span>
+                <ArrowRight className="w-4 h-4 text-fuchsia-600 dark:text-fuchsia-400" />
+              </Link>
+            </div>
+          </div>
+        </section>
 
         {/* ==================== USE CASES ==================== */}
         {cms?.usecases_header && <UseCasesSection header={cms.usecases_header} />}
