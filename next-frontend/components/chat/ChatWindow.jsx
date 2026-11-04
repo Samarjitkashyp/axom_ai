@@ -1009,29 +1009,6 @@ export default function ChatWindow({
         fullPrompt = `${promptSections.join('\n\n')}\n\n[User uploaded the following ${currentFiles.length} file(s) without asking a question: ${fileNamesList}. Please warmly acknowledge them, explain their key structure or contents, and ask what the user would like to do (summarize, compare, analyze, merge, or convert).]`;
       }
     }
-      if (currentFile.isImage) {
-        if (text) {
-          fullPrompt = `[Attached Image: ${currentFile.name}]\nUser Question: ${text}`;
-        } else {
-          fullPrompt = `[User uploaded image: "${currentFile.name}" without asking a question]`;
-        }
-      } else if (currentFile.textSnippet) {
-        const isSheet = ['.xlsx', '.xls', '.csv'].includes(currentFile.ext);
-        const tag = isSheet ? 'Attached Spreadsheet / Excel' : 'Attached Document';
-        if (text) {
-          fullPrompt = `[${tag}: ${currentFile.name}]\n\nSpreadsheet / Document Content:\n${currentFile.textSnippet.slice(0, 10000)}\n\nUser Question:\n${text}`;
-        } else {
-          fullPrompt = `[User uploaded ${isSheet ? 'spreadsheet' : 'document'}: "${currentFile.name}" without asking a question]\n\nSpreadsheet / Document Content Snippet:\n${currentFile.textSnippet.slice(0, 10000)}`;
-        }
-      } else {
-        const isSheet = ['.xlsx', '.xls', '.csv'].includes(currentFile.ext);
-        if (text) {
-          fullPrompt = `[${isSheet ? 'Attached Spreadsheet / Excel' : 'Attached Document'}: ${currentFile.name}]\n\nUser Question:\n${text}`;
-        } else {
-          fullPrompt = `[User uploaded ${isSheet ? 'spreadsheet' : 'document'}: "${currentFile.name}" without asking a question]`;
-        }
-      }
-    }
 
     // Calculate prompt words and deduct
     const wordCount = (userDisplayPrompt || 'file').split(/\s+/).filter(w => w.length > 0).length;
