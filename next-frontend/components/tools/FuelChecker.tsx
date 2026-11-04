@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Fuel,
   Gauge,
@@ -9,21 +9,15 @@ import {
   AlertCircle,
   CheckCircle2,
   XCircle,
-  Search,
   Sparkles,
   BookOpen,
-  ChevronRight,
-  HelpCircle,
   RefreshCw,
   Car,
   Bike,
   Info,
-  ArrowRight,
   Share2,
-  Copy,
   Check,
   FileText,
-  Zap,
   Award,
   Layers,
   Wrench,
@@ -84,24 +78,11 @@ interface CatalogVehicle {
   description: string;
 }
 
-const DEFAULT_POPULAR_TAGS = [
-  { name: 'Activa 6G / 125', brand: 'Honda', cat: 'scooter', year: 2024, label: '🛵 Honda Activa 6G' },
-  { name: 'Swift', brand: 'Maruti Suzuki', cat: 'car', year: 2024, label: '🚗 Maruti Swift' },
-  { name: 'Splendor Plus / Super Splendor', brand: 'Hero', cat: 'bike', year: 2024, label: '🏍️ Hero Splendor Plus' },
-  { name: 'Creta', brand: 'Hyundai', cat: 'car', year: 2024, label: '🚗 Hyundai Creta' },
-  { name: 'Classic 350 (J-Series & UCE)', brand: 'Royal Enfield', cat: 'bike', year: 2023, label: '🏍️ RE Classic 350' },
-  { name: 'Jupiter 110 / 125', brand: 'TVS', cat: 'scooter', year: 2024, label: '🛵 TVS Jupiter' },
-  { name: 'Nexon Petrol', brand: 'Tata Motors', cat: 'car', year: 2024, label: '🚗 Tata Nexon' },
-  { name: 'Pulsar 150 / Pulsar 125', brand: 'Bajaj', cat: 'bike', year: 2024, label: '🏍️ Bajaj Pulsar 150' },
-  { name: 'Fronx', brand: 'Maruti Suzuki', cat: 'car', year: 2024, label: '🚗 Maruti Fronx (2024)' },
-  { name: 'Thar Petrol', brand: 'Mahindra', cat: 'car', year: 2024, label: '🚙 Mahindra Thar' },
-];
-
 const PREPOPULATED_QUESTIONS = [
   "Can I put XP95 or Speed95 petrol to completely avoid ethanol?",
   "What happens if I accidentally filled E20 in my older BS4 bike/car?",
   "Will using E20 blended petrol void my manufacturer warranty?",
-  "How long can I leave E20 petrol parked in the fuel tank before phase separation?"
+  "How long can I leave E20 petrol parked before moisture phase separation?"
 ];
 
 export default function FuelChecker() {
@@ -120,12 +101,6 @@ export default function FuelChecker() {
   const [selectedBrand, setSelectedBrand] = useState<string>('Honda');
   const [selectedModelId, setSelectedModelId] = useState<string>('honda-activa-6g');
   const [selectedYear, setSelectedYear] = useState<number>(2024);
-
-  // Search autocomplete
-  const [searchQuery, setSearchQuery] = useState('');
-  const [suggestions, setSuggestions] = useState<CatalogVehicle[]>([]);
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const searchDropdownRef = useRef<HTMLDivElement>(null);
 
   // Output Evaluation Report State
   const [report, setReport] = useState<VehicleReport | null>(null);
@@ -167,30 +142,18 @@ export default function FuelChecker() {
     handleEvaluate('honda-activa-6g', 2024);
   }, []);
 
-  // 3. Click outside search listener
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node)) {
-        setShowSearchDropdown(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // 4. Compute Available Brands for current category
+  // 3. Compute Available Brands for current category
   const availableBrands = useMemo(() => {
     if (brandsByCategory[selectedCategory] && brandsByCategory[selectedCategory].length > 0) {
       return brandsByCategory[selectedCategory];
     }
-    // Fallback: derive from vehicles list
     const filtered = selectedCategory === 'all' 
       ? vehicles 
       : vehicles.filter(v => v.category === selectedCategory);
     return Array.from(new Set(filtered.map(v => v.brand))).sort();
   }, [brandsByCategory, selectedCategory, vehicles]);
 
-  // 5. Compute Available Models for current brand & category
+  // 4. Compute Available Models for current brand & category
   const availableModels = useMemo(() => {
     return vehicles.filter(v => {
       const matchCat = selectedCategory === 'all' || v.category === selectedCategory;
@@ -199,39 +162,23 @@ export default function FuelChecker() {
     });
   }, [vehicles, selectedCategory, selectedBrand]);
 
-  // 6. Currently Selected Model Object
+  // 5. Currently Selected Model Object
   const currentModel = useMemo(() => {
     return vehicles.find(v => v.id === selectedModelId) || availableModels[0] || null;
   }, [vehicles, selectedModelId, availableModels]);
 
-  // 7. Compute Available Years for current model
+  // 6. Compute Available Years for current model
   const availableYears = useMemo(() => {
     if (currentModel && currentModel.years_available && currentModel.years_available.length > 0) {
       return currentModel.years_available;
     }
-    // Fallback if not loaded yet
     return [2026, 2025, 2024, 2023, 2022, 2021, 2020];
   }, [currentModel]);
-
-  // Handle Search Input Filtering
-  useEffect(() => {
-    if (!searchQuery.trim() || searchQuery.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-    const q = searchQuery.toLowerCase();
-    const matches = vehicles.filter(v => {
-      const full = `${v.brand} ${v.name} ${v.description}`.toLowerCase();
-      return full.includes(q);
-    });
-    setSuggestions(matches.slice(0, 10));
-  }, [searchQuery, vehicles]);
 
   // Cascading Handler 1: Change Category
   const handleCategoryChange = (newCat: 'all' | 'car' | 'bike' | 'scooter') => {
     setSelectedCategory(newCat);
     
-    // Check if current brand is valid in new category
     const brandsInCat = (brandsByCategory[newCat] && brandsByCategory[newCat].length > 0)
       ? brandsByCategory[newCat]
       : Array.from(new Set(vehicles.filter(v => newCat === 'all' || v.category === newCat).map(v => v.brand))).sort();
@@ -242,7 +189,6 @@ export default function FuelChecker() {
       setSelectedBrand(targetBrand);
     }
 
-    // Pick first model for this brand & new category
     const models = vehicles.filter(v => {
       const matchCat = newCat === 'all' || v.category === newCat;
       return matchCat && v.brand === targetBrand;
@@ -261,7 +207,6 @@ export default function FuelChecker() {
   const handleBrandChange = (newBrand: string) => {
     setSelectedBrand(newBrand);
 
-    // Pick first model belonging to this brand in current category
     const models = vehicles.filter(v => {
       const matchCat = selectedCategory === 'all' || v.category === selectedCategory;
       return matchCat && v.brand === newBrand;
@@ -295,25 +240,6 @@ export default function FuelChecker() {
   const handleYearChange = (newYear: number) => {
     setSelectedYear(newYear);
     handleEvaluate(selectedModelId, newYear);
-  };
-
-  // Select from Search Suggestion or Popular Tag
-  const handleSelectVehicleItem = (item: { id?: string; name: string; brand: string; cat?: string; year?: number }) => {
-    const matched = vehicles.find(v => (item.id && v.id === item.id) || (v.brand === item.brand && v.name === item.name));
-    if (matched) {
-      if (item.cat && (['all', 'car', 'bike', 'scooter'].includes(item.cat))) {
-        setSelectedCategory(item.cat as any);
-      }
-      setSelectedBrand(matched.brand);
-      setSelectedModelId(matched.id);
-      const yr = item.year && matched.years_available.includes(item.year) 
-        ? item.year 
-        : matched.latest_year;
-      setSelectedYear(yr);
-      setShowSearchDropdown(false);
-      setSearchQuery('');
-      handleEvaluate(matched.id, yr);
-    }
   };
 
   // Core Evaluation Fetcher
@@ -386,6 +312,54 @@ export default function FuelChecker() {
     }
   };
 
+  // Formatter for AI Response: Converts raw asterisks and bullets into clean normal text
+  const renderFormattedAnswer = (rawText: string) => {
+    if (!rawText) return null;
+
+    // Split text into non-empty lines
+    const rawLines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+
+    return (
+      <div className="space-y-2.5 mt-3">
+        {rawLines.map((line, idx) => {
+          // Remove leading bullets or numbered marks
+          let cleaned = line.replace(/^[-*•]\s+/, '').replace(/^\d+[.)]\s+/, '');
+
+          // Check for bold topic pattern: **Topic**: Description or **Topic** - Description
+          const boldMatch = cleaned.match(/^\*\*(.*?)\*\*:?\s*(.*)$/);
+
+          if (boldMatch) {
+            const topic = boldMatch[1].replace(/\*/g, '').trim();
+            const description = boldMatch[2].replace(/\*\*\*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').trim();
+
+            return (
+              <div
+                key={idx}
+                className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50/80 border border-slate-100 text-xs sm:text-sm text-slate-800 transition-all hover:bg-slate-50"
+              >
+                <span className="w-2 h-2 rounded-full bg-indigo-600 mt-1.5 flex-shrink-0" />
+                <div className="flex-1 leading-relaxed">
+                  <span className="font-bold text-slate-900">{topic}: </span>
+                  <span className="text-slate-700 font-normal">{description}</span>
+                </div>
+              </div>
+            );
+          }
+
+          // Strip any stray markdown asterisks for plain clean text
+          const plainText = cleaned.replace(/\*\*\*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').trim();
+
+          return (
+            <div key={idx} className="flex items-start gap-2.5 p-2 rounded-lg text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 flex-shrink-0" />
+              <span className="flex-1 font-normal">{plainText}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   // Status Badge Colors & Icons
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -424,44 +398,44 @@ export default function FuelChecker() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
       {/* Top Banner Notice */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white text-xs md:text-sm py-2 px-4 text-center font-medium shadow-sm">
-        <span className="inline-flex items-center gap-1.5">
-          <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-          India's 1st Authoritative <strong>Ethanol Fuel Compatibility Engine (E5 to E100)</strong> — Backed by MoRTH, ARAI &amp; Official OEM Manuals.
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white text-[11px] sm:text-xs md:text-sm py-2 px-3 sm:px-4 text-center font-medium shadow-sm">
+        <span className="inline-flex items-center gap-1.5 flex-wrap justify-center">
+          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300 animate-pulse flex-shrink-0" />
+          <span>India's 1st Authoritative <strong>Ethanol Fuel Compatibility Engine (E5 to E100)</strong> — Backed by MoRTH, ARAI &amp; Official OEM Manuals.</span>
         </span>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+      <div className="max-w-6xl mx-auto px-3.5 sm:px-6 py-6 md:py-12">
         {/* Main Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs font-semibold uppercase tracking-wider mb-4 shadow-sm">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-10">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-[11px] sm:text-xs font-semibold uppercase tracking-wider mb-3 sm:mb-4 shadow-sm">
             <Fuel className="w-3.5 h-3.5 text-indigo-600" />
             Automotive Intelligence Utility
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
             Vehicle <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600">Fuel Compatibility</span> Checker
           </h1>
-          <p className="mt-3 text-slate-600 text-base sm:text-lg leading-relaxed">
+          <p className="mt-2 sm:mt-3 text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed px-2">
             Find out if your Bike, Scooter, or Car is officially certified for <strong>E10, E20, E85, or E100</strong> petrol.
             Select your vehicle brand, model, and manufacturing year below for instant verified compatibility.
           </p>
         </div>
 
         {/* ==============================================================================
-            CASCADING SELECTION CARD (Category -> Brand -> Model -> Dynamic Year)
+            CASCADING SELECTION CARD (Clean 3-Dropdown Grid, No Search / Popular Bloat)
             ============================================================================== */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/60 mb-10 relative">
+        <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl shadow-slate-200/60 mb-8 sm:mb-10 relative">
           
-          {/* Step 1: Category Filter Pills */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
+          {/* Step 1: Category Filter Pills (Responsive 2x2 on Mobile, Flex on Desktop) */}
+          <div className="mb-5 sm:mb-6">
+            <div className="flex items-center justify-between mb-2.5 sm:mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5 text-indigo-600" />
                 Select Vehicle Category:
               </span>
-              <span className="text-xs text-slate-400 font-medium">Step 1 of 4</span>
+              <span className="text-[11px] sm:text-xs text-slate-400 font-medium">Step 1 of 4</span>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
               {(
                 [
                   { id: 'all', label: 'All Vehicles', icon: Layers },
@@ -476,13 +450,13 @@ export default function FuelChecker() {
                   <button
                     key={catItem.id}
                     onClick={() => handleCategoryChange(catItem.id)}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+                    className={`w-full sm:w-auto px-3.5 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center sm:justify-start gap-2 ${
                       isSelected
-                        ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20 scale-[1.02]'
+                        ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20 scale-[1.01]'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4 flex-shrink-0" />
                     <span>{catItem.label}</span>
                   </button>
                 );
@@ -491,11 +465,11 @@ export default function FuelChecker() {
           </div>
 
           {/* Step 2, 3, 4: Three Cascading Dependent Dropdowns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 pt-4 border-t border-slate-100">
             
             {/* Dropdown 1: Company / Brand */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 sm:mb-2 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Award className="w-3.5 h-3.5 text-indigo-600" />
                   1. Company / Brand
@@ -505,7 +479,7 @@ export default function FuelChecker() {
               <select
                 value={selectedBrand}
                 onChange={(e) => handleBrandChange(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-base transition-all cursor-pointer shadow-sm"
+                className="w-full px-3.5 py-3 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-sm sm:text-base transition-all cursor-pointer shadow-sm"
               >
                 {availableBrands.map((brand) => (
                   <option key={brand} value={brand}>
@@ -517,7 +491,7 @@ export default function FuelChecker() {
 
             {/* Dropdown 2: Vehicle Model */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 sm:mb-2 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Car className="w-3.5 h-3.5 text-indigo-600" />
                   2. Vehicle Model
@@ -527,7 +501,7 @@ export default function FuelChecker() {
               <select
                 value={selectedModelId}
                 onChange={(e) => handleModelChange(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-base transition-all cursor-pointer shadow-sm"
+                className="w-full px-3.5 py-3 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-sm sm:text-base transition-all cursor-pointer shadow-sm"
               >
                 {availableModels.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -537,9 +511,9 @@ export default function FuelChecker() {
               </select>
             </div>
 
-            {/* Dropdown 3: Manufacturing Year (Strictly filtered by Model's real production years) */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center justify-between">
+            {/* Dropdown 3: Manufacturing Year */}
+            <div className="sm:col-span-2 lg:col-span-1">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 sm:mb-2 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <Gauge className="w-3.5 h-3.5 text-indigo-600" />
                   3. Manufacturing Year
@@ -551,7 +525,7 @@ export default function FuelChecker() {
               <select
                 value={selectedYear}
                 onChange={(e) => handleYearChange(Number(e.target.value))}
-                className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-base transition-all cursor-pointer shadow-sm"
+                className="w-full px-3.5 py-3 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-sm sm:text-base transition-all cursor-pointer shadow-sm"
               >
                 {availableYears.map((yr) => (
                   <option key={yr} value={yr}>
@@ -562,101 +536,33 @@ export default function FuelChecker() {
             </div>
           </div>
 
-          {/* Quick Search Bar & Popular Vehicles Tags */}
-          <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col md:flex-row items-center gap-4 justify-between">
-            {/* Direct Quick Search Autocomplete */}
-            <div className="w-full md:w-80 relative" ref={searchDropdownRef}>
-              <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSearchDropdown(true);
-                  }}
-                  onFocus={() => setShowSearchDropdown(true)}
-                  placeholder="Or search model name..."
-                  className="w-full pl-10 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
-                />
-              </div>
-
-              {/* Suggestions Dropdown */}
-              {showSearchDropdown && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden max-h-64 overflow-y-auto">
-                  {suggestions.map((item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => handleSelectVehicleItem(item)}
-                      className="px-3 py-2.5 hover:bg-indigo-50 cursor-pointer flex items-center justify-between border-b border-slate-50 last:border-0 transition-colors"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-8 h-8 object-cover rounded-lg bg-slate-100 border border-slate-200 flex-shrink-0"
-                          onError={(e) => {
-                            (e.target as any).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=300';
-                          }}
-                        />
-                        <div>
-                          <div className="text-xs font-bold text-slate-900">{item.brand} {item.name}</div>
-                          <div className="text-[10px] text-slate-500">{item.engine}</div>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
-                        Select →
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Popular Quick Filter Pills */}
-            <div className="w-full md:flex-1 flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-              <span className="text-slate-400 font-semibold text-[11px] uppercase tracking-wider whitespace-nowrap mr-1">
-                Popular:
-              </span>
-              {DEFAULT_POPULAR_TAGS.map((tag, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSelectVehicleItem(tag)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200 border border-transparent text-slate-700 text-xs font-medium whitespace-nowrap transition-all"
-                >
-                  {tag.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Loading Indicator */}
           {isLoading && (
-            <div className="mt-4 flex items-center justify-center gap-2 text-indigo-600 text-xs font-semibold py-2">
-              <RefreshCw className="w-4 h-4 animate-spin" />
+            <div className="mt-4 flex items-center justify-center gap-2 text-indigo-600 text-xs font-semibold py-1">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               Evaluating dynamic fuel specifications for {selectedYear} model...
             </div>
           )}
 
           {errorMsg && (
-            <div className="mt-4 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <div className="mt-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {errorMsg}
             </div>
           )}
         </div>
 
         {/* ==============================================================================
-            DYNAMIC RESULTS SECTION (Updates 100% based on Vehicle & Year)
+            DYNAMIC RESULTS SECTION (Mobile Optimized & Clean)
             ============================================================================== */}
         {report && (
-          <div className="space-y-8 animate-fadeIn">
+          <div className="space-y-6 sm:space-y-8 animate-fadeIn">
             {/* Vehicle Profile Hero Card */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
+            <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6 overflow-hidden relative">
               
               {/* Left Side: Vehicle Info & Dynamic Emission Specs */}
-              <div className="space-y-3 z-10 max-w-xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-50 border border-indigo-200 text-indigo-700">
+              <div className="space-y-2.5 sm:space-y-3 z-10 w-full md:max-w-xl">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider bg-indigo-50 border border-indigo-200 text-indigo-700">
                   {report.is_verified ? (
                     <>
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -670,11 +576,11 @@ export default function FuelChecker() {
                   )}
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                   {report.vehicle.name}
                 </h2>
 
-                <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-slate-600">
                   <span className="font-semibold px-2.5 py-1 rounded-lg bg-indigo-600 text-white shadow-sm">
                     Year: {report.vehicle.year_selected}
                   </span>
@@ -686,12 +592,12 @@ export default function FuelChecker() {
                   </span>
                 </div>
 
-                <p className="text-slate-600 text-sm leading-relaxed pt-1">
+                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed pt-0.5">
                   <strong>Variant Specification:</strong> {report.vehicle.variant}
                 </p>
 
                 {/* Dynamic E20 Status Banner */}
-                <div className={`p-4 rounded-2xl border flex items-center justify-between gap-4 mt-2 transition-all ${
+                <div className={`p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-2 transition-all ${
                   report.fuel_matrix['E20'].status === 'compatible'
                     ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950'
                     : report.fuel_matrix['E20'].status === 'caution'
@@ -699,7 +605,7 @@ export default function FuelChecker() {
                     : 'bg-rose-50/90 border-rose-300 text-rose-950'
                 }`}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-3.5 h-3.5 rounded-full ${
+                    <div className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full flex-shrink-0 ${
                       report.fuel_matrix['E20'].status === 'compatible'
                         ? 'bg-emerald-500 ring-4 ring-emerald-200'
                         : report.fuel_matrix['E20'].status === 'caution'
@@ -707,23 +613,23 @@ export default function FuelChecker() {
                         : 'bg-rose-500 ring-4 ring-rose-200'
                     }`} />
                     <div>
-                      <div className="text-xs uppercase font-extrabold tracking-wider opacity-75">
+                      <div className="text-[10px] sm:text-xs uppercase font-extrabold tracking-wider opacity-75">
                         E20 Compatibility Status ({report.vehicle.year_selected})
                       </div>
-                      <div className="text-base sm:text-lg font-bold">
+                      <div className="text-sm sm:text-base md:text-lg font-bold">
                         {report.fuel_matrix['E20'].label}
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-sm text-slate-800 whitespace-nowrap">
+                  <span className="text-[11px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 rounded-lg sm:rounded-xl bg-white border border-slate-200 shadow-sm text-slate-800 self-start sm:self-auto whitespace-nowrap">
                     Max: {report.vehicle.max_approved_blend}
                   </span>
                 </div>
               </div>
 
               {/* Right Side: Vehicle Dynamic Image */}
-              <div className="relative w-full md:w-80 h-52 sm:h-60 rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex-shrink-0 shadow-inner group">
+              <div className="relative w-full md:w-80 h-48 sm:h-56 md:h-60 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 flex-shrink-0 shadow-inner group">
                 <img
                   src={report.vehicle.image}
                   alt={report.vehicle.name}
@@ -732,16 +638,16 @@ export default function FuelChecker() {
                     (e.target as any).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700';
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent flex items-end p-4">
-                  <span className="text-white text-xs font-bold bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/20">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-transparent to-transparent flex items-end p-3 sm:p-4">
+                  <span className="text-white text-[11px] sm:text-xs font-bold bg-slate-900/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/20">
                     {report.vehicle.brand} • {report.vehicle.name}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200">
+            {/* Navigation Tabs (Horizontal Scrollable on Mobile) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 border-b border-slate-200 scrollbar-none">
               {[
                 { id: 'matrix', label: '⛽ Fuel Matrix (E5–E100)', icon: Gauge },
                 { id: 'engine', label: '⚙️ Materials & ECU', icon: Wrench },
@@ -754,14 +660,14 @@ export default function FuelChecker() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                    className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 sm:gap-2 flex-shrink-0 ${
                       activeTab === tab.id
                         ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20'
                         : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    {tab.label}
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>{tab.label}</span>
                   </button>
                 );
               })}
@@ -769,49 +675,49 @@ export default function FuelChecker() {
 
             {/* Tab 1: Fuel Compatibility Matrix Grid */}
             {activeTab === 'matrix' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   {Object.entries(report.fuel_matrix).map(([blendKey, blendData]) => {
                     const badge = getStatusBadge(blendData.status);
                     const StatusIcon = badge.icon;
                     return (
                       <div
                         key={blendKey}
-                        className={`bg-white border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md relative overflow-hidden ${
+                        className={`bg-white border rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm transition-all hover:shadow-md relative overflow-hidden ${
                           blendKey === 'E20' ? 'ring-2 ring-indigo-500 border-indigo-300' : 'border-slate-200'
                         }`}
                       >
                         {blendKey === 'E20' && (
-                          <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-bl-lg">
+                          <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[9px] sm:text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-bl-lg">
                             National Standard
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-2xl font-black text-slate-900 tracking-tight">
+                        <div className="flex items-center justify-between mb-2.5 sm:mb-3">
+                          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                             {blendKey}
                           </span>
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                          <span className="text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
                             {blendData.ethanol} Ethanol
                           </span>
                         </div>
 
-                        <div className={`p-2.5 rounded-xl border text-xs font-bold flex items-center gap-2 mb-3 ${badge.bg}`}>
-                          <StatusIcon className="w-4 h-4 flex-shrink-0" />
+                        <div className={`p-2 sm:p-2.5 rounded-lg sm:rounded-xl border text-[11px] sm:text-xs font-bold flex items-center gap-2 mb-2.5 sm:mb-3 ${badge.bg}`}>
+                          <StatusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                           <span>{blendData.label}</span>
                         </div>
 
-                        <p className="text-xs text-slate-600 mb-3 leading-relaxed">
+                        <p className="text-[11px] sm:text-xs text-slate-600 mb-2.5 sm:mb-3 leading-relaxed">
                           {blendData.desc}
                         </p>
 
                         {/* Gasoline vs Ethanol Meter */}
                         <div className="space-y-1">
-                          <div className="flex justify-between text-[11px] text-slate-500 font-medium">
+                          <div className="flex justify-between text-[10px] sm:text-[11px] text-slate-500 font-medium">
                             <span>Petrol: {100 - parseInt(blendData.ethanol)}%</span>
                             <span>Ethanol: {blendData.ethanol}</span>
                           </div>
-                          <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex">
+                          <div className="w-full bg-slate-100 h-1.5 sm:h-2 rounded-full overflow-hidden flex">
                             <div
                               style={{ width: `${100 - parseInt(blendData.ethanol)}%` }}
                               className="bg-slate-400 h-full"
@@ -834,11 +740,11 @@ export default function FuelChecker() {
                 </div>
 
                 {/* Important Fact Box */}
-                <div className="p-5 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs sm:text-sm flex items-start gap-3">
-                  <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
+                <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs sm:text-sm flex items-start gap-2.5 sm:gap-3">
+                  <Info className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="leading-relaxed">
                     <strong>Indian Fuel Infrastructure Notice:</strong> Oil Marketing Companies (IOCL, BPCL, HPCL) are dispensing E20 petrol across most retail outlets.
-                    If your vehicle is manufactured before April 2023, do not panic about an accidental single fill; incidental usage will not damage your vehicle immediately. Follow our maintenance tips in the advice tab.
+                    If your vehicle was manufactured before April 2023, do not panic about an accidental single fill; incidental usage will not damage your vehicle immediately. Follow our maintenance tips in the advice tab.
                   </div>
                 </div>
               </div>
@@ -846,23 +752,23 @@ export default function FuelChecker() {
 
             {/* Tab 2: Materials & ECU */}
             {activeTab === 'engine' && (
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm space-y-4 sm:space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                    <Wrench className="w-5 h-5 text-indigo-600" />
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1 sm:mb-2 flex items-center gap-2">
+                    <Wrench className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
                     Fuel System Materials &amp; Calibration Specification ({report.vehicle.year_selected})
                   </h3>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-xs sm:text-sm text-slate-600">
                     Higher ethanol blends require specialized fluorocarbon rubber (Viton) and active closed-loop lambda control.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200">
-                    <div className="text-xs uppercase font-bold text-slate-500 mb-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+                  <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200">
+                    <div className="text-[11px] sm:text-xs uppercase font-bold text-slate-500 mb-1">
                       Material Compatibility (Fuel Lines &amp; Seals)
                     </div>
-                    <div className="text-base font-bold text-slate-900 capitalize mb-2">
+                    <div className="text-sm sm:text-base font-bold text-slate-900 capitalize mb-2">
                       {report.technical_explanation.material_compatibility.replace(/_/g, ' ')}
                     </div>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -870,11 +776,11 @@ export default function FuelChecker() {
                     </p>
                   </div>
 
-                  <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200">
-                    <div className="text-xs uppercase font-bold text-slate-500 mb-1">
+                  <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 border border-slate-200">
+                    <div className="text-[11px] sm:text-xs uppercase font-bold text-slate-500 mb-1">
                       ECU Tuning &amp; Stoichiometry ({report.vehicle.bs_stage})
                     </div>
-                    <div className="text-base font-bold text-slate-900 capitalize mb-2">
+                    <div className="text-sm sm:text-base font-bold text-slate-900 capitalize mb-2">
                       {report.technical_explanation.calibration_status.replace(/_/g, ' ')}
                     </div>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -888,42 +794,42 @@ export default function FuelChecker() {
 
             {/* Tab 3: Mileage Impact */}
             {activeTab === 'mileage' && (
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm space-y-4 sm:space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                    <TrendingDown className="w-5 h-5 text-amber-600" />
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1 sm:mb-2 flex items-center gap-2">
+                    <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                     Fuel Economy &amp; Mileage Variance
                   </h3>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-xs sm:text-sm text-slate-600">
                     Ethanol contains ~21.2 MJ/L of energy compared to 32 MJ/L for gasoline.
                   </p>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 space-y-2">
-                  <div className="text-sm font-bold flex items-center gap-2">
+                <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 space-y-1.5 sm:space-y-2">
+                  <div className="text-xs sm:text-sm font-bold flex items-center gap-1.5">
                     <Percent className="w-4 h-4 text-amber-700" />
                     Expected Mileage Impact on Your {report.vehicle.name} ({report.vehicle.year_selected}):
                   </div>
-                  <p className="text-sm leading-relaxed">
+                  <p className="text-xs sm:text-sm leading-relaxed">
                     {report.technical_explanation.mileage_impact}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                  <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50">
-                    <div className="text-xs text-slate-500 font-semibold mb-1">E10 Blend</div>
-                    <div className="text-xl font-black text-slate-900">~1% – 2%</div>
-                    <div className="text-[11px] text-slate-500">Negligible difference</div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50">
+                    <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mb-1">E10 Blend</div>
+                    <div className="text-lg sm:text-xl font-black text-slate-900">~1% – 2%</div>
+                    <div className="text-[10px] sm:text-[11px] text-slate-500">Negligible difference</div>
                   </div>
-                  <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50/50">
-                    <div className="text-xs text-amber-700 font-semibold mb-1">E20 Blend</div>
-                    <div className="text-xl font-black text-amber-800">~2% – 5%</div>
-                    <div className="text-[11px] text-amber-700">Expected reduction</div>
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-amber-200 bg-amber-50/50">
+                    <div className="text-[11px] sm:text-xs text-amber-700 font-semibold mb-1">E20 Blend</div>
+                    <div className="text-lg sm:text-xl font-black text-amber-800">~2% – 5%</div>
+                    <div className="text-[10px] sm:text-[11px] text-amber-700">Expected reduction</div>
                   </div>
-                  <div className="p-4 rounded-2xl border border-rose-200 bg-rose-50/50">
-                    <div className="text-xs text-rose-700 font-semibold mb-1">E85 (Flex-Fuel)</div>
-                    <div className="text-xl font-black text-rose-800">~25% – 30%</div>
-                    <div className="text-[11px] text-rose-700">Flex-Fuel prototypes only</div>
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-rose-200 bg-rose-50/50">
+                    <div className="text-[11px] sm:text-xs text-rose-700 font-semibold mb-1">E85 (Flex-Fuel)</div>
+                    <div className="text-lg sm:text-xl font-black text-rose-800">~25% – 30%</div>
+                    <div className="text-[10px] sm:text-[11px] text-rose-700">Flex-Fuel prototypes only</div>
                   </div>
                 </div>
               </div>
@@ -931,52 +837,52 @@ export default function FuelChecker() {
 
             {/* Tab 4: Official Proof */}
             {activeTab === 'proof' && (
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm space-y-4 sm:space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1 sm:mb-2 flex items-center gap-2">
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                     Official Manufacturer Citation &amp; Document Source
                   </h3>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-xs sm:text-sm text-slate-600">
                     Verified against official OEM service bulletins and MoRTH regulatory notifications.
                   </p>
                 </div>
 
-                <blockquote className="p-5 rounded-2xl bg-slate-50 border-l-4 border-indigo-600 text-slate-800 text-sm italic font-medium leading-relaxed">
+                <blockquote className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-slate-50 border-l-4 border-indigo-600 text-slate-800 text-xs sm:text-sm italic font-medium leading-relaxed">
                   "{report.evidence.official_quote}"
                 </blockquote>
 
                 <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                  <BookOpen className="w-4 h-4 text-indigo-600" />
-                  <strong>Document Source:</strong> {report.evidence.source}
+                  <BookOpen className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                  <span><strong>Document Source:</strong> {report.evidence.source}</span>
                 </div>
               </div>
             )}
 
             {/* Tab 5: Owner Action Advice */}
             {activeTab === 'advice' && (
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+              <div className="bg-white border border-slate-200 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm space-y-4 sm:space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1 sm:mb-2 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                     Practical Driver Action Plan for {report.vehicle.name} ({report.vehicle.year_selected})
                   </h3>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-xs sm:text-sm text-slate-600">
                     {report.actionable_guidance.summary}
                   </p>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-indigo-50/70 border border-indigo-100 text-indigo-950 text-sm leading-relaxed">
+                <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-indigo-50/70 border border-indigo-100 text-indigo-950 text-xs sm:text-sm leading-relaxed">
                   <strong>Recommended Step:</strong> {report.actionable_guidance.what_to_do}
                 </div>
 
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="space-y-2.5 sm:space-y-3">
+                  <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">
                     Essential Ownership Tips:
                   </h4>
                   <ul className="space-y-2">
                     {report.actionable_guidance.tips.map((tip, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-sm text-slate-700">
+                      <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
                         <span>{tip}</span>
                       </li>
@@ -987,20 +893,20 @@ export default function FuelChecker() {
             )}
 
             {/* AI Doubt Solver Q&A Box Grounded in Selected Vehicle */}
-            <div className="bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/80 border border-indigo-100 rounded-3xl p-6 sm:p-8 shadow-md">
-              <div className="flex items-center gap-2 text-indigo-700 text-xs font-bold uppercase tracking-wider mb-2">
-                <Sparkles className="w-4 h-4 text-indigo-600" />
+            <div className="bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/80 border border-indigo-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 shadow-md">
+              <div className="flex items-center gap-1.5 text-indigo-700 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
                 Axom FuelCheck AI Assistant
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-1.5 sm:mb-2">
                 Have a doubt about your {report.vehicle.name}?
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 mb-4">
                 Ask our grounded automotive intelligence engine about petrol pumps, additives, emergency fill-ups, or XP95.
               </p>
 
-              {/* Pre-populated Questions */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              {/* Pre-populated Questions (Clean wrapping on mobile) */}
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4">
                 {PREPOPULATED_QUESTIONS.map((pq, idx) => (
                   <button
                     key={idx}
@@ -1008,21 +914,21 @@ export default function FuelChecker() {
                       setAskQuestion(pq);
                       handleAskDoubt(pq);
                     }}
-                    className="text-xs bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-700 text-slate-700 px-3 py-1.5 rounded-lg shadow-sm transition-all text-left"
+                    className="text-xs bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-700 text-slate-700 px-3 py-1.5 rounded-lg shadow-sm transition-all text-left leading-normal"
                   >
                     {pq}
                   </button>
                 ))}
               </div>
 
-              {/* Ask Input */}
-              <div className="flex gap-2">
+              {/* Ask Input & Button (Column on small mobile, row on tablet/desktop) */}
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={askQuestion}
                   onChange={(e) => setAskQuestion(e.target.value)}
                   placeholder={`Ask anything about ${report.vehicle.name} (${report.vehicle.year_selected}) & E20 fuel...`}
-                  className="flex-1 px-4 py-3 rounded-2xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                  className="w-full px-3.5 sm:px-4 py-3 rounded-xl sm:rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleAskDoubt();
                   }}
@@ -1030,33 +936,33 @@ export default function FuelChecker() {
                 <button
                   onClick={() => handleAskDoubt()}
                   disabled={isAsking || !askQuestion.trim()}
-                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-2xl shadow-md transition-all disabled:opacity-50 flex items-center gap-2 flex-shrink-0"
+                  className="w-full sm:w-auto px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-md transition-all disabled:opacity-50 flex items-center justify-center gap-2 flex-shrink-0"
                 >
                   {isAsking ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Ask AI'}
                 </button>
               </div>
 
-              {/* AI Answer Box */}
+              {/* AI Answer Box with Clean Normal Text Formatting (No Asterisks) */}
               {askAnswer && (
-                <div className="mt-4 p-5 rounded-2xl bg-white border border-indigo-200 shadow-sm text-sm text-slate-800 leading-relaxed whitespace-pre-line animate-fadeIn">
-                  <div className="font-bold text-indigo-700 mb-1 flex items-center gap-1.5 text-xs uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    Automotive Engineer Response:
+                <div className="mt-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white border border-indigo-200 shadow-sm animate-fadeIn">
+                  <div className="font-bold text-indigo-700 mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+                    Automotive Engineer Response
                   </div>
-                  {askAnswer}
+                  {renderFormattedAnswer(askAnswer)}
                 </div>
               )}
             </div>
 
             {/* Share / Copy / Actions */}
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-4 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 pt-4 border-t border-slate-200 text-center sm:text-left">
               <span>Verified against MoRTH Notification &amp; SIAM Circulars (2025–2026)</span>
               <button
                 onClick={handleShare}
-                className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 font-semibold"
+                className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer"
               >
                 {copiedLink ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-                {copiedLink ? 'Link Copied!' : 'Share Vehicle Report'}
+                <span>{copiedLink ? 'Link Copied!' : 'Share Vehicle Report'}</span>
               </button>
             </div>
           </div>

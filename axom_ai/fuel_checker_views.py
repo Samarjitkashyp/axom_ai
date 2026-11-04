@@ -1247,7 +1247,8 @@ def fuel_check_ask_api(request):
         "Explain that XP95 or Speed95 is high-octane petrol, but Indian oil companies blend ethanol in premium fuels too unless explicitly ethanol-free.\n"
         "3. Emphasize practical real-world advice: accidental single E20 fill won't destroy an engine, but long-term parking with E20 causes moisture absorption.\n"
         "4. Tone: Helpful, highly technical yet easy to understand for everyday car/bike owners.\n"
-        "5. Language: Reply in clean English or Hinglish depending on how the user asked."
+        "5. Language: Reply in clean English or Hinglish depending on how the user asked.\n"
+        "6. Formatting: Do NOT use asterisks (no ** or ***). Write clean plain text bullet points like '- Topic: Explanation'."
     )
 
     context_str = (
