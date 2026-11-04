@@ -14,6 +14,9 @@ import shutil
 import subprocess
 import tempfile
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 from datetime import datetime, time as dtime
 
 import requests
@@ -60,7 +63,7 @@ def is_gibberish(text):
     if words and all(len(w) >= 3 and not any(c in 'aeiouyAEIOUY' for c in w) and w.isalpha() for w in words):
         return True
     return False
-MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-2.5-flash,gemini-1.5-flash,gemini-flash-latest').split(',') if m]
+MODELS = [m for m in os.getenv('STT_GEMINI_MODELS', 'gemini-3.5-flash-lite,gemini-3-flash-preview,gemini-3.5-flash').split(',') if m]
 
 # rumble out, speech band only, even loudness, silence at both ends cut. No heavy noise reduction here: tried on noisy recordings it made the
 # result slightly worse (Gemini copes with noise better than a spectral filter does); the browser's own noise suppression runs before this.
@@ -182,6 +185,8 @@ def _openai(wav, language, deadline):
     data = {'model': OPENAI_MODEL, 'response_format': 'json'}
     if OPENAI_LANG.get(language):
         data['language'] = OPENAI_LANG[language]
+    elif language == 'assamese':
+        data['prompt'] = 'অসমীয়া বাক্য। অনুগ্ৰহ কৰি খাঁটি অসমীয়া লিপিত লিখক।'
     try:
         r = requests.post('https://api.openai.com/v1/audio/transcriptions', headers={'Authorization': 'Bearer ' + key}, data=data,
                           files={'file': ('speech.wav', wav, 'audio/wav')}, timeout=min(25, left))
@@ -196,19 +201,39 @@ def _openai(wav, language, deadline):
 
 def transcribe(wav, language):
     """The words that were said ('' when there was no speech), or None when no reader could be used within DEADLINE_SECONDS.
-    OpenAI reads first (about 1-2 seconds, as good as Gemini on Assamese speech with and without noise when tried on the server); Gemini is the
-    second reader. STT_PRIMARY=openai puts them the other way round."""
+    Multi-tier cascade:
+      Tier 1 (Native Sovereign): Axom AI Xuna Conformer STT (for Assamese)
+      Tier 2 (Cloud High-Speed): Gemini 3.5 Flash Lite
+      Tier 3 (Fallback): OpenAI whisper-1 with Assamese conditioning
+    """
     deadline = time.monotonic() + DEADLINE_SECONDS
-    if PRIMARY == 'gemini' or not os.getenv('OPENAI_API_KEY'):
-        text = _gemini(wav, language, deadline, models=MODELS[:1], per_call=3.5)       # fast primary flash model
-        if text is None:
-            text = _openai(wav, language, deadline)                                     # ultra-fast 1.2s OpenAI fallback
-        if text is None:
-            text = _gemini(wav, language, deadline, models=MODELS[1:], per_call=4)     # fallback models
+
+    # Tier 1: Proprietary Sovereign Xuna Conformer ASR for Native Assamese
+    if language == 'assamese':
+        try:
+            from axom_ai.xuna_stt import xuna_transcribe
+            xuna_text = xuna_transcribe(wav, lang='as')
+            if xuna_text and not is_gibberish(xuna_text):
+                return xuna_text
+        except Exception as e:
+            logger.warning(f"Xuna STT primary engine fallback: {e}")
+
+    # Tier 2: Gemini with active 3.5 flash models
+    text = _gemini(wav, language, deadline, models=MODELS[:2], per_call=4.0)
+    if text and not is_gibberish(text):
         return text
+
+    # Tier 3: OpenAI whisper-1
     text = _openai(wav, language, deadline)
-    if text is None:
-        text = _gemini(wav, language, deadline, models=MODELS, per_call=12)
+    if text and not is_gibberish(text):
+        return text
+
+    # Final attempt with remaining Gemini models if any
+    if len(MODELS) > 2:
+        text = _gemini(wav, language, deadline, models=MODELS[2:], per_call=4.0)
+        if text and not is_gibberish(text):
+            return text
+
     return text
 
 
@@ -295,10 +320,13 @@ def stt_api(request):
         text = audio_training.fix_heard(text)           # the corrections added in the admin (Audio Training)
     if text and is_gibberish(text):
         text = ''
+    if text:
+        text = re.sub(r'<[^>]*>', '', text).strip()
     if text and language == 'assamese':
         try:
             from axom_ai.views import _purify_assamese_with_grammar
             text = _purify_assamese_with_grammar(text)
         except Exception:
             pass
+        text = text.replace('র', 'ৰ')
     return JsonResponse({'success': True, 'text': text, 'seconds': round(seconds, 1)})
