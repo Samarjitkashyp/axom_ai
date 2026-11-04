@@ -4,6 +4,9 @@ import re
 import time
 from datetime import datetime, timedelta
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
@@ -282,6 +285,25 @@ def _purify_assamese_with_grammar(text: str) -> str:
     text = _sanitize_brand_mentions(text)
     return text
 
+
+
+# Strict zero-emoji filter for all user-facing output
+_EMOJI_RE = re.compile(
+    r"[\U00010000-\U0010ffff"
+    r"\u2600-\u27bf"
+    r"\u2300-\u23ff"
+    r"\u2b50-\u2b55"
+    r"\ufe0e\ufe0f"
+    r"\u200d"
+    r"]+",
+    flags=re.UNICODE
+)
+
+def _strip_emojis(text: str) -> str:
+    """Removes all emojis and pictographs from text to ensure 100% clean, professional output."""
+    if not text:
+        return text
+    return _EMOJI_RE.sub('', text)
 
 def _sanitize_brand_mentions(text: str) -> str:
     """
@@ -779,33 +801,49 @@ def _gemini_generate(api_key, system, prompt, models):
     return None
 
 
-def _gemini_vision_analyze(api_key, image_b64, image_mime='image/jpeg', user_query="", timeout=25):
+def _gemini_vision_analyze(api_key, image_input, image_mime='image/jpeg', user_query="", timeout=30):
     """Multimodal visual inspection via Google Gemini Flash.
-    Gemini inspects the uploaded image, reads all text/handwriting, diagrams, and passes the visual facts to OpenAI."""
-    if not api_key or not image_b64:
+    Gemini inspects up to 10 uploaded images simultaneously, transcribes text, detects objects/diagrams,
+    and returns a structured breakdown for OpenAI."""
+    if not api_key or not image_input:
         return None
     headers = {'Content-Type': 'application/json'}
     models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
+
+    num_imgs = len(image_input) if isinstance(image_input, list) else 1
     vision_prompt = (
-        f"You are the visual inspection and OCR analysis engine for Axom AI. Examine this image carefully.\n"
+        f"You are the visual inspection and OCR analysis engine for Axom AI. Examine the {num_imgs} uploaded image(s) carefully.\n"
         f"User question/instruction: {user_query or 'Perform complete visual analysis and OCR text extraction.'}\n\n"
         "Please provide:\n"
-        "1. Complete, verbatim transcription of any text, signs, handwritten notes, equations, or labels visible.\n"
-        "2. Detailed description of the visual scene, objects, people, diagrams, charts, or artwork.\n"
-        "3. Specific visual details and evidence that directly answer the user's question."
+        "1. Complete verbatim transcription of all text, handwriting, tables, and labels visible across all images.\n"
+        "2. Detailed description of the visual scene, diagrams, people, charts, or artwork in each image.\n"
+        "3. If multiple images are provided, compare their content, differences, and visual relationships.\n"
+        "4. Specific visual facts and evidence that directly answer the user's question."
     )
-    payload = {
-        "contents": [{
-            "parts": [
-                {"text": vision_prompt},
-                {
-                    "inlineData": {
-                        "mimeType": image_mime or "image/jpeg",
-                        "data": image_b64
-                    }
+
+    parts = [{"text": vision_prompt}]
+    if isinstance(image_input, list):
+        for idx, item in enumerate(image_input[:10]):
+            b64_val = item.get('b64') if isinstance(item, dict) else item
+            mime_val = item.get('mime', 'image/jpeg') if isinstance(item, dict) else image_mime
+            name_val = item.get('name', f'image_{idx+1}') if isinstance(item, dict) else f'image_{idx+1}'
+            parts.append({"text": f"\n--- Image {idx+1}: {name_val} ---\n"})
+            parts.append({
+                "inlineData": {
+                    "mimeType": mime_val or "image/jpeg",
+                    "data": b64_val
                 }
-            ]
-        }],
+            })
+    else:
+        parts.append({
+            "inlineData": {
+                "mimeType": image_mime or "image/jpeg",
+                "data": image_input
+            }
+        })
+
+    payload = {
+        "contents": [{"parts": parts}],
         "systemInstruction": {
             "parts": [{"text": "You are a precise, comprehensive multimodal visual analysis and OCR engine."}]
         }
@@ -1651,7 +1689,7 @@ def chat_api_view(request):
     if not prompt:
         return JsonResponse({'error': 'Prompt cannot be empty'}, status=400)
 
-    MAX_PROMPT_CHARS = 4000
+    MAX_PROMPT_CHARS = 30000
     if len(prompt) > MAX_PROMPT_CHARS:
         prompt = prompt[:MAX_PROMPT_CHARS]
     raw_prompt = prompt
@@ -1704,18 +1742,44 @@ def chat_api_view(request):
     # User rule: "user ki intent samjne ke liye open ai ka use karo, sirf
     # agar bolta he image generate ka tabhi gemini ka use karo chat me"
     # -----------------------------------------------------------------------
-    attached_img = data.get('attached_image') or ''
-    has_attached_img = bool(data.get('has_attached_image') or attached_img)
-    attached_img_b64 = None
-    attached_img_mime = 'image/jpeg'
-    if attached_img:
-        if attached_img.startswith('data:'):
-            hdr, _, b64_part = attached_img.partition(',')
-            if ':' in hdr and ';' in hdr:
-                attached_img_mime = hdr.split(':')[1].split(';')[0]
-            attached_img_b64 = b64_part
+    # Parse single or multiple attached images (up to 10 images)
+    raw_images = data.get('attached_images') or []
+    if not raw_images and data.get('attached_image'):
+        raw_images = [{
+            'b64': data.get('attached_image'),
+            'mime': 'image/jpeg',
+            'name': data.get('attached_filename') or 'image.jpg'
+        }]
+
+    parsed_images = []
+    for img_item in raw_images[:10]:
+        if isinstance(img_item, dict):
+            b64_val = img_item.get('b64') or ''
+            mime_val = img_item.get('mime') or 'image/jpeg'
+            name_val = img_item.get('name') or 'image'
+        elif isinstance(img_item, str):
+            b64_val = img_item
+            mime_val = 'image/jpeg'
+            name_val = 'image'
         else:
-            attached_img_b64 = attached_img
+            continue
+
+        if b64_val.startswith('data:'):
+            hdr, _, b64_part = b64_val.partition(',')
+            if ':' in hdr and ';' in hdr:
+                mime_val = hdr.split(':')[1].split(';')[0]
+            b64_val = b64_part
+
+        if b64_val:
+            parsed_images.append({
+                'b64': b64_val,
+                'mime': mime_val,
+                'name': name_val
+            })
+
+    attached_img_b64 = parsed_images[0]['b64'] if parsed_images else None
+    attached_img_mime = parsed_images[0]['mime'] if parsed_images else 'image/jpeg'
+    has_attached_img = len(parsed_images) > 0
 
     attached_pdf = data.get('attached_pdf') or ''
     attached_filename = data.get('attached_filename') or 'document.pdf'
@@ -1792,15 +1856,15 @@ def chat_api_view(request):
                     'web_search': False,
                 })
 
-        # Multimodal Vision Pipeline: Gemini inspects image -> passes visual findings to OpenAI
-        if attached_img_b64:
+        # Multimodal Vision Pipeline: Gemini inspects up to 10 images -> passes visual findings to OpenAI
+        if parsed_images:
             gk = os.getenv('GEMINI_API_KEY', '').strip()
             gemini_vision_notes = _gemini_vision_analyze(
-                gk, attached_img_b64, attached_img_mime, prompt
+                gk, parsed_images, attached_img_mime, prompt, timeout=30
             )
             if gemini_vision_notes:
                 prompt = (
-                    f"[Gemini Vision Multimodal Analysis of Uploaded Image ({attached_filename or 'image'})]:\n"
+                    f"[Gemini Vision Multimodal Analysis of {len(parsed_images)} Uploaded Image(s)]:\n"
                     f"{gemini_vision_notes}\n\n"
                     f"{prompt}"
                 )
@@ -2180,7 +2244,7 @@ def chat_api_view(request):
     # 3. OpenAI passes response to Gemini.
     # 4. Gemini delivers the final streamed response to user.
     # -------------------------------------------------------------------------
-    is_pure_upload = bool(file_uploaded_only or (raw_prompt and raw_prompt.strip().startswith('[User uploaded')))
+    is_pure_upload = bool(file_uploaded_only or (raw_prompt and '[User uploaded' in raw_prompt))
     if attached_img_b64 and not is_pure_upload and not web_search and api_key:
         try:
             from model_router.router import openai_generate
@@ -4072,16 +4136,24 @@ def _translate_prompt_for_image(prompt, has_ref_image=False):
 def _detect_image_intent_with_openai(prompt, has_image=False):
     """Use OpenAI (per user rule) to understand the user's intent.
     Determines if the user wants to generate, draw, or edit an image.
+    Supports queries in Assamese, Hindi, Hinglish, and English.
     Returns: (is_image: bool, image_prompt: str)"""
     if not prompt or not prompt.strip():
         return False, ""
 
     clean_p = prompt.strip()
+
+    # Fast check: /image or /img slash command
+    if clean_p.lower().startswith(('/image', '/img')):
+        actual_p = re.sub(r'^/(image|img)\s*', '', clean_p, flags=re.I).strip()
+        return True, actual_p or clean_p
+
     visual_cues = (
-        'image', 'photo', 'picture', 'draw', 'generate', 'paint', 'sketch', 'illustration',
-        'chobi', 'chabi', 'ছৱি', 'ছবি', 'ফটো', 'আঁকা', 'ৰং', 'বনাও', 'চিত্র', 'চিহ্ন',
-        'wallpaper', 'background', 'extract', 'portrait', 'scenery', 'scene', 'art',
-        'tasveer', 'banao', 'dekhao', 'dikhaye'
+        'image', 'photo', 'picture', 'draw', 'drawing', 'generate', 'paint', 'painting',
+        'sketch', 'illustration', 'pic', 'pics', 'photu', 'bana', 'banao', 'banai', 'banay',
+        'chobi', 'chabi', 'ছৱি', 'ছবি', 'ফটো', 'আঁকা', 'আঁক', 'ৰং', 'বনাও', 'বনাই', 'বনাম',
+        'চিত্র', 'চিহ্ন', 'দৃশ্য', 'প্ৰকৃতি', 'wallpaper', 'background', 'extract', 'portrait',
+        'scenery', 'scene', 'art', 'tasveer', 'dekhao', 'dikhaye'
     )
     lower = clean_p.lower()
     has_cue = any(c in lower for c in visual_cues)
@@ -4090,14 +4162,27 @@ def _detect_image_intent_with_openai(prompt, has_image=False):
     if not has_image and not has_cue:
         return False, ""
 
+    # Direct regex patterns for high confidence image generation across languages
+    is_direct_req = (
+        bool(re.search(r'(ছবি|ছৱি|ফটো|চিত্ৰ|দৃশ্য)\s*(এখন|এটা|এটি)?\s*(বনাই|বনাম|বনাও|আঁকি|আঁকা|লাগে|দিয়ক|দিয়া)', clean_p)) or
+        bool(re.search(r'(এখন|এটা|এটি)\s*(.*?)\s*(ছবি|ছৱি|ফটো|চিত্ৰ)\s*(বনাই|বনা|আঁকি|দিয়া|লাগে)', clean_p)) or
+        bool(re.search(r'(photo|tasveer|chitra|image|pic)\s*(bana|banado|banao|dikhaye|kheecho|generate)', clean_p, re.I)) or
+        bool(re.search(r'(ek|koi)\s+(photo|tasveer|image|pic)\s+(banao|banado|chahiye)', clean_p, re.I)) or
+        bool(re.search(r'^(generate|create|draw|paint|sketch)\s+(an?\s+)?(image|photo|picture|artwork|illustration)\b', clean_p, re.I))
+    )
+
     system = (
         "You are an AI intent classifier for Axom AI. "
         "Determine if the user wants to GENERATE, DRAW, CREATE, or EDIT an image/artwork/photo. "
+        "The user may ask in Assamese (e.g. 'এখন কাজিৰঙাৰ গঁড়ৰ ছবি বনাই দিয়া', 'ছবি লাগে', 'চিত্ৰ আঁকি দিয়ক'), "
+        "Hindi / Hinglish (e.g. 'Kaziranga sunrise ki tasveer bana do', 'ek photo banao', 'ek image draw karo'), "
+        "or English (e.g. 'draw a sunset', 'generate an image of a tea garden', '/image a tiger in Assam').\n\n"
         "CRITICAL RULES:\n"
         "1. If the user asks a factual question, asks to solve a problem, or asks to explain/read an image, set is_image to false.\n"
         "2. If the user wants a new picture/photo/artwork generated, or wants an attached image edited/background extracted, set is_image to true.\n"
-        "3. If is_image is true, formulate a rich, highly descriptive English visual prompt (under 60 words) suitable for a text-to-image model.\n"
-        "4. Reply with a valid JSON object ONLY: {\"is_image\": true, \"prompt\": \"English visual description\"} or {\"is_image\": false, \"prompt\": \"\"}."
+        "3. If is_image is true, formulate a rich, highly descriptive English visual prompt (under 60 words) suitable for Google Gemini Imagen image generation.\n"
+        "4. Reply with a valid JSON object ONLY: {\"is_image\": true, \"prompt\": \"English visual description\"} or {\"is_image\": false, \"prompt\": \"\"}.\n"
+        "5. STRICT RULE: Output no emojis."
     )
 
     user_msg = f"[Attached reference image: {'YES' if has_image else 'NO'}]\nUser request: {clean_p}"
@@ -4123,10 +4208,14 @@ def _detect_image_intent_with_openai(prompt, has_image=False):
     except Exception as e:
         logger.warning(f"OpenAI intent detection failed: {e}")
 
-    # Fallback heuristic if OpenAI is unreachable
-    if has_image and any(k in lower for k in ('extract', 'background', 'edit', 'ছৱি', 'ছবি', 'উলিয়া')):
+    # Fallback heuristic if OpenAI is unreachable or rate-limited
+    if has_image and any(k in lower for k in ('extract', 'background', 'edit', 'ছৱি', 'ছবি', 'উলিয়া', 'crop')):
         return True, clean_p
-    if any(k in lower for k in ('generate image', 'draw', 'make an image', 'ছবি বনোৱা', 'ছৱি আঁকা', 'photo banao')):
+    if is_direct_req or any(k in lower for k in (
+        'generate image', 'draw', 'paint', 'make an image', 'create image',
+        'ছবি বনোৱা', 'ছৱি আঁকা', 'ছবি আঁকা', 'ছবি বনাই', 'ছবি লাগে', 'ছবি বনাম',
+        'photo banao', 'photo bana', 'tasveer banao', 'chitra banao', 'image banao'
+    )):
         return True, clean_p
 
     return False, ""

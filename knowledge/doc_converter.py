@@ -455,16 +455,14 @@ def _convert_excel_to_pdf(excel_path, output_pdf_path):
 
         table_rows = []
         # Header row
-        h_row = [Paragraph(str(c or '').replace('
-', ' ').strip() or f"Col {i+1}", header_cell_style) for i, c in enumerate(raw_header[:max_cols])]
+        h_row = [Paragraph(str(c or '').replace('\n', ' ').strip() or f"Col {i+1}", header_cell_style) for i, c in enumerate(raw_header[:max_cols])]
         table_rows.append(h_row)
 
         for r in rows[1:]:
             r_cells = []
             for i in range(max_cols):
                 val = r[i] if i < len(r) else ""
-                val_str = "" if val is None else str(val).replace('
-', ' ').strip()
+                val_str = "" if val is None else str(val).replace('\n', ' ').strip()
                 r_cells.append(Paragraph(val_str, cell_style))
             table_rows.append(r_cells)
 

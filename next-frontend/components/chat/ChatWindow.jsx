@@ -39,7 +39,12 @@ export default function ChatWindow({
   const [isLoading, setIsLoading] = useState(false);
   const [isConvertingDoc, setIsConvertingDoc] = useState(false);
   const [convertingFileName, setConvertingFileName] = useState('');
-  const [attachedFile, setAttachedFile] = useState(null);
+  const [attachedFiles, setAttachedFiles] = useState([]);
+  const attachedFile = attachedFiles[0] || null;
+  const setAttachedFile = (fileOrNull) => {
+    if (!fileOrNull) setAttachedFiles([]);
+    else setAttachedFiles([fileOrNull]);
+  };
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [isDraggingDoc, setIsDraggingDoc] = useState(false);
   const [streamingText, setStreamingText] = useState(null);
@@ -418,71 +423,99 @@ export default function ChatWindow({
   const langCode = () =>
     (language === 'english' ? 'en-IN' : language === 'assamese' ? 'as-IN' : 'hi-IN');
 
-  const handleFileSelect = (file) => {
-    if (!file) return;
+  const handleRemoveFile = (index) => {
+    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleClearAttachedFiles = () => {
+    setAttachedFiles([]);
+    if (docFileInputRef.current) docFileInputRef.current.value = '';
+    if (imageFileInputRef.current) imageFileInputRef.current.value = '';
+  };
+  const handleClearAttachedFile = handleClearAttachedFiles;
+
+  const handleFilesSelect = (fileList) => {
+    if (!fileList || fileList.length === 0) return;
+    const incoming = Array.from(fileList);
+
+    if (attachedFiles.length + incoming.length > 10) {
+      setErrorMsg(`You can attach up to 10 files/images at a time (currently ${attachedFiles.length} attached).`);
+      return;
+    }
+
     const allowed = [
       '.docx', '.doc', '.txt', '.rtf', '.md', '.pdf',
       '.png', '.jpg', '.jpeg', '.webp', '.gif',
       '.xlsx', '.xls', '.csv'
     ];
-    const ext = '.' + file.name.split('.').pop().toLowerCase();
-    if (!allowed.includes(ext)) {
-      setErrorMsg(`Unsupported file type: ${ext}. Please upload a document (.docx, .pdf, .txt), spreadsheet (.xlsx, .csv), or image (.png, .jpg, .webp).`);
-      return;
-    }
-    if (file.size > 25 * 1024 * 1024) {
-      setErrorMsg('File size exceeds the 25MB limit.');
-      return;
+
+    const validFiles = [];
+    for (const file of incoming) {
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!allowed.includes(ext)) {
+        setErrorMsg(`Unsupported file type: ${ext}. Please upload a document (.docx, .pdf, .txt), spreadsheet (.xlsx, .csv), or image (.png, .jpg, .webp).`);
+        return;
+      }
+      if (file.size > 25 * 1024 * 1024) {
+        setErrorMsg(`File "${file.name}" exceeds the 25MB limit.`);
+        return;
+      }
+      const isImg = file.type.startsWith('image/') || ['.png', '.jpg', '.jpeg', '.webp', '.gif'].includes(ext);
+      validFiles.push({
+        file,
+        name: file.name,
+        size: file.size,
+        ext,
+        isImage: isImg,
+        preview: null,
+        textSnippet: '',
+        id: Math.random().toString(36).substring(2, 9),
+      });
     }
 
     setErrorMsg(null);
-    const isImg = file.type.startsWith('image/') || ['.png', '.jpg', '.jpeg', '.webp', '.gif'].includes(ext);
-    const fileObj = {
-      file,
-      name: file.name,
-      size: file.size,
-      ext,
-      isImage: isImg,
-      preview: null,
-      textSnippet: '',
-    };
 
-    if (isImg || ext === '.pdf') {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setAttachedFile((prev) => (prev ? { ...prev, preview: e.target?.result } : null));
-      };
-      reader.readAsDataURL(file);
-    }
-    if (ext === '.txt' || ext === '.md' || ext === '.csv') {
-      file.text().then((txt) => {
-        setAttachedFile((prev) => (prev ? { ...prev, textSnippet: txt.slice(0, 10000) } : null));
-      }).catch(() => {});
-    }
-    if (['.docx', '.doc', '.pdf', '.xlsx', '.xls', '.csv'].includes(ext)) {
-      const fd = new FormData();
-      fd.append('file', file);
-      fetch('/api/ai-notes/analyze/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCsrfToken() || '' },
-        body: fd,
-      }).then((r) => r.json()).then((d) => {
-        if (d && (d.sample_text || d.full_text)) {
-          setAttachedFile((prev) => (prev ? { ...prev, textSnippet: (d.sample_text || d.full_text).slice(0, 10000) } : null));
-        }
-      }).catch(() => {});
-    }
+    validFiles.forEach((fileObj) => {
+      const { file, ext, isImage, id } = fileObj;
+      if (isImage || ext === '.pdf') {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setAttachedFiles((prev) =>
+            prev.map((f) => (f.id === id ? { ...f, preview: e.target?.result } : f))
+          );
+        };
+        reader.readAsDataURL(file);
+      }
+      if (ext === '.txt' || ext === '.md' || ext === '.csv') {
+        file.text().then((txt) => {
+          setAttachedFiles((prev) =>
+            prev.map((f) => (f.id === id ? { ...f, textSnippet: txt.slice(0, 10000) } : f))
+          );
+        }).catch(() => {});
+      }
+      if (['.docx', '.doc', '.pdf', '.xlsx', '.xls', '.csv'].includes(ext)) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fetch('/api/ai-notes/analyze/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCsrfToken() || '' },
+          body: fd,
+        }).then((r) => r.json()).then((d) => {
+          if (d && (d.sample_text || d.full_text)) {
+            setAttachedFiles((prev) =>
+              prev.map((f) => (f.id === id ? { ...f, textSnippet: (d.sample_text || d.full_text).slice(0, 10000) } : f))
+            );
+          }
+        }).catch(() => {});
+      }
+    });
 
-    setAttachedFile(fileObj);
+    setAttachedFiles((prev) => [...prev, ...validFiles]);
     if (docFileInputRef.current) docFileInputRef.current.value = '';
     if (imageFileInputRef.current) imageFileInputRef.current.value = '';
   };
 
-  const handleClearAttachedFile = () => {
-    setAttachedFile(null);
-    if (docFileInputRef.current) docFileInputRef.current.value = '';
-    if (imageFileInputRef.current) imageFileInputRef.current.value = '';
-  };
+  const handleFileSelect = (file) => handleFilesSelect(file ? [file] : []);
 
   const handleExecuteConvertDoc = async (fileToUse) => {
     const file = fileToUse || attachedFile?.file;
@@ -504,9 +537,9 @@ export default function ChatWindow({
 
     let sessionId = currentSession?.id;
     if (!sessionId) {
-      sessionId = onSendMessage(`📄 Convert Document: ${file.name}`, fileMeta);
+      sessionId = onSendMessage(`Convert Document: ${file.name}`, fileMeta);
     } else {
-      onAddMessage(sessionId, 'user', `📄 Convert Document: ${file.name}`, 'Axom AI', fileMeta);
+      onAddMessage(sessionId, 'user', `Convert Document: ${file.name}`, 'Axom AI', fileMeta);
     }
 
     const formData = new FormData();
@@ -570,7 +603,7 @@ export default function ChatWindow({
     } : {};
 
     let sessionId = currentSession?.id;
-    const userPromptDisplay = `🎨 Generate Image: ${finalPrompt}`;
+    const userPromptDisplay = `Generate Image: ${finalPrompt}`;
     if (!sessionId) {
       sessionId = onSendMessage(userPromptDisplay, fileMeta);
     } else {
@@ -640,8 +673,10 @@ export default function ChatWindow({
   };
 
   const handleExecuteSummarize = () => {
-    if (!attachedFile) return;
-    const summaryPrompt = `Please provide a clear, comprehensive summary and key takeaways of the attached file: "${attachedFile.name}".`;
+    if (attachedFiles.length === 0) return;
+    const summaryPrompt = attachedFiles.length === 1
+      ? `Please provide a clear, comprehensive summary and key takeaways of the attached file: "${attachedFiles[0].name}".`
+      : `Please provide a clear, comprehensive summary and key takeaways of the attached ${attachedFiles.length} files: ${attachedFiles.map(f => `"${f.name}"`).join(', ')}.`;
     handleSendWithText(summaryPrompt);
   };
 
@@ -661,8 +696,8 @@ export default function ChatWindow({
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingDoc(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileSelect(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFilesSelect(e.dataTransfer.files);
     }
   };
 
@@ -893,14 +928,14 @@ export default function ChatWindow({
 
   const handleSend = async () => {
     const text = inputText.trim();
-    if ((!text && !attachedFile) || isLoading || isConvertingDoc || isGeneratingImage) return;
+    if ((!text && attachedFiles.length === 0) || isLoading || isConvertingDoc || isGeneratingImage) return;
 
     handleSendWithText(text);
   };
 
   const handleSendWithText = async (textToSend) => {
     const text = (textToSend !== undefined ? textToSend : inputText).trim();
-    if (!text && !attachedFile) return;
+    if (!text && attachedFiles.length === 0) return;
 
     const isPremiumUser = user?.planLabel === 'Pro' || user?.planLabel === 'Premium' || !!user?.isStaff;
     if (remainingWords <= 0 && !isPremiumUser) {
@@ -914,26 +949,66 @@ export default function ChatWindow({
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setErrorMsg(null);
 
-    const currentFile = attachedFile;
-    const fileMeta = currentFile ? {
+    const currentFiles = [...attachedFiles];
+    const images = currentFiles.filter(f => f.isImage);
+    const docs = currentFiles.filter(f => !f.isImage);
+
+    const fileMeta = currentFiles.length > 0 ? {
       attached_file: {
-        name: currentFile.name,
-        size: currentFile.size,
-        isImage: currentFile.isImage,
-        preview: currentFile.preview,
-        ext: currentFile.ext,
-      }
+        name: currentFiles[0].name,
+        size: currentFiles[0].size,
+        isImage: currentFiles[0].isImage,
+        preview: currentFiles[0].preview,
+        ext: currentFiles[0].ext,
+      },
+      attached_files: currentFiles.map(f => ({
+        name: f.name,
+        size: f.size,
+        isImage: f.isImage,
+        preview: f.preview,
+        ext: f.ext,
+      })),
     } : {};
-    setAttachedFile(null);
+
+    setAttachedFiles([]);
 
     const hasNoUserText = !text;
     let fullPrompt = text;
     let userDisplayPrompt = text;
 
-    if (currentFile) {
+    if (currentFiles.length > 0) {
       if (!userDisplayPrompt) {
-        userDisplayPrompt = currentFile.isImage ? `📷 ${currentFile.name}` : `📎 ${currentFile.name}`;
+        userDisplayPrompt = currentFiles.map(f => f.name).join(', ');
       }
+
+      const promptSections = [];
+      docs.forEach((d, idx) => {
+        const isSheet = ['.xlsx', '.xls', '.csv'].includes(d.ext);
+        const tag = isSheet ? 'Attached Spreadsheet / Excel' : 'Attached Document';
+        const label = docs.length > 1 ? `${tag} (${idx + 1}/${docs.length}): "${d.name}"` : `${tag}: "${d.name}"`;
+        if (d.textSnippet) {
+          promptSections.push(`[${label}]\nContent:\n${d.textSnippet.slice(0, 10000)}`);
+        } else {
+          promptSections.push(`[${label}]`);
+        }
+      });
+
+      images.forEach((img, idx) => {
+        const label = images.length > 1 ? `Attached Image (${idx + 1}/${images.length}): "${img.name}"` : `Attached Image: "${img.name}"`;
+        promptSections.push(`[${label}]`);
+      });
+
+      if (text) {
+        if (promptSections.length > 0) {
+          fullPrompt = `${promptSections.join('\n\n')}\n\nUser Question:\n${text}`;
+        } else {
+          fullPrompt = text;
+        }
+      } else {
+        const fileNamesList = currentFiles.map(f => `"${f.name}"`).join(', ');
+        fullPrompt = `${promptSections.join('\n\n')}\n\n[User uploaded the following ${currentFiles.length} file(s) without asking a question: ${fileNamesList}. Please warmly acknowledge them, explain their key structure or contents, and ask what the user would like to do (summarize, compare, analyze, merge, or convert).]`;
+      }
+    }
       if (currentFile.isImage) {
         if (text) {
           fullPrompt = `[Attached Image: ${currentFile.name}]\nUser Question: ${text}`;
@@ -1003,9 +1078,9 @@ export default function ChatWindow({
           web_search: webSearch,
           session_id: sessionId,
           language,
-          file_uploaded_only: hasNoUserText && !!currentFile,
+          file_uploaded_only: hasNoUserText && currentFiles.length > 0,
           attached_filename: currentFile?.name || null,
-          is_image_upload: !!(currentFile?.isImage),
+          is_image_upload: images.length > 0,
           custom_instructions: typeof window !== 'undefined' ? (
             (localStorage.getItem('axom_custom_persona_about') ? 'User Profile: ' + localStorage.getItem('axom_custom_persona_about') + '\n' : '') +
             (localStorage.getItem('axom_custom_persona_response') ? 'Response Style: ' + localStorage.getItem('axom_custom_persona_response') : '')
@@ -1013,10 +1088,20 @@ export default function ChatWindow({
           history: (currentSession?.messages || [])
             .slice(-20)
             .map((m) => ({ role: m.role, text: m.text })),
-          attached_image: currentFile?.isImage && currentFile.preview ? currentFile.preview : null,
-          has_attached_image: !!(currentFile?.isImage),
-          attached_pdf: currentFile?.ext === '.pdf' && currentFile.preview ? currentFile.preview : null,
-          attached_filename: currentFile?.name || null,
+          attached_images: images.map(img => ({
+            b64: img.preview?.startsWith('data:') ? img.preview.split(',')[1] : img.preview,
+            mime: img.preview?.startsWith('data:') ? img.preview.split(':')[1]?.split(';')[0] : 'image/jpeg',
+            name: img.name,
+          })),
+          attached_image: images[0]?.preview || null,
+          has_attached_image: images.length > 0,
+          attached_files: currentFiles.map(f => ({
+            name: f.name,
+            ext: f.ext,
+            size: f.size,
+            isImage: f.isImage,
+          })),
+          attached_pdf: docs.find(d => d.ext === '.pdf')?.preview || null,
         }),
       });
 
@@ -1188,28 +1273,30 @@ export default function ChatWindow({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Hidden file input for document attachments */}
+      {/* Hidden file input for document attachments (up to 10 files) */}
       <input
         type="file"
         ref={docFileInputRef}
         style={{ display: 'none' }}
+        multiple
         accept=".pdf,.docx,.doc,.txt,.md,.rtf,.csv,.xlsx,.xls"
         onChange={(e) => {
-          if (e.target.files && e.target.files[0]) {
-            handleFileSelect(e.target.files[0]);
+          if (e.target.files && e.target.files.length > 0) {
+            handleFilesSelect(e.target.files);
           }
         }}
       />
 
-      {/* Hidden file input for image attachments */}
+      {/* Hidden file input for image attachments (up to 10 images) */}
       <input
         type="file"
         ref={imageFileInputRef}
         style={{ display: 'none' }}
+        multiple
         accept="image/*,.png,.jpg,.jpeg,.webp,.gif"
         onChange={(e) => {
-          if (e.target.files && e.target.files[0]) {
-            handleFileSelect(e.target.files[0]);
+          if (e.target.files && e.target.files.length > 0) {
+            handleFilesSelect(e.target.files);
           }
         }}
       />
@@ -1255,7 +1342,7 @@ export default function ChatWindow({
             <div className="hero-greeting">
               <h1 className="greeting-title">
                 {user.isAuthenticated ? `Hi, ${user.username}!` : "Hi, I'm Axom AI"}
-                <span className="wave-emoji">👋</span>
+                
               </h1>
               <p className="greeting-subtitle">How can I help you today?</p>
             </div>
@@ -1290,14 +1377,14 @@ export default function ChatWindow({
                     onClick={() => handleSendWithText('অসমৰ প্ৰধান উৎসৱসমূহ আৰু বিহুৰ তাৎপৰ্য ব্যাখ্যা কৰক')}
                     style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.76rem', fontWeight: 500, cursor: 'pointer' }}
                   >
-                    🌾 অসমৰ উৎসৱ আৰু বিহুৰ তাৎপৰ্য
+                    অসমৰ উৎসৱ আৰু বিহুৰ তাৎপৰ্য
                   </button>
                   <button
                     type="button"
                     onClick={() => handleSendWithText('Explain the difference between Python lists, tuples, and sets with clear code examples')}
                     style={{ padding: '7px 13px', borderRadius: '10px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '0.76rem', fontWeight: 500, cursor: 'pointer' }}
                   >
-                    💻 Python Data Structures with Code
+                    Python Data Structures with Code
                   </button>
                 </>
               )}
@@ -1311,34 +1398,37 @@ export default function ChatWindow({
                 {msg.role === 'user' ? (
                   <>
                     <div className="msg-body">
-                      {msg.attached_file && (
-                        <div className="user-attached-file-box">
-                          {msg.attached_file.isImage && msg.attached_file.preview ? (
+                      {((msg.attached_files && msg.attached_files.length > 0)
+                        ? msg.attached_files
+                        : (msg.attached_file ? [msg.attached_file] : [])
+                      ).map((af, afIdx) => (
+                        <div key={afIdx} className="user-attached-file-box" style={{ marginBottom: '6px' }}>
+                          {af.isImage && af.preview ? (
                             <div className="user-attached-img-wrap">
                               <img
-                                src={msg.attached_file.preview}
-                                alt={msg.attached_file.name || 'Attached image'}
+                                src={af.preview}
+                                alt={af.name || 'Attached image'}
                                 className="user-attached-img-thumb"
                               />
-                              <span className="user-attached-img-name">{msg.attached_file.name}</span>
+                              <span className="user-attached-img-name">{af.name}</span>
                             </div>
                           ) : (
                             <div className="user-attached-doc-badge">
                               <FileText size={18} className="user-doc-icon" />
                               <div className="user-doc-details">
-                                <span className="user-doc-name">{msg.attached_file.name}</span>
-                                {msg.attached_file.size ? (
+                                <span className="user-doc-name">{af.name}</span>
+                                {af.size ? (
                                   <span className="user-doc-size">
-                                    {msg.attached_file.size / 1024 < 1024
-                                      ? `${(msg.attached_file.size / 1024).toFixed(1)} KB`
-                                      : `${(msg.attached_file.size / (1024 * 1024)).toFixed(1)} MB`}
+                                    {af.size / 1024 < 1024
+                                      ? `${(af.size / 1024).toFixed(1)} KB`
+                                      : `${(af.size / (1024 * 1024)).toFixed(1)} MB`}
                                   </span>
                                 ) : null}
                               </div>
                             </div>
                           )}
                         </div>
-                      )}
+                      ))}
                       <div>{msg.text}</div>
                     </div>
                     <div className="msg-avatar">{user.username ? user.username.substring(0, 2).toUpperCase() : 'US'}</div>
@@ -1352,12 +1442,12 @@ export default function ChatWindow({
                           <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)' }}>Axom AI</span>
                           {msg.from_database && (
                             <span style={{ display: 'inline-block', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
-                              📁 Database Match
+                              Database Match
                             </span>
                           )}
                           {msg.doc_conversion && (
                             <span style={{ display: 'inline-block', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
-                              📄 PDF Converted
+                              PDF Converted
                             </span>
                           )}
                         </div>
@@ -1508,11 +1598,11 @@ export default function ChatWindow({
                         </div>
                       )}
 
-                      {/* Feedback (👍 / 👎) — helps improve the knowledge base */}
+                      {/* Feedback — helps improve the knowledge base */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '10px' }}>
                         {feedbackGiven[index] ? (
                           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                            {feedbackGiven[index] === 'up' ? '👍 Thanks!' : '👎 Thanks — we\'ll improve this.'}
+                            {feedbackGiven[index] === 'up' ? 'Thanks!' : 'Thanks — we\'ll improve this.'}
                           </span>
                         ) : (
                           <>
@@ -1561,7 +1651,7 @@ export default function ChatWindow({
                       {/* Knowledge-base source attribution */}
                       {msg.source && (msg.source.name || msg.source.url) && (
                         <div className="kb-source" style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid var(--border-color)', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
-                          <span>📄 Source:</span>
+                          <span>Source:</span>
                           {msg.source.url ? (
                             <a href={msg.source.url} target="_blank" rel="noopener noreferrer" className="source-link" style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}>
                               {msg.source.name || msg.source.url}
@@ -1601,7 +1691,7 @@ export default function ChatWindow({
                       <span style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)' }}>Axom AI</span>
                       {streamingFromDb && (
                         <span style={{ display: 'inline-block', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', fontSize: '0.66rem', fontWeight: 700, padding: '1px 6px', borderRadius: '10px' }}>
-                          📁 Database Match
+                          Database Match
                         </span>
                       )}
                     </div>
@@ -1702,7 +1792,7 @@ export default function ChatWindow({
                 </div>
                 <div className="msg-body">
                   <div style={{ fontSize: '0.76rem', fontWeight: 700, color: '#ef4444', marginBottom: '4px' }}>Error</div>
-                  <span style={{ color: '#f87171' }}>⚠️ {errorMsg}</span>
+                  <span style={{ color: '#f87171' }}>{errorMsg}</span>
                 </div>
               </div>
             )}
@@ -1748,39 +1838,102 @@ export default function ChatWindow({
           </button>
         )}
         <div className="input-card">
-          {/* Attached File Preview & Action Banner */}
-          {attachedFile && (
-            <div className="attached-file-banner">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-                  {attachedFile.isImage && attachedFile.preview ? (
-                    <img
-                      src={attachedFile.preview}
-                      alt="preview"
-                      style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color)' }}
-                    />
-                  ) : (
-                    <div style={{ width: 40, height: 40, borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399', flexShrink: 0 }}>
-                      <FileText size={20} />
-                    </div>
-                  )}
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '280px' }}>
-                      {attachedFile.name}
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.isImage ? 'Image' : (['.xlsx', '.xls', '.csv'].includes(attachedFile.ext) ? 'Spreadsheet (Excel)' : 'Document')}
-                    </div>
-                  </div>
-                </div>
+          {/* Multi-File & Multi-Image Attached Banner (Up to 10 files) */}
+          {attachedFiles.length > 0 && (
+            <div className="attached-file-banner" style={{ padding: '8px 12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  Attached Files ({attachedFiles.length}/10)
+                </span>
                 <button
                   type="button"
-                  onClick={handleClearAttachedFile}
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px', borderRadius: '50%', display: 'flex', alignItems: 'center' }}
-                  title="Remove attached file"
+                  onClick={handleClearAttachedFiles}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.72rem', textDecoration: 'underline' }}
                 >
-                  <X size={16} />
+                  Clear all
                 </button>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+                {attachedFiles.map((f, idx) => (
+                  <div
+                    key={f.id || idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      padding: '4px 8px',
+                      flexShrink: 0,
+                      maxWidth: '220px',
+                    }}
+                  >
+                    {f.isImage && f.preview ? (
+                      <img
+                        src={f.preview}
+                        alt="preview"
+                        style={{ width: 28, height: 28, objectFit: 'cover', borderRadius: '4px' }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: '4px',
+                          background: ['.xlsx', '.xls', '.csv'].includes(f.ext)
+                            ? 'rgba(34, 197, 94, 0.15)'
+                            : 'rgba(16, 185, 129, 0.15)',
+                          color: ['.xlsx', '.xls', '.csv'].includes(f.ext) ? '#22c55e' : '#34d399',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <FileText size={15} />
+                      </div>
+                    )}
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div
+                        style={{
+                          fontSize: '0.78rem',
+                          fontWeight: 600,
+                          color: 'var(--text-primary)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {f.name}
+                      </div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                        {(f.size / 1024).toFixed(0)} KB •{' '}
+                        {f.isImage
+                          ? 'Image'
+                          : ['.xlsx', '.xls', '.csv'].includes(f.ext)
+                          ? 'Excel'
+                          : 'Doc'}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile(idx)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer',
+                        padding: '2px',
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                      title="Remove this file"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -2050,9 +2203,9 @@ export default function ChatWindow({
               </button>
               <button
                 type="button"
-                className={`btn-send-message ${(inputText.trim() || attachedFile) && !isLoading && !isGeneratingImage ? 'active' : ''}`}
+                className={`btn-send-message ${(inputText.trim() || attachedFiles.length > 0) && !isLoading && !isGeneratingImage ? 'active' : ''}`}
                 onClick={handleSend}
-                disabled={isLoading || isConvertingDoc || isGeneratingImage || (!inputText.trim() && !attachedFile)}
+                disabled={isLoading || isConvertingDoc || isGeneratingImage || (!inputText.trim() && attachedFiles.length === 0)}
                 title="Send Message"
               >
                 {isLoading || isGeneratingImage ? <Loader2 size={16} className="spin-icon" /> : <Send size={15} />}
