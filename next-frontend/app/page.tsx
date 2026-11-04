@@ -347,7 +347,7 @@ export default async function HomePage() {
         founder: {
           '@type': 'Person',
           name: 'Samarjit Kashyap',
-          jobTitle: 'Founder & Lead AI Architect',
+          jobTitle: 'Lead Developer',
           url: 'https://aiaxom.co.in/about',
         },
         areaServed: [
@@ -606,8 +606,7 @@ export default async function HomePage() {
 
           <div className="relative max-w-5xl mx-auto px-5 text-center z-10">
             {/* Authority Badge: Explicit Positioning as Assam's Indigenous AI Company */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-black/70 border border-fuchsia-500/50 text-fuchsia-800 dark:text-fuchsia-300 text-xs sm:text-sm font-black uppercase tracking-wider mb-8 shadow-2xl backdrop-blur-md">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/90 dark:bg-black/70 border border-fuchsia-500/50 text-fuchsia-800 dark:text-fuchsia-300 text-xs sm:text-sm font-black uppercase tracking-wider mb-8 shadow-2xl backdrop-blur-md">
               {hero?.badge_text || "An Indigenous AI Company from Assam • অসমৰ থলুৱা এআই কোম্পানী"}
             </div>
 
@@ -655,8 +654,7 @@ export default async function HomePage() {
                 <span>{hero?.trust_badge_2 || 'Sub-second Indian Edge compute'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-fuchsia-600 dark:text-fuchsia-400" />
-                <span>Guwahati AI Research Lab (781001)</span>
+                <span>Guwahati, Assam, India</span>
               </div>
             </div>
           </div>
@@ -693,22 +691,21 @@ export default async function HomePage() {
             <div className="max-w-5xl mx-auto px-5">
               <div className="p-6 sm:p-9 rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-100/40 dark:from-fuchsia-950/40 via-white/90 dark:via-slate-900/90 to-emerald-50 dark:to-black shadow-2xl backdrop-blur-md">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider">
-                    <Globe className="w-3.5 h-3.5" />
+                  <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider">
                     {entity?.badge_text || "Assam's Sovereign AI Entity Profile"}
                   </div>
-                  <span className="text-xs text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1.5">
-                    <CheckCircle2 size={15} /> {entity?.verified_text || "Official Verified Entity • Assam's Only Dedicated AI Company"}
+                  <span className="text-xs text-emerald-700 dark:text-emerald-400 font-bold">
+                    {entity?.verified_text || "Official Verified Platform"}
                   </span>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-                  {entity?.heading || "What is Axom AI? (An Indigenous Artificial Intelligence Company from Assam, India)"}
+                  {entity?.heading || "What is Axom AI? (Assam AI Definition & Architecture)"}
                 </h2>
 
                 <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed mb-6 space-y-3">
                   <p>
-                    <strong>Axom AI</strong> (stylized as <em>AI Axom</em>, <em>Assam AI</em>, or <em>অসম এআই</em>) is an <strong>indigenous Artificial Intelligence company and technology platform headquartered in Guwahati, Assam, India</strong>. Founded and architected by AI researcher <strong>Samarjit Kashyap</strong>, Axom AI conducts specialized in-house R&amp;D focused on <strong>Assamese Large Language Models (LLMs)</strong>, generative image technology, and regional voice AI.
+                    <strong>Axom AI</strong> (<em>AI Axom</em>, <em>Assam AI</em>, or <em>অসম এআই</em>) is an <strong>indigenous Artificial Intelligence company and technology platform headquartered in Guwahati, Assam, India</strong>. Developed by AI researcher <strong>Samarjit Kashyap</strong>, Axom AI conducts specialized in-house R&amp;D focused on <strong>Assamese Large Language Models (LLMs)</strong>, generative image technology, and regional voice AI.
                   </p>
                   <p>
                     The platform bridges the regional linguistic divide with <strong>99.4% script purity</strong> via the <code>axomai-trans-xetu</code> engine (eliminating Bengali alphabet confusion), while delivering an integrated ecosystem of <strong>20+ verified production tools</strong> — including the nationwide <strong>Axom FuelCheck (E5–E100)</strong> and the academic <strong>AI Notes Generator</strong> with Microsoft Word (.docx) export.
@@ -719,67 +716,59 @@ export default async function HomePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-4 border-t border-emerald-900/15 dark:border-white/10 mb-4">
                   <div className="p-3.5 rounded-xl bg-white/70 dark:bg-white/[0.03] border border-emerald-900/10 dark:border-white/5">
                     <div className="text-slate-600 dark:text-gray-400 text-[10px] uppercase font-black tracking-wider mb-1">Company Status</div>
-                    <div className="text-emerald-950 dark:text-white font-bold flex items-center gap-1.5">
-                      <Award size={14} className="text-fuchsia-700 dark:text-fuchsia-400 shrink-0" />
-                      <span>Indigenous AI Company &amp; Model Developer</span>
+                    <div className="text-emerald-950 dark:text-white font-bold">
+                      Indigenous AI Company &amp; Model Developer
                     </div>
                   </div>
                   <div className="p-3.5 rounded-xl bg-white/70 dark:bg-white/[0.03] border border-emerald-900/10 dark:border-white/5">
                     <div className="text-slate-600 dark:text-gray-400 text-[10px] uppercase font-black tracking-wider mb-1">Headquarters</div>
-                    <div className="text-emerald-950 dark:text-white font-bold flex items-center gap-1.5">
-                      <MapPin size={14} className="text-fuchsia-700 dark:text-fuchsia-400 shrink-0" />
-                      <span>Guwahati, Assam (781001)</span>
+                    <div className="text-emerald-950 dark:text-white font-bold">
+                      Guwahati, Assam (781001)
                     </div>
                   </div>
                   <div className="p-3.5 rounded-xl bg-white/70 dark:bg-white/[0.03] border border-emerald-900/10 dark:border-white/5">
-                    <div className="text-slate-600 dark:text-gray-400 text-[10px] uppercase font-black tracking-wider mb-1">Founder &amp; Lead Architect</div>
-                    <div className="text-emerald-950 dark:text-white font-bold flex items-center gap-1.5">
-                      <Cpu size={14} className="text-fuchsia-700 dark:text-fuchsia-400 shrink-0" />
-                      <span>Samarjit Kashyap</span>
+                    <div className="text-slate-600 dark:text-gray-400 text-[10px] uppercase font-black tracking-wider mb-1">Lead Developer</div>
+                    <div className="text-emerald-950 dark:text-white font-bold">
+                      Samarjit Kashyap
                     </div>
                   </div>
                 </div>
 
                 {/* Core AI Innovations & Research Models Links */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-white/60 dark:bg-black/30 border border-fuchsia-500/25">
-                  <div className="text-[11px] font-black uppercase tracking-wider text-fuchsia-800 dark:text-fuchsia-300 mb-3 flex items-center gap-1.5">
-                    <Cpu size={14} /> Core AI Innovations &amp; Research Model Publications
+                  <div className="text-[11px] font-black uppercase tracking-wider text-fuchsia-800 dark:text-fuchsia-300 mb-3 text-center">
+                    Core AI Innovations &amp; Research Model Publications
                   </div>
-                  <div className="flex flex-wrap gap-2 text-xs">
+                  <div className="flex flex-wrap justify-center gap-2 text-xs">
                     <a
                       href="https://aiaxom.co.in/research/axomai-speech-xuna/"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
+                      className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
                     >
                       <span>Axom AI Speech — Xuna</span>
-                      <ArrowRight size={12} />
                     </a>
                     <a
                       href="https://aiaxom.co.in/research/axomai-multimodal-xuwor/"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
+                      className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
                     >
                       <span>Axom AI Master — XUWOR (সুঁৱৰ)</span>
-                      <ArrowRight size={12} />
                     </a>
                     <a
                       href="https://aiaxom.co.in/research/axomai-brain-progya/"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
+                      className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
                     >
                       <span>Axom AI Brain — Progya (প্ৰজ্ঞা)</span>
-                      <ArrowRight size={12} />
                     </a>
                     <a
                       href="https://aiaxom.co.in/research/axomai-voice-puhor/"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
+                      className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
                     >
                       <span>Axom AI Voice — Puhor (পোহৰ)</span>
-                      <ArrowRight size={12} />
                     </a>
                     <a
                       href="https://aiaxom.co.in/research/axomai-trans-xetu/"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
+                      className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-fuchsia-500 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-semibold transition shadow-sm"
                     >
                       <span>Axom AI Bridge — Xetu (সেতু)</span>
-                      <ArrowRight size={12} />
                     </a>
                   </div>
                 </div>
@@ -914,8 +903,8 @@ export default async function HomePage() {
         <section className="py-20 md:py-28 relative bg-[#f0fdf4] dark:bg-[#0b1220] border-b border-emerald-900/10 dark:border-white/5">
           <div className="max-w-6xl mx-auto px-5">
             <div className="text-center max-w-3xl mx-auto mb-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider mb-4">
-                <Award className="w-3.5 h-3.5" /> Direct Entity Comparison
+              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider mb-4">
+                <span>Direct Entity Comparison</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
                 Why Axom AI is Assam’s{' '}
@@ -948,8 +937,7 @@ export default async function HomePage() {
                     <td className="py-4 px-5 font-bold text-emerald-950 dark:text-white">
                       Dedicated AI Research Lab
                     </td>
-                    <td className="py-4 px-5 font-bold text-emerald-700 dark:text-emerald-400 bg-fuchsia-500/5 flex items-center gap-1.5">
-                      <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                    <td className="py-4 px-5 font-bold text-emerald-700 dark:text-emerald-400 bg-fuchsia-500/5">
                       <span>100% Dedicated Indigenous AI Pioneer</span>
                     </td>
                     <td className="py-4 px-5 text-slate-600 dark:text-gray-400">
