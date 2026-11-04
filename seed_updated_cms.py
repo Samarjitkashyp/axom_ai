@@ -221,3 +221,4 @@ for ud in usecases_data:
 print(f"Created {len(usecases_data)} LandingUseCase records.")
 
 print("Seed completed successfully!")
+
