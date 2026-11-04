@@ -114,12 +114,12 @@ export async function generateMetadata(): Promise<Metadata> {
   const title =
     seo?.meta_title && !seo.meta_title.includes("The Power of AI for Everyone")
       ? seo.meta_title
-      : "Axom AI — Assam's First & Only Dedicated AI Company | AI in Assam | Guwahati";
+      : "Axom AI – An Indigenous Artificial Intelligence Company | Generative AI | Assamese LLM and language AI";
 
   const description =
     seo?.meta_description && seo.meta_description.length > 100
       ? seo.meta_description
-      : "Axom AI (অসম এআই) is Assam's first, pioneering, and only dedicated Artificial Intelligence company and research lab headquartered in Guwahati. Powering native Assamese AI chat, AI Notes Generator, Fuel Compatibility Checker (E5–E100), scanned document OCR & 20+ sovereign tools across Northeast India.";
+      : "Axom AI is an Assam-based indigenous AI company developing Assamese language AI models, generative image technology, and 20+ verified AI tools. Building sovereign AI for Assam, India and beyond.";
 
   const canonicalUrl = 'https://aiaxom.co.in/';
   const ogImage = seo?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
@@ -135,7 +135,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: canonicalUrl,
-      siteName: "Axom AI — Assam's Only Dedicated AI Company",
+      siteName: "Axom AI – Indigenous Artificial Intelligence Company",
       type: 'website',
       locale: 'en_IN',
       images: [
@@ -143,7 +143,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: "Axom AI — Assam's First & Only Dedicated Artificial Intelligence Company",
+          alt: "Axom AI – An Indigenous Artificial Intelligence Company from Assam, India",
         },
       ],
     },
@@ -204,9 +204,9 @@ export default async function HomePage() {
           'Assam AI Company',
           'Axom AI 2.0'
         ],
-        slogan: "Assam's First & Only Dedicated Artificial Intelligence Company",
+        slogan: "An Indigenous Artificial Intelligence Company from Assam, India",
         description:
-          "Axom AI is Assam's first, pioneering, and only dedicated indigenous Artificial Intelligence company and research lab headquartered in Guwahati, Assam, India. Developed to create sovereign regional LLMs, Assamese Natural Language Processing models, pedagogical AI Notes Generators, Fuel Compatibility Engines, and regional AI software infrastructure for Northeast India.",
+          "Axom AI is an Assam-based indigenous Artificial Intelligence company and research lab headquartered in Guwahati, Assam, India. Developed to create sovereign regional LLMs, Assamese Natural Language Processing models, generative image technology, pedagogical AI Notes Generators, Fuel Compatibility Engines, and regional AI software infrastructure for Northeast India.",
         url: 'https://aiaxom.co.in',
         logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
         image: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
@@ -256,9 +256,10 @@ export default async function HomePage() {
           'AI Companies in Assam',
           'AI Companies in Guwahati',
           'Best AI Companies in Assam',
-          'Only Dedicated AI Company in Assam',
+          'Indigenous AI Company Assam',
+          'Assamese Large Language Model (LLM)',
           'Assamese Natural Language Processing (NLP)',
-          'Assam Sovereign Large Language Model',
+          'Generative AI Model Development',
           'Axom Fuel Compatibility Checker (Axom FuelCheck E5 to E100)',
           'AI Notes Generator with Docx Export',
           'Scanned Assamese Document OCR',
@@ -308,10 +309,10 @@ export default async function HomePage() {
           ],
         },
         sameAs: [
+          'https://huggingface.co/axom-ai',
+          'https://github.com/Samarjitkashyp',
           'https://x.com',
           'https://linkedin.com',
-          'https://youtube.com',
-          'https://instagram.com',
         ],
       },
 
@@ -407,26 +408,26 @@ export default async function HomePage() {
           <div className="hero-overlay absolute inset-0" />
 
           <div className="relative max-w-5xl mx-auto px-5 text-center z-10">
-            {/* Authority Badge: Explicit Positioning as Assam's Only Dedicated AI Company */}
+            {/* Authority Badge: Explicit Positioning as Assam's Indigenous AI Company */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-black/70 border border-fuchsia-500/50 text-fuchsia-800 dark:text-fuchsia-300 text-xs sm:text-sm font-black uppercase tracking-wider mb-8 shadow-2xl backdrop-blur-md">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              {hero?.badge_text || "Assam's First & Only Dedicated AI Company • অসমৰ একমাত্ৰ এআই কোম্পানী"}
+              {hero?.badge_text || "An Indigenous AI Company from Assam • অসমৰ থলুৱা এআই কোম্পানী"}
             </div>
 
-            {/* Keyword-Rich H1 Headline targeting "Assam AI", "Artificial Intelligence in Assam", "Axom AI" */}
+            {/* Keyword-Rich H1 Headline targeting "Assam AI", "Indigenous AI Company", "Assamese LLM" */}
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.08] mb-6">
               {hero?.main_heading_prefix || 'Axom AI —'} <br className="hidden sm:inline" />
               <span className="gradient-text">
-                {hero?.main_heading_highlight || "Assam's First & Only Dedicated AI Company"}
+                {hero?.main_heading_highlight || "An Indigenous Artificial Intelligence Company"}
               </span>
             </h1>
 
             {/* Subheadings with Local Script and Regional Identity */}
             <p className="font-assamese text-base sm:text-xl text-fuchsia-900 dark:text-fuchsia-200 font-semibold mb-3 max-w-3xl mx-auto leading-relaxed">
-              {hero?.subheading_assamese || 'অসমৰ প্ৰথমটো আৰু একমাত্ৰ থলুৱা কৃত্ৰিম বুদ্ধিমত্তা কোম্পানী — গুৱাহাটীৰ পৰা সমগ্ৰ অসম আৰু উত্তৰ-পূৰ্বাঞ্চলৰ বাবে নিৰ্মিত।'}
+              {hero?.subheading_assamese || 'অসমৰ থলুৱা কৃত্ৰিম বুদ্ধিমত্তা কোম্পানী — গুৱাহাটীৰ পৰা অসমীয়া ভাষাৰ AI মডেল আৰু আধুনিক জেনেৰেটিভ প্ৰযুক্তিৰ বিকাশ।'}
             </p>
             <p className="text-xs sm:text-base text-slate-800 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-10 font-medium">
-              {hero?.subheading_english || 'Headquartered in Guwahati, Axom AI is Assam’s pioneering sovereign AI organization. Powering fluent native Assamese AI chat, India’s verified Axom FuelCheck (E5–E100), pedagogical AI Notes Generator with Word export, and 20+ cutting-edge tools.'}
+              {hero?.subheading_english || 'Headquartered in Guwahati, Axom AI is an indigenous Artificial Intelligence company developing Assamese language AI models, generative image technologies, and 20+ verified tools. Building sovereign AI for Assam, India and beyond.'}
             </p>
 
             {/* CTAs */}
@@ -505,15 +506,15 @@ export default async function HomePage() {
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-                  {entity?.heading || "What is Axom AI? (Assam's First & Only Dedicated Artificial Intelligence Company)"}
+                  {entity?.heading || "What is Axom AI? (An Indigenous Artificial Intelligence Company from Assam, India)"}
                 </h2>
 
                 <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed mb-6 space-y-3">
                   <p>
-                    <strong>Axom AI</strong> (stylized as <em>AI Axom</em>, <em>Assam AI</em>, or <em>অসম এআই</em>) is the <strong>first, pioneering, and only dedicated indigenous Artificial Intelligence company and research institution headquartered in Guwahati, Assam, India</strong>. Unlike traditional software agencies that resell generic offshore code, Axom AI conducts specialized in-house R&amp;D to solve real socio-economic and linguistic challenges across Northeast India.
+                    <strong>Axom AI</strong> (stylized as <em>AI Axom</em>, <em>Assam AI</em>, or <em>অসম এআই</em>) is an <strong>indigenous Artificial Intelligence company and technology platform headquartered in Guwahati, Assam, India</strong>. Founded and architected by AI researcher <strong>Samarjit Kashyap</strong>, Axom AI conducts specialized in-house R&amp;D focused on <strong>Assamese Large Language Models (LLMs)</strong>, generative image technology, and regional voice AI.
                   </p>
                   <p>
-                    From sovereign <strong>Assamese Large Language Models (LLMs)</strong> with 99.4% script purity to public utility tools like the nationwide <strong>Axom Fuel Compatibility Checker (E5–E100)</strong> and the academic <strong>AI Notes Generator</strong> with Word (.docx) export, Axom AI represents the pinnacle of indigenous AI innovation in Assam.
+                    The platform bridges the regional linguistic divide with <strong>99.4% script purity</strong> via the <code>axomai-trans-xetu</code> engine (eliminating Bengali alphabet confusion), while delivering an integrated ecosystem of <strong>20+ verified production tools</strong> — including the nationwide <strong>Axom FuelCheck (E5–E100)</strong> and the academic <strong>AI Notes Generator</strong> with Microsoft Word (.docx) export.
                   </p>
                 </div>
 
@@ -523,7 +524,7 @@ export default async function HomePage() {
                     <div className="text-slate-600 dark:text-gray-400 text-[10px] uppercase font-black tracking-wider mb-1">Company Status</div>
                     <div className="text-emerald-950 dark:text-white font-bold flex items-center gap-1">
                       <Award size={13} className="text-fuchsia-700 dark:text-fuchsia-400 shrink-0" />
-                      <span>Assam's Only Dedicated AI Co.</span>
+                      <span>Indigenous AI Company</span>
                     </div>
                   </div>
                   <div className="p-3.5 rounded-xl bg-white/70 dark:bg-white/[0.03] border border-emerald-900/10 dark:border-white/5">
