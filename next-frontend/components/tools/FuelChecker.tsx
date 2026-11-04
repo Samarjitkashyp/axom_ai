@@ -529,7 +529,7 @@ export default function FuelChecker() {
               >
                 {availableYears.map((yr) => (
                   <option key={yr} value={yr}>
-                    {yr} {yr >= 2023 ? '⭐ (BS6 Phase-2 / OBD-2 / E20 Ready)' : yr >= 2020 ? '⚡ (BS6 Phase-1 / E10 Calibrated)' : yr >= 2016 ? '⚠️ (BS-IV Norms / E10 Max)' : '⛔ (BS-III / Older Carburetor)'}
+                    {yr} {yr >= 2023 ? '— BS6 Phase-2 (E20 Ready)' : yr >= 2020 ? '— BS6 Phase-1 (E10 Calibrated)' : yr >= 2016 ? '— BS4 Norms (E10 Max)' : '— BS3 (Pre-Ethanol)'}
                   </option>
                 ))}
               </select>
@@ -659,11 +659,11 @@ export default function FuelChecker() {
             {/* Navigation Tabs (Horizontal Scrollable on Mobile) */}
             <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 border-b border-slate-200 scrollbar-none">
               {[
-                { id: 'matrix', label: '⛽ Fuel Matrix (E5–E100)', icon: Gauge },
-                { id: 'engine', label: '⚙️ Materials & ECU', icon: Wrench },
-                { id: 'mileage', label: '📉 Mileage Impact', icon: TrendingDown },
-                { id: 'proof', label: '📜 Official OEM Quote', icon: FileText },
-                { id: 'advice', label: '🛡️ Driver Advice', icon: ShieldCheck },
+                { id: 'matrix', label: 'Fuel Matrix (E5–E100)', icon: Gauge },
+                { id: 'engine', label: 'Materials & ECU', icon: Wrench },
+                { id: 'mileage', label: 'Mileage Impact', icon: TrendingDown },
+                { id: 'proof', label: 'Official OEM Quote', icon: FileText },
+                { id: 'advice', label: 'Driver Advice', icon: ShieldCheck },
               ].map((tab) => {
                 const Icon = tab.icon;
                 return (
