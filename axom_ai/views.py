@@ -2056,18 +2056,31 @@ def chat_api_view(request):
 
     system_instruction = base_intro + lang_instruction
 
-    # Document & Image Grounding Rules
+    # Document, Spreadsheet & Image Grounding Rules
     doc_image_instruction = (
-        "\n\nDOCUMENT & IMAGE WORKFLOW RULES:\n"
-        "1. FILE UPLOAD WITHOUT QUESTION: If the user uploaded a document or image without asking a specific question "
-        "(e.g. prompt contains '[User uploaded document' or '[User uploaded image' without asking a question), "
-        "warmly acknowledge receipt of the file by name. Give a brief 1-2 sentence preview of its contents or visual subject. "
-        "Then politely ask what the user would like to do with this file, offering 4-5 clear, numbered options "
-        "(e.g. 1. Comprehensive summary & takeaways, 2. Answer specific questions, 3. Translation/rewriting, 4. Generate study notes/key points, 5. Extract tables/data).\n"
-        "2. FILE UPLOAD WITH QUESTION: Thoroughly read the attached document text or Gemini vision data, and answer the user's question directly, "
+        "\n\nDOCUMENT, SPREADSHEET & IMAGE WORKFLOW RULES:\n"
+        "1. FILE / SPREADSHEET UPLOAD WITHOUT QUESTION: If the user uploaded a document, spreadsheet (.xlsx, .xls, .csv), or image without asking a specific question "
+        "(e.g. prompt contains '[User uploaded document' or '[User uploaded spreadsheet' or '[User uploaded image' without asking a question), "
+        "warmly acknowledge receipt of the file by name.\n"
+        "   - If it is a spreadsheet (.xlsx, .xls, .csv), state sheet names, row/column counts, and detected column headers.\n"
+        "   - Then politely ask what the user would like to do, offering 5 clear, numbered options:\n"
+        "     1. Detailed Summary & Key Metrics (Totals, Averages, Min/Max)\n"
+        "     2. Compare Columns, Sheets, or Trends (ChatGPT level comparison with side-by-side tables)\n"
+        "     3. Merge Sheets or Join Data into a single structured table\n"
+        "     4. Convert & Format (Clean Markdown table, CSV, JSON, or Python code)\n"
+        "     5. Answer Custom Questions & Calculations\n"
+        "2. SPREADSHEET ANALYSIS & COMPARISON (CHATGPT LEVEL): When the user asks a question about an Excel/CSV file, "
+        "or asks to compare sheets, columns, or years, or asks to merge data:\n"
+        "   - Act as an expert data analyst and senior AI (ChatGPT style).\n"
+        "   - When comparing datasets or sheets, ALWAYS present a structured side-by-side Markdown comparison table (| Metric / Item | Sheet A / 2025 | Sheet B / 2026 | Change / Difference |) with key insights.\n"
+        "   - If user asks to merge sheets or data, provide the consolidated unified table along with clear explanation.\n"
+        "   - If user asks for conversion, provide clean Markdown, CSV, or formatted output as requested.\n"
+        "   - Calculate exact totals, growth percentages, averages, and differences with high precision.\n"
+        "3. FILE UPLOAD WITH QUESTION: Thoroughly read the attached document text, spreadsheet tables, or Gemini vision data, and answer the user's question directly, "
         "pedagogically, and comprehensively, grounding facts strictly in the file (ChatGPT style).\n"
-        "3. MULTIMODAL VISION: When Gemini Multimodal Vision analysis is included in the prompt, leverage all transcribed text, visual objects, "
+        "4. MULTIMODAL VISION: When Gemini Multimodal Vision analysis is included in the prompt, leverage all transcribed text, visual objects, "
         "and details to provide a thorough, accurate answer to the user's question.\n"
+        "5. ZERO EMOJIS: Never output any emoji under any circumstances.\n"
     )
     system_instruction += doc_image_instruction
 
@@ -3118,10 +3131,10 @@ def convert_doc_api(request):
 
     # Validate file extension
     ext = os.path.splitext(uploaded_file.name)[1].lower()
-    allowed_exts = ['.docx', '.doc', '.txt', '.rtf', '.md', '.csv']
+    allowed_exts = ['.docx', '.doc', '.txt', '.rtf', '.md', '.csv', '.xlsx', '.xls']
     if ext not in allowed_exts:
         return JsonResponse({
-            'error': f'Unsupported file type: {ext}. Supported types: .docx, .doc, .txt, .rtf'
+            'error': f'Unsupported file type: {ext}. Supported types: .docx, .doc, .txt, .rtf, .xlsx, .csv'
         }, status=400)
 
     import uuid

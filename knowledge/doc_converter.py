@@ -359,6 +359,129 @@ def _convert_txt_to_pdf(txt_path, output_pdf_path):
     return output_pdf_path
 
 
+def _convert_excel_to_pdf(excel_path, output_pdf_path):
+    """
+    Converts Excel spreadsheets (.xlsx, .xls) or CSV files into a styled, professional PDF.
+    Uses ReportLab Table and landscape A4 page size with header styling and striping.
+    """
+    from reportlab.lib.pagesizes import A4, landscape
+    ext = os.path.splitext(excel_path)[1].lower()
+    sheet_data = []
+
+    if ext in ['.xlsx', '.xlsm', '.xltx']:
+        import openpyxl
+        wb = openpyxl.load_workbook(excel_path, data_only=True, read_only=True)
+        for sname in wb.sheetnames:
+            sheet = wb[sname]
+            rows = list(sheet.iter_rows(values_only=True))
+            non_empty = [r for r in rows if any(c is not None and str(c).strip() != '' for c in r)]
+            if non_empty:
+                sheet_data.append((sname, non_empty[:200]))
+        wb.close()
+    elif ext == '.xls':
+        import xlrd
+        wb = xlrd.open_workbook(excel_path)
+        for sname in wb.sheet_names():
+            sheet = wb.sheet_by_name(sname)
+            if sheet.nrows > 0:
+                rows = []
+                for r in range(min(sheet.nrows, 200)):
+                    rows.append([sheet.cell_value(r, c) for c in range(sheet.ncols)])
+                sheet_data.append((sname, rows))
+    else:  # CSV
+        import csv
+        with open(excel_path, 'r', encoding='utf-8', errors='ignore') as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+            if rows:
+                sheet_data.append(('Data', rows[:200]))
+
+    if not sheet_data:
+        raise ValueError("Spreadsheet is empty.")
+
+    margin = 30
+    pdf = SimpleDocTemplate(
+        output_pdf_path,
+        pagesize=landscape(A4),
+        leftMargin=margin,
+        rightMargin=margin,
+        topMargin=margin,
+        bottomMargin=40
+    )
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'SheetTitle',
+        parent=styles['Heading2'],
+        fontSize=12,
+        leading=16,
+        fontName='Helvetica-Bold',
+        textColor=colors.HexColor('#0f172a'),
+        spaceAfter=6,
+    )
+    header_cell_style = ParagraphStyle(
+        'HeaderCell',
+        parent=styles['Normal'],
+        fontSize=8.5,
+        leading=11,
+        fontName='Helvetica-Bold',
+        textColor=colors.white,
+    )
+    cell_style = ParagraphStyle(
+        'DataCell',
+        parent=styles['Normal'],
+        fontSize=8,
+        leading=10,
+        fontName='Helvetica',
+        textColor=colors.HexColor('#1e293b'),
+    )
+
+    elements = []
+    page_width = landscape(A4)[0] - (2 * margin)
+
+    for sheet_idx, (sname, rows) in enumerate(sheet_data):
+        if sheet_idx > 0:
+            elements.append(PageBreak())
+
+        elements.append(Paragraph(f"Sheet: {sname} ({len(rows)} rows)", title_style))
+        elements.append(Spacer(1, 4))
+
+        if not rows:
+            continue
+
+        raw_header = rows[0]
+        max_cols = min(len(raw_header), 12)  # Cap columns per table to avoid overflow
+        col_width = page_width / max(1, max_cols)
+
+        table_rows = []
+        # Header row
+        h_row = [Paragraph(str(c or '').replace('
+', ' ').strip() or f"Col {i+1}", header_cell_style) for i, c in enumerate(raw_header[:max_cols])]
+        table_rows.append(h_row)
+
+        for r in rows[1:]:
+            r_cells = []
+            for i in range(max_cols):
+                val = r[i] if i < len(r) else ""
+                val_str = "" if val is None else str(val).replace('
+', ' ').strip()
+                r_cells.append(Paragraph(val_str, cell_style))
+            table_rows.append(r_cells)
+
+        t = Table(table_rows, colWidths=[col_width] * max_cols, repeatRows=1)
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0284c7')),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e1')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
+        ]))
+        elements.append(t)
+
+    pdf.build(elements, canvasmaker=NumberedCanvas)
+
+
 def convert_doc_to_pdf(input_file_path, output_pdf_path=None):
     """
     Main conversion entry point.
@@ -402,6 +525,16 @@ def convert_doc_to_pdf(input_file_path, output_pdf_path=None):
     if not success and ext == '.docx':
         try:
             _convert_docx_pure_python(str(input_path), str(output_pdf_path))
+            if output_pdf_path.exists() and output_pdf_path.stat().st_size > 0:
+                success = True
+        except Exception as e:
+            last_error = str(e)
+            success = False
+
+    # Strategy: Excel / CSV conversion
+    if not success and ext in ['.xlsx', '.xls', '.csv']:
+        try:
+            _convert_excel_to_pdf(str(input_path), str(output_pdf_path))
             if output_pdf_path.exists() and output_pdf_path.stat().st_size > 0:
                 success = True
         except Exception as e:

@@ -420,10 +420,14 @@ export default function ChatWindow({
 
   const handleFileSelect = (file) => {
     if (!file) return;
-    const allowed = ['.docx', '.doc', '.txt', '.rtf', '.md', '.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif'];
+    const allowed = [
+      '.docx', '.doc', '.txt', '.rtf', '.md', '.pdf',
+      '.png', '.jpg', '.jpeg', '.webp', '.gif',
+      '.xlsx', '.xls', '.csv'
+    ];
     const ext = '.' + file.name.split('.').pop().toLowerCase();
     if (!allowed.includes(ext)) {
-      setErrorMsg(`Unsupported file type: ${ext}. Please upload a document (.docx, .pdf, .txt) or image (.png, .jpg, .webp).`);
+      setErrorMsg(`Unsupported file type: ${ext}. Please upload a document (.docx, .pdf, .txt), spreadsheet (.xlsx, .csv), or image (.png, .jpg, .webp).`);
       return;
     }
     if (file.size > 25 * 1024 * 1024) {
@@ -450,11 +454,12 @@ export default function ChatWindow({
       };
       reader.readAsDataURL(file);
     }
-    if (ext === '.txt' || ext === '.md') {
+    if (ext === '.txt' || ext === '.md' || ext === '.csv') {
       file.text().then((txt) => {
-        setAttachedFile((prev) => (prev ? { ...prev, textSnippet: txt.slice(0, 5000) } : null));
+        setAttachedFile((prev) => (prev ? { ...prev, textSnippet: txt.slice(0, 10000) } : null));
       }).catch(() => {});
-    } else if (ext === '.docx' || ext === '.pdf') {
+    }
+    if (['.docx', '.doc', '.pdf', '.xlsx', '.xls', '.csv'].includes(ext)) {
       const fd = new FormData();
       fd.append('file', file);
       fetch('/api/ai-notes/analyze/', {
@@ -462,8 +467,8 @@ export default function ChatWindow({
         headers: { 'X-CSRFToken': getCsrfToken() || '' },
         body: fd,
       }).then((r) => r.json()).then((d) => {
-        if (d && d.sample_text) {
-          setAttachedFile((prev) => (prev ? { ...prev, textSnippet: d.sample_text } : null));
+        if (d && (d.sample_text || d.full_text)) {
+          setAttachedFile((prev) => (prev ? { ...prev, textSnippet: (d.sample_text || d.full_text).slice(0, 10000) } : null));
         }
       }).catch(() => {});
     }
@@ -936,16 +941,19 @@ export default function ChatWindow({
           fullPrompt = `[User uploaded image: "${currentFile.name}" without asking a question]`;
         }
       } else if (currentFile.textSnippet) {
+        const isSheet = ['.xlsx', '.xls', '.csv'].includes(currentFile.ext);
+        const tag = isSheet ? 'Attached Spreadsheet / Excel' : 'Attached Document';
         if (text) {
-          fullPrompt = `[Attached Document: ${currentFile.name}]\n\nDocument Content:\n${currentFile.textSnippet.slice(0, 5000)}\n\nUser Question:\n${text}`;
+          fullPrompt = `[${tag}: ${currentFile.name}]\n\nSpreadsheet / Document Content:\n${currentFile.textSnippet.slice(0, 10000)}\n\nUser Question:\n${text}`;
         } else {
-          fullPrompt = `[User uploaded document: "${currentFile.name}" without asking a question]\n\nDocument Content Snippet:\n${currentFile.textSnippet.slice(0, 5000)}`;
+          fullPrompt = `[User uploaded ${isSheet ? 'spreadsheet' : 'document'}: "${currentFile.name}" without asking a question]\n\nSpreadsheet / Document Content Snippet:\n${currentFile.textSnippet.slice(0, 10000)}`;
         }
       } else {
+        const isSheet = ['.xlsx', '.xls', '.csv'].includes(currentFile.ext);
         if (text) {
-          fullPrompt = `[Attached Document: ${currentFile.name}]\n\nUser Question:\n${text}`;
+          fullPrompt = `[${isSheet ? 'Attached Spreadsheet / Excel' : 'Attached Document'}: ${currentFile.name}]\n\nUser Question:\n${text}`;
         } else {
-          fullPrompt = `[User uploaded document: "${currentFile.name}" without asking a question]`;
+          fullPrompt = `[User uploaded ${isSheet ? 'spreadsheet' : 'document'}: "${currentFile.name}" without asking a question]`;
         }
       }
     }
@@ -1761,7 +1769,7 @@ export default function ChatWindow({
                       {attachedFile.name}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.isImage ? 'Image' : 'Document'}
+                      {(attachedFile.size / 1024).toFixed(1)} KB • {attachedFile.isImage ? 'Image' : (['.xlsx', '.xls', '.csv'].includes(attachedFile.ext) ? 'Spreadsheet (Excel)' : 'Document')}
                     </div>
                   </div>
                 </div>

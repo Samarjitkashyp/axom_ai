@@ -201,6 +201,173 @@ def _extract_from_txt(path):
     }
 
 
+def _extract_from_excel(path):
+    """
+    Extracts structured tabular data from Excel spreadsheets (.xlsx, .xls).
+    Iterates through all sheets in the workbook, extracts headers, rows, dimensions,
+    and formats each sheet as a high-fidelity Markdown table suitable for comparison,
+    data analysis, calculation, and merging.
+    """
+    sheet_sections = []
+    sheet_names = []
+    total_words = 0
+    total_rows = 0
+
+    # 1. Try openpyxl first (.xlsx, .xlsm, .xltx)
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
+        sheet_names = list(wb.sheetnames)
+        for sname in sheet_names:
+            sheet = wb[sname]
+            rows = list(sheet.iter_rows(values_only=True))
+            if not rows:
+                continue
+            non_empty_rows = [r for r in rows if any(c is not None and str(c).strip() != '' for c in r)]
+            if not non_empty_rows:
+                continue
+
+            header = non_empty_rows[0]
+            header_cols = [str(c).replace('\n', ' ').strip() if c is not None and str(c).strip() else f"Col_{i+1}" for i, c in enumerate(header)]
+            col_count = len(header_cols)
+            row_count = len(non_empty_rows)
+            total_rows += row_count
+
+            lines = [
+                f"### Sheet: {sname} ({row_count} rows, {col_count} columns)\n",
+                "| " + " | ".join(header_cols) + " |",
+                "| " + " | ".join(["---"] * col_count) + " |",
+            ]
+
+            # Read up to 150 rows per sheet for high depth without overflowing tokens
+            for r in non_empty_rows[1:151]:
+                row_vals = []
+                for idx in range(col_count):
+                    val = r[idx] if idx < len(r) else ""
+                    val_str = "" if val is None else str(val).replace('\n', ' ').replace('|', '\\|').strip()
+                    row_vals.append(val_str)
+                lines.append("| " + " | ".join(row_vals) + " |")
+
+            if row_count > 151:
+                lines.append(f"\n*(... {row_count - 151} more rows in sheet '{sname}' omitted for preview ...)*\n")
+
+            sheet_text = "\n".join(lines)
+            sheet_sections.append(sheet_text)
+            total_words += len(sheet_text.split())
+
+        wb.close()
+    except Exception as e_openpyxl:
+        logger.warning(f"openpyxl failed to load {path}: {e_openpyxl}. Trying xlrd...")
+        # 2. Fallback to xlrd for legacy binary .xls files
+        try:
+            import xlrd
+            wb = xlrd.open_workbook(path)
+            sheet_names = wb.sheet_names()
+            for sname in sheet_names:
+                sheet = wb.sheet_by_name(sname)
+                if sheet.nrows == 0:
+                    continue
+                header = [str(sheet.cell_value(0, c)).replace('\n', ' ').strip() or f"Col_{c+1}" for c in range(sheet.ncols)]
+                col_count = len(header)
+                row_count = sheet.nrows
+                total_rows += row_count
+
+                lines = [
+                    f"### Sheet: {sname} ({row_count} rows, {col_count} columns)\n",
+                    "| " + " | ".join(header) + " |",
+                    "| " + " | ".join(["---"] * col_count) + " |",
+                ]
+                for r_idx in range(1, min(row_count, 151)):
+                    row_vals = [str(sheet.cell_value(r_idx, c)).replace('\n', ' ').replace('|', '\\|').strip() for c in range(col_count)]
+                    lines.append("| " + " | ".join(row_vals) + " |")
+
+                if row_count > 151:
+                    lines.append(f"\n*(... {row_count - 151} more rows in sheet '{sname}' ...)*\n")
+
+                sheet_text = "\n".join(lines)
+                sheet_sections.append(sheet_text)
+                total_words += len(sheet_text.split())
+        except Exception as e_xlrd:
+            logger.error(f"Failed to read spreadsheet with both openpyxl and xlrd: {e_xlrd}")
+            raise e_openpyxl
+
+    full_text = "\n\n---\n\n".join(sheet_sections) if sheet_sections else "Spreadsheet is empty or has no readable cells."
+    est_pages = max(1, (total_words + 399) // 400)
+    return {
+        'page_count': est_pages,
+        'pages': [{'page_num': 1, 'text': full_text, 'word_count': total_words}],
+        'word_count': total_words,
+        'full_text': full_text,
+        'sheet_names': sheet_names,
+    }
+
+
+def _extract_from_csv(path):
+    """
+    Extracts structured tabular data from CSV and TSV files.
+    """
+    import csv, io
+    content = ''
+    for enc in ('utf-8', 'utf-8-sig', 'latin-1', 'cp1252'):
+        try:
+            with open(path, 'r', encoding=enc) as f:
+                content = f.read()
+                break
+        except Exception:
+            continue
+
+    if not content.strip():
+        return {
+            'page_count': 1,
+            'pages': [{'page_num': 1, 'text': '', 'word_count': 0}],
+            'word_count': 0,
+            'full_text': '',
+        }
+
+    try:
+        sample = content[:2048]
+        sniffer = csv.Sniffer()
+        dialect = sniffer.sniff(sample)
+        delim = dialect.delimiter
+    except Exception:
+        delim = ',' if ',' in content else ('\t' if '\t' in content else ';')
+
+    reader = csv.reader(io.StringIO(content), delimiter=delim)
+    rows = list(reader)
+    if not rows:
+        return {
+            'page_count': 1,
+            'pages': [{'page_num': 1, 'text': content, 'word_count': len(content.split())}],
+            'word_count': len(content.split()),
+            'full_text': content,
+        }
+
+    header = rows[0]
+    col_count = len(header)
+    row_count = len(rows)
+    lines = [
+        f"### CSV Data Table ({row_count} rows, {col_count} columns)\n",
+        "| " + " | ".join(str(c).replace('\n', ' ').strip() or f"Col_{i+1}" for i, c in enumerate(header)) + " |",
+        "| " + " | ".join(["---"] * col_count) + " |",
+    ]
+    for r in rows[1:151]:
+        r_vals = [str(r[i]).replace('\n', ' ').replace('|', '\\|').strip() if i < len(r) else "" for i in range(col_count)]
+        lines.append("| " + " | ".join(r_vals) + " |")
+
+    if row_count > 151:
+        lines.append(f"\n*(... {row_count - 151} more rows omitted for preview ...)*\n")
+
+    full_text = "\n".join(lines)
+    total_words = len(full_text.split())
+    est_pages = max(1, (total_words + 399) // 400)
+    return {
+        'page_count': est_pages,
+        'pages': [{'page_num': 1, 'text': full_text, 'word_count': total_words}],
+        'word_count': total_words,
+        'full_text': full_text,
+    }
+
+
 def _openai_generate_notes(system_prompt, user_prompt, timeout=60):
     """
     Tier 1: OpenAI chat completion with cascading model hierarchy.
@@ -386,8 +553,8 @@ def ai_notes_analyze_api(request):
             return JsonResponse({'error': f'File exceeds the {_MAX_FILE_SIZE_MB}MB limit.'}, status=400)
 
         ext = os.path.splitext(f.name)[1].lower()
-        if ext not in ('.pdf', '.docx', '.txt', '.doc', '.rtf', '.md'):
-            return JsonResponse({'error': 'Supported file types: .pdf, .docx, .txt'}, status=400)
+        if ext not in ('.pdf', '.docx', '.txt', '.doc', '.rtf', '.md', '.xlsx', '.xls', '.csv'):
+            return JsonResponse({'error': 'Supported file types: .pdf, .docx, .txt, .xlsx, .xls, .csv'}, status=400)
 
         upload_dir = os.path.join(settings.MEDIA_ROOT, 'temp_notes_uploads')
         os.makedirs(upload_dir, exist_ok=True)
@@ -402,6 +569,10 @@ def ai_notes_analyze_api(request):
                 res = _extract_pages_from_pdf(temp_path)
             elif ext in ('.docx', '.doc'):
                 res = _extract_from_docx(temp_path)
+            elif ext in ('.xlsx', '.xls'):
+                res = _extract_from_excel(temp_path)
+            elif ext == '.csv':
+                res = _extract_from_csv(temp_path)
             else:
                 res = _extract_from_txt(temp_path)
         except Exception as e:
