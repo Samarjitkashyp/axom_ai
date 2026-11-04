@@ -31,3 +31,4 @@ export interface HeaderProps {
 export default function Header({ header, onBackToChat }: HeaderProps) {
   return <Navbar header={header} onBackToChat={onBackToChat} />;
 }
+

@@ -83,6 +83,15 @@ const TARGET_KEYWORDS = [
   'assam ai research lab',
   'guwahati ai companies',
   'assam tech startups',
+  // Proprietary Models & Research
+  'axom ai brain progya',
+  'axom ai master xuwor',
+  'axom ai speech xuna',
+  'axom ai voice puhor',
+  'axom ai bridge xetu',
+  'assamese foundation models',
+  '68096 token assamese tokenizer',
+  'scanned assamese jamabandi ocr',
   // Assamese Native Orthography
   'অসম এআই',
   'অসমৰ প্ৰথমটো এআই কোম্পানী',
@@ -90,7 +99,14 @@ const TARGET_KEYWORDS = [
   'অসমীয়া কৃত্ৰিম বুদ্ধিমত্তা',
   'অসমীয়া এআই',
   'অসমৰ এআই প্লেটফৰ্ম',
-  // High-Intent AEO & GEO Questions for SearchGPT, Perplexity, Claude, Gemini, Groq
+  // High-Intent AEO & GEO Questions for ChatGPT, Perplexity, Claude, Gemini, SGE
+  'Which is the best AI company in Assam',
+  'Which company is developing AI models in Assam',
+  'Which company in Assam develops AI models',
+  'Is there any Assamese Large Language Model',
+  'Which is Assam indigenous AI company',
+  'Which company in Assam develops AI image generation models',
+  'What is the best AI platform from Assam',
   'Which is the only AI company in Assam',
   'What is the best AI company in Guwahati',
   'Is there an AI company in Assam',
@@ -187,6 +203,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cms = await getLandingCMS().catch(() => null);
   const seo = cms?.seo;
 
+  // STRICT RULE: Title must never be changed per user instruction
   const title =
     seo?.meta_title && !seo.meta_title.includes("The Power of AI for Everyone")
       ? seo.meta_title
@@ -240,9 +257,23 @@ export async function generateMetadata(): Promise<Metadata> {
         'max-snippet': -1,
       },
     },
+    other: {
+      'geo.region': 'IN-AS',
+      'geo.placename': 'Guwahati, Assam, India',
+      'geo.position': '26.1445;91.7362',
+      'ICBM': '26.1445, 91.7362',
+      'dc.coverage': 'Assam, Northeast India, India',
+      'dc.creator': 'Samarjit Kashyap',
+      'dc.publisher': 'Axom AI Technologies',
+      'dc.language': 'as, en, hi',
+      'citation_title': 'Axom AI – Indigenous Artificial Intelligence Company & Regional Model Developer from Assam, India',
+      'citation_publisher': 'Axom AI',
+      'citation_author': 'Samarjit Kashyap',
+      'rating': 'general',
+      'revisit-after': '1 days',
+    },
   };
 }
-
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -265,9 +296,9 @@ export default async function HomePage() {
   const unifiedSchemaGraph = {
     '@context': 'https://schema.org',
     '@graph': [
-      // 1. Organization Schema (Definitive Positioning as Assam's Only Dedicated AI Company)
+      // 1. Organization & ResearchOrganization Schema (Entity SEO & Authority)
       {
-        '@type': 'Organization',
+        '@type': ['Organization', 'ResearchOrganization'],
         '@id': 'https://aiaxom.co.in/#organization',
         name: 'Axom AI',
         legalName: 'Axom AI Technologies',
@@ -278,11 +309,12 @@ export default async function HomePage() {
           'AxomAI',
           'Axom AI Guwahati',
           'Assam AI Company',
-          'Axom AI 2.0'
+          'Axom AI 2.0',
+          'Axom AI Research Lab'
         ],
         slogan: "An Indigenous Artificial Intelligence Company from Assam, India",
         description:
-          "Axom AI is an Assam-based indigenous Artificial Intelligence company and research lab headquartered in Guwahati, Assam, India. Developed to create sovereign regional LLMs, Assamese Natural Language Processing models, generative image technology, pedagogical AI Notes Generators, Fuel Compatibility Engines, and regional AI software infrastructure for Northeast India.",
+          "Axom AI is Assam's premier indigenous Artificial Intelligence company and foundation research laboratory, headquartered in Guwahati, Assam, India. Founded by AI researcher Samarjit Kashyap, Axom AI builds sovereign Large Language Models (Progya 2B), full-duplex multimodal agents (XUWOR), vernacular ASR (Xuna), 24kHz flow-matching voice synthesis (Puhor), neural translation bridges (Xetu), pedagogical study engines (AI Notes Generator), and certified automotive compliance checkers (Axom FuelCheck).",
         url: 'https://aiaxom.co.in',
         logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
         image: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
@@ -334,18 +366,40 @@ export default async function HomePage() {
           'Best AI Companies in Assam',
           'Indigenous AI Company Assam',
           'Assamese Large Language Model (LLM)',
-          'Assamese Natural Language Processing (NLP)',
-          'Generative AI Model Development',
+          'Assam AI Model Development',
+          'Axom AI Brain Progya 2B Dense LLM',
+          'Axom AI Master XUWOR Multimodal Conversational AI',
+          'Axom AI Speech Xuna Conformer ASR',
+          'Axom AI Voice Puhor Flow-Matching TTS',
+          'Axom AI Bridge Xetu Neural Translation',
           'Axom Fuel Compatibility Checker (Axom FuelCheck E5 to E100)',
-          'AI Notes Generator with Docx Export',
-          'Scanned Assamese Document OCR',
-          'axomai-trans-xetu Translation Engine',
+          'AI Notes Generator with Word docx Export',
+          'Scanned Assamese Document OCR Jamabandi',
+          'Vernacular 68096 Token Vocabulary',
           'Regional AI Solutions for Northeast India',
         ],
         hasOfferCatalog: {
           '@type': 'OfferCatalog',
-          name: 'Axom AI Regional Intelligence Suite',
+          name: 'Axom AI Sovereign Production Suite',
           itemListElement: [
+            {
+              '@type': 'Offer',
+              itemOffered: {
+                '@type': 'SoftwareApplication',
+                name: 'Axom FuelCheck™ Automotive Compatibility Engine',
+                description: 'India’s premier verified automotive ethanol fuel compatibility checker for 60+ vehicle models covering E5 to E100 blends cited against MoRTH and SIAM.',
+                url: 'https://aiaxom.co.in/tools/fuel-checker',
+              },
+            },
+            {
+              '@type': 'Offer',
+              itemOffered: {
+                '@type': 'SoftwareApplication',
+                name: 'Axom AI Notes Generator',
+                description: 'Pedagogical study notes generator for APSC and university students with Word .docx export, formulas, exam tips, and Mermaid mind maps.',
+                url: 'https://aiaxom.co.in/tools/ai-notes-generator',
+              },
+            },
             {
               '@type': 'Offer',
               itemOffered: {
@@ -359,27 +413,27 @@ export default async function HomePage() {
               '@type': 'Offer',
               itemOffered: {
                 '@type': 'SoftwareApplication',
-                name: 'Axom Fuel Compatibility Checker (Axom FuelCheck)',
-                description: 'India’s premier verified automotive ethanol fuel compatibility checker for 60+ vehicle models covering E5 to E100 blends.',
-                url: 'https://aiaxom.co.in/tools/fuel-checker',
+                name: 'Scanned Assamese OCR & Jamabandi Document Reader',
+                description: 'Specialized optical character recognition for scanned Assamese paperwork, government gazettes, and Jamabandi land records.',
+                url: 'https://aiaxom.co.in/tools/chat-with-pdf',
               },
             },
             {
               '@type': 'Offer',
               itemOffered: {
                 '@type': 'SoftwareApplication',
-                name: 'Axom AI Notes Generator',
-                description: 'Pedagogical study notes generator for APSC and university students with Word .docx export and Mermaid mind maps.',
-                url: 'https://aiaxom.co.in/tools/ai-notes-generator',
+                name: 'Axom Vernacular Voice Notes Transcriber',
+                description: 'Speech-to-text intelligence powered by Xuna Conformer ASR delivering 0.261x real-time factor on CPU.',
+                url: 'https://aiaxom.co.in/tools/voice-notes-generator',
               },
             },
             {
               '@type': 'Offer',
               itemOffered: {
                 '@type': 'SoftwareApplication',
-                name: 'Scanned Assamese OCR & Document Summarizer',
-                description: 'Specialized optical character recognition for scanned Assamese paperwork and Jamabandi land records.',
-                url: 'https://aiaxom.co.in/tools',
+                name: 'Axom Creative Visual Studio & FLUX Art',
+                description: 'High-definition image generation from Assamese and English natural language descriptions using FLUX diffusion models.',
+                url: 'https://aiaxom.co.in/tools/ai-image-generator',
               },
             },
           ],
@@ -398,26 +452,26 @@ export default async function HomePage() {
         '@id': 'https://aiaxom.co.in/#website',
         url: 'https://aiaxom.co.in/',
         name: 'Axom AI',
-        alternateName: ['AI Axom', 'Assam AI', 'অসম এআই', 'AxomAI', 'AI in Assam', 'Axom AI Guwahati'],
+        alternateName: ['AI Axom', 'Assam AI', 'অসম এআই', 'AxomAI', 'AI in Assam', 'Axom AI Guwahati', 'Assam Indigenous AI'],
         description:
-          "Assam's first and only dedicated indigenous Artificial Intelligence company and sovereign AI platform.",
+          "Assam's premier indigenous Artificial Intelligence company, research lab, and sovereign AI platform.",
         inLanguage: ['as', 'en', 'hi'],
         publisher: { '@id': 'https://aiaxom.co.in/#organization' },
         potentialAction: {
           '@type': 'SearchAction',
           target: {
             '@type': 'EntryPoint',
-            urlTemplate: 'https://chat.aiaxom.co.in/?q={search_term_string}',
+            urlTemplate: 'https://aiaxom.co.in/tools?q={search_term_string}',
           },
           'query-input': 'required name=search_term_string',
         },
       },
 
-      // 3. SoftwareApplication Suite Schema
+      // 3. Core Software Applications
       {
         '@type': 'SoftwareApplication',
-        '@id': 'https://aiaxom.co.in/#software',
-        name: 'Axom AI Suite',
+        '@id': 'https://aiaxom.co.in/#software-platform',
+        name: 'Axom AI Sovereign Platform',
         operatingSystem: 'Web, Android, iOS, Windows, macOS, Linux',
         applicationCategory: 'BusinessApplication, Productivity, ArtificialIntelligence, EducationalApplication',
         description:
@@ -430,8 +484,75 @@ export default async function HomePage() {
           priceCurrency: 'INR',
         },
       },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': 'https://aiaxom.co.in/tools/fuel-checker#software',
+        name: 'Axom FuelCheck™',
+        operatingSystem: 'Web Browser',
+        applicationCategory: 'AutomotiveApplication, Utility',
+        description: 'Verified Indian vehicle ethanol fuel compatibility checker (E5 to E100) covering 60+ vehicle models and 15+ OEMs with official manual citations.',
+        url: 'https://aiaxom.co.in/tools/fuel-checker',
+        author: { '@id': 'https://aiaxom.co.in/#organization' },
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': 'https://aiaxom.co.in/tools/ai-notes-generator#software',
+        name: 'Axom AI Notes Generator',
+        operatingSystem: 'Web Browser',
+        applicationCategory: 'EducationalApplication, StudyAid',
+        description: 'Pedagogical study notes generator for APSC CCE, board exams, and universities with structured chapters, formulas, star tips, and Word .docx export.',
+        url: 'https://aiaxom.co.in/tools/ai-notes-generator',
+        author: { '@id': 'https://aiaxom.co.in/#organization' },
+      },
 
-      // 4. FAQPage Schema for Search Engines, SearchGPT & Perplexity
+      // 4. Research Foundation Models (Scholarly & Model Developer Authority)
+      {
+        '@type': 'ResearchProject',
+        '@id': 'https://aiaxom.co.in/research/axomai-brain-progya/#model',
+        name: 'Axom AI Brain — Progya (প্ৰজ্ঞা)',
+        alternateName: 'Progya 2B Dense Assamese LLM',
+        description: 'Proprietary 2B Dense Assamese Foundation Large Language Model trained on a custom 68,096-token vocabulary across 6.19 million culturally curated records.',
+        url: 'https://aiaxom.co.in/research/axomai-brain-progya/',
+        funder: { '@id': 'https://aiaxom.co.in/#organization' },
+      },
+      {
+        '@type': 'ResearchProject',
+        '@id': 'https://aiaxom.co.in/research/axomai-multimodal-xuwor/#model',
+        name: 'Axom AI Master — XUWOR (সুঁৱৰ)',
+        alternateName: 'XUWOR Multimodal Conversational AI',
+        description: 'Full-duplex multimodal conversational agent with cross-modal attention operating under 3.8GB RAM for edge device deployment.',
+        url: 'https://aiaxom.co.in/research/axomai-multimodal-xuwor/',
+        funder: { '@id': 'https://aiaxom.co.in/#organization' },
+      },
+      {
+        '@type': 'ResearchProject',
+        '@id': 'https://aiaxom.co.in/research/axomai-speech-xuna/#model',
+        name: 'Axom AI Speech — Xuna',
+        alternateName: 'Xuna 600M Conformer ASR',
+        description: '600M Conformer-based automatic speech recognition model for high-noise vernacular Assamese dialects, achieving 0.261x real-time factor on CPU.',
+        url: 'https://aiaxom.co.in/research/axomai-speech-xuna/',
+        funder: { '@id': 'https://aiaxom.co.in/#organization' },
+      },
+      {
+        '@type': 'ResearchProject',
+        '@id': 'https://aiaxom.co.in/research/axomai-voice-puhor/#model',
+        name: 'Axom AI Voice — Puhor (পোহৰ)',
+        alternateName: 'Puhor 24kHz Flow-Matching Diffusion Voice Model',
+        description: 'Studio-grade 24kHz Flow-Matching Diffusion Transformer voice synthesis model capturing natural Assamese speech prosody, intonation, and regional dialects.',
+        url: 'https://aiaxom.co.in/research/axomai-voice-puhor/',
+        funder: { '@id': 'https://aiaxom.co.in/#organization' },
+      },
+      {
+        '@type': 'ResearchProject',
+        '@id': 'https://aiaxom.co.in/research/axomai-trans-xetu/#model',
+        name: 'Axom AI Bridge — Xetu (সেতু)',
+        alternateName: 'Xetu 200M Translation Bridge',
+        description: '200M Seq2Seq neural machine translation bridge scoring 38.6 BLEU for high-precision Assamese-English cross-lingual alignment.',
+        url: 'https://aiaxom.co.in/research/axomai-trans-xetu/',
+        funder: { '@id': 'https://aiaxom.co.in/#organization' },
+      },
+
+      // 5. FAQPage Schema for SearchGPT, Perplexity & Google Rich Snippets
       {
         '@type': 'FAQPage',
         '@id': 'https://aiaxom.co.in/#faq',
@@ -445,7 +566,7 @@ export default async function HomePage() {
         })),
       },
 
-      // 5. BreadcrumbList Schema
+      // 6. BreadcrumbList Schema
       {
         '@type': 'BreadcrumbList',
         '@id': 'https://aiaxom.co.in/#breadcrumb',
