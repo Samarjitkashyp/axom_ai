@@ -899,245 +899,436 @@ export default async function HomePage() {
           </div>
         </section>
 
-                {/* ==================== STRATEGIC ADVANTAGE: INDIGENOUS AI RESEARCH & DIFFERENTIATION ==================== */}
-        <section className="py-20 md:py-28 relative bg-[#f0fdf4] dark:bg-[#0b1220] border-b border-emerald-900/10 dark:border-white/5">
+                {/* ==================== STRATEGIC ADVANTAGE: INDIGENOUS AI RESEARCH & DIFFERENTIATION ==================== */}
+
+        <section className="py-20 md:py-28 relative bg-[#f0fdf4] dark:bg-[#0b1220] border-b border-emerald-900/10 dark:border-white/5">
+
+          <div className="max-w-6xl mx-auto px-5">
+
+            <div className="text-center max-w-3xl mx-auto mb-14">
+
+              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider mb-4">
+
+                <span>Indigenous AI Research &amp; Strategic Advantage</span>
+
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
+
+                Building AI from Assam.{' '}
+
+                <span className="gradient-text">For India and Beyond.</span>
+
+              </h2>
+
+              <p className="text-slate-700 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
+
+                Discover how Axom AI pioneers indigenous language intelligence, regional multimodal infrastructure, and verified public utilities — engineered natively from Guwahati, Assam.
+
+              </p>
+
+            </div>
+
+
+
+            {/* 4 Strategic Advantage Cards (Bento Grid) - Replaces Rigid Table */}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              {/* Card 1: Linguistic Sovereignty */}
+
+              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-fuchsia-500/40 transition">
+
+                <div>
+
+                  <div className="flex items-center justify-between mb-4">
+
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25">
+
+                      Linguistic Precision
+
+                    </span>
+
+                    <span className="text-xs font-bold text-slate-500 dark:text-gray-400">01</span>
+
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+
+                    Native Assamese Linguistic Sovereignty
+
+                  </h3>
+
+                  <div className="text-xs font-semibold text-fuchsia-700 dark:text-fuchsia-400 mb-4">
+
+                    99.4% Script Precision • 68,096 Vocabulary Tokens
+
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+
+                    Eliminates Bengali script overlap (correcting Bengali &lsquo;র&rsquo; contamination into authentic Assamese &lsquo;ৰ&rsquo; and &lsquo;ৱ&rsquo;). Preserves authentic grammatical cases (vibhakti) and classical literary syntax across 6.19 million cultural training tokens.
+
+                  </p>
+
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Model:</span>
+
+                  <a
+
+                    href="https://aiaxom.co.in/research/axomai-trans-xetu/"
+
+                    className="text-xs font-bold text-fuchsia-700 dark:text-fuchsia-400 hover:underline"
+
+                  >
+
+                    Xetu Translation &amp; Progya Tokenizer
+
+                  </a>
+
+                </div>
+
+              </div>
+
+
+
+              {/* Card 2: Vernacular Speech & Voice */}
+
+              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-purple-500/40 transition">
+
+                <div>
+
+                  <div className="flex items-center justify-between mb-4">
+
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/25">
+
+                      Vernacular Multimodal
+
+                    </span>
+
+                    <span className="text-xs font-bold text-slate-500 dark:text-gray-400">02</span>
+
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+
+                    Proprietary Vernacular Speech &amp; Voice AI
+
+                  </h3>
+
+                  <div className="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-4">
+
+                    Puhor 24kHz Voice • Xuna Conformer ASR
+
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+
+                    First-of-its-kind Flow-Matching Diffusion Transformer voice synthesis delivering studio-grade 24,000 Hz audio with zero hallucination and authentic Assamese emotional cadence, paired with 0.26x Real-Time Factor vernacular speech recognition.
+
+                  </p>
+
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Model:</span>
+
+                  <a
+
+                    href="https://aiaxom.co.in/research/axomai-voice-puhor/"
+
+                    className="text-xs font-bold text-purple-700 dark:text-purple-400 hover:underline"
+
+                  >
+
+                    Puhor Voice &amp; Xuna ASR Models
+
+                  </a>
+
+                </div>
+
+              </div>
+
+
+
+              {/* Card 3: Verified Public Utility Engines */}
+
+              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition">
+
+                <div>
+
+                  <div className="flex items-center justify-between mb-4">
+
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+
+                      Actionable Intelligence
+
+                    </span>
+
+                    <span className="text-xs font-bold text-slate-500 dark:text-gray-400">03</span>
+
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+
+                    Verified Public Utility Engines
+
+                  </h3>
+
+                  <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-4">
+
+                    Zero Hallucination • Deterministic Public Utilities
+
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+
+                    Moving beyond open-ended chat prompts to verified public utilities: India&apos;s authoritative Axom FuelCheck™ (E5–E100 compatibility across 15+ OEMs with official manual citations) and pedagogical AI Notes Generator with native Microsoft Word (.docx) export for APSC, AHSEC, and SEBA.
+
+                  </p>
+
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Production Tools:</span>
+
+                  <Link
+
+                    href="/tools"
+
+                    className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+
+                  >
+
+                    Explore 20+ Production AI Tools
+
+                  </Link>
+
+                </div>
+
+              </div>
+
+
+
+              {/* Card 4: Sovereign Data Residency & Indian Accessibility */}
+
+              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-amber-500/40 transition">
+
+                <div>
+
+                  <div className="flex items-center justify-between mb-4">
+
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
+
+                      Data Sovereignty &amp; Access
+
+                    </span>
+
+                    <span className="text-xs font-bold text-slate-500 dark:text-gray-400">04</span>
+
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+
+                    Sovereign Data Residency &amp; Indian Pricing
+
+                  </h3>
+
+                  <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-4">
+
+                    DPDP Act 2023 Compliant • ₹0 Free Tier • UPI from ₹199
+
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+
+                    Full data residency under Indian jurisdiction with low-latency edge compute. Zero foreign USD credit-card friction — democratizing advanced AI across Assam and Northeast India with genuine ₹0 free tiers and domestic UPI via Razorpay.
+
+                  </p>
+
+                </div>
+
+                <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Accessibility:</span>
+
+                  <Link
+
+                    href="/pricing"
+
+                    className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline"
+
+                  >
+
+                    View Transparent Indian Pricing
+
+                  </Link>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+                {/* ==================== WHAT AXOM AI HAS BUILT (RESEARCH ACCOMPLISHMENTS) ==================== */}
+        <section className="py-20 md:py-28 relative bg-[#f0fdf4] dark:bg-[#070b14] border-b border-emerald-900/10 dark:border-white/5">
           <div className="max-w-6xl mx-auto px-5">
             <div className="text-center max-w-3xl mx-auto mb-14">
-              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider mb-4">
-                <span>Indigenous AI Research &amp; Strategic Advantage</span>
+              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-800 dark:text-purple-300 text-[11px] font-black uppercase tracking-wider mb-4">
+                <span>Research Breakthroughs &amp; Engineering Milestones</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
-                Building AI from Assam.{' '}
-                <span className="gradient-text">For India and Beyond.</span>
+                What Axom AI Has Built for{' '}
+                <span className="gradient-text">Assam &amp; Northeast India</span>
               </h2>
               <p className="text-slate-700 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
-                Discover how Axom AI pioneers indigenous language intelligence, regional multimodal infrastructure, and verified public utilities — engineered natively from Guwahati, Assam.
+                Concrete scientific models, full-duplex conversational agents, and vernacular speech engines developed to solve regional linguistic and computing challenges.
               </p>
             </div>
 
-            {/* 4 Strategic Advantage Cards (Bento Grid) - Replaces Rigid Table */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card 1: Linguistic Sovereignty */}
+            {/* 4 Research Breakthrough Cards (Bento Grid) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+              {/* Breakthrough 1: 68K Tokenizer (Progya) */}
               <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-fuchsia-500/40 transition">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25">
-                      Linguistic Precision
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-fuchsia-500/15 text-fuchsia-800 dark:text-fuchsia-300 border border-fuchsia-500/25">
+                      Linguistic Foundation
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-gray-400">01</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
-                    Native Assamese Linguistic Sovereignty
+                    Native Assamese Tokenizer
                   </h3>
                   <div className="text-xs font-semibold text-fuchsia-700 dark:text-fuchsia-400 mb-4">
-                    99.4% Script Precision • 68,096 Vocabulary Tokens
+                    68,096 Vocabulary Tokens • 6.19M Cultural Records
                   </div>
                   <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-                    Eliminates Bengali script overlap (correcting Bengali &lsquo;র&rsquo; contamination into authentic Assamese &lsquo;ৰ&rsquo; and &lsquo;ৱ&rsquo;). Preserves authentic grammatical cases (vibhakti) and classical literary syntax across 6.19 million cultural training tokens.
+                    Engineered 68,096 native Assamese tokens across 6.19M cultural records, eliminating token fragmentation and Bengali character substitution seen in generic global models.
                   </p>
                 </div>
                 <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Model:</span>
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Paper:</span>
                   <a
-                    href="https://aiaxom.co.in/research/axomai-trans-xetu/"
+                    href="https://aiaxom.co.in/research/axomai-brain-progya/"
                     className="text-xs font-bold text-fuchsia-700 dark:text-fuchsia-400 hover:underline"
                   >
-                    Xetu Translation &amp; Progya Tokenizer
+                    Progya Tokenizer Architecture
                   </a>
                 </div>
               </div>
 
-              {/* Card 2: Vernacular Speech & Voice */}
+              {/* Breakthrough 2: 24kHz Flow-Matching Voice (Puhor) */}
               <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-purple-500/40 transition">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-500/25">
-                      Vernacular Multimodal
+                      Generative Voice AI
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-gray-400">02</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
-                    Proprietary Vernacular Speech &amp; Voice AI
+                    24kHz Flow-Matching Voice Synthesis
                   </h3>
                   <div className="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-4">
-                    Puhor 24kHz Voice • Xuna Conformer ASR
+                    Studio-Grade 24,000 Hz Audio • Zero Audio Hallucination
                   </div>
                   <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-                    First-of-its-kind Flow-Matching Diffusion Transformer voice synthesis delivering studio-grade 24,000 Hz audio with zero hallucination and authentic Assamese emotional cadence, paired with 0.26x Real-Time Factor vernacular speech recognition.
+                    Axom AI Puhor (পোহৰ) delivers studio-grade 24,000 Hz Flow-Matching Diffusion Transformer (DiT) voice synthesis with zero audio hallucination and native Assamese emotional cadence.
                   </p>
                 </div>
                 <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Model:</span>
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Paper:</span>
                   <a
                     href="https://aiaxom.co.in/research/axomai-voice-puhor/"
                     className="text-xs font-bold text-purple-700 dark:text-purple-400 hover:underline"
                   >
-                    Puhor Voice &amp; Xuna ASR Models
+                    Puhor Flow-Matching Paper
                   </a>
                 </div>
               </div>
 
-              {/* Card 3: Verified Public Utility Engines */}
-              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition">
+              {/* Breakthrough 3: High-Noise Vernacular ASR (Xuna) */}
+              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-teal-500/40 transition">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
-                      Actionable Intelligence
+                      Vernacular Speech Recognition
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-gray-400">03</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
-                    Verified Public Utility Engines
+                    High-Noise Vernacular Speech Recognition
                   </h3>
-                  <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-4">
-                    Zero Hallucination • Deterministic Public Utilities
+                  <div className="text-xs font-semibold text-teal-700 dark:text-teal-400 mb-4">
+                    0.261x Real-Time Factor • Low-Cost CPU Compute
                   </div>
                   <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-                    Moving beyond open-ended chat prompts to verified public utilities: India&apos;s authoritative Axom FuelCheck™ (E5–E100 compatibility across 15+ OEMs with official manual citations) and pedagogical AI Notes Generator with native Microsoft Word (.docx) export for APSC, AHSEC, and SEBA.
+                    Axom AI Xuna achieves 0.261x Real-Time Factor (3.8x faster than live speech) on low-cost CPU instances, providing robust transcription across diverse regional accents and high-noise environments.
                   </p>
                 </div>
                 <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Production Tools:</span>
-                  <Link
-                    href="/tools"
-                    className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Paper:</span>
+                  <a
+                    href="https://aiaxom.co.in/research/axomai-speech-xuna/"
+                    className="text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline"
                   >
-                    Explore 20+ Production AI Tools
-                  </Link>
+                    Xuna Conformer Benchmarks
+                  </a>
                 </div>
               </div>
 
-              {/* Card 4: Sovereign Data Residency & Indian Accessibility */}
-              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-amber-500/40 transition">
+              {/* Breakthrough 4: 38.6 BLEU Neural Translation (Xetu) */}
+              <div className="rounded-3xl p-7 sm:p-9 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition">
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
-                      Data Sovereignty &amp; Access
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25">
+                      Neural Translation Bridge
                     </span>
                     <span className="text-xs font-bold text-slate-500 dark:text-gray-400">04</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
-                    Sovereign Data Residency &amp; Indian Pricing
+                    38.6 BLEU Neural Translation Engine
                   </h3>
-                  <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-4">
-                    DPDP Act 2023 Compliant • ₹0 Free Tier • UPI from ₹199
+                  <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-4">
+                    Grammatical Vibhakti • Classical Orthography Preservation
                   </div>
                   <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-                    Full data residency under Indian jurisdiction with low-latency edge compute. Zero foreign USD credit-card friction — democratizing advanced AI across Assam and Northeast India with genuine ₹0 free tiers and domestic UPI via Razorpay.
+                    Axom AI Xetu achieves 38.6 BLEU on English-Assamese translation benchmarks while strictly preserving grammatical vibhakti, case markers, and classical orthography.
                   </p>
                 </div>
                 <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Accessibility:</span>
-                  <Link
-                    href="/pricing"
-                    className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline"
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Paper:</span>
+                  <a
+                    href="https://aiaxom.co.in/research/axomai-trans-xetu/"
+                    className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
                   >
-                    View Transparent Indian Pricing
-                  </Link>
+                    Xetu Translation Evaluation
+                  </a>
                 </div>
               </div>
             </div>
+
+            {/* Read More Research Button */}
+            <div className="text-center">
+              <a
+                href="https://aiaxom.co.in/research/"
+                className="btn-primary inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm sm:text-base shadow-xl transition transform hover:-translate-y-0.5"
+              >
+                <span>Explore All Research &amp; Model Papers</span>
+                <ArrowRight size={16} />
+              </a>
+            </div>
           </div>
-        </section>
-
-        {/* ==================== WHAT AXOM AI HAS BUILT (RESEARCH ACCOMPLISHMENTS) ==================== */}
-        <section className="py-20 md:py-28 relative bg-[#f0fdf4] dark:bg-[#070b14] border-b border-emerald-900/10 dark:border-white/5">
-          <div className="max-w-7xl mx-auto px-5">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-800 dark:text-purple-300 text-[11px] font-black uppercase tracking-wider mb-4">
-                <Award className="w-3.5 h-3.5" /> Research Breakthroughs &amp; Engineering Milestones
-              </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
-                What Axom AI Has Built for{' '}
-                <span className="gradient-text">Assam &amp; Northeast India</span>
-              </h2>
-              <p className="text-slate-700 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
-                Concrete scientific models, full-duplex conversational agents, and vernacular speech engines developed to solve regional linguistic and computing challenges.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Breakthrough 1: 68K Tokenizer */}
-              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-fuchsia-500/40 transition">
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-400 flex items-center justify-center mb-5">
-                    <Cpu size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-emerald-950 dark:text-white mb-2">Native Assamese Tokenizer</h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed mb-4">
-                    Engineered 68,096 native Assamese tokens across 6.19M cultural records, eliminating token fragmentation and Bengali character substitution seen in generic global models.
-                  </p>
-                </div>
-                <a
-                  href="https://aiaxom.co.in/research/axomai-brain-progya/"
-                  className="text-[11px] font-semibold text-fuchsia-700 dark:text-fuchsia-400 flex items-center gap-1 hover:gap-2 transition-all"
-                >
-                  <span>Progya Tokenizer Architecture</span>
-                  <ArrowRight size={12} />
-                </a>
-              </div>
-
-              {/* Breakthrough 2: Puhor Voice AI */}
-              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-purple-500/40 transition">
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/15 text-purple-700 dark:text-purple-400 flex items-center justify-center mb-5">
-                    <Zap size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-emerald-950 dark:text-white mb-2">24kHz Flow-Matching Voice</h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed mb-4">
-                    Axom AI Puhor (পোহৰ) delivers studio-grade 24,000 Hz Flow-Matching Diffusion Transformer (DiT) voice synthesis with zero audio hallucination and native Assamese emotional cadence.
-                  </p>
-                </div>
-                <a
-                  href="https://aiaxom.co.in/research/axomai-voice-puhor/"
-                  className="text-[11px] font-semibold text-purple-700 dark:text-purple-400 flex items-center gap-1 hover:gap-2 transition-all"
-                >
-                  <span>Puhor Flow-Matching Paper</span>
-                  <ArrowRight size={12} />
-                </a>
-              </div>
-
-              {/* Breakthrough 3: Xuna Conformer ASR */}
-              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-teal-500/40 transition">
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-teal-500/15 text-teal-700 dark:text-teal-400 flex items-center justify-center mb-5">
-                    <Languages size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-emerald-950 dark:text-white mb-2">High-Noise Vernacular ASR</h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed mb-4">
-                    Axom AI Xuna achieves 0.261x Real-Time Factor (3.8x faster than live speech) on low-cost CPU instances, providing robust transcription across diverse regional accents.
-                  </p>
-                </div>
-                <a
-                  href="https://aiaxom.co.in/research/axomai-speech-xuna/"
-                  className="text-[11px] font-semibold text-teal-700 dark:text-teal-400 flex items-center gap-1 hover:gap-2 transition-all"
-                >
-                  <span>Xuna Conformer Benchmarks</span>
-                  <ArrowRight size={12} />
-                </a>
-              </div>
-
-              {/* Breakthrough 4: Xetu Neural Bridge */}
-              <div className="glass-card rounded-2xl p-7 flex flex-col justify-between hover:border-emerald-500/40 transition">
-                <div>
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-5">
-                    <Layers size={22} />
-                  </div>
-                  <h3 className="text-lg font-bold text-emerald-950 dark:text-white mb-2">38.6 BLEU Neural Translation</h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed mb-4">
-                    Axom AI Xetu achieves 38.6 BLEU on English-Assamese translation benchmarks while strictly preserving grammatical vibhakti, case markers, and classical orthography.
-                  </p>
-                </div>
-                <a
-                  href="https://aiaxom.co.in/research/axomai-trans-xetu/"
-                  className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1 hover:gap-2 transition-all"
-                >
-                  <span>Xetu Translation Evaluation</span>
-                  <ArrowRight size={12} />
-                </a>
-              </div>
-            </div>
-          </div>
         </section>
 
         {/* ==================== EXPLORE AI PLATFORM CAPABILITIES ==================== */}
