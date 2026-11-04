@@ -805,20 +805,21 @@ def _gemini_vision_analyze(api_key, image_input, image_mime='image/jpeg', user_q
     """Multimodal visual inspection via Google Gemini Flash.
     Gemini inspects up to 10 uploaded images simultaneously, transcribes text, detects objects/diagrams,
     and returns a structured breakdown for OpenAI."""
-    if not api_key or not image_input:
+    api_k = (api_key or os.getenv('GEMINI_IMAGE_API_KEY', '') or os.getenv('GEMINI_API_KEY', '')).strip()
+    if not api_k or not image_input:
         return None
     headers = {'Content-Type': 'application/json'}
     models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-flash-latest']
 
     num_imgs = len(image_input) if isinstance(image_input, list) else 1
     vision_prompt = (
-        f"You are the visual inspection and OCR analysis engine for Axom AI. Examine the {num_imgs} uploaded image(s) carefully.\n"
+        f"You are the visual inspection and OCR analysis engine for Axom AI. Examine the {num_imgs} uploaded image(s) thoroughly.\n"
         f"User question/instruction: {user_query or 'Perform complete visual analysis and OCR text extraction.'}\n\n"
-        "Please provide:\n"
-        "1. Complete verbatim transcription of all text, handwriting, tables, and labels visible across all images.\n"
+        "Provide an exhaustive, structured visual reading for OpenAI reasoning:\n"
+        "1. Complete verbatim transcription of all text, handwriting, formulas, numbers, tables, and labels visible across all images.\n"
         "2. Detailed description of the visual scene, diagrams, people, charts, or artwork in each image.\n"
         "3. If multiple images are provided, compare their content, differences, and visual relationships.\n"
-        "4. Specific visual facts and evidence that directly answer the user's question."
+        "4. Specific visual facts, evidence, and details that directly answer the user's question."
     )
 
     parts = [{"text": vision_prompt}]
@@ -1856,15 +1857,23 @@ def chat_api_view(request):
                     'web_search': False,
                 })
 
-        # Multimodal Vision Pipeline: Gemini inspects up to 10 images -> passes visual findings to OpenAI
-        if parsed_images:
-            gk = os.getenv('GEMINI_API_KEY', '').strip()
+        # Multimodal Vision Pipeline: Gemini thoroughly inspects uploaded image(s) -> passes visual facts to OpenAI
+        images_to_analyze = parsed_images
+        if not images_to_analyze and attached_img_b64:
+            images_to_analyze = [{
+                'b64': attached_img_b64,
+                'mime': attached_img_mime or 'image/png',
+                'name': attached_filename or 'image.png'
+            }]
+
+        if images_to_analyze:
+            gk = os.getenv('GEMINI_IMAGE_API_KEY', '').strip() or os.getenv('GEMINI_API_KEY', '').strip()
             gemini_vision_notes = _gemini_vision_analyze(
-                gk, parsed_images, attached_img_mime, prompt, timeout=30
+                gk, images_to_analyze, attached_img_mime, prompt, timeout=30
             )
             if gemini_vision_notes:
                 prompt = (
-                    f"[Gemini Vision Multimodal Analysis of {len(parsed_images)} Uploaded Image(s)]:\n"
+                    f"[Gemini Vision Detailed OCR & Visual Analysis of {len(images_to_analyze)} Uploaded Image(s)]:\n"
                     f"{gemini_vision_notes}\n\n"
                     f"{prompt}"
                 )
@@ -2238,102 +2247,11 @@ def chat_api_view(request):
             yield _sanitize_brand_mentions(chunk)
 
     # -------------------------------------------------------------------------
-    # Collaborative Image Q&A Pipeline:
-    # 1. Gemini handles image inspection (OCR, objects, layout).
-    # 2. OpenAI synthesizes pedagogical reasoning & answers the question.
-    # 3. OpenAI passes response to Gemini.
-    # 4. Gemini delivers the final streamed response to user.
+    # Multimodal Image Vision Workflow:
+    # 1. Gemini Vision thoroughly reads the uploaded image(s) (OCR, handwriting, diagrams).
+    # 2. Detailed visual findings are delivered into final_prompt.
+    # 3. OpenAI (Tier 1 flagship gpt-4o) generates and streams the final response directly to the user.
     # -------------------------------------------------------------------------
-    is_pure_upload = bool(file_uploaded_only or (raw_prompt and '[User uploaded' in raw_prompt))
-    if attached_img_b64 and not is_pure_upload and not web_search and api_key:
-        try:
-            from model_router.router import openai_generate
-            oai_img_prompt = (
-                f"{hist_block}"
-                f"[Visual Findings & OCR from Gemini Vision ({attached_filename or 'image'})]:\n"
-                f"{gemini_vision_notes or 'Visual content'}\n\n"
-                f"User Question: {raw_prompt}\n\n"
-                f"Analyze the image observations and provide a complete, pedagogically sound, and accurate answer to the user's question."
-            )
-            oai_analysis, _ = openai_generate(system_instruction, oai_img_prompt, timeout=45)
-            if oai_analysis:
-                gemini_sys = (
-                    f"{system_instruction}\n\n"
-                    f"FINAL RESPONSE DELIVERY RULE: You are Axom AI delivering the verified response directly to the user. "
-                    f"Deliver the response naturally in {language}. "
-                    f"STRICT RULE: Do NOT use any emojis. Maintain clean markdown formatting."
-                )
-                gemini_deliv_prompt = (
-                    f"Verified Analysis from OpenAI:\n{oai_analysis}\n\n"
-                    f"User Question: {raw_prompt}\n\n"
-                    f"Deliver the final answer to the user:"
-                )
-                for model_id in candidate_models:
-                    try:
-                        s_url = (f"https://generativelanguage.googleapis.com/v1beta/models/"
-                                 f"{model_id}:streamGenerateContent?alt=sse&key={api_key}")
-                        g_res = http_session.post(
-                            s_url,
-                            json={
-                                "contents": [{"parts": [{"text": gemini_deliv_prompt}]}],
-                                "systemInstruction": {"parts": [{"text": gemini_sys}]},
-                            },
-                            stream=True, timeout=30,
-                        )
-                        if g_res.status_code == 200:
-                            def gemini_stream_img(resp=g_res):
-                                from axom_ai import number_words as nw
-                                acc = []
-                                numbers = nw.NumberWordStream() if language == 'assamese' else None
-                                try:
-                                    for raw in resp.iter_lines():
-                                        if not raw:
-                                            continue
-                                        line = raw.decode('utf-8', 'ignore')
-                                        if not line.startswith('data:'):
-                                            continue
-                                        data_str = line[5:].strip()
-                                        if not data_str:
-                                            continue
-                                        try:
-                                            obj = json.loads(data_str)
-                                        except Exception:
-                                            continue
-                                        for cand in obj.get('candidates', []):
-                                            for part in cand.get('content', {}).get('parts', []):
-                                                if part.get('text'):
-                                                    chunk = part['text']
-                                                    if language == 'assamese':
-                                                        chunk = numbers.feed(_purify_assamese_with_grammar(chunk))
-                                                    else:
-                                                        chunk = _sanitize_brand_mentions(chunk)
-                                                    if chunk:
-                                                        acc.append(chunk)
-                                                        yield chunk
-                                    if numbers is not None:
-                                        tail = numbers.flush()
-                                        if tail:
-                                            acc.append(tail)
-                                            yield tail
-                                finally:
-                                    resp.close()
-                                    try:
-                                        _save_chat(request, client_id, raw_prompt, ''.join(acc))
-                                    except Exception:
-                                        pass
-
-                            sresp = StreamingHttpResponse(gemini_stream_img(), content_type='text/plain; charset=utf-8')
-                            sresp['X-Engine'] = f'gemini-via-openai:{model_id}'
-                            sresp['X-From-Database'] = 'false'
-                            sresp['X-Source-Docs'] = '[]'
-                            sresp['X-Source'] = ''
-                            sresp['Cache-Control'] = 'no-cache'
-                            sresp['X-Accel-Buffering'] = 'no'
-                            return sresp
-                    except Exception:
-                        continue
-        except Exception as e:
-            logger.warning(f"Error in Gemini-OpenAI collaborative image Q&A pipeline: {e}")
 
     # -------------------------------------------------------------------------
     # Tier 1 (Streaming): OpenAI model cascade (gpt-4o -> o3-mini -> gpt-4o-mini)
