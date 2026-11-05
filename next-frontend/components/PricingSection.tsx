@@ -273,9 +273,8 @@ export default function PricingSection({
       {/* Section Header (when enabled) */}
       {showSectionHeader && (
         <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-sm">
-            <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400" />
-            <span>{header?.badge || 'Pricing'}</span>
+          <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-sm">
+            <span>{(header?.badge || 'Pricing').replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/gu, '').trim() || 'Pricing'}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
             {header?.title_prefix || 'Simple,'}{' '}

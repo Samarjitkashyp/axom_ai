@@ -31,6 +31,11 @@ import {
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+function sanitizeText(str?: string): string {
+  if (!str) return '';
+  return str.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}]/gu, '').trim();
+}
+
 const TARGET_KEYWORDS = [
   // Primary SEO Keywords
   'Axom AI pricing',
@@ -271,8 +276,8 @@ export default async function PricingPage() {
           <div className="max-w-7xl mx-auto px-5 relative z-10">
             {/* Headline */}
             <div className="text-center max-w-3xl mx-auto mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fef9c3] dark:bg-amber-950/40 border border-[#fde047] dark:border-amber-700/50 text-[#854d0e] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-4">
-                <Sparkles size={13} className="text-amber-600" /> {cms?.pricing_header?.badge || 'Pricing'}
+              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#fef9c3] dark:bg-amber-950/40 border border-[#fde047] dark:border-amber-700/50 text-[#854d0e] dark:text-amber-300 text-xs font-bold uppercase tracking-wider mb-4">
+                <span>{sanitizeText(cms?.pricing_header?.badge) || 'Pricing'}</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15] mb-4">
@@ -338,9 +343,8 @@ export default async function PricingPage() {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               {/* Section Header */}
               <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-800 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
-                  <Zap size={14} className="text-teal-600 dark:text-teal-400" />
-                  <span>{cms?.pricing_comparison?.badge || 'Full Plan Comparison'}</span>
+                <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-800 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                  <span>{sanitizeText(cms?.pricing_comparison?.badge) || 'Full Plan Comparison'}</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
                   {cms?.pricing_comparison?.title || 'Compare Every Feature Side-by-Side'}
@@ -583,18 +587,18 @@ export default async function PricingPage() {
 
 
 
-        {/* Pricing FAQs */}
+        {/* Pricing FAQs: Homepage 2-Column Style with Right-Side Sticky Image */}
         {(cms?.pricing_faqs?.active !== false) && (
-          <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#0b1220]">
-            <div className="max-w-4xl mx-auto px-5">
-              <div className="text-center max-w-2xl mx-auto mb-14">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4">
-                  <HelpCircle size={14} /> {cms?.pricing_faqs?.badge || 'Pricing FAQ'}
+          <section id="faq" className="py-20 md:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#0b1220]">
+            <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center max-w-3xl mx-auto mb-14">
+                <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider mb-4">
+                  <span>{sanitizeText(cms?.pricing_faqs?.badge) || 'Questions & Answers'}</span>
                 </div>
-                <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-                  {cms?.pricing_faqs?.title || 'Frequently Asked Questions'}
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
+                  Frequently Asked <span className="gradient-text">Questions</span>
                 </h2>
-                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+                <p className="text-slate-700 dark:text-gray-400 text-sm sm:text-base leading-relaxed">
                   {cms?.pricing_faqs?.subheading || 'Clear answers regarding our billing cycles, word quotas, payment methods, and cancellation policy.'}
                 </p>
               </div>
