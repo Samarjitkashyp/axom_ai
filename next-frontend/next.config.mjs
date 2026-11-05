@@ -25,6 +25,7 @@ const nextConfig = {
   // Tools that were removed: keep the old (indexed) links alive
   async redirects() {
     return [
+      { source: '/models', destination: '/our-models', permanent: true },
       { source: '/tools/ocr-pdf', destination: '/tools', permanent: true },
       { source: '/tools/summarize', destination: '/tools', permanent: true },
       { source: '/tools/translate-pdf', destination: '/tools', permanent: true },
