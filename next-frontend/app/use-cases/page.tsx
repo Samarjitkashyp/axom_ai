@@ -929,34 +929,6 @@ export default async function UseCasesPage() {
             <UseCasesFaq faqs={faqsList} />
           </section>
 
-          {/* ==================== BOTTOM CTA ==================== */}
-          <section className="text-center p-8 sm:p-12 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 shadow-xl">
-            <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4">
-              <span>{cmsData?.cta_badge || 'Start Today • Sovereign Indian AI'}</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white mb-4">
-              {cmsData?.cta_heading || 'Experience the Impact of Sovereign AI Today'}
-            </h2>
-            <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm max-w-xl mx-auto mb-8">
-              {cmsData?.cta_subheading ||
-                'Join thousands of students, civil service aspirants, business owners, and creators leveraging Axom AI every day.'}
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href={cmsData?.cta_primary_btn_url || 'https://chat.aiaxom.co.in/'}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-900/20 transition-all hover:scale-105"
-              >
-                {cmsData?.cta_primary_btn_text || 'Launch AI Chat Workspace'}
-              </a>
-              <Link
-                href={cmsData?.cta_secondary_btn_url || '/tools'}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 text-sm font-semibold transition flex items-center justify-center gap-2"
-              >
-                <span>{cmsData?.cta_secondary_btn_text || 'Explore All 33+ Tools'}</span>
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-          </section>
 
         </div>
       </main>
