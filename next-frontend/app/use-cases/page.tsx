@@ -750,11 +750,11 @@ export default async function UseCasesPage() {
               </p>
             </div>
 
-            {/* Strategic Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
+            {/* Comparison Cards: Full Width, 1 Row me 1 Card */}
+            <div className="space-y-4 sm:space-y-6">
 
-              {/* Bento Card 1: Linguistic Precision (Col Span 7 on desktop) */}
-              <div className="md:col-span-2 lg:col-span-7 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              {/* Bento Card 1: Linguistic Precision (Full Width, 1 Row 1 Card) */}
+              <div className="w-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
                     <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25">
@@ -772,26 +772,28 @@ export default async function UseCasesPage() {
                     Eliminates Bengali script overlap (correcting Bengali &lsquo;র&rsquo; contamination into authentic Assamese &lsquo;ৰ&rsquo; and &lsquo;ৱ&rsquo;). Preserves authentic grammatical cases (vibhakti) and classical literary syntax across 6.19 million cultural training tokens.
                   </p>
 
-                  {/* Axom AI Advantage */}
-                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
-                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>Axom AI Platform</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    {/* Axom AI Advantage */}
+                    <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25">
+                      <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Axom AI Platform</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                        99.4% pure script precision powered by axomai-trans-xetu with a custom 68,096-token Assamese vocabulary. Zero Bengali substitution, correct conjuncts (যুক্তাক্ষৰ), and flawless sentence flow.
+                      </p>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-                      99.4% pure script precision powered by axomai-trans-xetu with a custom 68,096-token Assamese vocabulary. Zero Bengali substitution, correct conjuncts (যুক্তাক্ষৰ), and flawless sentence flow.
-                    </p>
-                  </div>
 
-                  {/* Overseas Chatbots Limitation */}
-                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <span>Generic Overseas AI (ChatGPT / Gemini / Claude)</span>
+                    {/* Overseas Chatbots Limitation */}
+                    <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Generic Overseas AI (ChatGPT / Gemini / Claude)</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Frequent Bengali script substitution (confusing র and ৰ), word-splitting due to fragmented sub-word tokenizers, and garbled literary phrasing.
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Frequent Bengali script substitution (confusing র and ৰ), word-splitting due to fragmented sub-word tokenizers, and garbled literary phrasing.
-                    </p>
                   </div>
 
                   {/* Legacy Alternative */}
@@ -813,8 +815,8 @@ export default async function UseCasesPage() {
                 </div>
               </div>
 
-              {/* Bento Card 2: Edge Cloud Latency (Col Span 5 on desktop) */}
-              <div className="md:col-span-2 lg:col-span-5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              {/* Bento Card 2: Edge Cloud Latency (Full Width, 1 Row 1 Card) */}
+              <div className="w-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
                     <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 border border-cyan-500/25">
@@ -832,26 +834,28 @@ export default async function UseCasesPage() {
                     Multi-tiered inference routed across domestic Indian edge points with automatic failover to prevent downtime or transatlantic latency spikes.
                   </p>
 
-                  {/* Axom AI Advantage */}
-                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
-                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>Axom AI Platform</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    {/* Axom AI Advantage */}
+                    <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25">
+                      <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Axom AI Platform</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                        Sub-second response delivery (&lt;0.8s) via local nodes. Multi-tier cascade (Tier 1 flagship, Tier 2 fast fallback, Tier 3 safety net) delivers 99.9% uptime.
+                      </p>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-                      Sub-second response delivery (&lt;0.8s) via local nodes. Multi-tier cascade (Tier 1 flagship, Tier 2 fast fallback, Tier 3 safety net) delivers 99.9% uptime.
-                    </p>
-                  </div>
 
-                  {/* Overseas Chatbots Limitation */}
-                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <span>Generic Overseas AI</span>
+                    {/* Overseas Chatbots Limitation */}
+                    <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Generic Overseas AI</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        2.5s to 4.5s latency roundtrips to US/EU datacenters; frequent peak-hour throttling and overseas outages.
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      2.5s to 4.5s latency roundtrips to US/EU datacenters; frequent peak-hour throttling and overseas outages.
-                    </p>
                   </div>
 
                   {/* Legacy Alternative */}
@@ -873,8 +877,8 @@ export default async function UseCasesPage() {
                 </div>
               </div>
 
-              {/* Bento Card 3: Assam GK & Civil Services (Col Span 4 on desktop) */}
-              <div className="md:col-span-1 lg:col-span-4 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              {/* Bento Card 3: Assam GK & Civil Services (Full Width, 1 Row 1 Card) */}
+              <div className="w-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
                     <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
@@ -885,33 +889,35 @@ export default async function UseCasesPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     Assam GK &amp; APSC Alignment
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     Pre-trained on Assam civil services, Ahom history, regional geography, state acts, and budgetary data with zero hallucination.
                   </p>
 
-                  {/* Axom AI Advantage */}
-                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
-                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>Axom AI Platform</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    {/* Axom AI Advantage */}
+                    <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25">
+                      <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Axom AI Platform</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                        Deep state curriculum context (Ahom dynasty, Sukapha, Lachit Borphukan, regional geography, state budget, and APSC exam points).
+                      </p>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-                      Deep state curriculum context (Ahom dynasty, Sukapha, Lachit Borphukan, regional geography, state budget, and APSC exam points).
-                    </p>
-                  </div>
 
-                  {/* Overseas Chatbots Limitation */}
-                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <span>Generic Overseas AI</span>
+                    {/* Overseas Chatbots Limitation */}
+                    <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Generic Overseas AI</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Superficial, generic summaries; routinely hallucinates state facts, dates, and historical figures.
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Superficial, generic summaries; routinely hallucinates state facts, dates, and historical figures.
-                    </p>
                   </div>
 
                   {/* Legacy Alternative */}
@@ -933,8 +939,8 @@ export default async function UseCasesPage() {
                 </div>
               </div>
 
-              {/* Bento Card 4: 33+ Integrated Production Tools (Col Span 4 on desktop) */}
-              <div className="md:col-span-1 lg:col-span-4 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              {/* Bento Card 4: 33+ Integrated Production Tools (Full Width, 1 Row 1 Card) */}
+              <div className="w-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
                     <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
@@ -945,33 +951,35 @@ export default async function UseCasesPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     Integrated Production Tools
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     A unified sovereign software suite combining verified vehicular compliance, academic generators, and document processing.
                   </p>
 
-                  {/* Axom AI Advantage */}
-                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
-                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>Axom AI Platform</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    {/* Axom AI Advantage */}
+                    <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25">
+                      <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Axom AI Platform</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                        33+ purpose-built tools: Axom FuelCheck (E5–E100), AI Notes Generator with .docx export, Scanned Jamabandi OCR, and full PDF/Word suite.
+                      </p>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-                      33+ purpose-built tools: Axom FuelCheck (E5–E100), AI Notes Generator with .docx export, Scanned Jamabandi OCR, and full PDF/Word suite.
-                    </p>
-                  </div>
 
-                  {/* Overseas Chatbots Limitation */}
-                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <span>Generic Overseas AI</span>
+                    {/* Overseas Chatbots Limitation */}
+                    <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Generic Overseas AI</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Single text-only chat prompt window with zero native Word (.docx) export and no automotive or land-record engines.
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Single text-only chat prompt window with zero native Word (.docx) export and no automotive or land-record engines.
-                    </p>
                   </div>
 
                   {/* Legacy Alternative */}
@@ -993,8 +1001,8 @@ export default async function UseCasesPage() {
                 </div>
               </div>
 
-              {/* Bento Card 5: Data Sovereignty & DPDP Act 2023 (Col Span 4 on desktop, Col Span 2 on md) */}
-              <div className="md:col-span-2 lg:col-span-4 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              {/* Bento Card 5: Data Sovereignty & DPDP Act 2023 (Full Width, 1 Row 1 Card) */}
+              <div className="w-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
                     <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 border border-indigo-500/25">
@@ -1005,33 +1013,35 @@ export default async function UseCasesPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     100% Indian Data Sovereignty
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     Zero overseas data transit. Prompts, documents, and student records are processed in isolated transient memory within India.
                   </p>
 
-                  {/* Axom AI Advantage */}
-                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
-                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span>Axom AI Platform</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    {/* Axom AI Advantage */}
+                    <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25">
+                      <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                        <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Axom AI Platform</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                        100% Indian cloud residency complying strictly with the Digital Personal Data Protection Act (DPDP Act 2023). Zero user prompt mining.
+                      </p>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-                      100% Indian cloud residency complying strictly with the Digital Personal Data Protection Act (DPDP Act 2023). Zero user prompt mining.
-                    </p>
-                  </div>
 
-                  {/* Overseas Chatbots Limitation */}
-                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
-                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
-                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                      <span>Generic Overseas AI</span>
+                    {/* Overseas Chatbots Limitation */}
+                    <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                        <span>Generic Overseas AI</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Stored and processed on overseas US/EU server farms subject to foreign surveillance and cloud data requests.
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Stored and processed on overseas US/EU server farms subject to foreign surveillance and cloud data requests.
-                    </p>
                   </div>
 
                   {/* Legacy Alternative */}
