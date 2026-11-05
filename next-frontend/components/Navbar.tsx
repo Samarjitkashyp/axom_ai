@@ -25,7 +25,8 @@ import {
   Mail,
   LogOut,
   User as UserIcon,
-  Loader2
+  Loader2,
+  Cpu
 } from 'lucide-react';
 import { HeaderData } from '@/lib/api';
 
@@ -752,6 +753,8 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
               ? HelpCircle
               : it.title.toLowerCase().includes('tool')
               ? Bot
+              : (it.title.toLowerCase().includes('model') || it.url.includes('model'))
+              ? Cpu
               : it.title.toLowerCase().includes('case')
               ? Users
               : it.title.toLowerCase().includes('pric')
