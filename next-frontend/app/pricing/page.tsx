@@ -22,6 +22,7 @@ import {
   Lock,
   Headphones,
   Cpu,
+  Layers,
   ChevronRight,
   IndianRupee,
   RefreshCw
@@ -331,125 +332,163 @@ export default async function PricingPage() {
           </div>
         </section>
 
-        {/* Feature Comparison Table Section */}
+        {/* Full Plan Comparison: Clean Responsive Bento / Card Grid (1 Category Card per Row) */}
         {(cms?.pricing_comparison?.active !== false) && (
-          <section id="comparison" className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/80 dark:bg-[#0b1220]/80">
-            <div className="max-w-7xl mx-auto px-5">
-              <div className="text-center max-w-3xl mx-auto mb-14">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4">
-                  <Zap size={14} /> {cms?.pricing_comparison?.badge || 'Full Plan Comparison'}
+          <section id="comparison" className="py-16 sm:py-24 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/80 dark:bg-[#0b1220]/80">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Section Header */}
+              <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-800 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+                  <Zap size={14} className="text-teal-600 dark:text-teal-400" />
+                  <span>{cms?.pricing_comparison?.badge || 'Full Plan Comparison'}</span>
                 </div>
-                <h2 className="text-2xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
                   {cms?.pricing_comparison?.title || 'Compare Every Feature Side-by-Side'}
                 </h2>
-                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+                <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
                   {cms?.pricing_comparison?.subheading || 'Detailed breakdown of models, tools, limits, and enterprise capabilities across all Axom AI tiers.'}
                 </p>
               </div>
 
-              {/* Table Container */}
-              <div className="overflow-x-auto rounded-2xl border border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-2xl backdrop-blur-md">
-                <table className="w-full text-left border-collapse min-w-[700px]">
-                  <thead>
-                    <tr className="border-b border-emerald-900/15 dark:border-white/10 bg-white/80 dark:bg-slate-950/80">
-                      <th className="p-4 sm:p-5 text-sm font-bold text-slate-700 dark:text-slate-300 w-2/5">
-                        Features &amp; Capabilities
-                      </th>
-                      {plans.map((p) => (
-                        <th
-                          key={p.id}
-                          className={`p-4 sm:p-5 text-center text-sm ${
-                            p.popular
-                              ? 'font-extrabold text-emerald-700 dark:text-emerald-400 w-[15%] bg-emerald-500/10 border-x border-emerald-500/20'
-                              : 'font-extrabold text-slate-700 dark:text-slate-300 w-[15%]'
-                          }`}
-                        >
-                          {p.name} (₹{p.monthlyPrice})
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(cms?.pricing_comparison?.categories && cms.pricing_comparison.categories.length > 0
-                      ? cms.pricing_comparison.categories
-                      : COMPARISON_CATEGORIES
-                    ).map((cat: any, cIdx: number) => (
-                      <React.Fragment key={cat.id || cIdx}>
-                        {/* Category Row */}
-                        <tr className="bg-white/[0.02] border-y border-emerald-900/15 dark:border-white/10">
-                          <td
-                            colSpan={4}
-                            className="p-3.5 px-5 text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/5"
-                          >
-                            {cat.category}
-                          </td>
-                        </tr>
+              {/* Comparison Categories: 1 Row per Category Card (Full Width) */}
+              <div className="space-y-6 sm:space-y-8">
+                {(cms?.pricing_comparison?.categories && cms.pricing_comparison.categories.length > 0
+                  ? cms.pricing_comparison.categories
+                  : COMPARISON_CATEGORIES
+                ).map((cat: any, cIdx: number) => {
+                  const icons = [Cpu, FileCheck, Sparkles, ShieldCheck];
+                  const CatIcon = icons[cIdx % icons.length] || Layers;
 
-                        {/* Items */}
+                  return (
+                    <div
+                      key={cat.id || cIdx}
+                      className="w-full rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md hover:border-emerald-500/30 transition-all duration-200"
+                    >
+                      {/* Category Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 mb-5 border-b border-emerald-900/10 dark:border-white/10">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
+                            <CatIcon size={20} />
+                          </div>
+                          <div>
+                            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
+                              Domain {cIdx + 1}
+                            </div>
+                            <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white">
+                              {cat.category}
+                            </h3>
+                          </div>
+                        </div>
+
+                        {/* Plan Header Badges for Reference */}
+                        <div className="hidden md:flex items-center gap-2 text-[11px] font-bold">
+                          <span className="px-3 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 w-28 text-center">
+                            Free (₹0)
+                          </span>
+                          <span className="px-3 py-1 rounded-md bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 w-32 text-center">
+                            Starter (₹199)
+                          </span>
+                          <span className="px-3 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 w-36 text-center shadow-sm">
+                            Pro (₹499)
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Items Grid */}
+                      <div className="space-y-3 sm:space-y-3.5">
                         {cat.items.map((item: any, iIdx: number) => (
-                          <tr
+                          <div
                             key={item.id || iIdx}
-                            className="border-b border-emerald-900/10 dark:border-white/5 hover:bg-white/[0.02] transition"
+                            className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-50/50 dark:bg-white/[0.02] border border-emerald-900/10 dark:border-white/5 hover:border-emerald-500/20 transition-all flex flex-col md:flex-row md:items-center md:justify-between gap-3"
                           >
-                            <td className="p-4 px-5 text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200">
-                              {item.feature}
-                            </td>
+                            <div className="md:w-1/2">
+                              <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                                {item.feature}
+                              </span>
+                            </div>
 
-                            {/* Free */}
-                            <td className="p-4 text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                              {typeof item.free === 'boolean' ? (
-                                item.free ? (
-                                  <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
+                            <div className="grid grid-cols-3 gap-2 sm:gap-2.5 md:w-1/2 items-center text-center">
+                              {/* Free */}
+                              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 min-h-[40px]">
+                                <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 md:hidden mb-0.5">Free</span>
+                                {typeof item.free === 'boolean' ? (
+                                  item.free ? (
+                                    <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                      <Check size={14} className="stroke-[2.5]" />
+                                      <span className="hidden sm:inline">Included</span>
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 font-medium text-xs">
+                                      <X size={14} />
+                                      <span className="hidden sm:inline">None</span>
+                                    </span>
+                                  )
                                 ) : (
-                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                                )
-                              ) : (
-                                <span>{item.free}</span>
-                              )}
-                            </td>
+                                  <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    {item.free}
+                                  </span>
+                                )}
+                              </div>
 
-                            {/* Starter */}
-                            <td className="p-4 text-center text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                              {typeof item.starter === 'boolean' ? (
-                                item.starter ? (
-                                  <Check size={16} className="text-emerald-700 dark:text-emerald-400 mx-auto" />
+                              {/* Starter */}
+                              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-white/70 dark:bg-slate-950/60 border border-slate-200/80 dark:border-white/5 min-h-[40px]">
+                                <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 md:hidden mb-0.5">Starter</span>
+                                {typeof item.starter === 'boolean' ? (
+                                  item.starter ? (
+                                    <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                      <Check size={14} className="stroke-[2.5]" />
+                                      <span className="hidden sm:inline">Included</span>
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 font-medium text-xs">
+                                      <X size={14} />
+                                      <span className="hidden sm:inline">None</span>
+                                    </span>
+                                  )
                                 ) : (
-                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                                )
-                              ) : (
-                                <span>{item.starter}</span>
-                              )}
-                            </td>
+                                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                                    {item.starter}
+                                  </span>
+                                )}
+                              </div>
 
-                            {/* Pro (Highlighted) */}
-                            <td className="p-4 text-center text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/5 border-x border-emerald-500/20">
-                              {typeof item.pro === 'boolean' ? (
-                                item.pro ? (
-                                  <Check size={18} className="text-emerald-700 dark:text-emerald-400 mx-auto stroke-[2.5]" />
+                              {/* Pro (Highlighted) */}
+                              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200 shadow-sm min-h-[40px]">
+                                <span className="text-[10px] uppercase font-bold text-emerald-800 dark:text-emerald-300 md:hidden mb-0.5">Pro</span>
+                                {typeof item.pro === 'boolean' ? (
+                                  item.pro ? (
+                                    <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs">
+                                      <Check size={15} className="stroke-[3]" />
+                                      <span className="hidden sm:inline">Full</span>
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 font-medium text-xs">
+                                      <X size={14} />
+                                      <span className="hidden sm:inline">None</span>
+                                    </span>
+                                  )
                                 ) : (
-                                  <X size={15} className="text-slate-600 mx-auto opacity-50" />
-                                )
-                              ) : (
-                                <span className="font-bold text-emerald-950 dark:text-white">{item.pro}</span>
-                              )}
-                            </td>
-
-
-                          </tr>
+                                  <span className="text-xs font-extrabold text-emerald-950 dark:text-white">
+                                    {item.pro}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         ))}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-            {/* Bottom Note */}
-            <div className="flex items-center gap-2 mt-6 text-xs text-slate-600 dark:text-slate-400 px-2">
-              <ShieldCheck size={16} className="text-emerald-700 dark:text-emerald-400 shrink-0" />
-              <span>{cms?.pricing_header?.footer_note || 'All prices in INR. Taxes calculated at checkout according to Indian GST regulations.'}</span>
+              {/* Bottom Note */}
+              <div className="flex items-center justify-center gap-2 mt-8 text-xs text-slate-500 dark:text-slate-400 px-2 text-center">
+                <ShieldCheck size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{cms?.pricing_header?.footer_note || 'All prices in INR. Taxes calculated at checkout according to Indian GST regulations.'}</span>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
         )}
 
         {/* Payment Methods & Indian Trust Section */}
@@ -542,68 +581,7 @@ export default async function PricingPage() {
           </section>
         )}
 
-        {/* Student & Academic Discount + Enterprise Custom LLMs */}
-        {(cms?.pricing_callouts?.active !== false) && (
-          <section className="py-16 sm:py-20 relative border-b border-emerald-900/10 dark:border-white/5 bg-gradient-to-b from-[#f0fdf4] dark:from-[#040914] to-[#f0fdf4] dark:to-[#030712]">
-            <div className="max-w-6xl mx-auto px-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                {/* Student Card */}
-                <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-emerald-100/30 dark:to-emerald-950/30 border border-emerald-500/30 shadow-xl flex flex-col justify-between">
-                  <div>
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mb-6">
-                      <GraduationCap size={24} />
-                    </div>
-                    <div className="inline-block px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3">
-                      {cms?.pricing_callouts?.student?.badge || 'Education & Research'}
-                    </div>
-                    <h3 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-                      {cms?.pricing_callouts?.student?.title || 'Student & Academic Rebates'}
-                    </h3>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-                      {cms?.pricing_callouts?.student?.desc || 'Are you a student preparing for APSC, UPSC, Assam Police, or studying at Gauhati University, Cotton University, Tezpur University, or IIT Guwahati? We provide special educational subsidies and group lab licensing across Assam.'}
-                    </p>
-                  </div>
-                  <div>
-                    <a
-                      href={cms?.pricing_callouts?.student?.btn_url || 'mailto:support@aiaxom.co.in?subject=Student%20Discount%20Inquiry%20-%20Axom%20AI'}
-                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300 hover:text-emerald-800 dark:hover:text-emerald-200 transition"
-                    >
-                      <span>{cms?.pricing_callouts?.student?.btn_text || 'Request Student Discount'}</span>
-                      <ArrowRight size={14} />
-                    </a>
-                  </div>
-                </div>
 
-                {/* Enterprise Card */}
-                <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-white dark:from-slate-900 via-white/80 dark:via-slate-900/80 to-teal-100/30 dark:to-teal-950/30 border border-teal-500/30 shadow-xl flex flex-col justify-between">
-                  <div>
-                    <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-700 dark:text-teal-300 flex items-center justify-center mb-6">
-                      <Building size={24} />
-                    </div>
-                    <div className="inline-block px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-3">
-                      {cms?.pricing_callouts?.enterprise?.badge || 'Enterprises & Government'}
-                    </div>
-                    <h3 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-                      {cms?.pricing_callouts?.enterprise?.title || 'Custom LLM & Sovereign AI'}
-                    </h3>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-                      {cms?.pricing_callouts?.enterprise?.desc || 'Need on-premise private deployment, customized RAG knowledge bases for regional government departments, news agencies, or bank compliant Assamese document pipelines? Our Guwahati engineering team builds turnkey solutions.'}
-                    </p>
-                  </div>
-                  <div>
-                    <a
-                      href={cms?.pricing_callouts?.enterprise?.btn_url || 'mailto:support@aiaxom.co.in?subject=Enterprise%20and%20Government%20Inquiry%20-%20Axom%20AI'}
-                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-teal-700 dark:text-teal-300 hover:text-teal-800 dark:hover:text-teal-200 transition"
-                    >
-                      <span>{cms?.pricing_callouts?.enterprise?.btn_text || 'Talk to Enterprise Sales'}</span>
-                      <ArrowRight size={14} />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Pricing FAQs */}
         {(cms?.pricing_faqs?.active !== false) && (
@@ -626,52 +604,7 @@ export default async function PricingPage() {
           </section>
         )}
 
-        {/* Bottom CTA Banner */}
-        {(cms?.pricing_bottom_cta?.active !== false) && (
-          <section className="py-20 sm:py-28 relative overflow-hidden bg-gradient-to-b from-[#f0fdf4] dark:from-[#040914] to-[#f0fdf4] dark:to-[#02050b]">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.12)_0,transparent_70%)] pointer-events-none" />
-
-            <div className="max-w-4xl mx-auto px-5 text-center relative z-10">
-              <h2 className="text-3xl sm:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-6">
-                {cms?.pricing_bottom_cta?.heading || 'Experience the Future of Assamese AI Today'}
-              </h2>
-              <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed max-w-xl mx-auto mb-8">
-                {cms?.pricing_bottom_cta?.subheading || 'Join thousands of students, researchers, lawyers, and businesses across Assam. Get started with 5,000 free words—no credit card required.'}
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a
-                  href={cms?.pricing_bottom_cta?.primary_btn_url || 'https://chat.aiaxom.co.in/'}
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-bold text-sm sm:text-base shadow-xl shadow-emerald-500/25 transition-all flex items-center justify-center gap-2"
-                >
-                  <span>{cms?.pricing_bottom_cta?.primary_btn_text || 'Start Free (₹0)'}</span>
-                  <ArrowRight size={16} />
-                </a>
-                <a
-                  href={cms?.pricing_bottom_cta?.secondary_btn_url || 'https://chat.aiaxom.co.in/'}
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-emerald-900/5 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 text-emerald-950 dark:text-white font-bold text-sm sm:text-base border border-emerald-900/15 dark:border-white/10 transition-all flex items-center justify-center gap-2"
-                >
-                  <span>{cms?.pricing_bottom_cta?.secondary_btn_text || 'Upgrade to Pro (₹399/mo)'}</span>
-                </a>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-xs text-slate-600 dark:text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <Check size={14} className="text-emerald-700 dark:text-emerald-400" />
-                  No Credit Card Required
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Check size={14} className="text-emerald-700 dark:text-emerald-400" />
-                  UPI &amp; RuPay Accepted
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Check size={14} className="text-emerald-700 dark:text-emerald-400" />
-                  Cancel Anytime
-                </span>
-              </div>
-            </div>
-          </section>
-        )}
+        
       </main>
 
       {/* Global Footer */}
