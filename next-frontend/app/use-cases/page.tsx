@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   Check,
+  X,
   Compass,
   Cpu,
   Globe2,
@@ -594,80 +595,320 @@ export default async function UseCasesPage() {
             <UseCasesInteractiveHub />
           </section>
 
-          {/* ==================== SOVEREIGN ADVANTAGE COMPARISON MATRIX ==================== */}
-          <section className="mb-24 max-w-5xl mx-auto">
-            <div className="text-center mb-10">
+          {/* ==================== SOVEREIGN ADVANTAGE COMPARISON BENTO GRID ==================== */}
+          <section className="mb-24 max-w-6xl mx-auto">
+            <div className="text-center mb-12">
               <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
                 <span>The Sovereign Advantage</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white mb-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white mb-3 tracking-tight">
                 Why Axom AI Outperforms Overseas Chatbots for Assam
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm max-w-xl mx-auto">
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
                 Direct capability comparison showing why generic foreign AI models fail at regional linguistic nuance, exam preparation, and data residency.
               </p>
             </div>
 
-            <div className="overflow-x-auto rounded-3xl border border-emerald-900/15 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 shadow-xl">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead>
-                  <tr className="border-b border-emerald-900/15 dark:border-white/10 bg-slate-50 dark:bg-slate-950/80 text-slate-700 dark:text-slate-300">
-                    <th className="p-4 sm:p-5 font-bold">Capability Dimension</th>
-                    <th className="p-4 sm:p-5 font-black text-emerald-900 dark:text-emerald-400 bg-emerald-500/10 border-x border-emerald-500/20">
-                      Axom AI Platform
-                    </th>
-                    <th className="p-4 sm:p-5 font-semibold text-slate-600 dark:text-slate-400">Generic Overseas AI</th>
-                    <th className="p-4 sm:p-5 font-semibold text-slate-600 dark:text-slate-400">Fragmented Manual Tools</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-emerald-900/10 dark:divide-white/5 text-slate-700 dark:text-slate-300">
-                  <tr>
-                    <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">Assamese Script &amp; Grammar Purity</td>
-                    <td className="p-4 sm:p-5 text-emerald-800 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/10 flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>99.4% purity via axomai-trans-xetu (no Bengali substitution)</span>
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Frequent Bengali contamination (র/ৰ confusion)</td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Slow manual dictionary lookup</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">Assam GK &amp; APSC Exam Alignment</td>
-                    <td className="p-4 sm:p-5 text-emerald-800 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/10 flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>Deep curriculum context (Ahom, Sukapha, Lachit, budget)</span>
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Superficial or hallucinated regional facts</td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Outdated physical guidebooks</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">Integrated Production Tools</td>
-                    <td className="p-4 sm:p-5 text-emerald-800 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/10 flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>33+ tools: FuelCheck, AI Notes, PDF/Word conversion, OCR</span>
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Text-only chat prompt requiring multiple apps</td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Ad-heavy separate online tools</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">Data Sovereignty &amp; Privacy</td>
-                    <td className="p-4 sm:p-5 text-emerald-800 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/10 flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>100% Indian data residency (DPDP Act 2023 compliant)</span>
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Stored on overseas servers under foreign laws</td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Unknown third-party server privacy</td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">Domestic Edge Cloud Latency</td>
-                    <td className="p-4 sm:p-5 text-emerald-800 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/10 flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>&lt;0.8s via Indian edge nodes with multi-tier failover</span>
-                    </td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">2.5s to 4.5s roundtrips to US/EU datacenters</td>
-                    <td className="p-4 sm:p-5 text-slate-600 dark:text-slate-400">Variable / High latency</td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* Strategic Bento Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+
+              {/* Bento Card 1: Linguistic Precision (Col Span 7 on desktop) */}
+              <div className="md:col-span-2 lg:col-span-7 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25">
+                      Linguistic Precision
+                    </span>
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      99.4% Script Purity
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+                    Assamese Script &amp; Grammatical Purity
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                    Eliminates Bengali script overlap (correcting Bengali &lsquo;র&rsquo; contamination into authentic Assamese &lsquo;ৰ&rsquo; and &lsquo;ৱ&rsquo;). Preserves authentic grammatical cases (vibhakti) and classical literary syntax across 6.19 million cultural training tokens.
+                  </p>
+
+                  {/* Axom AI Advantage */}
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Axom AI Platform</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                      99.4% pure script precision powered by axomai-trans-xetu with a custom 68,096-token Assamese vocabulary. Zero Bengali substitution, correct conjuncts (যুক্তাক্ষৰ), and flawless sentence flow.
+                    </p>
+                  </div>
+
+                  {/* Overseas Chatbots Limitation */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>Generic Overseas AI (ChatGPT / Gemini / Claude)</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Frequent Bengali script substitution (confusing র and ৰ), word-splitting due to fragmented sub-word tokenizers, and garbled literary phrasing.
+                    </p>
+                  </div>
+
+                  {/* Legacy Alternative */}
+                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
+                    <span>Slow manual dictionary lookups and inconsistent unverified web transliteration widgets.</span>
+                  </div>
+                </div>
+
+                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Model:</span>
+                  <a
+                    href="https://aiaxom.co.in/research/axomai-trans-xetu/"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                  >
+                    <span>Read Xetu Translation Paper</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Bento Card 2: Edge Cloud Latency (Col Span 5 on desktop) */}
+              <div className="md:col-span-2 lg:col-span-5 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 border border-cyan-500/25">
+                      Edge Performance
+                    </span>
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      &lt;0.8s Latency
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+                    Domestic Edge Cloud Latency
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                    Multi-tiered inference routed across domestic Indian edge points with automatic failover to prevent downtime or transatlantic latency spikes.
+                  </p>
+
+                  {/* Axom AI Advantage */}
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Axom AI Platform</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                      Sub-second response delivery (&lt;0.8s) via local nodes. Multi-tier cascade (Tier 1 flagship, Tier 2 fast fallback, Tier 3 safety net) delivers 99.9% uptime.
+                    </p>
+                  </div>
+
+                  {/* Overseas Chatbots Limitation */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>Generic Overseas AI</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      2.5s to 4.5s latency roundtrips to US/EU datacenters; frequent peak-hour throttling and overseas outages.
+                    </p>
+                  </div>
+
+                  {/* Legacy Alternative */}
+                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
+                    <span>Variable speeds, ad blockers interference, and frequent server timeouts.</span>
+                  </div>
+                </div>
+
+                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Architecture:</span>
+                  <a
+                    href="https://aiaxom.co.in/research/axomai-speech-xuna/"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                  >
+                    <span>Read Latency Benchmarks</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Bento Card 3: Assam GK & Civil Services (Col Span 4 on desktop) */}
+              <div className="md:col-span-1 lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
+                      Exam &amp; Syllabus
+                    </span>
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      APSC / SEBA
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2">
+                    Assam GK &amp; APSC Alignment
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                    Pre-trained on Assam civil services, Ahom history, regional geography, state acts, and budgetary data with zero hallucination.
+                  </p>
+
+                  {/* Axom AI Advantage */}
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Axom AI Platform</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                      Deep state curriculum context (Ahom dynasty, Sukapha, Lachit Borphukan, regional geography, state budget, and APSC exam points).
+                    </p>
+                  </div>
+
+                  {/* Overseas Chatbots Limitation */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>Generic Overseas AI</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Superficial, generic summaries; routinely hallucinates state facts, dates, and historical figures.
+                    </p>
+                  </div>
+
+                  {/* Legacy Alternative */}
+                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
+                    <span>Outdated static paper guidebooks with no dynamic notes or interactive doubt solving.</span>
+                  </div>
+                </div>
+
+                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Applied Tool:</span>
+                  <Link
+                    href="/tools/ai-notes-generator"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                  >
+                    <span>AI Notes Generator</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Bento Card 4: 33+ Integrated Production Tools (Col Span 4 on desktop) */}
+              <div className="md:col-span-1 lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                      Tool Ecosystem
+                    </span>
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      33+ Built-in Tools
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2">
+                    Integrated Production Tools
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                    A unified sovereign software suite combining verified vehicular compliance, academic generators, and document processing.
+                  </p>
+
+                  {/* Axom AI Advantage */}
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Axom AI Platform</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                      33+ purpose-built tools: Axom FuelCheck (E5–E100), AI Notes Generator with .docx export, Scanned Jamabandi OCR, and full PDF/Word suite.
+                    </p>
+                  </div>
+
+                  {/* Overseas Chatbots Limitation */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>Generic Overseas AI</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Single text-only chat prompt window with zero native Word (.docx) export and no automotive or land-record engines.
+                    </p>
+                  </div>
+
+                  {/* Legacy Alternative */}
+                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
+                    <span>Ad-heavy separate online tools with file caps and multiple paid accounts required.</span>
+                  </div>
+                </div>
+
+                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Ecosystem:</span>
+                  <Link
+                    href="/tools"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                  >
+                    <span>Browse All 33+ Tools</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Bento Card 5: Data Sovereignty & DPDP Act 2023 (Col Span 4 on desktop, Col Span 2 on md) */}
+              <div className="md:col-span-2 lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 border border-indigo-500/25">
+                      Data Residency &amp; Privacy
+                    </span>
+                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      DPDP Act 2023
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2">
+                    100% Indian Data Sovereignty
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                    Zero overseas data transit. Prompts, documents, and student records are processed in isolated transient memory within India.
+                  </p>
+
+                  {/* Axom AI Advantage */}
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                    <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Axom AI Platform</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                      100% Indian cloud residency complying strictly with the Digital Personal Data Protection Act (DPDP Act 2023). Zero user prompt mining.
+                    </p>
+                  </div>
+
+                  {/* Overseas Chatbots Limitation */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
+                      <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                      <span>Generic Overseas AI</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Stored and processed on overseas US/EU server farms subject to foreign surveillance and cloud data requests.
+                    </p>
+                  </div>
+
+                  {/* Legacy Alternative */}
+                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
+                    <span>Unknown third-party server privacy, silent document retention, and unencrypted uploads.</span>
+                  </div>
+                </div>
+
+                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                  <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Compliance:</span>
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Indian DPDP Act Verified</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </section>
 
