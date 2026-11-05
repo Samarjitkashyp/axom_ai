@@ -18,7 +18,6 @@ import {
   ShieldCheck,
   Award,
   Cpu,
-  Layers,
   Bot,
   Languages,
   FileDown,
@@ -399,27 +398,7 @@ export default function UseCasesInteractiveHub() {
                     {sector.description}
                   </p>
 
-                  {/* Applied Production Tools Strip */}
-                  <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/5 space-y-2">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                      <span>Integrated Production Tools</span>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {sector.tools.map((tool, tIdx) => (
-                        <Link
-                          key={tIdx}
-                          href={tool.url}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-semibold hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition-all shadow-sm"
-                        >
-                          <span>{tool.name}</span>
-                          <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded font-mono">
-                            {tool.badge}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
+
 
                   {/* Key Capabilities Checklist */}
                   <div className="space-y-2 pt-1">
