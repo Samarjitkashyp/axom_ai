@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import {
   GraduationCap,
@@ -22,7 +22,7 @@ import {
   Bot,
   Languages,
   FileDown,
-  Search,
+
   ExternalLink,
   Sparkles,
   Zap,
@@ -350,97 +350,10 @@ export const USE_CASE_SECTORS: SectorItem[] = [
 ];
 
 export default function UseCasesInteractiveHub() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-
-  const categories = useMemo(() => {
-    return [
-      { id: 'all', label: 'All Sectors' },
-      { id: 'Education', label: 'Students & Schools' },
-      { id: 'Competitive Exams', label: 'APSC & Civil Services' },
-      { id: 'Automotive', label: 'Automotive & FuelCheck' },
-      { id: 'Enterprise', label: 'MSMEs & Business' },
-      { id: 'Legal & Administration', label: 'Law & Land Records' },
-      { id: 'Public Health', label: 'Healthcare' },
-      { id: 'Creative Arts', label: 'Creators & Media' },
-      { id: 'Engineering', label: 'Developers & Code' },
-    ];
-  }, []);
-
-  const filteredSectors = useMemo(() => {
-    return USE_CASE_SECTORS.filter((sector) => {
-      const matchCat = selectedCategory === 'all' || sector.category === selectedCategory;
-      if (!matchCat) return false;
-
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
-      return (
-        sector.title.toLowerCase().includes(q) ||
-        sector.tagline.toLowerCase().includes(q) ||
-        sector.description.toLowerCase().includes(q) ||
-        sector.researchModel.name.toLowerCase().includes(q) ||
-        sector.tools.some((t) => t.name.toLowerCase().includes(q)) ||
-        sector.capabilities.some((c) => c.toLowerCase().includes(q))
-      );
-    });
-  }, [selectedCategory, searchQuery]);
-
   return (
-    <div className="space-y-12">
-      {/* Search and Category Filter Bar */}
-      <div className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-emerald-900/10 dark:border-white/10 shadow-lg space-y-4">
-        {/* Search Input */}
-        <div className="relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by topic, keyword, or tool (e.g. APSC, Notes, Jamabandi, FuelCheck, PDF)..."
-            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-black/30 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all shadow-inner"
-          />
-        </div>
-
-        {/* Horizontal Scrollable Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {categories.map((cat) => {
-            const isActive = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
-                  isActive
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/20'
-                    : 'bg-white/80 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10'
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Results Count Banner */}
-      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-2">
-        <span>Showing {filteredSectors.length} of {USE_CASE_SECTORS.length} specialized sectors</span>
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery('')}
-            className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
-          >
-            Clear Search
-          </button>
-        )}
-      </div>
-
-      {/* Sectors Bento Grid */}
-      <div className="space-y-10">
-        {filteredSectors.map((sector) => {
-          const IconComponent = sector.icon;
+    <div className="space-y-10">
+      {USE_CASE_SECTORS.map((sector) => {
+        const IconComponent = sector.icon;
 
           return (
             <article
@@ -586,7 +499,6 @@ export default function UseCasesInteractiveHub() {
           );
         })}
       </div>
-    </div>
   );
 }
 
