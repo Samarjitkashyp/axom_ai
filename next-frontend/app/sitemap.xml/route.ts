@@ -11,7 +11,7 @@ export async function GET() {
   const staticPages = [
     { url: `${baseUrl}`, lastmod: '2026-10-08', changefreq: 'daily', priority: '1.0' },
     { url: `${baseUrl}/about`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
-    { url: `${baseUrl}/use-cases`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
+    { url: `${baseUrl}/use-cases`, lastmod: '2026-11-05', changefreq: 'daily', priority: '1.0' },
     { url: `${baseUrl}/pricing`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.9' },
     { url: `${baseUrl}/blog`, lastmod: '2026-10-08', changefreq: 'daily', priority: '0.9' },
     { url: `${baseUrl}/faq`, lastmod: '2026-10-08', changefreq: 'weekly', priority: '0.8' },
@@ -24,6 +24,8 @@ export async function GET() {
 
   // All 37 Axom AI Tools
   const toolSlugs = [
+    'fuel-checker',
+    'voice-notes-generator',
     'ai-notes-generator',
     'word-to-pdf',
     'pdf-to-word',

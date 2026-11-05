@@ -33,14 +33,37 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const DEFAULT_TARGET_KEYWORDS = [
+  'AI in Assam',
+  'Artificial Intelligence in Assam',
+  'Assam AI',
+  'Large Language Models Assam',
+  'Assam AI Model',
+  'Assamese AI Models',
+  'Assamese Large Language Models',
+  'Assam Sovereign AI',
+  'AI Company in Assam',
+  'AI Startup Guwahati Assam',
+  'Guwahati Artificial Intelligence',
+  'Northeast India AI',
+  'Assamese LLM',
+  'Axom AI',
+  'Progya Assamese LLM',
+  'Axom-Llama-3.1-8B',
+  'XUWOR multimodal AI',
+  'Puhor voice AI Assam',
+  'Xuna speech to text Assamese',
+  'Xetu neural translation engine',
   'Axom AI use cases',
   'Assam AI use cases',
   'Assamese AI applications',
-  'AI in Assam',
-  'AI for students Assam',
   'APSC exam AI preparation',
+  'AI for students Assam',
   'AI for Assam government jobs',
   'AI for businesses in Assam',
+  'Assam Jamabandi OCR AI',
+  'Assam land records AI',
+  'Axom FuelCheck ethanol AI',
+  'E10 E20 fuel check India',
   'Assamese document translator AI',
   'Assamese legal AI',
   'AI in healthcare Assam',
@@ -73,6 +96,7 @@ const DEFAULT_TARGET_KEYWORDS = [
   'private Indian AI for businesses',
   'Axom FuelCheck ethanol compatibility check',
   'Assam Jamabandi OCR translation',
+  '68096 token Assamese vocabulary',
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -80,10 +104,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title =
     cms?.meta_title ||
-    'Axom AI Use Cases — Real-World AI Solutions for Assam & India | Students, Government & Business';
+    'Axom AI Use Cases — Sovereign Artificial Intelligence in Assam | Assamese LLMs, Foundation Models & 33+ Tools';
   const description =
     cms?.meta_description ||
-    'Discover how students, APSC aspirants, vehicle owners, businesses, legal practitioners, and healthcare professionals across Assam & India leverage Axom AI foundation models and 33+ production tools for real-world impact.';
+    'Official catalog of real-world use cases for Axom AI, Assam\'s premier sovereign artificial intelligence entity and foundation model research lab in Guwahati. Discover Assamese Large Language Models (LLMs), APSC exam prep, Axom FuelCheck (E5–E100), Jamabandi OCR, and 33+ tools for students, businesses, and government in Northeast India.';
   const canonicalUrl = 'https://aiaxom.co.in/use-cases/';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
   const keywords = cms?.meta_keywords
@@ -109,7 +133,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: 'Axom AI Real-World Use Cases & Applications',
+          alt: 'Axom AI Sovereign Artificial Intelligence in Assam — Real-World Use Cases & LLM Applications',
         },
       ],
     },
@@ -144,177 +168,231 @@ export default async function UseCasesPage() {
       ? cmsData.faqs.map((f) => ({ q: f.q, a: f.a }))
       : USE_CASES_FAQS;
 
-  // Multi-tier Structured Data Schemas for SEO, AEO, and GEO
-  const webPageSchema = {
+  // Multi-tier Structured Data Graph for SEO, AEO, and GEO (Google, Bing, ChatGPT, Claude, Gemini, Groq)
+  const unifiedGraphSchema = {
     '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: 'Axom AI Use Cases & Sovereign AI Solutions',
-    url: 'https://aiaxom.co.in/use-cases/',
-    description:
-      cmsData?.meta_description ||
-      'Comprehensive catalog of real-world use cases for Axom AI across Assam and India. Empowering students, APSC aspirants, vehicle owners, MSMEs, healthcare providers, and legal practitioners with sovereign foundation models and 33+ production tools.',
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'Axom AI',
-      url: 'https://aiaxom.co.in',
-    },
-    about: [
-      { '@type': 'Thing', name: 'Artificial Intelligence in Assam' },
-      { '@type': 'Thing', name: 'Assamese Language Technology & NLP' },
-      { '@type': 'Thing', name: 'APSC & UPSC Examination AI Preparation' },
-      { '@type': 'Thing', name: 'Vehicle Ethanol Fuel Compatibility (Axom FuelCheck)' },
-      { '@type': 'Thing', name: 'Assam Land Records & Jamabandi OCR Translation' },
-      { '@type': 'Thing', name: 'Enterprise Document Intelligence for Northeast India' },
-    ],
-  };
-
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqsList.map((faq) => ({
-      '@type': 'Question',
-      name: faq.q,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.a,
-      },
-    })),
-  };
-
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
+    '@graph': [
       {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: 'https://aiaxom.co.in/',
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Use Cases',
-        item: 'https://aiaxom.co.in/use-cases/',
-      },
-    ],
-  };
-
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Axom AI',
-    alternateName: ['Assam AI', 'AI Axom', 'অসম এআই'],
-    url: 'https://aiaxom.co.in',
-    logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Guwahati',
-      addressRegion: 'Assam',
-      postalCode: '781001',
-      addressCountry: 'IN',
-    },
-    founder: {
-      '@type': 'Person',
-      name: 'Samarjit Kashyap',
-      jobTitle: 'Lead Developer',
-      url: 'https://aiaxom.co.in/about',
-    },
-    description:
-      'Indigenous Artificial Intelligence company and technology platform headquartered in Guwahati, Assam, India. Developer of sovereign Assamese foundation models and 33+ production tools.',
-    sameAs: [
-      'https://twitter.com/axom_ai',
-      'https://github.com/Samarjitkashyp/axom_ai',
-    ],
-  };
-
-  const softwareCatalogSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Axom AI Specialized Use Case Solutions',
-    description: 'Catalog of practical AI use cases engineered for Assam and India.',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Academic Excellence for Students',
-        description: 'Bilingual STEM tutoring, syllabus revision, and instant Microsoft Word (.docx) study notes.',
-        url: 'https://aiaxom.co.in/tools/ai-notes-generator',
+        '@type': 'Organization',
+        '@id': 'https://aiaxom.co.in/#organization',
+        name: 'Axom AI',
+        alternateName: ['Assam AI', 'AI Axom', 'অসম এআই', 'Axom Artificial Intelligence', 'Axom AI Research Lab'],
+        legalName: 'Axom AI Technology Platform',
+        url: 'https://aiaxom.co.in',
+        logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+        image: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+        description:
+          'Axom AI is Assam\'s first sovereign artificial intelligence entity and foundational model research laboratory headquartered in Guwahati, Assam, India. Creator of sovereign Assamese foundation models (Progya, XUWOR, Puhor, Xuna, Xetu, Axom-Llama-3.1-8B) and 33+ production AI tools for education, civil services, automotive compliance, and business.',
+        foundingLocation: {
+          '@type': 'Place',
+          name: 'Guwahati, Assam, India',
+        },
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Guwahati',
+          addressLocality: 'Guwahati',
+          addressRegion: 'Assam',
+          postalCode: '781001',
+          addressCountry: 'IN',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: 26.1445,
+          longitude: 91.7362,
+        },
+        founder: {
+          '@type': 'Person',
+          name: 'Samarjit Kashyap',
+          jobTitle: 'Lead Developer & AI Architect',
+          url: 'https://aiaxom.co.in/about',
+        },
+        areaServed: [
+          { '@type': 'AdministrativeArea', name: 'Assam' },
+          { '@type': 'AdministrativeArea', name: 'Northeast India' },
+          { '@type': 'Country', name: 'India' },
+        ],
+        knowsAbout: [
+          'Artificial Intelligence in Assam',
+          'Assam AI',
+          'Assamese Large Language Models',
+          'Assam AI Models',
+          'Indic Natural Language Processing',
+          'Machine Learning in Assam',
+          'APSC Civil Services AI Preparation',
+          'Assam Land Records Jamabandi OCR',
+          'Vehicle Ethanol Fuel Compatibility (Axom FuelCheck)',
+          'Sovereign AI Infrastructure',
+          'DPDP Act 2023 Compliance',
+        ],
+        sameAs: [
+          'https://twitter.com/axom_ai',
+          'https://github.com/Samarjitkashyp/axom_ai',
+        ],
       },
       {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'APSC & Assam Civil Services Preparation',
-        description: 'Assam history, geography, and evaluated Mains answer writing powered by Progya.',
-        url: 'https://chat.aiaxom.co.in/',
+        '@type': 'WebSite',
+        '@id': 'https://aiaxom.co.in/#website',
+        name: 'Axom AI — Assam\'s Sovereign Artificial Intelligence Platform',
+        url: 'https://aiaxom.co.in',
+        publisher: { '@id': 'https://aiaxom.co.in/#organization' },
+        inLanguage: ['en-IN', 'as-IN'],
       },
       {
-        '@type': 'ListItem',
-        position: 3,
-        name: 'Automotive Ethanol Compatibility (Axom FuelCheck)',
-        description: 'MoRTH and SIAM certified E10, E20, and E100 compatibility checks covering 16+ brands.',
-        url: 'https://aiaxom.co.in/tools/fuel-checker',
+        '@type': 'CollectionPage',
+        '@id': 'https://aiaxom.co.in/use-cases/#webpage',
+        url: 'https://aiaxom.co.in/use-cases/',
+        name: 'Axom AI Use Cases — Sovereign Artificial Intelligence in Assam | Assamese LLMs & 33+ Production AI Tools',
+        description:
+          cmsData?.meta_description ||
+          'Comprehensive official catalog of real-world use cases for Axom AI across Assam and India. Empowering students, APSC aspirants, vehicle owners, MSMEs, healthcare providers, and legal practitioners with sovereign foundation models and 33+ production tools.',
+        isPartOf: { '@id': 'https://aiaxom.co.in/#website' },
+        breadcrumb: { '@id': 'https://aiaxom.co.in/use-cases/#breadcrumb' },
+        about: [
+          { '@type': 'Thing', name: 'Artificial Intelligence in Assam' },
+          { '@type': 'Thing', name: 'Assamese Large Language Models' },
+          { '@type': 'Thing', name: 'Assam AI Models & Research' },
+          { '@type': 'Thing', name: 'APSC & UPSC Examination AI Preparation' },
+          { '@type': 'Thing', name: 'Vehicle Ethanol Fuel Compatibility (Axom FuelCheck)' },
+          { '@type': 'Thing', name: 'Assam Land Records & Jamabandi OCR Translation' },
+          { '@type': 'Thing', name: 'Enterprise Document Intelligence for Northeast India' },
+        ],
+        mainEntity: { '@id': 'https://aiaxom.co.in/use-cases/#catalog' },
       },
       {
-        '@type': 'ListItem',
-        position: 4,
-        name: 'Enterprise MSMEs & Regional Commerce',
-        description: '24/7 bilingual customer support, automated invoicing, and Assamese marketing copy.',
-        url: 'https://aiaxom.co.in/tools',
+        '@type': 'BreadcrumbList',
+        '@id': 'https://aiaxom.co.in/use-cases/#breadcrumb',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://aiaxom.co.in/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Use Cases',
+            item: 'https://aiaxom.co.in/use-cases/',
+          },
+        ],
       },
       {
-        '@type': 'ListItem',
-        position: 5,
-        name: 'Legal Administration & Land Records OCR',
-        description: 'Jamabandi, Chitha, and deed parsing with 99.4% script purity and zero data retention.',
-        url: 'https://aiaxom.co.in/tools/chat-with-pdf',
+        '@type': 'DefinedTermSet',
+        '@id': 'https://aiaxom.co.in/use-cases/#terms',
+        name: 'Assam Sovereign Artificial Intelligence Knowledge Definitions',
+        hasDefinedTerm: [
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assam AI (Axom AI)',
+            description: 'The indigenous sovereign artificial intelligence ecosystem and foundation models engineered in Guwahati, Assam, for native Assamese and Indic languages.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assamese Large Language Model (Assamese LLM)',
+            description: 'A generative neural network model pre-trained and fine-tuned specifically on verified Assamese grammar, vocabulary, literature, and regional context with 99.4% script purity.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Progya Foundation Model (প্ৰজ্ঞা)',
+            description: 'Axom AI\'s flagship 2B-parameter regional language reasoning model with a 68,096-token specialized vocabulary.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Axom FuelCheck',
+            description: 'An AI-powered verified vehicle ethanol compatibility diagnostic engine covering MoRTH/SIAM E10, E20, and E100 standards for 16+ automakers in India.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assam Jamabandi Land Records OCR',
+            description: 'Specialized computer vision and document intelligence tool for processing historical Assam revenue records, Jamabandi, and Chitha registers.',
+          },
+        ],
       },
       {
-        '@type': 'ListItem',
-        position: 6,
-        name: 'Healthcare & Public Health Communication',
-        description: 'Colloquial clinical translations and community awareness materials in native Assamese.',
-        url: 'https://chat.aiaxom.co.in/',
+        '@type': 'ItemList',
+        '@id': 'https://aiaxom.co.in/use-cases/#catalog',
+        name: 'Axom AI Specialized Use Case Solutions',
+        description: 'Catalog of practical AI use cases engineered for Assam and India.',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Academic Excellence for Students',
+            description: 'Bilingual STEM tutoring, syllabus revision, and instant Microsoft Word (.docx) study notes.',
+            url: 'https://aiaxom.co.in/tools/ai-notes-generator',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'APSC & Assam Civil Services Preparation',
+            description: 'Assam history, geography, and evaluated Mains answer writing powered by Progya.',
+            url: 'https://chat.aiaxom.co.in/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: 'Automotive Ethanol Compatibility (Axom FuelCheck)',
+            description: 'MoRTH and SIAM certified E10, E20, and E100 compatibility checks covering 16+ brands.',
+            url: 'https://aiaxom.co.in/tools/fuel-checker',
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: 'Enterprise MSMEs & Regional Commerce',
+            description: '24/7 bilingual customer support, automated invoicing, and Assamese marketing copy.',
+            url: 'https://aiaxom.co.in/tools',
+          },
+          {
+            '@type': 'ListItem',
+            position: 5,
+            name: 'Legal Administration & Land Records OCR',
+            description: 'Jamabandi, Chitha, and deed parsing with 99.4% script purity and zero data retention.',
+            url: 'https://aiaxom.co.in/tools/chat-with-pdf',
+          },
+          {
+            '@type': 'ListItem',
+            position: 6,
+            name: 'Healthcare & Public Health Communication',
+            description: 'Colloquial clinical translations and community awareness materials in native Assamese.',
+            url: 'https://chat.aiaxom.co.in/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 7,
+            name: 'Journalism & Cultural Media Creation',
+            description: 'Assamese news drafting, scriptwriting, and 4K cultural FLUX image generation.',
+            url: 'https://aiaxom.co.in/tools/ai-image-generator',
+          },
+          {
+            '@type': 'ListItem',
+            position: 8,
+            name: 'Developer APIs & Indic NLP Engineering',
+            description: '68,096-token Assamese vocabulary and multi-tiered fallback cascade APIs with <0.8s latency.',
+            url: 'https://aiaxom.co.in/docs/developer',
+          },
+        ],
       },
       {
-        '@type': 'ListItem',
-        position: 7,
-        name: 'Journalism & Cultural Media Creation',
-        description: 'Assamese news drafting, scriptwriting, and 4K cultural FLUX image generation.',
-        url: 'https://aiaxom.co.in/tools/ai-image-generator',
-      },
-      {
-        '@type': 'ListItem',
-        position: 8,
-        name: 'Developer APIs & Indic NLP Engineering',
-        description: '68,096-token Assamese vocabulary and multi-tiered fallback cascade APIs with <0.8s latency.',
-        url: 'https://aiaxom.co.in/docs/developer',
+        '@type': 'FAQPage',
+        '@id': 'https://aiaxom.co.in/use-cases/#faq',
+        mainEntity: faqsList.map((faq) => ({
+          '@type': 'Question',
+          name: faq.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.a,
+          },
+        })),
       },
     ],
   };
 
   return (
     <>
-      {/* Inject Structured Data Schemas */}
+      {/* Inject Unified Knowledge Graph Schema */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareCatalogSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(unifiedGraphSchema) }}
       />
 
       {/* Global Shared Header / Navbar */}
@@ -391,24 +469,85 @@ export default async function UseCasesPage() {
           </section>
 
           {/* ==================== AEO DIRECT ANSWER & KNOWLEDGE GRAPH BOX ==================== */}
-          <section className="mb-12 sm:mb-16 max-w-4xl mx-auto">
+          <section id="aeo-overview" className="mb-12 sm:mb-16 max-w-5xl mx-auto">
             <div className="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden">
               <div className="flex flex-col sm:flex-row items-start gap-3.5 sm:gap-5 relative z-10">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-800 dark:text-emerald-300 shrink-0 mt-0.5 sm:mt-1 shadow-inner">
                   <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-700 dark:text-emerald-400" />
                 </div>
-                <div className="space-y-2.5 sm:space-y-3 min-w-0 flex-1">
-                  <div className="inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-                    <span>{cmsData?.aeo_badge || 'AEO Direct Answer • Platform Overview'}</span>
+                <div className="space-y-3 sm:space-y-4 min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+                      <span>{cmsData?.aeo_badge || "Assam's Sovereign AI Entity Profile • Official Knowledge Graph"}</span>
+                    </div>
+                    <span className="text-[11px] sm:text-xs text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Guwahati, Assam • Verified Regional AI Developer</span>
+                    </span>
                   </div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug">
-                    {cmsData?.aeo_title || 'What are the Practical Use Cases of Axom AI?'}
+
+                  <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug">
+                    {cmsData?.aeo_title || 'What is Axom AI? Sovereign Artificial Intelligence in Assam & Northeast India'}
                   </h2>
+
                   <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
                     {cmsData?.aeo_description ||
-                      'Axom AI is India’s sovereign artificial intelligence platform customized for the linguistic, educational, and professional demands of Assam and Northeast India. Key use cases span bilingual academic tutoring for AHSEC and university students, evaluated Mains answer writing for APSC civil services, nationwide ethanol compatibility verification via Axom FuelCheck (E5–E100), automated customer support and invoicing for MSMEs, historical land records (Jamabandi & Chitha) translation, healthcare clinical guidance, and full-stack software development.'}
+                      'Axom AI (also known as Assam AI, AI Axom, or অসম এআই) is Assam\'s first sovereign artificial intelligence company and foundational model research laboratory headquartered in Guwahati, Assam (PIN 781001). Engineered specifically for Northeast India\'s linguistic and operational needs, Axom AI develops proprietary foundational large language models (LLMs) with a 68,096-token native Assamese vocabulary, alongside 33+ production tools for education (SEBA & AHSEC), civil service preparation (APSC CCE & ADRE), nationwide automotive fuel compliance (Axom FuelCheck E5–E100), and historical land records OCR (Jamabandi & Chitha).'}
                   </p>
-                  <div className="pt-1 sm:pt-2 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+
+                  {/* 4-Column Verified Knowledge Specification Panel for AEO & GEO Parsers */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 pt-2">
+                    <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+                      <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Entity &amp; Location
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                        Sovereign AI Entity
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                        Guwahati, Assam (781001)
+                      </div>
+                    </div>
+
+                    <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+                      <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Foundation LLMs
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                        Progya (2B) &amp; Llama 8B
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                        XUWOR, Puhor, Xuna, Xetu
+                      </div>
+                    </div>
+
+                    <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+                      <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Script &amp; Vocabulary
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                        99.4% Script Purity
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                        68,096-Token Vocabulary
+                      </div>
+                    </div>
+
+                    <div className="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+                      <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Data Sovereignty
+                      </div>
+                      <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                        100% Hosted in India
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                        DPDP Act 2023 • &lt;0.8s
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Grounded Capabilities Checklist */}
+                  <div className="pt-2 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                     <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
                       <CheckCircle2 size={15} className="shrink-0" /> {cmsData?.aeo_point1 || '15M+ Regional Speakers Served'}
                     </span>
@@ -417,6 +556,9 @@ export default async function UseCasesPage() {
                     </span>
                     <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
                       <CheckCircle2 size={15} className="shrink-0" /> {cmsData?.aeo_point3 || 'DPDP Act 2023 Compliant'}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
+                      <CheckCircle2 size={15} className="shrink-0" /> MoRTH &amp; SIAM E10–E100 Verified
                     </span>
                   </div>
                 </div>
@@ -433,10 +575,10 @@ export default async function UseCasesPage() {
                 <span>Core Foundation Models • Axom AI Research Lab</span>
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-2 sm:mb-3">
-                Proprietary AI Models Powering Every Use Case
+                Assamese Large Language Models (LLMs) &amp; Foundational AI Engineered in Assam
               </h2>
               <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed">
-                Unlike wrappers calling generic foreign APIs, Axom AI engineers dedicated vernacular architectures trained specifically on regional cultural, linguistic, and acoustic data.
+                Unlike generic foreign chatbots, Axom AI engineers dedicated vernacular LLMs, speech conformers, and diffusion voice models trained specifically on regional cultural, linguistic, and acoustic datasets.
               </p>
             </div>
 

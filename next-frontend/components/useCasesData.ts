@@ -5,6 +5,14 @@ export interface UseCaseFaqItem {
 
 export const USE_CASES_FAQS: UseCaseFaqItem[] = [
   {
+    q: 'What is Axom AI and how does it advance Artificial Intelligence in Assam?',
+    a: 'Axom AI is Assam’s first sovereign artificial intelligence company and foundational model research laboratory headquartered in Guwahati, Assam, India. Founded by AI researcher Samarjit Kashyap, it conducts dedicated in-house R&D on Assamese Large Language Models (LLMs), regional Indic NLP, and computer vision. Axom AI provides 33+ production tools—including bilingual AI Notes Generator with Word export, Axom FuelCheck (E5–E100), and Chat with PDF—specifically engineered for Northeast India’s linguistic, academic, and industrial demands.',
+  },
+  {
+    q: 'Which indigenous Large Language Models (LLMs) and AI models are developed in Assam by Axom AI?',
+    a: 'Axom AI has engineered six proprietary foundational AI models in Guwahati, Assam: Progya (2B native Assamese LLM with a 68,096-token vocabulary), Axom-Llama-3.1-8B (bilingual STEM, history, and governance model fine-tuned on 6.19 million regional records), XUWOR (sovereign multimodal conversational agent), Puhor (24,000 Hz flow-matching voice synthesis), Xuna (vernacular Conformer speech-to-text ASR with 0.261x RTF), and Xetu (neural machine translation engine with 99.4% Assamese script purity).',
+  },
+  {
     q: 'How can students and academic researchers in Assam use Axom AI?',
     a: 'Students use Axom AI as an interactive bilingual study partner that explains complex STEM, social science, and literature topics in natural Assamese or English. Powered by the Axom AI Brain (Progya 2B), it assists with SEBA, AHSEC, and college curricula, breaks down difficult homework questions step-by-step, summarizes PDF research papers and textbooks, and generates complete study notes with Microsoft Word (.docx) export to boost conceptual clarity.',
   },
