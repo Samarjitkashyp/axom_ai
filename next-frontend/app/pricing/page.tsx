@@ -183,10 +183,20 @@ export default async function PricingPage() {
     },
   };
 
-  const faqList =
+  const rawFaqList =
     cms?.pricing_faqs?.items && cms.pricing_faqs.items.length > 0
       ? cms.pricing_faqs.items
       : PRICING_FAQS;
+
+  const faqList = rawFaqList.map((faq: any) => {
+    let q = faq.q || faq.question || '';
+    let a = faq.a || faq.answer || '';
+    if (q.toLowerCase().includes('chatgpt') || q.toLowerCase().includes('openai') || q.toLowerCase().includes('claude')) {
+      q = 'What makes Axom AI Pro unique for users across Assam?';
+      a = 'Axom AI Pro gives you complete access to our sovereign foundation models — Progya (প্ৰজ্ঞা) 2B dense LLM, Puhor (পোহৰ) 24kHz studio voice engine, Xuna (শুনা) speech recognition, and Xetu (সেতু) translation bridge. It also unlocks 20+ document utilities, high-accuracy Assamese OCR, sub-second latency on Indian cloud infrastructure, and 250,000 monthly AI words with seamless UPI payment.';
+    }
+    return { q, a, question: q, answer: a };
+  });
 
   // FAQ Schema for Search Engines & AEO
   const faqSchema = {
