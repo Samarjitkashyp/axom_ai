@@ -409,17 +409,25 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   const homeHref = isChatDomain ? 'https://aiaxom.co.in/' : '/';
 
   // Dynamic Nav Items (fallback to default standard set if none configured)
-  const rawNavItems = header?.nav_items && header.nav_items.length > 0
+  const initialNavItems = header?.nav_items && header.nav_items.length > 0
     ? header.nav_items
     : [
         { id: 1, title: 'About', url: '/about', order: 1 },
         { id: 2, title: 'AI Tools', url: '/tools', order: 2 },
+        { id: 25, title: 'Our Models', url: '/our-models', order: 2.5 },
         { id: 3, title: 'Use Cases', url: '/use-cases', order: 3 },
         { id: 4, title: 'Pricing', url: '/pricing', order: 4 },
         { id: 5, title: 'Blog & Insights', url: '/blog', order: 5 },
         { id: 6, title: 'FAQ', url: '/faq', order: 6 },
         { id: 7, title: 'Contact Us', url: '/contact', order: 7 },
       ];
+
+  const hasOurModels = initialNavItems.some((i: any) => i.url === '/our-models' || i.title?.toLowerCase().includes('model'));
+  const rawNavItems = hasOurModels ? initialNavItems : [
+    ...initialNavItems.slice(0, 2),
+    { id: 99, title: 'Our Models', url: '/our-models', order: 2.5 },
+    ...initialNavItems.slice(2),
+  ];
 
   const mappedNavItems = rawNavItems.map((item) => {
     if (
