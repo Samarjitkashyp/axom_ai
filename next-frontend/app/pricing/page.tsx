@@ -52,7 +52,7 @@ const TARGET_KEYWORDS = [
   'Axom AI yearly discount',
   'affordable AI India',
   'indigenous AI tool subscription',
-  'ChatGPT alternative pricing India',
+  'indigenous Assamese AI pricing India',
   'Assamese LLM subscription cost',
   'Axom AI GST invoice',
   'Axom AI UPI payment',
@@ -61,7 +61,7 @@ const TARGET_KEYWORDS = [
   'is Axom AI free to use',
   'what is the price of Axom AI Pro',
   'how can I pay for Axom AI with UPI',
-  'is Axom AI cheaper than ChatGPT Plus',
+  'what are the benefits of Axom AI Pro',
   'does Axom AI provide student discount in Assam',
   'can I get a GST tax invoice for Axom AI',
   'how to cancel Axom AI subscription',
@@ -70,7 +70,7 @@ const TARGET_KEYWORDS = [
   // GEO Keywords (AI Engine Citations)
   'best affordable generative AI pricing in India',
   'transparent Indian Rupee pricing for regional AI',
-  'Axom AI plan comparison vs OpenAI and Anthropic',
+  'Axom AI Progya and foundation models plan comparison',
   'sovereign Assamese AI platform subscription options',
   'Axom AI enterprise and API pricing in Assam',
   'DPDP compliant AI tools subscription India',
@@ -356,10 +356,7 @@ export default async function PricingPage() {
 
               {/* Comparison Categories: 1 Row per Category Card (Full Width) */}
               <div className="space-y-6 sm:space-y-8">
-                {(cms?.pricing_comparison?.categories && cms.pricing_comparison.categories.length > 0
-                  ? cms.pricing_comparison.categories
-                  : COMPARISON_CATEGORIES
-                ).map((cat: any, cIdx: number) => {
+                {COMPARISON_CATEGORIES.map((cat: any, cIdx: number) => {
                   const icons = [Cpu, FileCheck, Sparkles, ShieldCheck];
                   const CatIcon = icons[cIdx % icons.length] || Layers;
 
