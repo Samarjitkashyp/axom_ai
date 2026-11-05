@@ -17,7 +17,6 @@ import {
   X,
   Compass,
   Cpu,
-  Globe2,
   Layers,
   Award,
   BookOpen,
@@ -909,27 +908,6 @@ export default async function UseCasesPage() {
                 </div>
               </div>
 
-            </div>
-          </section>
-
-          {/* ==================== ASSAM REGIONAL AUTHORITY ==================== */}
-          <section className="mb-24 max-w-4xl mx-auto p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 shadow-lg">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-800 dark:text-emerald-400 shrink-0">
-                <Globe2 className="w-7 h-7" />
-              </div>
-              <div className="space-y-1.5">
-                <div className="inline-flex items-center px-3 py-0.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider">
-                  <span>{cmsData?.authority_badge || 'Sovereign AI for Assam & Northeast India'}</span>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-emerald-950 dark:text-white">
-                  {cmsData?.authority_title || 'Built in Assam, Serving Millions Worldwide'}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
-                  {cmsData?.authority_description ||
-                    'Headquartered in Guwahati, Assam, Axom AI is committed to building sovereign regional artificial intelligence infrastructure. By developing localized linguistic benchmarks, custom tokenizers, and domestic cloud edge routing, we ensure that technological advancement preserves regional cultural heritage while empowering the next generation of students, civil servants, entrepreneurs, and researchers.'}
-                </p>
-              </div>
             </div>
           </section>
 
