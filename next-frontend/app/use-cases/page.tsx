@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { pageTitle } from '../../lib/seoTitle';
 import Link from 'next/link';
-import Navbar from '../../components/Navbar';
+import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import UseCasesFaq from '../../components/UseCasesFaq';
 import UseCasesInteractiveHub from '../../components/UseCasesInteractiveHub';
@@ -396,7 +396,7 @@ export default async function UseCasesPage() {
       />
 
       {/* Global Shared Header / Navbar */}
-      <Navbar header={landingData?.header} />
+      <Header header={landingData?.header} />
 
       <main className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 relative overflow-hidden pt-24 sm:pt-28 pb-14 sm:pb-20">
         

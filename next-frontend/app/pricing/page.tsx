@@ -1,11 +1,11 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Navbar from '../../components/Navbar';
+import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import PricingPlansInteractive from '../../components/PricingPlansInteractive';
 import PricingFaq from '../../components/PricingFaq';
-import { DETAILED_PLANS, PRICING_FAQS, COMPARISON_CATEGORIES } from '../../components/pricingData';
+import { DETAILED_PLANS, PRICING_FAQS, COMPARISON_CATEGORIES, DetailedPlan } from '../../components/pricingData';
 import { getLandingCMS } from '../../lib/api';
 import {
   Sparkles,
@@ -258,7 +258,7 @@ export default async function PricingPage() {
       />
 
       {/* Global Navbar */}
-      <Navbar header={cms?.header} />
+      <Header header={cms?.header} />
 
       <main className="flex-1">
         {/* Hero Section */}
