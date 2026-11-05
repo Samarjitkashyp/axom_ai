@@ -350,7 +350,7 @@ export const USE_CASE_SECTORS: SectorItem[] = [
 
 export default function UseCasesInteractiveHub() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 sm:space-y-8 md:space-y-10">
       {USE_CASE_SECTORS.map((sector) => {
         const IconComponent = sector.icon;
 
@@ -358,35 +358,35 @@ export default function UseCasesInteractiveHub() {
             <article
               key={sector.id}
               id={sector.id}
-              className={`scroll-mt-28 p-6 sm:p-8 md:p-10 rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-sm border ${sector.accent.cardBorder} hover:shadow-2xl transition-all relative overflow-hidden`}
+              className={`scroll-mt-24 sm:scroll-mt-28 p-4 sm:p-6 md:p-8 lg:p-10 rounded-2xl sm:rounded-3xl bg-white/70 dark:bg-slate-900/50 backdrop-blur-sm border ${sector.accent.cardBorder} hover:shadow-2xl transition-all relative overflow-hidden`}
             >
               {/* Subtle Ambient Background Gradient */}
               <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 dark:bg-emerald-400/5 rounded-full blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-start">
                 
                 {/* Left Column (7 cols): Main Content, Capabilities & Applied Tools */}
-                <div className="lg:col-span-7 space-y-5">
+                <div className="lg:col-span-7 space-y-4 sm:space-y-5">
                   {/* Badge & Title Row */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${sector.accent.badgeBg}`}>
+                      <span className={`inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold border ${sector.accent.badgeBg}`}>
                         {sector.badge}
                       </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      <span className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">
                         Sector: {sector.category}
                       </span>
                     </div>
 
-                    <div className="flex items-start gap-3.5 pt-1">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-900/5 dark:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0 shadow-sm">
-                        <IconComponent className="w-6 h-6 text-emerald-800 dark:text-emerald-400" />
+                    <div className="flex items-start gap-3 sm:gap-3.5 pt-1">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-900/5 dark:bg-white/10 border border-slate-200 dark:border-white/10 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-800 dark:text-emerald-400" />
                       </div>
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white tracking-tight">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug break-words">
                           {sector.title}
                         </h3>
-                        <p className={`text-xs sm:text-sm font-bold ${sector.accent.badgeText} mt-0.5`}>
+                        <p className={`text-xs sm:text-sm font-bold ${sector.accent.badgeText} mt-0.5 leading-snug`}>
                           {sector.tagline}
                         </p>
                       </div>
@@ -398,18 +398,16 @@ export default function UseCasesInteractiveHub() {
                     {sector.description}
                   </p>
 
-
-
                   {/* Key Capabilities Checklist */}
                   <div className="space-y-2 pt-1">
-                    <h4 className="text-xs uppercase tracking-wider font-bold text-slate-600 dark:text-slate-400">
+                    <h4 className="text-[11px] sm:text-xs uppercase tracking-wider font-bold text-slate-600 dark:text-slate-400">
                       Key Capabilities &amp; Verified Features
                     </h4>
                     <ul className="space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                       {sector.capabilities.map((cap, cIdx) => (
-                        <li key={cIdx} className="flex items-start gap-2.5">
+                        <li key={cIdx} className="flex items-start gap-2 sm:gap-2.5">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                          <span>{cap}</span>
+                          <span className="leading-relaxed">{cap}</span>
                         </li>
                       ))}
                     </ul>
@@ -417,19 +415,19 @@ export default function UseCasesInteractiveHub() {
                 </div>
 
                 {/* Right Column (5 cols): Research Model Card, Impact & CTA */}
-                <div className="lg:col-span-5 flex flex-col justify-between h-full bg-slate-50/60 dark:bg-slate-950/60 p-6 sm:p-7 rounded-2xl border border-emerald-900/10 dark:border-white/5 space-y-6">
+                <div className="lg:col-span-5 flex flex-col justify-between h-full bg-slate-50/60 dark:bg-slate-950/60 p-4 sm:p-6 lg:p-7 rounded-xl sm:rounded-2xl border border-emerald-900/10 dark:border-white/5 space-y-4 sm:space-y-6">
                   
                   {/* Underlying Research Foundation Model */}
-                  <div className="space-y-3">
+                  <div className="space-y-2.5 sm:space-y-3">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <Cpu className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                      <Cpu className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                       <span>Proprietary Research Engine</span>
                     </div>
-                    <div className="p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1.5">
-                      <div className="text-emerald-950 dark:text-white font-bold text-sm">
+                    <div className="p-3.5 sm:p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1.5 shadow-sm">
+                      <div className="text-emerald-950 dark:text-white font-bold text-xs sm:text-sm leading-snug">
                         {sector.researchModel.name}
                       </div>
-                      <div className="text-slate-600 dark:text-slate-400 text-xs font-mono">
+                      <div className="text-slate-600 dark:text-slate-400 text-[11px] sm:text-xs font-mono break-words">
                         {sector.researchModel.spec}
                       </div>
                       <div className="pt-1">
@@ -445,29 +443,29 @@ export default function UseCasesInteractiveHub() {
                   </div>
 
                   {/* Verified Real-World Impact */}
-                  <div className="space-y-3">
+                  <div className="space-y-2.5 sm:space-y-3">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                      <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                       <span>Verified Impact Metric</span>
                     </div>
-                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                      <div className="text-emerald-950 dark:text-white font-bold text-sm sm:text-base leading-snug">
+                    <div className="p-3.5 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                      <div className="text-emerald-950 dark:text-white font-bold text-xs sm:text-sm md:text-base leading-snug">
                         {sector.impactMetric}
                       </div>
-                      <div className="text-slate-600 dark:text-slate-400 text-[11px] mt-1">
+                      <div className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-[11px] mt-1 leading-snug">
                         Grounded benchmarks across active regional users
                       </div>
                     </div>
                   </div>
 
                   {/* Primary Sector Action CTA */}
-                  <div className="pt-2">
+                  <div className="pt-1 sm:pt-2">
                     <a
                       href={sector.ctaUrl}
-                      className={`w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r ${sector.accent.btnGrad} text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-[1.01]`}
+                      className={`w-full py-3 sm:py-3.5 px-4 sm:px-5 rounded-xl sm:rounded-2xl bg-gradient-to-r ${sector.accent.btnGrad} text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99] text-center`}
                     >
                       <span>{sector.ctaText}</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 shrink-0" />
                     </a>
                   </div>
 

@@ -320,7 +320,7 @@ export default async function UseCasesPage() {
       {/* Global Shared Header / Navbar */}
       <Navbar header={landingData?.header} />
 
-      <main className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 relative overflow-hidden pt-28 pb-20">
+      <main className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 relative overflow-hidden pt-24 sm:pt-28 pb-14 sm:pb-20">
         
         {/* Ambient Gradient Glows */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none z-0">
@@ -328,15 +328,15 @@ export default async function UseCasesPage() {
           <div className="absolute top-20 right-1/4 w-[28rem] h-[28rem] bg-indigo-600/10 dark:bg-indigo-600/15 rounded-full blur-[140px]" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
           
           {/* ==================== HERO SECTION ==================== */}
-          <section className="text-center max-w-4xl mx-auto mb-14 sm:mb-16">
-            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-5 shadow-sm">
+          <section className="text-center max-w-4xl mx-auto mb-10 sm:mb-14 md:mb-16">
+            <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-sm">
               <span>{cmsData?.hero_badge_text || 'Real People • Real Impact • Sovereign Assamese AI'}</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight sm:leading-tight mb-5">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.2] sm:leading-tight mb-4 sm:mb-5 break-words">
               {cmsData?.hero_heading_prefix || 'Built for'}{' '}
               <span className="gradient-text">
                 {cmsData?.hero_heading_highlight || 'Real People, Real Impact'}
@@ -344,46 +344,46 @@ export default async function UseCasesPage() {
               {cmsData?.hero_heading_suffix ? ` ${cmsData.hero_heading_suffix}` : ' Across Assam & India'}
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-8">
+            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 px-1">
               {cmsData?.hero_subtitle ||
                 'From school classrooms in Dibrugarh to administrative offices in Dispur and tech startups in Guwahati — discover how Axom AI bridges indigenous foundation research with 33+ production tools to solve real linguistic, academic, and industrial challenges.'}
             </p>
 
             {/* Quick Navigation Jump Anchors */}
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
               <a
                 href="#students"
-                className="px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
+                className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
               >
                 Students &amp; Schools
               </a>
               <a
                 href="#aspirants"
-                className="px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
+                className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
               >
                 APSC &amp; Civil Services
               </a>
               <a
                 href="#automotive"
-                className="px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
+                className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
               >
                 Automotive &amp; FuelCheck
               </a>
               <a
                 href="#businesses"
-                className="px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
+                className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
               >
                 MSMEs &amp; Commerce
               </a>
               <a
                 href="#legal"
-                className="px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
+                className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
               >
                 Law &amp; Land Records
               </a>
               <a
                 href="#developers"
-                className="px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
+                className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium"
               >
                 Developers &amp; APIs
               </a>
@@ -391,32 +391,32 @@ export default async function UseCasesPage() {
           </section>
 
           {/* ==================== AEO DIRECT ANSWER & KNOWLEDGE GRAPH BOX ==================== */}
-          <section className="mb-16 max-w-4xl mx-auto">
-            <div className="p-6 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden">
-              <div className="flex items-start gap-4 sm:gap-5 relative z-10">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-800 dark:text-emerald-300 shrink-0 mt-1 shadow-inner">
-                  <Compass className="w-6 h-6 text-emerald-700 dark:text-emerald-400" />
+          <section className="mb-12 sm:mb-16 max-w-4xl mx-auto">
+            <div className="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-start gap-3.5 sm:gap-5 relative z-10">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-800 dark:text-emerald-300 shrink-0 mt-0.5 sm:mt-1 shadow-inner">
+                  <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-700 dark:text-emerald-400" />
                 </div>
-                <div className="space-y-3">
-                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
+                <div className="space-y-2.5 sm:space-y-3 min-w-0 flex-1">
+                  <div className="inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
                     <span>{cmsData?.aeo_badge || 'AEO Direct Answer • Platform Overview'}</span>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white tracking-tight">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug">
                     {cmsData?.aeo_title || 'What are the Practical Use Cases of Axom AI?'}
                   </h2>
-                  <p className="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+                  <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
                     {cmsData?.aeo_description ||
                       'Axom AI is India’s sovereign artificial intelligence platform customized for the linguistic, educational, and professional demands of Assam and Northeast India. Key use cases span bilingual academic tutoring for AHSEC and university students, evaluated Mains answer writing for APSC civil services, nationwide ethanol compatibility verification via Axom FuelCheck (E5–E100), automated customer support and invoicing for MSMEs, historical land records (Jamabandi & Chitha) translation, healthcare clinical guidance, and full-stack software development.'}
                   </p>
-                  <div className="pt-2 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  <div className="pt-1 sm:pt-2 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                     <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                      <CheckCircle2 size={16} /> {cmsData?.aeo_point1 || '15M+ Regional Speakers Served'}
+                      <CheckCircle2 size={15} className="shrink-0" /> {cmsData?.aeo_point1 || '15M+ Regional Speakers Served'}
                     </span>
                     <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                      <CheckCircle2 size={16} /> {cmsData?.aeo_point2 || 'SEBA, AHSEC & APSC Aligned'}
+                      <CheckCircle2 size={15} className="shrink-0" /> {cmsData?.aeo_point2 || 'SEBA, AHSEC & APSC Aligned'}
                     </span>
                     <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                      <CheckCircle2 size={16} /> {cmsData?.aeo_point3 || 'DPDP Act 2023 Compliant'}
+                      <CheckCircle2 size={15} className="shrink-0" /> {cmsData?.aeo_point3 || 'DPDP Act 2023 Compliant'}
                     </span>
                   </div>
                 </div>
@@ -427,32 +427,32 @@ export default async function UseCasesPage() {
 
 
           {/* ==================== FOUNDATION RESEARCH MODELS BRIDGE ==================== */}
-          <section className="mb-20">
-            <div className="text-center max-w-3xl mx-auto mb-10">
-              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <section className="mb-14 sm:mb-20">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+              <div className="inline-flex items-center px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4 shadow-sm">
                 <span>Core Foundation Models • Axom AI Research Lab</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-2 sm:mb-3">
                 Proprietary AI Models Powering Every Use Case
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed">
                 Unlike wrappers calling generic foreign APIs, Axom AI engineers dedicated vernacular architectures trained specifically on regional cultural, linguistic, and acoustic data.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
               {/* Model 1: Progya */}
-              <div className="p-6 rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-3">
-                <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-2.5 sm:space-y-3">
+                <div className="text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
                   Assamese Foundation LLM
                 </div>
-                <h3 className="text-lg font-black text-emerald-950 dark:text-white">
+                <h3 className="text-base sm:text-lg font-black text-emerald-950 dark:text-white leading-snug">
                   Axom AI Brain — Progya (প্ৰজ্ঞা)
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   2B parameter sovereign Assamese model with a custom 68,096-token vocabulary trained on 6.19M cultural records, eliminating token fragmentation and Bengali character substitution.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <a
                     href="https://aiaxom.co.in/research/axomai-brain-progya/"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
@@ -464,17 +464,17 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Model 2: XUWOR */}
-              <div className="p-6 rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-3">
-                <div className="text-xs font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-2.5 sm:space-y-3">
+                <div className="text-[11px] sm:text-xs font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">
                   Multimodal Conversational Agent
                 </div>
-                <h3 className="text-lg font-black text-emerald-950 dark:text-white">
+                <h3 className="text-base sm:text-lg font-black text-emerald-950 dark:text-white leading-snug">
                   Axom AI Master — XUWOR (সুঁৱৰ)
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   Full-duplex multimodal reasoning agent delivering natural bilingual conversations with context awareness across text, speech, and document vision.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <a
                     href="https://aiaxom.co.in/research/axomai-multimodal-xuwor/"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-400 hover:underline"
@@ -486,17 +486,17 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Model 3: Puhor */}
-              <div className="p-6 rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-3">
-                <div className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-2.5 sm:space-y-3">
+                <div className="text-[11px] sm:text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
                   24kHz Flow-Matching Voice
                 </div>
-                <h3 className="text-lg font-black text-emerald-950 dark:text-white">
+                <h3 className="text-base sm:text-lg font-black text-emerald-950 dark:text-white leading-snug">
                   Axom AI Voice — Puhor (পোহৰ)
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   Studio-grade 24,000 Hz Flow-Matching Diffusion Transformer (DiT) voice synthesis with zero audio hallucination and native Assamese emotional cadence.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <a
                     href="https://aiaxom.co.in/research/axomai-voice-puhor/"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline"
@@ -508,17 +508,17 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Model 4: Xuna */}
-              <div className="p-6 rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-3">
-                <div className="text-xs font-bold text-teal-700 dark:text-teal-400 uppercase tracking-wider">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-2.5 sm:space-y-3">
+                <div className="text-[11px] sm:text-xs font-bold text-teal-700 dark:text-teal-400 uppercase tracking-wider">
                   High-Noise Vernacular ASR
                 </div>
-                <h3 className="text-lg font-black text-emerald-950 dark:text-white">
+                <h3 className="text-base sm:text-lg font-black text-emerald-950 dark:text-white leading-snug">
                   Axom AI Speech — Xuna (শুনা)
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   Conformer speech-to-text achieving 0.261x Real-Time Factor (3.8x faster than live speech) on low-cost CPU instances, providing robust transcription across regional accents.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <a
                     href="https://aiaxom.co.in/research/axomai-speech-xuna/"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-400 hover:underline"
@@ -530,17 +530,17 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Model 5: Xetu */}
-              <div className="p-6 rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-3">
-                <div className="text-xs font-bold text-cyan-700 dark:text-cyan-400 uppercase tracking-wider">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 hover:border-emerald-500/40 transition-all shadow-md space-y-2.5 sm:space-y-3">
+                <div className="text-[11px] sm:text-xs font-bold text-cyan-700 dark:text-cyan-400 uppercase tracking-wider">
                   38.6 BLEU Neural Translation
                 </div>
-                <h3 className="text-lg font-black text-emerald-950 dark:text-white">
+                <h3 className="text-base sm:text-lg font-black text-emerald-950 dark:text-white leading-snug">
                   Axom AI Bridge — Xetu (সেতু)
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   High-fidelity translation engine achieving 38.6 BLEU on English-Assamese benchmarks while strictly preserving grammatical vibhakti, case markers, and classical orthography.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <a
                     href="https://aiaxom.co.in/research/axomai-trans-xetu/"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-700 dark:text-cyan-400 hover:underline"
@@ -552,12 +552,12 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Research Hub Link */}
-              <div className="p-6 rounded-3xl bg-slate-900 text-white flex flex-col justify-between shadow-md space-y-4">
+              <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900 text-white flex flex-col justify-between shadow-md space-y-4">
                 <div className="space-y-2">
-                  <span className="text-xs font-mono uppercase tracking-wider text-emerald-400">
+                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-emerald-400">
                     Guwahati AI Research Lab
                   </span>
-                  <h3 className="text-xl font-bold">
+                  <h3 className="text-lg sm:text-xl font-bold leading-snug">
                     Explore All AI Research Publications
                   </h3>
                   <p className="text-xs text-slate-300 leading-relaxed">
@@ -567,7 +567,7 @@ export default async function UseCasesPage() {
                 <div>
                   <a
                     href="https://aiaxom.co.in/research/"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition"
+                    className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition"
                   >
                     <span>Visit Research Hub</span>
                     <ArrowRight className="w-4 h-4" />
@@ -578,15 +578,15 @@ export default async function UseCasesPage() {
           </section>
 
           {/* ==================== INTERACTIVE USE CASES HUB ==================== */}
-          <section className="mb-24">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <section className="mb-14 sm:mb-20 md:mb-24">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+              <div className="inline-flex items-center px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4 shadow-sm">
                 <span>Specialized Industry &amp; Persona Solutions</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-3 sm:mb-4">
                 Explore How Axom AI Powers Every Sector
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed">
                 Filter by your industry or role to see concrete workflows, verified real-world metrics, and applied production tools.
               </p>
             </div>
@@ -595,12 +595,12 @@ export default async function UseCasesPage() {
           </section>
 
           {/* ==================== SOVEREIGN ADVANTAGE COMPARISON BENTO GRID ==================== */}
-          <section className="mb-24 max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <section className="mb-14 sm:mb-20 md:mb-24 max-w-6xl mx-auto">
+            <div className="text-center mb-8 sm:mb-12">
+              <div className="inline-flex items-center px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4 shadow-sm">
                 <span>The Sovereign Advantage</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white mb-3 tracking-tight">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-emerald-950 dark:text-white mb-2 sm:mb-3 tracking-tight">
                 Why Axom AI Outperforms Overseas Chatbots for Assam
               </h2>
               <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
@@ -609,29 +609,29 @@ export default async function UseCasesPage() {
             </div>
 
             {/* Strategic Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
 
               {/* Bento Card 1: Linguistic Precision (Col Span 7 on desktop) */}
-              <div className="md:col-span-2 lg:col-span-7 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              <div className="md:col-span-2 lg:col-span-7 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/25">
                       Linguistic Precision
                     </span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="text-[11px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       99.4% Script Purity
                     </span>
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     Assamese Script &amp; Grammatical Purity
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     Eliminates Bengali script overlap (correcting Bengali &lsquo;র&rsquo; contamination into authentic Assamese &lsquo;ৰ&rsquo; and &lsquo;ৱ&rsquo;). Preserves authentic grammatical cases (vibhakti) and classical literary syntax across 6.19 million cultural training tokens.
                   </p>
 
                   {/* Axom AI Advantage */}
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
                     <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
                       <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Axom AI Platform</span>
@@ -642,7 +642,7 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Overseas Chatbots Limitation */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
                     <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
                       <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                       <span>Generic Overseas AI (ChatGPT / Gemini / Claude)</span>
@@ -653,13 +653,13 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Legacy Alternative */}
-                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
                     <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
                     <span>Slow manual dictionary lookups and inconsistent unverified web transliteration widgets.</span>
                   </div>
                 </div>
 
-                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                <div className="pt-4 sm:pt-5 mt-4 sm:mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
                   <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Research Model:</span>
                   <a
                     href="https://aiaxom.co.in/research/axomai-trans-xetu/"
@@ -672,26 +672,26 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Bento Card 2: Edge Cloud Latency (Col Span 5 on desktop) */}
-              <div className="md:col-span-2 lg:col-span-5 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              <div className="md:col-span-2 lg:col-span-5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 border border-cyan-500/25">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 border border-cyan-500/25">
                       Edge Performance
                     </span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="text-[11px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       &lt;0.8s Latency
                     </span>
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white mb-2">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     Domestic Edge Cloud Latency
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     Multi-tiered inference routed across domestic Indian edge points with automatic failover to prevent downtime or transatlantic latency spikes.
                   </p>
 
                   {/* Axom AI Advantage */}
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
                     <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
                       <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Axom AI Platform</span>
@@ -702,7 +702,7 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Overseas Chatbots Limitation */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
                     <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
                       <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                       <span>Generic Overseas AI</span>
@@ -713,13 +713,13 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Legacy Alternative */}
-                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
                     <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
                     <span>Variable speeds, ad blockers interference, and frequent server timeouts.</span>
                   </div>
                 </div>
 
-                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                <div className="pt-4 sm:pt-5 mt-4 sm:mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
                   <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Architecture:</span>
                   <a
                     href="https://aiaxom.co.in/research/axomai-speech-xuna/"
@@ -732,26 +732,26 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Bento Card 3: Assam GK & Civil Services (Col Span 4 on desktop) */}
-              <div className="md:col-span-1 lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              <div className="md:col-span-1 lg:col-span-4 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/25">
                       Exam &amp; Syllabus
                     </span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="text-[11px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       APSC / SEBA
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     Assam GK &amp; APSC Alignment
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     Pre-trained on Assam civil services, Ahom history, regional geography, state acts, and budgetary data with zero hallucination.
                   </p>
 
                   {/* Axom AI Advantage */}
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
                     <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
                       <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Axom AI Platform</span>
@@ -762,7 +762,7 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Overseas Chatbots Limitation */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
                     <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
                       <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                       <span>Generic Overseas AI</span>
@@ -773,13 +773,13 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Legacy Alternative */}
-                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
                     <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
                     <span>Outdated static paper guidebooks with no dynamic notes or interactive doubt solving.</span>
                   </div>
                 </div>
 
-                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                <div className="pt-4 sm:pt-5 mt-4 sm:mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
                   <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Applied Tool:</span>
                   <Link
                     href="/tools/ai-notes-generator"
@@ -792,26 +792,26 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Bento Card 4: 33+ Integrated Production Tools (Col Span 4 on desktop) */}
-              <div className="md:col-span-1 lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              <div className="md:col-span-1 lg:col-span-4 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-500/25">
                       Tool Ecosystem
                     </span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="text-[11px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       33+ Built-in Tools
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     Integrated Production Tools
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     A unified sovereign software suite combining verified vehicular compliance, academic generators, and document processing.
                   </p>
 
                   {/* Axom AI Advantage */}
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
                     <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
                       <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Axom AI Platform</span>
@@ -822,7 +822,7 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Overseas Chatbots Limitation */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
                     <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
                       <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                       <span>Generic Overseas AI</span>
@@ -833,13 +833,13 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Legacy Alternative */}
-                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
                     <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
                     <span>Ad-heavy separate online tools with file caps and multiple paid accounts required.</span>
                   </div>
                 </div>
 
-                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                <div className="pt-4 sm:pt-5 mt-4 sm:mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
                   <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Ecosystem:</span>
                   <Link
                     href="/tools"
@@ -852,26 +852,26 @@ export default async function UseCasesPage() {
               </div>
 
               {/* Bento Card 5: Data Sovereignty & DPDP Act 2023 (Col Span 4 on desktop, Col Span 2 on md) */}
-              <div className="md:col-span-2 lg:col-span-4 rounded-3xl p-6 sm:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
+              <div className="md:col-span-2 lg:col-span-4 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:border-emerald-500/40 transition-all duration-300">
                 <div>
-                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                    <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 border border-indigo-500/25">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-indigo-500/15 text-indigo-800 dark:text-indigo-300 border border-indigo-500/25">
                       Data Residency &amp; Privacy
                     </span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="text-[11px] sm:text-xs font-mono font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       DPDP Act 2023
                     </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white mb-2 leading-snug break-words">
                     100% Indian Data Sovereignty
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 sm:mb-6">
                     Zero overseas data transit. Prompts, documents, and student records are processed in isolated transient memory within India.
                   </p>
 
                   {/* Axom AI Advantage */}
-                  <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-3.5">
+                  <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 mb-2.5 sm:mb-3.5">
                     <div className="flex items-center gap-2 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider mb-1.5">
                       <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>Axom AI Platform</span>
@@ -882,7 +882,7 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Overseas Chatbots Limitation */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-3">
+                  <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-white/5 mb-2.5 sm:mb-3">
                     <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-400 uppercase tracking-wider mb-1">
                       <X className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                       <span>Generic Overseas AI</span>
@@ -893,13 +893,13 @@ export default async function UseCasesPage() {
                   </div>
 
                   {/* Legacy Alternative */}
-                  <div className="p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-slate-100/70 dark:bg-slate-900/40 text-[11px] text-slate-500 dark:text-slate-400 flex items-start gap-2">
                     <span className="font-semibold text-slate-700 dark:text-slate-300 shrink-0">Fragmented Manual Tools:</span>
                     <span>Unknown third-party server privacy, silent document retention, and unencrypted uploads.</span>
                   </div>
                 </div>
 
-                <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
+                <div className="pt-4 sm:pt-5 mt-4 sm:mt-5 border-t border-slate-200/80 dark:border-white/10 flex items-center justify-between">
                   <span className="text-xs text-slate-600 dark:text-gray-400 font-medium">Compliance:</span>
                   <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                     <ShieldCheck className="w-3.5 h-3.5" />
@@ -912,15 +912,15 @@ export default async function UseCasesPage() {
           </section>
 
           {/* ==================== FAQS ==================== */}
-          <section className="mb-24">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
+          <section className="mb-12 sm:mb-16 md:mb-20">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4 shadow-sm">
                 <span>{cmsData?.faq_badge || 'Questions & Answers'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white mb-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white mb-2">
                 {cmsData?.faq_title || 'Frequently Asked Questions about Axom AI'}
               </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-lg mx-auto">
+              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
                 {cmsData?.faq_subtitle ||
                   'Clear, verified answers about how Axom AI fits your specific daily workflow, academic goals, and organization.'}
               </p>
