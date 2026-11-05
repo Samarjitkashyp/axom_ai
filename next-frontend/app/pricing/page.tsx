@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import PricingPlansInteractive from '../../components/PricingPlansInteractive';
+import PricingSection from '../../components/PricingSection';
 import PricingFaq from '../../components/PricingFaq';
 import { DETAILED_PLANS, PRICING_FAQS, COMPARISON_CATEGORIES, DetailedPlan } from '../../components/pricingData';
 import { getLandingCMS } from '../../lib/api';
@@ -238,7 +238,7 @@ export default async function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#030712] text-slate-800 dark:text-slate-100 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
+    <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
       {/* Inject Structured Data */}
       <script
         type="application/ld+json"
@@ -321,17 +321,19 @@ export default async function PricingPage() {
               </div>
             )}
 
-            {/* Interactive Pricing Cards */}
-            <PricingPlansInteractive
+            {/* Shared Reusable Pricing Component (Same as Homepage) */}
+            <PricingSection
+              header={cms?.pricing_header}
               plans={plans}
-              discountBadge={cms?.pricing_header?.yearly_discount_badge}
+              showSectionHeader={false}
+              interactiveCheckout={true}
             />
           </div>
         </section>
 
         {/* Feature Comparison Table Section */}
         {(cms?.pricing_comparison?.active !== false) && (
-          <section id="comparison" className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/80 dark:bg-[#040914]/80">
+          <section id="comparison" className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/80 dark:bg-[#0b1220]/80">
             <div className="max-w-7xl mx-auto px-5">
               <div className="text-center max-w-3xl mx-auto mb-14">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-4">
@@ -362,7 +364,7 @@ export default async function PricingPage() {
                               : 'font-extrabold text-slate-700 dark:text-slate-300 w-[15%]'
                           }`}
                         >
-                          {p.name} (₹{p.monthlyPrice}){p.popular ? ' ★' : ''}
+                          {p.name} (₹{p.monthlyPrice})
                         </th>
                       ))}
                     </tr>
@@ -452,7 +454,7 @@ export default async function PricingPage() {
 
         {/* Payment Methods & Indian Trust Section */}
         {(cms?.pricing_trust_cards?.active !== false) && (
-          <section className="py-16 sm:py-24 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#030712]">
+          <section className="py-16 sm:py-24 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#0b1220]">
             <div className="max-w-6xl mx-auto px-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 {/* Box 1: Razorpay & UPI */}
@@ -605,7 +607,7 @@ export default async function PricingPage() {
 
         {/* Pricing FAQs */}
         {(cms?.pricing_faqs?.active !== false) && (
-          <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#030712]">
+          <section className="py-20 sm:py-28 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#0b1220]">
             <div className="max-w-4xl mx-auto px-5">
               <div className="text-center max-w-2xl mx-auto mb-14">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4">
