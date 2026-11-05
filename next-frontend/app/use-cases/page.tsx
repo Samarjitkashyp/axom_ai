@@ -424,41 +424,7 @@ export default async function UseCasesPage() {
             </div>
           </section>
 
-          {/* ==================== IMPACT METRICS BAR ==================== */}
-          <section className="mb-20 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/40 border border-emerald-900/10 dark:border-white/5 text-center shadow-sm">
-              <div className="text-3xl sm:text-4xl font-extrabold text-emerald-950 dark:text-white mb-1">
-                {cmsData?.stat_1_val || '15M+'}
-              </div>
-              <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                {cmsData?.stat_1_label || 'Assamese Speakers Empowered'}
-              </div>
-            </div>
-            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/40 border border-emerald-900/10 dark:border-white/5 text-center shadow-sm">
-              <div className="text-3xl sm:text-4xl font-extrabold text-emerald-800 dark:text-emerald-400 mb-1">
-                {cmsData?.stat_2_val || '33+'}
-              </div>
-              <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                {cmsData?.stat_2_label || 'Integrated AI & Document Tools'}
-              </div>
-            </div>
-            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/40 border border-emerald-900/10 dark:border-white/5 text-center shadow-sm">
-              <div className="text-3xl sm:text-4xl font-extrabold text-teal-800 dark:text-teal-400 mb-1">
-                {cmsData?.stat_3_val || '99.4%'}
-              </div>
-              <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                {cmsData?.stat_3_label || 'Assamese Script & Grammar Purity'}
-              </div>
-            </div>
-            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/40 border border-emerald-900/10 dark:border-white/5 text-center shadow-sm">
-              <div className="text-3xl sm:text-4xl font-extrabold text-cyan-800 dark:text-cyan-400 mb-1">
-                {cmsData?.stat_4_val || '<0.8s'}
-              </div>
-              <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                {cmsData?.stat_4_label || 'Domestic Indian Cloud Latency'}
-              </div>
-            </div>
-          </section>
+
 
           {/* ==================== FOUNDATION RESEARCH MODELS BRIDGE ==================== */}
           <section className="mb-20">
