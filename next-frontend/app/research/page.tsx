@@ -13,6 +13,20 @@ export const revalidate = 0;
 
 const TARGET_KEYWORDS = [
   'ai model assam',
+  'ai research assam',
+  'ai research guwahati',
+  'artificial intelligence guwahati',
+  'artificial intelligence lab guwahati',
+  'ai research and development guwahati',
+  'artificial intelligence and machine learning guwahati',
+  'ai development guwahati',
+  'ai company guwahati',
+  'ai startup guwahati',
+  'ai research guwahati india',
+  'ai research lab assam',
+  'ai companies in assam',
+  'ai development company in guwahati',
+  'artificial intelligence guwahati assam',
   'artificial intelligence assam',
   'large language model assam',
   'assamese large language model',
@@ -30,7 +44,6 @@ const TARGET_KEYWORDS = [
   'indigenous ai research assam',
   'sovereign ai india',
   'dpdp compliant sovereign ai',
-  'edge ai cpu assam',
   'Axom AI Research',
   'Axom AI models research',
   'YOLOv8 helmet detection CCTV Assam',
@@ -331,7 +344,7 @@ export default async function ResearchPage() {
       <Header header={cms?.header} />
 
       <main className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 relative overflow-hidden pt-24 sm:pt-28 pb-14 sm:pb-20">
-        
+
         {/* Ambient Gradient Glows (Exact match with /use-cases) */}
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none z-0 overflow-hidden"
@@ -342,10 +355,10 @@ export default async function ResearchPage() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           {/* ==================== HERO SECTION (MATCHING /use-cases EXACTLY) ==================== */}
           <section className="text-center max-w-4xl mx-auto mb-10 sm:mb-14 md:mb-16">
-            
+
             {/* BADGE PILL */}
             <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-sm">
               <span>Official Axom AI Research • Sovereign Foundation Models</span>
@@ -422,7 +435,7 @@ export default async function ResearchPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              
+
               {/* Card 1: Helmet Detection */}
               <a
                 href="/research/helmet-detection/"
@@ -552,7 +565,7 @@ export default async function ResearchPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-              
+
               {/* 1. XUWOR (Master Multimodal) */}
               <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-500/30 dark:border-emerald-500/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
                 <div>
