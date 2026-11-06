@@ -2,7 +2,17 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import {
+  Sparkles,
+  Search,
+  X,
+  Layers,
+  Tag,
+  RotateCcw,
+  ArrowRight,
+  Building2,
+  Check,
+} from 'lucide-react';
 import { ArticleSummary, CategoryItem } from '../lib/api';
 
 interface BlogSearchFilterProps {
@@ -11,7 +21,11 @@ interface BlogSearchFilterProps {
   totalCount?: number;
 }
 
-export default function BlogSearchFilter({ initialArticles, categories, totalCount }: BlogSearchFilterProps) {
+export default function BlogSearchFilter({
+  initialArticles,
+  categories,
+  totalCount,
+}: BlogSearchFilterProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -41,22 +55,6 @@ export default function BlogSearchFilter({ initialArticles, categories, totalCou
     return list;
   }, [initialArticles, selectedCategory, searchQuery]);
 
-  // Featured Article Spotlight (when no search & all categories)
-  const featuredArticle = useMemo(() => {
-    if (!searchQuery && !selectedCategory && filteredArticles.length > 0) {
-      return filteredArticles[0];
-    }
-    return null;
-  }, [filteredArticles, searchQuery, selectedCategory]);
-
-  // Grid articles (remaining articles or all matching articles)
-  const gridArticles = useMemo(() => {
-    if (featuredArticle) {
-      return filteredArticles.slice(1);
-    }
-    return filteredArticles;
-  }, [filteredArticles, featuredArticle]);
-
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -74,37 +72,41 @@ export default function BlogSearchFilter({ initialArticles, categories, totalCou
   return (
     <>
       {/* HERO & SEARCH SECTION */}
-      <section className="relative hero-assam-bg pt-16 pb-20 border-b border-emerald-900/15 dark:border-white/10 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-5 relative z-10 text-center">
+      <section className="relative hero-assam-bg pt-12 sm:pt-16 pb-16 sm:pb-20 border-b border-emerald-900/15 dark:border-white/10 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-fuchsia-400 animate-pulse" />
-            Official Axom AI Blog &amp; Insights
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-5 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Official Axom AI Blog &amp; Engineering Publication
           </div>
 
           {/* Main Heading */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.15] max-w-4xl mx-auto mb-6">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.15] max-w-4xl mx-auto mb-4 sm:mb-6">
             Ideas, Technology &amp; Insights <br className="hidden sm:block" />
-            <span className="gradient-text">
-              from Assam's AI Frontier
+            <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">
+              from Assam&apos;s AI Frontier
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
+          <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8 font-normal">
             Explore practical guides, new AI models, regional research, and digital strategies empowering students, freelancers, and businesses across Assam.
           </p>
 
           {/* PROPERLY STYLED AJAX SEARCH BAR */}
-          <div className="max-w-2xl mx-auto relative group">
+          <div className="max-w-2xl mx-auto relative group mb-8">
             <div className="relative flex items-center">
               {/* Glowing Accent Ring on Search Bar */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-fuchsia-500 to-purple-600 rounded-full blur opacity-25 group-focus-within:opacity-75 transition duration-300 pointer-events-none" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full blur opacity-25 group-focus-within:opacity-75 transition duration-300 pointer-events-none" />
 
-              <div className="relative w-full flex items-center rounded-full bg-white/90 dark:bg-slate-900/90 border border-emerald-900/20 dark:border-white/15 group-focus-within:border-fuchsia-500/60 shadow-2xl transition-all">
+              <div className="relative w-full flex items-center rounded-full bg-white/95 dark:bg-slate-900/95 border border-emerald-900/20 dark:border-white/15 group-focus-within:border-emerald-500/60 shadow-xl transition-all">
                 {/* Search Icon */}
-                <div className="pl-5 pr-3 text-slate-600 dark:text-gray-400 text-sm">
-                  <i className={`fa-solid ${isSearching ? 'fa-spinner fa-spin text-fuchsia-700 dark:text-fuchsia-400' : 'fa-magnifying-glass'}`} />
+                <div className="pl-5 pr-3 text-slate-500 dark:text-slate-400 text-sm">
+                  {isSearching ? (
+                    <span className="inline-block w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Search size={18} />
+                  )}
                 </div>
 
                 {/* Input */}
@@ -112,51 +114,75 @@ export default function BlogSearchFilter({ initialArticles, categories, totalCou
                   type="text"
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  placeholder="Search topics, models, guides (e.g. Students, Productivity, Tools)..."
-                  className="w-full py-4 pr-24 bg-transparent text-emerald-950 dark:text-white placeholder-gray-400 text-sm sm:text-base focus:outline-none"
+                  placeholder="Search topics, models, guides (e.g. Students, Notes, PDF, Tools)..."
+                  className="w-full py-3.5 sm:py-4 pr-24 bg-transparent text-emerald-950 dark:text-white placeholder-slate-400 text-xs sm:text-sm md:text-base focus:outline-none"
                 />
 
-                {/* Clear Button (Shown when text is typed) */}
+                {/* Clear Button */}
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
                     aria-label="Clear search"
-                    className="mr-2 w-7 h-7 rounded-full bg-emerald-900/5 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/20 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white grid place-items-center text-xs transition"
+                    className="mr-2 w-7 h-7 rounded-full bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 text-slate-700 dark:text-slate-300 grid place-items-center text-xs transition"
                   >
-                    <i className="fa-solid fa-xmark" />
+                    <X size={14} />
                   </button>
                 )}
 
                 {/* Live Counter Badge */}
                 <div className="pr-3 hidden sm:flex items-center">
-                  <span className="px-3 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-[11px] font-semibold text-fuchsia-700 dark:text-fuchsia-300 whitespace-nowrap">
+                  <span className="px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 whitespace-nowrap">
                     {filteredArticles.length} {filteredArticles.length === 1 ? 'post' : 'posts'}
                   </span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* AEO / GEO Direct Answer Knowledge Brief Card */}
+          <div className="max-w-3xl mx-auto p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-500/25 shadow-sm backdrop-blur-md text-left">
+            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs uppercase tracking-wider mb-2">
+              <Building2 size={15} className="text-emerald-600 dark:text-emerald-400" />
+              <span>Direct Answer &bull; Axom AI Research &amp; Publication</span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">
+              <strong>Axom AI</strong> (headquartered in Guwahati, Assam) is Assam&apos;s premier indigenous Artificial Intelligence enterprise and foundation research laboratory founded by <strong>Samarjit Kashyap</strong>. This official publication documents foundational research, benchmarks, and tutorials for sovereign models (Sarkar, Progya, Puhor, Xuna, Xuwor, Xetu) and 33 public utility AI tools.
+            </p>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400">
+              <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                <Check size={13} className="stroke-[3]" /> Foundation AI in Assam
+              </span>
+              <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                <Check size={13} className="stroke-[3]" /> Sovereign Indic Benchmarks
+              </span>
+              <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                <Check size={13} className="stroke-[3]" /> Practical Tutorials &amp; Guides
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* AJAX CATEGORY FILTER TABS */}
-      <section className="sticky top-[72px] z-40 bg-[#f0fdf4]/90 dark:bg-[#0b1220]/90 backdrop-blur-xl border-b border-emerald-900/15 dark:border-white/10 py-3 transition-all">
-        <div className="max-w-7xl mx-auto px-5">
-          <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
+      <section className="sticky top-[64px] sm:top-[72px] z-30 bg-[#f0fdf4]/95 dark:bg-[#0b1220]/95 backdrop-blur-xl border-b border-emerald-900/15 dark:border-white/10 py-3 transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-1">
             {/* All Articles Button */}
             <button
               onClick={() => setSelectedCategory('')}
-              className={`cat-btn shrink-0 px-4 py-2 rounded-full text-xs font-semibold border flex items-center gap-2 ${
+              className={`cat-btn shrink-0 px-4 py-2 rounded-full text-xs font-semibold border flex items-center gap-2 transition ${
                 !selectedCategory
-                  ? 'active'
-                  : 'border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-white/5 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-50 dark:hover:bg-white/10'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                  : 'border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-50 dark:hover:bg-white/10'
               }`}
             >
-              <i className="fa-solid fa-layer-group text-[11px] opacity-70" />
+              <Layers size={13} />
               <span>All Articles</span>
               <span
                 className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                  !selectedCategory ? 'bg-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-200' : 'bg-emerald-900/5 dark:bg-white/10 text-slate-600 dark:text-gray-400'
+                  !selectedCategory
+                    ? 'bg-white/20 text-white font-bold'
+                    : 'bg-emerald-900/5 dark:bg-white/10 text-slate-600 dark:text-slate-400'
                 }`}
               >
                 {initialArticles.length}
@@ -170,16 +196,19 @@ export default function BlogSearchFilter({ initialArticles, categories, totalCou
                 <button
                   key={i}
                   onClick={() => setSelectedCategory(cat.val)}
-                  className={`cat-btn shrink-0 px-4 py-2 rounded-full text-xs font-semibold border flex items-center gap-2 ${
+                  className={`cat-btn shrink-0 px-4 py-2 rounded-full text-xs font-semibold border flex items-center gap-2 transition ${
                     isActive
-                      ? 'active'
-                      : 'border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-white/5 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-50 dark:hover:bg-white/10'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                      : 'border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-50 dark:hover:bg-white/10'
                   }`}
                 >
+                  <Tag size={12} />
                   <span>{cat.label}</span>
                   <span
                     className={`px-1.5 py-0.5 rounded-full text-[10px] ${
-                      isActive ? 'bg-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-200' : 'bg-emerald-900/5 dark:bg-white/10 text-slate-600 dark:text-gray-400'
+                      isActive
+                        ? 'bg-white/20 text-white font-bold'
+                        : 'bg-emerald-900/5 dark:bg-white/10 text-slate-600 dark:text-slate-400'
                     }`}
                   >
                     {cat.count}
@@ -192,194 +221,118 @@ export default function BlogSearchFilter({ initialArticles, categories, totalCou
       </section>
 
       {/* ARTICLES CONTAINER */}
-      <section className="max-w-7xl mx-auto px-5 py-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         {/* Active Filter Notice */}
         {(searchQuery || selectedCategory) && (
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-10 pb-4 border-b border-emerald-900/15 dark:border-white/10">
-            <div className="flex items-center gap-2.5 text-sm flex-wrap">
-              <span className="text-slate-600 dark:text-gray-400">Filtering:</span>
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-emerald-900/15 dark:border-white/10">
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm flex-wrap">
+              <span className="text-slate-600 dark:text-slate-400">Filtering:</span>
               {searchQuery && (
-                <span className="px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-300 font-semibold text-xs border border-fuchsia-500/40 inline-flex items-center gap-1.5">
-                  <i className="fa-solid fa-magnifying-glass text-[10px]" /> "{searchQuery}"
+                <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-semibold text-xs border border-emerald-500/30 inline-flex items-center gap-1.5">
+                  <Search size={11} /> &quot;{searchQuery}&quot;
                 </span>
               )}
               {selectedCategory && (
-                <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-700 dark:text-purple-300 font-semibold text-xs border border-purple-500/40 inline-flex items-center gap-1.5">
-                  <i className="fa-solid fa-tag text-[10px]" />{' '}
+                <span className="px-3 py-1 rounded-full bg-teal-500/15 text-teal-800 dark:text-teal-300 font-semibold text-xs border border-teal-500/30 inline-flex items-center gap-1.5">
+                  <Tag size={11} />{' '}
                   {categories.find((c) => c.val === selectedCategory)?.label || selectedCategory}
                 </span>
               )}
-              <span className="text-slate-600 dark:text-gray-500 text-xs">({filteredArticles.length} matching)</span>
+              <span className="text-slate-500 dark:text-slate-400 text-xs">
+                ({filteredArticles.length} matching)
+              </span>
             </div>
 
             <button
               onClick={resetFilters}
-              className="text-xs text-fuchsia-700 dark:text-fuchsia-400 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 hover:underline flex items-center gap-1 font-semibold"
+              className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
             >
-              <i className="fa-solid fa-rotate-left" /> Reset filters
+              <RotateCcw size={12} /> Reset filters
             </button>
           </div>
         )}
 
-        {/* FEATURED STORY SPOTLIGHT (When no search & all categories) */}
-        {featuredArticle && (
-          <div className="mb-14">
-            <div className="text-xs font-bold uppercase tracking-widest text-fuchsia-700 dark:text-fuchsia-400 mb-4 flex items-center gap-2">
-              <i className="fa-solid fa-star text-amber-700 dark:text-amber-400" /> Featured Insight
-            </div>
-
-            <Link href={featuredArticle.link || `/blog/${featuredArticle.slug}/`} className="group block">
-              <div className="featured-card rounded-2xl p-6 sm:p-8 lg:p-10 transition-all duration-300 relative overflow-hidden">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-                  {/* Left Content */}
-                  <div className="lg:col-span-8 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-4 flex-wrap">
-                      <span className="px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-500/40 text-fuchsia-700 dark:text-fuchsia-300 text-[11px] font-bold uppercase tracking-wider">
-                        {featuredArticle.category_label}
-                      </span>
-                      <span className="text-xs text-slate-600 dark:text-gray-400 flex items-center gap-1.5">
-                        <i className="fa-regular fa-clock text-fuchsia-700 dark:text-fuchsia-400" /> {featuredArticle.read_time}
-                      </span>
-                      <span className="text-xs text-slate-600 dark:text-gray-400 flex items-center gap-1.5">
-                        <i className="fa-regular fa-calendar text-slate-600 dark:text-gray-500" /> {featuredArticle.published_at}
-                      </span>
-                    </div>
-
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-emerald-950 dark:text-white group-hover:text-fuchsia-700 dark:group-hover:text-fuchsia-300 transition-colors leading-tight mb-4">
-                      {featuredArticle.title}
-                    </h2>
-
-                    <p className="text-slate-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed mb-6 line-clamp-3">
-                      {featuredArticle.excerpt}
-                    </p>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-emerald-900/15 dark:border-white/10">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-fuchsia-600 to-purple-600 grid place-items-center text-white font-bold text-xs shadow-md">
-                          {(featuredArticle.author_name || 'A').slice(0, 2).toUpperCase()}
-                        </div>
-                        <div className="text-xs font-semibold text-slate-800 dark:text-gray-200">
-                          By {featuredArticle.author_name}
-                        </div>
-                      </div>
-
-                      <div className="inline-flex items-center gap-2 text-sm font-bold text-fuchsia-700 dark:text-fuchsia-400 group-hover:translate-x-1.5 transition-transform">
-                        <span>Read Full Article</span>
-                        <i className="fa-solid fa-arrow-right text-xs" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Featured Image Box */}
-                  <div className="lg:col-span-4 flex flex-col items-center justify-center rounded-2xl overflow-hidden border border-emerald-900/15 dark:border-white/10 bg-white/80 dark:bg-slate-900/80 relative shadow-xl min-h-[220px] lg:min-h-[270px] group-hover:border-fuchsia-500/40 transition-all duration-300">
-                    <div className="w-full h-full relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-[270px]">
-                      <img
-                        src={featuredArticle.cover_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif'}
-                        alt={featuredArticle.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          // Fallback to default asset if URL fails
-                          (e.target as HTMLImageElement).src = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#f0fdf4]/90 dark:from-[#0a0f1e]/90 via-emerald-50/20 dark:via-black/20 to-transparent pointer-events-none" />
-                      
-                      {/* Floating metadata badges on the image */}
-                      <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
-                        <span className="px-2.5 py-1 rounded-full bg-white/80 dark:bg-black/75 backdrop-blur-md border border-emerald-900/20 dark:border-white/15 text-[10px] text-fuchsia-700 dark:text-fuchsia-300 font-bold uppercase tracking-wider">
-                          {featuredArticle.category_label}
-                        </span>
-                        <span className="px-2.5 py-1 rounded-full bg-white/80 dark:bg-black/75 backdrop-blur-md border border-emerald-900/20 dark:border-white/15 text-[10px] text-slate-800 dark:text-gray-200 font-medium flex items-center gap-1.5">
-                          <i className="fa-regular fa-clock text-fuchsia-700 dark:text-fuchsia-400 text-[9px]" /> {featuredArticle.read_time}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        )}
-
-        {/* ARTICLES GRID */}
-        {gridArticles.length > 0 ? (
+        {/* ARTICLES GRID — UNIFORM CARDS FOR ALL ARTICLES */}
+        {filteredArticles.length > 0 ? (
           <div>
-            <div className="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-gray-400 mb-6 flex items-center justify-between">
+            <div className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-6 flex items-center justify-between">
               <span>
                 {searchQuery || selectedCategory
                   ? `Found Articles (${filteredArticles.length})`
-                  : 'Latest Stories & Guides'}
+                  : `All Articles & Guides (${filteredArticles.length})`}
               </span>
-              <span className="text-slate-600 dark:text-gray-500 text-[11px] font-normal">Real-time updated</span>
+              <span className="text-slate-500 dark:text-slate-400 text-[11px] font-normal">
+                Real-time updated
+              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {gridArticles.map((art, i) => {
+              {filteredArticles.map((art, i) => {
                 const fallbackGradients = [
-                  'from-fuchsia-600 via-purple-600 to-indigo-100 dark:to-indigo-800',
-                  'from-pink-600 via-rose-600 to-purple-100 dark:to-purple-800',
-                  'from-amber-500 via-orange-600 to-red-700',
-                  'from-cyan-500 via-blue-600 to-indigo-100 dark:to-indigo-800',
+                  'from-emerald-600 via-teal-600 to-cyan-700',
+                  'from-teal-600 via-cyan-600 to-sky-700',
+                  'from-emerald-700 via-teal-700 to-emerald-900',
+                  'from-cyan-600 via-teal-600 to-emerald-700',
                 ];
                 const grad = fallbackGradients[i % fallbackGradients.length];
 
                 return (
                   <article
                     key={art.id || i}
-                    className="glass-card rounded-2xl flex flex-col justify-between overflow-hidden group hover:border-fuchsia-500/50 transition-all duration-300 hover:-translate-y-1.5 shadow-lg shadow-black/40 hover:shadow-fuchsia-500/10"
+                    className="glass-card rounded-2xl flex flex-col justify-between overflow-hidden group hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1.5 shadow-md hover:shadow-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10"
                   >
                     {/* Top Image Banner */}
-                    <div className={`h-44 relative overflow-hidden shrink-0 bg-gradient-to-br ${grad}`}>
+                    <div className={`h-48 relative overflow-hidden shrink-0 bg-gradient-to-br ${grad}`}>
                       {art.cover_image_url ? (
                         <img
                           src={art.cover_image_url}
                           alt={art.title}
                           className="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://aiaxom.co.in/static/dist/hero/assam.avif';
+                          }}
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="absolute inset-0 grid-bg opacity-30" />
-                          <div className="w-12 h-12 rounded-2xl bg-emerald-900/5 dark:bg-white/10 backdrop-blur-md border border-emerald-900/25 dark:border-white/20 grid place-items-center text-emerald-950 dark:text-white shadow-xl group-hover:scale-110 transition-transform duration-300">
-                            <Sparkles className="w-6 h-6 text-emerald-950 dark:text-white" />
+                          <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 grid place-items-center text-white shadow-xl group-hover:scale-110 transition-transform duration-300">
+                            <Sparkles className="w-6 h-6 text-white" />
                           </div>
                         </div>
                       )}
                       {/* Category Badge on Image */}
-                      <div className="absolute bottom-3 left-3 text-[10px] uppercase tracking-wider text-emerald-950 dark:text-white font-bold bg-white/80 dark:bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md border border-emerald-900/20 dark:border-white/15 z-10 shadow-md">
+                      <div className="absolute bottom-3 left-3 text-[10px] uppercase tracking-wider text-emerald-950 dark:text-white font-bold bg-white/90 dark:bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-md border border-emerald-900/20 dark:border-white/15 z-10 shadow-sm">
                         {art.category_label || art.category}
                       </div>
                     </div>
 
-                    {/* Top Card Body */}
-                    <div className="p-6 pb-4 flex flex-col flex-1">
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <span className="text-[11px] text-slate-600 dark:text-gray-400 font-medium">
+                    {/* Card Body */}
+                    <div className="p-5 sm:p-6 pb-4 flex flex-col flex-1">
+                      <div className="flex items-center justify-between gap-2 mb-2.5">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                           {art.published_at}
-                        </span>
-                        <span className="text-xs text-fuchsia-700 dark:text-fuchsia-300 flex items-center gap-1.5">
-                          <i className="fa-regular fa-clock text-fuchsia-700 dark:text-fuchsia-400 text-[10px]" /> {art.read_time}
                         </span>
                       </div>
 
-                      <h3 className="text-lg font-bold text-emerald-950 dark:text-white group-hover:text-fuchsia-700 dark:group-hover:text-fuchsia-300 transition-colors leading-snug mb-3 line-clamp-2">
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-snug mb-2.5 line-clamp-2">
                         <Link href={art.link || `/blog/${art.slug}/`} className="focus:outline-none">
                           {art.title}
                         </Link>
                       </h3>
 
-                      <p className="text-slate-600 dark:text-gray-400 text-xs leading-relaxed line-clamp-3 mb-4">
+                      <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-[13px] leading-relaxed line-clamp-3 mb-4">
                         {art.excerpt}
                       </p>
                     </div>
 
-                    {/* Bottom Card Meta */}
-                    <div className="px-6 py-4 border-t border-emerald-900/10 dark:border-white/5 bg-white/70 dark:bg-slate-950/40 flex items-center justify-between mt-auto">
+                    {/* Bottom Card Meta (Author + Read Link) */}
+                    <div className="px-5 sm:px-6 py-3.5 border-t border-slate-200/80 dark:border-white/5 bg-slate-50/70 dark:bg-slate-950/40 flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-fuchsia-600 to-purple-600 grid place-items-center text-white font-bold text-[10px] shadow-sm">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-600 grid place-items-center text-white font-bold text-[10px] shadow-xs">
                           {(art.author_name || 'A').slice(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <div className="text-xs font-semibold text-slate-800 dark:text-gray-200 truncate max-w-[110px]">
+                          <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[120px]">
                             {art.author_name}
                           </div>
                         </div>
@@ -387,10 +340,10 @@ export default function BlogSearchFilter({ initialArticles, categories, totalCou
 
                       <Link
                         href={art.link || `/blog/${art.slug}/`}
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-fuchsia-700 dark:text-fuchsia-400 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 group-hover:translate-x-1 transition-all"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 group-hover:translate-x-1 transition-all"
                       >
                         <span>Read</span>
-                        <i className="fa-solid fa-arrow-right text-[10px]" />
+                        <ArrowRight size={13} />
                       </Link>
                     </div>
                   </article>
@@ -399,56 +352,25 @@ export default function BlogSearchFilter({ initialArticles, categories, totalCou
             </div>
           </div>
         ) : (
-          /* EMPTY STATE (No matching search results) */
-          <div className="text-center py-20 px-5 max-w-md mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-white/70 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 grid place-items-center text-2xl text-fuchsia-700 dark:text-fuchsia-400 mx-auto mb-5 shadow-xl">
-              <i className="fa-solid fa-magnifying-glass" />
+          /* EMPTY STATE */
+          <div className="text-center py-16 sm:py-20 px-4 max-w-md mx-auto">
+            <div className="w-14 h-14 rounded-2xl bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 grid place-items-center text-emerald-600 dark:text-emerald-400 mx-auto mb-4 shadow-sm">
+              <Search size={22} />
             </div>
-            <h3 className="text-xl font-bold text-emerald-950 dark:text-white mb-2">No matching articles found</h3>
-            <p className="text-sm text-slate-600 dark:text-gray-400 mb-6 leading-relaxed">
-              We couldn't find any articles matching your search query or selected category. Try searching with different keywords.
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2">
+              No matching articles found
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+              We couldn&apos;t find any articles matching your search query or selected category. Try searching with different keywords.
             </p>
             <button
               onClick={resetFilters}
-              className="btn-primary inline-flex items-center gap-2 text-xs px-6 py-3 rounded-full"
+              className="inline-flex items-center gap-2 text-xs px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-sm"
             >
-              <i className="fa-solid fa-rotate-left" /> Clear Filters &amp; View All
+              <RotateCcw size={13} /> Clear Filters &amp; View All
             </button>
           </div>
         )}
-
-        {/* COMMUNITY & NEWSLETTER BANNER */}
-        <div className="mt-20 rounded-3xl p-8 sm:p-12 bg-gradient-to-r from-purple-100/60 dark:from-purple-950/60 via-white dark:via-slate-900 to-fuchsia-100/60 dark:to-fuchsia-950/60 border border-fuchsia-500/20 shadow-2xl relative overflow-hidden">
-          <div className="relative z-10 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-300 text-[10px] font-bold uppercase tracking-wider mb-4">
-              <i className="fa-solid fa-wand-magic-sparkles text-fuchsia-700 dark:text-fuchsia-300 text-xs" /> Axom AI Community
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-emerald-950 dark:text-white tracking-tight mb-3">
-              Build, Learn &amp; Innovate with AI in Assam
-            </h3>
-            <p className="text-slate-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed mb-6">
-              Join thousands of students, researchers, and builders using Assam's indigenous AI platform for smarter productivity, document intelligence, and content creation.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <a
-                href="https://chat.aiaxom.co.in/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary text-xs sm:text-sm px-6 py-3 rounded-full inline-flex items-center gap-2"
-              >
-                Start Chatting Free <i className="fa-solid fa-arrow-right text-xs" />
-              </a>
-              <Link
-                href="/#tools"
-                className="btn-ghost text-xs sm:text-sm px-6 py-3 rounded-full inline-flex items-center gap-2"
-              >
-                Explore 12+ AI Tools
-              </Link>
-            </div>
-          </div>
-
-          <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-fuchsia-600/15 rounded-full blur-3xl pointer-events-none" />
-        </div>
       </section>
     </>
   );
