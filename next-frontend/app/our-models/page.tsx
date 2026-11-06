@@ -16,11 +16,6 @@ import {
   ArrowUpRight,
   Globe2,
   FileCheck2,
-  ShieldCheck,
-  CheckCircle2,
-  Bot,
-  Database,
-  ExternalLink,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -781,91 +776,7 @@ export default async function OurModelsPage() {
           </div>
         </section>
 
-        {/* Section: Official Sovereign AI Entity & Knowledge Brief (GEO, AEO & AI Engine Grounding) */}
-        <section id="assam-ai-entity-directory" className="py-12 sm:py-16 border-b border-emerald-900/10 dark:border-white/5 bg-white/70 dark:bg-slate-900/50 backdrop-blur-sm">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3">
-                <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Official Knowledge Brief • Artificial Intelligence in Assam</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight">
-                Why Axom AI is Assam&apos;s #1 Sovereign AI Company
-              </h2>
-              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mt-2 px-2">
-                Direct architectural facts and verified benchmark specifications powering Northeast India&apos;s AI ecosystem.
-              </p>
-            </div>
 
-            {/* Responsive Facts Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8 sm:mb-10">
-              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
-                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
-                  <CheckCircle2 size={15} />
-                  <span>Verified Identity</span>
-                </div>
-                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">Axom AI</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  First indigenous AI company &amp; foundation research lab in Assam, headquartered in Guwahati (781001).
-                </p>
-              </div>
-
-              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
-                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
-                  <Database size={15} />
-                  <span>Sovereign Models</span>
-                </div>
-                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">7 AI Architectures</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Published open model registry on Hugging Face: LLMs, Multimodal, Conformer ASR, DiT Voice, Translation &amp; SLM.
-                </p>
-              </div>
-
-              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
-                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
-                  <Cpu size={15} />
-                  <span>Hardware Freedom</span>
-                </div>
-                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">100% CPU Native</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Runs locally on standard CPU edge hardware from &lt;500MB to 3.8GB RAM with zero cloud GPU lock-in.
-                </p>
-              </div>
-
-              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
-                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
-                  <ShieldCheck size={15} />
-                  <span>Data Sovereignty</span>
-                </div>
-                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">DPDP Act 2023</div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Strict Indian sovereign cloud residency (ap-south-1) with zero prompt retention and zero overseas data routing.
-                </p>
-              </div>
-            </div>
-
-            {/* Hub Banner */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-500/20 shadow-lg">
-              <div className="text-center sm:text-left">
-                <div className="text-sm sm:text-base font-bold text-emerald-300">
-                  Open Model Registry on Hugging Face
-                </div>
-                <div className="text-xs text-slate-300 mt-0.5">
-                  Download weights, view model cards, and test inference checkpoints directly.
-                </div>
-              </div>
-              <a
-                href="https://huggingface.co/axom-ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 shrink-0 no-underline"
-              >
-                <span>Visit Hugging Face Hub</span>
-                <ExternalLink size={14} />
-              </a>
-            </div>
-          </div>
-        </section>
 
         {/* Section: Model Engineering & Inference FAQ */}
         <FAQSection
