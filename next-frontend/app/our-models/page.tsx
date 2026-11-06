@@ -229,104 +229,83 @@ export default async function OurModelsPage() {
       <Header header={cms?.header} />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative pt-28 pb-14 sm:pt-36 sm:pb-20 overflow-hidden border-b border-emerald-900/10 dark:border-white/5">
-          {/* Subtle Ambient Glows matching research.css */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[520px] bg-gradient-to-b from-emerald-500/20 via-emerald-600/10 to-transparent blur-[120px] pointer-events-none rounded-full" />
-          <div className="absolute top-24 right-0 w-[600px] h-[380px] bg-gradient-to-l from-amber-500/15 via-orange-500/10 to-transparent blur-[110px] pointer-events-none rounded-full" />
+        {/* ==================== HERO SECTION (MATCHING /research EXACTLY) ==================== */}
+        <div className="relative overflow-hidden pt-24 sm:pt-28 pb-10 sm:pb-14">
+          {/* Ambient Gradient Glows (Exact match with /research & /use-cases) */}
+          <div
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none z-0 overflow-hidden"
+            aria-hidden="true"
+          >
+            <div className="absolute top-10 left-1/4 w-[28rem] h-[28rem] bg-emerald-600/10 dark:bg-emerald-600/15 rounded-full blur-[140px]" />
+            <div className="absolute top-20 right-1/4 w-[28rem] h-[28rem] bg-indigo-600/10 dark:bg-indigo-600/15 rounded-full blur-[140px]" />
+          </div>
 
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* Top Badge */}
-            <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 dark:bg-amber-950/40 border border-amber-500/30 dark:border-amber-700/50 text-amber-800 dark:text-amber-300 text-xs font-extrabold uppercase tracking-widest shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span>Official Axom AI Research · Foundation Models</span>
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="text-center max-w-4xl mx-auto mb-10 sm:mb-14 md:mb-16">
+              
+              {/* BADGE PILL */}
+              <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-sm">
+                <span>Official Axom AI Research • Sovereign Foundation Models</span>
               </div>
-            </div>
 
-            {/* Main Headline */}
-            <div className="text-center max-w-4xl mx-auto mb-8">
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-[#022c22] dark:text-white tracking-tight leading-[1.08] mb-5">
-                Practical AI Built in Assam,{' '}
-                <span className="bg-gradient-to-r from-emerald-600 via-amber-600 to-emerald-600 dark:from-emerald-400 dark:via-amber-400 dark:to-emerald-400 bg-clip-text text-transparent">
-                  Published with Real Numbers
-                </span>
+              {/* H1 TITLE */}
+              <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.2] sm:leading-tight mb-4 sm:mb-5 break-words">
+                Practical AI built in Assam,{' '}
+                <span className="gradient-text">published with real numbers</span>
               </h1>
 
-              <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-normal max-w-3xl mx-auto">
-                What we built, how we measured it, what worked, what failed, and what we still cannot do. Every model report links directly to its code, its data, and its honest evaluation limits.
+              {/* SUBTITLE */}
+              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 px-1">
+                What we built, how we measured it, what worked, what failed and what we still cannot do. Every technical report links to its open-source code, verified training datasets, and empirical limits.
               </p>
-            </div>
 
-            {/* Hero Feature Chips */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 max-w-4xl mx-auto mb-10 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-xs backdrop-blur-sm">
-                <Eye size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Computer Vision</span>
-              </span>
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-xs backdrop-blur-sm">
-                <ShieldCheck size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Road Safety</span>
-              </span>
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-xs backdrop-blur-sm">
-                <BarChart3 size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Measured Results</span>
-              </span>
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-xs backdrop-blur-sm">
-                <Code2 size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Open Source Code</span>
-              </span>
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-xs backdrop-blur-sm">
-                <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Honest Limits</span>
-              </span>
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-xs backdrop-blur-sm">
-                <Database size={15} className="text-emerald-600 dark:text-emerald-400" />
-                <span>100% Indian Data Sovereignty</span>
-              </span>
-            </div>
+              {/* FILTER PILLS */}
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
+                <a
+                  href="#foundation-models"
+                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
+                >
+                  Foundation LLMs &amp; SLMs
+                </a>
+                <a
+                  href="#field-deployments"
+                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
+                >
+                  Applied Systems
+                </a>
+                <a
+                  href="/research/helmet-detection/"
+                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
+                >
+                  Computer Vision &amp; CCTV
+                </a>
+              </div>
 
-            {/* Author Meta Row */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-4 border-t border-emerald-900/10 dark:border-white/10 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
-                  S
+            </section>
+
+            {/* ==================== OVERVIEW CARD (MATCHING /research EXACTLY) ==================== */}
+            <section id="what-is-axom-ai-research" className="max-w-5xl mx-auto mb-10 sm:mb-14 scroll-mt-24">
+              <div className="p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden backdrop-blur-sm">
+                <div className="space-y-4 sm:space-y-5 relative z-10">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                    <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" />
+                    <span>Assam&apos;s Sovereign AI &amp; Foundation Model Knowledge Base</span>
+                  </div>
+
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug break-words">
+                    What is Axom AI Research? Sovereign Artificial Intelligence &amp; Foundation Models from Assam
+                  </h2>
+
+                  <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
+                    <strong>Axom AI Research</strong> is Northeast India&apos;s premier sovereign artificial intelligence research laboratory headquartered in Guwahati, Assam. We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for the Assamese script and public administration.
+                  </p>
+
                 </div>
-                <span>
-                  By <strong className="text-slate-900 dark:text-white font-bold"><a href="https://github.com/Samarjitkashyp" target="_blank" rel="noopener noreferrer" className="hover:underline text-emerald-800 dark:text-emerald-300">Samarjit Kashyap</a></strong>, Axom AI
-                </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Clock size={14} className="text-slate-400" />
-                <span>Published: <strong className="text-slate-800 dark:text-slate-200">26 Oct 2026</strong></span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Activity size={14} className="text-emerald-500" />
-                <span>Updated: <strong className="text-slate-800 dark:text-slate-200">November 2026</strong></span>
-              </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* What is Axom AI Research Callout */}
-        <section className="py-10 border-b border-emerald-900/10 dark:border-white/5">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <div className="p-6 sm:p-8 rounded-2xl bg-white/85 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-md relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-500 to-amber-500" />
-              <div className="space-y-3 pl-2 sm:pl-3">
-                <h2 className="text-xl sm:text-2xl font-black text-[#022c22] dark:text-white tracking-tight">
-                  What is Axom AI Research?
-                </h2>
-                <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                  Axom AI Research is the technical home of reports from <strong>Axom AI</strong>, Assam&apos;s first indigenous generative artificial intelligence platform. Each publication explains a system we engineered, the training corpora and open tools behind it, the empirical benchmarks measured on unseen regional datasets, and the architectural boundaries where it still requires active fine-tuning.
-                </p>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 italic">
-                  Engineered in Guwahati, Assam to bridge the linguistic divide for 15 million Assamese speakers across Northeast India.
-                </p>
-              </div>
-            </div>
           </div>
-        </section>
+        </div>
 
         {/* Section 1: Sovereign Assamese AI Foundation Models (November 2026) */}
         <section id="foundation-models" className="py-16 sm:py-24 border-b border-emerald-900/10 dark:border-white/5 relative bg-[#f0fdf4]/50 dark:bg-[#0b1220]/50">
