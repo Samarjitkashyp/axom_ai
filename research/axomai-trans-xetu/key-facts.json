@@ -1,0 +1,14 @@
+{
+  "name": "Axom AI Bridge - Xetu (সেতু)",
+  "publisher": "Axom AI Technologies, Guwahati, Assam, India",
+  "author": "Samarjit Kashyap",
+  "url": "https://aiaxom.co.in/research/axomai-trans-xetu/",
+  "updated": "2026-11-02",
+  "architecture": "200M Parameter Sequence-to-Sequence Transformer",
+  "parameters": "200 Million",
+  "vocab_size": "122,672 Unified Tokens",
+  "bleu_score_en_as": 38.6,
+  "ram_footprint": "850 MB",
+  "sovereignty": "100% Indigenous to Assam, India",
+  "license": "Axom AI Proprietary Commercial"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Axom AI Voice - Puhor (পোহৰ)",
+  "publisher": "Axom AI Technologies, Guwahati, Assam, India",
+  "author": "Samarjit Kashyap",
+  "url": "https://aiaxom.co.in/research/axomai-voice-puhor/",
+  "updated": "2026-11-02",
+  "architecture": "Flow-Matching Diffusion Transformer (DiT) with Vocos 24kHz Vocoder",
+  "parameters": "350 Million",
+  "sample_rate": "24,000 Hz Studio PCM",
+  "hallucination_rate": "0.0%",
+  "mos_score": 4.7,
+  "sovereignty": "100% Indigenous to Assam, India",
+  "license": "Axom AI Proprietary Commercial"
+}

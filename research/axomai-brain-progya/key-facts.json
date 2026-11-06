@@ -1,0 +1,15 @@
+{
+  "name": "Axom AI Brain - Progya (প্ৰজ্ঞা)",
+  "publisher": "Axom AI Technologies, Guwahati, Assam, India",
+  "author": "Samarjit Kashyap",
+  "url": "https://aiaxom.co.in/research/axomai-brain-progya/",
+  "updated": "2026-11-02",
+  "architecture": "Dense Autoregressive Transformer with GQA",
+  "parameters": "2.00 Billion",
+  "vocab_size": "68,096 Native Tokens",
+  "context_window": "8,192 Tokens",
+  "ram_footprint": "1,625 MB (bfloat16 CPU)",
+  "training_records": "6,193,137 Verified Records",
+  "sovereignty": "100% Indigenous to Assam, India",
+  "license": "Axom AI Proprietary Commercial"
+}

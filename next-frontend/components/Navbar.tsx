@@ -768,18 +768,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
                 Sign Out
               </button>
             </div>
-          ) : (
-            <div>
-              <div className="text-[10px] uppercase tracking-widest text-[#059669] dark:text-[#34d399] mb-2.5 font-extrabold">Account</div>
-              <button
-                type="button"
-                onClick={() => { setOpen(false); setShowAuthModal(true); }}
-                className="block w-full text-center text-sm px-4 py-3 rounded-full font-extrabold text-white bg-gradient-to-r from-[#10b981] to-[#059669] shadow-lg shadow-emerald-600/30 cursor-pointer"
-              >
-                Sign in with Google &rarr;
-              </button>
-            </div>
-          )}
+          ) : null}
         </div>
 
         {/* Assamese Footer Tagline */}

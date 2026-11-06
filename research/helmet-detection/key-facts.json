@@ -1,0 +1,53 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Axom AI Helmet Detection System",
+  "canonical_url": "https://aiaxom.co.in/research/helmet-detection/",
+  "publisher": "Axom AI Research Laboratory, Guwahati, Assam, India",
+  "founder": "Samarjit Kashyap",
+  "author": "Samarjit Kashyap & Axom AI Team",
+  "geographic_origin": "Guwahati, Assam, India",
+  "coordinates": "26.1445 N, 91.7362 E",
+  "release_date": "2026-10-26",
+  "last_updated": "2026-11-05",
+  "model_type": "Real-Time Computer Vision Helmet Enforcement System",
+  "base_architecture": "Ultralytics YOLOv8s (fine-tuned) + YOLOv8s (motorcycle localization) + YOLOv8n-cls (head crop classifier)",
+  "classes": [
+    "helmet",
+    "no_helmet"
+  ],
+  "primary_capabilities": [
+    "Motorcycle and bicycle rider localization in CCTV and phone footage",
+    "Individual per-rider verdict (helmet vs. no_helmet)",
+    "Per-rider tracking across frames to eliminate duplicate alerts",
+    "Real-time violation alerts to Telegram, Web Admin Dashboard, and Android App",
+    "Automatic evidence capture with timestamp and high-resolution crop"
+  ],
+  "performance_metrics": {
+    "cctv_recall_held_out": 0.791,
+    "cctv_precision_held_out": 0.798,
+    "map50_cctv_held_out": 0.748,
+    "alert_rate_1_fps": 0.74,
+    "alert_rate_2_fps": 0.9,
+    "false_alert_rate_fully_helmeted": 0.01,
+    "test_dataset": "HELMET dataset (traffic cameras, CC BY 4.0)"
+  },
+  "compute_requirements": {
+    "runtime": "100% CPU Native (Zero GPU Required)",
+    "benchmark_hardware": "Standard desktop Intel Core i3 / i5 processor",
+    "analysis_speed_cpu": "~1.4 analyzed frames per second",
+    "concurrent_riders_tracked": "Up to 11 riders per frame",
+    "system_ram": "< 1.2 GB RAM"
+  },
+  "open_source_repositories": {
+    "backend_and_cctv_worker": "https://github.com/Samarjitkashyp/helmet-detection",
+    "mobile_app_flutter": "https://github.com/Samarjitkashyp/helmet-detection-mobile-app"
+  },
+  "try_live_app": "https://helmet-detection.aiaxom.co.in/app",
+  "licenses": {
+    "code": "MIT",
+    "base_model": "Ultralytics YOLOv8 (AGPL-3.0)",
+    "data": "CC BY 4.0 and MIT datasets"
+  },
+  "data_sovereignty_and_privacy": "100% on-premise execution; sensitive camera credentials never transmitted to external cloud; alert evidence restricted to authorized administrators."
+}

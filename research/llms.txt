@@ -1,0 +1,44 @@
+# Axom AI
+
+> Axom AI is Assam's first indigenous generative AI platform (Guwahati, Assam, India), with an Assamese AI assistant, AI tools and open research. Founder: Samarjit Kashyap.
+> Full text for AI Models: https://aiaxom.co.in/llms-full.txt
+
+## Research
+
+
+- [Axom AI Master - XUWOR](https://aiaxom.co.in/research/axomai-multimodal-xuwor/): Assam's sovereign full-duplex multimodal conversational AI ecosystem. Orchestrates hearing (Xuna), thinking (Progya), speaking (Puhor), and translation (Xetu) within 3.8 GB RAM.
+- [Axom AI Brain - Progya](https://aiaxom.co.in/research/axomai-brain-progya/): Assam's sovereign 2 Billion parameter dense Large Language Model (LLM). 68,096 native Assamese tokens, 6.19M verified records, running on 8 GB CPU.
+- [Axom AI Voice - Puhor](https://aiaxom.co.in/research/axomai-voice-puhor/): Assam's first 24,000 Hz studio-grade Flow-Matching Diffusion Transformer (DiT) voice AI with zero hallucination and dual sovereign personas (Prakriti and Brahmaputra).
+- [Axom AI Speech - Xuna](https://aiaxom.co.in/research/axomai-speech-xuna/): 600M Conformer ASR engine running 3.8x faster than real-time (0.261x RTF) on standard CPU with extreme monsoon noise immunity.
+- [Axom AI Bridge - Xetu](https://aiaxom.co.in/research/axomai-trans-xetu/): High-precision bidirectional English <-> Assamese neural translation model preserving complex morphological case inflections.
+- [Axom AI Research](https://aiaxom.co.in/research/): index of technical reports from Axom AI.
+- [Helmet Detection](https://aiaxom.co.in/research/helmet-detection/): AI that checks every motorcycle rider for a helmet, from phone videos and CCTV cameras. YOLOv8, per-rider tracking, Telegram / dashboard / app alerts. Open source (MIT).
+  The one page holds everything: how it works from A to Z (#how), results and benchmarks (#results), CCTV set-up (#cctv), honest limits (#limits), model card (#model), open source links (#open) and the FAQ (#faq).
+- [Key facts as JSON](https://aiaxom.co.in/research/helmet-detection/key-facts.json)
+- [Axom AI Crawler Bot](https://aiaxom.co.in/research/axom-ai-crawler-bot/): how a private tool turns websites and scanned Assamese, Hindi and English documents into clean passages with one AI-written question each for the Axom AI chat. Fetching (HTTP, headless browser, WordPress API), change detection with SHA-256, boilerplate cleaning with safety gates, document OCR with Gemini vision, admin approval, measured results and limits.
+- [Axomai Browser](https://aiaxom.co.in/research/axomai-browser/): a free AI browser made in Assam for Windows and Android. Edge WebView2 pages with a Rust shell, a private chat proxy (key, prompt and model on the server, daily limits, chats not saved), a 202-domain ad and tracker shield, AES-256-GCM folder sync, SHA-256-checked updates, measured numbers and limits. Source: github.com/Samarjitkashyp/axomai-browser (MIT).
+
+## Key facts (helmet detection, updated 2026-10-26)
+
+- Recall on held-out CCTV frames: 0.62 before and 0.79 after CCTV fine-tuning (mAP@50 0.55 to 0.75; 500 frames, 1,114 riders; HELMET dataset, CC BY 4.0).
+- Live CCTV worker: about 74% of bare-headed riders alerted at 1 analysed frame per second and about 90% at 2; about 1% of alerts on fully helmeted bikes (14 clips, 170 riders).
+- Runs on a CPU without a GPU: about 1.4 analysed frames per second on an Intel Core i3.
+- Limits: daytime training data; night recall 0.34 on night-style frames (night training not done yet); turbans not covered; a person should review each alert.
+- Code: https://github.com/Samarjitkashyp/helmet-detection and https://github.com/Samarjitkashyp/helmet-detection-mobile-app (MIT).
+
+
+## Key facts (Axom AI Foundation Models, updated 2026-11-02)
+
+- **Axom AI Xuwor (Master Orchestrator):** Full-duplex speech-to-speech loop combining ASR, 2B LLM, DiT voice synthesis, and translation under 3.8 GB active RAM on consumer CPU.
+- **Axom AI Progya (LLM Brain):** 2.00 Billion parameters, 68,096 native BPE vocabulary tokens (1-2 tokens per Assamese word vs. 4-7 in LLaMA/GPT), 6.19M verified cultural records, 1,625 MB RAM.
+- **Axom AI Puhor (Voice Synthesis):** 350 Million parameter Flow-Matching DiT, 24,000 Hz Studio PCM, 0.0% hallucination rate, 4.7/5.0 MOS score.
+- **Axom AI Xuna (Speech Recognition):** 600 Million parameter Conformer-CTC, 0.261x Real-Time Factor (3.8x faster than live speech on CPU), 11.2% conversational WER, 682 MB RAM footprint.
+- **Axom AI Xetu (Translation Bridge):** 200 Million parameter Seq2Seq, 38.6 BLEU score for English -> Assamese, 122K vocabulary, 850 MB RAM.
+
+## Platform
+
+- [Axom AI](https://aiaxom.co.in/): Assamese AI platform.
+- [Axom AI Chat](https://chat.aiaxom.co.in/): chat in native Assamese.
+- [AI Tools](https://aiaxom.co.in/tools): image, PDF, video and QR tools.
+- [About](https://aiaxom.co.in/about)
+- [Contact](https://aiaxom.co.in/contact)

@@ -1,0 +1,19 @@
+{
+  "name": "Axom AI Master - XUWOR (সুঁৱৰ)",
+  "publisher": "Axom AI Technologies, Guwahati, Assam, India",
+  "author": "Samarjit Kashyap",
+  "url": "https://aiaxom.co.in/research/axomai-multimodal-xuwor/",
+  "updated": "2026-11-02",
+  "architecture": "Unified Full-Duplex Compound Multimodal Orchestrator",
+  "total_parameters": "~3.15 Billion Parameters",
+  "engines": [
+    "Axom AI Xuna (600M)",
+    "Axom AI Progya (2B)",
+    "Axom AI Puhor (350M)",
+    "Axom AI Xetu (200M)"
+  ],
+  "peak_ram": "2.30 - 3.80 GB (Standard CPU)",
+  "latency": "Sub-Second Edge Execution",
+  "sovereignty": "100% Indigenous to Assam, India",
+  "license": "Axom AI Proprietary Commercial"
+}

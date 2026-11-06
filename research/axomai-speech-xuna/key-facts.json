@@ -1,0 +1,14 @@
+{
+  "name": "Axom AI Speech - Xuna (শুনা)",
+  "publisher": "Axom AI Technologies, Guwahati, Assam, India",
+  "author": "Samarjit Kashyap",
+  "url": "https://aiaxom.co.in/research/axomai-speech-xuna/",
+  "updated": "2026-11-02",
+  "architecture": "Hybrid Conformer-CTC ONNX Streaming Engine",
+  "parameters": "600 Million",
+  "real_time_factor": "0.261x (3.8x faster than live speech)",
+  "ram_footprint": "682 MB",
+  "wer_conversational": "11.2%",
+  "sovereignty": "100% Indigenous to Assam, India",
+  "license": "Axom AI Proprietary Commercial"
+}

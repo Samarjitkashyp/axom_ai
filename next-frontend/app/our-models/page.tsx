@@ -164,6 +164,13 @@ export default async function OurModelsPage() {
         description:
           '200 Million parameter bidirectional English-Assamese translation bridge preserving complex case inflections and legal precision.',
       },
+      {
+        '@type': 'SoftwareApplication',
+        name: 'Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)',
+        applicationCategory: 'Public Administration Small Language Model',
+        description:
+          'Sovereign 492 Million parameter public administration SLM trained on 3.3 Million+ verified citizen instruction pairs and 21 master datasets across all 35 districts and 130 LACs.',
+      },
     ],
   };
 
@@ -570,7 +577,57 @@ export default async function OurModelsPage() {
                 </div>
               </div>
 
-              {/* 6. Sovereign Infrastructure Highlight Card */}
+              {/* 6. AXOM AI SARKAR (492M Public Administration SLM) */}
+              <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-7 bg-white/90 dark:bg-slate-900/85 border border-emerald-900/15 dark:border-white/10 shadow-xl backdrop-blur-md flex flex-col justify-between hover:shadow-2xl hover:border-emerald-500/40 transition-all duration-300 group">
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-5">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                      <FileCheck2 size={24} />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
+                      492M Governance SLM
+                    </span>
+                  </div>
+
+                  <h3 className="text-xl font-black text-[#022c22] dark:text-white tracking-tight mb-2">
+                    <a href="/research/axomai-sarkar/" className="hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
+                      Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)
+                    </a>
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5">
+                    Assam&apos;s sovereign 492M public administration SLM trained on 3.3 Million+ instruction pairs across all 35 Districts, 130 LACs, Mission Basundhara, and Sewa Setu.
+                  </p>
+
+                  <div className="space-y-2 mb-6 text-xs text-slate-700 dark:text-slate-300">
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 dark:bg-white/[0.03] border border-emerald-900/10 dark:border-white/5">
+                      <span className="text-slate-500 dark:text-slate-400 font-semibold">Training Corpus</span>
+                      <strong className="font-bold text-emerald-950 dark:text-white">3.3M+ Instructions (4.81 GB)</strong>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 dark:bg-white/[0.03] border border-emerald-900/10 dark:border-white/5">
+                      <span className="text-slate-500 dark:text-slate-400 font-semibold">Execution Mode</span>
+                      <strong className="font-bold text-emerald-950 dark:text-white">100% CPU Native (&lt; 500 MB RAM)</strong>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-50/60 dark:bg-white/[0.03] border border-emerald-900/10 dark:border-white/5">
+                      <span className="text-slate-500 dark:text-slate-400 font-semibold">Territorial Scope</span>
+                      <strong className="font-bold text-emerald-950 dark:text-white">All 35 Districts &amp; 130 LACs</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-emerald-900/10 dark:border-white/10 flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-500 dark:text-slate-400">Public Administration · 10 min</span>
+                  <a
+                    href="/research/axomai-sarkar/"
+                    className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-200 transition-colors"
+                  >
+                    <span>Read report</span>
+                    <ArrowRight size={13} />
+                  </a>
+                </div>
+              </div>
+
+              {/* 7. Sovereign Infrastructure Highlight Card */}
               <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#022c22] to-[#0b1220] text-white border border-emerald-500/30 shadow-xl flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-3 mb-5">
@@ -1005,6 +1062,31 @@ export default async function OurModelsPage() {
                   <li className="flex justify-between">
                     <span>Processing Speed</span>
                     <strong className="text-slate-900 dark:text-white">2 FPS on Live Stream</strong>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
+                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
+                  System 7 · Public Administration SLM
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Axom AI Sarkar (অসম চৰকাৰ)</h4>
+                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
+                    <span>Model Backbone</span>
+                    <strong className="text-slate-900 dark:text-white">Qwen 2.5 Base (492M SLM)</strong>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
+                    <span>Instruction Training Pairs</span>
+                    <strong className="text-slate-900 dark:text-white">3,300,227 Rows (4.81 GB)</strong>
+                  </li>
+                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
+                    <span>Execution Hardware</span>
+                    <strong className="text-slate-900 dark:text-white">100% CPU Native (&lt; 500 MB RAM)</strong>
+                  </li>
+                  <li className="flex justify-between">
+                    <span>Master Datasets</span>
+                    <strong className="text-slate-900 dark:text-white">21 Structured Masters</strong>
                   </li>
                 </ul>
               </div>
