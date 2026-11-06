@@ -1064,22 +1064,15 @@ export default async function UseCasesPage() {
           </section>
 
           {/* ==================== FAQS ==================== */}
-          <section className="mb-12 sm:mb-16 md:mb-20">
-            <div className="text-center mb-8 sm:mb-10">
-              <div className="inline-flex items-center px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3 sm:mb-4 shadow-sm">
-                <span>{cmsData?.faq_badge || 'Questions & Answers'}</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white mb-2">
-                {cmsData?.faq_title || 'Frequently Asked Questions about Axom AI'}
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed">
-                {cmsData?.faq_subtitle ||
-                  'Clear, verified answers about how Axom AI fits your specific daily workflow, academic goals, and organization.'}
-              </p>
-            </div>
-
-            <UseCasesFaq faqs={faqsList} />
-          </section>
+          <UseCasesFaq
+            faqs={faqsList}
+            badge={cmsData?.faq_badge || 'Questions & Answers'}
+            title={cmsData?.faq_title || 'Frequently Asked Questions about Axom AI'}
+            description={
+              cmsData?.faq_subtitle ||
+              'Clear, verified answers about how Axom AI fits your specific daily workflow, academic goals, and organization.'
+            }
+          />
 
 
         </div>

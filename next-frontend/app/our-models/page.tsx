@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import FAQSection from '@/components/FAQSection';
+import { RESEARCH_MODELS_FAQS } from '@/components/researchModelsFaqsData';
 import { getLandingCMS } from '@/lib/api';
 import {
   Cpu,
@@ -193,6 +195,20 @@ export default async function OurModelsPage() {
     ],
   };
 
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': 'https://aiaxom.co.in/our-models/#faq',
+    mainEntity: RESEARCH_MODELS_FAQS.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
       {/* Structured Data */}
@@ -203,6 +219,10 @@ export default async function OurModelsPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
       {/* Global Navbar */}
@@ -1095,7 +1115,19 @@ export default async function OurModelsPage() {
           </div>
         </section>
 
-        {/* Section 5: Bottom CTA Banner */}
+        {/* Section 5: Model Engineering & Inference FAQ */}
+        <FAQSection
+          faqs={RESEARCH_MODELS_FAQS}
+          badge="Model Engineering & Research FAQ"
+          title="Frequently Asked"
+          titleHighlight="Questions"
+          titleSuffix="about Axom AI Models"
+          description="Everything you need to know about our sovereign foundation models, local CPU deployment, Assamese grammar precision, and enterprise integration."
+          supportTitle="Have Technical Questions About Our Models?"
+          supportDescription="Whether you are an academic researcher, AI engineer, government department, or startup, our Guwahati foundation research team is available to assist."
+        />
+
+        {/* Section 6: Bottom CTA Banner */}
         <section className="py-16 sm:py-24 bg-gradient-to-br from-emerald-950 via-slate-950 to-black text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-600/20 via-transparent to-transparent pointer-events-none" />
           
