@@ -3,10 +3,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import FAQSection from '@/components/FAQSection';
 import { getLandingCMS } from '@/lib/api';
 import { pageTitle } from '@/lib/seoTitle';
 import {
-  Sparkles,
   Layers,
   Cpu,
   ShieldCheck,
@@ -19,7 +19,6 @@ import {
   Binary,
   Languages,
   FileText,
-  ChevronRight,
   Building2,
   Scale,
   GraduationCap,
@@ -27,7 +26,6 @@ import {
   Compass,
   Check,
 } from 'lucide-react';
-import { XetuCodeBlock, XetuFaqAccordion } from './XetuInteractive';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -169,42 +167,9 @@ const FAQS_DATA = [
   {
     question: 'Where can developers access Xetu?',
     answer:
-      'Developers can access Xetu through the official <a href="https://huggingface.co/axom-ai/axomai-trans-xetu" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-bold underline">Axom AI Hugging Face repository (axom-ai/axomai-trans-xetu)</a>, with complete Python integration examples provided on this page.',
+      'Developers can access Xetu through the official <a href="https://huggingface.co/axom-ai/axomai-trans-xetu" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-bold underline">Axom AI Hugging Face repository (axom-ai/axomai-trans-xetu)</a>, with complete model assets and weights.',
   },
 ];
-
-const PYTHON_CODE = `import torch
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-
-# 1. Model credentials and Hugging Face repository
-REPO_ID = "axom-ai/axomai-trans-xetu"
-HF_TOKEN = "your_hf_access_token"  # Provide your authorized HF access token
-
-# 2. Load tokenizer and 200M Seq2Seq model from Hugging Face Hub
-tokenizer = AutoTokenizer.from_pretrained(REPO_ID, token=HF_TOKEN, trust_remote_code=True)
-model = AutoModelForSeq2SeqLM.from_pretrained(REPO_ID, token=HF_TOKEN, trust_remote_code=True)
-
-# 3. Bidirectional Example A: English to Assamese Translation
-english_text = "Welcome to Axom AI, the native artificial intelligence ecosystem of Assam."
-inputs_en = tokenizer([english_text], src_lang="eng_Latn", tgt_lang="asm_Beng", return_tensors="pt")
-
-with torch.no_grad():
-    outputs_en = model.generate(**inputs_en, max_length=256, num_beams=4)
-
-translation_as = tokenizer.batch_decode(outputs_en, src_lang="eng_Latn", tgt_lang="asm_Beng")[0]
-print(f"Assamese Output: {translation_as}")
-# Output: অসমৰ থলুৱা কৃত্ৰিম বুদ্ধিমত্তা পৰিস্থিতিতন্ত্ৰ, অসম এআইলৈ আপোনাক স্বাগতম।
-
-# 4. Bidirectional Example B: Assamese to English Translation
-assamese_text = "অসমৰ থলুৱা কৃত্ৰিম বুদ্ধিমত্তা পৰিস্থিতিতন্ত্ৰ, অসম এআইলৈ আপোনাক স্বাগতম।"
-inputs_as = tokenizer([assamese_text], src_lang="asm_Beng", tgt_lang="eng_Latn", return_tensors="pt")
-
-with torch.no_grad():
-    outputs_as = model.generate(**inputs_as, max_length=256, num_beams=4)
-
-translation_en = tokenizer.batch_decode(outputs_as, src_lang="asm_Beng", tgt_lang="eng_Latn")[0]
-print(f"English Output: {translation_en}")
-# Output: Welcome to Axom AI, the indigenous artificial intelligence ecosystem of Assam.`;
 
 export default async function AxomAiTransXetuPage() {
   const cms = await getLandingCMS().catch(() => ({} as any));
@@ -380,30 +345,6 @@ export default async function AxomAiTransXetuPage() {
         ],
       },
       {
-        '@type': 'BreadcrumbList',
-        '@id': 'https://aiaxom.co.in/research/axomai-trans-xetu/#breadcrumb',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Home',
-            item: 'https://aiaxom.co.in/',
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Research',
-            item: 'https://aiaxom.co.in/research/',
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: 'Axom AI Xetu',
-            item: 'https://aiaxom.co.in/research/axomai-trans-xetu/',
-          },
-        ],
-      },
-      {
         '@type': 'FAQPage',
         '@id': 'https://aiaxom.co.in/research/axomai-trans-xetu/#faq',
         mainEntity: FAQS_DATA.map((faq) => ({
@@ -440,32 +381,10 @@ export default async function AxomAiTransXetuPage() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* BREADCRUMB */}
-          <nav
-            aria-label="Breadcrumb"
-            className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mb-6 sm:mb-8"
-          >
-            <Link href="/" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
-              Home
-            </Link>
-            <ChevronRight size={13} className="opacity-60" />
-            <Link
-              href="/research/"
-              className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-            >
-              Research
-            </Link>
-            <ChevronRight size={13} className="opacity-60" />
-            <span className="text-emerald-950 dark:text-emerald-300 font-semibold truncate">
-              Axom AI Xetu (সেতু)
-            </span>
-          </nav>
-
           {/* ==================== 1. HERO SECTION ==================== */}
           <header className="text-center max-w-4xl mx-auto mb-10 sm:mb-14">
-            {/* BADGE */}
-            <div className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-xs">
-              <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400" />
+            {/* BADGE (Clean text, emoji removed) */}
+            <div className="inline-flex items-center px-3.5 sm:px-4 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-xs">
               <span>AXOM AI FOUNDATION MODEL &bull; NEURAL TRANSLATION</span>
             </div>
 
@@ -484,7 +403,7 @@ export default async function AxomAiTransXetuPage() {
             </p>
 
             {/* HERO SPECS CHIPS */}
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-4xl mx-auto mb-6">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-4xl mx-auto">
               {[
                 { label: '200M Parameters', icon: Binary },
                 { label: '36 Transformer Layers', icon: Layers },
@@ -505,114 +424,12 @@ export default async function AxomAiTransXetuPage() {
                 );
               })}
             </div>
-
-            {/* AUTHOR BYLINE */}
-            <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">
-              By <strong className="text-emerald-950 dark:text-white font-bold">Axom AI Team</strong> &bull;{' '}
-              <span className="text-slate-400">Published November 2026 &bull; Guwahati, Assam</span>
-            </div>
-
-            {/* ACTION CTAS */}
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-              <a
-                href="#benchmarks"
-                className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg no-underline inline-flex items-center gap-2"
-              >
-                <span>View Benchmarks</span>
-                <ArrowRight size={14} />
-              </a>
-              <a
-                href="#inside-xetu"
-                className="px-5 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/50 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline"
-              >
-                Explore the Model
-              </a>
-              <a
-                href="#technical-specifications"
-                className="px-5 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/50 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline"
-              >
-                Technical Specifications
-              </a>
-              <a
-                href="https://huggingface.co/axom-ai/axomai-trans-xetu"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-5 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/50 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline inline-flex items-center gap-1.5"
-              >
-                <span>View on Hugging Face</span>
-                <ExternalLink size={13} />
-              </a>
-            </div>
           </header>
-
-          {/* ==================== 4-STAT SHOWCASE METRICS STRIP ==================== */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-14 sm:mb-18">
-            <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  English &rarr; Assamese
-                </span>
-                <Languages size={18} className="text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                38.6 BLEU
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                Measured on administrative, educational, and general Assamese evaluation sets
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Assamese &rarr; English
-                </span>
-                <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                41.2 BLEU
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                Measured across held-out Flores-200 and bilingual test sets
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Grammar Fidelity
-                </span>
-                <ShieldCheck size={18} className="text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                99.2%
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                Preservation of evaluated Assamese grammatical case markers (-ৰ, -লৈ, -ত, -দ্বাৰা)
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Hardware Footprint
-                </span>
-                <Cpu size={18} className="text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                850 MB RAM
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                Compact 1.03 GB SafeTensors footprint: runs efficiently on standard CPU edge hardware
-              </p>
-            </div>
-          </section>
 
           {/* ==================== 2. MODEL OVERVIEW ==================== */}
           <section id="model-overview" className="mb-14 sm:mb-18 scroll-mt-24">
             <div className="model-overview-card p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-slate-900/80 border border-emerald-600/30 dark:border-emerald-500/30 shadow-lg relative overflow-hidden">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10.5px] font-extrabold uppercase tracking-wider mb-3">
-                <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" />
                 <span>Model Overview</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
@@ -670,7 +487,7 @@ export default async function AxomAiTransXetuPage() {
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
               Why Xetu Was Built
             </h2>
-            <div className="space-y-4 text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+            <div className="space-y-4 text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed">
               <p>
                 Assamese is an agglutinative language where grammatical relationships can be expressed through case
                 markers, inflections, and contextual constructions.
@@ -683,16 +500,6 @@ export default async function AxomAiTransXetuPage() {
               <p>
                 Xetu was developed with a narrower objective: to build a neural translation system that pays closer
                 attention to the linguistic structure of Assamese.
-              </p>
-            </div>
-
-            {/* CALLOUT QUOTE */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-950 dark:text-white">
-              <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-1">
-                The Objective
-              </div>
-              <p className="text-sm sm:text-base md:text-lg font-bold italic leading-snug">
-                &ldquo;Translate the language &mdash; while preserving the structure and meaning that make Assamese distinct.&rdquo;
               </p>
             </div>
           </section>
@@ -1539,79 +1346,48 @@ export default async function AxomAiTransXetuPage() {
             </div>
           </section>
 
-          {/* ==================== 11. RUN XETU LOCALLY ==================== */}
-          <section id="quickstart" className="mb-14 sm:mb-18 scroll-mt-24">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-              Run Xetu Locally with Python
-            </h2>
-            <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-              <p>
-                Xetu is designed for developers and researchers who want to experiment with Assamese neural translation
-                in their own environment.
-              </p>
-              <p>
-                The model can be loaded through the Hugging Face Transformers ecosystem and used for both English &rarr;
-                Assamese and Assamese &rarr; English translation.
-              </p>
-            </div>
-
-            {/* WHY RUN XETU LOCALLY? */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 mb-6">
-              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200 mb-3">
-                Why Run Xetu Locally?
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs text-slate-700 dark:text-slate-300">
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-emerald-600 shrink-0" />
-                  <span>Keep sensitive documents within your infrastructure</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-emerald-600 shrink-0" />
-                  <span>Reduce dependency on external cloud translation APIs</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-emerald-600 shrink-0" />
-                  <span>Experiment with Assamese NLP locally on CPU</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-emerald-600 shrink-0" />
-                  <span>Build custom applications around Assamese translation</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-emerald-600 shrink-0" />
-                  <span>Integrate translation into existing private pipelines</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Check size={14} className="text-emerald-600 shrink-0" />
-                  <span>Explore and evaluate model weights directly</span>
-                </div>
+          {/* ==================== 11. HUGGING FACE MODEL HUB ==================== */}
+          <section id="model-hub" className="mb-14 sm:mb-18 scroll-mt-24">
+            <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-slate-900/80 border border-emerald-600/30 dark:border-emerald-500/30 shadow-lg text-center max-w-3xl mx-auto">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10.5px] font-extrabold uppercase tracking-wider mb-3">
+                <span>Hugging Face Model Hub</span>
               </div>
-            </div>
-
-            <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
-              The script below illustrates the standard sequence: <strong>Load Model &rarr; Tokenize Inputs &rarr; Generate Hypotheses &rarr; Batch Decode Outputs:</strong>
-            </p>
-
-            <XetuCodeBlock code={PYTHON_CODE} filename="xetu_inference.py — Official Integration" />
-          </section>
-
-          {/* ==================== 12. FAQ ACCORDION ==================== */}
-          <section id="faq" className="mb-14 sm:mb-18 scroll-mt-24">
-            <div className="mb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10.5px] font-extrabold uppercase tracking-wider mb-2">
-                <BookOpen size={12} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Frequently Asked Questions</span>
-              </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight">
-                Frequently Asked Questions About Axom AI Xetu
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
+                Access Axom AI Xetu on Hugging Face
               </h2>
+              <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6 max-w-xl mx-auto">
+                Download the 200M parameter model checkpoint, tokenizer dictionaries, and configuration files directly
+                from the official Axom AI repository for local inference, evaluation, and research.
+              </p>
+              <a
+                href="https://huggingface.co/axom-ai/axomai-trans-xetu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg no-underline"
+              >
+                <span>View on Hugging Face</span>
+                <ExternalLink size={14} />
+              </a>
             </div>
-
-            <XetuFaqAccordion faqs={FAQS_DATA} />
           </section>
+
+          {/* ==================== 12. FAQ SECTION (HOMEPAGE DESIGN) ==================== */}
+          <FAQSection
+            faqs={FAQS_DATA}
+            badge="Knowledge Base & FAQ"
+            title="Frequently Asked"
+            titleHighlight="Questions"
+            titleSuffix="About Axom AI Xetu"
+            description="Authoritative answers regarding Axom AI Xetu, model specifications, training, grammar preservation, and offline execution."
+            supportTitle="Direct Support from Axom AI Research Team"
+            supportDescription="Have technical questions about evaluating or integrating Axom AI Xetu? Our engineering team in Guwahati is here to assist."
+            chatButtonText="Ask Axom AI Assistant Free"
+            chatButtonUrl="https://chat.aiaxom.co.in/"
+            className="!py-6 sm:!py-10 !bg-transparent"
+          />
 
           {/* ==================== 13. MODEL & INTELLECTUAL PROPERTY ==================== */}
-          <section className="p-6 sm:p-8 rounded-2xl bg-white/90 dark:bg-slate-900/80 border-l-4 border-emerald-500 shadow-md mb-12">
+          <section className="p-6 sm:p-8 rounded-2xl bg-white/90 dark:bg-slate-900/80 border-l-4 border-emerald-500 shadow-md mt-10">
             <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
               Model &amp; Intellectual Property
             </h3>
@@ -1630,33 +1406,6 @@ export default async function AxomAiTransXetuPage() {
               >
                 <span>Contact Axom AI for Licensing &amp; Collaboration</span>
                 <ArrowRight size={13} />
-              </Link>
-            </div>
-          </section>
-
-          {/* ==================== 14. FINAL CTA ==================== */}
-          <section className="text-center p-8 sm:p-12 rounded-3xl bg-gradient-to-b from-white/90 to-emerald-50/50 dark:from-slate-900/90 dark:to-emerald-950/20 border border-emerald-500/30 shadow-xl">
-            <h3 className="text-xl sm:text-3xl font-black text-emerald-950 dark:text-white mb-3">
-              Build With Assamese AI
-            </h3>
-            <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed">
-              Xetu is one part of Axom AI&apos;s growing ecosystem of indigenous models built around Assamese language,
-              knowledge, voice, and real-world applications. Whether you&apos;re a researcher, developer, university,
-              enterprise, or public-sector organization, explore what specialized Assamese AI can enable.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/our-models"
-                className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg no-underline inline-flex items-center gap-2"
-              >
-                <span>Explore Axom AI Models</span>
-                <ArrowRight size={14} />
-              </Link>
-              <Link
-                href="/contact"
-                className="px-6 py-3 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline"
-              >
-                Contact the Research Team
               </Link>
             </div>
           </section>
