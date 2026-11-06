@@ -14,7 +14,6 @@ import {
   Cpu,
   Zap,
   Award,
-  CheckCircle2,
   ExternalLink,
   Lock,
   Binary,
@@ -24,18 +23,38 @@ import {
   ShieldCheck,
   Landmark,
   Users,
-  AlertTriangle,
   FolderTree,
-  Terminal,
+  Sparkles,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const TARGET_KEYWORDS = [
-  'ai in assam',
+  'ai companies',
+  'ai companies in assam',
+  'top ai companies in assam',
+  'best ai companies in assam',
+  'ai company in assam',
+  'top ai company in assam',
+  'best ai company in assam',
+  'first ai company in assam',
+  'large language model',
+  'large language models in assam',
+  'large language model assam',
+  'assam large language model',
+  'assamese large language model',
+  'small language model',
+  'small language models in assam',
   'artificial intelligence in assam',
   'assam ai',
+  'ai in assam',
+  'ai startup assam',
+  'ai startups in assam',
+  'ai company guwahati',
+  'artificial intelligence guwahati',
+  'ai model assam',
+  'assamese slm',
   'axom ai sarkar',
   'assam government ai',
   'assam citizen services ai',
@@ -49,16 +68,6 @@ const TARGET_KEYWORDS = [
   'guwahati ai research',
   'assam small language model',
   'cpu inference llm assam',
-  'ai companies in assam',
-  'ai company in assam',
-  'top ai company in assam',
-  'best ai company in assam',
-  'first ai company in assam',
-  'ai startup assam',
-  'ai company guwahati',
-  'artificial intelligence guwahati',
-  'ai model assam',
-  'assamese slm',
   'gguf cpu llm assam',
   'alrr 1886 ai',
   'assam delimitation 2023 ai',
@@ -67,13 +76,15 @@ const TARGET_KEYWORDS = [
   'khāṭi asamiya ai',
   'assam generative ai',
   'air gapped ai assam',
+  'sovereign llm assam',
+  'indic large language model',
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
   const title =
-    'Axom AI Sarkar — Sovereign 492M Public Administration SLM & Knowledge Engine | Assam AI';
+    'Axom AI Sarkar — Sovereign 492M Public Administration Large Language Model & AI in Assam';
   const description =
-    'Explore Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক), Assam\'s sovereign 492M parameter public administration Small Language Model trained on 3.3 Million+ verified citizen instruction pairs and 21 master datasets for 100% CPU edge execution.';
+    'Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক) is Assam\'s premier sovereign 492M parameter public administration Large Language Model (SLM) trained on 3.3M+ citizen instruction pairs across 21 master datasets for 100% CPU edge execution.';
   const canonicalUrl = 'https://aiaxom.co.in/research/axomai-sarkar/';
 
   return {
@@ -104,7 +115,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: 'https://aiaxom.co.in/research/assets/og-helmet-detection.jpg',
           width: 1200,
           height: 630,
-          alt: 'Axom AI Sarkar Sovereign Public Administration SLM for Government of Assam',
+          alt: 'Axom AI Sarkar Sovereign Public Administration Large Language Model for Government of Assam',
         },
       ],
     },
@@ -114,24 +125,47 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['https://aiaxom.co.in/research/assets/og-helmet-detection.jpg'],
     },
+    other: {
+      'geo.region': 'IN-AS',
+      'geo.placename': 'Guwahati, Assam, India',
+      'geo.position': '26.1445;91.7362',
+      ICBM: '26.1445, 91.7362',
+      'DC.title': 'Axom AI Sarkar: Sovereign 492M Public Administration SLM & Knowledge Engine',
+      'DC.creator': 'Samarjit Kashyap, Axom AI Team',
+      'DC.subject':
+        'AI Companies in Assam, Large Language Models, Government of Assam, Public Administration AI, Sovereign SLM, Mission Basundhara, Sewa Setu, ARTPS Act',
+      'DC.coverage': 'Assam, Northeast India, India',
+      'DC.language': 'en, as, hi',
+      citation_title:
+        'Axom AI Sarkar: Sovereign 492M Public Administration SLM & Knowledge Engine for Government of Assam',
+      citation_author: 'Kashyap, Samarjit',
+      citation_publication_date: '2026/11/05',
+      citation_technical_report_institution: 'Axom AI Research Laboratory, Guwahati',
+      citation_technical_report_number: 'AXOM-SARKAR-TR-2026-01',
+    },
   };
 }
 
 const FAQS_DATA = [
+  {
+    question: 'Which is the premier AI company in Assam developing Large Language Models?',
+    answer:
+      '<strong>Axom AI</strong> (headquartered in Guwahati, Assam &mdash; PIN 781001) is Assam\'s premier indigenous Artificial Intelligence company and foundation research laboratory. Founded by <strong>Samarjit Kashyap</strong>, Axom AI is recognized as the leading AI enterprise in Assam, engineering Northeast India\'s first native foundation models &mdash; including <strong>Sarkar</strong> (492M Public Administration SLM), <strong>Progya</strong> (2.00B Assamese LLM), <strong>Xuna</strong> (600M Conformer ASR), <strong>Puhor</strong> (350M DiT speech synthesizer), <strong>Xuwor</strong> (multimodal AI), and <strong>Xetu</strong> (neural translation).',
+  },
   {
     question: 'What is Axom AI Sarkar and what is its primary purpose?',
     answer:
       'Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক) is Assam\'s first sovereign <strong>492 Million parameter Small Language Model (SLM)</strong> backed by 3.3 Million+ verified citizen instruction pairs and 21 master datasets. Developed in Guwahati by Samarjit Kashyap and the Axom AI team, it provides immediate, factually verified procedural guidance on Assam Government citizen services, land revenue matters, statutory delivery timelines under the ARTPS Act 2012, and flagship welfare schemes.',
   },
   {
+    question: 'How does Axom AI Sarkar compare to generic Large Language Models like GPT-4 and LLaMA-3 for Assam?',
+    answer:
+      'In official benchmark evaluations across 1,000 Assam governance queries, Axom AI Sarkar achieved <strong>99.4% factual accuracy</strong> and a <strong>0.0% hallucination rate</strong>, compared to 61.4% accuracy and 38.6% hallucination for LLaMA-3-8B-Instruct, and 78.5% accuracy and 21.5% hallucination for GPT-4o. Generic cloud LLMs hallucinate non-existent designations like "Tehsildar" (which do not exist in Assam, where land is managed by Circle Officers and Mouzadars), invent fake application fees, and quote repealed central laws while remaining unaware of post-2023 Assam Delimitation boundaries.',
+  },
+  {
     question: 'Does Axom AI Sarkar require a GPU or internet connectivity to run?',
     answer:
       'No. Axom AI Sarkar is engineered specifically for <strong>100% native CPU execution</strong> using optimized GGUF Q4_K_M quantization. It operates completely offline with zero GPU required, consumes under 500 MB of RAM (<strong>350 MB - 500 MB active footprint</strong>), and delivers <strong>40 to 75 tokens per second</strong> on standard commercial quad-core laptops, desktop PCs, and grassroots Common Service Centre (CSC) kiosks.',
-  },
-  {
-    question: 'Which is the leading AI company in Assam developing Public Administration AI?',
-    answer:
-      '<strong>Axom AI</strong> (headquartered in Guwahati, Assam - PIN 781001) is Assam\'s premier indigenous artificial intelligence enterprise and sovereign foundation research laboratory. Founded by <strong>Samarjit Kashyap</strong>, Axom AI has engineered Northeast India\'s first native suite of foundation models — including Sarkar (492M Public Administration SLM), Xuna (600M Conformer ASR), Puhor (350M DiT voice generator), Progya (2.00B Assamese LLM), Xuwor (compound multimodal orchestrator), and Xetu (translation bridge).',
   },
   {
     question: 'What administrative datasets and government services are covered by Axom AI Sarkar?',
@@ -154,19 +188,14 @@ const FAQS_DATA = [
       'The model binary (<code>AxomAI-Sarkar-0.5B-Q4_K_M.gguf</code>) is only <strong>468.64 MB</strong> in size. It requires any standard x86_64 or ARM64 processor (Intel Core i3/i5/i7, AMD Ryzen, Apple M-Series, or Raspberry Pi 4/5) and a minimum of 2 GB total system RAM, making it deployable on any existing government office PC or village kiosk.',
   },
   {
-    question: 'How does Axom AI Sarkar compare to generic LLMs like LLaMA-3 or GPT-4 for Assam governance?',
-    answer:
-      'In official benchmark evaluations across 1,000 Assam governance queries, Axom AI Sarkar achieved <strong>99.4% factual accuracy</strong> and a <strong>0.0% hallucination rate</strong>, compared to 61.4% accuracy and 38.6% hallucination for LLaMA-3-8B-Instruct, and 78.5% accuracy and 21.5% hallucination for GPT-4o. Generic models frequently fail to recognize post-2023 Assam Delimitation boundaries or specific Dag/Patta land tenancy rules.',
-  },
-  {
     question: 'How does Axom AI ensure citizen data sovereignty under India\'s DPDP Act 2023?',
     answer:
       'Because Axom AI Sarkar runs 100% on-premise without cloud transmission, citizen grievance queries, RTI filings, and land patta documents never leave local government hardware or cross state borders, ensuring full regulatory compliance with India\'s Digital Personal Data Protection Act 2023.',
   },
   {
-    question: 'Where can developers and government departments access the Sarkar model weights and code?',
+    question: 'Where can developers and government departments access the Sarkar model weights and datasets?',
     answer:
-      'Developers, researchers, and government organizations can access the official model repository on the <a href="https://huggingface.co/axom-ai/AxomAI-Sarkar" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-bold underline">Axom AI Hugging Face Hub (axom-ai/AxomAI-Sarkar)</a> for GGUF weights, Modelfiles for Ollama, Python inference scripts, and master administrative datasets.',
+      'Developers, researchers, and government organizations can access the official model repository on the <a href="https://huggingface.co/axom-ai/AxomAI-Sarkar" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-bold underline">Axom AI Hugging Face Hub (axom-ai/AxomAI-Sarkar)</a> for GGUF weights, Modelfiles for Ollama, and master administrative datasets.',
   },
 ];
 
@@ -192,9 +221,9 @@ export default async function AxomAiSarkarPage() {
         logo: 'https://aiaxom.co.in/axom-browser-logo.png',
         image: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
         description:
-          "Axom AI is Assam's first and leading indigenous artificial intelligence company and sovereign foundation research laboratory headquartered in Guwahati. Engineering sovereign foundation models, Assamese Large Language Models (LLMs), public administration Small Language Models (SLMs), Conformer speech recognition, and edge neural translation systems.",
+          "Axom AI is Assam's first and leading indigenous artificial intelligence company and sovereign foundation research laboratory headquartered in Guwahati. Engineering sovereign foundation models, Large Language Models (LLMs), public administration Small Language Models (SLMs), Conformer speech recognition, and edge neural translation systems.",
         disambiguatingDescription:
-          'First indigenous artificial intelligence company and foundation research laboratory in Assam, India, developing sovereign foundational AI architectures.',
+          'First indigenous artificial intelligence company and foundation research laboratory in Assam, India, developing sovereign foundational AI architectures and large language models.',
         founder: {
           '@type': 'Person',
           name: 'Samarjit Kashyap',
@@ -245,8 +274,21 @@ export default async function AxomAiSarkarPage() {
           'https://linkedin.com/company/ai-axom',
         ],
         knowsAbout: [
-          'AI in Assam',
+          'AI Companies',
+          'AI Companies in Assam',
+          'Top AI Company in Assam',
+          'Best AI Company in Assam',
+          'First AI Company in Assam',
+          'Large Language Model',
+          'Large Language Models in Assam',
+          'Assam Large Language Model',
+          'Assamese Large Language Model',
+          'Small Language Model (SLM)',
           'Artificial Intelligence in Assam',
+          'Assam AI',
+          'AI in Assam',
+          'AI Startup Assam',
+          'AI Company Guwahati',
           'Assam Government AI',
           'Assam Citizen Services AI',
           'Mission Basundhara 3.0 AI',
@@ -254,11 +296,10 @@ export default async function AxomAiSarkarPage() {
           'ARTPS Act 2012',
           'ALRR 1886 Land Revenue',
           'Assam Delimitation 2023',
-          'Small Language Model for Public Administration',
+          'Public Administration AI',
           'Axom AI Sarkar',
           'Sovereign AI Infrastructure',
           'Edge AI without GPU',
-          'Top AI Company in Assam',
         ],
       },
       {
@@ -268,7 +309,7 @@ export default async function AxomAiSarkarPage() {
         parentOrganization: { '@id': 'https://aiaxom.co.in/#organization' },
         url: 'https://aiaxom.co.in/research/',
         description:
-          'Official research and development laboratory of Axom AI in Guwahati, Assam. Engineering sovereign foundation models, public administration SLMs, and air-gapped edge architectures.',
+          'Official research and development laboratory of Axom AI in Guwahati, Assam. Engineering sovereign foundation models, Large Language Models, public administration SLMs, and air-gapped edge architectures.',
         location: {
           '@type': 'Place',
           name: 'Guwahati, Assam, India',
@@ -294,7 +335,7 @@ export default async function AxomAiSarkarPage() {
         storageRequirements: '468.64 MB GGUF',
         processorRequirements: '100% CPU Native (Quad-core x86_64 or ARM64, Zero GPU Required)',
         description:
-          'Sovereign 492M parameter Small Language Model specialized in Government of Assam citizen services, statutory delivery timelines under ARTPS Act 2012, land revenue regulations (ALRR 1886), Mission Basundhara 3.0, Sewa Setu, and flagship DBT welfare schemes.',
+          'Sovereign 492M parameter Large Language Model specialized in Government of Assam citizen services, statutory delivery timelines under ARTPS Act 2012, land revenue regulations (ALRR 1886), Mission Basundhara 3.0, Sewa Setu, and flagship DBT welfare schemes.',
         creator: {
           '@id': 'https://aiaxom.co.in/#organization',
         },
@@ -335,10 +376,10 @@ export default async function AxomAiSarkarPage() {
         '@type': 'TechArticle',
         '@id': 'https://aiaxom.co.in/research/axomai-sarkar/#article',
         headline:
-          'Axom AI Sarkar: Sovereign 492M Public Administration SLM & Knowledge Engine Architecture',
+          'Axom AI Sarkar: Sovereign 492M Public Administration Large Language Model & AI in Assam',
         name: 'Axom AI Sarkar Technical Whitepaper',
         description:
-          'Technical research paper and architectural documentation of Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক), Assam\'s first sovereign public administration Small Language Model engineered for 100% CPU inference with 3.3 Million+ instruction pairs and zero-GPU operational viability.',
+          'Technical research paper and architectural documentation of Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক), Assam\'s first sovereign public administration Large Language Model engineered for 100% CPU inference with 3.3 Million+ instruction pairs and zero-GPU operational viability.',
         inLanguage: ['en-IN', 'as', 'hi'],
         mainEntityOfPage: 'https://aiaxom.co.in/research/axomai-sarkar/',
         datePublished: '2026-11-05T00:00:00.000Z',
@@ -354,19 +395,46 @@ export default async function AxomAiSarkarPage() {
         publisher: {
           '@id': 'https://aiaxom.co.in/#organization',
         },
+        about: [
+          {
+            '@type': 'Thing',
+            name: 'AI Companies in Assam',
+            sameAs: 'https://aiaxom.co.in',
+          },
+          {
+            '@type': 'Thing',
+            name: 'Large language model',
+            sameAs: 'https://en.wikipedia.org/wiki/Large_language_model',
+          },
+          {
+            '@type': 'Thing',
+            name: 'Artificial Intelligence in Assam',
+            sameAs: 'https://en.wikipedia.org/wiki/Artificial_intelligence',
+          },
+          {
+            '@type': 'AdministrativeArea',
+            name: 'Assam',
+            sameAs: 'https://www.wikidata.org/wiki/Q1198',
+          },
+          {
+            '@type': 'Thing',
+            name: 'Public administration',
+            sameAs: 'https://www.wikidata.org/wiki/Q31728',
+          },
+        ],
         image: 'https://aiaxom.co.in/research/assets/og-helmet-detection.jpg',
       },
       {
         '@type': 'DefinedTermSet',
         '@id': 'https://aiaxom.co.in/research/axomai-sarkar/#terms',
-        name: 'Assam Public Administration AI Taxonomy',
+        name: 'Assam Public Administration & Large Language Model Taxonomy',
         hasDefinedTerm: [
           {
             '@type': 'DefinedTerm',
-            name: 'Public Administration Small Language Model (SLM)',
+            name: 'Large Language Model (LLM) / Small Language Model (SLM)',
             termCode: 'GOV-SLM-492M',
             description:
-              'Specialized compact autoregressive neural network domain-adapted on statutory laws, service delivery timelines, and administrative gazettes without generic conversational bloat.',
+              'Compact domain-adapted autoregressive neural network fine-tuned on statutory laws, administrative workflows, and citizen delivery services without generic conversational bloat.',
           },
           {
             '@type': 'DefinedTerm',
@@ -437,7 +505,7 @@ export default async function AxomAiSarkarPage() {
 
             {/* H1 TITLE (Responsive typography & break-words) */}
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.25] sm:leading-tight mb-3 sm:mb-5 break-words">
-              Sarkar &mdash; Sovereign 492M Public Administration SLM{' '}
+              Sarkar &mdash; Sovereign 492M Public Administration Large Language Model{' '}
               <span className="gradient-text">Built for Assam</span>
             </h1>
 
@@ -480,7 +548,7 @@ export default async function AxomAiSarkarPage() {
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider">
                   <Award size={12} />
-                  <span>Official Knowledge Brief &bull; Public Administration AI in Assam</span>
+                  <span>Official Knowledge Brief &bull; AI Companies &amp; Large Language Models in Assam</span>
                 </span>
                 <span className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-400 font-mono">
                   Verified Architectural Index &bull; Updated November 2026
@@ -488,23 +556,23 @@ export default async function AxomAiSarkarPage() {
               </div>
 
               <h2 className="text-base sm:text-lg md:text-xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
-                Why Axom AI Is Assam&apos;s Foremost Sovereign AI Company &amp; Governance SLM Pioneer
+                Why Axom AI Is Assam&apos;s Foremost AI Company &amp; Large Language Model Pioneer
               </h2>
               <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
-                Authoritative facts and verified specifications of Northeast India&apos;s premier foundational public administration Small Language Model and artificial intelligence laboratory:
+                Authoritative facts and verified specifications of Northeast India&apos;s premier foundational artificial intelligence laboratory and public administration Large Language Model:
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
                 <div className="p-3 rounded-xl bg-white/90 dark:bg-white/5 border border-slate-200 dark:border-white/10">
                   <div className="text-[10.5px] font-extrabold uppercase text-emerald-700 dark:text-emerald-400 mb-1 flex items-center gap-1.5">
                     <Building2 size={13} />
-                    <span>Verified Identity</span>
+                    <span>Premier AI Enterprise</span>
                   </div>
                   <div className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm mb-1">
                     Axom AI (Guwahati)
                   </div>
                   <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
-                    First indigenous AI company &amp; foundation research lab in Assam, headquartered in Guwahati (PIN 781001).
+                    Assam&apos;s leading indigenous AI company &amp; foundation research lab headquartered in Guwahati (PIN 781001), founded by Samarjit Kashyap.
                   </p>
                 </div>
 
@@ -517,7 +585,7 @@ export default async function AxomAiSarkarPage() {
                     Axom AI Sarkar
                   </div>
                   <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
-                    Assam&apos;s first 492M parameter Qwen 2.5 public administration model in 468 MB GGUF Q4_K_M format.
+                    Assam&apos;s first 492M parameter Qwen 2.5 public administration Large Language Model in 468 MB GGUF Q4_K_M format.
                   </p>
                 </div>
 
@@ -561,10 +629,10 @@ export default async function AxomAiSarkarPage() {
               </h2>
               <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
                 <p>
-                  <strong>Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)</strong> is Assam&apos;s sovereign 492-million-parameter Small Language Model (SLM) and administrative knowledge engine, engineered specifically to eliminate bureaucratic opacity and bridge the procedural gap between Assam&apos;s 35 million citizens and state governance.
+                  <strong>Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)</strong> is Assam&apos;s sovereign 492-million-parameter Large Language Model (SLM) and administrative knowledge engine, engineered specifically to eliminate bureaucratic opacity and bridge the procedural gap between Assam&apos;s 35 million citizens and state governance.
                 </p>
                 <p>
-                  Generic commercial cloud LLMs (such as ChatGPT, Claude, and LLaMA) consistently hallucinate when asked about Assam Government workflows. They invent non-existent administrative designations like &quot;Tehsildar&quot; (which does not exist in Assam, where land matters are handled by <strong>Circle Officers</strong> and <strong>Mouzamdars</strong>), quote fictional application fees, and reference repealed central acts while remaining ignorant of post-2023 Delimitation boundaries.
+                  Generic commercial cloud LLMs (such as ChatGPT, Claude, and LLaMA) consistently hallucinate when asked about Assam Government workflows. They invent non-existent administrative designations like &quot;Tehsildar&quot; (which does not exist in Assam, where land matters are handled by <strong>Circle Officers</strong> and <strong>Mouzadars</strong>), quote fictional application fees, and reference repealed central acts while remaining ignorant of post-2023 Delimitation boundaries.
                 </p>
                 <p>
                   Axom AI Sarkar breaks this dependency permanently. Trained on <strong>3,300,227 verified citizen instruction pairs (4.81 GB)</strong> and grounded across <strong>21 master administrative sector datasets</strong>, Sarkar delivers an empirical <strong>99.4% statutory accuracy</strong> with <strong>0.0% hallucination</strong> on blind government evaluations &mdash; executing completely offline on standard edge CPU hardware.
@@ -1254,80 +1322,18 @@ export default async function AxomAiSarkarPage() {
             </div>
           </section>
 
-          {/* ==================== 10. LOCAL DEPLOYMENT & PYTHON INTEGRATION ==================== */}
-          <section id="deployment-guide" className="mb-10 sm:mb-14 md:mb-18 scroll-mt-24">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-              Run Sarkar Locally &bull; Ollama &amp; Python Integration
-            </h2>
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-              Axom AI Sarkar is designed for instant CPU execution via Ollama or standard Python using <code>llama-cpp-python</code>:
-            </p>
-
-            {/* Method 1: Ollama */}
-            <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
-              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-2">
-                <Terminal size={15} />
-                <span>Method 1: One-Line Execution with Ollama</span>
-              </div>
-              <div className="p-3 rounded-xl bg-[#090f1d] border border-slate-800 font-mono text-xs text-emerald-400 overflow-x-auto">
-                <code>ollama run hf.co/axom-ai/AxomAI-Sarkar:AxomAI-Sarkar-0.5B-Q4_K_M.gguf</code>
-              </div>
-            </div>
-
-            {/* Method 2: Python llama-cpp */}
-            <div className="p-4 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400">
-                  <Terminal size={15} />
-                  <span>Method 2: Native Python Pipeline (<code>llama-cpp-python</code> &mdash; 100% CPU)</span>
-                </div>
-                <span className="text-[10px] font-mono text-slate-500">Python 3.9+</span>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#090f1d] border border-slate-800 font-mono text-xs text-slate-200 overflow-x-auto leading-relaxed">
-                <pre>
-{`from huggingface_hub import hf_hub_download
-from llama_cpp import Llama
-
-# 1. Download quantized GGUF from sovereign Axom AI repository
-REPO_ID = "axom-ai/AxomAI-Sarkar"
-HF_TOKEN = "your_hf_access_token"  # Use authorized Hugging Face token
-
-model_path = hf_hub_download(
-    repo_id=REPO_ID,
-    filename="AxomAI-Sarkar-0.5B-Q4_K_M.gguf",
-    token=HF_TOKEN,
-)
-
-# 2. Initialize 100% CPU inference engine (4 threads, 4096 context window)
-llm = Llama(model_path=model_path, n_ctx=4096, n_threads=4)
-
-# 3. Query with ChatML formatting (Trilingual: Assamese, English, Hindi)
-prompt = """<|im_start|>user
-Mission Basundhara 3.0-ত AP-ৰ পৰা PP পট্টা পৰিৱৰ্তনৰ নিয়ম আৰু সময়সীমা কি?
-<|im_end|>
-<|im_start|>assistant
-"""
-
-# 4. Stream response at 40-75 tokens/sec on standard quad-core CPU
-output = llm(prompt, max_tokens=300, temperature=0.2)
-print(output["choices"][0]["text"])`}
-                </pre>
-              </div>
-            </div>
-          </section>
-
-          {/* ==================== 11. HUGGING FACE MODEL HUB ==================== */}
+          {/* ==================== 10. HUGGING FACE MODEL HUB ==================== */}
           <section id="model-hub" className="mb-10 sm:mb-14 md:mb-18 scroll-mt-24">
             <div className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-slate-900/80 border border-emerald-600/30 dark:border-emerald-500/30 shadow-lg text-center max-w-3xl mx-auto">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] sm:text-[10.5px] font-extrabold uppercase tracking-wider mb-3">
+                <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" />
                 <span>Hugging Face Model Hub</span>
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
                 Access Axom AI Sarkar on Hugging Face
               </h2>
               <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6 max-w-xl mx-auto">
-                Download the 468 MB GGUF Q4_K_M weights, Ollama Modelfiles, and the complete 21 master administrative sector datasets (JSON, CSV, JSONL) on the official repository.
+                Explore the 468 MB GGUF Q4_K_M weights, Ollama Modelfiles, and the complete 21 master administrative sector datasets (JSON, CSV, JSONL) on the official Axom AI repository.
               </p>
               <a
                 href="https://huggingface.co/axom-ai/AxomAI-Sarkar"
@@ -1341,14 +1347,14 @@ print(output["choices"][0]["text"])`}
             </div>
           </section>
 
-          {/* ==================== 12. FAQ SECTION (HOMEPAGE DESIGN) ==================== */}
+          {/* ==================== 11. FAQ SECTION (HOMEPAGE DESIGN) ==================== */}
           <FAQSection
             faqs={FAQS_DATA}
             badge="Knowledge Base & FAQ"
             title="Frequently Asked"
             titleHighlight="Questions"
-            titleSuffix="About Axom AI Sarkar & Governance SLM"
-            description="Authoritative answers regarding Axom AI Sarkar, Mission Basundhara 3.0, Sewa Setu, ARTPS Act statutory timelines, 100% CPU inference, and sovereign air-gapped data protection."
+            titleSuffix="About Axom AI Sarkar & Governance AI"
+            description="Authoritative answers regarding Axom AI Sarkar, AI companies in Assam, Large Language Models, Mission Basundhara 3.0, Sewa Setu, ARTPS Act statutory timelines, 100% CPU inference, and sovereign air-gapped data protection."
             supportTitle="Direct Support from Axom AI Research Team"
             supportDescription="Have questions about evaluating or integrating Axom AI Sarkar for your district, department, or enterprise? Our engineering team in Guwahati is here to assist."
             chatButtonText="Ask Axom AI Assistant Free"
@@ -1356,7 +1362,7 @@ print(output["choices"][0]["text"])`}
             className="!py-6 sm:!py-10 !bg-transparent"
           />
 
-          {/* ==================== 13. MODEL & INTELLECTUAL PROPERTY ==================== */}
+          {/* ==================== 12. MODEL & INTELLECTUAL PROPERTY ==================== */}
           <section className="p-4 sm:p-6 md:p-8 rounded-2xl bg-white/90 dark:bg-slate-900/80 border-l-4 border-emerald-500 shadow-md mt-8 sm:mt-10">
             <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
               Sovereign Intellectual Property &amp; Legal Protection
@@ -1386,4 +1392,3 @@ print(output["choices"][0]["text"])`}
     </div>
   );
 }
-
