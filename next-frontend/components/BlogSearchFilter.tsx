@@ -10,8 +10,6 @@ import {
   Tag,
   RotateCcw,
   ArrowRight,
-  Building2,
-  Check,
 } from 'lucide-react';
 import { ArticleSummary, CategoryItem } from '../lib/api';
 
@@ -94,7 +92,7 @@ export default function BlogSearchFilter({
           </p>
 
           {/* PROPERLY STYLED AJAX SEARCH BAR */}
-          <div className="max-w-2xl mx-auto relative group mb-8">
+          <div className="max-w-2xl mx-auto relative group">
             <div className="relative flex items-center">
               {/* Glowing Accent Ring on Search Bar */}
               <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full blur opacity-25 group-focus-within:opacity-75 transition duration-300 pointer-events-none" />
@@ -136,28 +134,6 @@ export default function BlogSearchFilter({
                   </span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* AEO / GEO Direct Answer Knowledge Brief Card */}
-          <div className="max-w-3xl mx-auto p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-500/25 shadow-sm backdrop-blur-md text-left">
-            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs uppercase tracking-wider mb-2">
-              <Building2 size={15} className="text-emerald-600 dark:text-emerald-400" />
-              <span>Direct Answer &bull; Axom AI Research &amp; Publication</span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">
-              <strong>Axom AI</strong> (headquartered in Guwahati, Assam) is Assam&apos;s premier indigenous Artificial Intelligence enterprise and foundation research laboratory founded by <strong>Samarjit Kashyap</strong>. This official publication documents foundational research, benchmarks, and tutorials for sovereign models (Sarkar, Progya, Puhor, Xuna, Xuwor, Xetu) and 33 public utility AI tools.
-            </p>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400">
-              <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
-                <Check size={13} className="stroke-[3]" /> Foundation AI in Assam
-              </span>
-              <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
-                <Check size={13} className="stroke-[3]" /> Sovereign Indic Benchmarks
-              </span>
-              <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
-                <Check size={13} className="stroke-[3]" /> Practical Tutorials &amp; Guides
-              </span>
             </div>
           </div>
         </div>
