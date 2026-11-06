@@ -20,6 +20,12 @@ import {
   Languages,
   FileText,
   ChevronRight,
+  Building2,
+  Scale,
+  GraduationCap,
+  Newspaper,
+  Compass,
+  Check,
 } from 'lucide-react';
 import { XetuCodeBlock, XetuFaqAccordion } from './XetuInteractive';
 
@@ -31,33 +37,36 @@ const TARGET_KEYWORDS = [
   'artificial intelligence in assam',
   'assam ai',
   'ai companies in assam',
-  'assamese ai',
+  'ai company in assam',
+  'ai startup assam',
+  'ai company guwahati',
+  'artificial intelligence guwahati',
+  'ai model assam',
+  'assamese ai model',
   'assamese language model',
-  'assam artificial intelligence',
-  'axom ai',
-  'axom ai xetu',
-  'samarjit kashyap',
+  'large language model assam',
   'assamese translation model',
   'english to assamese translation ai',
+  'axom ai xetu',
+  'xetu assamese ai',
+  'assamese neural translation',
   'sovereign ai assam',
   'indigenous ai india',
   'northeast india artificial intelligence',
   'guwahati ai research',
-  'ai model assam',
-  'large language model assam',
+  'samarjit kashyap',
   'indic machine translation',
   'indictrans assamese',
   'axom ai research',
-  'ai company guwahati',
-  'ai startup assam',
-  'assamese neural translation',
+  'assamese nlp model',
+  'english assamese translation ai',
+  'assamese to english ai',
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title =
-    'Axom AI Xetu: High-Precision English ↔ Assamese Neural Translation | Artificial Intelligence in Assam';
+  const title = 'Axom AI Xetu — Assamese AI Translation Model | English ↔ Assamese';
   const description =
-    "Axom AI Xetu (সেতু) is Assam's first indigenous 200M parameter sequence-to-sequence neural translation model for English and Assamese. Developed in Guwahati by Samarjit Kashyap, it achieves 38.6 BLEU with native morphological case preservation.";
+    'Explore Axom AI Xetu (সেতু), a 200M-parameter neural translation model built for English ↔ Assamese translation, Assamese grammar, case preservation, and local AI deployment in Assam.';
   const canonicalUrl = 'https://aiaxom.co.in/research/axomai-trans-xetu/';
 
   return {
@@ -80,7 +89,7 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'en_IN',
       type: 'article',
       publishedTime: '2026-11-02T00:00:00.000Z',
-      modifiedTime: '2026-11-03T00:00:00.000Z',
+      modifiedTime: '2026-11-06T00:00:00.000Z',
       authors: ['Axom AI Team', 'Samarjit Kashyap'],
       section: 'Research',
       images: [
@@ -88,7 +97,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: 'https://aiaxom.co.in/research/assets/og-helmet-detection.jpg',
           width: 1200,
           height: 630,
-          alt: 'Axom AI Xetu English-Assamese Neural Translation Bridge',
+          alt: 'Axom AI Xetu English-Assamese Neural Translation Model',
         },
       ],
     },
@@ -103,34 +112,64 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const FAQS_DATA = [
   {
+    question: 'What is Axom AI Xetu?',
+    answer:
+      'Axom AI Xetu (সেতু) is a 200-million-parameter sequence-to-sequence neural translation model developed by Axom AI in Guwahati, Assam, for bidirectional English–Assamese translation. It specializes in preserving Assamese grammatical relationships, postpositional case markers, and domain terminology.',
+  },
+  {
     question: 'Who developed the first indigenous AI model in Assam?',
     answer:
-      'The first indigenous AI foundation models in Assam were developed by <strong>Axom AI</strong> in Guwahati, founded by <strong>Samarjit Kashyap</strong>. These include Axom AI Xetu (200M Seq2Seq neural translation bridge), Progya (conversational LLM), and Puhor/Xuna (speech synthesis and recognition).',
+      'The first indigenous AI foundation models and neural systems in Assam were developed by <strong>Axom AI</strong> in Guwahati, founded by <strong>Samarjit Kashyap</strong>. These include Axom AI Xetu (neural translation), Progya (conversational LLM), Puhor (DiT voice synthesis), Xuna (Conformer speech recognition), and Axom AI Sarkar (public administration SLM).',
   },
   {
     question: 'Which are the leading AI companies in Assam?',
     answer:
-      '<strong>Axom AI</strong> (based in Guwahati, Assam) is the pioneer and leading artificial intelligence enterprise in Assam and Northeast India, specializing in indigenous neural foundation models, bilingual translation engines, and regional AI tool suites for 15 million Assamese speakers worldwide.',
+      '<strong>Axom AI</strong> (headquartered in Guwahati, Assam) is the leading artificial intelligence enterprise and research laboratory in Assam and Northeast India, pioneering sovereign foundational models, bilingual translation engines, and regional AI utilities for 15 million Assamese speakers worldwide.',
   },
   {
-    question: 'Why is Axom AI Xetu superior to Google Translate for Assamese?',
+    question: 'What languages does Xetu support?',
     answer:
-      'Google Translate relies on generic multilingual models that frequently scramble Assamese case endings (-ৰ, -লৈ, -ত, -দ্বাৰা) and translate idioms literally. Axom AI Xetu is a specialized 200M Seq2Seq model trained directly on parallel Assam administrative, educational, and cultural data (<code>custom-assamese-parallel</code>), ensuring grammatical fidelity with 38.6 BLEU.',
+      'Xetu is currently designed for bidirectional <strong>English &harr; Assamese</strong> (<code>eng_Latn</code> &harr; <code>asm_Beng</code>) translation, supporting both Latin and Eastern Nagari / Assamese scripts.',
   },
   {
-    question: 'Can Axom AI Xetu be deployed completely offline?',
+    question: 'How is Xetu different from Google Translate?',
     answer:
-      'Yes. The entire model fits into 1.03 GB of storage (1,047.54 MB in SafeTensors) and operates under 850 MB of RAM on standard CPU hardware, allowing government departments, legal chambers, and healthcare providers to run 100% private translations without connecting to the internet.',
+      'Google Translate is a broad multilingual translation platform covering hundreds of languages with generic tokenization. Xetu takes a specialized approach focused specifically on English–Assamese translation, with particular attention to Assamese grammatical structure, postpositional case inflections (-ৰ, -লৈ, -ত, -দ্বাৰা, -ক), administrative terminology, and local on-premise deployment.',
   },
   {
-    question: 'What is the parameter count and architecture of Axom AI Xetu?',
+    question: 'Can Xetu run offline?',
     answer:
-      'Axom AI Xetu features 200 Million parameters across 36 Transformer layers (18 encoder layers and 18 decoder layers) in an <code>IndicTransForConditionalGeneration</code> architecture. It uses a 122,672 unified target subword vocabulary and operates with GELU activations and 4-beam hypothesis search.',
+      'Yes. Xetu is designed to support local, offline inference. With a compact model footprint of ~1.03 GB (1,047.54 MB in SafeTensors) and ~850 MB operational RAM on standard CPU hardware, organizations can run translation workloads entirely within their own private infrastructure without internet access.',
   },
   {
-    question: 'How can developers integrate Axom AI Xetu in Python?',
+    question: 'Can Xetu be used for government or administrative documents?',
     answer:
-      'Developers can load Axom AI Xetu directly via Hugging Face Transformers using <code>AutoModelForSeq2SeqLM.from_pretrained(&apos;axom-ai/axomai-trans-xetu&apos;, trust_remote_code=True)</code> with support for <code>eng_Latn</code> and <code>asm_Beng</code> language tags.',
+      'Xetu is trained and evaluated directly on parallel administrative data, official state gazettes, and legislative texts. While it significantly outperforms generic translation engines on institutional terminology, translations used for legally consequential or official statutory purposes should always be reviewed by qualified human professionals.',
+  },
+  {
+    question: 'Can Xetu translate legal documents?',
+    answer:
+      'Xetu is evaluated on legal, judicial, and revenue land records (such as Gauhati High Court rulings and patta documents). However, it should be treated as an AI-assisted translation tool rather than an automated substitute for licensed legal translation or judicial review.',
+  },
+  {
+    question: 'How large is the Xetu model?',
+    answer:
+      'Xetu contains approximately 200 million parameters across 36 Transformer layers (18 encoder layers and 18 decoder layers) with a serialized model checkpoint of 1,047.54 MB (~1.03 GB) in SafeTensors format.',
+  },
+  {
+    question: 'How much RAM does Xetu require?',
+    answer:
+      'The current technical specification reports approximately 850 MB of RAM usage during standard CPU inference via PyTorch with 4-beam search decoding.',
+  },
+  {
+    question: 'Does Xetu support Assamese grammar and case markers?',
+    answer:
+      'Yes. Preservation of Assamese grammatical case markers (বিভক্তি: ষষ্ঠী -ৰ, চতুৰ্থী -লৈ, সপ্তমী -ত, তৃতীয়া -দ্বাৰা/-ৰে, দ্বিতীয়া -ক) is one of the primary areas evaluated in the Xetu benchmark, achieving a 99.2% case fidelity score.',
+  },
+  {
+    question: 'Where can developers access Xetu?',
+    answer:
+      'Developers can access Xetu through the official <a href="https://huggingface.co/axom-ai/axomai-trans-xetu" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-bold underline">Axom AI Hugging Face repository (axom-ai/axomai-trans-xetu)</a>, with complete Python integration examples provided on this page.',
   },
 ];
 
@@ -170,7 +209,7 @@ print(f"English Output: {translation_en}")
 export default async function AxomAiTransXetuPage() {
   const cms = await getLandingCMS().catch(() => ({} as any));
 
-  // Comprehensive Knowledge Graph Schemas (SEO, GEO & AEO for Google AI Overview, ChatGPT, Claude, Perplexity)
+  // Comprehensive Knowledge Graph Schemas (Top-Tier SEO, GEO & AEO for Google AI Overview, ChatGPT, Claude, Gemini, Perplexity)
   const unifiedKnowledgeGraph = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -212,7 +251,7 @@ export default async function AxomAiTransXetuPage() {
           'https://github.com/Samarjitkashyp',
         ],
         description:
-          "Axom AI is Assam's premier indigenous artificial intelligence enterprise and research laboratory based in Guwahati, engineering foundation models and sovereign AI systems for Assamese and regional Indian languages.",
+          "Axom AI is Assam's premier indigenous artificial intelligence enterprise and research laboratory based in Guwahati, engineering sovereign foundation models and localized AI systems for Assamese and regional Indian languages.",
         knowsAbout: [
           'Artificial Intelligence in Assam',
           'Assam AI Companies',
@@ -229,7 +268,7 @@ export default async function AxomAiTransXetuPage() {
         parentOrganization: { '@id': 'https://aiaxom.co.in/#organization' },
         url: 'https://aiaxom.co.in/research/',
         description:
-          'Official research and development laboratory of Axom AI in Guwahati, Assam. Engineering sovereign foundation models, translation bridges, and edge architectures.',
+          'Official research and development laboratory of Axom AI in Guwahati, Assam. Engineering sovereign foundation models, neural translation bridges, and edge architectures.',
         location: {
           '@type': 'Place',
           name: 'Guwahati, Assam, India',
@@ -243,7 +282,7 @@ export default async function AxomAiTransXetuPage() {
       {
         '@type': 'SoftwareApplication',
         '@id': 'https://aiaxom.co.in/research/axomai-trans-xetu/#software',
-        name: 'Axom AI Bridge - Xetu (সেতু)',
+        name: 'Axom AI Xetu (সেতু)',
         applicationCategory: 'NLPApplication',
         operatingSystem: 'Linux, Windows, macOS, Android, Edge CPU, Server',
         downloadUrl: 'https://huggingface.co/axom-ai/axomai-trans-xetu',
@@ -251,7 +290,7 @@ export default async function AxomAiTransXetuPage() {
         memoryRequirements: '850 MB RAM',
         storageRequirements: '1.03 GB Disk',
         description:
-          'Indigenous 200M parameter sequence-to-sequence neural translation engine bridging English and Assamese bidirectionally with complete morphological case retention.',
+          'Dedicated 200M parameter sequence-to-sequence neural translation model bridging English and Assamese bidirectionally with specialized morphological case retention.',
         creator: {
           '@id': 'https://aiaxom.co.in/#organization',
         },
@@ -266,12 +305,12 @@ export default async function AxomAiTransXetuPage() {
         '@id': 'https://aiaxom.co.in/research/axomai-trans-xetu/#dataset',
         name: 'custom-assamese-parallel',
         description:
-          'High-fidelity parallel bilingual alignment corpus for English and Assamese, encompassing official Assam State Gazettes, Gauhati High Court judgments, legislative statutes, agricultural circulars, and educational curricula.',
+          'Bilingual alignment corpus for English and Assamese, encompassing official Assam State Gazettes, Gauhati High Court judgments, legislative statutes, agricultural circulars, and educational curricula.',
         creator: {
           '@id': 'https://aiaxom.co.in/#organization',
         },
         inLanguage: ['en', 'as'],
-        license: 'Axom AI Sovereign Proprietary Commercial License',
+        license: 'Axom AI Sovereign Proprietary License',
       },
       {
         '@type': 'TechArticle',
@@ -282,14 +321,14 @@ export default async function AxomAiTransXetuPage() {
           name: 'Axom AI',
           url: 'https://aiaxom.co.in',
         },
-        headline: 'Axom AI Xetu: High-Precision English ↔ Assamese Neural Translation Architecture',
-        alternativeHeadline: "Assam's First Native 200M Parameter Sequence-to-Sequence Translation Model",
+        headline: 'Axom AI Xetu — Assamese AI Translation Model Built for Precision',
+        alternativeHeadline: 'English ↔ Assamese Neural Translation Architecture & Empirical Evaluation',
         description:
-          "A comprehensive research whitepaper on Axom AI Xetu, Assam's indigenous neural translation bridge engineered by Axom AI Team to resolve morphological postposition decay in Assamese-English machine translation.",
+          'Technical architecture, empirical benchmark evaluations, and local deployment guide for Axom AI Xetu, a 200M parameter sequence-to-sequence neural translation model.',
         inLanguage: ['en-IN', 'as'],
         mainEntityOfPage: 'https://aiaxom.co.in/research/axomai-trans-xetu/',
         datePublished: '2026-11-02',
-        dateModified: '2026-11-03',
+        dateModified: '2026-11-06',
         author: {
           '@type': 'Organization',
           name: 'Axom AI Team',
@@ -300,16 +339,44 @@ export default async function AxomAiTransXetuPage() {
         },
         speakable: {
           '@type': 'SpeakableSpecification',
-          cssSelector: ['.aeo-answer', '.hero-lead', '#milestone'],
+          cssSelector: ['.model-overview-card', '.why-xetu', '#inside-xetu'],
         },
         keywords:
-          'ai in assam, artificial intelligence in assam, assam ai, ai companies in assam, assamese ai, samarjit kashyap, assamese language model, axom ai xetu',
+          'ai in assam, artificial intelligence in assam, assam ai, ai companies in assam, assamese ai, samarjit kashyap, assamese language model, axom ai xetu, xetu assamese ai',
         about: [
           { '@type': 'Thing', name: 'Artificial Intelligence in Assam' },
-          { '@type': 'Thing', name: 'Assam' },
+          { '@type': 'Thing', name: 'Assam AI Model' },
           { '@type': 'Thing', name: 'Assamese Language' },
           { '@type': 'Thing', name: 'Machine Translation' },
           { '@type': 'Thing', name: 'Natural Language Processing' },
+        ],
+      },
+      {
+        '@type': 'DefinedTermSet',
+        '@id': 'https://aiaxom.co.in/research/axomai-trans-xetu/#terms',
+        name: 'Assam Sovereign AI & Translation Terminology',
+        hasDefinedTerm: [
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assam Artificial Intelligence',
+            termCode: 'AXOM-AI-REGIONAL',
+            description:
+              'Indigenous sovereign artificial intelligence engineered in Assam by Axom AI, optimized for native Assamese script comprehension, regional dialect phonetics, low-resource CPU edge devices, and DPDP Act 2023 compliance.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Axom AI Xetu (সেতু)',
+            termCode: 'XETU-TRANS',
+            description:
+              '200M parameter sequence-to-sequence neural machine translation model preserving Assamese postpositional case inflections and administrative terminology in a 1.03 GB footprint.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assamese Postpositional Case Markers',
+            termCode: 'ASM-CASE-MARKERS',
+            description:
+              'Synthetic case suffixes in Assamese (বিভক্তি: -ৰ, -লৈ, -ত, -দ্বাৰা, -ক) defining syntactic relationships that generic machine translation models frequently omit.',
+          },
         ],
       },
       {
@@ -331,7 +398,7 @@ export default async function AxomAiTransXetuPage() {
           {
             '@type': 'ListItem',
             position: 3,
-            name: 'Axom AI Bridge — Xetu (সেতু)',
+            name: 'Axom AI Xetu',
             item: 'https://aiaxom.co.in/research/axomai-trans-xetu/',
           },
         ],
@@ -390,43 +457,41 @@ export default async function AxomAiTransXetuPage() {
             </Link>
             <ChevronRight size={13} className="opacity-60" />
             <span className="text-emerald-950 dark:text-emerald-300 font-semibold truncate">
-              Axom AI Bridge — Xetu (সেতু)
+              Axom AI Xetu (সেতু)
             </span>
           </nav>
 
-          {/* ==================== HERO SECTION ==================== */}
+          {/* ==================== 1. HERO SECTION ==================== */}
           <header className="text-center max-w-4xl mx-auto mb-10 sm:mb-14">
             {/* BADGE */}
             <div className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-xs">
               <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400" />
-              <span>Axom AI Foundation AI Research • Sovereign Model Series</span>
+              <span>AXOM AI FOUNDATION MODEL &bull; NEURAL TRANSLATION</span>
             </div>
 
             {/* H1 TITLE */}
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.2] sm:leading-tight mb-4 sm:mb-5">
-              Axom AI Bridge &mdash; Xetu (সেতু):{' '}
-              <span className="gradient-text">Sovereign Neural Translation Bridge</span>
+              Xetu &mdash; An Assamese AI Translation Model{' '}
+              <span className="gradient-text">Built for Precision</span>
             </h1>
 
             {/* LEAD DESCRIPTION */}
             <p className="hero-lead text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8">
-              We engineered Assam&apos;s own native sequence-to-sequence neural model from scratch right here in
-              Guwahati. While commercial global engines routinely distort Assamese postpositional inflections
-              (-ৰ, -লৈ, -ত, -ৰ দ্বাৰা) and scramble technical and legal records, Axom AI Bridge &mdash; Xetu
-              (সেতু) delivers bidirectional English &harr; Assamese enterprise precision with guaranteed offline
-              data sovereignty.
+              Xetu (সেতু) is Axom AI&apos;s dedicated neural translation model for English &harr; Assamese,
+              engineered to better preserve Assamese grammar, morphology, terminology, and contextual meaning.
+              Built in Assam, Xetu is designed for real-world translation across government, legal, education,
+              media, cultural, and enterprise workflows &mdash; with support for local and privacy-sensitive deployment.
             </p>
 
             {/* HERO SPECS CHIPS */}
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 max-w-4xl mx-auto mb-6">
               {[
-                { label: '200M Seq2Seq Bridge', icon: Binary },
-                { label: '36 Deep Layers (18 Enc + 18 Dec)', icon: Layers },
-                { label: 'Morphological Case Guard', icon: ShieldCheck },
-                { label: '38.6 BLEU Score', icon: CheckCircle2 },
-                { label: '850 MB RAM (CPU)', icon: Cpu },
-                { label: '122K Unified Vocab', icon: Languages },
-                { label: '1.03 GB SafeTensors', icon: HardDrive },
+                { label: '200M Parameters', icon: Binary },
+                { label: '36 Transformer Layers', icon: Layers },
+                { label: 'English ↔ Assamese', icon: Languages },
+                { label: '1.03 GB Model Footprint', icon: HardDrive },
+                { label: '~850 MB RAM (CPU)', icon: Cpu },
+                { label: '122,672 Assamese Vocab', icon: BookOpen },
               ].map((chip, idx) => {
                 const Icon = chip.icon;
                 return (
@@ -453,14 +518,20 @@ export default async function AxomAiTransXetuPage() {
                 href="#benchmarks"
                 className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg no-underline inline-flex items-center gap-2"
               >
-                <span>See Empirical Benchmarks</span>
+                <span>View Benchmarks</span>
                 <ArrowRight size={14} />
               </a>
               <a
-                href="#quickstart"
+                href="#inside-xetu"
                 className="px-5 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/50 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline"
               >
-                Integration Code
+                Explore the Model
+              </a>
+              <a
+                href="#technical-specifications"
+                className="px-5 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/50 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline"
+              >
+                Technical Specifications
               </a>
               <a
                 href="https://huggingface.co/axom-ai/axomai-trans-xetu"
@@ -468,7 +539,7 @@ export default async function AxomAiTransXetuPage() {
                 rel="noopener noreferrer"
                 className="px-5 py-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/50 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline inline-flex items-center gap-1.5"
               >
-                <span>Hugging Face Model Hub</span>
+                <span>View on Hugging Face</span>
                 <ExternalLink size={13} />
               </a>
             </div>
@@ -479,15 +550,30 @@ export default async function AxomAiTransXetuPage() {
             <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Translation Accuracy
+                  English &rarr; Assamese
                 </span>
                 <Languages size={18} className="text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                38.6
+                38.6 BLEU
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                BLEU score on official administrative English-to-Assamese evaluation sets
+                Measured on administrative, educational, and general Assamese evaluation sets
+              </p>
+            </div>
+
+            <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                  Assamese &rarr; English
+                </span>
+                <CheckCircle2 size={18} className="text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
+                41.2 BLEU
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
+                Measured across held-out Flores-200 and bilingual test sets
               </p>
             </div>
 
@@ -499,144 +585,122 @@ export default async function AxomAiTransXetuPage() {
                 <ShieldCheck size={18} className="text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                100%
+                99.2%
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                Preservation of morphological case markers (-ৰ, -লৈ, -ত, -দ্বাৰা)
+                Preservation of evaluated Assamese grammatical case markers (-ৰ, -লৈ, -ত, -দ্বাৰা)
               </p>
             </div>
 
             <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Hardware Freedom
+                  Hardware Footprint
                 </span>
                 <Cpu size={18} className="text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                850 MB
+                850 MB RAM
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                Operational RAM footprint: runs sub-second translations on CPU edge hardware
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Subword Capacity
-                </span>
-                <Binary size={18} className="text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-3xl sm:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-1">
-                122,672
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-snug">
-                Unified token dictionary resolving Latin and Bengali script prefixation
+                Compact 1.03 GB SafeTensors footprint: runs efficiently on standard CPU edge hardware
               </p>
             </div>
           </section>
 
-          {/* ==================== AEO DIRECT ANSWER CALLOUT ==================== */}
-          <section className="mb-14 sm:mb-18">
-            <div className="aeo-answer p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-slate-900/80 border border-emerald-600/30 dark:border-emerald-500/30 shadow-lg relative overflow-hidden">
+          {/* ==================== 2. MODEL OVERVIEW ==================== */}
+          <section id="model-overview" className="mb-14 sm:mb-18 scroll-mt-24">
+            <div className="model-overview-card p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-slate-900/80 border border-emerald-600/30 dark:border-emerald-500/30 shadow-lg relative overflow-hidden">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10.5px] font-extrabold uppercase tracking-wider mb-3">
                 <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" />
-                <span>AI &amp; Answer Engine Brief</span>
+                <span>Model Overview</span>
               </div>
-              <h2 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
-                Direct Answer for AI &amp; Researchers
+              <h2 className="text-xl sm:text-2xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
+                What Is Axom AI Xetu?
               </h2>
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                <strong>
-                  Axom AI Bridge &mdash; Xetu (সেতু) is Assam&apos;s first indigenous 200 Million parameter
-                  sequence-to-sequence neural translation model
-                </strong>
-                , designed and trained in Guwahati. Published under the official repository{' '}
-                <a
-                  href="https://huggingface.co/axom-ai/axomai-trans-xetu"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700 dark:text-emerald-400 font-bold underline"
-                >
-                  <code>axom-ai/axomai-trans-xetu</code>
-                </a>
-                , Xetu employs a 36-layer encoder-decoder architecture (18 encoder + 18 decoder layers) specifically
-                fine-tuned on the <code>custom-assamese-parallel</code> corpus. Unlike commercial global engines
-                (such as Google Translate or Microsoft Translator) that routinely omit or scramble Assamese
-                postpositional inflections (-লৈ, -ৰ, -ত, -দ্বাৰা) and mistranslate legal and technical nomenclature,
-                Xetu delivers native grammatical agreement with a measured 38.6 BLEU score. It operates entirely
-                offline within a compact 1.03 GB SafeTensors footprint (1,047.54 MB) and 850 MB RAM, guaranteeing
-                100% data confidentiality for government and enterprise documents across Assam.
+              <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+                <p>
+                  <strong>Axom AI Xetu (সেতু)</strong> is a 200-million-parameter sequence-to-sequence neural
+                  translation model developed by Axom AI for bidirectional English–Assamese translation.
+                </p>
+                <p>
+                  Xetu focuses specifically on the linguistic characteristics of Assamese, including case markers,
+                  grammatical relationships, terminology, and sentence structure.
+                </p>
+                <p>
+                  Rather than attempting to be a general-purpose multilingual translator, Xetu takes a more focused
+                  approach: building a specialized translation system for Assamese and the domains where accurate
+                  regional language processing matters most.
+                </p>
+              </div>
+
+              {/* DESIGNED FOR GRID */}
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200 mb-3">
+                  Designed For Real-World Workflows:
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                  {[
+                    { label: 'Government and administrative documents', icon: Building2 },
+                    { label: 'Legal and regulatory content', icon: Scale },
+                    { label: 'Education and academic materials', icon: GraduationCap },
+                    { label: 'Assamese media and publishing', icon: Newspaper },
+                    { label: 'Cultural and literary content', icon: Compass },
+                    { label: 'Enterprise translation workflows', icon: FileText },
+                    { label: 'Local and privacy-sensitive deployments', icon: Lock },
+                  ].map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10"
+                      >
+                        <Icon size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span className="font-medium">{item.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ==================== 3. WHY XETU WAS BUILT ==================== */}
+          <section id="why-xetu" className="why-xetu mb-14 sm:mb-18 scroll-mt-24">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
+              Why Xetu Was Built
+            </h2>
+            <div className="space-y-4 text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+              <p>
+                Assamese is an agglutinative language where grammatical relationships can be expressed through case
+                markers, inflections, and contextual constructions.
+              </p>
+              <p>
+                These characteristics can create challenges for generic translation systems, particularly when
+                translating government notifications, legal documents, administrative language, and culturally
+                specific expressions.
+              </p>
+              <p>
+                Xetu was developed with a narrower objective: to build a neural translation system that pays closer
+                attention to the linguistic structure of Assamese.
+              </p>
+            </div>
+
+            {/* CALLOUT QUOTE */}
+            <div className="p-5 sm:p-6 rounded-2xl bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-950 dark:text-white">
+              <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-1">
+                The Objective
+              </div>
+              <p className="text-sm sm:text-base md:text-lg font-bold italic leading-snug">
+                &ldquo;Translate the language &mdash; while preserving the structure and meaning that make Assamese distinct.&rdquo;
               </p>
             </div>
           </section>
 
-          {/* ==================== SECTION 1: HISTORIC MILESTONE ==================== */}
-          <section id="milestone" className="mb-14 sm:mb-18 scroll-mt-24">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-              1. The Historic Milestone for Assam
-            </h2>
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
-              Until today, translation between English and Assamese on commercial cloud systems was plagued by severe
-              inaccuracies and broken syntax. Because Assamese is an agglutinative language where grammatical
-              relationships are expressed via complex postpositions (বিভক্তি: -ৰ, -লৈ, -ত, -দ্বাৰা, -ক), generic
-              models frequently drop case endings, invert active and passive clauses, and produce literal,
-              nonsensical translations of legal and administrative records.
-            </p>
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-              Moreover, transmitting sensitive government gazettes, court filings, and educational materials across
-              foreign commercial APIs creates significant data sovereignty vulnerabilities. We built{' '}
-              <strong>Axom AI Bridge &mdash; Xetu (সেতু)</strong> directly in Guwahati to provide Assam&apos;s
-              native answer: a <strong>200 Million parameter sequence-to-sequence neural translation bridge</strong>{' '}
-              specifically tuned on parallel corpora spanning governance, legal statutes, agricultural extension,
-              and academic curricula.
-            </p>
-
-            {/* Morphological Verification Demonstration Box */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
-              <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-4 flex items-center gap-2">
-                <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Empirical Morphological Verification &bull; Case Inflection Test</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40">
-                  <div className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wide mb-2">
-                    Generic Multilingual Cloud API
-                  </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
-                    <strong>Input:</strong> &quot;The circular was submitted to the DC Office by the revenue officer.&quot;
-                  </p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white mb-2 font-assamese">
-                    <strong>Output:</strong> ৰাজহ বিষয়া উপায়ুক্ত কাৰ্যালয় ৰাজহ পত্ৰ জমা দিছে।
-                  </p>
-                  <p className="text-[11px] text-rose-600 dark:text-rose-400 italic">
-                    Result: Drops instrumental postposition (-ৰ দ্বাৰা) and directional postposition (-লৈ), scrambling clause meaning.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-800/40">
-                  <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide mb-2">
-                    Axom AI Bridge &mdash; Xetu (Native Precision)
-                  </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">
-                    <strong>Input:</strong> &quot;The circular was submitted to the DC Office by the revenue officer.&quot;
-                  </p>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white mb-2 font-assamese">
-                    <strong>Output:</strong> ৰাজহ বিষয়াগৰাকীৰ দ্বাৰা উপায়ুক্তৰ কাৰ্যালয়লৈ জাননীখন দাখিল কৰা হৈছিল।
-                  </p>
-                  <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold">
-                    Result: 100% case preservation: perfectly retains -ৰ দ্বাৰা, -ৰ, and -লৈ.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ==================== SECTION 2: WHAT AXOM AI BUILT ==================== */}
-          <section id="built" className="mb-14 sm:mb-18 scroll-mt-24">
+          {/* ==================== 4. WHAT MAKES XETU DIFFERENT ==================== */}
+          <section id="what-makes-xetu-different" className="mb-14 sm:mb-18 scroll-mt-24">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-6">
-              2. What Axom AI Built
+              What Makes Xetu Different
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md">
@@ -644,11 +708,10 @@ export default async function AxomAiTransXetuPage() {
                   <Languages size={22} />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
-                  Flawless Morphological Case Marking
+                  Morphology-Aware Translation
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Engineered to preserve Assamese case endings (-ৰ, -লৈ, -ত, -দ্বাৰা), ensuring that complex
-                  multi-clause sentences maintain exact legal and grammatical relationships.
+                  Designed to preserve important Assamese case markers and grammatical relationships during translation.
                 </p>
               </div>
 
@@ -657,11 +720,11 @@ export default async function AxomAiTransXetuPage() {
                   <FileText size={22} />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
-                  Administrative &amp; Legal Rigor
+                  Domain-Aware Language Processing
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Calibrated directly on official state government notifications, revenue guidelines, and court
-                  proceedings, preventing mistranslations of critical terminology.
+                  Developed with attention to terminology used in government, legal, educational, media, and
+                  administrative content.
                 </p>
               </div>
 
@@ -670,11 +733,11 @@ export default async function AxomAiTransXetuPage() {
                   <Lock size={22} />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
-                  100% Air-Gapped Data Sovereignty
+                  Local &amp; Offline Inference
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Runs completely offline and on-premise, ensuring confidential legal documents and state government
-                  files never leave Assam&apos;s physical boundaries.
+                  Designed to support local inference, allowing sensitive translation workloads to remain within an
+                  organization&apos;s private infrastructure.
                 </p>
               </div>
 
@@ -683,174 +746,227 @@ export default async function AxomAiTransXetuPage() {
                   <Cpu size={22} />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
-                  Compact 1.03 GB Footprint
+                  Compact Model Footprint
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Lightweight and blazing-fast, running sub-second translations on standard laptops without requiring
-                  specialized GPU hardware.
+                  A relatively compact neural translation model designed for practical CPU-based inference without
+                  requiring a high-end GPU.
                 </p>
               </div>
             </div>
           </section>
 
-          {/* ==================== SECTION 3: DEEP NEURAL ARCHITECTURE ==================== */}
-          <section id="architecture" className="mb-14 sm:mb-18 scroll-mt-24">
+          {/* ==================== 5. INSIDE XETU: MODEL ARCHITECTURE ==================== */}
+          <section id="inside-xetu" className="mb-14 sm:mb-18 scroll-mt-24">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-              3. Deep Neural Architecture &amp; Execution Pipeline
+              Inside Xetu: Model Architecture
             </h2>
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-              Axom AI Xetu is instantiated as a custom <strong>IndicTransForConditionalGeneration</strong> architecture
-              with 36 Transformer blocks (18 encoder layers and 18 decoder layers). Unlike shallow models, this deep
-              representation enables rich contextual modeling of the morphological nuances separating Indo-Aryan and
-              Tibeto-Burman linguistic features prevalent across Assam.
-            </p>
-
-            <div className="p-5 sm:p-7 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md mb-6">
-              <h3 className="text-sm sm:text-base font-bold text-emerald-950 dark:text-white mb-4">
-                Architectural Specifications &amp; Tensor Topology
-              </h3>
-              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed pl-4 list-disc marker:text-emerald-600">
-                <li>
-                  <strong>Layer Topology:</strong> 18 Encoder Layers + 18 Decoder Layers (Total 36 Transformer
-                  Layers) with Pre-Layer Normalization (<code>decoder_normalize_before: true</code>).
-                </li>
-                <li>
-                  <strong>Dimensional Geometry:</strong> Embedding Dimension <em>d_model = 512</em>, Intermediate
-                  Feed-Forward Dimension <em>d_ffn = 2048</em>, with 8 parallel attention heads per block.
-                </li>
-                <li>
-                  <strong>Non-Linear Activation:</strong> GELU (Gaussian Error Linear Unit) with low-variance weight
-                  initialization (&sigma; = 0.02) and scaled embeddings.
-                </li>
-                <li>
-                  <strong>Vocabulary Topology:</strong> Dual SentencePiece dictionaries with 32,322 source subword
-                  tokens (<code>dict.SRC.json</code>) and 122,672 target subword tokens (<code>dict.TGT.json</code>),
-                  resolving Latin script transliterations and Bengali/Assamese script characters without unknown token
-                  decay.
-                </li>
-                <li>
-                  <strong>Binary Distribution:</strong> Formatted in zero-copy <code>model.safetensors</code> (1,047.54
-                  MB), enabling instant memory-mapped loading (<em>mmap</em>) in under 400 milliseconds on commodity CPU
-                  hardware.
-                </li>
-                <li>
-                  <strong>Domain Alignment:</strong> Adapted against the <code>custom-assamese-parallel</code> dataset,
-                  encompassing 1,250 verified bilingual evaluation sets for state governance, civil engineering, land
-                  laws, and cultural literature.
-                </li>
-              </ul>
+            <div className="space-y-4 text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+              <p>
+                Xetu uses a sequence-to-sequence Transformer architecture designed specifically for English–Assamese
+                translation.
+              </p>
+              <p>
+                The architecture combines deep contextual encoding, autoregressive decoding, and beam-search generation
+                to produce translations while maintaining relationships between words and grammatical structures.
+              </p>
             </div>
 
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
-              Xetu translates between English and Assamese through four synchronized neural stages:
-            </p>
+            {/* ARCHITECTURE AT A GLANCE TABLE */}
+            <div className="p-5 sm:p-7 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md mb-8">
+              <h3 className="text-sm sm:text-base font-bold text-emerald-950 dark:text-white mb-4">
+                Architecture at a Glance
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[500px]">
+                  <thead>
+                    <tr className="bg-emerald-500/10 border-b border-slate-200 dark:border-white/10 text-emerald-950 dark:text-white font-bold">
+                      <th className="p-3">Specification</th>
+                      <th className="p-3">Xetu Configuration</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200/80 dark:divide-white/5 text-slate-700 dark:text-slate-300">
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Architecture</td>
+                      <td className="p-3 font-mono text-xs">Sequence-to-Sequence Transformer (IndicTrans)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Parameters</td>
+                      <td className="p-3">~200 Million</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Transformer Layers</td>
+                      <td className="p-3">36 Total Layers</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Encoder Topology</td>
+                      <td className="p-3">18 Layers (Pre-Layer Normalization)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Decoder Topology</td>
+                      <td className="p-3">18 Layers (Autoregressive Cross-Attention)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Language Pair</td>
+                      <td className="p-3">English &harr; Assamese (<code>eng_Latn</code> &harr; <code>asm_Beng</code>)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Assamese Vocabulary</td>
+                      <td className="p-3">122,672 Subword Tokens (<code>dict.TGT.json</code>)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">English Vocabulary</td>
+                      <td className="p-3">32,322 Subword Tokens (<code>dict.SRC.json</code>)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Maximum Sequence Length</td>
+                      <td className="p-3">256 Tokens</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Decoding Strategy</td>
+                      <td className="p-3">4-Beam Search</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Model Footprint</td>
+                      <td className="p-3 font-semibold text-emerald-950 dark:text-white">~1.03 GB (1,047.54 MB SafeTensors)</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-slate-900 dark:text-white">Runtime Environment</td>
+                      <td className="p-3">CPU / Local Inference (~850 MB RAM)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
+            {/* TRANSLATION PIPELINE */}
+            <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-4">
+              Translation Pipeline
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 sm:p-5 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
                 <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
-                  Stage 1: Subword Segmentation &amp; Language Tagging
+                  01 &mdash; Language &amp; Subword Processing
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Source text is prepended with target and source language tokens (<code>eng_Latn</code>,{' '}
-                  <code>asm_Beng</code>) and tokenized across the unified vocabulary, preserving compound Assamese
-                  ligatures (যুটীয়া আখৰ: ক্ষ, জ্ঞ, ত্ৰ, হ্ন).
+                  Input text is tokenized using language-specific vocabularies for English and Assamese, preserving
+                  complex Assamese ligatures (যুটীয়া আখৰ).
                 </p>
               </div>
 
               <div className="p-4 sm:p-5 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
                 <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
-                  Stage 2: 18-Layer Deep Contextualization
+                  02 &mdash; Deep Contextual Encoding
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  The multi-layer transformer encoder builds continuous semantic representations of the entire source
-                  sentence, preserving thematic dependencies across long clause boundaries.
+                  The 18-layer encoder builds continuous contextual representations of the source sentence across
+                  complex clause boundaries.
                 </p>
               </div>
 
               <div className="p-4 sm:p-5 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
                 <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
-                  Stage 3: Autoregressive Decoder with Cross-Attention
+                  03 &mdash; Autoregressive Decoding
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  The 18-layer decoder generates the target translation token-by-token while cross-attending to encoder
-                  representations, enforcing strict grammatical agreement in noun-verb conjugations and postpositions.
+                  The 18-layer decoder generates the target-language sequence while attending to the encoded source
+                  representation and enforcing grammatical agreement.
                 </p>
               </div>
 
               <div className="p-4 sm:p-5 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
                 <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
-                  Stage 4: 4-Beam Search Ranking
+                  04 &mdash; Beam Search Generation
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Hypotheses are dynamically ranked using beam search with length penalties (&alpha; = 1.0), selecting
-                  the most fluent, grammatically natural Assamese formulation.
+                  Multiple candidate translations are evaluated with beam search to select a fluent, contextually
+                  appropriate output.
                 </p>
               </div>
             </div>
           </section>
 
-          {/* ==================== SECTION 4: ARCHITECTURAL SUPERIORITY TABLE ==================== */}
-          <section id="competitors" className="mb-14 sm:mb-18 scroll-mt-24">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-              4. Architectural Superiority Over Generic Cloud APIs
+          {/* ==================== 6. XETU VS GENERAL-PURPOSE SYSTEMS ==================== */}
+          <section id="comparison" className="mb-14 sm:mb-18 scroll-mt-24">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
+              Xetu vs General-Purpose Translation Systems
             </h2>
+            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+              Xetu is not designed to compete with general-purpose translation systems on the number of languages they
+              support. Its focus is narrower: high-quality <strong>English &harr; Assamese translation</strong> with
+              greater attention to Assamese linguistic structure and privacy-sensitive local deployment.
+            </p>
+
             <div className="overflow-x-auto rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md">
-              <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[620px]">
+              <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[580px]">
                 <thead>
                   <tr className="bg-emerald-500/10 border-b border-slate-200 dark:border-white/10 text-emerald-950 dark:text-white font-bold">
-                    <th className="p-3.5 sm:p-4">Feature / Dimension</th>
-                    <th className="p-3.5 sm:p-4">Google Translate</th>
-                    <th className="p-3.5 sm:p-4">Microsoft Translator</th>
+                    <th className="p-3.5 sm:p-4">Capability / Dimension</th>
+                    <th className="p-3.5 sm:p-4">General-Purpose Systems</th>
                     <th className="p-3.5 sm:p-4 text-emerald-700 dark:text-emerald-400 font-extrabold">
-                      Axom AI Bridge &mdash; Xetu
+                      Axom AI Xetu
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/80 dark:divide-white/5 text-slate-700 dark:text-slate-300">
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Case Marker Preservation
-                    </td>
-                    <td className="p-3.5 sm:p-4">Scrambles or drops -ৰ, -লৈ, -ত markers</td>
-                    <td className="p-3.5 sm:p-4">Disconnects subjects and objects</td>
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">English &rarr; Assamese</td>
+                    <td className="p-3.5 sm:p-4"><Check size={16} className="text-emerald-600 inline" /> Supported</td>
                     <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
-                      100% Native morphological precision
+                      <Check size={16} className="text-emerald-600 inline" /> Supported
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Idioms &amp; Proverbs</td>
-                    <td className="p-3.5 sm:p-4">Literal word-for-word nonsense</td>
-                    <td className="p-3.5 sm:p-4">Untranslated English loanwords</td>
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">Assamese &rarr; English</td>
+                    <td className="p-3.5 sm:p-4"><Check size={16} className="text-emerald-600 inline" /> Supported</td>
                     <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
-                      Native Assamese idiomatic fluency
+                      <Check size={16} className="text-emerald-600 inline" /> Supported
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Confidentiality / Sovereignty
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">
+                      Assamese case-marker focus
                     </td>
-                    <td className="p-3.5 sm:p-4">Cloud API reads and logs sensitive text</td>
-                    <td className="p-3.5 sm:p-4">Data transmitted across foreign servers</td>
+                    <td className="p-3.5 sm:p-4">General / Frequently dropped</td>
                     <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
-                      100% Private local edge deployment
+                      Specialized (99.2% retention)
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Model Footprint</td>
-                    <td className="p-3.5 sm:p-4">Bloated multi-gigabyte blackbox</td>
-                    <td className="p-3.5 sm:p-4">Closed proprietary cloud API</td>
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">
+                      Assamese domain terminology
+                    </td>
+                    <td className="p-3.5 sm:p-4">General web training</td>
                     <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
-                      Compact 1.03 GB SafeTensors (850 MB RAM)
+                      Domain-focused (Gazette, legal, curricular)
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Legal Document Accuracy
-                    </td>
-                    <td className="p-3.5 sm:p-4">Poor on official Assam Gazette statutes</td>
-                    <td className="p-3.5 sm:p-4">Frequent omissions in complex clauses</td>
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">Local inference</td>
+                    <td className="p-3.5 sm:p-4">Cloud API only / Complex</td>
                     <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
-                      Calibrated on custom-assamese-parallel corpus
+                      Designed for local use (~850 MB RAM)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">Offline deployment</td>
+                    <td className="p-3.5 sm:p-4">Limited / System-dependent</td>
+                    <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
+                      Fully supported (1.03 GB SafeTensors)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">Model transparency</td>
+                    <td className="p-3.5 sm:p-4">Proprietary blackbox</td>
+                    <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
+                      Published specifications &amp; Hugging Face weights
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">Primary Focus</td>
+                    <td className="p-3.5 sm:p-4">Mass Multilingual (100+ languages)</td>
+                    <td className="p-3.5 sm:p-4 font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/5">
+                      English &harr; Assamese Dedicated
                     </td>
                   </tr>
                 </tbody>
@@ -858,73 +974,75 @@ export default async function AxomAiTransXetuPage() {
             </div>
           </section>
 
-          {/* ==================== SECTION 5: WORLD-CLASS BENCHMARK & COMPARISON ==================== */}
+          {/* ==================== 7. EMPIRICAL BENCHMARKS ==================== */}
           <section id="benchmarks" className="mb-14 sm:mb-18 scroll-mt-24">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-              5. Empirical Benchmarks &amp; Comparative Evaluation
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
+              Empirical Benchmarks
             </h2>
             <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
-              To evaluate translation fidelity objectively, Axom AI benchmarks Xetu across two independent test
-              distributions:{' '}
-              <strong>(1) Flores-200 Development/Test Corpus</strong> (standard international benchmark for{' '}
-              <code>eng_Latn</code> &harr; <code>asm_Beng</code>), and{' '}
-              <strong>(2) Assam Administrative &amp; Legal Benchmark (AALB-2026)</strong>, an in-house blind
-              evaluation test set of 1,250 verified bilingual sentences compiled from the <em>Assam Gazette</em>,
-              Gauhati High Court rulings, SEBA curricular textbooks, and agricultural extension circulars.
+              Translation quality cannot be evaluated through marketing claims alone. Xetu is evaluated using held-out
+              bilingual data covering administrative, legal, educational, cultural, and general Assamese language contexts.
             </p>
 
-            {/* HIGHLIGHT KPI TILES */}
+            {/* KEY RESULTS TILES */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="p-5 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-500/40 shadow-md">
                 <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full mb-2">
-                  State-of-the-Art
+                  English &rarr; Assamese
                 </span>
-                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">38.6</div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white mb-1">
-                  BLEU Score (Eng &rarr; Asm)
-                </div>
+                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">38.6 BLEU</div>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                  +38.8% higher than Google Translate (27.8) on administrative and civic texts.
+                  Evaluated on administrative and curricular test distributions.
                 </p>
               </div>
 
               <div className="p-5 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-500/40 shadow-md">
                 <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full mb-2">
-                  Top Precision
+                  Assamese &rarr; English
                 </span>
-                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">41.2</div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white mb-1">
-                  BLEU Score (Asm &rarr; Eng)
-                </div>
+                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">41.2 BLEU</div>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                  +29.6% higher than Google Translate (31.8) on Flores-200 evaluation sets.
+                  Evaluated on standard Flores-200 bilingual benchmark test sets.
                 </p>
               </div>
 
               <div className="p-5 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
                 <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/5 px-2.5 py-0.5 rounded-full mb-2">
-                  Morphology
+                  Character Metric
                 </span>
-                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">61.4</div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white mb-1">chrF++ Score</div>
+                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">61.4 chrF++</div>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                  Subword character n-gram F-score capturing fine-grained postpositional fidelity.
+                  Subword character n-gram F-score capturing fine morphological nuances.
                 </p>
               </div>
 
               <div className="p-5 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
                 <span className="inline-block text-[10px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/5 px-2.5 py-0.5 rounded-full mb-2">
-                  Grammar Fidelity
+                  Grammar Metric
                 </span>
-                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">99.2%</div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white mb-1">Case Marker Preservation</div>
+                <div className="text-3xl font-black text-emerald-950 dark:text-white mb-1">99.2% Case Fidelity</div>
                 <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                  Zero case-drop rate across genitive, locative, dative, and instrumental inflections.
+                  Preservation of evaluated Assamese grammatical case markers.
                 </p>
               </div>
             </div>
 
-            {/* BENCHMARK MATRIX TABLE */}
+            {/* WHAT DO THESE NUMBERS MEAN? */}
+            <div className="p-5 sm:p-6 rounded-2xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 mb-8">
+              <h3 className="text-sm sm:text-base font-bold text-emerald-950 dark:text-white mb-2">
+                What Do These Numbers Mean?
+              </h3>
+              <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed list-disc pl-4 marker:text-emerald-600 mb-3">
+                <li><strong>BLEU</strong> provides a reference-based quantitative measure of translation similarity.</li>
+                <li><strong>chrF++</strong> evaluates character and word-level correspondence and is particularly useful for morphologically rich languages like Assamese.</li>
+                <li><strong>Case fidelity</strong> measures how consistently evaluated Assamese grammatical case markers are preserved during translation.</li>
+              </ul>
+              <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+                Note: These results should be interpreted within the scope of the datasets, evaluation methodology, and test conditions rather than as a universal measure of translation quality across every possible domain.
+              </p>
+            </div>
+
+            {/* MULTI-MODEL MATRIX */}
             <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
               Multi-Model Benchmark Comparison Matrix
             </h3>
@@ -950,12 +1068,7 @@ export default async function AxomAiTransXetuPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-200/80 dark:divide-white/5 text-slate-700 dark:text-slate-300">
                   <tr className="bg-emerald-500/10 font-semibold text-emerald-950 dark:text-white">
-                    <td className="p-3.5 sm:p-4">
-                      <strong>Axom AI Xetu (সেতু)</strong>
-                      <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-600 text-white">
-                        Winner
-                      </span>
-                    </td>
+                    <td className="p-3.5 sm:p-4 font-bold">Axom AI Xetu (সেতু)</td>
                     <td className="p-3.5 sm:p-4">Axom AI (Guwahati)</td>
                     <td className="p-3.5 sm:p-4">200M Seq2Seq (36 Layers)</td>
                     <td className="p-3.5 sm:p-4 font-black text-emerald-700 dark:text-emerald-400">38.6</td>
@@ -1123,16 +1236,42 @@ export default async function AxomAiTransXetuPage() {
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* GRANULAR CASE MARKER TABLE */}
-            <div className="p-5 sm:p-7 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md mb-8">
-              <h4 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
-                Granular Morphological Inflection Breakdown
-              </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
-                Assamese relies on synthetic noun cases (কাৰক আৰু বিভক্তি). Below is the empirical recovery rate across
-                all 5 primary case markers evaluated on 1,000 multi-clause sentences:
-              </p>
+          {/* ==================== 8. MORPHOLOGICAL EVALUATION ==================== */}
+          <section id="morphological-evaluation" className="mb-14 sm:mb-18 scroll-mt-24">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
+              Case-by-Case Morphological Evaluation
+            </h2>
+            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+              One of Xetu&apos;s core evaluation areas is the preservation of Assamese grammatical case markers (কাৰক আৰু বিভক্তি).
+              Evaluated markers include:
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-6 text-xs text-center">
+              <div className="p-3 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
+                <span className="font-bold text-emerald-700 dark:text-emerald-400 font-assamese text-base block mb-0.5">-ৰ</span>
+                <span className="text-slate-500 text-[11px]">Genitive (Possessive)</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
+                <span className="font-bold text-emerald-700 dark:text-emerald-400 font-assamese text-base block mb-0.5">-লৈ</span>
+                <span className="text-slate-500 text-[11px]">Dative (Direction)</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
+                <span className="font-bold text-emerald-700 dark:text-emerald-400 font-assamese text-base block mb-0.5">-ত / -অত</span>
+                <span className="text-slate-500 text-[11px]">Locative (Location)</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10">
+                <span className="font-bold text-emerald-700 dark:text-emerald-400 font-assamese text-base block mb-0.5">-দ্বাৰা / -ৰে</span>
+                <span className="text-slate-500 text-[11px]">Instrumental (Agency)</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 col-span-2 sm:col-span-1">
+                <span className="font-bold text-emerald-700 dark:text-emerald-400 font-assamese text-base block mb-0.5">-ক</span>
+                <span className="text-slate-500 text-[11px]">Accusative (Object)</span>
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-7 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md mb-4">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[620px]">
                   <thead>
@@ -1194,120 +1333,123 @@ export default async function AxomAiTransXetuPage() {
                 </table>
               </div>
             </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+              These measurements evaluate specific grammatical constructions and should not be interpreted as a complete measure of Assamese language proficiency across all creative domains.
+            </p>
+          </section>
 
-            {/* QUALITATIVE CASE STUDIES */}
-            <h4 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
-              Blind Qualitative Translation Case Studies
-            </h4>
-            <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
-              Head-to-head empirical outputs illustrating complex syntactic resolution between Axom AI Xetu and
-              generic global systems:
+          {/* ==================== 9. REAL TRANSLATION EXAMPLES ==================== */}
+          <section id="translation-examples" className="mb-14 sm:mb-18 scroll-mt-24">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
+              Translation Quality: Real Examples
+            </h2>
+            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+              Quantitative benchmarks tell only part of the story. The following examples examine how Xetu handles
+              grammatical structure, administrative terminology, and cultural expressions compared with general-purpose
+              translation systems.
             </p>
 
             <div className="space-y-4 mb-6">
               {/* Case 1 */}
-              <div className="p-5 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
                 <div className="flex items-center justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-2">
-                  <span>Case Study 01: Administrative Order &bull; Assam State Gazette</span>
+                  <span>Case Study 01 &mdash; Administrative Language</span>
                   <span className="font-mono text-[11px] text-slate-500">Domain: Legal / Governance</span>
                 </div>
                 <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 mb-4 pb-3 border-b border-slate-200 dark:border-white/10">
-                  <strong>Source English:</strong> &quot;The Deputy Commissioner has directed the revenue circle officer
-                  to expedite the verification of patta land records before the upcoming agricultural season.&quot;
+                  <strong>Source:</strong> &quot;The Deputy Commissioner has directed the revenue circle officer to expedite the verification of patta land records before the upcoming agricultural season.&quot;
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
                     <div className="text-xs font-extrabold text-emerald-800 dark:text-emerald-300 uppercase mb-1">
-                      Axom AI Xetu (Native Precision)
+                      Axom AI Xetu Output
                     </div>
                     <p className="text-sm font-semibold text-emerald-950 dark:text-white font-assamese mb-2 leading-relaxed">
                       উপায়ুক্তই অনাগত কৃষি বতৰৰ পূৰ্বে পট্টা ভূমিৰ নথি-পত্ৰসমূহৰ সত্যতা নিৰূপণ প্ৰক্ৰিয়া ক্ষিপ্ৰতৰ কৰিবলৈ ৰাজহ চক্ৰ বিষয়াক নিৰ্দেশ দিছে।
                     </p>
                     <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                      Retains ergative subject (-ই), genitive time boundary (-ৰ পূৰ্বে), compound land term (পট্টা ভূমি), and accusative object (-ক).
+                      Xetu Focus: Preservation of administrative terminology, ergative subject (-ই), genitive time boundary (-ৰ পূৰ্বে), and compound land terms (পট্টা ভূমি).
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40">
-                    <div className="text-xs font-extrabold text-rose-700 dark:text-rose-400 uppercase mb-1">
-                      Google Translate (Cloud NMT)
+                  <div className="p-4 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+                    <div className="text-xs font-extrabold text-slate-600 dark:text-slate-400 uppercase mb-1">
+                      General-Purpose Cloud System Output
                     </div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white font-assamese mb-2 leading-relaxed">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-300 font-assamese mb-2 leading-relaxed">
                       উপায়ুক্ত ৰাজহ চক্ৰ বিষয়াক আগন্তুক কৃষি বতৰৰ আগতে পাট্টা মাটিৰ ৰেকৰ্ড পৰীক্ষণ ত্বৰান্বিত কৰিবলৈ নিৰ্দেশ দিছে।
                     </p>
-                    <p className="text-[11px] text-rose-600 dark:text-rose-400">
-                      Drops agent marker on উপায়ুক্ত (making subject and object ambiguous), uses colloquial English loan &apos;ৰেকৰ্ড&apos;.
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Baseline note: Drops agent marker on উপায়ুক্ত (making subject and object ambiguous), uses colloquial English loan &apos;ৰেকৰ্ড&apos;.
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Case 2 */}
-              <div className="p-5 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
+              <div className="p-5 sm:p-6 rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-md">
                 <div className="flex items-center justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-2">
-                  <span>Case Study 02: Cultural &amp; Idiomatic Nuance</span>
+                  <span>Case Study 02 &mdash; Cultural &amp; Idiomatic Language</span>
                   <span className="font-mono text-[11px] text-slate-500">Domain: Literature / Culture</span>
                 </div>
                 <div className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 mb-4 pb-3 border-b border-slate-200 dark:border-white/10">
-                  <strong>Source English:</strong> &quot;Across the villages of the Brahmaputra valley, weavers weave
-                  traditional dreams into the sacred threads of Gamosa.&quot;
+                  <strong>Source:</strong> &quot;Across the villages of the Brahmaputra valley, weavers weave traditional dreams into the sacred threads of Gamosa.&quot;
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
                     <div className="text-xs font-extrabold text-emerald-800 dark:text-emerald-300 uppercase mb-1">
-                      Axom AI Xetu (Native Precision)
+                      Axom AI Xetu Output
                     </div>
                     <p className="text-sm font-semibold text-emerald-950 dark:text-white font-assamese mb-2 leading-relaxed">
                       ব্ৰহ্মপুত্ৰ উপত্যকাৰ গাঁৱে গাঁৱে শিপিনীসকলে গামোচাৰ পৱিত্ৰ সূতাৰে পৰম্পৰাগত সপোন ৰূপায়িত কৰে।
                     </p>
                     <p className="text-[11px] text-emerald-700 dark:text-emerald-300">
-                      Fluently renders reduplicative distributor (গাঁৱে গাঁৱে), cultural term (শিপিনীসকলে), and instrumental marker (-ৰে).
+                      Xetu Focus: Preservation of cultural context (গামোচা), reduplicative distributor (গাঁৱে গাঁৱে), and instrumental marker (-ৰে).
                     </p>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40">
-                    <div className="text-xs font-extrabold text-rose-700 dark:text-rose-400 uppercase mb-1">
-                      Google Translate (Cloud NMT)
+                  <div className="p-4 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+                    <div className="text-xs font-extrabold text-slate-600 dark:text-slate-400 uppercase mb-1">
+                      General-Purpose Cloud System Output
                     </div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white font-assamese mb-2 leading-relaxed">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-300 font-assamese mb-2 leading-relaxed">
                       ব্ৰহ্মপুত্ৰ উপত্যকাৰ গাঁওবোৰত তাঁতিসকলে গামোচাৰ পবিত্ৰ সূতাত পৰম্পৰাগত সপোন বৈছে।
                     </p>
-                    <p className="text-[11px] text-rose-600 dark:text-rose-400">
-                      Literal translation &apos;সপোন বৈছে&apos; misses idiomatic resonance, uses generic &apos;গাঁওবোৰত&apos; instead of natural &apos;গাঁৱে গাঁৱে&apos;.
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      Baseline note: Literal translation &apos;সপোন বৈছে&apos; misses idiomatic resonance, uses generic &apos;গাঁওবোৰত&apos; instead of natural &apos;গাঁৱে গাঁৱে&apos;.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* REPRODUCIBILITY FOOTNOTE */}
-            <div className="p-4 sm:p-5 rounded-xl bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              <strong>Evaluation Protocol &amp; Reproducibility:</strong> BLEU scores computed using standard SacreBLEU
-              (hash: <code>nrefs:1|case:mixed|eff:no|tok:flores200|smooth:exp|version:2.3.1</code>). chrF++ calculated
-              with character order 6 and word order 2. Inference performed with beam width 4, length penalty &alpha; = 1.0,
-              on standard 8-core CPU hardware with memory consumption strictly under 850 MB RSS. All reported metrics
-              represent uncurated end-to-end outputs.
-            </div>
           </section>
 
-          {/* ==================== SECTION 6: OFFICIAL MODEL SPECIFICATIONS ==================== */}
-          <section id="model-card" className="mb-14 sm:mb-18 scroll-mt-24">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
-              6. Official Model Specifications
+          {/* ==================== 10. TECHNICAL SPECIFICATIONS ==================== */}
+          <section id="technical-specifications" className="mb-14 sm:mb-18 scroll-mt-24">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
+              Technical Specifications
             </h2>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-6">
+              A detailed reference for developers, researchers, and organizations evaluating Xetu for local deployment.
+            </p>
+
             <div className="overflow-x-auto rounded-2xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-md">
               <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[620px]">
                 <thead>
                   <tr className="bg-emerald-500/10 border-b border-slate-200 dark:border-white/10 text-emerald-950 dark:text-white font-bold">
                     <th className="p-3.5 sm:p-4">Specification</th>
-                    <th className="p-3.5 sm:p-4">Production Value / Technical Metric</th>
+                    <th className="p-3.5 sm:p-4">Technical Value / Production Details</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200/80 dark:divide-white/5 text-slate-700 dark:text-slate-300">
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Official Hub Repository
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Model Name</td>
+                    <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
+                      Axom AI Xetu (সেতু)
                     </td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Official Hub Repository</td>
                     <td className="p-3.5 sm:p-4">
                       <a
                         href="https://huggingface.co/axom-ai/axomai-trans-xetu"
@@ -1317,68 +1459,49 @@ export default async function AxomAiTransXetuPage() {
                       >
                         <code>axom-ai/axomai-trans-xetu</code>
                         <ExternalLink size={12} />
-                      </a>{' '}
-                      (Hugging Face Model Hub)
+                      </a>
                     </td>
                   </tr>
                   <tr>
                     <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Model Architecture</td>
                     <td className="p-3.5 sm:p-4 font-mono text-xs">
-                      IndicTransForConditionalGeneration (Sequence-to-Sequence Transformer)
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Layer Depth</td>
-                    <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
-                      36 Transformer Layers: 18 Encoder Blocks + 18 Decoder Blocks
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Tensor Dimensions</td>
-                    <td className="p-3.5 sm:p-4">
-                      <em>d_model = 512</em> (Embedding), <em>d_ffn = 2048</em> (Feed-Forward), 8 Attention Heads
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Activation &amp; Normalization
-                    </td>
-                    <td className="p-3.5 sm:p-4">
-                      GELU &bull; Pre-Layer Normalization (<code>decoder_normalize_before: true</code>)
+                      Sequence-to-Sequence Transformer (IndicTransForConditionalGeneration)
                     </td>
                   </tr>
                   <tr>
                     <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Parameter Count</td>
                     <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
-                      ~200 Million Parameters (<code>is_encoder_decoder: true</code>)
+                      ~200 Million Parameters
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Weight Checkpoint</td>
-                    <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
-                      1,047.54 MB (1.03 GB) serialized in <code>model.safetensors</code>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Layer Breakdown</td>
+                    <td className="p-3.5 sm:p-4">
+                      36 Layers: 18 Encoder Layers + 18 Decoder Layers
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Target Vocabulary (Assamese)
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Tensor Dimensions</td>
+                    <td className="p-3.5 sm:p-4">
+                      <em>d_model = 512</em>, <em>d_ffn = 2048</em>, 8 Attention Heads
                     </td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Assamese Vocabulary</td>
                     <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
                       122,672 Subword Tokens (<code>dict.TGT.json</code> &bull; SentencePiece)
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Source Vocabulary (English)
-                    </td>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">English Vocabulary</td>
                     <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
                       32,322 Subword Tokens (<code>dict.SRC.json</code> &bull; SentencePiece)
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Language Pair Identifiers</td>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Language Direction</td>
                     <td className="p-3.5 sm:p-4">
-                      English (<code>eng_Latn</code>) &harr; Assamese (<code>asm_Beng</code>)
+                      Bidirectional English &harr; Assamese (<code>eng_Latn</code> &harr; <code>asm_Beng</code>)
                     </td>
                   </tr>
                   <tr>
@@ -1386,83 +1509,156 @@ export default async function AxomAiTransXetuPage() {
                     <td className="p-3.5 sm:p-4">256 source tokens / 256 target tokens</td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Fine-Tuning Dataset</td>
-                    <td className="p-3.5 sm:p-4">
-                      <code>custom-assamese-parallel</code> (Assam Administrative, Legal, Gazette &amp; Educational Corpus)
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Decoding Strategy</td>
-                    <td className="p-3.5 sm:p-4">4-Beam Search Ranking (<code>num_beams=4</code>) with EOS penalty</td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">
-                      Active Memory Consumption
-                    </td>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Weight Checkpoint</td>
                     <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
-                      ~850 MB RAM (Standard CPU Inference via PyTorch)
+                      1,047.54 MB (~1.03 GB) serialized in <code>model.safetensors</code>
                     </td>
                   </tr>
                   <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">License</td>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Decoding Algorithm</td>
+                    <td className="p-3.5 sm:p-4">4-Beam Search with EOS penalty</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">CPU Memory Footprint</td>
+                    <td className="p-3.5 sm:p-4 font-semibold text-emerald-950 dark:text-white">
+                      ~850 MB RAM for standard CPU inference
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Deployment Type</td>
+                    <td className="p-3.5 sm:p-4">Local / Edge / CPU / Server On-Premise</td>
+                  </tr>
+                  <tr>
+                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">License &amp; Maintainer</td>
                     <td className="p-3.5 sm:p-4">
-                      Axom AI Proprietary Sovereign License (Commercial Deployment Protected)
+                      Axom AI Proprietary Sovereign License &bull; Axom AI Team (Guwahati, Assam)
                     </td>
-                  </tr>
-                  <tr>
-                    <td className="p-3.5 sm:p-4 font-bold text-slate-900 dark:text-white">Primary Maintainer</td>
-                    <td className="p-3.5 sm:p-4">Axom AI Engineering Team &bull; Guwahati, Assam</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </section>
 
-          {/* ==================== SECTION 7: QUICKSTART CODE ==================== */}
+          {/* ==================== 11. RUN XETU LOCALLY ==================== */}
           <section id="quickstart" className="mb-14 sm:mb-18 scroll-mt-24">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-              7. Quick Start: Hugging Face Python Integration
+              Run Xetu Locally with Python
             </h2>
-            <p className="text-xs sm:text-sm md:text-base text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
-              Axom AI Xetu is loaded seamlessly via the Hugging Face <code>transformers</code> library using{' '}
-              <code>trust_remote_code=True</code> (which executes the optimized <code>configuration_indictrans.py</code>,{' '}
-              <code>modeling_indictrans.py</code>, and <code>tokenization_indictrans.py</code> scripts directly from the
-              repository):
+            <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-6">
+              <p>
+                Xetu is designed for developers and researchers who want to experiment with Assamese neural translation
+                in their own environment.
+              </p>
+              <p>
+                The model can be loaded through the Hugging Face Transformers ecosystem and used for both English &rarr;
+                Assamese and Assamese &rarr; English translation.
+              </p>
+            </div>
+
+            {/* WHY RUN XETU LOCALLY? */}
+            <div className="p-5 sm:p-6 rounded-2xl bg-white/70 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 mb-6">
+              <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200 mb-3">
+                Why Run Xetu Locally?
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-2">
+                  <Check size={14} className="text-emerald-600 shrink-0" />
+                  <span>Keep sensitive documents within your infrastructure</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check size={14} className="text-emerald-600 shrink-0" />
+                  <span>Reduce dependency on external cloud translation APIs</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check size={14} className="text-emerald-600 shrink-0" />
+                  <span>Experiment with Assamese NLP locally on CPU</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check size={14} className="text-emerald-600 shrink-0" />
+                  <span>Build custom applications around Assamese translation</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check size={14} className="text-emerald-600 shrink-0" />
+                  <span>Integrate translation into existing private pipelines</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check size={14} className="text-emerald-600 shrink-0" />
+                  <span>Explore and evaluate model weights directly</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">
+              The script below illustrates the standard sequence: <strong>Load Model &rarr; Tokenize Inputs &rarr; Generate Hypotheses &rarr; Batch Decode Outputs:</strong>
             </p>
 
             <XetuCodeBlock code={PYTHON_CODE} filename="xetu_inference.py — Official Integration" />
           </section>
 
-          {/* ==================== SECTION 8: FAQ ACCORDION ==================== */}
+          {/* ==================== 12. FAQ ACCORDION ==================== */}
           <section id="faq" className="mb-14 sm:mb-18 scroll-mt-24">
             <div className="mb-6">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10.5px] font-extrabold uppercase tracking-wider mb-2">
                 <BookOpen size={12} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Authoritative Q&amp;A Knowledge Base</span>
+                <span>Frequently Asked Questions</span>
               </div>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight">
-                Frequently Asked Questions
+                Frequently Asked Questions About Axom AI Xetu
               </h2>
             </div>
 
             <XetuFaqAccordion faqs={FAQS_DATA} />
           </section>
 
-          {/* ==================== SECTION 9: SOVEREIGN IP CALLOUT ==================== */}
-          <section className="p-6 sm:p-8 rounded-2xl bg-white/90 dark:bg-slate-900/80 border-l-4 border-emerald-500 shadow-md">
-            <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-1">
-              Sovereign Intellectual Property &amp; Legal Protection
+          {/* ==================== 13. MODEL & INTELLECTUAL PROPERTY ==================== */}
+          <section className="p-6 sm:p-8 rounded-2xl bg-white/90 dark:bg-slate-900/80 border-l-4 border-emerald-500 shadow-md mb-12">
+            <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
+              Model &amp; Intellectual Property
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 italic mb-3">
-              Copyright &copy; 2026 Axom AI. All rights reserved.
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+              Xetu and its associated model architecture, model weights, tokenizer assets, evaluation materials, and
+              documentation are developed and maintained by <strong>Axom AI (Guwahati, Assam)</strong>.
             </p>
-            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-              This research, associated neural network architectures, pre-trained weights, tokenizer vocabularies,
-              acoustic profiles, and datasets are the sovereign intellectual property of{' '}
-              <strong>Axom AI (Guwahati, Assam, India)</strong>, architected by <strong>Samarjit Kashyap</strong>.
-              Unauthorized reproduction, web scraping for model training, or third-party redistribution is strictly
-              prohibited under international copyright laws.
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">
+              Use, redistribution, commercial deployment, and derivative works are subject to the applicable Axom AI
+              model licence and associated terms.
             </p>
+            <div className="flex flex-wrap gap-4 text-xs font-bold">
+              <Link
+                href="/contact"
+                className="text-emerald-700 dark:text-emerald-400 hover:underline inline-flex items-center gap-1"
+              >
+                <span>Contact Axom AI for Licensing &amp; Collaboration</span>
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+          </section>
+
+          {/* ==================== 14. FINAL CTA ==================== */}
+          <section className="text-center p-8 sm:p-12 rounded-3xl bg-gradient-to-b from-white/90 to-emerald-50/50 dark:from-slate-900/90 dark:to-emerald-950/20 border border-emerald-500/30 shadow-xl">
+            <h3 className="text-xl sm:text-3xl font-black text-emerald-950 dark:text-white mb-3">
+              Build With Assamese AI
+            </h3>
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-6 leading-relaxed">
+              Xetu is one part of Axom AI&apos;s growing ecosystem of indigenous models built around Assamese language,
+              knowledge, voice, and real-world applications. Whether you&apos;re a researcher, developer, university,
+              enterprise, or public-sector organization, explore what specialized Assamese AI can enable.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/our-models"
+                className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg no-underline inline-flex items-center gap-2"
+              >
+                <span>Explore Axom AI Models</span>
+                <ArrowRight size={14} />
+              </Link>
+              <Link
+                href="/contact"
+                className="px-6 py-3 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold text-xs sm:text-sm transition-all shadow-xs no-underline"
+              >
+                Contact the Research Team
+              </Link>
+            </div>
           </section>
         </div>
       </main>
@@ -1472,4 +1668,3 @@ export default async function AxomAiTransXetuPage() {
     </div>
   );
 }
-
