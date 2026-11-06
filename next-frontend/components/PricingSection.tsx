@@ -362,7 +362,7 @@ export default function PricingSection({
             ? 'max-w-3xl mx-auto md:grid-cols-2'
             : resolvedPlans.length === 4
             ? 'max-w-7xl mx-auto md:grid-cols-2 lg:grid-cols-4'
-            : 'max-w-6xl mx-auto md:grid-cols-3'
+            : 'max-w-7xl mx-auto md:grid-cols-3'
         }`}
       >
         {resolvedPlans.map((plan, idx) => {

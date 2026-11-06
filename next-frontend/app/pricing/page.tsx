@@ -12,41 +12,46 @@ import {
   DetailedPlan,
 } from '../../components/pricingData';
 import { getLandingCMS } from '../../lib/api';
+import { pageTitle } from '../../lib/seoTitle';
 import {
   Sparkles,
   Check,
-  X,
   ShieldCheck,
   Zap,
   ArrowRight,
-  CreditCard,
-  FileCheck,
   Lock,
   RefreshCw,
-  ExternalLink,
-  BookOpen,
-  FileText,
-  Palette,
-  Mic,
+  HelpCircle,
+  Building2,
   Cpu,
   Layers,
-  HelpCircle,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-function sanitizeText(str?: string): string {
-  if (!str) return '';
-  return str
-    .replace(
-      /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}]/gu,
-      ''
-    )
-    .trim();
-}
-
 const TARGET_KEYWORDS = [
+  'ai companies',
+  'ai companies in assam',
+  'top ai companies in assam',
+  'best ai companies in assam',
+  'ai company in assam',
+  'top ai company in assam',
+  'best ai company in assam',
+  'first ai company in assam',
+  'ai startups in assam',
+  'ai company guwahati',
+  'artificial intelligence guwahati',
+  'artificial intelligence companies assam',
+  'northeast india ai company',
+  'large language model',
+  'large language models in assam',
+  'large language model assam',
+  'assam large language model',
+  'assamese large language model',
+  'sovereign large language model india',
+  'indic large language model',
+  'indigenous large language model',
   'Axom AI pricing',
   'Axom AI plans',
   'Axom AI cost in India',
@@ -82,16 +87,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const title =
     'Axom AI Pricing — Simple, Transparent Plans in INR (₹) | Free, Starter & Pro';
   const description =
-    'Simple, transparent pricing for Assam, India and beyond. Start with Axom AI for free. Upgrade to Starter (₹199/mo) or Pro (₹499/mo) for higher limits and advanced AI tools.';
+    "Axom AI is Assam's leading artificial intelligence company offering transparent Indian Rupee (INR) pricing. Start Free (₹0) with 5,000 words/month or upgrade to Starter (₹199/mo) and Pro (₹499/mo) for sovereign large language models, Assamese voice AI, and 33 productivity tools.";
   const canonicalUrl = 'https://aiaxom.co.in/pricing/';
   const ogImage = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
-    title,
+    title: pageTitle(title),
     description,
     keywords: TARGET_KEYWORDS,
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        'en-IN': canonicalUrl,
+        as: canonicalUrl,
+        'x-default': canonicalUrl,
+      },
     },
     openGraph: {
       title,
@@ -105,7 +115,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: 'Axom AI Pricing Plans & Transparent Subscriptions',
+          alt: 'Axom AI Pricing Plans & Transparent Subscriptions in INR',
         },
       ],
     },
@@ -125,6 +135,18 @@ export async function generateMetadata(): Promise<Metadata> {
         'max-image-preview': 'large',
         'max-snippet': -1,
       },
+    },
+    other: {
+      'geo.region': 'IN-AS',
+      'geo.placename': 'Guwahati, Assam, India',
+      'geo.position': '26.1445;91.7362',
+      ICBM: '26.1445, 91.7362',
+      'DC.title': 'Axom AI Pricing & Sovereign AI Plans in Assam, India',
+      'DC.creator': 'Axom AI Team, Samarjit Kashyap',
+      'DC.subject':
+        'AI Companies, Large Language Models, AI Companies in Assam, Assamese AI, Generative AI Pricing India, Transparent INR Billing',
+      'DC.coverage': 'Assam, Northeast India, India, Global',
+      'DC.language': 'en, as, hi',
     },
   };
 }
@@ -169,7 +191,7 @@ export default async function PricingPage() {
     operatingSystem: 'Web, Android, iOS, Windows, macOS, Linux',
     applicationCategory: 'BusinessApplication, Productivity, AI',
     description:
-      'Axom AI is India’s premier indigenous Assamese & multilingual AI platform offering conversational intelligence, 33 document conversion tools, OCR, and AI suites.',
+      "Axom AI is India's premier indigenous Assamese & multilingual AI platform offering conversational intelligence, sovereign large language models, 33 document conversion tools, OCR, and AI suites.",
     url: 'https://aiaxom.co.in/pricing/',
     offers: {
       '@type': 'AggregateOffer',
@@ -242,10 +264,13 @@ export default async function PricingPage() {
     name: 'Axom AI',
     url: 'https://aiaxom.co.in',
     logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+    description:
+      "Assam's leading indigenous Artificial Intelligence company and foundation research laboratory developing sovereign Large Language Models and speech intelligence.",
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Guwahati',
       addressRegion: 'Assam',
+      postalCode: '781001',
       addressCountry: 'IN',
     },
     contactPoint: {
@@ -288,9 +313,9 @@ export default async function PricingPage() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             {/* Header Content */}
-            <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
               <div className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
-                <span>Simple, Transparent Pricing</span>
+                <span>Simple, Transparent Pricing &bull; Sovereign Indian AI</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.15] mb-4">
@@ -320,6 +345,36 @@ export default async function PricingPage() {
                   <RefreshCw size={14} className="text-emerald-600 dark:text-emerald-400" />
                   <span>Cancel anytime</span>
                 </span>
+                <span className="text-slate-300 dark:text-slate-700">&bull;</span>
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  <span>100% INR (₹) via UPI &amp; Cards</span>
+                </span>
+              </div>
+            </div>
+
+            {/* AEO / GEO Direct Answer Knowledge Brief Card */}
+            <div className="max-w-4xl mx-auto mb-10 p-5 sm:p-6 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-500/25 shadow-sm backdrop-blur-md">
+              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs uppercase tracking-wider mb-2.5">
+                <Building2 size={16} className="text-emerald-600 dark:text-emerald-400" />
+                <span>Direct Answer &bull; Axom AI Pricing &amp; Model Ecosystem</span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-3">
+                <strong>Axom AI</strong> (Guwahati, Assam) is Assam&apos;s premier indigenous Artificial Intelligence enterprise developing foundation large language models and speech intelligence. Our subscription architecture is straightforward: <strong>Free Plan (₹0)</strong> provides 5,000 words/month with trilingual Assamese-English-Hindi chat and standard document tools; <strong>Starter Plan (₹199/month)</strong> provides 50,000 words/month with advanced models and PDF reasoning; and <strong>Pro Plan (₹499/month)</strong> provides 250,000 words/month with deep reasoning, 24kHz Studio Voice AI (Puhor), Image Studio, and priority queue.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-400">
+                <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                  <Check size={13} className="stroke-[3]" /> Zero forex markup (Billed in INR)
+                </span>
+                <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                  <Check size={13} className="stroke-[3]" /> Instant UPI (GPay, PhonePe, Paytm)
+                </span>
+                <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                  <Check size={13} className="stroke-[3]" /> India DPDP Act 2023 Compliant
+                </span>
+                <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400">
+                  <Check size={13} className="stroke-[3]" /> Automated GST Invoicing
+                </span>
               </div>
             </div>
 
@@ -335,7 +390,7 @@ export default async function PricingPage() {
 
         {/* ==================== 2. WHAT CHANGES WHEN YOU UPGRADE? ==================== */}
         <section className="py-14 sm:py-20 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/50 dark:bg-[#0b1220]/50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-3">
                 <span>Which Plan Fits You?</span>
@@ -350,10 +405,10 @@ export default async function PricingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
               {/* Persona 1: Free */}
-              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between">
+              <div className="p-6 sm:p-7 rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="inline-block px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider mb-3">
-                    Free Tier
+                    Free Tier &bull; ₹0
                   </div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
                     Explore Axom AI
@@ -368,10 +423,10 @@ export default async function PricingPage() {
               </div>
 
               {/* Persona 2: Starter */}
-              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between">
+              <div className="p-6 sm:p-7 rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="inline-block px-2.5 py-1 rounded-lg bg-teal-500/10 text-teal-800 dark:text-teal-300 text-xs font-bold uppercase tracking-wider mb-3">
-                    Starter (₹199/mo)
+                    Starter &bull; ₹199/mo
                   </div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
                     Get More Done Everyday
@@ -386,10 +441,10 @@ export default async function PricingPage() {
               </div>
 
               {/* Persona 3: Pro */}
-              <div className="p-6 rounded-2xl bg-gradient-to-b from-emerald-500/10 to-white/90 dark:from-emerald-950/40 dark:to-slate-900/80 border-2 border-emerald-500/40 shadow-md flex flex-col justify-between">
+              <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-b from-emerald-500/10 to-white/90 dark:from-emerald-950/40 dark:to-slate-900/80 border-2 border-emerald-500/40 shadow-md flex flex-col justify-between">
                 <div>
                   <div className="inline-block px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider mb-3">
-                    Pro (₹499/mo) &bull; Most Popular
+                    Pro &bull; ₹499/mo &bull; Most Popular
                   </div>
                   <h3 className="text-lg font-black text-emerald-950 dark:text-white mb-2">
                     Work Without Bottlenecks
@@ -408,7 +463,7 @@ export default async function PricingPage() {
 
         {/* ==================== 3. COMPARE PLANS TABLE ==================== */}
         <section id="compare" className="py-16 sm:py-20 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#0b1220]">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-10">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-3">
                 <span>Side-by-Side</span>
@@ -421,15 +476,15 @@ export default async function PricingPage() {
               </p>
             </div>
 
-            {/* Clean Table Wrapper */}
-            <div className="overflow-x-auto rounded-2xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 shadow-lg">
-              <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[540px]">
+            {/* Clean Table Wrapper with Mobile Touch Scroll */}
+            <div className="overflow-x-auto rounded-2xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 shadow-lg -webkit-overflow-scrolling-touch">
+              <table className="w-full text-left text-xs sm:text-sm border-collapse min-w-[620px]">
                 <thead>
                   <tr className="bg-emerald-500/10 border-b border-slate-200 dark:border-white/10 text-emerald-950 dark:text-white font-bold">
-                    <th className="p-3.5 sm:p-4 w-1/2 sm:w-5/12">Key Capability</th>
-                    <th className="p-3.5 sm:p-4 text-center w-1/6">Free (₹0)</th>
-                    <th className="p-3.5 sm:p-4 text-center w-1/5">Starter (₹199)</th>
-                    <th className="p-3.5 sm:p-4 text-center w-1/4 text-emerald-700 dark:text-emerald-400 font-extrabold bg-emerald-500/5">
+                    <th className="p-4 sm:p-5 w-1/2 sm:w-5/12">Key Capability</th>
+                    <th className="p-4 sm:p-5 text-center w-1/6">Free (₹0)</th>
+                    <th className="p-4 sm:p-5 text-center w-1/5">Starter (₹199)</th>
+                    <th className="p-4 sm:p-5 text-center w-1/4 text-emerald-700 dark:text-emerald-400 font-extrabold bg-emerald-500/5">
                       Pro (₹499)
                     </th>
                   </tr>
@@ -440,12 +495,12 @@ export default async function PricingPage() {
                       key={idx}
                       className="hover:bg-slate-50/70 dark:hover:bg-white/[0.02] transition-colors"
                     >
-                      <td className="p-3.5 sm:p-4 font-semibold text-slate-900 dark:text-white">
+                      <td className="p-4 sm:p-5 font-semibold text-slate-900 dark:text-white">
                         {row.feature}
                       </td>
 
                       {/* Free */}
-                      <td className="p-3.5 sm:p-4 text-center">
+                      <td className="p-4 sm:p-5 text-center">
                         {typeof row.free === 'boolean' ? (
                           row.free ? (
                             <Check size={16} className="text-emerald-600 dark:text-emerald-400 mx-auto stroke-[2.5]" />
@@ -460,7 +515,7 @@ export default async function PricingPage() {
                       </td>
 
                       {/* Starter */}
-                      <td className="p-3.5 sm:p-4 text-center">
+                      <td className="p-4 sm:p-5 text-center">
                         {typeof row.starter === 'boolean' ? (
                           row.starter ? (
                             <Check size={16} className="text-emerald-600 dark:text-emerald-400 mx-auto stroke-[2.5]" />
@@ -475,7 +530,7 @@ export default async function PricingPage() {
                       </td>
 
                       {/* Pro (Highlighted) */}
-                      <td className="p-3.5 sm:p-4 text-center bg-emerald-500/5 font-semibold">
+                      <td className="p-4 sm:p-5 text-center bg-emerald-500/5 font-semibold">
                         {typeof row.pro === 'boolean' ? (
                           row.pro ? (
                             <Check size={18} className="text-emerald-600 dark:text-emerald-400 mx-auto stroke-[3]" />
@@ -510,168 +565,15 @@ export default async function PricingPage() {
           </div>
         </section>
 
-        {/* ==================== 4. ONE PLATFORM. MANY WAYS TO CREATE ==================== */}
-        <section className="py-14 sm:py-20 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/50 dark:bg-[#0b1220]/50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-3">
-                <span>Unified AI Ecosystem</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-                One Platform. Many Ways to Create.
-              </h2>
-              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                Axom AI is more than a chatbot. Use one sovereign workspace for everyday conversations, document productivity, and creative workflows.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4 mb-8">
-              {/* Pillar 1 */}
-              <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
-                  <BookOpen size={16} />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">
-                  AI &amp; Research
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-normal">
-                  Ask questions, explore ideas, and reason with models built for regional and general context.
-                </p>
-              </div>
-
-              {/* Pillar 2 */}
-              <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10">
-                <div className="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3">
-                  <FileText size={16} />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">
-                  Documents &amp; PDFs
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-normal">
-                  Convert, merge, compress, protect, and chat with documents without visiting multiple websites.
-                </p>
-              </div>
-
-              {/* Pillar 3 */}
-              <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mb-3">
-                  <Zap size={16} />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">
-                  Productivity
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-normal">
-                  Create exam notes, generate Mermaid diagrams, extract OCR text, and streamline study packs.
-                </p>
-              </div>
-
-              {/* Pillar 4 */}
-              <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-3">
-                  <Palette size={16} />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">
-                  Creative Studio
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-normal">
-                  Generate images, remove backgrounds, create QR codes, edit SVGs, and compress videos.
-                </p>
-              </div>
-
-              {/* Pillar 5 */}
-              <div className="p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10">
-                <div className="w-8 h-8 rounded-lg bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 flex items-center justify-center mb-3">
-                  <Mic size={16} />
-                </div>
-                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">
-                  Voice &amp; Speech
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-normal">
-                  Natural Assamese voice synthesis, high-accuracy speech-to-text, and neural translation.
-                </p>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <Link
-                href="/tools"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-sm hover:shadow-md no-underline"
-              >
-                <span>Explore All 33 Axom AI Tools</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ==================== 5. YOUR DATA. YOUR CONTROL. (COMPACT TRUST BAR) ==================== */}
-        <section className="py-12 sm:py-16 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4] dark:bg-[#0b1220]">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Trust 1 */}
-              <div className="p-4 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 flex items-start gap-3">
-                <CreditCard size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-0.5">
-                    Indian Billing (INR)
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Pay with UPI (GPay, PhonePe, Paytm), RuPay, Cards &amp; Netbanking. Zero forex charges.
-                  </p>
-                </div>
-              </div>
-
-              {/* Trust 2 */}
-              <div className="p-4 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 flex items-start gap-3">
-                <Lock size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-0.5">
-                    Privacy-First
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Responsible data handling. We never sell your data or train public models on your private documents.
-                  </p>
-                </div>
-              </div>
-
-              {/* Trust 3 */}
-              <div className="p-4 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 flex items-start gap-3">
-                <FileCheck size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-0.5">
-                    GST Compliant
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Add your GSTIN at checkout to receive automated tax invoices for full Input Tax Credit (ITC).
-                  </p>
-                </div>
-              </div>
-
-              {/* Trust 4 */}
-              <div className="p-4 rounded-xl bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-white/10 flex items-start gap-3">
-                <RefreshCw size={18} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-0.5">
-                    Cancel Anytime
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    Manage, upgrade, or cancel your subscription anytime with 1-click from your dashboard.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ==================== 6. FREQUENTLY ASKED QUESTIONS ==================== */}
+        {/* ==================== 4. FREQUENTLY ASKED QUESTIONS ==================== */}
         <section id="faq" className="py-16 sm:py-24 relative border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/60 dark:bg-[#0b1220]/60">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-3">
                 <span>Billing &amp; Subscriptions</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-3">
-                Frequently Asked <span className="gradient-text">Questions</span>
+                Frequently Asked <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">Questions</span>
               </h2>
               <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl mx-auto">
                 Everything you need to know about Axom AI plans, word allowances, payment methods, and cancellation.
@@ -679,48 +581,6 @@ export default async function PricingPage() {
             </div>
 
             <PricingFaq faqs={faqList} />
-          </div>
-        </section>
-
-        {/* ==================== 7. FINAL CTA ==================== */}
-        <section className="py-16 sm:py-20 relative overflow-hidden bg-gradient-to-b from-[#f0fdf4] to-emerald-50/70 dark:from-[#0b1220] dark:to-emerald-950/20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div className="p-8 sm:p-12 rounded-3xl bg-white/90 dark:bg-slate-900/80 border border-emerald-500/30 shadow-xl">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-4">
-                <Sparkles size={13} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Start Your Journey</span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
-                Not sure which plan to choose?
-              </h2>
-
-              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl mx-auto mb-6">
-                Start with Free. You don&apos;t need to decide everything today &mdash; try Axom AI, explore the tools, and upgrade whenever your usage grows.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                <a
-                  href="https://chat.aiaxom.co.in/"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:shadow-lg no-underline"
-                >
-                  <span>Start Free with Axom AI</span>
-                  <ArrowRight size={14} />
-                </a>
-
-                <Link
-                  href="/tools"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:border-emerald-500 text-slate-800 dark:text-white font-bold text-xs sm:text-sm transition-all no-underline"
-                >
-                  <span>Explore All 33 Tools</span>
-                  <ArrowRight size={14} />
-                </Link>
-              </div>
-
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-6">
-                All prices in Indian Rupees (INR). Applicable GST calculated at checkout. Subscription terms subject to change.
-              </p>
-            </div>
           </div>
         </section>
       </main>
