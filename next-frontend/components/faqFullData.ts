@@ -2,7 +2,7 @@ export interface FullFaqItem {
   id: number;
   question: string;
   answer: string;
-  category: 'general' | 'assamese' | 'features' | 'pricing' | 'privacy' | 'assamese_native';
+  category: 'general' | 'assamese' | 'features' | 'pricing' | 'privacy';
   tags: string[];
 }
 
@@ -215,47 +215,5 @@ export const FULL_FAQS_LIST: FullFaqItem[] = [
       'You can reach our dedicated support desk at support@aiaxom.co.in or samarjitkashyp@gmail.com. Pro and Business plan users also receive priority WhatsApp assistance and direct account management.',
     category: 'general',
     tags: ['support', 'customer care', 'email', 'contact'],
-  },
-
-  // 6. Assamese Native Questions (অসমীয়া প্ৰশ্নোত্তৰ)
-  {
-    id: 26,
-    question: 'Axom AI কি আৰু ইয়াৰ মূল সুবিধা কি? (What is Axom AI in Assamese)',
-    answer:
-      'Axom AI (অসম এআই) হৈছে অসমৰ প্ৰথমটো থলুৱা আৰু সম্পূৰ্ণ স্বতন্ত্ৰ কৃত্ৰিম বুদ্ধিমত্তা প্লেটফৰ্ম। ইয়াৰ দ্বাৰা আপুনি বিশুদ্ধ অসমীয়া ভাষাত কথা পাতিব পাৰে, তথ্য বিচাৰিব পাৰে, প্ৰবন্ধ লিখাব পাৰে, আৰু ২০+ ফাইল কনভাৰ্ট সঁজুলি ব্যৱহাৰ কৰিব পাৰে।',
-    category: 'assamese_native',
-    tags: ['অসম এআই', 'থলুৱা এআই', 'অসমীয়া চ্যাটবট'],
-  },
-  {
-    id: 27,
-    question: 'Axom AI-য়ে অসমীয়া ভাষা কিদৰে নিৰ্ভুলকৈ বুজি পায়? (How it understands Assamese)',
-    answer:
-      'গোলকীয় এআইসমূহে সাধাৰণতে অসমীয়া আৰু বাংলা আখৰৰ মাজত খেলিমেলি কৰে। কিন্তু Axom AI-ক অসমৰ ইতিহাস, সংস্কৃতি আৰু ব্যাকৰণৰ ২৫,০০০+ সমলেৰে প্ৰশিক্ষণ দিয়া হৈছে, যিয়ে ১০০% নিৰ্ভুল অসমীয়া উত্তৰ দিয়ে।',
-    category: 'assamese_native',
-    tags: ['নিৰ্ভুল অসমীয়া', 'অসমীয়া লিপি', 'ব্যাকৰণ'],
-  },
-  {
-    id: 28,
-    question: 'Axom AI কি বিনামূলীয়াকৈ ব্যৱহাৰ কৰিব পাৰি? (Is it free in Assamese)',
-    answer:
-      'হয়, Axom AI সকলোৰে বাবে সম্পূৰ্ণ বিনামূলীয়াকৈ আৰম্ভ কৰিব পাৰি। প্ৰতি মাহে ৫,০০০ শব্দৰ বিনামূলীয়া কোটা আৰু দৈনন্দিন ফাইল সঁজুলি কোনো ক্ৰেডিট কাৰ্ড নোহোৱাকৈয়ে উপলব্ধ।',
-    category: 'assamese_native',
-    tags: ['বিনামূলীয়া', 'ফ্ৰী এআই', 'কোটা'],
-  },
-  {
-    id: 29,
-    question: 'Axom AI-ত মোৰ নথি-পত্ৰ আৰু তথ্য সুৰক্ষিত নেকি? (Is my data secure)',
-    answer:
-      'হয়, আপোনাৰ সকলো তথ্য ২৫৬-বিট এনক্ৰিপচনৰ দ্বাৰা সম্পূৰ্ণ সুৰক্ষিত থাকে। ভাৰতৰ DPDP Act 2023 নীতি অনুসৰি আপোনাৰ ব্যক্তিগত নথিপত্ৰ কোনো তৃতীয় পক্ষৰ সৈতে ভগাই লোৱা নহয়।',
-    category: 'assamese_native',
-    tags: ['তথ্য সুৰক্ষা', 'এনক্ৰিপচন', 'গোপনীয়তা'],
-  },
-  {
-    id: 30,
-    question: 'Axom AI-ত PDF আৰু স্কেন কৰা নথি পঢ়িব পাৰিনে? (Can it read scanned PDFs)',
-    answer:
-      'হয়, Axom AI-ত স্মাৰ্ট OCR প্ৰযুক্তি আছে, যাৰ দ্বাৰা পুৰণি অসমীয়া বাতৰিকাকত, মাটিৰ জমাবন্দী/চিঠা, আৰু স্কেন কৰা চৰকাৰী নথিৰ পৰা পাঠ চিনাক্ত কৰি অনুবাদ বা সংক্ষিপ্তকৰণ কৰিব পাৰি।',
-    category: 'assamese_native',
-    tags: ['অসমীয়া OCR', 'জমাবন্দী', 'নথি সংক্ষিপ্তকৰণ'],
   },
 ];

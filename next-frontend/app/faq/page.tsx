@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import Navbar from '../../components/Navbar';
+import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import FAQPageContent from '../../components/FAQPageContent';
 import { FULL_FAQS_LIST } from '../../components/faqFullData';
@@ -156,6 +156,18 @@ export async function generateMetadata(): Promise<Metadata> {
         'max-snippet': -1,
       },
     },
+    other: {
+      'geo.region': 'IN-AS',
+      'geo.placename': 'Guwahati, Assam, India',
+      'geo.position': '26.1445;91.7362',
+      ICBM: '26.1445, 91.7362',
+      'DC.title': 'Axom AI FAQ: Frequently Asked Questions & Help Center in Assam',
+      'DC.creator': 'Axom AI Team, Samarjit Kashyap',
+      'DC.subject':
+        'AI Companies, Large Language Models, AI Companies in Assam, Assamese AI Help, Axom AI FAQ',
+      'DC.coverage': 'Assam, Northeast India, India, Global',
+      'DC.language': 'en, as, hi',
+    },
   };
 }
 
@@ -235,9 +247,9 @@ export default async function FAQPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
 
-      <Navbar header={landingData?.header} />
+      <Header header={landingData?.header} />
 
-      <main className="flex-1 pt-20">
+      <main className="flex-1 pt-16 sm:pt-20">
         <FAQPageContent
           serverFaqs={FULL_FAQS_LIST}
           faqConfig={landingData?.faq_page}
