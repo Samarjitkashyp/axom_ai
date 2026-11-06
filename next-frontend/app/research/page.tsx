@@ -24,24 +24,34 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const TARGET_KEYWORDS = [
+  'ai model assam',
+  'artificial intelligence assam',
+  'large language model assam',
+  'assamese large language model',
+  'assamese llm',
+  'assamese ai model',
+  'sovereign foundation models assam',
+  'progya 2b assamese llm',
+  'xuwor multimodal ai',
+  'puhor voice assamese',
+  'xuna asr assam',
+  'xetu assamese translation',
+  'axom ai sarkar',
+  'assam generative ai',
+  'guwahati artificial intelligence lab',
+  'indigenous ai research assam',
+  'sovereign ai india',
+  'dpdp compliant sovereign ai',
+  'edge ai cpu assam',
   'Axom AI Research',
   'Axom AI models research',
-  'indigenous AI research Assam',
-  'sovereign Assamese AI',
-  'Progya LLM research',
-  'Puhor TTS paper',
-  'Xuna ASR Conformer speech',
-  'Xetu Assamese neural translation',
-  'XUWOR multimodal AI Assam',
   'YOLOv8 helmet detection CCTV Assam',
-  'Assam generative AI Guwahati',
-  'DPDP compliant AI research India',
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Axom AI Research — Sovereign Foundation Models & Technical Research from Assam';
+  const title = 'Axom AI Research — #1 Sovereign AI Models & Assamese Large Language Models in Assam';
   const description =
-    'Practical AI built in Assam, published with real numbers. Explore empirical benchmarks, reproducible models, and open reports for Progya 2B, XUWOR, Puhor, Xuna, Xetu, and YOLOv8 Helmet Detection.';
+    'Axom AI is Assam’s premier sovereign artificial intelligence research laboratory in Guwahati. Discover our foundational AI models & Assamese Large Language Models (LLM) — Progya 2B, XUWOR Multimodal, Puhor TTS, Xuna ASR, Xetu, and Sarkar. 100% CPU edge execution, 99.4% Assamese script purity, and DPDP Act 2023 compliance.';
   const canonicalUrl = 'https://aiaxom.co.in/research/';
 
   return {
@@ -79,73 +89,254 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ResearchPage() {
   const cms = await getLandingCMS().catch(() => ({} as any));
 
-  // Structured Data Schemas
-  const collectionSchema = {
+  // Comprehensive Unified Knowledge Graph Schema (Top-Tier SEO, GEO & AEO for Google AI Overview, ChatGPT, Claude, Gemini, Perplexity)
+  const unifiedKnowledgeGraph = {
     '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: 'Axom AI Research — Sovereign Foundation Models & Applied Systems',
-    description:
-      'Technical architecture and measured benchmark evaluations for Axom AI indigenous generative models: XUWOR, Progya, Puhor, Xuna, Xetu, Sarkar, and Helmet Detection.',
-    url: 'https://aiaxom.co.in/research/',
-    publisher: {
-      '@type': 'Organization',
-      name: 'Axom AI',
-      url: 'https://aiaxom.co.in',
-      logo: 'https://aiaxom.co.in/axom-browser-logo.png',
-      foundingLocation: {
-        '@type': 'Place',
-        name: 'Guwahati, Assam, India',
-      },
-    },
-  };
-
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
+    '@graph': [
       {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: 'https://aiaxom.co.in/',
+        '@type': 'Organization',
+        '@id': 'https://aiaxom.co.in/#organization',
+        name: 'Axom AI',
+        alternateName: ['অসম এআই', 'Axom Artificial Intelligence', 'AxomAI', 'Axom AI Research'],
+        url: 'https://aiaxom.co.in',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://aiaxom.co.in/axom-browser-logo.png',
+          caption: 'Axom AI Sovereign Artificial Intelligence',
+        },
+        description:
+          'Axom AI is Assam’s premier sovereign artificial intelligence research laboratory, developing indigenous foundation models, Assamese Large Language Models (LLMs), Multimodal AI systems, speech engines, and CPU-native edge technologies in Guwahati, Assam.',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Guwahati',
+          addressRegion: 'Assam',
+          postalCode: '781001',
+          addressCountry: 'IN',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: '26.1445',
+          longitude: '91.7362',
+        },
+        founder: {
+          '@type': 'Person',
+          name: 'Samarjit Kashyap',
+        },
+        areaServed: [
+          { '@type': 'AdministrativeArea', name: 'Assam' },
+          { '@type': 'AdministrativeArea', name: 'Northeast India' },
+          { '@type': 'Country', name: 'India' },
+        ],
+        knowsAbout: [
+          'Artificial Intelligence in Assam',
+          'Assam AI Model',
+          'Assamese Large Language Model (LLM)',
+          'Sovereign AI Foundation Models',
+          'Generative Artificial Intelligence',
+          'Assamese Natural Language Processing',
+          'Speech Recognition & Conformer ASR',
+          'Text-to-Speech & Flow-Matching Diffusion Transformers',
+          'Computer Vision & Edge AI',
+          'Edge Deployment on CPU (<500MB to 3.8GB RAM)',
+          'DPDP Act 2023 Compliant AI Sovereignty',
+        ],
+        sameAs: [
+          'https://github.com/axom-ai',
+          'https://huggingface.co/axom-ai',
+          'https://x.com/AxomAi',
+        ],
       },
       {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Research',
-        item: 'https://aiaxom.co.in/research/',
+        '@type': 'ResearchOrganization',
+        '@id': 'https://aiaxom.co.in/research/#research-lab',
+        name: 'Axom AI Research Laboratory',
+        parentOrganization: { '@id': 'https://aiaxom.co.in/#organization' },
+        url: 'https://aiaxom.co.in/research/',
+        description:
+          'Official research and development laboratory of Axom AI in Guwahati, Assam. Specializing in indigenous foundation models, Assamese LLM research, multimodal intelligence, and edge-quantized architectures.',
+        location: {
+          '@type': 'Place',
+          name: 'Guwahati, Assam, India',
+          geo: {
+            '@type': 'GeoCoordinates',
+            latitude: '26.1445',
+            longitude: '91.7362',
+          },
+        },
+      },
+      {
+        '@type': 'CollectionPage',
+        '@id': 'https://aiaxom.co.in/research/#webpage',
+        url: 'https://aiaxom.co.in/research/',
+        name: 'Axom AI Research — Sovereign Foundation Models, Large Language Models & AI Systems from Assam',
+        description:
+          'Technical architecture, empirical benchmark evaluations, and reproducible reports for Axom AI indigenous generative foundation models (Progya 2B, XUWOR, Puhor, Xuna, Xetu, Sarkar) and applied computer vision systems.',
+        isPartOf: {
+          '@type': 'WebSite',
+          '@id': 'https://aiaxom.co.in/#website',
+          url: 'https://aiaxom.co.in',
+          name: 'Axom AI',
+        },
+        about: [
+          { '@type': 'Thing', name: 'Artificial Intelligence in Assam' },
+          { '@type': 'Thing', name: 'Assam AI Model' },
+          { '@type': 'Thing', name: 'Assamese Large Language Model (LLM)' },
+          { '@type': 'Thing', name: 'Sovereign AI Foundation Models' },
+          { '@type': 'Thing', name: 'Edge AI Deployment' },
+        ],
+      },
+      {
+        '@type': 'DefinedTermSet',
+        '@id': 'https://aiaxom.co.in/research/#terms',
+        name: 'Assam Sovereign AI & Foundation Model Terminology',
+        hasDefinedTerm: [
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assam Artificial Intelligence',
+            termCode: 'AXOM-AI-REGIONAL',
+            description:
+              'Indigenous sovereign artificial intelligence engineered in Assam, India by Axom AI, optimized for native Assamese script comprehension, regional dialect phonetics, low-resource CPU edge devices, and DPDP Act 2023 compliance.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assamese Large Language Model (Assamese LLM)',
+            termCode: 'PROGYA-LLM',
+            description:
+              'A high-performance transformer language model trained on native Assamese linguistic corpora with 68,096 dedicated vocabulary tokens, achieving 99.4% script purity and zero Bengali script cross-contamination.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Progya 2B (প্ৰজ্ঞা)',
+            termCode: 'PROGYA-2B',
+            description:
+              'Assam’s sovereign 2.00 Billion parameter dense foundation LLM engineered by Axom AI with 68,096 tokens, running on standard CPU edge hardware with 1.2 GB RAM (Q4_K_M).',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'XUWOR Multimodal AI (সুঁৱৰ)',
+            termCode: 'XUWOR-MULTIMODAL',
+            description:
+              'Assam’s first full-duplex multimodal conversational AI framework orchestrating vision, speech recognition (Xuna), linguistic reasoning (Progya), and speech synthesis (Puhor) within 3.8 GB RAM.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Puhor Voice Engine (পোহৰ)',
+            termCode: 'PUHOR-TTS',
+            description:
+              'Assam’s studio-grade 24kHz Flow-Matching Diffusion Transformer (DiT) text-to-speech voice model with zero hallucination and authentic Assamese tonal inflection.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Xuna Speech Recognition (শুনা)',
+            termCode: 'XUNA-ASR',
+            description:
+              'Assam’s 600M Conformer automatic speech recognition engine operating 3.8x faster than real-time (0.261x RTF) on CPU with high noise tolerance.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Xetu Neural Translation (সেতু)',
+            termCode: 'XETU-TRANS',
+            description:
+              'Offline 200M parameter bidirectional English to Assamese neural machine translation model preserving complex Assamese case markers and administrative syntax.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)',
+            termCode: 'SARKAR-SLM',
+            description:
+              'Assam’s sovereign 492M Small Language Model specialized for state public administration, 35 districts, 130 LACs, and citizen governance portals like Mission Basundhara and Sewa Setu.',
+          },
+        ],
+      },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://aiaxom.co.in/research/#sovereign-models-list',
+        name: 'Sovereign Assamese AI Foundation Models by Axom AI',
+        description: 'The 6 verified sovereign foundation models and SLMs built in Assam by Axom AI Research.',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Axom AI Master — XUWOR (সুঁৱৰ) Multimodal AI',
+            url: 'https://aiaxom.co.in/research/axomai-multimodal-xuwor/',
+            description: 'Full-duplex multimodal AI synchronizing hearing, thinking, speaking, and translation under 3.8 GB RAM.',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Axom AI Brain — Progya (প্ৰজ্ঞা) 2B Assamese LLM',
+            url: 'https://aiaxom.co.in/research/axomai-brain-progya/',
+            description: 'Assam’s sovereign 2.00B parameter dense language model with 68,096 native Assamese tokens in 1.2 GB Q4_K_M.',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: 'Axom AI Voice — Puhor (পোহৰ) 24kHz TTS',
+            url: 'https://aiaxom.co.in/research/axomai-voice-puhor/',
+            description: '24,000 Hz studio-grade Flow-Matching Diffusion Transformer voice engine with dual Assamese personas.',
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: 'Axom AI Speech — Xuna (শুনা) 600M Conformer ASR',
+            url: 'https://aiaxom.co.in/research/axomai-speech-xuna/',
+            description: '600M Conformer ASR running 3.8x faster than real-time (0.261x RTF) on CPU.',
+          },
+          {
+            '@type': 'ListItem',
+            position: 5,
+            name: 'Axom AI Bridge — Xetu (সেতু) Neural Translation',
+            url: 'https://aiaxom.co.in/research/axomai-trans-xetu/',
+            description: 'Bidirectional English-Assamese translation bridge preserving case inflections in 1.03 GB offline footprint.',
+          },
+          {
+            '@type': 'ListItem',
+            position: 6,
+            name: 'Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক) Governance SLM',
+            url: 'https://aiaxom.co.in/research/axomai-sarkar/',
+            description: '492M public governance SLM trained on 3.3M+ instruction pairs across all 35 Assam districts.',
+          },
+        ],
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': 'https://aiaxom.co.in/research/#breadcrumb',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://aiaxom.co.in/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Research & Sovereign AI Models',
+            item: 'https://aiaxom.co.in/research/',
+          },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': 'https://aiaxom.co.in/research/#faq',
+        mainEntity: RESEARCH_MODELS_FAQS.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
       },
     ],
   };
 
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    '@id': 'https://aiaxom.co.in/research/#faq',
-    mainEntity: RESEARCH_MODELS_FAQS.map((faq) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
-  };
-
   return (
     <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
-      {/* Structured Data */}
+      {/* Comprehensive Unified Knowledge Graph Schema (SEO, GEO & AEO) */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(unifiedKnowledgeGraph) }}
       />
 
       {/* Global Shared Header / Navbar */}
@@ -212,20 +403,25 @@ export default async function ResearchPage() {
 
           </section>
 
-          {/* ==================== OVERVIEW CARD ==================== */}
+          {/* ==================== OVERVIEW CARD (AEO, GEO & SEARCH ENGINE GROUNDING) ==================== */}
           <section id="what-is-axom-ai-research" className="max-w-5xl mx-auto mb-16 sm:mb-20 md:mb-24 scroll-mt-24">
-            <div className="p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden backdrop-blur-sm">
+            <div className="p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden backdrop-blur-sm">
               <div className="space-y-4 sm:space-y-5 relative z-10">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
+                  <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" />
+                  <span>Assam&apos;s Sovereign AI &amp; Foundation Model Knowledge Base</span>
+                </div>
+
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug break-words">
                   What is Axom AI Research? Sovereign Artificial Intelligence &amp; Foundation Models from Assam
                 </h2>
 
                 <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
-                  <strong>Axom AI Research</strong> is the indigenous AI engineering laboratory of Axom AI based in Guwahati, Assam (PIN 781001). We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for Northeast India. Each release documents what we engineered, our held-out test metrics, resource footprints on standard CPU edge hardware, and the precise failure boundaries we are solving next.
+                  <strong>Axom AI Research</strong> is Northeast India&apos;s premier sovereign artificial intelligence research laboratory headquartered in Guwahati, Assam (PIN 781001). We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for the Assamese script, public administration, and 100% CPU edge execution. Every release documents architectural design, held-out validation metrics, edge resource footprints (&lt; 500 MB to 3.8 GB RAM), and data sovereignty under India&apos;s Digital Personal Data Protection (DPDP) Act 2023.
                 </p>
 
-                {/* 3-Column Knowledge Specification Panel */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2">
+                {/* 4-Column AEO / GEO Entity Specification Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2">
                   <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
                     <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       Entity &amp; Location
@@ -240,25 +436,37 @@ export default async function ResearchPage() {
 
                   <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
                     <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Foundation LLMs &amp; SLMs
+                      Assamese LLM &amp; SLMs
                     </div>
                     <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
                       Progya (2B) &amp; Sarkar (492M)
                     </div>
                     <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Xetu, Puhor, Xuna, XUWOR
+                      68,096 Tokens • 99.4% Purity
                     </div>
                   </div>
 
                   <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
                     <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Open Access &amp; Licensing
+                      Multimodal &amp; Voice
                     </div>
                     <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                      Apache-2.0 &amp; MIT Licenses
+                      XUWOR, Puhor &amp; Xuna
                     </div>
                     <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Hugging Face &amp; GitHub Verified
+                      Full-Duplex • 24kHz DiT • ASR
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+                    <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Hardware &amp; Compliance
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                      100% CPU Native Edge
+                    </div>
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                      Zero GPU Lock-in • DPDP 2023
                     </div>
                   </div>
                 </div>
@@ -414,7 +622,7 @@ export default async function ResearchPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
               
               {/* 1. XUWOR (Master Multimodal) */}
-              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-500/30 dark:border-emerald-500/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
+              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-500/30 dark:border-emerald-500/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
@@ -424,7 +632,7 @@ export default async function ResearchPage() {
                       Speech • Vision • Text
                     </span>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors break-words">
                     <a href="/research/axomai-multimodal-xuwor/" className="no-underline text-inherit">
                       Axom AI Master &mdash; XUWOR (সুঁৱৰ)
                     </a>
@@ -434,10 +642,10 @@ export default async function ResearchPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
-                  <span className="text-slate-500 dark:text-slate-400">&lt; 3.8 GB RAM • 12 min</span>
+                  <span className="text-slate-500 dark:text-slate-400">&lt; 3.8 GB RAM</span>
                   <a
                     href="/research/axomai-multimodal-xuwor/"
-                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline"
+                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline py-1"
                   >
                     Read Report &rarr;
                   </a>
@@ -445,7 +653,7 @@ export default async function ResearchPage() {
               </div>
 
               {/* 2. PROGYA (2B LLM) */}
-              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
+              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
@@ -455,7 +663,7 @@ export default async function ResearchPage() {
                       2.00B Dense LLM
                     </span>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors break-words">
                     <a href="/research/axomai-brain-progya/" className="no-underline text-inherit">
                       Axom AI Brain &mdash; Progya (প্ৰজ্ঞা)
                     </a>
@@ -465,10 +673,10 @@ export default async function ResearchPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
-                  <span className="text-slate-500 dark:text-slate-400">1.2 GB Q4_K_M • 10 min</span>
+                  <span className="text-slate-500 dark:text-slate-400">1.2 GB Q4_K_M</span>
                   <a
                     href="/research/axomai-brain-progya/"
-                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline"
+                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline py-1"
                   >
                     Read Report &rarr;
                   </a>
@@ -476,7 +684,7 @@ export default async function ResearchPage() {
               </div>
 
               {/* 3. PUHOR (TTS) */}
-              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
+              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
@@ -486,7 +694,7 @@ export default async function ResearchPage() {
                       24kHz Studio TTS
                     </span>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors break-words">
                     <a href="/research/axomai-voice-puhor/" className="no-underline text-inherit">
                       Axom AI Voice &mdash; Puhor (পোহৰ)
                     </a>
@@ -496,10 +704,10 @@ export default async function ResearchPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
-                  <span className="text-slate-500 dark:text-slate-400">Flow-Matching DiT • 8 min</span>
+                  <span className="text-slate-500 dark:text-slate-400">Flow-Matching DiT</span>
                   <a
                     href="/research/axomai-voice-puhor/"
-                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline"
+                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline py-1"
                   >
                     Read Report &rarr;
                   </a>
@@ -507,7 +715,7 @@ export default async function ResearchPage() {
               </div>
 
               {/* 4. XUNA (ASR) */}
-              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
+              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
@@ -517,7 +725,7 @@ export default async function ResearchPage() {
                       600M Conformer ASR
                     </span>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors break-words">
                     <a href="/research/axomai-speech-xuna/" className="no-underline text-inherit">
                       Axom AI Speech &mdash; Xuna (শুনা)
                     </a>
@@ -527,10 +735,10 @@ export default async function ResearchPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
-                  <span className="text-slate-500 dark:text-slate-400">0.261x RTF CPU • 9 min</span>
+                  <span className="text-slate-500 dark:text-slate-400">0.261x RTF CPU</span>
                   <a
                     href="/research/axomai-speech-xuna/"
-                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline"
+                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline py-1"
                   >
                     Read Report &rarr;
                   </a>
@@ -538,7 +746,7 @@ export default async function ResearchPage() {
               </div>
 
               {/* 5. XETU (Translation) */}
-              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
+              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
@@ -548,7 +756,7 @@ export default async function ResearchPage() {
                       200M Neural Bridge
                     </span>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors break-words">
                     <a href="/research/axomai-trans-xetu/" className="no-underline text-inherit">
                       Axom AI Bridge &mdash; Xetu (সেতু)
                     </a>
@@ -558,10 +766,10 @@ export default async function ResearchPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
-                  <span className="text-slate-500 dark:text-slate-400">1.03 GB Offline • 8 min</span>
+                  <span className="text-slate-500 dark:text-slate-400">1.03 GB Offline</span>
                   <a
                     href="/research/axomai-trans-xetu/"
-                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline"
+                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline py-1"
                   >
                     Read Report &rarr;
                   </a>
@@ -569,7 +777,7 @@ export default async function ResearchPage() {
               </div>
 
               {/* 6. SARKAR (Governance SLM) */}
-              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
+              <div className="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-5 sm:p-6 lg:p-7 flex flex-col justify-between relative overflow-hidden backdrop-blur-sm">
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <span className="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
@@ -579,7 +787,7 @@ export default async function ResearchPage() {
                       492M Governance SLM
                     </span>
                   </div>
-                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-lg sm:text-xl font-black text-emerald-950 dark:text-white leading-snug mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors break-words">
                     <a href="/research/axomai-sarkar/" className="no-underline text-inherit">
                       Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)
                     </a>
@@ -589,10 +797,10 @@ export default async function ResearchPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
-                  <span className="text-slate-500 dark:text-slate-400">468 MB GGUF • 10 min</span>
+                  <span className="text-slate-500 dark:text-slate-400">468 MB GGUF</span>
                   <a
                     href="/research/axomai-sarkar/"
-                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline"
+                    className="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline py-1"
                   >
                     Read Report &rarr;
                   </a>
@@ -669,3 +877,4 @@ export default async function ResearchPage() {
     </div>
   );
 }
+
