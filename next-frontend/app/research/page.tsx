@@ -1,24 +1,12 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FAQSection from '@/components/FAQSection';
 import { RESEARCH_MODELS_FAQS } from '@/components/researchModelsFaqsData';
 import { getLandingCMS } from '@/lib/api';
 import { pageTitle } from '@/lib/seoTitle';
-import {
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  Cpu,
-  Layers,
-  Sparkles,
-  Bot,
-  ExternalLink,
-  BookOpen,
-} from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -396,11 +384,6 @@ export default async function ResearchPage() {
               </a>
             </div>
 
-            {/* BYLINE */}
-            <p className="mt-4 sm:mt-5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-              By <strong className="text-slate-800 dark:text-slate-200 font-bold">Axom AI Team</strong>
-            </p>
-
           </section>
 
           {/* ==================== OVERVIEW CARD (AEO, GEO & SEARCH ENGINE GROUNDING) ==================== */}
@@ -417,59 +400,8 @@ export default async function ResearchPage() {
                 </h2>
 
                 <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
-                  <strong>Axom AI Research</strong> is Northeast India&apos;s premier sovereign artificial intelligence research laboratory headquartered in Guwahati, Assam (PIN 781001). We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for the Assamese script, public administration, and 100% CPU edge execution. Every release documents architectural design, held-out validation metrics, edge resource footprints (&lt; 500 MB to 3.8 GB RAM), and data sovereignty under India&apos;s Digital Personal Data Protection (DPDP) Act 2023.
+                  <strong>Axom AI Research</strong> is Northeast India&apos;s premier sovereign artificial intelligence research laboratory headquartered in Guwahati, Assam. We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for the Assamese script and public administration.
                 </p>
-
-                {/* 4-Column AEO / GEO Entity Specification Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2">
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                    <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Entity &amp; Location
-                    </div>
-                    <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                      Sovereign AI Research Lab
-                    </div>
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Guwahati, Assam (781001)
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                    <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Assamese LLM &amp; SLMs
-                    </div>
-                    <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                      Progya (2B) &amp; Sarkar (492M)
-                    </div>
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      68,096 Tokens • 99.4% Purity
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                    <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Multimodal &amp; Voice
-                    </div>
-                    <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                      XUWOR, Puhor &amp; Xuna
-                    </div>
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Full-Duplex • 24kHz DiT • ASR
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                    <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Hardware &amp; Compliance
-                    </div>
-                    <div className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                      100% CPU Native Edge
-                    </div>
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Zero GPU Lock-in • DPDP 2023
-                    </div>
-                  </div>
-                </div>
 
               </div>
             </div>
@@ -822,52 +754,6 @@ export default async function ResearchPage() {
             supportDescription="Can't find what you're looking for? Whether you are a student, researcher, developer, academic institution, or public sector partner, our local team is ready to help."
             className="!py-12 sm:!py-16 md:!py-20 !bg-transparent"
           />
-
-          {/* ==================== SECTION 4: FINAL CTA ==================== */}
-          <section className="py-16 sm:py-24 bg-gradient-to-br from-emerald-950 via-slate-950 to-black text-white relative overflow-hidden rounded-3xl mt-12 sm:mt-16 border border-emerald-900/30 shadow-2xl">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-600/20 via-transparent to-transparent pointer-events-none" />
-            
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-6">
-                <Bot size={14} />
-                <span>Experience Sovereign AI Live</span>
-              </div>
-
-              <h2 className="text-3xl sm:text-5xl font-black tracking-tight mb-5 leading-tight">
-                Test Our Indigenous Models in Real-Time
-              </h2>
-
-              <p className="text-sm sm:text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed font-normal">
-                Axom AI powers conversations, OCR, study notes generation, and 20+ document utilities across Northeast India. No credit card required.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
-                <a
-                  href="https://chat.aiaxom.co.in/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black text-sm sm:text-base transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transform hover:-translate-y-0.5 no-underline"
-                >
-                  <span>Start Chatting Free</span>
-                  <ArrowRight size={16} />
-                </a>
-
-                <Link
-                  href="/tools"
-                  className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 no-underline"
-                >
-                  <span>Explore 20+ Production Tools</span>
-                </Link>
-
-                <Link
-                  href="/pricing"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/30 text-emerald-300 font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 no-underline"
-                >
-                  <span>View Plan Pricing</span>
-                </Link>
-              </div>
-            </div>
-          </section>
 
         </div>
       </main>

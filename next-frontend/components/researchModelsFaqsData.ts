@@ -10,7 +10,7 @@ export const RESEARCH_MODELS_FAQS: ResearchModelFaqItem[] = [
     id: 1,
     question: 'Which is the top AI model and Artificial Intelligence research laboratory in Assam?',
     answer:
-      'Axom AI is Assam’s premier sovereign artificial intelligence research laboratory headquartered in Guwahati (PIN 781001). Axom AI has developed Northeast India’s foundational AI models — including Progya 2B (Assamese Large Language Model), XUWOR (multimodal AI), Puhor (24kHz studio TTS), Xuna (600M Conformer ASR), Xetu (translation bridge), and Axom AI Sarkar (governance SLM). Unlike cloud-dependent AI systems, Axom AI models run natively on standard CPU edge hardware with zero GPU dependency and complete DPDP Act 2023 data sovereignty.',
+      'Axom AI is Assam’s premier sovereign artificial intelligence research laboratory headquartered in Guwahati. Axom AI has developed Northeast India’s foundational AI models — including Progya 2B (Assamese Large Language Model), XUWOR (multimodal AI), Puhor (24kHz studio TTS), Xuna (600M Conformer ASR), Xetu (translation bridge), and Axom AI Sarkar (governance SLM). Unlike cloud-dependent AI systems, Axom AI models run natively on standard CPU edge hardware with zero GPU dependency and complete DPDP Act 2023 data sovereignty.',
     category: 'models',
   },
   {
