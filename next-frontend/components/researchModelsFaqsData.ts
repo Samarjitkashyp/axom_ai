@@ -49,3 +49,4 @@ export const RESEARCH_MODELS_FAQS: ResearchModelFaqItem[] = [
     category: 'general',
   },
 ];
+
