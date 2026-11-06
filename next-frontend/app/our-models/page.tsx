@@ -59,9 +59,9 @@ const TARGET_KEYWORDS = [
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Our Models — Axom AI Sovereign Foundation Models & Technical Research';
+  const title = 'Axom AI Models — Sovereign Foundation Models & Assamese LLMs | Hugging Face Verified';
   const description =
-    'Explore Axom AI\'s sovereign foundation models built in Assam: XUWOR multimodal ecosystem, Progya 2B dense LLM, Puhor 24kHz voice, Xuna 600M ASR, and Xetu translation bridge, published with real measured numbers.';
+    'Explore Axom AI\'s 7 sovereign foundation models and regional LLMs engineered in Assam: Progya 2B, XUWOR Multimodal, Puhor 24kHz Voice, Xuna Conformer ASR, Xetu Translation, Garima Vision, and AxomAI Sarkar. 100% CPU edge execution, 99.4% Assamese script purity, and open weights on Hugging Face.';
   const canonicalUrl = 'https://aiaxom.co.in/our-models/';
   const ogImage = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
@@ -245,18 +245,18 @@ export default async function OurModelsPage() {
               
               {/* BADGE PILL */}
               <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-sm">
-                <span>Official Axom AI Research • Sovereign Foundation Models</span>
+                <span>Official Model Registry • 7 Sovereign AI Architectures</span>
               </div>
 
               {/* H1 TITLE */}
               <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.2] sm:leading-tight mb-4 sm:mb-5 break-words">
-                Practical AI built in Assam,{' '}
-                <span className="gradient-text">published with real numbers</span>
+                Sovereign AI Foundation Models,{' '}
+                <span className="gradient-text">Engineered from Assam</span>
               </h1>
 
               {/* SUBTITLE */}
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 px-1">
-                What we built, how we measured it, what worked, what failed and what we still cannot do. Every technical report links to its open-source code, verified training datasets, and empirical limits.
+                Explore Axom AI&apos;s family of 7 sovereign foundation models published on Hugging Face: Progya 2B (Dense LLM), XUWOR (Full-Duplex Multimodal), Puhor (24kHz Studio TTS), Xuna (Conformer ASR), Xetu (Neural Translation Bridge), Garima (Visual AI), and AxomAI Sarkar (Governance SLM). Built from scratch for native Assamese orthography and 100% CPU edge execution with zero cloud GPU dependency.
               </p>
 
               {/* FILTER PILLS */}
@@ -268,16 +268,24 @@ export default async function OurModelsPage() {
                   Foundation LLMs &amp; SLMs
                 </a>
                 <a
-                  href="#field-deployments"
+                  href="#multimodal-xuwor"
                   className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
                 >
-                  Applied Systems
+                  Multimodal &amp; Voice
                 </a>
                 <a
-                  href="/research/helmet-detection/"
+                  href="#governance-sarkar"
                   className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
                 >
-                  Computer Vision &amp; CCTV
+                  Governance SLM
+                </a>
+                <a
+                  href="https://huggingface.co/axom-ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 transition-all font-bold no-underline shadow-xs flex items-center gap-1"
+                >
+                  <span>Hugging Face Hub &rarr;</span>
                 </a>
               </div>
 
@@ -289,15 +297,15 @@ export default async function OurModelsPage() {
                 <div className="space-y-4 sm:space-y-5 relative z-10">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
                     <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" />
-                    <span>Assam&apos;s Sovereign AI &amp; Foundation Model Knowledge Base</span>
+                    <span>Assam&apos;s Sovereign Model Ecosystem • Hugging Face Verified</span>
                   </div>
 
                   <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug break-words">
-                    What is Axom AI Research? Sovereign Artificial Intelligence &amp; Foundation Models from Assam
+                    About Axom AI Foundation Models — Indigenous Intelligence for Northeast India
                   </h2>
 
                   <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
-                    <strong>Axom AI Research</strong> is Northeast India&apos;s premier sovereign artificial intelligence research laboratory headquartered in Guwahati, Assam. We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for the Assamese script and public administration.
+                    Axom AI models are purpose-built to solve the linguistic and technological neglect of regional Indian languages. While generic global models fracture Assamese into distorted multi-byte tokens, our indigenous architectures feature a dedicated 68,096-token native vocabulary, verified cultural corpora, sub-second CPU inference, and 100% Indian data sovereignty under the Digital Personal Data Protection (DPDP) Act 2023.
                   </p>
 
                 </div>
