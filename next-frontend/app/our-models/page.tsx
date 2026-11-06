@@ -1,7 +1,5 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FAQSection from '@/components/FAQSection';
@@ -11,27 +9,12 @@ import {
   Cpu,
   Layers,
   Sparkles,
-  Zap,
   Volume2,
   Mic,
   ArrowRight,
-  ShieldCheck,
-  Code2,
-  Eye,
-  Globe2,
-  Search,
-  Compass,
-  FileCheck2,
-  CheckCircle2,
-  Activity,
-  HardDrive,
-  Clock,
-  ExternalLink,
-  BookOpen,
   ArrowUpRight,
-  Database,
-  BarChart3,
-  Bot
+  Globe2,
+  FileCheck2,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -59,9 +42,9 @@ const TARGET_KEYWORDS = [
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Axom AI Models — Sovereign Foundation Models & Assamese LLMs | Hugging Face Verified';
+  const title = 'Building the Next Generation of AI, From Assam to the World | Axom AI Models';
   const description =
-    'Explore Axom AI\'s 7 sovereign foundation models and regional LLMs engineered in Assam: Progya 2B, XUWOR Multimodal, Puhor 24kHz Voice, Xuna Conformer ASR, Xetu Translation, Garima Vision, and AxomAI Sarkar. 100% CPU edge execution, 99.4% Assamese script purity, and open weights on Hugging Face.';
+    'Welcome to the Axom AI Model Ecosystem — a growing family of indigenous AI models engineered to understand Assamese language, voice, culture, knowledge, and real-world needs. From LLMs to speech and vision, explore sovereign AI built in Assam.';
   const canonicalUrl = 'https://aiaxom.co.in/our-models/';
   const ogImage = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
@@ -245,88 +228,63 @@ export default async function OurModelsPage() {
               
               {/* BADGE PILL */}
               <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-sm">
-                <span>Official Model Registry • 7 Sovereign AI Architectures</span>
+                <span>Official Model Registry • Sovereign AI Ecosystem</span>
               </div>
 
               {/* H1 TITLE */}
               <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white tracking-tight leading-[1.2] sm:leading-tight mb-4 sm:mb-5 break-words">
-                Sovereign AI Foundation Models,{' '}
-                <span className="gradient-text">Engineered from Assam</span>
+                Building the Next Generation of AI,{' '}
+                <span className="gradient-text">From Assam to the World</span>
               </h1>
 
               {/* SUBTITLE */}
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 px-1">
-                Explore Axom AI&apos;s family of 7 sovereign foundation models published on Hugging Face: Progya 2B (Dense LLM), XUWOR (Full-Duplex Multimodal), Puhor (24kHz Studio TTS), Xuna (Conformer ASR), Xetu (Neural Translation Bridge), Garima (Visual AI), and AxomAI Sarkar (Governance SLM). Built from scratch for native Assamese orthography and 100% CPU edge execution with zero cloud GPU dependency.
-              </p>
+              <div className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 px-1 space-y-4">
+                <p>
+                  Welcome to the Axom AI Model Ecosystem — a growing family of indigenous AI models engineered to understand Assamese language, voice, culture, knowledge, and real-world needs.
+                </p>
+                <p>
+                  From large language models and generative voice technology to speech recognition, neural translation, computer vision, and public-sector intelligence, each model is built with a clear purpose: to make AI more local, more capable, and more useful for the people and communities it serves.
+                </p>
+                <p>
+                  Explore the models, technologies, benchmarks, and systems we are building to put Assam on the map of global AI innovation.
+                </p>
+              </div>
 
-              {/* FILTER PILLS */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
+              {/* ACTION BUTTONS */}
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                 <a
                   href="#foundation-models"
-                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
+                  className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transform hover:-translate-y-0.5 no-underline"
                 >
-                  Foundation LLMs &amp; SLMs
+                  <span>Explore Our Models</span>
+                  <ArrowRight size={16} />
                 </a>
                 <a
-                  href="#multimodal-xuwor"
-                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
+                  href="/research"
+                  className="px-6 py-3 rounded-xl bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 border border-slate-300 dark:border-white/20 text-slate-800 dark:text-white font-bold text-sm sm:text-base transition-all shadow-sm flex items-center justify-center gap-2 transform hover:-translate-y-0.5 no-underline"
                 >
-                  Multimodal &amp; Voice
-                </a>
-                <a
-                  href="#governance-sarkar"
-                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/80 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all font-medium no-underline shadow-xs"
-                >
-                  Governance SLM
-                </a>
-                <a
-                  href="https://huggingface.co/axom-ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 transition-all font-bold no-underline shadow-xs flex items-center gap-1"
-                >
-                  <span>Hugging Face Hub &rarr;</span>
+                  <span>View Research &amp; Benchmarks</span>
+                  <ArrowUpRight size={16} />
                 </a>
               </div>
 
-            </section>
-
-            {/* ==================== OVERVIEW CARD (MATCHING /research EXACTLY) ==================== */}
-            <section id="what-is-axom-ai-research" className="max-w-5xl mx-auto mb-10 sm:mb-14 scroll-mt-24">
-              <div className="p-5 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden backdrop-blur-sm">
-                <div className="space-y-4 sm:space-y-5 relative z-10">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">
-                    <Sparkles size={12} className="text-emerald-600 dark:text-emerald-400" />
-                    <span>Assam&apos;s Sovereign Model Ecosystem • Hugging Face Verified</span>
-                  </div>
-
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug break-words">
-                    About Axom AI Foundation Models — Indigenous Intelligence for Northeast India
-                  </h2>
-
-                  <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
-                    Axom AI models are purpose-built to solve the linguistic and technological neglect of regional Indian languages. While generic global models fracture Assamese into distorted multi-byte tokens, our indigenous architectures feature a dedicated 68,096-token native vocabulary, verified cultural corpora, sub-second CPU inference, and 100% Indian data sovereignty under the Digital Personal Data Protection (DPDP) Act 2023.
-                  </p>
-
-                </div>
-              </div>
             </section>
 
           </div>
         </div>
 
-        {/* Section 1: Sovereign Assamese AI Foundation Models (November 2026) */}
-        <section id="foundation-models" className="py-16 sm:py-24 border-b border-emerald-900/10 dark:border-white/5 relative bg-[#f0fdf4]/50 dark:bg-[#0b1220]/50">
+        {/* Section 1: Sovereign Assamese AI Foundation Models */}
+        <section id="foundation-models" className="py-16 sm:py-24 border-b border-emerald-900/10 dark:border-white/5 relative bg-[#f0fdf4]/50 dark:bg-[#0b1220]/50 scroll-mt-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-12">
+            <div className="text-center max-w-3xl mx-auto mb-12">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold uppercase tracking-wider mb-3">
                 <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Sovereign Foundation Models (November 2026)</span>
+                <span>Sovereign Foundation Models</span>
               </div>
               <h2 className="text-2xl sm:text-4xl font-black text-[#022c22] dark:text-white tracking-tight">
                 Our Core Sovereign Foundation Models
               </h2>
-              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 max-w-2xl mt-1">
+              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mt-2">
                 Indigenously trained and fine-tuned neural models designed for native Assamese orthography, phonetics, and multimodal edge compute.
               </p>
             </div>
@@ -634,473 +592,17 @@ export default async function OurModelsPage() {
                 </div>
               </div>
 
-              {/* 7. Sovereign Infrastructure Highlight Card */}
-              <div className="rounded-2xl sm:rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-[#022c22] to-[#0b1220] text-white border border-emerald-500/30 shadow-xl flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-3 mb-5">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center shrink-0 shadow-sm">
-                      <ShieldCheck size={24} />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                      DPDP Act 2023
-                    </span>
-                  </div>
 
-                  <h3 className="text-xl font-black text-white tracking-tight mb-2">
-                    100% Sovereign Data Residency
-                  </h3>
-
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
-                    All tokenization, audio inference, and fine-tuning execute strictly within compliant Indian sovereign cloud regions with zero overseas routing.
-                  </p>
-
-                  <div className="space-y-2 mb-6 text-xs text-slate-200">
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
-                      <span className="text-slate-400">Cloud Region</span>
-                      <strong className="font-bold text-white">ap-south-1 (Mumbai / Delhi)</strong>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
-                      <span className="text-slate-400">Privacy Standard</span>
-                      <strong className="font-bold text-emerald-400">Zero Prompt Retraining</strong>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
-                      <span className="text-slate-400">Local Engineering</span>
-                      <strong className="font-bold text-white">Guwahati R&D Team</strong>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-bold">
-                  <span className="text-slate-400">Data Sovereignty</span>
-                  <Link
-                    href="/pricing#comparison"
-                    className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition-colors"
-                  >
-                    <span>View Plan Tiers</span>
-                    <ArrowRight size={13} />
-                  </Link>
-                </div>
-              </div>
 
             </div>
           </div>
         </section>
 
-        {/* Section 2: Featured Research — Computer Vision & Edge Systems */}
-        <section className="py-16 sm:py-24 border-b border-emerald-900/10 dark:border-white/5">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-extrabold uppercase tracking-wider mb-3">
-                <Eye size={14} className="text-amber-600 dark:text-amber-400" />
-                <span>Featured Applied Computer Vision</span>
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-[#022c22] dark:text-white tracking-tight">
-                Real-World Vision Systems: Helmet Detection
-              </h2>
-            </div>
 
-            {/* Large Featured Card (.f-card style) */}
-            <div className="rounded-3xl border border-emerald-900/15 dark:border-white/10 bg-white/90 dark:bg-slate-900/80 shadow-2xl overflow-hidden backdrop-blur-md grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch">
-              
-              {/* Content Column (7 cols) */}
-              <div className="lg:col-span-7 p-6 sm:p-9 md:p-11 flex flex-col justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs mb-4">
-                    <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 font-extrabold uppercase tracking-wider text-[11px]">
-                      Computer Vision · Road Safety
-                    </span>
-                    <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400 font-semibold">
-                      <Clock size={13} /> 30 min read
-                    </span>
-                    <span className="text-slate-400">•</span>
-                    <span className="text-slate-500 dark:text-slate-400 font-semibold">Oct 26, 2026</span>
-                  </div>
 
-                  <h3 className="text-2xl sm:text-3xl font-black text-[#022c22] dark:text-white tracking-tight mb-4 leading-snug">
-                    Helmet Detection: Every Rider Checked, from Phone Video or CCTV Cameras
-                  </h3>
 
-                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed mb-6 font-normal">
-                    An end-to-end production pipeline: YOLOv8 object detection, per-rider deep sort tracking, an Android edge app, a real-time admin monitoring dashboard, and live automated CCTV alerts. Recall on held-out CCTV frames rose from <strong>0.62 to 0.79</strong> after regional fine-tuning; the live worker catches approximately <strong>90% of bare-headed riders at 2 analysed frames per second</strong>.
-                  </p>
 
-                  <div className="grid grid-cols-3 gap-3 mb-6">
-                    <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-white/[0.02] border border-emerald-900/10 dark:border-white/5 text-center">
-                      <div className="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400">90%</div>
-                      <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Live Detection</div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-white/[0.02] border border-emerald-900/10 dark:border-white/5 text-center">
-                      <div className="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400">0.79</div>
-                      <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Held-out Recall</div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-white/[0.02] border border-emerald-900/10 dark:border-white/5 text-center">
-                      <div className="text-lg sm:text-2xl font-black text-emerald-700 dark:text-emerald-400">2 FPS</div>
-                      <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Edge Speed</div>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="pt-6 border-t border-emerald-900/10 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="w-8 h-8 rounded-full bg-slate-900 text-white font-black text-xs flex items-center justify-center">
-                      SK
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">By Samarjit Kashyap</span>
-                  </div>
-
-                  <a
-                    href="/research/helmet-detection/"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md transform hover:-translate-y-0.5"
-                  >
-                    <span>Read Full Report</span>
-                    <ArrowRight size={15} />
-                  </a>
-                </div>
-              </div>
-
-              {/* Image Column (5 cols) */}
-              <div className="lg:col-span-5 relative min-h-[300px] lg:min-h-full bg-slate-950 overflow-hidden group">
-                <img
-                  src="/research/assets/detection-junction.jpg"
-                  alt="Traffic junction where AI model detects rider helmets with bounding boxes"
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-black/70 border border-white/20 text-white backdrop-blur-md">
-                    Live CCTV Worker
-                  </span>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-500/30">
-                    Guwahati Road Trial
-                  </span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* Section 3: More Research & Applied Regional Clients */}
-        <section className="py-16 sm:py-24 border-b border-emerald-900/10 dark:border-white/5 bg-[#f0fdf4]/30 dark:bg-[#0b1220]/30">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-extrabold uppercase tracking-wider mb-3">
-                <Compass size={14} className="text-emerald-600 dark:text-emerald-400" />
-                <span>Knowledge & Client Architecture</span>
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-[#022c22] dark:text-white tracking-tight">
-                Applied Systems & Knowledge Engineering
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              
-              {/* Card 1: Crawler Bot */}
-              <div className="rounded-3xl border border-emerald-900/15 dark:border-white/10 bg-white/90 dark:bg-slate-900/80 shadow-xl overflow-hidden backdrop-blur-md flex flex-col justify-between hover:shadow-2xl transition-all duration-300 group">
-                <div>
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
-                    <img
-                      src="/research/assets/card-crawler-bot.jpg"
-                      alt="Crawler bot pipeline: website, clean text, questions, Axom AI chat"
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-                    <span className="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md">
-                      AI · Knowledge for Chat
-                    </span>
-                  </div>
-
-                  <div className="p-6 sm:p-8">
-                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2 font-semibold">
-                      <span>Oct 26, 2026</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1"><Clock size={12} /> 24 min read</span>
-                    </div>
-
-                    <h3 className="text-xl sm:text-2xl font-black text-[#022c22] dark:text-white tracking-tight mb-3">
-                      <a href="/research/axom-ai-crawler-bot/" className="hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
-                        Axom AI Crawler Bot: Websites & Documents Turned into Answers
-                      </a>
-                    </h3>
-
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
-                      How an indigenous pipeline processes regional state portals, gazettes, and scanned Assamese, Hindi, and English textbooks, purifies noisy OCR outputs, and constructs grounded RAG question-answer pairs for Axom AI chat.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-4 border-t border-emerald-900/10 dark:border-white/10 flex items-center justify-between text-xs font-bold">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-[10px] flex items-center justify-center">
-                      SK
-                    </span>
-                    <span className="text-slate-700 dark:text-slate-300">Samarjit Kashyap</span>
-                  </div>
-                  <a
-                    href="/research/axom-ai-crawler-bot/"
-                    className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-200 transition-colors"
-                  >
-                    <span>Read Report</span>
-                    <ArrowRight size={13} />
-                  </a>
-                </div>
-              </div>
-
-              {/* Card 2: Axomai Browser */}
-              <div className="rounded-3xl border border-emerald-900/15 dark:border-white/10 bg-white/90 dark:bg-slate-900/80 shadow-xl overflow-hidden backdrop-blur-md flex flex-col justify-between hover:shadow-2xl transition-all duration-300 group">
-                <div>
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
-                    <img
-                      src="/research/assets/card-browser.jpg"
-                      alt="Axomai Browser window with Axom AI chat panel beside Assam tea page"
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-                    <span className="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md">
-                      Product · Sovereign AI Browser
-                    </span>
-                  </div>
-
-                  <div className="p-6 sm:p-8">
-                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2 font-semibold">
-                      <span>Oct 26, 2026</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1"><Clock size={12} /> 22 min read</span>
-                    </div>
-
-                    <h3 className="text-xl sm:text-2xl font-black text-[#022c22] dark:text-white tracking-tight mb-3">
-                      <a href="/research/axomai-browser/" className="hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors">
-                        Axomai Browser: A Free Sovereign AI Browser Made in Assam
-                      </a>
-                    </h3>
-
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
-                      A lightweight Windows and Android client engineered in Rust on Edge WebView2. Puts Axom AI directly alongside web pages with local prompt proxies, ad and tracker blocklists, and hardware-accelerated Assamese font rendering.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-4 border-t border-emerald-900/10 dark:border-white/10 flex items-center justify-between text-xs font-bold">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-[10px] flex items-center justify-center">
-                      SK
-                    </span>
-                    <span className="text-slate-700 dark:text-slate-300">Samarjit Kashyap</span>
-                  </div>
-                  <a
-                    href="/research/axomai-browser/"
-                    className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-200 transition-colors"
-                  >
-                    <span>Read Report</span>
-                    <ArrowRight size={13} />
-                  </a>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* Section 4: Empirical Benchmark Matrix (Real Numbers) */}
-        <section className="py-16 sm:py-24 border-b border-emerald-900/10 dark:border-white/5">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-800 dark:text-teal-300 text-xs font-extrabold uppercase tracking-wider mb-3">
-                <BarChart3 size={14} className="text-teal-600 dark:text-teal-400" />
-                <span>Empirical Measurements & Specs</span>
-              </div>
-              <h2 className="text-2xl sm:text-4xl font-black text-[#022c22] dark:text-white tracking-tight">
-                Model Architecture & Empirical Specifications
-              </h2>
-              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mt-2">
-                Published technical parameters and benchmark evaluations measured on held-out regional corpora.
-              </p>
-            </div>
-
-            {/* Responsive Specs Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
-                  Model 1 · Master Brain
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Progya (প্ৰজ্ঞা)</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Architecture</span>
-                    <strong className="text-slate-900 dark:text-white">2.00B Dense Transformer</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Vocabulary</span>
-                    <strong className="text-slate-900 dark:text-white">68,096 tokens</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Training Corpus</span>
-                    <strong className="text-slate-900 dark:text-white">6.19M Assamese records</strong>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Specialty</span>
-                    <strong className="text-slate-900 dark:text-white">Assam Exams, Law & Culture</strong>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
-                  Model 2 · Voice Engine
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Puhor (পোহৰ)</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Sampling Rate</span>
-                    <strong className="text-slate-900 dark:text-white">24,000 Hz Studio</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Mechanism</span>
-                    <strong className="text-slate-900 dark:text-white">Flow-Matching DiT</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Personas</span>
-                    <strong className="text-slate-900 dark:text-white">Dual (Male & Female)</strong>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Phoneme Hallucination</span>
-                    <strong className="text-slate-900 dark:text-white">0.0% Measured</strong>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
-                  Model 3 · Speech to Text
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Xuna (শুনা)</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Size</span>
-                    <strong className="text-slate-900 dark:text-white">600M Conformer</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Inference Speed</span>
-                    <strong className="text-slate-900 dark:text-white">0.261x RTF (3.8x Speed)</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Execution Target</span>
-                    <strong className="text-slate-900 dark:text-white">Standard CPU & Mobile</strong>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Noise Handling</span>
-                    <strong className="text-slate-900 dark:text-white">Monsoon & Fan Resilient</strong>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
-                  Model 4 · Neural Translator
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Xetu (সেতু)</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Parameter Size</span>
-                    <strong className="text-slate-900 dark:text-white">200M Transformer</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Model Footprint</span>
-                    <strong className="text-slate-900 dark:text-white">1.03 GB Offline</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Direction</span>
-                    <strong className="text-slate-900 dark:text-white">Bidirectional En &harr; As</strong>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Grammar Handling</span>
-                    <strong className="text-slate-900 dark:text-white">Case Inflections Preserved</strong>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
-                  Model 5 · Master Duplex
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">XUWOR (সুঁৱৰ)</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Pipeline Type</span>
-                    <strong className="text-slate-900 dark:text-white">Synchronized Multimodal</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Max RAM Usage</span>
-                    <strong className="text-slate-900 dark:text-white">&lt; 3.8 GB Combined</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Turn-taking Latency</span>
-                    <strong className="text-slate-900 dark:text-white">Sub-second Streamed</strong>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Full Duplex</span>
-                    <strong className="text-slate-900 dark:text-white">Simultaneous Listen & Talk</strong>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
-                  System 6 · Computer Vision
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Helmet Detection</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Vision Backbone</span>
-                    <strong className="text-slate-900 dark:text-white">YOLOv8 Fine-Tuned</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Tracking Model</span>
-                    <strong className="text-slate-900 dark:text-white">Deep SORT per Rider</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Held-out Recall</span>
-                    <strong className="text-slate-900 dark:text-white">0.79 (0.62 baseline)</strong>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Processing Speed</span>
-                    <strong className="text-slate-900 dark:text-white">2 FPS on Live Stream</strong>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-5 sm:p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/15 dark:border-white/10 shadow-lg backdrop-blur-sm">
-                <div className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
-                  System 7 · Public Administration SLM
-                </div>
-                <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Axom AI Sarkar (অসম চৰকাৰ)</h4>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Model Backbone</span>
-                    <strong className="text-slate-900 dark:text-white">Qwen 2.5 Base (492M SLM)</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Instruction Training Pairs</span>
-                    <strong className="text-slate-900 dark:text-white">3,300,227 Rows (4.81 GB)</strong>
-                  </li>
-                  <li className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-1.5">
-                    <span>Execution Hardware</span>
-                    <strong className="text-slate-900 dark:text-white">100% CPU Native (&lt; 500 MB RAM)</strong>
-                  </li>
-                  <li className="flex justify-between">
-                    <span>Master Datasets</span>
-                    <strong className="text-slate-900 dark:text-white">21 Structured Masters</strong>
-                  </li>
-                </ul>
-              </div>
-
-            </div>
-          </div>
-        </section>
 
         {/* Section 5: Model Engineering & Inference FAQ */}
         <FAQSection
@@ -1114,49 +616,7 @@ export default async function OurModelsPage() {
           supportDescription="Whether you are an academic researcher, AI engineer, government department, or startup, our Guwahati foundation research team is available to assist."
         />
 
-        {/* Section 6: Bottom CTA Banner */}
-        <section className="py-16 sm:py-24 bg-gradient-to-br from-emerald-950 via-slate-950 to-black text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-600/20 via-transparent to-transparent pointer-events-none" />
-          
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-6">
-              <Bot size={14} />
-              <span>Experience Sovereign AI Live</span>
-            </div>
 
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight mb-5 leading-tight">
-              Test Our Indigenous Models in Real-Time
-            </h2>
-
-            <p className="text-sm sm:text-base md:text-lg text-slate-300 max-w-2xl mx-auto mb-8 leading-relaxed font-normal">
-              Axom AI powers conversations, OCR, study notes generation, and 20+ document utilities across Northeast India. No credit card required.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
-              <a
-                href="https://chat.aiaxom.co.in/"
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black text-sm sm:text-base transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
-              >
-                <span>Start Chatting Free</span>
-                <ArrowRight size={16} />
-              </a>
-
-              <Link
-                href="/tools"
-                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2"
-              >
-                <span>Explore 20+ Production Tools</span>
-              </Link>
-
-              <Link
-                href="/pricing"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/30 text-emerald-300 font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2"
-              >
-                <span>View Plan Pricing</span>
-              </Link>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Global Footer */}
