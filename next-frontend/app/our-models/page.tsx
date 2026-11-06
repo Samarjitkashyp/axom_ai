@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import FAQSection from '@/components/FAQSection';
 import { RESEARCH_MODELS_FAQS } from '@/components/researchModelsFaqsData';
 import { getLandingCMS } from '@/lib/api';
+import { pageTitle } from '@/lib/seoTitle';
 import {
   Cpu,
   Layers,
@@ -15,41 +16,73 @@ import {
   ArrowUpRight,
   Globe2,
   FileCheck2,
+  ShieldCheck,
+  CheckCircle2,
+  Bot,
+  Database,
+  ExternalLink,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const TARGET_KEYWORDS = [
-  'Axom AI models',
+  'ai model assam',
+  'ai models in assam',
+  'artificial intelligence in assam',
+  'ai company assam',
+  'ai companies in assam',
+  'ai company guwahati',
+  'ai companies in guwahati',
+  'best ai company in assam',
+  'top ai company in assam',
+  'artificial intelligence guwahati',
+  'artificial intelligence company in assam',
+  'artificial intelligence lab assam',
+  'ai research and development assam',
+  'ai development company in guwahati',
+  'ai startup in assam',
+  'ai startup guwahati',
+  'assamese ai model',
+  'assamese large language model',
+  'assamese llm',
+  'largest assamese language model',
+  'assamese language models',
+  'sovereign ai assam',
+  'sovereign foundation models assam',
+  'progya 2b assamese llm',
+  'progya llm',
+  'xuwor multimodal ai',
+  'puhor voice assamese',
+  'puhor tts',
+  'xuna asr assam',
+  'xetu assamese translation',
+  'axom ai sarkar',
+  'garima visual ai',
+  'assam generative ai',
+  'assam ai assistant',
+  'indigenous ai research assam',
+  'sovereign ai india',
+  'dpdp compliant sovereign ai',
+  'who built ai in assam',
+  'first ai company in assam',
+  'northeast india ai models',
+  'huggingface axom ai',
+  'cpu native ai model assam',
+  'Axom AI Models',
   'Axom AI foundation models',
-  'Axom AI research',
-  'Progya LLM',
-  'Puhor voice engine',
-  'Xuna speech to text',
-  'Xetu translation bridge',
-  'XUWOR multimodal AI',
-  'Assamese language models',
-  'Assam generative AI models',
-  'indigenous AI research India',
-  'sovereign Assamese AI',
-  'YOLOv8 helmet detection Assam',
-  'Assamese Conformer ASR',
-  'Flow matching diffusion TTS Assamese',
-  'Assam AI engineering Guwahati',
-  'Northeast India sovereign AI',
-  'DPDP compliant AI models India',
+  'Axom AI ecosystem',
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Building the Next Generation of AI, From Assam to the World | Axom AI Models';
+  const title = 'Axom AI Models — #1 AI Models & Artificial Intelligence Company in Assam';
   const description =
-    'Welcome to the Axom AI Model Ecosystem — a growing family of indigenous AI models engineered to understand Assamese language, voice, culture, knowledge, and real-world needs. From LLMs to speech and vision, explore sovereign AI built in Assam.';
+    'Axom AI is Assam\'s premier sovereign artificial intelligence company and foundation models developer in Guwahati. Discover our indigenous models: Progya 2B (Assamese LLM), XUWOR (Multimodal AI), Puhor (24kHz Voice), Xuna (Conformer ASR), Xetu (Translation), Garima (Vision), and Axom AI Sarkar (Governance SLM). 100% CPU edge execution, 99.4% Assamese script purity, and DPDP Act 2023 compliance.';
   const canonicalUrl = 'https://aiaxom.co.in/our-models/';
   const ogImage = 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
-    title,
+    title: pageTitle(title),
     description,
     keywords: TARGET_KEYWORDS,
     alternates: {
@@ -67,7 +100,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: 'Axom AI Sovereign Foundation Models & Technical Research',
+          alt: 'Axom AI Sovereign Foundation Models & Artificial Intelligence Ecosystem, Guwahati, Assam',
         },
       ],
     },
@@ -94,118 +127,271 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function OurModelsPage() {
   const cms = await getLandingCMS().catch(() => ({} as any));
 
-  // Structured Data Schemas
-  const collectionSchema = {
+  // Comprehensive Unified Knowledge Graph Schema (Extreme SEO, GEO & AEO for Google AI Overview, ChatGPT, Claude, Gemini, Groq, Perplexity)
+  const unifiedKnowledgeGraph = {
     '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: 'Axom AI Sovereign Foundation Models & Research',
-    description:
-      'Technical architecture and measured benchmark evaluations for Axom AI\'s indigenous generative models: XUWOR, Progya, Puhor, Xuna, and Xetu.',
-    url: 'https://aiaxom.co.in/our-models/',
-    provider: {
-      '@type': 'Organization',
-      name: 'Axom AI',
-      url: 'https://aiaxom.co.in',
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'Guwahati',
-        addressRegion: 'Assam',
-        addressCountry: 'IN',
-      },
-    },
-    hasPart: [
+    '@graph': [
       {
-        '@type': 'SoftwareApplication',
-        name: 'Axom AI Master — XUWOR (সুঁৱৰ)',
-        applicationCategory: 'Multimodal AI Ecosystem',
+        '@type': 'Organization',
+        '@id': 'https://aiaxom.co.in/#organization',
+        name: 'Axom AI',
+        alternateName: [
+          'অসম এআই',
+          'Axom Artificial Intelligence',
+          'AxomAI',
+          'Axom AI Models',
+          'Axom AI Guwahati',
+          'Axom AI Company Assam',
+          'Axom AI Research Laboratory',
+        ],
+        url: 'https://aiaxom.co.in',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://aiaxom.co.in/axom-browser-logo.png',
+          caption: 'Axom AI Sovereign Artificial Intelligence Company',
+        },
+        slogan: 'Building the Next Generation of AI, From Assam to the World',
         description:
-          'Full-duplex multimodal conversational AI ecosystem synchronizing hearing, thinking, speaking, and translation under 3.8 GB RAM.',
+          'Axom AI is Assam’s premier sovereign artificial intelligence company and foundation models developer headquartered in Guwahati, Assam. Pioneering native Assamese Large Language Models (LLMs), multimodal conversational intelligence, streaming speech recognition, and CPU-native edge inference.',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Guwahati R&D Lab',
+          addressLocality: 'Guwahati',
+          addressRegion: 'Assam',
+          postalCode: '781001',
+          addressCountry: 'IN',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: '26.1445',
+          longitude: '91.7362',
+        },
+        founder: {
+          '@type': 'Person',
+          name: 'Samarjit Kashyap',
+        },
+        areaServed: [
+          { '@type': 'AdministrativeArea', name: 'Assam' },
+          { '@type': 'AdministrativeArea', name: 'Northeast India' },
+          { '@type': 'Country', name: 'India' },
+        ],
+        knowsAbout: [
+          'Artificial Intelligence in Assam',
+          'AI Companies in Assam',
+          'AI Models in Assam',
+          'Assamese Large Language Model (LLM)',
+          'Sovereign AI Foundation Models',
+          'Generative Artificial Intelligence',
+          'Progya 2B Assamese LLM',
+          'XUWOR Multimodal AI',
+          'Puhor 24kHz Diffusion TTS',
+          'Xuna Conformer ASR',
+          'Xetu Neural Translation Bridge',
+          'Axom AI Sarkar 492M Governance SLM',
+          '100% CPU Native Edge Deployment',
+          'India DPDP Act 2023 Data Sovereignty',
+        ],
+        sameAs: [
+          'https://huggingface.co/axom-ai',
+          'https://github.com/axom-ai',
+          'https://x.com/AXOM__AI',
+          'https://www.linkedin.com/company/ai-axom/',
+          'https://www.youtube.com/@axom-ai',
+        ],
       },
       {
-        '@type': 'SoftwareApplication',
-        name: 'Axom AI Brain — Progya (প্ৰজ্ঞা)',
-        applicationCategory: 'Dense Language Model',
+        '@type': 'CollectionPage',
+        '@id': 'https://aiaxom.co.in/our-models/#webpage',
+        url: 'https://aiaxom.co.in/our-models/',
+        name: 'Axom AI Models — #1 Sovereign AI Models & Artificial Intelligence Company in Assam',
         description:
-          'Sovereign 2.00 Billion parameter dense Assamese LLM with 68,096 native tokens and 6.19 Million verified cultural records.',
+          'Official model registry and technical directory of Axom AI sovereign foundation models: Progya 2B, XUWOR, Puhor, Xuna, Xetu, and Axom AI Sarkar.',
+        isPartOf: {
+          '@type': 'WebSite',
+          '@id': 'https://aiaxom.co.in/#website',
+          url: 'https://aiaxom.co.in',
+          name: 'Axom AI',
+        },
+        about: [
+          { '@type': 'Thing', name: 'Artificial Intelligence in Assam' },
+          { '@type': 'Thing', name: 'AI Models in Assam' },
+          { '@type': 'Thing', name: 'AI Companies in Assam' },
+          { '@type': 'Thing', name: 'Assamese Large Language Model (LLM)' },
+          { '@type': 'Thing', name: 'Sovereign AI Foundation Models' },
+        ],
       },
       {
-        '@type': 'SoftwareApplication',
-        name: 'Axom AI Voice — Puhor (পোহৰ)',
-        applicationCategory: 'Flow-Matching Diffusion TTS',
-        description:
-          '24,000 Hz studio-grade Flow-Matching Diffusion Transformer voice engine with 0.0% hallucination and dual regional personas.',
+        '@type': 'ItemList',
+        '@id': 'https://aiaxom.co.in/our-models/#models-list',
+        name: 'Axom AI Sovereign Foundation Models Ecosystem',
+        description: 'Family of 7 sovereign artificial intelligence models engineered in Assam.',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Axom AI Brain — Progya (প্ৰজ্ঞা)',
+            description: '2.00B Dense Assamese Cognitive Large Language Model with 68,096 tokens.',
+            url: 'https://huggingface.co/axom-ai/axomai-brain-progya',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Axom AI Master — XUWOR (সুঁৱৰ)',
+            description: 'Assam’s first full-duplex multimodal conversational AI ecosystem under 3.8 GB RAM.',
+            url: 'https://huggingface.co/axom-ai/axomai-multimodal-xuwor',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: 'Axom AI Voice — Puhor (পোহৰ)',
+            description: '24,000 Hz studio-grade Flow-Matching Diffusion Transformer (DiT) voice engine.',
+            url: 'https://huggingface.co/axom-ai/axomai-voice-puhor',
+          },
+          {
+            '@type': 'ListItem',
+            position: 4,
+            name: 'Axom AI Speech — Xuna (শুনা)',
+            description: '600M Conformer ASR running 3.8x faster than real-time on standard CPU.',
+            url: 'https://huggingface.co/axom-ai/axomai-speech-xuna',
+          },
+          {
+            '@type': 'ListItem',
+            position: 5,
+            name: 'Axom AI Bridge — Xetu (সেতু)',
+            description: '200M parameter bidirectional English-Assamese neural translation bridge.',
+            url: 'https://huggingface.co/axom-ai/axomai-trans-xetu',
+          },
+          {
+            '@type': 'ListItem',
+            position: 6,
+            name: 'Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)',
+            description: '492M public governance SLM trained on 3.3 Million+ instruction pairs across Assam.',
+            url: 'https://huggingface.co/axom-ai/AxomAI-Sarkar',
+          },
+          {
+            '@type': 'ListItem',
+            position: 7,
+            name: 'Axom AI Visual — Garima (গৰিমা)',
+            description: 'Regional Visual Intelligence & Generative Image Engine for Northeast India.',
+            url: 'https://huggingface.co/axom-ai/axomai-visual-garima',
+          },
+        ],
       },
       {
-        '@type': 'SoftwareApplication',
-        name: 'Axom AI Speech — Xuna (শুনা)',
-        applicationCategory: 'Conformer ASR',
-        description:
-          '600 Million parameter Conformer ASR speech recognition running 3.8x faster than real-time on CPU with monsoon noise immunity.',
+        '@type': 'DefinedTermSet',
+        '@id': 'https://aiaxom.co.in/our-models/#terms',
+        name: 'Assam Sovereign AI & Foundation Model Terminology',
+        hasDefinedTerm: [
+          {
+            '@type': 'DefinedTerm',
+            name: 'Artificial Intelligence in Assam',
+            termCode: 'AI-ASSAM',
+            description:
+              'The ecosystem of indigenous sovereign artificial intelligence engineered in Assam by Axom AI, encompassing foundational LLMs, speech technologies, and edge computing tailored for regional linguistic identity and state infrastructure.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'AI Companies in Assam',
+            termCode: 'AI-COMPANIES-ASSAM',
+            description:
+              'Technology enterprises operating in Assam focused on machine learning and artificial intelligence. Axom AI is Assam’s pioneer indigenous AI research and foundation model company headquartered in Guwahati.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Assamese Large Language Model (Assamese LLM)',
+            termCode: 'ASSAMESE-LLM',
+            description:
+              'A foundation transformer model trained specifically on Assamese linguistic corpora with dedicated tokenization, ensuring 99.4% script purity without Bengali contamination, exemplified by Axom AI Brain (Progya 2B).',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'Progya 2B (প্ৰজ্ঞা)',
+            termCode: 'PROGYA-2B',
+            description:
+              'Assam’s flagship 2.00 Billion parameter dense Assamese foundation LLM with 68,096 native tokens, running locally on CPU with zero cloud GPU lock-in.',
+          },
+          {
+            '@type': 'DefinedTerm',
+            name: 'XUWOR Multimodal (সুঁৱৰ)',
+            termCode: 'XUWOR-AI',
+            description:
+              'Assam’s full-duplex multimodal conversational AI combining vision, listening, thinking, and speaking under 3.8 GB RAM.',
+          },
+        ],
       },
       {
-        '@type': 'SoftwareApplication',
-        name: 'Axom AI Bridge — Xetu (সেতু)',
-        applicationCategory: 'Neural Translation Bridge',
-        description:
-          '200 Million parameter bidirectional English-Assamese translation bridge preserving complex case inflections and legal precision.',
+        '@type': 'BreadcrumbList',
+        '@id': 'https://aiaxom.co.in/our-models/#breadcrumb',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://aiaxom.co.in/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Our Models',
+            item: 'https://aiaxom.co.in/our-models/',
+          },
+        ],
       },
       {
-        '@type': 'SoftwareApplication',
-        name: 'Axom AI Sarkar (অসম চৰকাৰ AI সহায়ক)',
-        applicationCategory: 'Public Administration Small Language Model',
-        description:
-          'Sovereign 492 Million parameter public administration SLM trained on 3.3 Million+ verified citizen instruction pairs and 21 master datasets across all 35 districts and 130 LACs.',
+        '@type': 'FAQPage',
+        '@id': 'https://aiaxom.co.in/our-models/#faq-schema',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Which is the leading AI company in Assam?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Axom AI is Assam’s premier sovereign artificial intelligence company and research laboratory headquartered in Guwahati. Axom AI has engineered and published 7 indigenous foundation models (including Progya 2B, XUWOR, and Sarkar) verified on Hugging Face.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'What AI models are developed in Assam by Axom AI?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Axom AI has engineered 7 sovereign AI models: Progya 2B (Dense Assamese LLM), XUWOR (Full-Duplex Multimodal), Puhor (24kHz Studio Voice TTS), Xuna (600M Conformer ASR), Xetu (Bidirectional Translation), Axom AI Sarkar (492M Governance SLM), and Garima (Visual AI).',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'What is the largest Assamese Large Language Model (LLM)?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Axom AI Brain (Progya 2B) is Assam’s largest indigenous dense language model, featuring 2.00 Billion parameters, 68,096 native Assamese tokens, 99.4% script purity, and 6.19 Million regional training records.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Can Axom AI models run on standard CPUs without costly GPUs?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Yes. All Axom AI foundation models are engineered for 100% CPU edge execution with memory budgets from under 500 MB RAM (Sarkar SLM) to 3.8 GB RAM (XUWOR multimodal duplex), enabling offline deployment on budget laptops, school PCs, and local servers across Assam.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'How does Axom AI ensure data sovereignty under Indian law?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'All Axom AI training, inference, and tokenization comply strictly with India’s Digital Personal Data Protection (DPDP) Act 2023, with zero prompt retraining and 100% data residency inside Indian sovereign data centers.',
+            },
+          },
+        ],
       },
     ],
-  };
-
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: 'https://aiaxom.co.in/',
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Our Models',
-        item: 'https://aiaxom.co.in/our-models/',
-      },
-    ],
-  };
-
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    '@id': 'https://aiaxom.co.in/our-models/#faq',
-    mainEntity: RESEARCH_MODELS_FAQS.map((faq) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
   };
 
   return (
     <div className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-slate-800 dark:text-slate-200 flex flex-col selection:bg-emerald-500/30 selection:text-emerald-800 dark:selection:text-emerald-200">
-      {/* Structured Data */}
+      {/* Unified Structured Data Knowledge Graph */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(unifiedKnowledgeGraph) }}
       />
 
       {/* Global Navbar */}
@@ -213,7 +399,7 @@ export default async function OurModelsPage() {
 
       <main className="flex-1">
         {/* ==================== HERO SECTION (MATCHING /research EXACTLY) ==================== */}
-        <div className="relative overflow-hidden pt-24 sm:pt-28 pb-10 sm:pb-14">
+        <div className="relative overflow-hidden pt-20 sm:pt-28 pb-8 sm:pb-12">
           {/* Ambient Gradient Glows (Exact match with /research & /use-cases) */}
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none z-0 overflow-hidden"
@@ -224,7 +410,7 @@ export default async function OurModelsPage() {
           </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <section className="text-center max-w-4xl mx-auto mb-10 sm:mb-14 md:mb-16">
+            <section className="text-center max-w-4xl mx-auto mb-8 sm:mb-12">
               
               {/* BADGE PILL */}
               <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-sm">
@@ -238,30 +424,27 @@ export default async function OurModelsPage() {
               </h1>
 
               {/* SUBTITLE */}
-              <div className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 px-1 space-y-4">
+              <div className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto mb-6 sm:mb-8 px-2 space-y-3 sm:space-y-4">
                 <p>
                   Welcome to the Axom AI Model Ecosystem — a growing family of indigenous AI models engineered to understand Assamese language, voice, culture, knowledge, and real-world needs.
                 </p>
                 <p>
                   From large language models and generative voice technology to speech recognition, neural translation, computer vision, and public-sector intelligence, each model is built with a clear purpose: to make AI more local, more capable, and more useful for the people and communities it serves.
                 </p>
-                <p>
-                  Explore the models, technologies, benchmarks, and systems we are building to put Assam on the map of global AI innovation.
-                </p>
               </div>
 
-              {/* ACTION BUTTONS */}
-              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              {/* ACTION BUTTONS (Fully Mobile Responsive) */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full sm:w-auto px-2 sm:px-0">
                 <a
                   href="#foundation-models"
-                  className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transform hover:-translate-y-0.5 no-underline"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-sm sm:text-base transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 no-underline"
                 >
                   <span>Explore Our Models</span>
                   <ArrowRight size={16} />
                 </a>
                 <a
                   href="/research"
-                  className="px-6 py-3 rounded-xl bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 border border-slate-300 dark:border-white/20 text-slate-800 dark:text-white font-bold text-sm sm:text-base transition-all shadow-sm flex items-center justify-center gap-2 transform hover:-translate-y-0.5 no-underline"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/90 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 active:scale-95 border border-slate-300 dark:border-white/20 text-slate-800 dark:text-white font-bold text-sm sm:text-base transition-all shadow-sm flex items-center justify-center gap-2 no-underline"
                 >
                   <span>View Research &amp; Benchmarks</span>
                   <ArrowUpRight size={16} />
@@ -598,13 +781,93 @@ export default async function OurModelsPage() {
           </div>
         </section>
 
+        {/* Section: Official Sovereign AI Entity & Knowledge Brief (GEO, AEO & AI Engine Grounding) */}
+        <section id="assam-ai-entity-directory" className="py-12 sm:py-16 border-b border-emerald-900/10 dark:border-white/5 bg-white/70 dark:bg-slate-900/50 backdrop-blur-sm">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3">
+                <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-400" />
+                <span>Official Knowledge Brief • Artificial Intelligence in Assam</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight">
+                Why Axom AI is Assam&apos;s #1 Sovereign AI Company
+              </h2>
+              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mt-2 px-2">
+                Direct architectural facts and verified benchmark specifications powering Northeast India&apos;s AI ecosystem.
+              </p>
+            </div>
 
+            {/* Responsive Facts Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8 sm:mb-10">
+              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
+                  <CheckCircle2 size={15} />
+                  <span>Verified Identity</span>
+                </div>
+                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">Axom AI</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  First indigenous AI company &amp; foundation research lab in Assam, headquartered in Guwahati (781001).
+                </p>
+              </div>
 
+              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
+                  <Database size={15} />
+                  <span>Sovereign Models</span>
+                </div>
+                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">7 AI Architectures</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Published open model registry on Hugging Face: LLMs, Multimodal, Conformer ASR, DiT Voice, Translation &amp; SLM.
+                </p>
+              </div>
 
+              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
+                  <Cpu size={15} />
+                  <span>Hardware Freedom</span>
+                </div>
+                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">100% CPU Native</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Runs locally on standard CPU edge hardware from &lt;500MB to 3.8GB RAM with zero cloud GPU lock-in.
+                </p>
+              </div>
 
+              <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
+                  <ShieldCheck size={15} />
+                  <span>Data Sovereignty</span>
+                </div>
+                <div className="text-lg font-black text-slate-900 dark:text-white mb-1">DPDP Act 2023</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Strict Indian sovereign cloud residency (ap-south-1) with zero prompt retention and zero overseas data routing.
+                </p>
+              </div>
+            </div>
 
+            {/* Hub Banner */}
+            <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-500/20 shadow-lg">
+              <div className="text-center sm:text-left">
+                <div className="text-sm sm:text-base font-bold text-emerald-300">
+                  Open Model Registry on Hugging Face
+                </div>
+                <div className="text-xs text-slate-300 mt-0.5">
+                  Download weights, view model cards, and test inference checkpoints directly.
+                </div>
+              </div>
+              <a
+                href="https://huggingface.co/axom-ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 shrink-0 no-underline"
+              >
+                <span>Visit Hugging Face Hub</span>
+                <ExternalLink size={14} />
+              </a>
+            </div>
+          </div>
+        </section>
 
-        {/* Section 5: Model Engineering & Inference FAQ */}
+        {/* Section: Model Engineering & Inference FAQ */}
         <FAQSection
           faqs={RESEARCH_MODELS_FAQS}
           badge="Model Engineering & Research FAQ"
