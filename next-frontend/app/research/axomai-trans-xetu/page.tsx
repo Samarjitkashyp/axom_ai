@@ -36,6 +36,9 @@ const TARGET_KEYWORDS = [
   'assam ai',
   'ai companies in assam',
   'ai company in assam',
+  'top ai company in assam',
+  'best ai company in assam',
+  'first ai company in assam',
   'ai startup assam',
   'ai company guwahati',
   'artificial intelligence guwahati',
@@ -43,6 +46,7 @@ const TARGET_KEYWORDS = [
   'assamese ai model',
   'assamese language model',
   'large language model assam',
+  'assamese llm',
   'assamese translation model',
   'english to assamese translation ai',
   'axom ai xetu',
@@ -59,6 +63,7 @@ const TARGET_KEYWORDS = [
   'assamese nlp model',
   'english assamese translation ai',
   'assamese to english ai',
+  'khāṭi asamiya ai',
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -971,7 +976,10 @@ export default async function AxomAiTransXetuPage() {
                     { name: 'Google Translate', val: '27.8', pct: '72.0%', active: false },
                     { name: 'Microsoft Azure', val: '21.4', pct: '55.4%', active: false },
                   ].map((row, idx) => (
-                    <div key={idx} className="grid grid-cols-[130px_1fr_45px] items-center gap-2 text-xs">
+                    <div
+                      key={idx}
+                      className="grid grid-cols-[105px_1fr_40px] sm:grid-cols-[130px_1fr_45px] items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs"
+                    >
                       <span
                         className={`truncate font-semibold ${
                           row.active ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-slate-700 dark:text-slate-300'
@@ -979,7 +987,7 @@ export default async function AxomAiTransXetuPage() {
                       >
                         {row.name}
                       </span>
-                      <div className="h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                      <div className="h-2.5 sm:h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
                             row.active ? 'bg-gradient-to-r from-emerald-600 to-teal-500' : 'bg-slate-400 dark:bg-slate-600'
@@ -1015,7 +1023,10 @@ export default async function AxomAiTransXetuPage() {
                     { name: 'Meta NLLB-200', val: '65.1%', pct: '65.1%', active: false },
                     { name: 'Microsoft Azure', val: '51.2%', pct: '51.2%', active: false },
                   ].map((row, idx) => (
-                    <div key={idx} className="grid grid-cols-[130px_1fr_50px] items-center gap-2 text-xs">
+                    <div
+                      key={idx}
+                      className="grid grid-cols-[105px_1fr_40px] sm:grid-cols-[130px_1fr_50px] items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs"
+                    >
                       <span
                         className={`truncate font-semibold ${
                           row.active ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-slate-700 dark:text-slate-300'
@@ -1023,7 +1034,7 @@ export default async function AxomAiTransXetuPage() {
                       >
                         {row.name}
                       </span>
-                      <div className="h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                      <div className="h-2.5 sm:h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
                             row.active ? 'bg-gradient-to-r from-emerald-600 to-teal-500' : 'bg-slate-400 dark:bg-slate-600'
