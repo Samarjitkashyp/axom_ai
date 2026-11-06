@@ -88,8 +88,8 @@ main a:hover { color: var(--em); }
 /* type */
 main h1, main h2, main h3, main h4 { color: var(--head); line-height: 1.18; letter-spacing: -.02em; margin: 0 0 .5em; }
 main h1 { font-size: clamp(2.15rem, 5.6vw, 3.75rem); font-weight: 900; letter-spacing: -.035em; line-height: 1.06; }
-main h2 { font-size: clamp(1.5rem, 3.4vw, 1.95rem); font-weight: 800; color: var(--h2); margin-top: 2.5em; position: relative; padding-top: 18px; }
-main h2::before { content: ""; position: absolute; top: 0; left: 0; width: 46px; height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--em-2), var(--amber)); }
+main h2 { font-size: clamp(1.5rem, 3.4vw, 1.95rem); font-weight: 800; color: var(--h2); margin-top: 1.5em; position: relative; padding-top: 0; }
+main h2::before { display: none !important; content: none !important; }
 main h3 { font-size: clamp(1.1rem, 2.4vw, 1.3rem); font-weight: 800; color: var(--h2); margin-top: 1.8em; }
 main p { margin: 0 0 1.15em; }
 main ul, main ol { padding-left: 1.3em; margin: 0 0 1.25em; }

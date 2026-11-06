@@ -327,6 +327,28 @@
 
 <style>
 
+/* ELIMINATE UNWANTED HEADING UNDERLINES / DIVIDERS FROM INHERITED STYLES */
+main h1::before, main h1::after,
+main h2::before, main h2::after,
+main h3::before, main h3::after,
+h1::before, h1::after,
+h2::before, h2::after,
+h3::before, h3::after,
+.f-title::before, .f-title::after {
+  display: none !important;
+  content: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  border: none !important;
+  background: none !important;
+}
+
+main h1, main h2, main h3,
+h1, h2, h3 {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
 :root {
   --max: 1200px;
   --prose: 100%;
@@ -727,7 +749,7 @@
   -webkit-text-fill-color: transparent !important;
 }
 
-/* FAQ Accordion Transitions (Matching Home Page) */
+/* FAQ Accordion Transitions (Matching Home Page with Emerald Accents) */
 .faq-accordion-item {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -735,18 +757,18 @@
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, color 0.2s ease;
 }
 .faq-accordion-item.open {
-  border-color: rgba(217, 70, 239, 0.5) !important;
-  background-color: rgba(255, 255, 255, 0.96) !important;
-  box-shadow: 0 10px 25px -5px rgba(217, 70, 239, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
 }
 :root.dark .faq-accordion-item.open,
 html.dark .faq-accordion-item.open {
-  background-color: rgba(15, 23, 42, 0.92) !important;
+  background-color: rgba(15, 23, 42, 0.95) !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
 }
 .faq-accordion-item.open .faq-icon {
   transform: rotate(45deg);
-  background-color: #c026d3 !important;
+  background-color: #059669 !important;
   color: #ffffff !important;
 }
 
@@ -789,10 +811,10 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
     <div class="absolute top-20 right-1/4 w-[28rem] h-[28rem] bg-indigo-600/10 dark:bg-indigo-600/15 rounded-full blur-[140px]"></div>
   </div>
 
-  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20 md:space-y-28">
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- HERO SECTION (MATCHING https://aiaxom.co.in/use-cases) -->
-    <section class="text-center max-w-4xl mx-auto">
+    <section class="text-center max-w-4xl mx-auto mb-12 sm:mb-16 md:mb-20">
       
       <!-- BADGE (MATCHING USE-CASES) -->
       <div class="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/5 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-4 sm:mb-5 shadow-sm">
@@ -825,109 +847,100 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
 
     </section>
 
-    <!-- SECTION 2 OVERVIEW CARD: "What is Axom AI Research?" (MATCHING USE-CASES SECTION 2) -->
-    <section id="what-is-axom-ai-research" class="max-w-5xl mx-auto scroll-mt-24">
-      <div class="p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden" itemscope itemtype="https://schema.org/TechArticle" itemprop="description">
-        <div class="flex flex-col sm:flex-row items-start gap-3.5 sm:gap-5 relative z-10">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-800 dark:text-emerald-300 shrink-0 mt-0.5 sm:mt-1 shadow-inner">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-700 dark:text-emerald-400"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+    <!-- SECTION OVERVIEW CARD: "What is Axom AI Research?" -->
+    <section id="what-is-axom-ai-research" class="max-w-5xl mx-auto mb-16 sm:mb-20 md:mb-24 scroll-mt-24">
+      <div class="p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-xl relative overflow-hidden" itemscope itemtype="https://schema.org/TechArticle" itemprop="description">
+        <div class="space-y-4 sm:space-y-5 relative z-10">
+          <div class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+              <span>Assam's Sovereign AI Entity Profile &bull; Official Knowledge Graph</span>
+            </div>
+            <span class="text-[11px] sm:text-xs text-emerald-700 dark:text-emerald-400 font-bold">
+              Guwahati, Assam &bull; Verified Regional AI Developer
+            </span>
           </div>
-          <div class="space-y-3 sm:space-y-4 min-w-0 flex-1">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="inline-flex items-center px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-                <span>Assam's Sovereign AI Entity Profile &bull; Official Knowledge Graph</span>
+
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug">
+            What is Axom AI Research? Sovereign Artificial Intelligence &amp; Foundation Models from Assam
+          </h2>
+
+          <p class="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
+            <strong>Axom AI Research</strong> is the indigenous AI engineering laboratory of Axom AI based in Guwahati, Assam (PIN 781001). We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for Northeast India. Each release documents what we engineered, our held-out test metrics, resource footprints on standard CPU edge hardware, and the precise failure boundaries we are solving next.
+          </p>
+
+          <!-- 4-Column Verified Knowledge Specification Panel for AEO & GEO Parsers -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2">
+            <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+              <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Entity &amp; Location
               </div>
-              <span class="text-[11px] sm:text-xs text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
-                <span>Guwahati, Assam &bull; Verified Regional AI Developer</span>
-              </span>
-            </div>
-
-            <h2 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-emerald-950 dark:text-white tracking-tight leading-snug" style="margin:0;">
-              What is Axom AI Research? Sovereign Artificial Intelligence &amp; Foundation Models from Assam
-            </h2>
-
-            <p class="text-slate-700 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed" style="margin-bottom:0;">
-              <strong>Axom AI Research</strong> is the indigenous AI engineering laboratory of Axom AI based in Guwahati, Assam (PIN 781001). We publish open technical reports, reproducible empirical benchmarks, and sovereign model architectures built specifically for Northeast India. Each release documents what we engineered, our held-out test metrics, resource footprints on standard CPU edge hardware, and the precise failure boundaries we are solving next.
-            </p>
-
-            <!-- 4-Column Verified Knowledge Specification Panel for AEO & GEO Parsers -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 pt-2">
-              <div class="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Entity &amp; Location
-                </div>
-                <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                  Sovereign AI Research Lab
-                </div>
-                <div class="text-[11px] text-slate-600 dark:text-slate-400">
-                  Guwahati, Assam (781001)
-                </div>
+              <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                Sovereign AI Research Lab
               </div>
-
-              <div class="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Foundation LLMs &amp; SLMs
-                </div>
-                <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                  Progya (2B) &amp; Sarkar (492M)
-                </div>
-                <div class="text-[11px] text-slate-600 dark:text-slate-400">
-                  Xetu, Puhor, Xuna, XUWOR
-                </div>
-              </div>
-
-              <div class="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Execution Hardware
-                </div>
-                <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                  100% CPU Native Edge
-                </div>
-                <div class="text-[11px] text-slate-600 dark:text-slate-400">
-                  &lt; 500 MB RAM &middot; No GPU Needed
-                </div>
-              </div>
-
-              <div class="p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
-                <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Open Access &amp; Licensing
-                </div>
-                <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
-                  Apache-2.0 &amp; MIT Licenses
-                </div>
-                <div class="text-[11px] text-slate-600 dark:text-slate-400">
-                  Hugging Face &amp; GitHub Verified
-                </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400">
+                Guwahati, Assam (781001)
               </div>
             </div>
 
-            <!-- Grounded Capabilities Checklist -->
-            <div class="pt-2 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-              <span class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="m9 11 3 3L22 4"></path></svg>
-                100% CPU Edge Deployment (&lt;500MB RAM)
-              </span>
-              <span class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="m9 11 3 3L22 4"></path></svg>
-                Zero Cloud GPU Dependency &amp; Sub-Second Speed
-              </span>
-              <span class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="m9 11 3 3L22 4"></path></svg>
-                68,096-Token Assamese Vocabulary (99.4% Script Purity)
-              </span>
-              <span class="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="m9 11 3 3L22 4"></path></svg>
-                Empirical Benchmarks &amp; Open Datasets
-              </span>
+            <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+              <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Foundation LLMs &amp; SLMs
+              </div>
+              <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                Progya (2B) &amp; Sarkar (492M)
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400">
+                Xetu, Puhor, Xuna, XUWOR
+              </div>
+            </div>
+
+            <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+              <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Execution Hardware
+              </div>
+              <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                100% CPU Native Edge
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400">
+                &lt; 500 MB RAM &middot; No GPU Needed
+              </div>
+            </div>
+
+            <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+              <div class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Open Access &amp; Licensing
+              </div>
+              <div class="text-xs sm:text-sm font-bold text-emerald-950 dark:text-white leading-tight">
+                Apache-2.0 &amp; MIT Licenses
+              </div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400">
+                Hugging Face &amp; GitHub Verified
+              </div>
             </div>
           </div>
+
+          <!-- Grounded Capabilities Technical Specification Pills (Clean, No Emojis, No Clutter) -->
+          <div class="pt-3 flex flex-wrap items-center gap-2 sm:gap-2.5 text-xs">
+            <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold">
+              100% CPU Edge Deployment (&lt;500MB RAM)
+            </span>
+            <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold">
+              Zero Cloud GPU Dependency &bull; Sub-Second Speed
+            </span>
+            <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold">
+              68,096-Token Assamese Vocabulary (99.4% Script Purity)
+            </span>
+            <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold">
+              Empirical Benchmarks &bull; Open Datasets
+            </span>
+          </div>
+
         </div>
       </div>
     </section>
 
     <!-- SECTION 1: APPLIED AI SYSTEMS & FIELD IMPLEMENTATIONS -->
-    <section id="applied-systems" class="scroll-mt-24">
+    <section id="applied-systems" class="mb-16 sm:mb-20 md:mb-24 scroll-mt-24">
       <div class="mb-8 sm:mb-10 text-center max-w-3xl mx-auto">
         <div class="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3">
           <span>Applied Systems &bull; Field Deployments</span>
@@ -952,7 +965,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
             <div>
               <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2.5 font-medium">
                 <span>Oct 26, 2026</span>
-                <span class="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold">
+                <span class="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
                   30 min read
                 </span>
@@ -964,12 +977,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 An end-to-end computer vision system that detects motorcycle riders, evaluates individual helmet compliance per person, and sends instant photo alerts to Telegram, dashboard, and Android app on 100% CPU.
               </p>
             </div>
-            <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-              <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-600 to-amber-500 text-white flex items-center justify-center text-[10px] font-black">AI</span>
-                Axom AI
-              </span>
-              <span class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+              <span class="text-slate-500 dark:text-slate-400">By Axom AI Research</span>
+              <span class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold">
                 Read Report &rarr;
               </span>
             </div>
@@ -986,7 +996,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
             <div>
               <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2.5 font-medium">
                 <span>Oct 26, 2026</span>
-                <span class="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold">
+                <span class="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
                   24 min read
                 </span>
@@ -998,12 +1008,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 How a private tool reads websites and scanned Assamese, Hindi and English documents, cleans the text and writes a question for every passage, so the Axom AI chat can answer from them.
               </p>
             </div>
-            <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-              <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-600 to-amber-500 text-white flex items-center justify-center text-[10px] font-black">AI</span>
-                Axom AI
-              </span>
-              <span class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+              <span class="text-slate-500 dark:text-slate-400">By Axom AI Research</span>
+              <span class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold">
                 Read Report &rarr;
               </span>
             </div>
@@ -1020,7 +1027,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
             <div>
               <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2.5 font-medium">
                 <span>Oct 26, 2026</span>
-                <span class="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold">
+                <span class="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
                   18 min read
                 </span>
@@ -1032,12 +1039,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 A lightweight Android browser engineered in Assam featuring native Assamese speech synthesis, intelligent ad-blocking, offline reader mode, and local AI search integration.
               </p>
             </div>
-            <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-              <span class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                <span class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-600 to-amber-500 text-white flex items-center justify-center text-[10px] font-black">AI</span>
-                Axom AI
-              </span>
-              <span class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+              <span class="text-slate-500 dark:text-slate-400">By Axom AI Research</span>
+              <span class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold">
                 Read Report &rarr;
               </span>
             </div>
@@ -1048,7 +1052,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
     </section>
 
     <!-- SECTION 2: SOVEREIGN ASSAMESE AI FOUNDATION MODELS -->
-    <section id="foundation-models" class="scroll-mt-24">
+    <section id="foundation-models" class="mb-16 sm:mb-20 md:mb-24 scroll-mt-24">
       <div class="mb-8 sm:mb-10 text-center max-w-3xl mx-auto">
         <div class="inline-flex items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3">
           <span>Foundational Architectures &bull; 6 Sovereign Models</span>
@@ -1064,13 +1068,13 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
         
         <!-- 1. XUWOR (Master Multimodal) -->
-        <div class="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-500/40 dark:border-emerald-500/30 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden">
+        <div class="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-500/30 dark:border-emerald-500/20 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden">
           <div>
             <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              </div>
-              <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+              <span class="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
+                MODEL 01 &bull; MULTIMODAL
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
                 Master Ecosystem
               </span>
             </div>
@@ -1081,9 +1085,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               Assam's first full-duplex multimodal conversational AI ecosystem. Synchronizes hearing (Xuna), thinking (Progya), speaking (Puhor), and translation (Xetu) under 3.8 GB RAM.
             </p>
           </div>
-          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-            <span class="text-slate-500 dark:text-slate-400">Full-Duplex Speech &middot; 12 min</span>
-            <a href="/research/axomai-multimodal-xuwor/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold no-underline">
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+            <span class="text-slate-500 dark:text-slate-400">&lt; 3.8 GB RAM &middot; 12 min</span>
+            <a href="/research/axomai-multimodal-xuwor/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline">
               Read Report &rarr;
             </a>
           </div>
@@ -1093,10 +1097,10 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
         <div class="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden">
           <div>
             <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 group-hover:scale-110 transition-transform">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
-              </div>
-              <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300">
+              <span class="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
+                MODEL 02 &bull; REASONING
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
                 2.00B Dense LLM
               </span>
             </div>
@@ -1107,9 +1111,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               Assam's sovereign 2 Billion parameter dense language model with 68,096 native Assamese tokens, grounded in 6.19 Million cultural and historical records.
             </p>
           </div>
-          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-            <span class="text-slate-500 dark:text-slate-400">Dense LLM &middot; 10 min</span>
-            <a href="/research/axomai-brain-progya/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold no-underline">
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+            <span class="text-slate-500 dark:text-slate-400">1.2 GB Q4_K_M &middot; 10 min</span>
+            <a href="/research/axomai-brain-progya/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline">
               Read Report &rarr;
             </a>
           </div>
@@ -1119,10 +1123,10 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
         <div class="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden">
           <div>
             <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-              </div>
-              <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+              <span class="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
+                MODEL 03 &bull; SPEECH VOICE
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
                 24kHz Studio TTS
               </span>
             </div>
@@ -1133,9 +1137,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               Assam's first 24,000 Hz studio-grade Flow-Matching Diffusion Transformer (DiT) voice engine with 0.0% hallucination and dual sovereign Assamese personas.
             </p>
           </div>
-          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-            <span class="text-slate-500 dark:text-slate-400">Flow-Matching TTS &middot; 8 min</span>
-            <a href="/research/axomai-voice-puhor/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold no-underline">
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+            <span class="text-slate-500 dark:text-slate-400">Flow-Matching DiT &middot; 8 min</span>
+            <a href="/research/axomai-voice-puhor/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline">
               Read Report &rarr;
             </a>
           </div>
@@ -1145,10 +1149,10 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
         <div class="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden">
           <div>
             <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 group-hover:scale-110 transition-transform">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-              </div>
-              <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300">
+              <span class="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
+                MODEL 04 &bull; SPEECH AUDIO
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
                 600M Conformer ASR
               </span>
             </div>
@@ -1159,9 +1163,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               Assam's 600M Conformer ASR engine running 3.8x faster than real-time (0.261x RTF) on CPU with extreme immunity to monsoon rain, fans, and mobile noise.
             </p>
           </div>
-          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-            <span class="text-slate-500 dark:text-slate-400">Conformer ASR &middot; 9 min</span>
-            <a href="/research/axomai-speech-xuna/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold no-underline">
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+            <span class="text-slate-500 dark:text-slate-400">0.261x RTF CPU &middot; 9 min</span>
+            <a href="/research/axomai-speech-xuna/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline">
               Read Report &rarr;
             </a>
           </div>
@@ -1171,10 +1175,10 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
         <div class="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden">
           <div>
             <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
-              </div>
-              <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+              <span class="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
+                MODEL 05 &bull; TRANSLATION
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
                 200M Neural Bridge
               </span>
             </div>
@@ -1185,9 +1189,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               Bidirectional English &harr; Assamese translation bridge preserving complex case inflections (-লৈ, -ৰ, -ত) and legal precision in an offline 1.03 GB model.
             </p>
           </div>
-          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-            <span class="text-slate-500 dark:text-slate-400">Neural Translation &middot; 8 min</span>
-            <a href="/research/axomai-trans-xetu/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold no-underline">
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+            <span class="text-slate-500 dark:text-slate-400">1.03 GB Offline &middot; 8 min</span>
+            <a href="/research/axomai-trans-xetu/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline">
               Read Report &rarr;
             </a>
           </div>
@@ -1197,10 +1201,10 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
         <div class="group rounded-2xl sm:rounded-3xl bg-white/85 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden">
           <div>
             <div class="flex items-center justify-between gap-2 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-              </div>
-              <span class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300">
+              <span class="text-[11px] font-mono font-bold tracking-wider text-emerald-700 dark:text-emerald-400">
+                MODEL 06 &bull; GOVERNANCE
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300">
                 492M Governance SLM
               </span>
             </div>
@@ -1211,9 +1215,9 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               Assam's sovereign 492M public administration SLM trained on 3.3 Million+ instruction pairs across all 35 Districts, 130 LACs, Mission Basundhara, and Sewa Setu.
             </p>
           </div>
-          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-bold">
-            <span class="text-slate-500 dark:text-slate-400">Public Administration &middot; 10 min</span>
-            <a href="/research/axomai-sarkar/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-extrabold no-underline">
+          <div class="flex items-center justify-between pt-3 border-t border-slate-200/80 dark:border-white/10 text-xs font-semibold">
+            <span class="text-slate-500 dark:text-slate-400">468 MB GGUF &middot; 10 min</span>
+            <a href="/research/axomai-sarkar/" class="text-emerald-700 dark:text-emerald-400 group-hover:translate-x-1 transition-transform flex items-center gap-1 font-bold no-underline">
               Read Report &rarr;
             </a>
           </div>
@@ -1223,12 +1227,12 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
     </section>
 
     <!-- SECTION 3: FREQUENTLY ASKED QUESTIONS (HOME PAGE DESIGN) -->
-    <section id="faq" class="py-16 sm:py-20 md:py-28 relative border-t border-emerald-900/10 dark:border-white/5 scroll-mt-20">
+    <section id="faq" class="pt-12 sm:pt-16 pb-8 border-t border-emerald-900/10 dark:border-white/5 scroll-mt-20">
       <div class="relative z-10">
         
         <!-- Section Header -->
         <div class="text-center max-w-3xl mx-auto mb-12 sm:mb-14">
-          <div class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-800 dark:text-fuchsia-300 text-[11px] font-black uppercase tracking-wider mb-4">
+          <div class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider mb-4">
             <span>Questions &amp; Answers</span>
           </div>
           <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white tracking-tight leading-tight mb-4">
@@ -1246,12 +1250,12 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
           <div class="lg:col-span-7 space-y-3.5" id="faq-accordion-list">
             
             <!-- FAQ 1 (Open by default) -->
-            <div class="faq-accordion-item border rounded-2xl overflow-hidden transition-all duration-200 border-fuchsia-500/50 bg-white/95 dark:bg-slate-900/90 shadow-lg open">
+            <div class="faq-accordion-item border rounded-2xl overflow-hidden transition-all duration-200 border-emerald-500/50 bg-white/95 dark:bg-slate-900/90 shadow-md open">
               <button type="button" class="faq-btn w-full text-left px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-4 focus:outline-none cursor-pointer" aria-expanded="true">
                 <span class="font-bold text-emerald-950 dark:text-white text-sm sm:text-base leading-snug">
                   What is Axom AI Research and where is it based?
                 </span>
-                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-fuchsia-600 text-white rotate-45 shadow-sm">
+                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-600 text-white rotate-45 shadow-sm">
                   +
                 </span>
               </button>
@@ -1266,7 +1270,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 <span class="font-bold text-emerald-950 dark:text-white text-sm sm:text-base leading-snug">
                   What indigenous AI foundation models have been developed by Axom AI?
                 </span>
-                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-900/5 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
                   +
                 </span>
               </button>
@@ -1281,7 +1285,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 <span class="font-bold text-emerald-950 dark:text-white text-sm sm:text-base leading-snug">
                   Can Axom AI models run offline on CPU without requiring GPUs?
                 </span>
-                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-900/5 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
                   +
                 </span>
               </button>
@@ -1296,7 +1300,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 <span class="font-bold text-emerald-950 dark:text-white text-sm sm:text-base leading-snug">
                   Are Axom AI models, papers, and datasets open-source?
                 </span>
-                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-900/5 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
                   +
                 </span>
               </button>
@@ -1311,7 +1315,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 <span class="font-bold text-emerald-950 dark:text-white text-sm sm:text-base leading-snug">
                   How does Axom AI compare to generic commercial AI models for Assam?
                 </span>
-                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-900/5 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
                   +
                 </span>
               </button>
@@ -1326,7 +1330,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 <span class="font-bold text-emerald-950 dark:text-white text-sm sm:text-base leading-snug">
                   How can developers, researchers, and government institutions deploy or access Axom AI?
                 </span>
-                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-900/5 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                <span class="faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">
                   +
                 </span>
               </button>
@@ -1344,7 +1348,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               <!-- Premium 3D AI Assistant Image -->
               <div class="relative aspect-[4/3] w-full overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-black group">
                 <img
-                  src="/faq-assistant.jpg"
+                  src="/research/assets/faq-assistant.jpg"
                   alt="Axom AI Knowledge &amp; Support"
                   class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                   loading="lazy"
@@ -1353,7 +1357,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                 
                 <!-- Floating Tag over Image -->
                 <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                  <span class="text-[10px] uppercase font-black tracking-wider px-3 py-1 rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md">
+                  <span class="text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md">
                     Indigenous AI Intelligence
                   </span>
                   <span class="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-500/30">
@@ -1365,13 +1369,13 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
               <!-- Support Card Body -->
               <div class="p-6 sm:p-7 flex flex-col justify-between">
                 <div class="mb-6">
-                  <div class="text-[11px] font-black uppercase tracking-wider text-fuchsia-700 dark:text-fuchsia-400 mb-2">
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-2">
                     Have Additional Questions?
                   </div>
                   <h3 class="text-xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
                     Direct Support from Assam&apos;s AI Research Team
                   </h3>
-                  <p class="text-xs sm:text-sm text-slate-700 dark:text-gray-400 leading-relaxed">
+                  <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                     Can&apos;t find what you&apos;re looking for? Whether you are a student, researcher, developer, academic institution, or public sector partner, our local team is ready to help.
                   </p>
                 </div>
@@ -1389,7 +1393,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
                   </a>
                   <a
                     href="mailto:support@aiaxom.co.in"
-                    class="w-full py-3 px-5 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-300 dark:border-slate-700 hover:border-fuchsia-500 text-slate-800 dark:text-slate-200 inline-flex items-center justify-center gap-2 transition bg-white/50 dark:bg-slate-800/50 no-underline"
+                    class="w-full py-3 px-5 rounded-2xl text-xs sm:text-sm font-semibold border border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-slate-800 dark:text-slate-200 inline-flex items-center justify-center gap-2 transition bg-white/50 dark:bg-slate-800/50 no-underline"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                     <span>Email Support (support@aiaxom.co.in)</span>
@@ -1412,7 +1416,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
 
 <script src="/research/assets/research.js?v=20261026g" defer></script>
 <script>
-// Interactive FAQ Accordion (Home Page Pattern)
+// Interactive FAQ Accordion (Home Page Pattern with Emerald Accents)
 (function() {
   var items = document.querySelectorAll('.faq-accordion-item');
   items.forEach(function(item) {
@@ -1432,7 +1436,7 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
         if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
         otherItem.className = 'faq-accordion-item border rounded-2xl overflow-hidden transition-all duration-200 border-emerald-900/15 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 hover:border-emerald-900/30 dark:hover:border-white/20';
         if (otherIcon) {
-          otherIcon.className = 'faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-900/5 dark:bg-white/10 text-slate-700 dark:text-slate-300';
+          otherIcon.className = 'faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300';
         }
       });
 
@@ -1440,8 +1444,8 @@ html:not(.dark) .gradient-text:not(:is(.dark *)),
       if (!isCurrentlyOpen) {
         content.classList.remove('hidden');
         btn.setAttribute('aria-expanded', 'true');
-        item.className = 'faq-accordion-item border rounded-2xl overflow-hidden transition-all duration-200 border-fuchsia-500/50 bg-white/95 dark:bg-slate-900/90 shadow-lg open';
-        icon.className = 'faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-fuchsia-600 text-white rotate-45 shadow-sm';
+        item.className = 'faq-accordion-item border rounded-2xl overflow-hidden transition-all duration-200 border-emerald-500/50 bg-white/95 dark:bg-slate-900/90 shadow-md open';
+        icon.className = 'faq-icon w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200 bg-emerald-600 text-white rotate-45 shadow-sm';
       }
     });
   });
