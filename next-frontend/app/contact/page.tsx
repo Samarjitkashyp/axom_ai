@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Navbar from '../../components/Navbar';
+import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ContactFormInteractive from '../../components/ContactFormInteractive';
 import ContactFaqInteractive from '../../components/ContactFaqInteractive';
@@ -18,18 +18,27 @@ import {
   HelpCircle,
   Briefcase,
   Code2,
-  PhoneCall,
-  Languages,
   CheckCircle2,
-  ExternalLink,
-  MessageSquare,
-  Bot
+  Languages,
+  Bot,
+  User,
+  GraduationCap
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const DEFAULT_KEYWORDS = [
+const TARGET_KEYWORDS = [
+  // Primary AI & LLM Keywords
+  'AI companies',
+  'Large Language Model',
+  'LLM',
+  'AI startups',
+  'AI company in Assam',
+  'AI startup in Assam',
+  'Samarjit Kashyap',
+  'Samarjit Kashyap Axom AI',
+  // Contact & Support Keywords
   'Axom AI contact',
   'Axom AI contact us',
   'contact Axom AI',
@@ -54,16 +63,36 @@ const DEFAULT_KEYWORDS = [
   'where is Axom AI based',
   'Axom AI technical support',
   'Axom AI contact information',
-  'AI startup Assam',
-  'AI startup Guwahati'
+  'Axom AI customer care number',
+  'Axom AI email address',
+  'Axom AI founder contact',
+  'Samarjit Kashyap email',
+  'samarjitkashyp@aiaxom.co.in',
+  'support@aiaxom.co.in',
+  // Regional & Assamese Language GEO Queries
+  'Assam AI contact',
+  'Assamese AI contact',
+  'অসম এআই যোগাযোগ',
+  'অসম এআই সহায়',
+  'Axom AI কি আৰু কেনেকৈ যোগাযোগ কৰিব',
+  'Axom AI গুৱাহাটী কাৰ্যালয়',
+  'best AI platform in Assam',
+  'regional AI customer support India'
 ];
 
 export async function generateMetadata(): Promise<Metadata> {
   const cms = await getContactCMS().catch(() => null);
 
-  const title = cms?.meta_title || 'Contact Axom AI — Customer Support, Business Enquiries & Guwahati Office';
-  const description = cms?.meta_description || 'Contact Axom AI for customer support, report technical issues, explore enterprise partnerships, or request API integrations. Headquartered in Guwahati, Assam, with rapid 4–12h response.';
-  const keywords = cms?.meta_keywords ? cms.meta_keywords.split(',').map((k) => k.trim()) : DEFAULT_KEYWORDS;
+  const title =
+    cms?.meta_title ||
+    'Contact Axom AI — Customer Support, Business Enquiries & Guwahati Headquarters | Assam AI';
+  const description =
+    cms?.meta_description ||
+    'Contact Axom AI (Assam AI) for technical support, business partnerships, API tokens, or account assistance. Headquartered in Guwahati, Assam, with rapid < 4–12h response time. Official desk: support@aiaxom.co.in.';
+  const keywords = cms?.meta_keywords
+    ? cms.meta_keywords.split(',').map((k) => k.trim())
+    : TARGET_KEYWORDS;
+  const canonicalUrl = 'https://aiaxom.co.in/contact/';
   const ogImage = cms?.og_image_url || 'https://aiaxom.co.in/static/dist/hero/assam.avif';
 
   return {
@@ -71,29 +100,52 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     keywords,
     alternates: {
-      canonical: 'https://aiaxom.co.in/contact/',
+      canonical: canonicalUrl,
     },
     openGraph: {
       title,
       description,
-      url: 'https://aiaxom.co.in/contact/',
+      url: canonicalUrl,
       siteName: 'Axom AI',
       locale: 'en_IN',
+      type: 'website',
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: 'Axom AI Customer Support & Regional Office Guwahati',
+          alt: 'Axom AI Customer Support & Regional Headquarters Guwahati',
         },
       ],
-      type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
       images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    other: {
+      'geo.region': 'IN-AS',
+      'geo.placename': 'Guwahati, Assam, India',
+      'geo.position': '26.1445;91.7362',
+      ICBM: '26.1445, 91.7362',
+      'DC.title': 'Contact Axom AI — Customer Support & Regional Headquarters Guwahati',
+      'DC.creator': 'Axom AI Team, Samarjit Kashyap',
+      'DC.subject':
+        'AI Companies, Large Language Models, LLM, Axom AI Contact, Assamese AI Support, Guwahati HQ',
+      'DC.coverage': 'Guwahati, Assam, Northeast India, India, Global',
+      'DC.language': 'en, as, hi',
     },
   };
 }
@@ -131,6 +183,9 @@ function renderAudienceIcon(iconName?: string) {
     case 'building':
     case 'building2':
       return <Building className="w-4 h-4" />;
+    case 'graduationcap':
+    case 'student':
+      return <GraduationCap className="w-4 h-4" />;
     default:
       return <Sparkles className="w-4 h-4" />;
   }
@@ -139,521 +194,624 @@ function renderAudienceIcon(iconName?: string) {
 export default async function ContactPage() {
   const [landingData, contactCMS] = await Promise.all([
     getLandingCMS().catch(() => null),
-    getContactCMS().catch(() => null)
+    getContactCMS().catch(() => null),
   ]);
 
   // Channels List with CMS fallback
-  const channelsList = contactCMS?.channels && contactCMS.channels.length > 0
-    ? contactCMS.channels.map((ch) => ({
-        id: ch.channelId || `channel-${ch.id}`,
-        title: ch.title,
-        badge: ch.badge,
-        email: ch.email,
-        desc: ch.desc,
-        turnaround: ch.turnaround,
-        iconName: ch.iconName,
-      }))
-    : CONTACT_CHANNELS;
+  const channelsList =
+    contactCMS?.channels && contactCMS.channels.length > 0
+      ? contactCMS.channels.map((ch) => ({
+          id: ch.channelId || `channel-${ch.id}`,
+          title: ch.title,
+          badge: ch.badge,
+          email: ch.email,
+          desc: ch.desc,
+          turnaround: ch.turnaround,
+          iconName: ch.iconName,
+        }))
+      : CONTACT_CHANNELS;
 
   // FAQs with CMS fallback
-  const faqsList = contactCMS?.faqs && contactCMS.faqs.length > 0
-    ? contactCMS.faqs.map((f, i) => ({
-        id: String(f.id ?? `faq-${i}`),
-        question: f.question,
-        answer: f.answer,
-        category: f.category || 'General & Support',
-      }))
-    : CONTACT_FAQS;
+  const faqsList =
+    contactCMS?.faqs && contactCMS.faqs.length > 0
+      ? contactCMS.faqs.map((f, i) => ({
+          id: String(f.id ?? `faq-${i}`),
+          question: f.question,
+          answer: f.answer,
+          category: f.category || 'General & Support',
+        }))
+      : CONTACT_FAQS;
 
-  // Schema 1: ContactPage
-  const contactPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'ContactPage',
-    name: contactCMS?.meta_title || 'Contact Axom AI — Customer Support & Regional Headquarters',
-    url: 'https://aiaxom.co.in/contact/',
-    description:
-      contactCMS?.meta_description || 'Official contact and technical support page for Axom AI, Assam’s indigenous AI platform headquartered in Guwahati.',
-    mainEntity: {
-      '@type': 'Organization',
-      name: 'Axom AI',
-      alternateName: ['AI Axom', 'অসম এআই'],
-      url: 'https://aiaxom.co.in',
-      logo: 'https://aiaxom.co.in/axom-brand-logo.png',
-      email: contactCMS?.primary_support_email || 'support@aiaxom.co.in',
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'Guwahati',
-        addressRegion: 'Assam',
-        postalCode: '781001',
-        addressCountry: 'IN',
-      },
-      contactPoint: [
-        {
-          '@type': 'ContactPoint',
-          contactType: 'customer support',
-          email: contactCMS?.primary_support_email || 'support@aiaxom.co.in',
-          availableLanguage: ['English', 'Assamese', 'Hindi'],
-          hoursAvailable: 'Mo-Sa 09:00-19:00',
-          areaServed: ['IN', 'Northeast India', 'Assam'],
-        },
-        {
-          '@type': 'ContactPoint',
-          contactType: 'technical support',
-          email: contactCMS?.primary_support_email || 'support@aiaxom.co.in',
-          availableLanguage: ['English', 'Assamese'],
-          hoursAvailable: 'Mo-Sa 09:00-19:00',
-        },
-        {
-          '@type': 'ContactPoint',
-          contactType: 'sales and partnerships',
-          email: contactCMS?.primary_support_email || 'support@aiaxom.co.in',
-          availableLanguage: ['English', 'Assamese', 'Hindi'],
-        },
-      ],
-    },
-  };
+  // Primary contact points
+  const primarySupportEmail = contactCMS?.primary_support_email || 'support@aiaxom.co.in';
+  const founderEmail = contactCMS?.founder_email || 'samarjitkashyp@aiaxom.co.in';
+  const officeLocation =
+    contactCMS?.office_location || 'Guwahati, Kamrup Metropolitan, Assam, India • PIN: 781001';
+  const officeHours =
+    contactCMS?.office_hours || 'Monday – Saturday: 9:00 AM – 7:00 PM IST';
 
-  // Schema 2: Organization Entity
-  const organizationSchema = {
+  // Multi-entity JSON-LD for AI Search Engines (GEO/AEO) & Google Rich Snippets
+  const schemaData = {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Axom AI',
-    alternateName: ['AI Axom', 'অসম এআই', 'Assam AI'],
-    url: 'https://aiaxom.co.in',
-    logo: 'https://aiaxom.co.in/axom-brand-logo.png',
-    founder: {
-      '@type': 'Person',
-      name: 'Samarjit Kashyap',
-      jobTitle: 'Founder & Lead Engineer',
-      email: contactCMS?.founder_email || 'samarjitkashyp@gmail.com',
-    },
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Guwahati',
-      addressRegion: 'Assam',
-      postalCode: '781001',
-      addressCountry: 'IN',
-    },
-    contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'customer support',
-      email: contactCMS?.primary_support_email || 'support@aiaxom.co.in',
-      availableLanguage: ['English', 'Assamese', 'Hindi'],
-    },
-  };
-
-  // Schema 3: FAQPage Schema for Contact Q&As
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqsList.map((faq) => ({
-      '@type': 'Question',
-      name: faq.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: faq.answer,
-      },
-    })),
-  };
-
-  // Schema 4: BreadcrumbList
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
+    '@graph': [
       {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: 'https://aiaxom.co.in/',
+        '@type': 'ContactPage',
+        '@id': 'https://aiaxom.co.in/contact/#webpage',
+        url: 'https://aiaxom.co.in/contact/',
+        name:
+          contactCMS?.meta_title ||
+          'Contact Axom AI — Customer Support & Regional Headquarters',
+        description:
+          contactCMS?.meta_description ||
+          'Official contact and technical support page for Axom AI, Assam’s indigenous AI platform headquartered in Guwahati.',
+        isPartOf: {
+          '@type': 'WebSite',
+          '@id': 'https://aiaxom.co.in/#website',
+          name: 'Axom AI',
+          url: 'https://aiaxom.co.in',
+        },
+        mainEntity: {
+          '@id': 'https://aiaxom.co.in/#organization',
+        },
       },
       {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Contact Us',
-        item: 'https://aiaxom.co.in/contact/',
+        '@type': 'Organization',
+        '@id': 'https://aiaxom.co.in/#organization',
+        name: 'Axom AI',
+        legalName: 'Axom AI Technologies',
+        alternateName: ['AI Axom', 'Assam AI', 'অসম এআই', 'AxomAI'],
+        url: 'https://aiaxom.co.in',
+        logo: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+        image: 'https://aiaxom.co.in/static/dist/hero/assam.avif',
+        email: primarySupportEmail,
+        telephone: '+91-361-AXOM-AI',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Guwahati City Center',
+          addressLocality: 'Guwahati',
+          addressRegion: 'Assam',
+          postalCode: '781001',
+          addressCountry: 'IN',
+        },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: 26.1445,
+          longitude: 91.7362,
+        },
+        founder: {
+          '@type': 'Person',
+          '@id': 'https://aiaxom.co.in/about/#founder',
+          name: 'Samarjit Kashyap',
+          jobTitle: 'Founder & Lead AI Architect',
+          email: `mailto:${founderEmail}`,
+          url: 'https://aiaxom.co.in/about/',
+        },
+        contactPoint: [
+          {
+            '@type': 'ContactPoint',
+            contactType: 'Customer Support',
+            email: primarySupportEmail,
+            availableLanguage: ['Assamese', 'English', 'Hindi'],
+            hoursAvailable: 'Mo-Sa 09:00-19:00',
+            areaServed: ['IN', 'Assam', 'Northeast India'],
+          },
+          {
+            '@type': 'ContactPoint',
+            contactType: 'Technical Support',
+            email: primarySupportEmail,
+            availableLanguage: ['Assamese', 'English'],
+            hoursAvailable: 'Mo-Sa 09:00-19:00',
+          },
+          {
+            '@type': 'ContactPoint',
+            contactType: 'Partnerships & Enterprise',
+            email: primarySupportEmail,
+            availableLanguage: ['Assamese', 'English', 'Hindi'],
+          },
+          {
+            '@type': 'ContactPoint',
+            contactType: 'Executive Office',
+            email: founderEmail,
+            availableLanguage: ['Assamese', 'English'],
+          },
+        ],
+        knowsAbout: [
+          'AI companies',
+          'Large Language Model',
+          'LLM in Assam',
+          'Assam AI',
+          'Axom AI Customer Support',
+          'Assamese Natural Language Processing',
+          'Sovereign AI Infrastructure',
+          'Samarjit Kashyap',
+        ],
+      },
+      {
+        '@type': 'Person',
+        '@id': 'https://aiaxom.co.in/about/#founder',
+        name: 'Samarjit Kashyap',
+        jobTitle: 'Founder & Lead AI Architect',
+        email: `mailto:${founderEmail}`,
+        worksFor: {
+          '@id': 'https://aiaxom.co.in/#organization',
+        },
+        url: 'https://aiaxom.co.in/about/',
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': 'https://aiaxom.co.in/contact/#faq',
+        mainEntity: faqsList.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': 'https://aiaxom.co.in/contact/#breadcrumb',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://aiaxom.co.in/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Contact Us',
+            item: 'https://aiaxom.co.in/contact/',
+          },
+        ],
       },
     ],
   };
 
-  // Office languages array
-  const officeLanguagesList = (contactCMS?.office_languages || 'English, অসমীয়া (Assamese), हिंदी (Hindi)')
+  // Supported communication languages list
+  const officeLanguagesList = (
+    contactCMS?.office_languages || 'English, অসমীয়া (Assamese), हिंदी (Hindi)'
+  )
     .split(',')
     .map((l) => l.trim())
     .filter(Boolean);
 
   return (
-    <>
-      {/* Schema.org Injection */}
+    <div className="min-h-screen flex flex-col justify-between bg-[#f0fdf4] dark:bg-[#0b1220] text-emerald-950 dark:text-[#e5e7eb]">
+      {/* Schema.org Structured Data Injection */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
 
-      <Navbar header={landingData?.header} />
+      {/* Standard Unified Header */}
+      <Header header={landingData?.header} />
 
-      <main className="min-h-screen bg-[#f0fdf4] dark:bg-[#0b1220] text-emerald-950 dark:text-white pt-24 pb-16 relative overflow-hidden">
-        {/* Background glow meshes */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[850px] h-[450px] bg-fuchsia-600/10 blur-[130px] rounded-full pointer-events-none" />
-        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-10 left-0 w-[450px] h-[450px] bg-indigo-600/10 blur-[140px] rounded-full pointer-events-none" />
+      <main className="flex-1 pt-24 sm:pt-28 pb-20 relative overflow-hidden">
+        {/* Subtle Ambient Grid & Emerald/Teal Blur Mesh */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:60px_60px] opacity-25 pointer-events-none" />
+        <div className="absolute w-[650px] h-[450px] rounded-full bg-emerald-500/10 blur-[130px] top-10 left-1/2 -translate-x-1/2 pointer-events-none" />
+        <div className="absolute w-[450px] h-[450px] rounded-full bg-teal-500/10 blur-[140px] top-96 right-0 pointer-events-none" />
+        <div className="absolute w-[400px] h-[400px] rounded-full bg-emerald-600/10 blur-[120px] bottom-10 left-0 pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Header Section */}
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/25 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold mb-4 tracking-wide shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-fuchsia-700 dark:text-fuchsia-400" />
+          {/* HERO SECTION — UNIFIED WITH /ABOUT, /FAQ, AND /BLOG */}
+          <section className="text-center max-w-4xl mx-auto pt-6 sm:pt-10 pb-12 sm:pb-16">
+            {/* Pulsing Status Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-6 uppercase tracking-wider shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>{contactCMS?.hero_badge_text || 'Official Help Desk & Regional Headquarters'}</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-emerald-950 dark:text-white mb-4">
+
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-emerald-950 dark:text-white mb-6 leading-[1.12]">
               {contactCMS?.hero_title_prefix || 'Get in Touch with'}{' '}
-              <span className="bg-gradient-to-r from-fuchsia-600 dark:from-fuchsia-400 via-purple-600 dark:via-purple-300 to-indigo-600 dark:to-indigo-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-400 bg-clip-text text-transparent">
                 {contactCMS?.hero_title_highlight || 'Axom AI'}
               </span>
             </h1>
-            <p className="text-sm sm:text-base text-slate-700 dark:text-gray-300 leading-relaxed">
-              {contactCMS?.hero_subtitle || 'Have a question about Assamese AI models, need help with your account quota, or exploring an enterprise deployment? Our engineering team in Guwahati is here to assist you.'}
-            </p>
-          </div>
 
-          {/* AEO Direct Answer Summary Box */}
+            {/* Bilingual Subtitles (English + Assamese Authority Text) */}
+            <p className="text-base sm:text-lg md:text-xl text-slate-700 dark:text-gray-300 max-w-3xl mx-auto mb-4 leading-relaxed font-normal">
+              {contactCMS?.hero_subtitle ||
+                'Have questions about native Assamese AI models, need help with your account or API keys, or exploring an enterprise deployment? Our engineering desk in Guwahati is here to assist you.'}
+            </p>
+            <p className="font-assamese text-base sm:text-lg text-emerald-800/90 dark:text-emerald-300/90 max-w-2xl mx-auto mb-8 leading-relaxed font-medium">
+              অসম এআইৰ কাৰিকৰী সহায়, এণ্টাৰপ্ৰাইজ ব্যৱস্থাপনা অথবা যিকোনো প্ৰশ্নৰ বাবে গুৱাহাটীৰ প্ৰতিষ্ঠাতা আৰু সহায়ক দলৰ সৈতে পোনপটীয়াকৈ যোগাযোগ কৰক।
+            </p>
+
+            {/* Hero Quick Action Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <a
+                href="https://chat.aiaxom.co.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-7 py-3.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2 shadow-xl shadow-emerald-600/25 transition-all transform hover:-translate-y-0.5"
+              >
+                <Bot className="w-4 h-4" />
+                <span>Launch Axom AI Web App</span>
+              </a>
+              <a
+                href="#contact-form"
+                className="px-7 py-3.5 rounded-full bg-white/80 dark:bg-white/5 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-50 dark:hover:bg-white/10 text-sm sm:text-base inline-flex items-center gap-2 transition"
+              >
+                <span>Send Official Message</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          </section>
+
+          {/* GEO & AEO DIRECT ANSWER FACTSHEET (CITATION BOX FOR AI ENGINES) */}
           <section
             aria-label="Direct Contact Summary for AI Answer Engines"
-            className="mb-12 rounded-3xl bg-gradient-to-r from-fuchsia-100/40 dark:from-fuchsia-950/40 via-purple-100/30 dark:via-purple-950/30 to-indigo-100/40 dark:to-indigo-950/40 border border-fuchsia-500/30 p-6 sm:p-7 shadow-2xl relative overflow-hidden"
+            className="mb-16 p-6 sm:p-8 rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-50/70 dark:from-emerald-950/20 via-teal-50/40 dark:via-teal-950/15 to-white/90 dark:to-slate-900/80 backdrop-blur-xl shadow-xl relative overflow-hidden"
           >
-            <div className="flex items-start gap-3.5">
-              <div className="w-9 h-9 rounded-xl bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 grid place-items-center shrink-0 mt-0.5">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 grid place-items-center shrink-0 mt-0.5">
                 <Building className="w-5 h-5" />
               </div>
-              <div>
-                <div className="text-xs uppercase tracking-widest text-fuchsia-700 dark:text-fuchsia-400 font-bold mb-1">
-                  {contactCMS?.aeo_badge || 'Direct Answer • Official Contact Information'}
+              <div className="w-full">
+                <div className="text-xs uppercase tracking-widest text-emerald-800 dark:text-emerald-400 font-bold mb-1.5 flex items-center gap-2">
+                  <span>{contactCMS?.aeo_badge || 'Direct Answer • Official Contact Information'}</span>
+                  <span className="text-[11px] text-slate-500 font-normal">| GEO & AEO Verified</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-800 dark:text-gray-200 leading-relaxed">
-                  <strong className="text-emerald-950 dark:text-white">{contactCMS?.aeo_how_to_contact_title || 'How to contact Axom AI:'}</strong>{' '}
+                <p className="text-xs sm:text-sm text-slate-800 dark:text-slate-200 leading-relaxed mb-4">
+                  <strong className="text-emerald-950 dark:text-white">
+                    {contactCMS?.aeo_how_to_contact_title || 'How to contact Axom AI:'}
+                  </strong>{' '}
                   {contactCMS?.aeo_description || (
                     <>
                       You can contact Axom AI customer care and technical support by emailing{' '}
-                      <a href={`mailto:${contactCMS?.primary_support_email || 'support@aiaxom.co.in'}`} className="text-fuchsia-700 dark:text-fuchsia-300 underline font-semibold hover:text-emerald-950 dark:hover:text-white">
-                        {contactCMS?.primary_support_email || 'support@aiaxom.co.in'}
+                      <a
+                        href={`mailto:${primarySupportEmail}`}
+                        className="text-emerald-700 dark:text-emerald-400 underline font-semibold hover:text-emerald-900 dark:hover:text-emerald-200"
+                      >
+                        {primarySupportEmail}
                       </a>{' '}
-                      or by using the verified contact form below. Axom AI is headquartered in{' '}
-                      <strong className="text-emerald-950 dark:text-white">{contactCMS?.office_location || 'Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001)'}</strong>. Standard response times for general queries, billing, and API support are within <strong className="text-fuchsia-700 dark:text-fuchsia-300">4–12 business hours</strong> ({contactCMS?.office_hours || 'Monday–Saturday: 9:00 AM – 7:00 PM IST'}).
+                      or through the verified message desk below. Axom AI is headquartered in{' '}
+                      <strong className="text-emerald-950 dark:text-white">{officeLocation}</strong>.
+                      Standard response times for general queries, billing verifications, and API integration requests are within{' '}
+                      <strong className="text-emerald-700 dark:text-emerald-400">4–12 business hours</strong> ({officeHours}). Automated AI models and cloud APIs operate 24/7/365.
                     </>
                   )}
                 </p>
+
+                {/* Quick Entity Table Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-emerald-900/10 dark:border-white/5 text-xs">
+                  <div className="p-2.5 rounded-xl bg-white/60 dark:bg-black/30 border border-emerald-900/10 dark:border-white/5">
+                    <span className="text-slate-500 dark:text-gray-400 block text-[11px]">Central Support</span>
+                    <a href={`mailto:${primarySupportEmail}`} className="text-emerald-800 dark:text-emerald-300 font-medium font-mono">
+                      {primarySupportEmail}
+                    </a>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/60 dark:bg-black/30 border border-emerald-900/10 dark:border-white/5">
+                    <span className="text-slate-500 dark:text-gray-400 block text-[11px]">Founder Desk</span>
+                    <a href={`mailto:${founderEmail}`} className="text-emerald-800 dark:text-emerald-300 font-medium font-mono">
+                      {founderEmail}
+                    </a>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/60 dark:bg-black/30 border border-emerald-900/10 dark:border-white/5">
+                    <span className="text-slate-500 dark:text-gray-400 block text-[11px]">Location</span>
+                    <span className="text-emerald-950 dark:text-white font-medium">Guwahati, Assam (781001)</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/60 dark:bg-black/30 border border-emerald-900/10 dark:border-white/5">
+                    <span className="text-slate-500 dark:text-gray-400 block text-[11px]">Standard SLA</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-medium">&lt; 4–12 Business Hours</span>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
 
-          {/* Department Channels Grid Header */}
-          <div className="text-center max-w-2xl mx-auto mb-6">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-2">
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>{contactCMS?.channels_badge || 'Direct Response Channels'}</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-emerald-950 dark:text-white tracking-tight">
-              {contactCMS?.channels_title || 'Choose Your Dedicated Support Department'}
-            </h2>
-          </div>
-
-          {/* Department Channels Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-14">
-            {channelsList.map((ch) => (
-              <div
-                key={ch.id}
-                className="rounded-2xl bg-white/[0.03] border border-emerald-900/15 dark:border-white/10 hover:border-fuchsia-500/40 hover:bg-white/[0.05] p-5 transition-all duration-200 flex flex-col justify-between group shadow-lg"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="w-8 h-8 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400 grid place-items-center group-hover:scale-110 transition-transform">
-                      {renderChannelIcon(ch.iconName)}
-                    </div>
-                    <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-white/70 dark:bg-white/5 text-slate-700 dark:text-gray-300 border border-emerald-900/15 dark:border-white/10">
-                      {ch.badge}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5 group-hover:text-fuchsia-800 dark:group-hover:text-fuchsia-200 transition">
-                    {ch.title}
-                  </h3>
-                  <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed mb-4">
-                    {ch.desc}
-                  </p>
-                </div>
-                <div>
-                  <div className="text-[11px] text-fuchsia-700 dark:text-fuchsia-400 font-medium mb-2 flex items-center gap-1">
-                    <Clock className="w-3 h-3 shrink-0" />
-                    {ch.turnaround}
-                  </div>
-                  <a
-                    href={`mailto:${ch.email}`}
-                    className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/70 dark:bg-white/5 hover:bg-fuchsia-600 hover:text-emerald-950 dark:hover:text-white border border-emerald-900/15 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-gray-200 transition"
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>{ch.email}</span>
-                  </a>
-                </div>
+          {/* DEPARTMENT RESPONSE CHANNELS */}
+          <section className="mb-20">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-3">
+                <HelpCircle className="w-3.5 h-3.5" />
+                <span>{contactCMS?.channels_badge || 'Direct Response Channels'}</span>
               </div>
-            ))}
-          </div>
-
-          {/* Main 2-Column Section: Form (Left) & Headquarters Factsheet (Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16 items-start">
-            {/* Left Column: Interactive Contact Form (7 cols) */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="mb-2">
-                <h3 className="text-lg font-bold text-emerald-950 dark:text-white">
-                  {contactCMS?.form_title || 'Send an Official Message'}
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-gray-400">
-                  {contactCMS?.form_subtitle || 'Directly logged with our Guwahati headquarters & customer care desk'}
-                </p>
-              </div>
-              <ContactFormInteractive />
-            </div>
-
-            {/* Right Column: Office Factsheet & Regional Presence (5 cols) */}
-            <div className="lg:col-span-5 space-y-6">
-              {/* Guwahati HQ Card */}
-              <div className="rounded-3xl bg-[#f0fdf4]/95 dark:bg-[#0b1220]/95 border border-emerald-900/15 dark:border-white/10 p-6 sm:p-7 shadow-xl">
-                <div className="flex items-center gap-3 mb-5 pb-4 border-b border-emerald-900/15 dark:border-white/10">
-                  <div className="w-10 h-10 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/25 text-fuchsia-700 dark:text-fuchsia-400 grid place-items-center shrink-0">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-emerald-950 dark:text-white">
-                      {contactCMS?.office_title || 'Guwahati Headquarters'}
-                    </h3>
-                    <p className="text-xs text-slate-600 dark:text-gray-400">
-                      {contactCMS?.office_subtitle || 'Indigenous Artificial Intelligence Lab, Assam'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4 text-xs">
-                  <div>
-                    <span className="text-slate-600 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
-                      Physical Location
-                    </span>
-                    <div className="text-slate-800 dark:text-gray-200 font-medium leading-relaxed">
-                      {contactCMS?.office_location || 'Guwahati, Kamrup Metropolitan, Assam, India • PIN: 781001'}
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-600 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
-                      Operating Hours
-                    </span>
-                    <div className="text-slate-800 dark:text-gray-200 font-medium">
-                      {contactCMS?.office_hours || 'Monday – Saturday: 9:00 AM – 7:00 PM IST'}
-                    </div>
-                    <div className="text-slate-600 dark:text-gray-400 text-[11px] mt-0.5">
-                      {contactCMS?.office_hours_note || '(Automated cloud APIs & AI services operate 24/7/365)'}
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-600 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
-                      Primary Contact Emails
-                    </span>
-                    <div className="space-y-1 mt-1">
-                      <a
-                        href={`mailto:${contactCMS?.primary_support_email || 'support@aiaxom.co.in'}`}
-                        className="block text-fuchsia-700 dark:text-fuchsia-400 hover:text-fuchsia-700 dark:hover:text-fuchsia-300 font-mono text-xs font-semibold"
-                      >
-                        {contactCMS?.primary_support_email || 'support@aiaxom.co.in'}
-                      </a>
-                      <a
-                        href={`mailto:${contactCMS?.founder_email || 'samarjitkashyp@gmail.com'}`}
-                        className="block text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white font-mono text-[11px]"
-                      >
-                        {contactCMS?.founder_email || 'samarjitkashyp@gmail.com'} (Founder Desk)
-                      </a>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-slate-600 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
-                      Supported Communication Languages
-                    </span>
-                    <div className="flex flex-wrap gap-1.5 mt-1.5">
-                      {officeLanguagesList.map((lang, idx) => (
-                        <span
-                          key={idx}
-                          className={`px-2.5 py-1 rounded-md border text-xs font-medium ${
-                            lang.includes('অসমীয়া') || lang.includes('Assamese')
-                              ? 'bg-fuchsia-500/10 border-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-300'
-                              : 'bg-white/70 dark:bg-white/5 border-emerald-900/15 dark:border-white/10 text-slate-800 dark:text-gray-200'
-                          }`}
-                        >
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-5 border-t border-emerald-900/15 dark:border-white/10 flex items-center justify-between text-xs text-slate-600 dark:text-gray-400">
-                  <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{contactCMS?.office_sla_text || 'Average SLA: < 4h'}</span>
-                  </div>
-                  <a
-                    href="https://chat.aiaxom.co.in/"
-                    className="text-fuchsia-700 dark:text-fuchsia-400 hover:text-emerald-950 dark:hover:text-white inline-flex items-center gap-1 transition"
-                  >
-                    Open Live Web App <ArrowRight className="w-3 h-3" />
-                  </a>
-                </div>
-              </div>
-
-              {/* Data Privacy & Compliance Assurance */}
-              <div className="rounded-3xl bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-emerald-900/15 dark:border-white/10 p-5 shadow-lg">
-                <div className="flex items-center gap-2.5 mb-2 text-emerald-950 dark:text-white font-bold text-xs">
-                  <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-                  <span>{contactCMS?.security_compliance_title || 'Enterprise Security & DPDP Act 2023 Compliant'}</span>
-                </div>
-                <p className="text-[11px] text-slate-600 dark:text-gray-400 leading-relaxed">
-                  {contactCMS?.security_compliance_desc || 'All messages, documents, and technical inquiries submitted through Axom AI are protected with 256-bit TLS encryption. Uploaded files are isolated and never retained for public training without explicit organizational consent.'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Audience Breakdown: Who We Help (4 Pillars) */}
-          <section className="mb-16">
-            <div className="text-center max-w-2xl mx-auto mb-8">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-semibold mb-2">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{contactCMS?.audience_badge || 'Audience Solutions'}</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-emerald-950 dark:text-white tracking-tight mb-2">
-                {contactCMS?.audience_title || 'Who Can Reach Out to Axom AI?'}
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
+                {contactCMS?.channels_title || 'Choose Your Dedicated Support Department'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400">
-                {contactCMS?.audience_subtitle || 'Dedicated support channels tailored for students, enterprises, creators, and developers'}
+                Direct email channels routed straight to specialized engineers and product specialists in Guwahati
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Pillar 1 */}
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-emerald-900/15 dark:border-white/10 hover:border-emerald-900/25 dark:hover:border-white/20 transition">
-                <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-700 dark:text-purple-400 grid place-items-center mb-3">
-                  {renderAudienceIcon(contactCMS?.audience_1_icon || 'Sparkles')}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {channelsList.map((ch) => (
+                <div
+                  key={ch.id}
+                  className="rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 p-5 transition-all duration-200 flex flex-col justify-between group shadow-sm hover:shadow-md"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center group-hover:scale-110 transition-transform">
+                        {renderChannelIcon(ch.iconName)}
+                      </div>
+                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-white/70 dark:bg-white/5 text-slate-700 dark:text-gray-300 border border-emerald-900/10 dark:border-white/10">
+                        {ch.badge}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
+                      {ch.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed mb-4">
+                      {ch.desc}
+                    </p>
+                  </div>
+                  <div>
+                    <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mb-2 flex items-center gap-1">
+                      <Clock className="w-3 h-3 shrink-0" />
+                      {ch.turnaround}
+                    </div>
+                    <a
+                      href={`mailto:${ch.email}`}
+                      className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/80 dark:bg-white/5 hover:bg-emerald-600 hover:text-white border border-emerald-900/15 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-gray-200 hover:border-emerald-600 transition"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>{ch.email}</span>
+                    </a>
+                  </div>
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1">
+              ))}
+            </div>
+          </section>
+
+          {/* MAIN 2-COLUMN SECTION: FORM (LEFT 7 COLS) & HEADQUARTERS FACTSHEET (RIGHT 5 COLS) */}
+          <section id="contact-form" className="scroll-mt-28 mb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Interactive Contact Form (7 cols) */}
+              <div className="lg:col-span-7">
+                <ContactFormInteractive />
+              </div>
+
+              {/* Right Column: Office Factsheet & Regional Presence (5 cols) */}
+              <div className="lg:col-span-5 space-y-6">
+                {/* Guwahati HQ Card */}
+                <div className="rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-emerald-900/15 dark:border-white/10 p-6 sm:p-7 shadow-xl backdrop-blur-xl">
+                  <div className="flex items-center gap-3 mb-5 pb-4 border-b border-emerald-900/10 dark:border-white/5">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 grid place-items-center shrink-0">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-emerald-950 dark:text-white">
+                        {contactCMS?.office_title || 'Guwahati Headquarters'}
+                      </h3>
+                      <p className="text-xs text-slate-600 dark:text-gray-400">
+                        {contactCMS?.office_subtitle || 'Indigenous Artificial Intelligence Lab, Assam'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 text-xs">
+                    <div>
+                      <span className="text-slate-500 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
+                        Physical Location
+                      </span>
+                      <div className="text-slate-800 dark:text-gray-200 font-medium leading-relaxed">
+                        {officeLocation}
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-slate-500 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
+                        Operating Hours
+                      </span>
+                      <div className="text-slate-800 dark:text-gray-200 font-medium">
+                        {officeHours}
+                      </div>
+                      <div className="text-slate-500 dark:text-gray-400 text-[11px] mt-0.5">
+                        {contactCMS?.office_hours_note || '(Automated cloud APIs & AI services operate 24/7/365)'}
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-slate-500 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
+                        Primary Contact Emails
+                      </span>
+                      <div className="space-y-1 mt-1">
+                        <a
+                          href={`mailto:${primarySupportEmail}`}
+                          className="block text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-mono text-xs font-semibold"
+                        >
+                          {primarySupportEmail}
+                        </a>
+                        <a
+                          href={`mailto:${founderEmail}`}
+                          className="block text-slate-700 dark:text-gray-300 hover:text-emerald-950 dark:hover:text-white font-mono text-[11px]"
+                        >
+                          {founderEmail} (Founder Desk)
+                        </a>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-slate-500 dark:text-gray-400 block text-[11px] uppercase tracking-wider mb-0.5">
+                        Supported Communication Languages
+                      </span>
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        {officeLanguagesList.map((lang, idx) => (
+                          <span
+                            key={idx}
+                            className={`px-2.5 py-1 rounded-md border text-xs font-medium ${
+                              lang.includes('অসমীয়া') || lang.includes('Assamese')
+                                ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-800 dark:text-emerald-300'
+                                : 'bg-white/70 dark:bg-white/5 border-emerald-900/15 dark:border-white/10 text-slate-800 dark:text-gray-200'
+                            }`}
+                          >
+                            {lang}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-5 border-t border-emerald-900/10 dark:border-white/5 flex items-center justify-between text-xs text-slate-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{contactCMS?.office_sla_text || 'Average SLA: < 4h'}</span>
+                    </div>
+                    <a
+                      href="https://chat.aiaxom.co.in/"
+                      className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 inline-flex items-center gap-1 transition font-medium"
+                    >
+                      Open Live Web App <ArrowRight className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Data Privacy & Compliance Assurance */}
+                <div className="rounded-3xl bg-gradient-to-br from-emerald-50/50 dark:from-emerald-950/20 to-white/70 dark:to-slate-900/60 border border-emerald-900/15 dark:border-white/10 p-5 shadow-lg backdrop-blur-xl">
+                  <div className="flex items-center gap-2.5 mb-2 text-emerald-950 dark:text-white font-bold text-xs">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                    <span>{contactCMS?.security_compliance_title || 'Enterprise Security & DPDP Act 2023 Compliant'}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 dark:text-gray-400 leading-relaxed">
+                    {contactCMS?.security_compliance_desc ||
+                      'All inquiries, messages, and document analysis requests submitted through Axom AI are encrypted via 256-bit TLS. In accordance with the Digital Personal Data Protection (DPDP) Act 2023, customer records are stored securely on Indian soil and never monetized or exposed for public AI training.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* AUDIENCE BREAKDOWN: WHO WE HELP (4 PILLARS) */}
+          <section className="mb-20">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-800 dark:text-teal-300 text-xs font-semibold mb-3">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{contactCMS?.audience_badge || 'Audience Solutions'}</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
+                {contactCMS?.audience_title || 'Who Can Reach Out to Axom AI?'}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400">
+                {contactCMS?.audience_subtitle ||
+                  'Dedicated support channels tailored for students, enterprises, creators, and developers'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* Pillar 1 */}
+              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center mb-3.5">
+                  {renderAudienceIcon(contactCMS?.audience_1_icon || 'GraduationCap')}
+                </div>
+                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
                   {contactCMS?.audience_1_title || 'Students & Job Aspirants'}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
-                  {contactCMS?.audience_1_desc || 'Assistance with APSC, UPSC, Assamese literature research, essay formulation, and subsidized student accounts.'}
+                  {contactCMS?.audience_1_desc ||
+                    'Assistance with APSC, UPSC, Assamese literature research, essay formulation, and subsidized student accounts.'}
                 </p>
               </div>
 
               {/* Pillar 2 */}
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-emerald-900/15 dark:border-white/10 hover:border-emerald-900/25 dark:hover:border-white/20 transition">
-                <div className="w-8 h-8 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-400 grid place-items-center mb-3">
+              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center mb-3.5">
                   {renderAudienceIcon(contactCMS?.audience_2_icon || 'Briefcase')}
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1">
+                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
                   {contactCMS?.audience_2_title || 'Assam MSMEs & Businesses'}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
-                  {contactCMS?.audience_2_desc || 'Bilingual customer care chatbots, Assamese invoice extraction, marketing copy, and multi-user business plans.'}
+                  {contactCMS?.audience_2_desc ||
+                    'Bilingual customer care chatbots, Assamese invoice extraction, marketing copy, and multi-user business plans.'}
                 </p>
               </div>
 
               {/* Pillar 3 */}
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-emerald-900/15 dark:border-white/10 hover:border-emerald-900/25 dark:hover:border-white/20 transition">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-700 dark:text-indigo-400 grid place-items-center mb-3">
+              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center mb-3.5">
                   {renderAudienceIcon(contactCMS?.audience_3_icon || 'Code2')}
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1">
+                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
                   {contactCMS?.audience_3_title || 'Developers & Engineers'}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
-                  {contactCMS?.audience_3_desc || 'API tokens, webhooks, fine-tuned IndicTrans2 Assamese translation endpoints, and high-concurrency rate limits.'}
+                  {contactCMS?.audience_3_desc ||
+                    'API tokens, webhooks, fine-tuned IndicTrans2 Assamese translation endpoints, and high-concurrency rate limits.'}
                 </p>
               </div>
 
               {/* Pillar 4 */}
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-emerald-900/15 dark:border-white/10 hover:border-emerald-900/25 dark:hover:border-white/20 transition">
-                <div className="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-700 dark:text-pink-400 grid place-items-center mb-3">
+              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center mb-3.5">
                   {renderAudienceIcon(contactCMS?.audience_4_icon || 'Building')}
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1">
+                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
                   {contactCMS?.audience_4_title || 'Govt & Cultural Bodies'}
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
-                  {contactCMS?.audience_4_desc || 'Digitization and OCR for ancient Assamese manuscripts (সাঁচিপাত), archives, and institutional AI partnerships.'}
+                  {contactCMS?.audience_4_desc ||
+                    'Digitization and OCR for ancient Assamese manuscripts (সাঁচিপাত), archives, and institutional AI partnerships.'}
                 </p>
               </div>
             </div>
           </section>
 
-          {/* Comprehensive Contact FAQ Accordion */}
-          <section className="mb-16">
-            <div className="text-center max-w-2xl mx-auto mb-8">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 text-fuchsia-700 dark:text-fuchsia-300 text-xs font-semibold mb-2">
+          {/* COMPREHENSIVE CONTACT FAQ ACCORDION */}
+          <section className="mb-20">
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-3">
                 <HelpCircle className="w-3.5 h-3.5" />
                 <span>{contactCMS?.faq_badge || 'Frequently Asked Questions'}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-emerald-950 dark:text-white tracking-tight mb-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
                 {contactCMS?.faq_title || 'Common Questions About Contacting Us'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400">
-                {contactCMS?.faq_subtitle || 'Direct answers to popular questions regarding support, response times, and partnerships'}
+                {contactCMS?.faq_subtitle ||
+                  'Direct answers to popular questions regarding support, response times, and partnerships'}
               </p>
             </div>
 
             <div className="max-w-4xl mx-auto">
-              <ContactFaqInteractive faqs={contactCMS?.faqs} />
+              <ContactFaqInteractive faqs={faqsList} />
             </div>
           </section>
 
-          {/* Bottom Fast Assistance Card */}
-          <div className="rounded-3xl bg-gradient-to-r from-fuchsia-100/40 dark:from-fuchsia-900/40 via-purple-100/30 dark:via-purple-900/30 to-indigo-100/40 dark:to-indigo-900/40 border border-fuchsia-500/30 p-8 sm:p-10 text-center max-w-4xl mx-auto shadow-2xl relative overflow-hidden">
+          {/* BOTTOM FAST ASSISTANCE CARD */}
+          <section className="rounded-3xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-600/10 dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-slate-900/40 border border-emerald-500/30 p-8 sm:p-12 text-center max-w-4xl mx-auto shadow-2xl relative overflow-hidden backdrop-blur-xl">
             <div className="relative z-10">
-              <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-700 dark:text-fuchsia-300 grid place-items-center mx-auto mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 grid place-items-center mx-auto mb-4">
                 <Bot className="w-6 h-6" />
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-emerald-950 dark:text-white mb-2">
+              <h3 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white mb-3">
                 {contactCMS?.bottom_cta_heading || 'Need Instant Answers Right Now?'}
               </h3>
               <p className="text-slate-700 dark:text-gray-300 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed mb-6">
-                {contactCMS?.bottom_cta_subheading || 'You can immediately query our AI directly in English or Assamese. For live conversational support, launch the Axom AI web application.'}
+                {contactCMS?.bottom_cta_subheading ||
+                  'You can immediately query our AI directly in English or Assamese. For live conversational support, launch the Axom AI web application.'}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <a
                   href={contactCMS?.bottom_cta_primary_btn_url || 'https://chat.aiaxom.co.in/'}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold text-xs transition shadow-lg shadow-fuchsia-500/25"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm transition shadow-lg shadow-emerald-500/25 transform hover:-translate-y-0.5"
                 >
-                  <Sparkles className="w-3.5 h-3.5" /> {contactCMS?.bottom_cta_primary_btn_text || 'Launch Axom AI Chat'}
+                  <Sparkles className="w-3.5 h-3.5" />{' '}
+                  {contactCMS?.bottom_cta_primary_btn_text || 'Launch Axom AI Chat'}
                 </a>
                 <Link
                   href={contactCMS?.bottom_cta_secondary_btn_url || '/faq'}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/70 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 border border-emerald-900/15 dark:border-white/10 text-slate-800 dark:text-gray-200 hover:text-emerald-950 dark:hover:text-white font-semibold text-xs transition"
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-white/80 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 border border-emerald-900/15 dark:border-white/10 text-slate-800 dark:text-gray-200 hover:text-emerald-950 dark:hover:text-white font-semibold text-xs sm:text-sm transition"
                 >
-                  <HelpCircle className="w-3.5 h-3.5" /> {contactCMS?.bottom_cta_secondary_btn_text || 'Browse Full FAQ Knowledgebase'}
+                  <HelpCircle className="w-3.5 h-3.5" />{' '}
+                  {contactCMS?.bottom_cta_secondary_btn_text || 'Browse Full FAQ Knowledgebase'}
                 </Link>
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </main>
 
-      <Footer footer={landingData?.footer} />
-    </>
+      {/* Standard Unified Footer */}
+      <Footer footer={landingData?.footer} seo={landingData?.seo} />
+    </div>
   );
 }

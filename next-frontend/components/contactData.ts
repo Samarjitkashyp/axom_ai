@@ -103,7 +103,7 @@ export const CONTACT_FAQS: ContactFaq[] = [
     id: 'report-bug-or-issue',
     question: 'How can I report a bug or issue with Assamese generation?',
     answer:
-      'If you encounter a hallucination, incorrect Assamese orthography (য-ফলা, ৰ-কাৰ, যুক্তাক্ষৰ), or tool errors (e.g. PDF OCR or image generator), please use the contact form under "Bug Report / Feedback" or email support@aiaxom.co.in with the prompt and output snippet. We continuously update our fine-tuned weights and RAG pipeline using verified user feedback.',
+      'If you encounter a hallucination, incorrect Assamese orthography (য-ফলা, ৰ-কাৰ, যুক্তাক্ষৰ), or tool errors (e.g. PDF OCR or image generator), please use the contact form under "Bug Report / Feedback" or email support@aiaxom.co.in with the prompt and output snippet. We continuously update our fine-tuned weights, neural models, and knowledge base using verified user feedback.',
     category: 'Technical & Models',
   },
   {
