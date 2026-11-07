@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import uuid
@@ -5,6 +6,7 @@ import re
 import logging
 import urllib.request
 import urllib.error
+import requests as py_requests
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
@@ -16,40 +18,34 @@ logger = logging.getLogger(__name__)
 
 AVAILABLE_MODELS = [
     {
-        "id": "axom-indic-1",
+        "id": "axomai-speech-xuna",
         "object": "model",
         "created": 1730000000,
         "owned_by": "axom-ai",
         "permission": [],
-        "root": "axom-indic-1",
-        "description": "Axom AI Flagship: Native Assamese & Indic conversational engine with orthographic script purification"
+        "root": "axomai-speech-xuna",
+        "aliases": ["xuna-stt", "xuna", "axom-voice-indic"],
+        "description": "Axom AI Xuna (শুনা): Sovereign 600M Conformer Assamese Speech-to-Text (ASR) Engine with pure orthography (ৰ/ৱ) and 0.26x RTF inference."
     },
     {
-        "id": "axom-fast",
+        "id": "axomai-voice-puhor",
         "object": "model",
         "created": 1730000000,
         "owned_by": "axom-ai",
         "permission": [],
-        "root": "axom-fast",
-        "description": "Axom Turbo: Sub-second high-throughput neural inference engine optimized for real-time bots and edge devices"
+        "root": "axomai-voice-puhor",
+        "aliases": ["puhor-tts", "puhor"],
+        "description": "Axom AI Puhor (পোহৰ): Sovereign 24,000 Hz studio-grade Assamese Text-to-Speech (TTS) Voice Engine with dual persona synthesis."
     },
     {
-        "id": "axom-pro",
+        "id": "axomai-trans-xetu",
         "object": "model",
         "created": 1730000000,
         "owned_by": "axom-ai",
         "permission": [],
-        "root": "axom-pro",
-        "description": "Axom Deep Reasoning: Advanced STEM problem-solving, multi-step logic, and 128k large-context document processing"
-    },
-    {
-        "id": "axom-voice-indic",
-        "object": "model",
-        "created": 1730000000,
-        "owned_by": "axom-ai",
-        "permission": [],
-        "root": "axom-voice-indic",
-        "description": "Axom Sovereign Voice: Ultra-accurate Assamese & Indic Speech-to-Text with phoneme decoding, anti-hallucination guardrails, and pure orthography (ৰ/ৱ)"
+        "root": "axomai-trans-xetu",
+        "aliases": ["xetu-trans", "xetu"],
+        "description": "Axom AI Xetu (সেতু): Sovereign 200M Transformer English <-> Assamese Neural Translation Bridge preserving legal and administrative grammar."
     }
 ]
 
@@ -124,7 +120,7 @@ def v1_chat_completions(request):
     if not messages or not isinstance(messages, list):
         return openai_error_response("'messages' is a required array field", status=400)
 
-    model_name = body.get('model', 'axom-indic-1')
+    model_name = body.get('model', 'axomai-speech-xuna')
     temperature = body.get('temperature', 0.7)
 
     # Extract last user message
@@ -245,30 +241,42 @@ def v1_translate(request):
     if not text:
         return openai_error_response("'text' cannot be empty", status=400)
 
-    # Prompt translation via Axom AI Engine
-    prompt = f"Translate the following text from {source_lang} to {target_lang} with high linguistic accuracy and natural phrasing. Do not add explanations:\n\n{text}"
-    
-    try:
-        chat_url = "http://127.0.0.1:8000/api/chat/"
-        chat_payload = {"prompt": prompt, "language": "assamese"}
-        headers = {"Content-Type": "application/json"}
-        req = urllib.request.Request(chat_url, data=json.dumps(chat_payload).encode('utf-8'), headers=headers, method='POST')
-        
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            resp_str = resp.read().decode('utf-8', errors='replace').strip()
-            try:
-                chat_data = json.loads(resp_str)
-                translated = chat_data.get('response') or resp_str
-            except Exception:
-                translated = resp_str
-    except Exception as e:
-        translated = f"Translation error: {str(e)}"
+    # First try direct sovereign Xetu neural translation engine
+    translated = ""
+    if source_lang == 'en' and target_lang in ('as', 'assamese'):
+        try:
+            from axom_ai.xetu_trans import xetu_translate_en_to_as
+            translated = xetu_translate_en_to_as(text)
+        except Exception as e:
+            logger.warning(f"Direct Xetu engine translation fallback: {e}")
+            translated = ""
 
-    request.developer_api_model_used = 'axom-indic-1'
+    # If Xetu is offline or target is other language, fallback to LLM translator
+    if not translated:
+        prompt = f"Translate the following text from {source_lang} to {target_lang} with high linguistic accuracy and natural phrasing. Do not add explanations:\n\n{text}"
+        try:
+            chat_url = "http://127.0.0.1:8000/api/chat/"
+            chat_payload = {"prompt": prompt, "language": "assamese"}
+            headers = {"Content-Type": "application/json"}
+            req = urllib.request.Request(chat_url, data=json.dumps(chat_payload).encode('utf-8'), headers=headers, method='POST')
+            
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                resp_str = resp.read().decode('utf-8', errors='replace').strip()
+                try:
+                    chat_data = json.loads(resp_str)
+                    translated = chat_data.get('response') or resp_str
+                except Exception:
+                    translated = resp_str
+        except Exception as e:
+            translated = f"Translation error: {str(e)}"
+
+    model_used = data.get('model', 'axomai-trans-xetu')
+    request.developer_api_model_used = model_used
     request.developer_api_tokens_used = max(1, len(text.split()))
 
     return JsonResponse({
         "success": True,
+        "model": model_used,
         "source_lang": source_lang,
         "target_lang": target_lang,
         "original_text": text,
@@ -279,10 +287,10 @@ def v1_translate(request):
 @require_developer_api_key
 def v1_audio_transcriptions(request):
     """
-    Standard OpenAI-compatible POST /v1/audio/transcriptions
+    Standard OpenAI-compatible POST /v1/audio/transcriptions (Xuna Conformer ASR)
     Accepts multipart/form-data:
-      - file (or audio): binary audio file
-      - model: 'axom-voice-indic' (default)
+      - file (or audio): binary audio file (WAV, MP3, M4A, WebM, OGG)
+      - model: 'axomai-speech-xuna' (default, or 'xuna-stt', 'xuna')
       - language: 'as' / 'assamese' / 'en' / 'hi' (optional)
       - response_format: 'json' (default) or 'verbose_json'
     """
@@ -296,7 +304,7 @@ def v1_audio_transcriptions(request):
     if audio_file.size > 25 * 1024 * 1024:
         return openai_error_response("Audio file exceeds maximum size limit of 25MB", status=413)
 
-    model_name = request.POST.get('model', 'axom-voice-indic')
+    model_name = request.POST.get('model', 'axomai-speech-xuna')
     target_lang = (request.POST.get('language') or 'as').lower().strip()
     response_format = (request.POST.get('response_format') or 'json').lower().strip()
 
@@ -335,6 +343,7 @@ def v1_audio_transcriptions(request):
         if response_format == 'verbose_json':
             return JsonResponse({
                 "task": "transcribe",
+                "model": model_name,
                 "language": stt_lang,
                 "duration": round(seconds, 2),
                 "text": transcribed_text
@@ -345,6 +354,67 @@ def v1_audio_transcriptions(request):
     except Exception as e:
         logger.error(f"v1_audio_transcriptions error: {e}", exc_info=True)
         return openai_error_response(f"Audio transcription failed: {str(e)}", status=500)
+
+@csrf_exempt
+@require_developer_api_key
+def v1_audio_speech(request):
+    """
+    Standard OpenAI-compatible POST /v1/audio/speech (Puhor Studio TTS Voice Engine)
+    Accepts JSON body or POST form data:
+      - model: 'axomai-voice-puhor' (default) or 'puhor-tts', 'puhor'
+      - input: Text in Assamese to synthesize
+      - voice: 'male' or 'female' (default 'male')
+      - response_format: 'mp3' (default)
+    Returns:
+      audio/mpeg binary stream
+    """
+    if request.method != 'POST':
+        return openai_error_response("Only POST method is allowed", status=405)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    text = str(data.get('input') or data.get('text') or '').strip()
+    voice = data.get('voice') if data.get('voice') in ('male', 'female') else 'male'
+    model_name = data.get('model', 'axomai-voice-puhor')
+
+    if not text:
+        return openai_error_response("'input' parameter cannot be empty", status=400)
+
+    if len(text) > 600:
+        return openai_error_response("Input text exceeds maximum limit of 600 characters per request", status=413)
+
+    try:
+        from axom_ai import audio_training, number_words, voice_text
+        from superadmin.models import SystemSetting
+
+        if not SystemSetting.is_enabled('tts_enabled', True):
+            return openai_error_response("Puhor voice service is temporarily disabled", status=503)
+
+        TTS_URL = os.getenv('TTS_SERVICE_URL', 'http://127.0.0.1:8090').rstrip('/')
+
+        # Assamese phonetic and number word normalization
+        text = audio_training.fix_pronunciation(text)
+        text = number_words.for_voice(text)
+        spoken = (voice_text.normalize_numbers(text) or text) if voice_text.has_digits(text) else text
+
+        r = py_requests.post(TTS_URL + '/tts', json={'text': spoken, 'voice': voice, 'cache_only': False}, timeout=45)
+        if r.status_code == 200:
+            request.developer_api_model_used = model_name
+            request.developer_api_tokens_used = max(1, len(text.split()))
+            resp = HttpResponse(r.content, content_type='audio/mpeg')
+            resp['Content-Disposition'] = 'inline; filename="speech.mp3"'
+            resp['X-Model-Used'] = model_name
+            return resp
+        elif r.status_code == 422:
+            return openai_error_response("Input text contains no readable Assamese characters", status=422)
+        else:
+            return openai_error_response(f"Puhor voice generation service status {r.status_code}", status=502)
+    except Exception as e:
+        logger.error(f"v1_audio_speech error: {e}", exc_info=True)
+        return openai_error_response(f"Voice generation failed: {str(e)}", status=500)
 
 @csrf_exempt
 def manage_keys_api(request):

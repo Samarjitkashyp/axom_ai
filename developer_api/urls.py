@@ -6,6 +6,7 @@ urlpatterns = [
     path('models', views.v1_models, name='v1_models'),
     path('chat/completions', views.v1_chat_completions, name='v1_chat_completions'),
     path('audio/transcriptions', views.v1_audio_transcriptions, name='v1_audio_transcriptions'),
+    path('audio/speech', views.v1_audio_speech, name='v1_audio_speech'),
     path('translate', views.v1_translate, name='v1_translate'),
     
     # Key management endpoint

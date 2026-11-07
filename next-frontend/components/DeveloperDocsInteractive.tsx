@@ -40,7 +40,8 @@ import {
   Volume2,
   Radio,
   FileAudio,
-  UploadCloud
+  UploadCloud,
+  Download
 } from 'lucide-react';
 
 interface ModelInfo {
@@ -57,40 +58,31 @@ const PUBLIC_DEMO_KEY = 'sk_live_axom_demo_public_preview_2026';
 
 const MODELS: ModelInfo[] = [
   {
-    id: 'axom-indic-1',
-    name: 'Axom Indic-1 (Flagship)',
-    badge: 'Recommended',
-    description: 'Proprietary Assamese, Hindi, and English high-reasoning multimodal engine with native script purification (ৰ/র correction).',
-    contextWindow: '32,768 tokens',
-    latency: '< 800ms',
-    bestFor: 'General conversational AI, Assamese literature, education, document analysis, and citizen queries.',
-  },
-  {
-    id: 'axom-fast',
-    name: 'Axom Fast (Turbo Edge)',
-    badge: 'Ultra Fast',
-    description: 'High-speed, sub-second inference engine optimized for instantaneous interactive applications and high-throughput pipelines.',
-    contextWindow: '8,192 tokens',
-    latency: '< 300ms',
-    bestFor: 'Real-time chatbots, voice assistants, classification, and sentiment extraction.',
-  },
-  {
-    id: 'axom-pro',
-    name: 'Axom Pro (Deep Reasoning)',
-    badge: 'Pro Reasoning',
-    description: 'High-reasoning multimodal model capable of deep mathematical analysis, coding, and multi-page document inspection.',
-    contextWindow: '64,000 tokens',
-    latency: '~1.2s',
-    bestFor: 'STEM problem solving, code generation, in-depth research, and legal/financial drafting.',
-  },
-  {
-    id: 'axom-voice-indic',
-    name: 'Axom Voice Indic (STT)',
-    badge: 'Sovereign Audio',
-    description: 'Indigenous Assamese & Indic Speech-to-Text neural pipeline with acoustic phoneme decoding, anti-hallucination guardrails, and pure orthography (ৰ/ৱ).',
+    id: 'axomai-speech-xuna',
+    name: 'Xuna — শুনা (600M Conformer ASR)',
+    badge: 'Sovereign Audio STT',
+    description: 'Indigenous Assamese Speech-to-Text neural engine running at 0.26x RTF. Decodes acoustic phonemes directly into verified Assamese script with authentic orthography (ৰ/ৱ) and zero Bengali contamination.',
     contextWindow: '25 MB / 10 mins',
-    latency: '< 1.2s',
-    bestFor: 'Assamese voice typing, media transcription, WhatsApp voice bots, IVR customer support, and legal court documentation.',
+    latency: '< 800ms',
+    bestFor: 'Assamese voice typing, media journalism transcription, WhatsApp voice bots, IVR call centers, and legal court documentation.',
+  },
+  {
+    id: 'axomai-voice-puhor',
+    name: 'Puhor — পোহৰ (24kHz Studio TTS)',
+    badge: 'Studio Voice TTS',
+    description: 'Assam’s 24,000 Hz studio-grade Text-to-Speech voice synthesis engine. Converts written Assamese into natural human speech with dual authentic voices (Male/Female) and 0.0% hallucination.',
+    contextWindow: '600 characters / request',
+    latency: '< 600ms',
+    bestFor: 'Audio news reading, regional podcasts, interactive voice assistants, educational audiobooks, and accessibility for visually impaired citizens.',
+  },
+  {
+    id: 'axomai-trans-xetu',
+    name: 'Xetu — সেতু (200M Translation Bridge)',
+    badge: 'Neural Translation',
+    description: 'High-precision bidirectional English <-> Assamese neural translation model preserving grammatical case inflections (-লৈ, -ৰ, -ত) and administrative terminology.',
+    contextWindow: '4,096 tokens',
+    latency: '< 400ms',
+    bestFor: 'Government gazettes, legal act translation, educational book translation, and enterprise localization across Assam.',
   },
 ];
 
@@ -105,24 +97,27 @@ export default function DeveloperDocsInteractive() {
   const [pricingCycle, setPricingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   // Quickstart Tab
-  const [activeTab, setActiveTab] = useState<'python' | 'node' | 'curl' | 'translate' | 'voice'>('python');
+  const [activeTab, setActiveTab] = useState<'xuna' | 'puhor' | 'xetu' | 'python' | 'node' | 'curl'>('xuna');
 
   // Full-Stack Architecture Tab (Mobile, Web, PHP, Python, JS)
   const [activeStack, setActiveStack] = useState<'mobile' | 'web' | 'php' | 'python' | 'node'>('mobile');
 
   // Active Endpoint Tab in Documentation
-  const [activeEndpoint, setActiveEndpoint] = useState<'chat' | 'audio' | 'translate' | 'models'>('chat');
+  const [activeEndpoint, setActiveEndpoint] = useState<'audio' | 'speech' | 'translate' | 'models'>('audio');
 
   // Live Playground State
-  const [playgroundEndpoint, setPlaygroundEndpoint] = useState<'chat' | 'audio' | 'translate' | 'models'>('chat');
-  const [chatModel, setChatModel] = useState<string>('axom-indic-1');
-  const [chatPrompt, setChatPrompt] = useState<string>('নমস্কাৰ! আপুনি মোক কি কি বিষয়ত সহায় কৰিব পাৰিব?');
-  const [temperature, setTemperature] = useState<number>(0.7);
+  const [playgroundEndpoint, setPlaygroundEndpoint] = useState<'audio' | 'speech' | 'translate' | 'models'>('audio');
   const [translateText, setTranslateText] = useState<string>('Artificial Intelligence is empowering the youth of Assam.');
-    const [translateTarget, setTranslateTarget] = useState<string>('as');
+  const [translateTarget, setTranslateTarget] = useState<string>('as');
 
-  // Audio Playground State
-  const [audioModel, setAudioModel] = useState<string>('axom-voice-indic');
+  // Speech TTS Playground State (Puhor)
+  const [speechModel, setSpeechModel] = useState<string>('axomai-voice-puhor');
+  const [speechInput, setSpeechInput] = useState<string>('নমস্কাৰ! অসম এআইৰ প্ৰযুক্তি মঞ্চত আপোনাক স্বাগতম।');
+  const [speechVoice, setSpeechVoice] = useState<'male' | 'female'>('male');
+  const [audioOutputUrl, setAudioOutputUrl] = useState<string | null>(null);
+
+  // Audio STT Playground State (Xuna)
+  const [audioModel, setAudioModel] = useState<string>('axomai-speech-xuna');
   const [audioLanguage, setAudioLanguage] = useState<string>('as');
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordedAudioBlob, setRecordedAudioBlob] = useState<Blob | null>(null);
@@ -422,18 +417,16 @@ export default function DeveloperDocsInteractive() {
         headers['Authorization'] = `Bearer ${userKey}`;
       }
 
-      if (playgroundEndpoint === 'chat') {
-        url = '/v1/chat/completions';
+      if (playgroundEndpoint === 'speech') {
+        url = '/v1/audio/speech';
         options = {
           method: 'POST',
           headers,
           body: JSON.stringify({
-            model: chatModel,
-            messages: [
-              { role: 'system', content: 'You are Axom AI assistant.' },
-              { role: 'user', content: chatPrompt },
-            ],
-            temperature: temperature,
+            model: speechModel || 'axomai-voice-puhor',
+            input: speechInput || 'নমস্কাৰ, অসম এআইৰ প্ৰযুক্তি মঞ্চত আপোনাক স্বাগতম।',
+            voice: speechVoice || 'male',
+            response_format: 'mp3',
           }),
         };
       } else if (playgroundEndpoint === 'translate') {
@@ -442,6 +435,7 @@ export default function DeveloperDocsInteractive() {
           method: 'POST',
           headers,
           body: JSON.stringify({
+            model: 'axomai-trans-xetu',
             text: translateText,
             source_lang: 'en',
             target_lang: translateTarget,
@@ -458,7 +452,7 @@ export default function DeveloperDocsInteractive() {
           const sampleBlob = createSampleAudioBlob();
           formData.append('file', sampleBlob, 'sample_assamese.wav');
         }
-        formData.append('model', audioModel || 'axom-voice-indic');
+        formData.append('model', audioModel || 'axomai-speech-xuna');
         formData.append('language', audioLanguage || 'as');
         formData.append('response_format', 'verbose_json');
 
@@ -486,13 +480,28 @@ export default function DeveloperDocsInteractive() {
       setHttpStatus(res.status);
       setResponseTimeMs(elapsed);
 
-      let data: any;
-      try {
-        data = await res.json();
-      } catch {
-        data = { error: 'Non-JSON response from server' };
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('audio')) {
+        const audioBlob = await res.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        setAudioOutputUrl(audioUrl);
+        setApiResponse({
+          status: 'success',
+          model: speechModel || 'axomai-voice-puhor',
+          message: 'Audio synthesized successfully by Puhor Studio TTS',
+          size_bytes: audioBlob.size,
+          audio_url: 'Audio Stream Ready (Click Play Below)',
+        });
+      } else {
+        setAudioOutputUrl(null);
+        let data: any;
+        try {
+          data = await res.json();
+        } catch {
+          data = { error: 'Non-JSON response from server' };
+        }
+        setApiResponse(data);
       }
-      setApiResponse(data);
     } catch (err: any) {
       const endTime = performance.now();
       setHttpStatus(0);
@@ -504,95 +513,142 @@ export default function DeveloperDocsInteractive() {
   };
 
   // Quickstart Code Snippets
-  const voiceSnippet = `from openai import OpenAI
+  const xunaSnippet = `from openai import OpenAI
 import os
 
-# 1. Initialize client with Axom AI base URL
+# 1. Point standard OpenAI client to Axom AI Inference Gateway
 client = OpenAI(
     base_url="https://aiaxom.co.in/v1",
     api_key=os.environ.get("AXOM_API_KEY", "${activeKeyForSnippets}")
 )
 
-# 2. Transcribe Assamese audio with authentic orthography (ৰ/ৱ) & anti-hallucination
+# 2. Transcribe Assamese audio using Xuna (600M Conformer ASR)
 with open("speech.mp3", "rb") as audio_file:
     transcript = client.audio.transcriptions.create(
-        model="axom-voice-indic",
+        model="axomai-speech-xuna",
         file=audio_file,
         language="as",
         response_format="verbose_json"
     )
 
-# 3. Print verified Assamese transcript
-print("Transcript:", transcript.text)
-print("Duration:", transcript.duration, "seconds")`;
+print("Verified Assamese Transcript:", transcript.text)
+print("Audio Duration:", transcript.duration, "seconds")`;
 
-  const pythonSnippet = `from openai import OpenAI
+  const puhorSnippet = `from openai import OpenAI
 import os
 
-# 1. Initialize client with Axom AI base URL
+# 1. Point standard OpenAI client to Axom AI Gateway
 client = OpenAI(
     base_url="https://aiaxom.co.in/v1",
     api_key=os.environ.get("AXOM_API_KEY", "${activeKeyForSnippets}")
 )
 
-# 2. Query Axom Indic-1 with full OpenAI compatibility
-response = client.chat.completions.create(
-    model="axom-indic-1",
-    messages=[
-        {"role": "system", "content": "You are Axom AI, a helpful Assamese language assistant."},
-        {"role": "user", "content": "অসমৰ ঐতিহ্য আৰু প্ৰধান উৎসৱসমূহৰ বিষয়ে চমুকৈ কওক।"}
-    ],
-    temperature=0.7
+# 2. Synthesize 24,000 Hz Studio Assamese Speech using Puhor TTS
+response = client.audio.speech.create(
+    model="axomai-voice-puhor",
+    voice="male",  # or "female"
+    input="নমস্কাৰ! অসম এআইৰ প্ৰযুক্তি মঞ্চত আপোনাক স্বাগতম।"
 )
 
-# 3. Print the purified Assamese response
-print(response.choices[0].message.content)`;
+# 3. Stream or save output MP3 audio file
+response.stream_to_file("puhor_speech.mp3")
+print("Assamese speech synthesized successfully!")`;
+
+  const xetuSnippet = `import requests
+import os
+
+# 1. Translate English to natural Assamese using Xetu 200M Neural Bridge
+url = "https://aiaxom.co.in/v1/translate"
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {os.environ.get('AXOM_API_KEY', '${activeKeyForSnippets}')}"
+}
+payload = {
+    "model": "axomai-trans-xetu",
+    "text": "Artificial Intelligence is transforming education across Assam.",
+    "source_lang": "en",
+    "target_lang": "as"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+print("Translated Assamese Text:", response.json()["translated_text"])`;
+
+  const pythonSnippet = `from openai import OpenAI
+import os
+
+# Official Axom AI Sovereign SDK Setup
+client = OpenAI(
+    base_url="https://aiaxom.co.in/v1",
+    api_key=os.environ.get("AXOM_API_KEY", "${activeKeyForSnippets}")
+)
+
+# A. Voice Typing (Speech-to-Text) with Xuna
+with open("speech.mp3", "rb") as audio:
+    stt = client.audio.transcriptions.create(
+        model="axomai-speech-xuna",
+        file=audio,
+        language="as"
+    )
+print("Xuna Transcript:", stt.text)
+
+# B. Voice Synthesis (Text-to-Speech) with Puhor
+speech = client.audio.speech.create(
+    model="axomai-voice-puhor",
+    input=stt.text,
+    voice="female"
+)
+speech.stream_to_file("reply.mp3")
+print("Puhor Audio Generated!")`;
 
   const nodeSnippet = `import OpenAI from 'openai';
+import fs from 'fs';
 
-// 1. Point standard OpenAI SDK to Axom AI
+// Point standard OpenAI SDK to Axom AI
 const openai = new OpenAI({
   baseURL: 'https://aiaxom.co.in/v1',
   apiKey: process.env.AXOM_API_KEY || '${activeKeyForSnippets}',
 });
 
 async function main() {
-  const completion = await openai.chat.completions.create({
-    model: 'axom-indic-1',
-    messages: [
-      { role: 'system', content: 'You are Axom AI, a helpful Assamese AI assistant.' },
-      { role: 'user', content: 'অসমৰ প্ৰধান অৰ্থনৈতিক উৎসসমূহ কি কি?' }
-    ],
-    temperature: 0.7
+  // 1. Transcribe Assamese audio with Xuna (600M Conformer ASR)
+  const transcription = await openai.audio.transcriptions.create({
+    file: fs.createReadStream('speech.mp3'),
+    model: 'axomai-speech-xuna',
+    language: 'as'
   });
+  console.log('Transcript:', transcription.text);
 
-  console.log(completion.choices[0].message.content);
+  // 2. Synthesize audio with Puhor TTS (24kHz Studio Audio)
+  const mp3 = await openai.audio.speech.create({
+    model: 'axomai-voice-puhor',
+    voice: 'male',
+    input: transcription.text,
+  });
+  const buffer = Buffer.from(await mp3.arrayBuffer());
+  await fs.promises.writeFile('puhor_output.mp3', buffer);
 }
 
 main();`;
 
-  const curlSnippet = `curl -X POST https://aiaxom.co.in/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${activeKeyForSnippets}" \
-  -d '{
-    "model": "axom-indic-1",
-    "messages": [
-      {
-        "role": "user",
-        "content": "নমস্কাৰ, আপুনি মোক কেনেদৰে সহায় কৰিব পাৰে?"
-      }
-    ],
-    "temperature": 0.7
-  }'`;
+  const curlSnippet = `# 1. Speech-to-Text via Xuna (POST /v1/audio/transcriptions)
+curl -X POST https://aiaxom.co.in/v1/audio/transcriptions \\
+  -H "Authorization: Bearer ${activeKeyForSnippets}" \\
+  -F file=@speech.mp3 \\
+  -F model="axomai-speech-xuna" \\
+  -F language="as"
 
-  const translateSnippet = `curl -X POST https://aiaxom.co.in/v1/translate \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${activeKeyForSnippets}" \
-  -d '{
-    "text": "Artificial Intelligence is transforming Assam.",
-    "source_lang": "en",
-    "target_lang": "as"
-  }'`;
+# 2. Text-to-Speech via Puhor (POST /v1/audio/speech)
+curl -X POST https://aiaxom.co.in/v1/audio/speech \\
+  -H "Authorization: Bearer ${activeKeyForSnippets}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"axomai-voice-puhor","input":"নমস্কাৰ অসম!","voice":"male"}' \\
+  --output puhor_speech.mp3
+
+# 3. Neural Translation via Xetu (POST /v1/translate)
+curl -X POST https://aiaxom.co.in/v1/translate \\
+  -H "Authorization: Bearer ${activeKeyForSnippets}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"axomai-trans-xetu","text":"Good morning Guwahati","source_lang":"en","target_lang":"as"}'`;
 
   // Full-Stack Architecture Code Snippets
   const flutterSnippet = `// Flutter / Dart (mobile app integration via your backend API proxy)
@@ -603,26 +659,27 @@ import 'package:http/http.dart' as http;
 
 Future<String> askAxomAI(String userPrompt) async {
   // Option A: Via your secure mobile backend proxy (Recommended)
-  final url = Uri.parse('https://your-api.com/api/chat');
+  final url = Uri.parse('https://your-api.com/api/translate');
   
   final response = await http.post(
     url,
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
-      'prompt': userPrompt,
-      'model': 'axom-indic-1'
+      'text': userPrompt,
+      'model': 'axomai-trans-xetu',
+      'target_lang': 'as'
     }),
   );
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
-    return data['reply'];
+    return data['translated_text'];
   } else {
     throw Exception('Failed to connect to Axom AI');
   }
 }`;
 
-  const nextjsSnippet = `// Next.js App Router (app/api/chat/route.ts)
+  const nextjsSnippet = `// Next.js App Router (app/api/speech/route.ts)
 // Server-side Route Handler: Secret key is never exposed to the client browser!
 
 import { NextResponse } from 'next/server';
@@ -635,18 +692,22 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const { text, voice = 'bidyut' } = await req.json();
 
-    const completion = await client.chat.completions.create({
-      model: 'axom-indic-1',
-      messages: [
-        { role: 'system', content: 'You are Axom AI assistant.' },
-        { role: 'user', content: message }
-      ],
-      temperature: 0.7,
+    const mp3Response = await client.audio.speech.create({
+      model: 'axomai-voice-puhor',
+      voice: voice,
+      input: text,
+      response_format: 'mp3',
     });
 
-    return NextResponse.json({ reply: completion.choices[0].message.content });
+    const buffer = Buffer.from(await mp3Response.arrayBuffer());
+    return new NextResponse(buffer, {
+      headers: {
+        'Content-Type': 'audio/mpeg',
+        'Content-Disposition': 'inline; filename="puhor_speech.mp3"',
+      },
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -654,18 +715,14 @@ export async function POST(req: Request) {
 
   const phpSnippet = `<?php
 // PHP / Laravel / WordPress Backend Integration
-// Uses cURL to securely query Axom AI from your Linux server
-
+// Uses cURL to query Axom Neural Translation Bridge (Xetu)
 $apiKey = getenv('AXOM_API_KEY') ?: '${activeKeyForSnippets}';
-$apiUrl = 'https://aiaxom.co.in/v1/chat/completions';
+$apiUrl = 'https://aiaxom.co.in/v1/translate';
 
 $payload = json_encode([
-    'model' => 'axom-indic-1',
-    'messages' => [
-        ['role' => 'system', 'content' => 'You are Axom AI assistant.'],
-        ['role' => 'user', 'content' => 'অসমৰ প্ৰধান পৰ্যটনস্থলীসমূহ কি কি?']
-    ],
-    'temperature' => 0.7
+    'text' => 'Artificial Intelligence is revolutionizing education in Assam.',
+    'source_lang' => 'en',
+    'target_lang' => 'as'
 ]);
 
 $ch = curl_init($apiUrl);
@@ -682,12 +739,11 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 $result = json_decode($response, true);
-echo $result['choices'][0]['message']['content'];
+echo $result['translated_text'];
 ?>`;
 
   const fastapiSnippet = `# Python FastAPI Backend (main.py)
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from openai import OpenAI
 import os
 
@@ -698,18 +754,17 @@ client = OpenAI(
     api_key=os.environ.get("AXOM_API_KEY") # Safe backend environment
 )
 
-class ChatRequest(BaseModel):
-    prompt: str
-
-@app.post("/api/chat")
-async def chat_endpoint(req: ChatRequest):
+@app.post("/api/transcribe")
+async def transcribe_endpoint(audio: UploadFile = File(...)):
     try:
-        response = client.chat.completions.create(
-            model="axom-indic-1",
-            messages=[{"role": "user", "content": req.prompt}],
-            temperature=0.7
+        audio_bytes = await audio.read()
+        transcription = client.audio.transcriptions.create(
+            model="axomai-speech-xuna",
+            file=(audio.filename, audio_bytes, audio.content_type),
+            language="as",
+            response_format="json"
         )
-        return {"content": response.choices[0].message.content}
+        return {"text": transcription.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))`;
 
@@ -727,14 +782,22 @@ const client = new OpenAI({
   apiKey: process.env.AXOM_API_KEY, // Stored safely on server
 });
 
-app.post('/api/chat', async (req, res) => {
+// Puhor 24kHz Text-to-Speech Route
+app.post('/api/speech', async (req, res) => {
   try {
-    const { prompt } = req.body;
-    const response = await client.chat.completions.create({
-      model: 'axom-indic-1',
-      messages: [{ role: 'user', content: prompt }],
+    const { text, voice = 'ananya' } = req.body;
+    const mp3 = await client.audio.speech.create({
+      model: 'axomai-voice-puhor',
+      voice: voice,
+      input: text,
+      response_format: 'mp3',
     });
-    res.json({ reply: response.choices[0].message.content });
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    res.set({
+      'Content-Type': 'audio/mpeg',
+      'Content-Disposition': 'inline; filename="speech.mp3"'
+    });
+    res.send(buffer);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -1375,8 +1438,41 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               </span>
             </div>
 
-            {/* Language Selector Tabs */}
+            {/* Language & Model Selector Tabs */}
             <div className="flex flex-wrap sm:flex-nowrap items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 overflow-x-auto max-w-full">
+              <button
+                type="button"
+                onClick={() => setActiveTab('xuna')}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  activeTab === 'xuna'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Xuna (STT)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('puhor')}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  activeTab === 'puhor'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Puhor (TTS)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('xetu')}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  activeTab === 'xetu'
+                    ? 'bg-emerald-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Xetu (Translate)
+              </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('python')}
@@ -1386,7 +1482,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                Python (OpenAI)
+                Python (Full)
               </button>
               <button
                 type="button"
@@ -1410,17 +1506,6 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               >
                 cURL
               </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab('translate')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === 'translate'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Translation API
-              </button>
             </div>
           </div>
 
@@ -1430,13 +1515,17 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               type="button"
               onClick={() =>
                 copyToClipboard(
-                  activeTab === 'python'
+                  activeTab === 'xuna'
+                    ? xunaSnippet
+                    : activeTab === 'puhor'
+                    ? puhorSnippet
+                    : activeTab === 'xetu'
+                    ? xetuSnippet
+                    : activeTab === 'python'
                     ? pythonSnippet
                     : activeTab === 'node'
                     ? nodeSnippet
-                    : activeTab === 'curl'
-                    ? curlSnippet
-                    : translateSnippet,
+                    : curlSnippet,
                   true
                 )
               }
@@ -1447,10 +1536,12 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
             </button>
 
             <pre className="text-slate-200">
+              {activeTab === 'xuna' && xunaSnippet}
+              {activeTab === 'puhor' && puhorSnippet}
+              {activeTab === 'xetu' && xetuSnippet}
               {activeTab === 'python' && pythonSnippet}
               {activeTab === 'node' && nodeSnippet}
               {activeTab === 'curl' && curlSnippet}
-              {activeTab === 'translate' && translateSnippet}
             </pre>
           </div>
         </div>
@@ -1638,36 +1729,38 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               <button
                 type="button"
                 onClick={() => {
-                  setPlaygroundEndpoint('chat');
+                  setPlaygroundEndpoint('audio');
                   setApiResponse(null);
                   setHttpStatus(null);
+                  setAudioOutputUrl(null);
                 }}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                  playgroundEndpoint === 'chat'
-                    ? 'bg-indigo-600 text-white shadow-md'
+                  playgroundEndpoint === 'audio'
+                    ? 'bg-emerald-600 text-white shadow-md'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
                 <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
-                <span>/v1/chat/completions</span>
+                <Mic size={13} className="text-amber-300" />
+                <span>Xuna STT (/v1/audio/transcriptions)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => {
-                  setPlaygroundEndpoint('audio');
+                  setPlaygroundEndpoint('speech');
                   setApiResponse(null);
                   setHttpStatus(null);
                 }}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                  playgroundEndpoint === 'audio'
-                    ? 'bg-indigo-600 text-white shadow-md'
+                  playgroundEndpoint === 'speech'
+                    ? 'bg-emerald-600 text-white shadow-md'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
                 <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
-                <Mic size={13} className="text-amber-400" />
-                <span>/v1/audio/transcriptions</span>
+                <Volume2 size={13} className="text-amber-300" />
+                <span>Puhor TTS (/v1/audio/speech)</span>
               </button>
 
               <button
@@ -1676,15 +1769,17 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                   setPlaygroundEndpoint('translate');
                   setApiResponse(null);
                   setHttpStatus(null);
+                  setAudioOutputUrl(null);
                 }}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                   playgroundEndpoint === 'translate'
-                    ? 'bg-indigo-600 text-white shadow-md'
+                    ? 'bg-emerald-600 text-white shadow-md'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
                 <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">POST</span>
-                <span>/v1/translate</span>
+                <Globe size={13} />
+                <span>Xetu Translate (/v1/translate)</span>
               </button>
 
               <button
@@ -1693,10 +1788,11 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                   setPlaygroundEndpoint('models');
                   setApiResponse(null);
                   setHttpStatus(null);
+                  setAudioOutputUrl(null);
                 }}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
                   playgroundEndpoint === 'models'
-                    ? 'bg-indigo-600 text-white shadow-md'
+                    ? 'bg-emerald-600 text-white shadow-md'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
@@ -1710,7 +1806,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
               <button
                 type="button"
                 onClick={handleUseDemoKey}
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-xs font-bold shadow-md hover:from-indigo-600 hover:to-violet-700 transition flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-bold shadow-md hover:from-emerald-700 hover:to-teal-700 transition flex items-center gap-1.5"
               >
                 <Sparkles size={13} />
                 <span>Try with Public Demo Key</span>
@@ -1726,215 +1822,100 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                   Request Payload Configuration
                 </span>
                 {isUsingDemo && (
-                  <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                     ⚡ Demo Key (Max 5 req/min)
                   </span>
                 )}
               </div>
 
-              {playgroundEndpoint === 'chat' && (
-                <>
-                  <div ref={modelDropdownRef} className="relative">
+              {playgroundEndpoint === 'speech' && (
+                <div className="space-y-4">
+                  <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <Cpu size={13} className="text-indigo-600 dark:text-indigo-400" />
-                        Target Model
+                        <Volume2 size={13} className="text-amber-500" />
+                        Target TTS Model
                       </span>
-                      <span className="text-[10px] text-slate-400 font-normal">Active Neural Tier</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Active Studio Voice Tier</span>
                     </label>
-
-                    {/* Custom Dropdown Trigger */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsModelDropdownOpen(!isModelDropdownOpen);
-                        setIsLangDropdownOpen(false);
-                      }}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700/80 bg-white dark:bg-slate-950/90 hover:bg-slate-50 dark:hover:bg-slate-900/90 text-left transition-all duration-150 flex items-center justify-between gap-2 shadow-xs group focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/50 flex items-center justify-center shrink-0">
-                          {chatModel === 'axom-indic-1' ? (
-                            <Sparkles size={14} className="text-emerald-500" />
-                          ) : chatModel === 'axom-fast' ? (
-                            <Zap size={14} className="text-amber-500" />
-                          ) : (
-                            <Cpu size={14} className="text-purple-500" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
-                              {chatModel}
-                            </span>
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                              chatModel === 'axom-indic-1'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                                : chatModel === 'axom-fast'
-                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-                                : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                            }`}>
-                              {chatModel === 'axom-indic-1' ? 'Flagship' : chatModel === 'axom-fast' ? 'Ultra Fast' : 'Deep Logic'}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                            {chatModel === 'axom-indic-1'
-                              ? 'Native Assamese & Indic • 32k context'
-                              : chatModel === 'axom-fast'
-                              ? 'Sub-second real-time inference'
-                              : 'Multi-step STEM & deep reasoning'}
-                          </p>
-                        </div>
+                    <div className="p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Radio size={16} className="text-amber-500 animate-pulse" />
+                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">axomai-voice-puhor</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                          24kHz Studio TTS
+                        </span>
                       </div>
-                      <ChevronDown
-                        size={16}
-                        className={`text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-transform duration-200 shrink-0 ${
-                          isModelDropdownOpen ? 'rotate-180 text-indigo-500' : ''
-                        }`}
-                      />
-                    </button>
-
-                    {/* Custom Dropdown Menu Popover */}
-                    {isModelDropdownOpen && (
-                      <div className="absolute z-50 left-0 right-0 mt-2 p-1.5 rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 shadow-2xl backdrop-blur-2xl space-y-1 animate-in fade-in zoom-in-95 duration-100">
-                        {/* Option 1: axom-indic-1 */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setChatModel('axom-indic-1');
-                            setIsModelDropdownOpen(false);
-                          }}
-                          className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 ${
-                            chatModel === 'axom-indic-1'
-                              ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/50'
-                              : 'hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-start gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/50 flex items-center justify-center shrink-0 mt-0.5">
-                              <Sparkles size={15} className="text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
-                                  axom-indic-1
-                                </span>
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                                  Recommended
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                Native Assamese &amp; Indic multimodal engine with script purification (ৰ/র).
-                              </p>
-                            </div>
-                          </div>
-                          {chatModel === 'axom-indic-1' && (
-                            <Check size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                          )}
-                        </button>
-
-                        {/* Option 2: axom-fast */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setChatModel('axom-fast');
-                            setIsModelDropdownOpen(false);
-                          }}
-                          className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 ${
-                            chatModel === 'axom-fast'
-                              ? 'bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50'
-                              : 'hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-start gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700/50 flex items-center justify-center shrink-0 mt-0.5">
-                              <Zap size={15} className="text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
-                                  axom-fast
-                                </span>
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                                  Sub-300ms
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                Ultra-fast throughput engine optimized for interactive bots &amp; edge apps.
-                              </p>
-                            </div>
-                          </div>
-                          {chatModel === 'axom-fast' && (
-                            <Check size={16} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                          )}
-                        </button>
-
-                        {/* Option 3: axom-pro */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setChatModel('axom-pro');
-                            setIsModelDropdownOpen(false);
-                          }}
-                          className={`w-full p-2.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 ${
-                            chatModel === 'axom-pro'
-                              ? 'bg-purple-50 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-700/50'
-                              : 'hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent'
-                          }`}
-                        >
-                          <div className="flex items-start gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/80 border border-purple-300 dark:border-purple-700/50 flex items-center justify-center shrink-0 mt-0.5">
-                              <Cpu size={15} className="text-purple-600 dark:text-purple-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">
-                                  axom-pro
-                                </span>
-                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">
-                                  Deep Logic
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                Multi-step STEM reasoning, complex coding, and 128k large document synthesis.
-                              </p>
-                            </div>
-                          </div>
-                          {chatModel === 'axom-pro' && (
-                            <Check size={16} className="text-purple-600 dark:text-purple-400 shrink-0" />
-                          )}
-                        </button>
-                      </div>
-                    )}
+                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">0.0% Hallucination</span>
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">User Prompt</label>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                      Voice Persona
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSpeechVoice('male')}
+                        className={`py-2 px-3 rounded-xl text-xs font-semibold border transition ${
+                          speechVoice === 'male'
+                            ? 'bg-amber-500/15 border-amber-500 text-amber-800 dark:text-amber-300'
+                            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        Male Voice (প্ৰভাত)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSpeechVoice('female')}
+                        className={`py-2 px-3 rounded-xl text-xs font-semibold border transition ${
+                          speechVoice === 'female'
+                            ? 'bg-amber-500/15 border-amber-500 text-amber-800 dark:text-amber-300'
+                            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        Female Voice (প্ৰিয়ংকা)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Input Text in Assamese
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {speechInput.length} / 600 characters
+                      </span>
+                    </div>
                     <textarea
                       rows={4}
-                      value={chatPrompt}
-                      onChange={(e) => setChatPrompt(e.target.value)}
-                      className="w-full p-3 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Type your question or query here..."
+                      value={speechInput}
+                      maxLength={600}
+                      onChange={(e) => setSpeechInput(e.target.value)}
+                      placeholder="অসমীয়া ভাষাত পাঠ লিখক..."
+                      className="w-full p-3 text-xs sm:text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-sans focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                      <span>Temperature</span>
-                      <span>{temperature}</span>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <span className="text-[10px] text-slate-400 py-0.5">Quick Samples:</span>
+                      {[
+                        'নমস্কাৰ! আপোনালোকক অসম এআইলৈ স্বাগতম।',
+                        'অসম আমাৰ ৰূপহী মাতৃভূমি, ইয়াৰ প্ৰকৃতি মনোমোহা।',
+                        'আজিৰ বতৰ খুবেই সুন্দৰ আৰু বৰষুণৰ সম্ভাৱনা আছে।'
+                      ].map((sample, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setSpeechInput(sample)}
+                          className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-amber-500/15 hover:text-amber-600 dark:hover:text-amber-300 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition"
+                        >
+                          Sample {i + 1}
+                        </button>
+                      ))}
                     </div>
-                    <input
-                      type="range"
-                      min="0.0"
-                      max="1.5"
-                      step="0.1"
-                      value={temperature}
-                      onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                      className="w-full accent-indigo-600 cursor-pointer"
-                    />
                   </div>
-                </>
+                </div>
               )}
 
               {playgroundEndpoint === 'audio' && (
@@ -1950,9 +1931,9 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     <div className="p-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Radio size={16} className="text-violet-600 dark:text-violet-400 animate-pulse" />
-                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">axom-voice-indic</span>
+                        <span className="font-mono text-xs font-bold text-slate-900 dark:text-white">axomai-speech-xuna</span>
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300">
-                          Sovereign Audio
+                          600M Conformer ASR
                         </span>
                       </div>
                       <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">₹0.25/min (₹0.004/s)</span>
@@ -2259,17 +2240,51 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                   responseViewMode === 'formatted' ? (
                     /* Formatted Preview Mode */
                     <div className="space-y-3 font-sans">
-                      {apiResponse?.text !== undefined ? (
+                      {audioOutputUrl ? (
+                        <div className="space-y-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                              <span className="font-semibold text-white">
+                                {apiResponse?.model || speechModel}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 text-[10px] font-mono border border-amber-500/30">
+                                Puhor 24kHz Studio Audio
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-amber-400 font-mono">
+                              Voice: {apiResponse?.voice || speechVoice} • MP3 ({Math.round((apiResponse?.bytes || 0) / 1024)} KB)
+                            </div>
+                          </div>
+                          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                            <div className="text-xs text-amber-300 font-semibold flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <Volume2 size={15} className="text-amber-400" />
+                                Synthesized Speech Playback:
+                              </span>
+                              <a
+                                href={audioOutputUrl}
+                                download="puhor_speech.mp3"
+                                className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-medium border border-amber-500/40 transition flex items-center gap-1"
+                              >
+                                <Download size={12} />
+                                Download MP3
+                              </a>
+                            </div>
+                            <audio controls src={audioOutputUrl} className="w-full h-11 rounded-lg accent-amber-500" autoPlay />
+                          </div>
+                        </div>
+                      ) : apiResponse?.text !== undefined ? (
                         <div>
                           {/* Audio Metadata Header */}
                           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-white/10 text-xs">
                             <div className="flex items-center gap-2">
                               <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse"></span>
                               <span className="font-semibold text-white">
-                                {apiResponse.model || 'axom-voice-indic'}
+                                {apiResponse.model || 'axomai-speech-xuna'}
                               </span>
                               <span className="px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-300 text-[10px] font-mono border border-violet-500/30">
-                                Transcribed Audio
+                                Transcribed Audio (Xuna)
                               </span>
                             </div>
                             {apiResponse?.duration && (
@@ -2473,7 +2488,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
             Available Inference Models
           </h2>
           <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base mt-1">
-            Select the appropriate model name in your API request payload (<code className="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-600 dark:text-emerald-400">&quot;model&quot;: &quot;axom-indic-1&quot;</code>).
+            Select the appropriate sovereign model in your API request payload (<code className="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-600 dark:text-emerald-400">&quot;model&quot;: &quot;axomai-speech-xuna&quot;</code>, <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-600 dark:text-emerald-400">&quot;axomai-voice-puhor&quot;</code>, or <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-emerald-600 dark:text-emerald-400">&quot;axomai-trans-xetu&quot;</code>).
           </p>
         </div>
 
@@ -2534,18 +2549,6 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
         <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
           <button
             type="button"
-            onClick={() => setActiveEndpoint('chat')}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-              activeEndpoint === 'chat'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <span className="px-1.5 py-0.5 rounded bg-black/20 text-xs font-mono">POST</span>
-            /v1/chat/completions
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveEndpoint('audio')}
             className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
               activeEndpoint === 'audio'
@@ -2556,6 +2559,19 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
             <span className="px-1.5 py-0.5 rounded bg-black/20 text-xs font-mono">POST</span>
             <Mic size={13} className="text-amber-300" />
             /v1/audio/transcriptions
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveEndpoint('speech')}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+              activeEndpoint === 'speech'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <span className="px-1.5 py-0.5 rounded bg-black/20 text-xs font-mono">POST</span>
+            <Volume2 size={13} className="text-amber-300" />
+            /v1/audio/speech
           </button>
           <button
             type="button"
@@ -2583,20 +2599,20 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
           </button>
         </div>
 
-        {/* Tab 1: /v1/chat/completions */}
-        {activeEndpoint === 'chat' && (
+        {/* Tab: /v1/audio/speech */}
+        {activeEndpoint === 'speech' && (
           <div className="space-y-6">
             <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-4">
               <div className="flex items-center gap-3">
-                <span className="px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono text-xs font-bold">
+                <span className="px-2 py-1 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono text-xs font-bold">
                   POST
                 </span>
-                <code className="font-mono text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
-                  https://aiaxom.co.in/v1/chat/completions
+                <code className="text-base sm:text-lg font-mono font-bold text-slate-900 dark:text-white">
+                  https://aiaxom.co.in/v1/audio/speech
                 </code>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                Creates a model response for the given chat conversation. Supports multilingual prompt understanding with automatic Assamese grammar &amp; character purification.
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Standard OpenAI-compatible Text-to-Speech endpoint powered by <strong>Puhor 24kHz Studio</strong> neural voice synthesis engine. Converts Assamese and Indic text into expressive, natural spoken audio with native phoneme pronunciation and dynamic prosody.
               </p>
 
               {/* Request Parameters Table */}
@@ -2612,28 +2628,28 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
                     <tr>
-                      <td className="py-2.5 font-mono text-emerald-600 dark:text-emerald-400">messages</td>
-                      <td className="py-2.5 font-mono text-slate-500">array</td>
+                      <td className="py-2.5 font-mono text-emerald-600 dark:text-emerald-400">input</td>
+                      <td className="py-2.5 font-mono text-slate-500">string</td>
                       <td className="py-2.5 font-semibold text-amber-600">Yes</td>
-                      <td className="py-2.5">A list of messages comprising the conversation so far (<code className="font-mono">[&#123;&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;...&quot;&#125;]</code>).</td>
+                      <td className="py-2.5">The Assamese or Indic text to synthesize into speech. Max 4,096 characters per request.</td>
                     </tr>
                     <tr>
                       <td className="py-2.5 font-mono text-emerald-600 dark:text-emerald-400">model</td>
                       <td className="py-2.5 font-mono text-slate-500">string</td>
                       <td className="py-2.5 text-slate-400">Optional</td>
-                      <td className="py-2.5">ID of the model to use. Defaults to <code className="font-mono">axom-indic-1</code>. Also supports <code className="font-mono">axom-fast</code> and <code className="font-mono">axom-pro</code>.</td>
+                      <td className="py-2.5">ID of the voice model. Defaults to <code className="font-mono">axomai-voice-puhor</code> (aliases: <code className="font-mono">puhor-tts</code>, <code className="font-mono">tts-1</code>).</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 font-mono text-emerald-600 dark:text-emerald-400">temperature</td>
-                      <td className="py-2.5 font-mono text-slate-500">number</td>
-                      <td className="py-2.5 text-slate-400">Optional</td>
-                      <td className="py-2.5">What sampling temperature to use, between 0 and 2. Default is 0.7.</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 font-mono text-emerald-600 dark:text-emerald-400">language</td>
+                      <td className="py-2.5 font-mono text-emerald-600 dark:text-emerald-400">voice</td>
                       <td className="py-2.5 font-mono text-slate-500">string</td>
                       <td className="py-2.5 text-slate-400">Optional</td>
-                      <td className="py-2.5">Enforce output language: <code className="font-mono">&quot;assamese&quot;</code> (default), <code className="font-mono">&quot;english&quot;</code>, or <code className="font-mono">&quot;hindi&quot;</code>.</td>
+                      <td className="py-2.5">Voice persona: <code className="font-mono">&quot;bidyut&quot;</code> (deep energetic male), <code className="font-mono">&quot;ananya&quot;</code> (warm professional female), or <code className="font-mono">&quot;priya&quot;</code> (gentle narration female). Default: <code className="font-mono">&quot;bidyut&quot;</code>.</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2.5 font-mono text-emerald-600 dark:text-emerald-400">response_format</td>
+                      <td className="py-2.5 font-mono text-slate-500">string</td>
+                      <td className="py-2.5 text-slate-400">Optional</td>
+                      <td className="py-2.5">Audio format of the synthesized file. Currently supports <code className="font-mono">&quot;mp3&quot;</code> (default) and <code className="font-mono">&quot;wav&quot;</code>.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -2642,30 +2658,12 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
 
             {/* Sample Response */}
             <div className="rounded-2xl border border-slate-800 bg-[#0b1220] p-4 sm:p-6 text-slate-200">
-              <div className="text-xs font-mono text-slate-400 mb-2">// 200 OK Response (Standard OpenAI JSON)</div>
-              <pre className="font-mono text-xs sm:text-sm text-emerald-300 overflow-x-auto">
-{`{
-  "id": "chatcmpl-axom-7f82c9e13d4b",
-  "object": "chat.completion",
-  "created": 1730193600,
-  "model": "axom-indic-1",
-  "choices": [
-    {
-      "index": 0,
-      "message": {
-        "role": "assistant",
-        "content": "নমস্কাৰ! মই Axom AI। অসমৰ সংস্কৃতি আৰু ভাষা সংৰক্ষণৰ বাবে মই আপোনাক সহায় কৰিবলৈ সাজু।"
-      },
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": {
-    "prompt_tokens": 14,
-    "completion_tokens": 32,
-    "total_tokens": 46
-  }
-}`}
-              </pre>
+              <div className="text-xs font-mono text-slate-400 mb-2">// 200 OK Response (Binary Audio Stream)</div>
+              <div className="p-4 rounded-xl bg-slate-900 border border-white/10 space-y-2 text-xs font-mono">
+                <div className="text-emerald-400 font-bold">Content-Type: audio/mpeg</div>
+                <div className="text-slate-400">Content-Disposition: inline; filename=&quot;puhor_speech.mp3&quot;</div>
+                <div className="text-slate-400">Transfer-Encoding: chunked (Direct 24kHz Vector Waveform Audio Stream)</div>
+              </div>
             </div>
           </div>
         )}
@@ -2736,7 +2734,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     <tr>
                       <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400">model</td>
                       <td className="py-2.5 text-slate-400">string</td>
-                      <td className="py-2.5 font-sans">Optional. Default: <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;axom-voice-indic&quot;</code>.</td>
+                      <td className="py-2.5 font-sans">Optional. Default: <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;axomai-speech-xuna&quot;</code> (aliases: <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;xuna-stt&quot;</code>, <code className="text-xs bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded">&quot;whisper-1&quot;</code>).</td>
                     </tr>
                     <tr>
                       <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400">language</td>
@@ -2860,25 +2858,28 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
   "object": "list",
   "data": [
     {
-      "id": "axom-indic-1",
+      "id": "axomai-speech-xuna",
       "object": "model",
       "created": 1730000000,
       "owned_by": "axom-ai",
-      "description": "Primary Assamese, Hindi, and English high-reasoning multimodal model"
+      "description": "600M Conformer ASR sovereign Assamese speech-to-text with ONNX decoder & Bengali script purification",
+      "type": "audio.transcription"
     },
     {
-      "id": "axom-fast",
+      "id": "axomai-voice-puhor",
       "object": "model",
       "created": 1730000000,
       "owned_by": "axom-ai",
-      "description": "Axom Turbo: Sub-second high-throughput neural inference engine optimized for real-time bots and edge devices"
+      "description": "24kHz Studio neural text-to-speech engine with authentic Assamese prosody & multi-speaker personas",
+      "type": "audio.speech"
     },
     {
-      "id": "axom-pro",
+      "id": "axomai-trans-xetu",
       "object": "model",
       "created": 1730000000,
       "owned_by": "axom-ai",
-      "description": "Axom Deep Reasoning: Advanced STEM problem-solving, multi-step logic, and 128k large-context document processing"
+      "description": "200M Transformer translation bridge specializing in English-Assamese and Indic cross-lingual mapping",
+      "type": "translation"
     }
   ]
 }`}

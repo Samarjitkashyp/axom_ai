@@ -78,7 +78,7 @@ class DeveloperApiRequestLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='api_request_logs')
     endpoint = models.CharField(max_length=100, db_index=True)
     method = models.CharField(max_length=10, default='POST')
-    model_name = models.CharField(max_length=60, blank=True, default='axom-indic-1')
+    model_name = models.CharField(max_length=60, blank=True, default='axomai-speech-xuna')
     status_code = models.IntegerField(default=200, db_index=True)
     ip_address = models.CharField(max_length=64, blank=True, default='')
     tokens_used = models.IntegerField(default=0)

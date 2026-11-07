@@ -44,8 +44,9 @@ export const metadata: Metadata = {
     'Bhashini alternative Assam AI',
     'v1 chat completions Assamese',
     'v1 audio transcriptions Assamese',
-    'Axom Indic-1 model',
-    'axom-voice-indic model',
+    'axomai-speech-xuna model',
+    'axomai-voice-puhor model',
+    'axomai-trans-xetu model',
     'Assamese LLM API keys',
     'AI developer pricing India',
     'Indic NLP and STT API',
@@ -232,8 +233,8 @@ export default async function DeveloperDocsPage() {
       {
         '@type': 'HowTo',
         '@id': 'https://aiaxom.co.in/docs/developer#howto-voice',
-        name: 'How to Transcribe Assamese Audio using OpenAI Python SDK and Axom AI',
-        description: 'Step-by-step instructions for transcribing Assamese speech into authentic Assamese text using standard OpenAI SDK and the axom-voice-indic model.',
+        name: 'How to Transcribe Assamese Audio using OpenAI Python SDK and Axom Xuna',
+        description: 'Step-by-step instructions for transcribing Assamese speech into authentic Assamese text using standard OpenAI SDK and the axomai-speech-xuna (Xuna) model.',
         step: [
           {
             '@type': 'HowToStep',
@@ -243,7 +244,7 @@ export default async function DeveloperDocsPage() {
           {
             '@type': 'HowToStep',
             name: 'Upload Audio Recording',
-            text: 'Call client.audio.transcriptions.create() specifying model="axom-voice-indic" and language="as".',
+            text: 'Call client.audio.transcriptions.create() specifying model="axomai-speech-xuna" and language="as".',
           },
           {
             '@type': 'HowToStep',
@@ -261,7 +262,7 @@ export default async function DeveloperDocsPage() {
             name: 'Does Axom AI provide an Assamese Speech-to-Text (STT) Voice API?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Yes! Axom AI provides axom-voice-indic via the standard OpenAI endpoint POST /v1/audio/transcriptions. It delivers high-accuracy Assamese audio transcription with proprietary acoustic phoneme decoding, silence trimming, anti-hallucination guardrails, and native script purification (ৰ/ৱ correction).',
+              text: 'Yes! Axom AI provides axomai-speech-xuna (Xuna 600M Conformer ASR) via the standard OpenAI endpoint POST /v1/audio/transcriptions. It delivers high-accuracy Assamese audio transcription with proprietary acoustic phoneme decoding, silence trimming, anti-hallucination guardrails, and native script purification (ৰ/ৱ correction).',
             },
           },
           {
@@ -274,10 +275,10 @@ export default async function DeveloperDocsPage() {
           },
           {
             '@type': 'Question',
-            name: 'Why is Axom Voice Indic better than OpenAI Whisper or Google Cloud for Assamese?',
+            name: 'Why is Axom Xuna STT better than OpenAI Whisper or Google Cloud for Assamese?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Standard OpenAI Whisper and Google Cloud Speech frequently misclassify Assamese as Bengali (outputting র instead of ৰ and mixing up ৱ), and often hallucinate repetitive consonant strings on low-audio inputs. Axom AI features specialized regional fine-tuning, dynamic acoustic thresholds, and an orthographic purification engine ensuring 99%+ grammatical accuracy.',
+              text: 'Standard OpenAI Whisper and Google Cloud Speech frequently misclassify Assamese as Bengali (outputting র instead of ৰ and mixing up ৱ), and often hallucinate repetitive consonant strings on low-audio inputs. Axom Xuna features specialized 600M Conformer regional fine-tuning, dynamic acoustic thresholds, and an orthographic purification engine ensuring 99%+ grammatical accuracy.',
             },
           },
           {
@@ -285,7 +286,7 @@ export default async function DeveloperDocsPage() {
             name: 'How do I transcribe Assamese audio in Python with OpenAI SDK?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Initialize client = OpenAI(base_url="https://aiaxom.co.in/v1", api_key="sk_live_..."), then run transcript = client.audio.transcriptions.create(model="axom-voice-indic", file=open("speech.mp3", "rb"), language="as"). The response includes the verified Assamese text transcript.',
+              text: 'Initialize client = OpenAI(base_url="https://aiaxom.co.in/v1", api_key="sk_live_..."), then run transcript = client.audio.transcriptions.create(model="axomai-speech-xuna", file=open("speech.mp3", "rb"), language="as"). The response includes the verified Assamese text transcript.',
             },
           },
           {
@@ -293,7 +294,7 @@ export default async function DeveloperDocsPage() {
             name: 'What is the Axom AI Developer API?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'The Axom AI Developer API is an enterprise-grade, OpenAI-compatible REST API providing developers direct programmatic access to Assam\'s first indigenous Large Language Models (LLMs) and Indic neural intelligence engines. It enables developers to integrate high-speed chat completions (/v1/chat/completions), embeddings, model listings (/v1/models), and neural Assamese translation (/v1/translate) into web apps, mobile apps, bots, and automated pipelines with sub-280ms response times.',
+              text: 'The Axom AI Developer API is an enterprise-grade, OpenAI-compatible REST API providing developers direct programmatic access to Assam\'s sovereign foundation models: Xuna (600M Speech-to-Text), Puhor (24kHz Studio Text-to-Speech), and Xetu (200M Neural Translation Bridge). It enables developers to integrate high-speed speech transcriptions (/v1/audio/transcriptions), voice speech synthesis (/v1/audio/speech), model listings (/v1/models), and neural Assamese translation (/v1/translate) into web apps, mobile apps, bots, and automated pipelines.',
             },
           },
           {
@@ -317,7 +318,7 @@ export default async function DeveloperDocsPage() {
             name: 'What models are supported on the Axom AI Developer Platform?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Axom AI provides three production-grade model tiers: 1) axom-indic-1 (Flagship pedagogical and bilingual Assamese-English reasoning model with native Indic orthography), 2) axom-turbo-v2 (Ultra-low-latency sub-280ms high-throughput neural model for conversational bots and mobile apps), and 3) axom-pro (Deep reasoning STEM and 128k long-context document processing model).',
+              text: 'Axom AI provides three sovereign production engines: 1) axomai-speech-xuna (Xuna - 600M Conformer Assamese Speech-to-Text ASR with ONNX decoder), 2) axomai-voice-puhor (Puhor - 24kHz Studio Text-to-Speech voice engine with multi-speaker personas), and 3) axomai-trans-xetu (Xetu - 200M Transformer translation bridge specializing in English-to-Assamese cross-lingual transfer).',
             },
           },
           {
@@ -521,7 +522,7 @@ export default async function DeveloperDocsPage() {
                 </summary>
                 <div className="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
                   <p>
-                    <strong>Yes, 100%!</strong> Axom AI provides <code className="font-mono text-violet-600 dark:text-violet-400 font-bold bg-violet-100 dark:bg-violet-950 px-1.5 py-0.5 rounded">axom-voice-indic</code>, an indigenous Speech-to-Text neural model accessible via the standard OpenAI-compliant <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.5 rounded">POST /v1/audio/transcriptions</code> endpoint. It supports MP3, WAV, M4A, WEBM, and OGG formats with phoneme decoding, anti-hallucination filters, and native Assamese orthography (<code className="font-bold">ৰ</code> and <code className="font-bold">ৱ</code>) purification.
+                    <strong>Yes, 100%!</strong> Axom AI provides <code className="font-mono text-violet-600 dark:text-violet-400 font-bold bg-violet-100 dark:bg-violet-950 px-1.5 py-0.5 rounded">axomai-speech-xuna</code> (Xuna 600M Conformer ASR), an indigenous Speech-to-Text neural model accessible via the standard OpenAI-compliant <code className="font-mono text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.5 rounded">POST /v1/audio/transcriptions</code> endpoint. It supports MP3, WAV, M4A, WEBM, and OGG formats with phoneme decoding, anti-hallucination filters, and native Assamese orthography (<code className="font-bold">ৰ</code> and <code className="font-bold">ৱ</code>) purification.
                   </p>
                 </div>
               </details>
@@ -549,7 +550,7 @@ export default async function DeveloperDocsPage() {
                 <summary className="flex items-center justify-between cursor-pointer list-none font-bold text-sm sm:text-base text-slate-900 dark:text-white">
                   <span className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />
-                    Why is Axom Voice Indic better than OpenAI Whisper or Google Cloud for Assamese?
+                    Why is Axom Xuna STT better than OpenAI Whisper or Google Cloud for Assamese?
                   </span>
                   <span className="text-violet-500 group-open:rotate-180 transition-transform duration-200">
                     ▼
@@ -557,7 +558,7 @@ export default async function DeveloperDocsPage() {
                 </summary>
                 <div className="mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-3">
                   <p>
-                    Standard Whisper and generic hyperscaler APIs treat Assamese as a low-resource language and frequently introduce Bengali script contamination (<code className="font-bold">র</code> instead of <code className="font-bold">ৰ</code>, missing <code className="font-bold">ৱ</code>), or produce repetitive hallucinated gibberish when background audio is soft. Axom AI deploys proprietary acoustic normalization, silence detection, and grammatical script filters specifically tuned for regional Assamese dialects.
+                    Standard Whisper and generic hyperscaler APIs treat Assamese as a low-resource language and frequently introduce Bengali script contamination (<code className="font-bold">র</code> instead of <code className="font-bold">ৰ</code>, missing <code className="font-bold">ৱ</code>), or produce repetitive hallucinated gibberish when background audio is soft. Axom Xuna deploys 600M Conformer regional acoustic fine-tuning, silence detection, and grammatical script filters specifically tuned for regional Assamese dialects.
                   </p>
                 </div>
               </details>
@@ -615,11 +616,11 @@ export default async function DeveloperDocsPage() {
                   </span>
                 </summary>
                 <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
-                  <p>Axom AI provides three production-grade model tiers accessible via the API:</p>
+                  <p>Axom AI provides three sovereign production engines accessible via the developer API:</p>
                   <ul className="list-disc pl-5 space-y-1 pt-1">
-                    <li><strong className="text-slate-900 dark:text-white font-mono">axom-indic-1</strong>: Flagship pedagogical and bilingual Assamese-English reasoning model with native Indic orthography and literature grounding.</li>
-                    <li><strong className="text-slate-900 dark:text-white font-mono">axom-turbo-v2</strong>: Ultra-low-latency (sub-280ms) high-throughput neural model optimized for conversational bots, real-time customer support, and mobile apps.</li>
-                    <li><strong className="text-slate-900 dark:text-white font-mono">axom-pro</strong>: Deep reasoning STEM and long-context (128k tokens) model for complex document extraction, summarization, and coding.</li>
+                    <li><strong className="text-slate-900 dark:text-white font-mono">axomai-speech-xuna</strong>: 600M Conformer ASR sovereign Assamese speech-to-text with ONNX decoder &amp; Bengali script purification (POST /v1/audio/transcriptions).</li>
+                    <li><strong className="text-slate-900 dark:text-white font-mono">axomai-voice-puhor</strong>: 24kHz Studio neural text-to-speech engine with authentic Assamese prosody &amp; multi-speaker personas (POST /v1/audio/speech).</li>
+                    <li><strong className="text-slate-900 dark:text-white font-mono">axomai-trans-xetu</strong>: 200M Transformer translation bridge specializing in English-Assamese and Indic cross-lingual mapping (POST /v1/translate).</li>
                   </ul>
                 </div>
               </details>
