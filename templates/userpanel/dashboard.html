@@ -32,7 +32,7 @@
         Welcome, {{ request.user.first_name|default:request.user.username }} 👋
       </h2>
       <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-        Generate and manage secret API keys to integrate Axom AI reasoning models and Assamese language engines directly into your websites, mobile apps, and backend services.
+        Generate and manage secret API keys to integrate Axom AI's sovereign indigenous engines: <strong class="text-emerald-400">Xuna</strong> (STT), <strong class="text-purple-400">Puhor</strong> (24kHz Studio Voice), and <strong class="text-indigo-400">Xetu</strong> (Translation) with OpenAI SDK drop-in compatibility.
       </p>
     </div>
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
@@ -196,8 +196,14 @@
         <div class="bg-slate-50/70 p-2 rounded-xl border border-slate-100">
           <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Scope &amp; Tier</div>
           <div class="font-bold text-slate-800 capitalize mt-0.5 truncate">{{ k.tier }} ({{ k.rate_limit_per_minute }}/m)</div>
-          <div class="text-[10px] text-indigo-600 font-semibold mt-0.5 truncate">
-            {% if k.permissions == 'chat' %}Chat Only{% elif k.permissions == 'translate' %}Translation{% else %}All Endpoints{% endif %}
+          <div class="text-[10px] font-semibold mt-0.5 truncate">
+            {% if k.permissions == 'audio' %}
+              <span class="text-purple-600 font-bold">Speech &amp; Voice (Xuna/Puhor)</span>
+            {% elif k.permissions == 'translate' %}
+              <span class="text-indigo-600 font-bold">Translation (Xetu)</span>
+            {% else %}
+              <span class="text-emerald-600 font-bold">All Sovereign Models</span>
+            {% endif %}
           </div>
         </div>
         <div class="bg-slate-50/70 p-2 rounded-xl border border-slate-100">
@@ -263,12 +269,12 @@
           <td class="py-4 px-6">
             <div class="flex flex-col gap-1">
               <div>
-                {% if k.permissions == 'chat' %}
-                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">Chat Only</span>
+                {% if k.permissions == 'audio' %}
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">Speech &amp; Voice</span>
                 {% elif k.permissions == 'translate' %}
-                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">Translation</span>
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">Translation (Xetu)</span>
                 {% else %}
-                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">All Endpoints</span>
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">All Sovereign Engines</span>
                 {% endif %}
               </div>
               <div class="text-[10px] text-slate-400">
@@ -541,10 +547,6 @@ curl -X POST https://aiaxom.co.in/v1/translate \
     </div>
     <a href="https://aiaxom.co.in/docs/developer#endpoints" target="_blank" class="mt-4 text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
       <span>View Translation Docs</span>
-      <i class="fa-solid fa-arrow-right text-[10px]"></i>
-    </a>
-  </div>
-      <span>View Models Docs</span>
       <i class="fa-solid fa-arrow-right text-[10px]"></i>
     </a>
   </div>
@@ -827,7 +829,7 @@ client = OpenAI(
   // Create Key Modal
   function openCreateKeyModal() {
     document.getElementById('newKeyName').value = '';
-    selectKeyPerm('all', 'All Endpoints (Chat + Translation)', 'Full Access');
+    selectKeyPerm('all', 'All Sovereign Models (STT, TTS & Translation)', 'Full Access');
     const ipEl = document.getElementById('newKeyAllowedIps');
     if (ipEl) ipEl.value = '';
     document.getElementById('createKeyModal').classList.remove('hidden');
