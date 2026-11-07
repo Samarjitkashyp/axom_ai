@@ -1095,7 +1095,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Axom Indic-1 AI Model</span>
+                      <span>Access to Xuna, Puhor &amp; Xetu (Sandbox)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -1175,7 +1175,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Axom Indic-1 &amp; Turbo access</span>
+                      <span>Full access to all 3 Sovereign Engines (Xuna, Puhor, Xetu)</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -1260,7 +1260,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Axom Pro Deep Reasoning Engine</span>
+                      <span>Priority GPU Queues for Xuna STT &amp; Puhor 24kHz Voice</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <Check size={14} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -2814,20 +2814,20 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
             <h3 className="text-base font-bold text-slate-900 dark:text-white mb-3">Tier Quotas</h3>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Free Tier</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">60 req/min • 1,000 req/mo</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Free Sandbox</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">60 req/min • 1,000 req/mo (30m STT)</span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Developer Tier</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">120 req/min • 25,000 req/mo</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Starter Developer</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">90 req/min • 5,000 req/mo (5 hrs STT)</span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100 dark:border-slate-800">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Business Tier</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">300 req/min • 100,000 req/mo</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Pro Developer (Popular)</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">120 req/min • 25,000 req/mo (25 hrs STT)</span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="font-semibold text-slate-700 dark:text-slate-300">Enterprise / Sovereign</span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400">Custom Limits • Dedicated GPUs</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Enterprise API</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400">300 req/min • 100,000 req/mo (100 hrs STT)</span>
               </div>
             </div>
           </div>

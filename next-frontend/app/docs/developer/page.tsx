@@ -249,9 +249,9 @@ export default async function DeveloperDocsPage() {
         offers: {
           '@type': 'AggregateOffer',
           lowPrice: '0',
-          highPrice: '499',
+          highPrice: '1499',
           priceCurrency: 'INR',
-          offerCount: '3',
+          offerCount: '4',
         },
         featureList: [
           'OpenAI v1 REST Drop-in Replacement (/v1/audio/transcriptions, /v1/audio/speech, /v1/translate)',
@@ -412,7 +412,7 @@ export default async function DeveloperDocsPage() {
             name: 'How do I obtain an Axom AI API key?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'You can generate secret API keys by registering or signing in to the official Developer Console at https://user.aiaxom.co.in/. Once logged in, navigate to the API Keys & Credentials tab, click "Create New Secret Key", and copy your cryptographically signed bearer token (prefixed with axom-). Free tier accounts immediately receive starter credits and 50 requests/day.',
+              text: 'You can generate secret API keys by registering or signing in to the official Developer Console at https://user.aiaxom.co.in/. Once logged in, navigate to the API Keys & Credentials tab, click "Create New Secret Key", and copy your cryptographically signed bearer token (prefixed with axom-). Free Sandbox tier accounts immediately receive 1,000 monthly API requests and 30 minutes of voice STT.',
             },
           },
           {
@@ -436,7 +436,7 @@ export default async function DeveloperDocsPage() {
             name: 'What are the pricing plans and token quotas for the Axom AI API?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Axom AI offers transparent, developer-friendly pricing: Free Sandbox Tier (₹0/mo, 50 req/day, 1 key), Starter Tier (₹199/mo or ₹159/mo billed annually, 5,000 req/mo, 3 keys), Pro Tier (₹499/mo or ₹399/mo billed annually, 25,000 req/mo, unlimited keys, priority queue), and Enterprise Tier (₹1,499/mo or ₹1,199/mo billed annually, 100,000 req/mo, 99.9% uptime SLA, dedicated support). Payments are processed via Razorpay.',
+              text: 'Axom AI offers transparent, developer-friendly pricing: Free Sandbox Tier (₹0/mo, 1,000 req/mo, 30 min STT, 60 RPM, 1 key), Starter Tier (₹199/mo or ₹159/mo billed annually, 5,000 req/mo, 300 min STT, 90 RPM, 2 keys), Pro Tier (₹499/mo or ₹399/mo billed annually, 25,000 req/mo, 1,500 min STT, 120 RPM, 5 keys, priority GPU queues, 4h SLA), and Enterprise Tier (₹1,499/mo or ₹1,199/mo billed annually, 100,000 req/mo, 6,000 min STT, 300 RPM, 10 keys, zero-queuing priority model pool, 99.9% SLA). Payments are processed via Razorpay.',
             },
           },
           {
@@ -444,7 +444,7 @@ export default async function DeveloperDocsPage() {
             name: 'What rate limits apply to the Axom AI API?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Rate limits operate on an in-memory sliding-window cache: Free Sandbox allows 60 req/min and 1,000 req/mo; Starter Tier allows 120 req/min and 5,000 req/mo; Pro Tier allows 300 req/min and 25,000 req/mo; Enterprise Tier offers up to 1,000+ req/min with dedicated GPU pooling and zero concurrency bottlenecks.',
+              text: 'Rate limits operate on an in-memory sliding-window cache: Free Sandbox allows 60 req/min and 1,000 req/mo; Starter Tier allows 90 req/min and 5,000 req/mo; Pro Tier allows 120 req/min and 25,000 req/mo; Enterprise Tier allows 300 req/min and 100,000 req/mo with zero concurrency bottlenecks and dedicated GPU allocation.',
             },
           },
           {
@@ -948,7 +948,7 @@ export default async function DeveloperDocsPage() {
                 </summary>
                 <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
-                    You can generate secret API keys by registering or signing in to the official Developer Console at <a href="https://user.aiaxom.co.in/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 dark:text-emerald-400 font-semibold underline underline-offset-4">user.aiaxom.co.in</a>. Once logged in, navigate to the <strong>API Keys &amp; Credentials</strong> tab, click &quot;Create New Secret Key&quot;, and copy your cryptographically signed bearer token (prefixed with <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">axom-</code>). Free Sandbox tier accounts immediately receive starter credits and 50 requests/day.
+                    You can generate secret API keys by registering or signing in to the official Developer Console at <a href="https://user.aiaxom.co.in/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 dark:text-emerald-400 font-semibold underline underline-offset-4">user.aiaxom.co.in</a>. Once logged in, navigate to the <strong>API Keys &amp; Credentials</strong> tab, click &quot;Create New Secret Key&quot;, and copy your cryptographically signed bearer token (prefixed with <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">axom-</code>). Free Sandbox tier accounts immediately receive 1,000 monthly API requests and 30 minutes of voice STT.
                   </p>
                 </div>
               </details>
@@ -997,10 +997,10 @@ export default async function DeveloperDocsPage() {
                 <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>Axom AI provides transparent, developer-friendly pricing with monthly and annual discount options:</p>
                   <ul className="list-disc pl-5 space-y-1 pt-1">
-                    <li><strong>Free Sandbox:</strong> ₹0/month — 50 req/day, 1 key, community support.</li>
-                    <li><strong>Starter Tier:</strong> ₹199/month (₹159/month billed annually) — 5,000 req/month, 3 API keys.</li>
-                    <li><strong>Pro Tier (Most Popular):</strong> ₹499/month (₹399/month billed annually) — 25,000 req/month, unlimited API keys, priority inference queue.</li>
-                    <li><strong>Enterprise Tier:</strong> ₹1,499/month (₹1,199/month billed annually) — 100,000 req/month, 99.9% SLA, dedicated engineering support.</li>
+                    <li><strong>Free Sandbox:</strong> ₹0/month — 1,000 requests/month, 30 minutes Voice STT, 60 RPM, 1 API key, community support.</li>
+                    <li><strong>Starter Tier:</strong> ₹199/month (₹159/month billed annually) — 5,000 requests/month, 300 minutes (5 hrs) Voice STT, 90 RPM, 2 API keys.</li>
+                    <li><strong>Pro Tier (Most Popular):</strong> ₹499/month (₹399/month billed annually) — 25,000 requests/month, 1,500 minutes (25 hrs) Voice STT, 120 RPM, 5 API keys, priority GPU queues, 4h SLA.</li>
+                    <li><strong>Enterprise Tier:</strong> ₹1,499/month (₹1,199/month billed annually) — 100,000 requests/month, 6,000 minutes (100 hrs) Voice STT, 300 RPM, 10 API keys, zero-queuing priority model pool, 99.9% SLA.</li>
                   </ul>
                   <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 pt-1">
                     * Payments are securely processed via Razorpay (UPI, Credit/Debit Cards, Netbanking) through the Developer Console.
@@ -1021,10 +1021,10 @@ export default async function DeveloperDocsPage() {
                     Rate limits operate on an in-memory sliding-window cache to prevent abusive bot scraping and guarantee consistent latency for all clients:
                   </p>
                   <ul className="list-disc pl-5 space-y-1 pt-1">
-                    <li>Free Tier: 60 requests/minute and 1,000 requests/month.</li>
-                    <li>Starter Tier: 120 requests/minute and 5,000 requests/month.</li>
-                    <li>Pro Tier: 300 requests/minute and 25,000 requests/month.</li>
-                    <li>Enterprise Tier: Custom burst limits up to 1,000+ requests/minute with dedicated GPU allocation.</li>
+                    <li>Free Tier: 60 requests/minute and 1,000 requests/month (30 mins Voice STT).</li>
+                    <li>Starter Tier: 90 requests/minute and 5,000 requests/month (300 mins Voice STT).</li>
+                    <li>Pro Tier: 120 requests/minute and 25,000 requests/month (1,500 mins Voice STT).</li>
+                    <li>Enterprise Tier: 300 requests/minute and 100,000 requests/month (6,000 mins Voice STT) with zero-queuing priority pool.</li>
                   </ul>
                   <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 pt-1">
                     When limits are reached, the API returns HTTP 429 with standard <code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">Retry-After</code> response headers.

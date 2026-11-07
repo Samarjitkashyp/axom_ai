@@ -87,7 +87,7 @@ export default function FAQPageContent({
           {/* Subtitle */}
           <p className="text-sm sm:text-base md:text-lg text-slate-700 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8 font-normal">
             {faqConfig?.subheading ||
-              'Everything you need to know about Axom AI: Assamese language reasoning, AI models (Axom Indic-1, Axom Pro, Axom Vision), pricing plans, scanned document OCR, and privacy.'}
+              'Everything you need to know about Axom AI: Assamese language reasoning, sovereign AI foundation models (Xuna STT, Puhor Voice, Xetu Translation), pricing plans, scanned document OCR, and privacy.'}
           </p>
 
           {/* PROPERLY STYLED AJAX SEARCH BAR (MATCHING /BLOG) */}
