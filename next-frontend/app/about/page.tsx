@@ -16,6 +16,12 @@ import {
   Code2,
   MapPin,
   Zap,
+  CheckCircle2,
+  ShieldCheck,
+  Languages,
+  FileText,
+  Layers,
+  IndianRupee,
 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -267,9 +273,67 @@ export default async function AboutPage() {
   const ctaTitle = aboutData?.cta_title || "Be Part of Assam's AI Revolution";
   const ctaDesc =
     aboutData?.cta_desc ||
-    "Join thousands of students, researchers, lawyers, creators, and businesses across Assam who are chatting, researching, creating, and automating with Axom AI.";
+    "Join thousands of students, professionals, and creators across Assam who are chatting, researching, creating, and automating with Axom AI.";
   const ctaBtnText = aboutData?.cta_btn_text || "Start Free Chatting";
   const ctaBtnUrl = aboutData?.cta_btn_url || "https://chat.aiaxom.co.in";
+
+  // Benchmarks list for modern grid layout
+  const BENCHMARKS = [
+    {
+      id: 'script',
+      title: 'Assamese Script Accuracy',
+      category: 'Linguistic Precision',
+      icon: Languages,
+      axom: '99.4% Authentic Assamese (Zero Bengali replacement; authentic ‘ৰ’ and ‘ৱ’ characters guaranteed)',
+      chatgpt: 'Moderate (frequently substitutes Bengali ‘র’)',
+      gemini: 'Moderate (mixes Bengali & Assamese orthography)',
+    },
+    {
+      id: 'culture',
+      title: 'Assam Cultural & Historical Depth',
+      category: 'Regional Grounding',
+      icon: Building,
+      axom: 'Deep Cultural Heritage & Grounding (Ahom dynasty, Lachit Borphukan, Sankardev & Bihu traditions)',
+      chatgpt: 'Low (generic web summaries, prone to hallucination)',
+      gemini: 'Medium (search-dependent, lacks local nuances)',
+    },
+    {
+      id: 'ocr',
+      title: 'Assamese Scanned Document OCR',
+      category: 'Vision & Document AI',
+      icon: FileText,
+      axom: 'Built-in Assamese & English OCR (extracts printed and scanned text from regional PDFs and images)',
+      chatgpt: 'Poor (unsupported on regional Assamese text)',
+      gemini: 'Limited (struggles with complex Assamese conjuncts)',
+    },
+    {
+      id: 'pricing',
+      title: 'Pricing Currency & Instant UPI',
+      category: 'Affordability & Access',
+      icon: IndianRupee,
+      axom: '₹0 Free / Starts ₹199 (Native UPI: GPay, PhonePe, Paytm, RuPay; zero forex charges)',
+      chatgpt: '~$20 USD/mo (₹1,999+ with mandatory credit card & 3.5% forex)',
+      gemini: '₹1,950/mo (Credit card only, no grassroots UPI tier)',
+    },
+    {
+      id: 'tools',
+      title: 'Integrated 20+ AI & File Utilities',
+      category: 'Productivity Ecosystem',
+      icon: Layers,
+      axom: '20+ Native Document Utilities (AI Notes, PDF to Word, image studio, transcribers, study packs)',
+      chatgpt: 'None built-in (requires 3rd-party tools/plugins)',
+      gemini: 'None built-in (requires Google Workspace integration)',
+    },
+    {
+      id: 'sovereignty',
+      title: 'Data Sovereignty & Privacy',
+      category: 'Data Protection & DPDP',
+      icon: ShieldCheck,
+      axom: '100% Indian Data Residency (Compliant with India DPDP Act 2023; user data never sold or exported)',
+      chatgpt: 'US-hosted servers (subject to foreign jurisdiction)',
+      gemini: 'Global cloud clusters (data distributed internationally)',
+    },
+  ];
 
   // Multi-entity JSON-LD for Search Engines & Generative AI Models (GEO/AEO)
   const schemaData = {
@@ -580,7 +644,7 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        {/* AUDIENCE IMPACT IN ASSAM: STUDENTS, BUSINESSES, CREATORS, DEVELOPERS */}
+        {/* AUDIENCE IMPACT IN ASSAM: 2 CARDS PER ROW ON DESKTOP */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 relative z-10">
           <div className="text-center mb-14">
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-3">
@@ -594,82 +658,146 @@ export default async function AboutPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Students */}
-            <div className="p-6 rounded-3xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition flex flex-col justify-between shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            {/* 1. Students & Job Aspirants */}
+            <div className="p-7 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 group">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4">
-                  <GraduationCap size={20} />
+                <div className="flex items-center justify-between gap-4 mb-5">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <GraduationCap size={24} />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300">
+                    APSC &amp; Competitive Prep
+                  </span>
                 </div>
-                <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+                <h3 className="text-xl font-bold text-emerald-950 dark:text-white mb-2">
                   Students &amp; Job Aspirants
                 </h3>
-                <p className="text-xs text-slate-700 dark:text-gray-300 leading-relaxed mb-4">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-gray-300 leading-relaxed mb-6">
                   Prepares candidates for APSC, UPSC, Assam Police, and university exams with bilingual Assamese explanations, essay drafting, and rapid note summarization.
                 </p>
-              </div>
-              <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                • APSC &amp; Competitive Exam Prep
+                <div className="space-y-2.5 pt-4 border-t border-emerald-900/10 dark:border-white/5">
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span>APSC, UPSC &amp; Assam State Board syllabus-aligned answers</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Instant study notes, flashcards &amp; chapter quizzes in Assamese</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Scanned PDF textbook question-answering with regional OCR</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Businesses */}
-            <div className="p-6 rounded-3xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-teal-500/40 transition flex flex-col justify-between shadow-sm">
+            {/* 2. Businesses & MSMEs */}
+            <div className="p-7 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-xl hover:shadow-teal-500/5 group">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-teal-500/15 text-teal-700 dark:text-teal-400 flex items-center justify-center mb-4">
-                  <Briefcase size={20} />
+                <div className="flex items-center justify-between gap-4 mb-5">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-500/15 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <Briefcase size={24} />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-500/10 border border-teal-500/25 text-teal-800 dark:text-teal-300">
+                    Commercial Automation
+                  </span>
                 </div>
-                <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+                <h3 className="text-xl font-bold text-emerald-950 dark:text-white mb-2">
                   Businesses &amp; MSMEs
                 </h3>
-                <p className="text-xs text-slate-700 dark:text-gray-300 leading-relaxed mb-4">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-gray-300 leading-relaxed mb-6">
                   Enables local shops, startups, and enterprises to draft customer emails, translate commercial tenders, and automate bilingual communications.
                 </p>
-              </div>
-              <div className="text-[11px] font-semibold text-teal-700 dark:text-teal-400">
-                • Bilingual Business Automation
+                <div className="space-y-2.5 pt-4 border-t border-emerald-900/10 dark:border-white/5">
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+                    <span>Bilingual customer correspondence, RFPs &amp; tender proposals</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+                    <span>Commercial tender &amp; legal agreement translation (Assamese ↔ English)</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+                    <span>Automated customer WhatsApp &amp; multilingual support responses</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Creators */}
-            <div className="p-6 rounded-3xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-cyan-500/40 transition flex flex-col justify-between shadow-sm">
+            {/* 3. Writers & Content Creators */}
+            <div className="p-7 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 hover:border-cyan-500/40 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-xl hover:shadow-cyan-500/5 group">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center mb-4">
-                  <PenTool size={20} />
+                <div className="flex items-center justify-between gap-4 mb-5">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <PenTool size={24} />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/10 border border-cyan-500/25 text-cyan-800 dark:text-cyan-300">
+                    High-Fidelity Content
+                  </span>
                 </div>
-                <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+                <h3 className="text-xl font-bold text-emerald-950 dark:text-white mb-2">
                   Writers &amp; Content Creators
                 </h3>
-                <p className="text-xs text-slate-700 dark:text-gray-300 leading-relaxed mb-4">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-gray-300 leading-relaxed mb-6">
                   Assists regional journalists, YouTubers, and novelists in drafting Assamese scripts, proofreading grammar, and generating cultural imagery.
                 </p>
-              </div>
-              <div className="text-[11px] font-semibold text-cyan-700 dark:text-cyan-400">
-                • High-Fidelity Assamese Writing
+                <div className="space-y-2.5 pt-4 border-t border-emerald-900/10 dark:border-white/5">
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
+                    <span>Pure Assamese script grammar without Bengali character confusion</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
+                    <span>YouTube video scripts, journalism research &amp; narrative writing</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
+                    <span>Cultural concept imagery, thumbnails &amp; AI illustration generation</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Developers */}
-            <div className="p-6 rounded-3xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition flex flex-col justify-between shadow-sm">
+            {/* 4. Developers & Researchers */}
+            <div className="p-7 sm:p-8 rounded-3xl bg-white/80 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 group">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4">
-                  <Code2 size={20} />
+                <div className="flex items-center justify-between gap-4 mb-5">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-300">
+                    <Code2 size={24} />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300">
+                    REST APIs &amp; Endpoints
+                  </span>
                 </div>
-                <h3 className="text-base font-bold text-emerald-950 dark:text-white mb-2">
+                <h3 className="text-xl font-bold text-emerald-950 dark:text-white mb-2">
                   Developers &amp; Researchers
                 </h3>
-                <p className="text-xs text-slate-700 dark:text-gray-300 leading-relaxed mb-4">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-gray-300 leading-relaxed mb-6">
                   Provides high-speed REST API endpoints, code generation in Python/JS, and enterprise document intelligence for regional Indian applications.
                 </p>
-              </div>
-              <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                • REST APIs &amp; Indian LLM Inference
+                <div className="space-y-2.5 pt-4 border-t border-emerald-900/10 dark:border-white/5">
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Ultra-low latency regional LLM endpoints &amp; JSON completion</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Python, JavaScript, Node.js &amp; cURL client integrations</span>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Enterprise document intelligence &amp; semantic search pipelines</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* COMPARISON TABLE: AXOM AI VS CHATGPT VS GEMINI */}
+        {/* CAPABILITY BENCHMARK: MODERN RESPONSIVE GRID FORMAT */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-3">
@@ -683,91 +811,69 @@ export default async function AboutPage() {
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-3xl border border-emerald-900/15 dark:border-white/10 bg-white/70 dark:bg-slate-900/60 shadow-xl backdrop-blur-md">
-            <table className="w-full text-left text-xs sm:text-sm text-slate-700 dark:text-gray-300">
-              <thead className="bg-white/80 dark:bg-slate-950/80 text-emerald-950 dark:text-white font-bold border-b border-emerald-900/15 dark:border-white/10">
-                <tr>
-                  <th className="p-4 sm:p-5 w-2/5">Evaluation Metric</th>
-                  <th className="p-4 sm:p-5 text-emerald-800 dark:text-emerald-300 font-black bg-emerald-500/10 border-x border-emerald-500/20">
-                    Axom AI (Assam AI) ★
-                  </th>
-                  <th className="p-4 sm:p-5 text-slate-600 dark:text-gray-400">Standard ChatGPT</th>
-                  <th className="p-4 sm:p-5 text-slate-600 dark:text-gray-400">Google Gemini</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-emerald-900/10 dark:divide-white/5">
-                <tr className="hover:bg-white/[0.02] transition">
-                  <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">
-                    Assamese Script Accuracy
-                  </td>
-                  <td className="p-4 sm:p-5 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/20">
-                    99.4% Authentic Assamese (Zero Bengali replacement)
-                  </td>
-                  <td className="p-4 sm:p-5 text-amber-700 dark:text-amber-400">
-                    Moderate (frequently uses Bengali ‘র’)
-                  </td>
-                  <td className="p-4 sm:p-5 text-amber-700 dark:text-amber-400">
-                    Moderate (mixes script grammar)
-                  </td>
-                </tr>
-                <tr className="hover:bg-white/[0.02] transition">
-                  <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">
-                    Assam Cultural &amp; Historical Depth
-                  </td>
-                  <td className="p-4 sm:p-5 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/20">
-                    Deep Cultural Heritage &amp; Native Linguistic Datasets
-                  </td>
-                  <td className="p-4 sm:p-5 text-red-700 dark:text-red-400">
-                    Low (Generic web summaries)
-                  </td>
-                  <td className="p-4 sm:p-5 text-amber-700 dark:text-amber-400">
-                    Medium (Search-dependent)
-                  </td>
-                </tr>
-                <tr className="hover:bg-white/[0.02] transition">
-                  <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">
-                    Assamese Scanned Document OCR
-                  </td>
-                  <td className="p-4 sm:p-5 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/20">
-                    Built-in Assamese &amp; English OCR
-                  </td>
-                  <td className="p-4 sm:p-5 text-red-700 dark:text-red-400">
-                    Poor on regional scripts
-                  </td>
-                  <td className="p-4 sm:p-5 text-amber-700 dark:text-amber-400">
-                    Limited Assamese OCR
-                  </td>
-                </tr>
-                <tr className="hover:bg-white/[0.02] transition">
-                  <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">
-                    Pricing Currency &amp; UPI Support
-                  </td>
-                  <td className="p-4 sm:p-5 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/20">
-                    ₹0 Free / Starts ₹199 (Direct UPI &amp; RuPay)
-                  </td>
-                  <td className="p-4 sm:p-5 text-red-700 dark:text-red-400">
-                    ~$20 USD (₹1,999/mo + Forex Fees)
-                  </td>
-                  <td className="p-4 sm:p-5 text-red-700 dark:text-red-400">
-                    ₹1,950/mo (Credit card only)
-                  </td>
-                </tr>
-                <tr className="hover:bg-white/[0.02] transition">
-                  <td className="p-4 sm:p-5 font-semibold text-emerald-950 dark:text-white">
-                    Integrated File Tools
-                  </td>
-                  <td className="p-4 sm:p-5 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/20">
-                    20+ PDF, Word, &amp; Image Converters
-                  </td>
-                  <td className="p-4 sm:p-5 text-red-700 dark:text-red-400">
-                    None built-in
-                  </td>
-                  <td className="p-4 sm:p-5 text-red-700 dark:text-red-400">
-                    None built-in
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {BENCHMARKS.map((b) => {
+              const IconComp = b.icon;
+              return (
+                <div
+                  key={b.id}
+                  className="p-6 sm:p-7 rounded-3xl bg-white/80 dark:bg-slate-900/70 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <IconComp size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-emerald-950 dark:text-white leading-tight">
+                          {b.title}
+                        </h3>
+                        <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
+                          {b.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Axom AI Result (Winner Card) */}
+                    <div className="p-4 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/25 mb-4">
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          Axom AI (Assam AI)
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white shadow-xs">
+                          Winner ★
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm font-semibold text-emerald-950 dark:text-emerald-100 leading-snug">
+                        {b.axom}
+                      </p>
+                    </div>
+
+                    {/* Competitor Comparisons */}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-emerald-900/10 dark:border-white/5 text-[11px]">
+                      <div className="p-2.5 rounded-xl bg-slate-100/70 dark:bg-slate-800/50 flex flex-col justify-between">
+                        <div className="text-[10px] font-bold text-slate-500 dark:text-gray-400 mb-1">
+                          ChatGPT
+                        </div>
+                        <div className="text-slate-700 dark:text-gray-300 leading-snug">
+                          {b.chatgpt}
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-slate-100/70 dark:bg-slate-800/50 flex flex-col justify-between">
+                        <div className="text-[10px] font-bold text-slate-500 dark:text-gray-400 mb-1">
+                          Google Gemini
+                        </div>
+                        <div className="text-slate-700 dark:text-gray-300 leading-snug">
+                          {b.gemini}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -809,37 +915,75 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        {/* FINAL CALL TO ACTION */}
+        {/* FINAL CALL TO ACTION: PREMIUM ELEVATED GLASSMORPHIC SECTION */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="p-8 sm:p-14 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-50/80 dark:from-emerald-950/40 via-teal-50/40 dark:via-teal-950/25 to-white/90 dark:to-slate-900/90 backdrop-blur-xl text-center relative overflow-hidden shadow-2xl">
-            <div className="relative z-10 max-w-2xl mx-auto">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-widest mb-3">
+          <div className="relative rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-slate-900/80 to-emerald-950/15 dark:from-emerald-950/45 dark:via-[#09121f] dark:to-emerald-950/35 p-8 sm:p-14 lg:p-16 text-center shadow-[0_20px_60px_-15px_rgba(16,185,129,0.22)] backdrop-blur-2xl">
+            {/* Ambient Ambient Glow Circles */}
+            <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-emerald-500/15 blur-[100px] pointer-events-none" />
+            <div className="absolute -bottom-32 -right-32 w-80 h-80 rounded-full bg-teal-500/15 blur-[100px] pointer-events-none" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:40px_40px] opacity-35 pointer-events-none" />
+
+            <div className="relative z-10 max-w-3xl mx-auto">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-6 uppercase tracking-wider shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>{ctaBadge}</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-emerald-950 dark:text-white mb-4 tracking-tight">
-                {ctaTitle}
+
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white mb-5 tracking-tight leading-[1.15]">
+                Be Part of{' '}
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-400 to-emerald-300 bg-clip-text text-transparent">
+                  Assam&apos;s AI Revolution
+                </span>
               </h2>
-              <p className="text-sm sm:text-base text-slate-700 dark:text-gray-300 mb-8 leading-relaxed">
+
+              <p className="text-base sm:text-lg text-slate-700 dark:text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
                 {ctaDesc}
               </p>
+
+              {/* Value & Trust Pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-10">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
+                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  Free 5,000 Words / Mo
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
+                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  Direct UPI &amp; RuPay
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
+                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  100% Indian Data Sovereignty
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
+                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
+                  Zero Credit Card Required
+                </span>
+              </div>
+
+              {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <a
                   href={ctaBtnUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2 shadow-xl shadow-emerald-600/30 transition transform hover:-translate-y-0.5"
+                  className="px-8 py-4 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2.5 shadow-xl shadow-emerald-600/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/40"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Sparkles className="w-5 h-5" />
                   <span>{ctaBtnText}</span>
                 </a>
                 <Link
                   href="/pricing"
-                  className="px-7 py-3.5 rounded-full bg-white/80 dark:bg-white/5 border border-emerald-900/20 dark:border-white/15 text-emerald-950 dark:text-white hover:bg-emerald-50 dark:hover:bg-white/10 text-sm sm:text-base inline-flex items-center gap-2 transition"
+                  className="px-8 py-4 rounded-full bg-white/80 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 border border-emerald-900/20 dark:border-white/20 text-emerald-950 dark:text-white text-sm sm:text-base font-semibold inline-flex items-center gap-2 transition-all duration-300"
                 >
                   <span>View Pricing Plans</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
+
+              {/* Regional Footprint */}
+              <p className="mt-8 text-xs text-slate-500 dark:text-gray-400 font-medium">
+                Sovereign AI Infrastructure • Guwahati, Assam • Built for all 35 Districts of Assam &amp; Northeast India
+              </p>
             </div>
           </div>
         </section>
