@@ -1,6 +1,5 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { getLandingCMS, getAboutCMS } from '../../lib/api';
@@ -28,6 +27,15 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const TARGET_KEYWORDS = [
+  // Flagship Category Keywords
+  'AI companies',
+  'Large Language Model',
+  'LLM',
+  'AI startups',
+  'AI company in Assam',
+  'AI startup in Assam',
+  'Samarjit Kashyap',
+  'Samarjit Kashyap Axom AI',
   // Primary SEO Keyword
   'Axom AI',
   // Secondary SEO Keywords
@@ -42,8 +50,6 @@ const TARGET_KEYWORDS = [
   'Assamese AI chatbot',
   'AI tools in Assam',
   'artificial intelligence in Assam',
-  'AI company in Assam',
-  'AI startup in Assam',
   'regional AI platform',
   'indigenous AI platform',
   'AI for Northeast India',
@@ -127,7 +133,6 @@ const TARGET_KEYWORDS = [
   'Assamese artificial intelligence platform',
   'AI platform built in Assam',
   'AI technology company in Assam',
-  'AI startup based in Assam',
   'indigenous AI platform in Northeast India',
   // Business / Company SEO
   'Axom AI company',
@@ -212,9 +217,12 @@ export default async function AboutPage() {
   ]);
 
   const badgeText = aboutData?.badge_text || "PIONEERING ASSAM'S AI FUTURE";
-  const headingPrefix = aboutData?.main_heading_prefix || "Artificial Intelligence in";
+  const headingPrefix = "Artificial Intelligence in";
   const headingHighlight = aboutData?.main_heading_highlight || "Assam";
-  const headingSuffix = aboutData?.main_heading_suffix || "Built for the World";
+  const headingSuffix =
+    aboutData?.main_heading_suffix && !aboutData.main_heading_suffix.includes('Pioneering')
+      ? aboutData.main_heading_suffix.replace(/^,\s*/, '')
+      : "Built for the World";
   const subheadingEn =
     aboutData?.subheading_english ||
     "Axom AI (AI Axom / অসম এআই) is Assam's first indigenous generative artificial intelligence platform — engineered to empower 15 million Assamese speakers with native conversational LLMs, 20+ document utilities, OCR, and regional computing infrastructure.";
@@ -267,15 +275,10 @@ export default async function AboutPage() {
   const founderQuote =
     aboutData?.founder_quote ||
     '"For decades, regional languages of Northeast India were left behind in the digital technology wave. Axom AI was founded with a singular conviction: our language, literature, and youth deserve world-class artificial intelligence tools that understand them natively. We are creating an ecosystem where anyone in Assam can converse with state-of-the-art intelligence in their mother tongue."';
-  const founderEmail = aboutData?.founder_email || "support@aiaxom.co.in";
-
-  const ctaBadge = aboutData?.cta_badge || "Experience the Future Today";
-  const ctaTitle = aboutData?.cta_title || "Be Part of Assam's AI Revolution";
-  const ctaDesc =
-    aboutData?.cta_desc ||
-    "Join thousands of students, professionals, and creators across Assam who are chatting, researching, creating, and automating with Axom AI.";
-  const ctaBtnText = aboutData?.cta_btn_text || "Start Free Chatting";
-  const ctaBtnUrl = aboutData?.cta_btn_url || "https://chat.aiaxom.co.in";
+  const founderEmail =
+    aboutData?.founder_email && !aboutData.founder_email.includes('gmail.com')
+      ? aboutData.founder_email
+      : "samarjitkashyp@aiaxom.co.in";
 
   // Benchmarks list for modern grid layout
   const BENCHMARKS = [
@@ -371,12 +374,13 @@ export default async function AboutPage() {
           '@id': 'https://aiaxom.co.in/about/#founder',
           name: founderName,
           jobTitle: founderTitle,
+          email: 'mailto:samarjitkashyp@aiaxom.co.in',
           url: 'https://aiaxom.co.in/about/',
         },
         contactPoint: {
           '@type': 'ContactPoint',
           contactType: 'Customer Support',
-          email: 'support@aiaxom.co.in',
+          email: 'samarjitkashyp@aiaxom.co.in',
           availableLanguage: ['Assamese', 'English', 'Hindi'],
         },
         knowsLanguage: ['as', 'en', 'hi'],
@@ -385,11 +389,15 @@ export default async function AboutPage() {
           'Assam AI',
           'Assamese AI',
           'Artificial Intelligence in Assam',
+          'AI companies',
+          'Large Language Model',
+          'LLM in Assam',
           'Assamese Natural Language Processing',
           'Assam AI Models',
           'Regional Large Language Models',
           'Assamese OCR and Document Intelligence',
           'Sovereign AI India',
+          'Samarjit Kashyap',
         ],
       },
       {
@@ -397,12 +405,18 @@ export default async function AboutPage() {
         '@id': 'https://aiaxom.co.in/about/#founder',
         name: founderName,
         jobTitle: founderTitle,
+        email: 'mailto:samarjitkashyp@aiaxom.co.in',
         worksFor: {
           '@id': 'https://aiaxom.co.in/#organization',
         },
         url: 'https://aiaxom.co.in/about/',
         description:
-          'Lead AI Architect & Founder of Axom AI, pioneering indigenous generative artificial intelligence for Assamese and regional Indian languages.',
+          'Founder & Lead AI Architect of Axom AI, architecting Assam\'s premier indigenous Artificial Intelligence and regional language computing ecosystem.',
+        sameAs: [
+          'https://aiaxom.co.in',
+          'https://aiaxom.co.in/about',
+          'https://github.com/Samarjitkashyp',
+        ],
       },
       {
         '@type': 'AboutPage',
@@ -878,7 +892,7 @@ export default async function AboutPage() {
         </section>
 
         {/* FOUNDER & LEADERSHIP STORY */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 relative z-10">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-emerald-50/70 dark:from-emerald-950/25 via-teal-50/40 dark:via-teal-950/15 to-white/90 dark:to-slate-900/80 border border-emerald-500/25 flex flex-col md:flex-row items-center gap-8 shadow-xl backdrop-blur-sm">
             <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl bg-[#f0fdf4] dark:bg-[#0b1220] border-2 border-emerald-500/30 flex flex-col items-center justify-center text-center p-3 shrink-0 shadow-md">
               <User className="w-10 h-10 text-emerald-700 dark:text-emerald-400 mb-1" />
@@ -911,79 +925,6 @@ export default async function AboutPage() {
                   {founderEmail}
                 </a>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FINAL CALL TO ACTION: PREMIUM ELEVATED GLASSMORPHIC SECTION */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="relative rounded-3xl overflow-hidden border border-emerald-500/30 bg-gradient-to-br from-emerald-950/20 via-slate-900/80 to-emerald-950/15 dark:from-emerald-950/45 dark:via-[#09121f] dark:to-emerald-950/35 p-8 sm:p-14 lg:p-16 text-center shadow-[0_20px_60px_-15px_rgba(16,185,129,0.22)] backdrop-blur-2xl">
-            {/* Ambient Ambient Glow Circles */}
-            <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-emerald-500/15 blur-[100px] pointer-events-none" />
-            <div className="absolute -bottom-32 -right-32 w-80 h-80 rounded-full bg-teal-500/15 blur-[100px] pointer-events-none" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:40px_40px] opacity-35 pointer-events-none" />
-
-            <div className="relative z-10 max-w-3xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-semibold text-emerald-800 dark:text-emerald-300 mb-6 uppercase tracking-wider shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>{ctaBadge}</span>
-              </div>
-
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-emerald-950 dark:text-white mb-5 tracking-tight leading-[1.15]">
-                Be Part of{' '}
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-400 to-emerald-300 bg-clip-text text-transparent">
-                  Assam&apos;s AI Revolution
-                </span>
-              </h2>
-
-              <p className="text-base sm:text-lg text-slate-700 dark:text-gray-300 mb-8 leading-relaxed max-w-2xl mx-auto">
-                {ctaDesc}
-              </p>
-
-              {/* Value & Trust Pills */}
-              <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-10">
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
-                  Free 5,000 Words / Mo
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
-                  Direct UPI &amp; RuPay
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
-                  100% Indian Data Sovereignty
-                </span>
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 shadow-xs">
-                  <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400" />
-                  Zero Credit Card Required
-                </span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <a
-                  href={ctaBtnUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 py-4 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm sm:text-base inline-flex items-center gap-2.5 shadow-xl shadow-emerald-600/30 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-emerald-500/40"
-                >
-                  <Sparkles className="w-5 h-5" />
-                  <span>{ctaBtnText}</span>
-                </a>
-                <Link
-                  href="/pricing"
-                  className="px-8 py-4 rounded-full bg-white/80 dark:bg-white/10 hover:bg-emerald-50 dark:hover:bg-white/15 border border-emerald-900/20 dark:border-white/20 text-emerald-950 dark:text-white text-sm sm:text-base font-semibold inline-flex items-center gap-2 transition-all duration-300"
-                >
-                  <span>View Pricing Plans</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {/* Regional Footprint */}
-              <p className="mt-8 text-xs text-slate-500 dark:text-gray-400 font-medium">
-                Sovereign AI Infrastructure • Guwahati, Assam • Built for all 35 Districts of Assam &amp; Northeast India
-              </p>
             </div>
           </div>
         </section>

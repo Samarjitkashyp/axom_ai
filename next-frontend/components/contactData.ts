@@ -47,7 +47,7 @@ export const CONTACT_CHANNELS: ContactChannel[] = [
     id: 'founder-desk',
     title: 'Executive & Editorial Office',
     badge: 'Guwahati HQ',
-    email: 'samarjitkashyp@gmail.com',
+    email: 'samarjitkashyp@aiaxom.co.in',
     desc: 'Direct communication with founder Samarjit Kashyap for media inquiries, investor discussions, and cultural preservation research.',
     turnaround: '24-hour executive review',
     iconName: 'Mail',
@@ -64,7 +64,7 @@ export const OFFICE_FACTSHEET = {
   operatingHours: 'Monday – Saturday: 9:00 AM – 7:00 PM IST',
   emergencySupport: '24/7 Server Status & Automated Monitoring',
   primaryEmail: 'support@aiaxom.co.in',
-  executiveEmail: 'samarjitkashyp@gmail.com',
+  executiveEmail: 'samarjitkashyp@aiaxom.co.in',
   officialWebsite: 'https://aiaxom.co.in',
   chatPortal: 'https://chat.aiaxom.co.in',
   supportedLanguages: ['English', 'Assamese (অসমীয়া)', 'Hindi (हिंदी)'],
@@ -138,7 +138,7 @@ export const CONTACT_FAQS: ContactFaq[] = [
     id: 'contact-founder-directly',
     question: 'Can I reach the founder or core engineering team directly?',
     answer:
-      'Yes, founder and principal engineer Samarjit Kashyap can be reached directly at samarjitkashyp@gmail.com for research collaborations, investment talks, or press and media interviews regarding generative AI in regional Indian languages.',
+      'Yes, founder and principal engineer Samarjit Kashyap can be reached directly at samarjitkashyp@aiaxom.co.in for research collaborations, investment talks, or press and media interviews regarding generative AI in regional Indian languages.',
     category: 'General & Support',
   },
   {

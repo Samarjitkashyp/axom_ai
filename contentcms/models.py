@@ -349,7 +349,7 @@ class FAQPageConfig(models.Model):
 class AboutPageConfig(models.Model):
     # 1. Hero Section
     badge_text = models.CharField(max_length=255, default='অসমৰ প্ৰথমটো থলুৱা AI প্লেটফৰ্ম • PIONEERING ASSAM\'S AI FUTURE')
-    main_heading_prefix = models.CharField(max_length=200, default='Pioneering Artificial Intelligence in')
+    main_heading_prefix = models.CharField(max_length=200, default='Artificial Intelligence in')
     main_heading_highlight = models.CharField(max_length=200, default='Assam')
     main_heading_suffix = models.CharField(max_length=200, default=', Built for the World.')
     subheading_english = models.TextField(default="Axom AI is Assam's first indigenous generative artificial intelligence platform — engineered to bridge the linguistic divide for 15 million Assamese speakers with native conversational models, multimodal creative suites, and regional computing infrastructure.")
@@ -409,7 +409,7 @@ class AboutPageConfig(models.Model):
     founder_title = models.CharField(max_length=150, default='Lead AI Architect & Founder')
     founder_quote_title = models.CharField(max_length=255, default="Building Assam as Northeast India's AI Capital")
     founder_quote = models.TextField(default='"For decades, regional languages of Northeast India were left behind in the digital technology wave. Axom AI was founded with a singular conviction: our language, literature, and youth deserve world-class artificial intelligence tools that understand them natively. We are creating an ecosystem where anyone in Assam can converse with state-of-the-art intelligence in their mother tongue."')
-    founder_email = models.CharField(max_length=150, default='samarjitkashyp@gmail.com')
+    founder_email = models.CharField(max_length=150, default='samarjitkashyp@aiaxom.co.in')
 
     # 6. Call to Action Banner
     cta_badge = models.CharField(max_length=150, default='Experience the Future Today')
@@ -1079,7 +1079,7 @@ class ContactPageConfig(models.Model):
     aeo_how_to_contact_title = models.CharField(max_length=150, default='How to contact Axom AI:')
     aeo_description = models.TextField(default='You can contact Axom AI customer care and technical support by emailing support@aiaxom.co.in or by using the verified contact form below. Axom AI is headquartered in Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001). Standard response times for general queries, billing, and API support are within 4–12 business hours (Monday–Saturday: 9:00 AM – 7:00 PM IST).')
     primary_support_email = models.CharField(max_length=150, default='support@aiaxom.co.in')
-    founder_email = models.CharField(max_length=150, default='samarjitkashyp@gmail.com')
+    founder_email = models.CharField(max_length=150, default='samarjitkashyp@aiaxom.co.in')
 
     # 3. Channels Section Heading
     channels_badge = models.CharField(max_length=150, default='Direct Response Channels')
@@ -1212,7 +1212,7 @@ class PrivacyPageConfig(models.Model):
     data_fiduciary_text = models.CharField(max_length=255, default='Data Fiduciary under India Digital Personal Data Protection (DPDP) Act 2023')
     headquarters_text = models.CharField(max_length=255, default='Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001)')
     dpo_email = models.CharField(max_length=150, default='support@aiaxom.co.in')
-    grievance_officer = models.CharField(max_length=200, default='Samarjit Kashyap (samarjitkashyp@gmail.com)')
+    grievance_officer = models.CharField(max_length=200, default='Samarjit Kashyap (samarjitkashyp@aiaxom.co.in)')
 
     # 3. 4 Security & Privacy Key Highlight Cards
     card_1_title = models.CharField(max_length=150, default='Zero Model Training')
@@ -1335,7 +1335,7 @@ class TermsPageConfig(models.Model):
     entity_type_text = models.CharField(max_length=255, default='Indian Artificial Intelligence & Document Processing Platform')
     headquarters_text = models.CharField(max_length=255, default='Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001)')
     legal_email = models.CharField(max_length=150, default='support@aiaxom.co.in')
-    grievance_officer = models.CharField(max_length=200, default='Samarjit Kashyap (samarjitkashyp@gmail.com)')
+    grievance_officer = models.CharField(max_length=200, default='Samarjit Kashyap (samarjitkashyp@aiaxom.co.in)')
 
     # 3. 4 Commercial & Legal Key Highlight Cards
     card_1_title = models.CharField(max_length=150, default='Commercial Output Rights')

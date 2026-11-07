@@ -212,7 +212,7 @@ export const FULL_FAQS_LIST: FullFaqItem[] = [
     id: 25,
     question: 'How can I contact customer support if I need assistance?',
     answer:
-      'You can reach our dedicated support desk at support@aiaxom.co.in or samarjitkashyp@gmail.com. Pro and Business plan users also receive priority WhatsApp assistance and direct account management.',
+      'You can reach our dedicated support desk at support@aiaxom.co.in or samarjitkashyp@aiaxom.co.in. Pro and Business plan users also receive priority WhatsApp assistance and direct account management.',
     category: 'general',
     tags: ['support', 'customer care', 'email', 'contact'],
   },

@@ -1951,7 +1951,7 @@ def _ensure_default_faqs():
         },
         {
             "question": "How can I contact customer support if I face an issue?",
-            "answer": "You can reach our support team via email at support@aiaxom.co.in or samarjitkashyp@gmail.com. Paid plan users also enjoy priority WhatsApp support and dedicated account management.",
+            "answer": "You can reach our support team via email at support@aiaxom.co.in or samarjitkashyp@aiaxom.co.in. Paid plan users also enjoy priority WhatsApp support and dedicated account management.",
             "category": "general",
             "order": 15,
             "show_on_homepage": False,

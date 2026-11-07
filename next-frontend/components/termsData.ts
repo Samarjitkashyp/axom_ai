@@ -25,7 +25,7 @@ export const TERMS_METADATA = {
   headquarters: 'Guwahati, Kamrup Metropolitan, Assam, India (PIN 781001)',
   legalEmail: 'support@aiaxom.co.in',
   grievanceOfficer: 'Samarjit Kashyap',
-  grievanceEmail: 'samarjitkashyp@gmail.com',
+  grievanceEmail: 'samarjitkashyp@aiaxom.co.in',
 };
 
 export const TERMS_SECTIONS: TermsSection[] = [

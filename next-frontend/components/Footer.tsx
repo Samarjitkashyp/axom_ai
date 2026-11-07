@@ -160,6 +160,7 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
         return { ...lnk, url: '/pricing' };
       }
       if (
+        lnk.url === 'mailto:samarjitkashyp@aiaxom.co.in' ||
         lnk.url === 'mailto:samarjitkashyp@gmail.com' ||
         lnk.url === 'mailto:support@aiaxom.co.in' ||
         lnk.url === '/#contact' ||
@@ -278,7 +279,7 @@ export default function Footer({ footer: initialFooter, seo }: FooterProps) {
             <Link href={resolveUrl('/terms')} className="hover:text-fuchsia-400 transition">Terms of Service</Link>
             <Link href={resolveUrl('/cookie-policy')} className="hover:text-fuchsia-400 transition">Cookie Policy</Link>
             <button type="button" onClick={openCookieSettings} className="hover:text-fuchsia-400 transition">Cookie Settings</button>
-            <a href="mailto:samarjitkashyp@gmail.com" className="hover:text-fuchsia-400 transition">Support</a>
+            <a href="mailto:samarjitkashyp@aiaxom.co.in" className="hover:text-fuchsia-400 transition">Support</a>
           </div>
           <div>
             Made with <span className="text-red-500">&hearts;</span> in Assam, India &#127470;&#127475;

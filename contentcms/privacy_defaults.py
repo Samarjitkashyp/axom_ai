@@ -29,7 +29,7 @@ DEFAULT_PRIVACY_SECTIONS = [
                     'Organization: Axom AI (AI Axom)',
                     'Physical Address: Guwahati, Kamrup Metropolitan, Assam, India — PIN 781001',
                     'Data Protection Officer Email: support@aiaxom.co.in',
-                    'Grievance Redressal Officer: Samarjit Kashyap (samarjitkashyp@gmail.com)',
+                    'Grievance Redressal Officer: Samarjit Kashyap (samarjitkashyp@aiaxom.co.in)',
                     'Statutory Response SLA: Within 48 hours acknowledging receipt; full resolution within 15 business days.',
                 ],
             }
@@ -266,7 +266,7 @@ DEFAULT_PRIVACY_SECTIONS = [
             'Data Protection & Grievance Desk, Axom AI\n'
             'Address: Guwahati, Kamrup Metropolitan, Assam, India — PIN 781001\n'
             'Email: support@aiaxom.co.in\n'
-            'Escalations: samarjitkashyp@gmail.com (Founder & Lead Engineer)\n\n'
+            'Escalations: samarjitkashyp@aiaxom.co.in (Founder & Lead Engineer)\n\n'
             'We pledge to respond to all inquiries within 48 hours and work with you to resolve any privacy concerns promptly.'
         ),
         'subsections_json': json.dumps([]),
@@ -322,7 +322,7 @@ DEFAULT_PRIVACY_FAQS = [
     },
     {
         'question': 'How can I contact Axom AI regarding privacy concerns or grievances?',
-        'answer': 'You can reach our Data Protection & Grievance Desk by emailing support@aiaxom.co.in or contacting Grievance Officer Samarjit Kashyap at samarjitkashyp@gmail.com. We acknowledge grievances within 48 hours and provide resolution within statutory timelines.',
+        'answer': 'You can reach our Data Protection & Grievance Desk by emailing support@aiaxom.co.in or contacting Grievance Officer Samarjit Kashyap at samarjitkashyp@aiaxom.co.in. We acknowledge grievances within 48 hours and provide resolution within statutory timelines.',
         'order': 10,
     },
 ]

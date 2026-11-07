@@ -449,6 +449,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
     if (
       item.url === '/#contact' ||
       item.url === '#contact' ||
+      item.url === 'mailto:samarjitkashyp@aiaxom.co.in' ||
       item.url === 'mailto:samarjitkashyp@gmail.com' ||
       item.url === 'mailto:support@aiaxom.co.in'
     ) {
