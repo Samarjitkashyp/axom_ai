@@ -3,6 +3,7 @@
 {% block heading %}API Plans & Capacity Limits{% endblock %}
 
 {% block extra_head %}
+<meta name="description" content="Axom AI Developer API Pricing & Capacity Limits. High-speed programmatic access to sovereign Assamese AI engines: Xuna STT, Puhor 24kHz Studio Voice, and Xetu Translation. Plans start from ₹0 to ₹1,499/mo.">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
   .pricing-card-popular {
@@ -13,6 +14,101 @@
     box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.25);
   }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "Axom AI Developer Platform",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "INR",
+        "lowPrice": "0",
+        "highPrice": "14388",
+        "offerCount": "4",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Free Developer Sandbox",
+            "price": "0",
+            "priceCurrency": "INR",
+            "description": "1,000 monthly API calls, 60 RPM, Xuna STT, Puhor Voice, Xetu Translation"
+          },
+          {
+            "@type": "Offer",
+            "name": "Starter Developer",
+            "price": "199",
+            "priceCurrency": "INR",
+            "description": "5,000 monthly API calls, 90 RPM, IP Whitelisting, Scoped Keys"
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro Developer",
+            "price": "499",
+            "priceCurrency": "INR",
+            "description": "25,000 monthly API calls, 120 RPM, Priority Voice & STT queues, 4h SLA"
+          },
+          {
+            "@type": "Offer",
+            "name": "Enterprise API",
+            "price": "1499",
+            "priceCurrency": "INR",
+            "description": "100,000 monthly API calls, 300 RPM, Zero Queuing Dedicated Pool, 99.9% SLA"
+          }
+        ]
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What happens if my production application exceeds its monthly quota?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "When your monthly quota is exhausted, the API gracefully returns an HTTP 429 Too Many Requests with a structured error payload. Your account is never charged surprise overages. You can seamlessly upgrade to the next tier anytime with immediate quota restoration."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does burst rate limiting work (Requests Per Minute)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Burst rate limits are evaluated on a 60-second sliding window per API key. Every API response includes standard HTTP rate limit headers (x-ratelimit-remaining and retry-after) so your backend client can implement exponential backoff if required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I switch between Monthly and Annual plans?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! When you upgrade from Monthly to Annual billing, the 365-day annual duration is added directly to your remaining active days, and your account unlocks the 20% annual discount."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do scoped permissions and IP whitelisting secure my API keys?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "On Starter, Pro, and Enterprise tiers, you can restrict keys to specific endpoints (e.g. Audio Only for Xuna/Puhor or Translation Only for Xetu) and lock them to your backend servers' static IP addresses or CIDR ranges."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where can I download GST-compliant tax invoices for my company?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every successful payment generates a verifiable receipt with Razorpay payment ID, tax breakdown, and date under Billing & Receipts."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +125,7 @@
         Scale Your Apps with Predictable AI Infrastructure
       </h2>
       <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-        High burst rate limits, zero artificial queuing, and full programmatic access to Axom Indic language models and deep STEM reasoning engines. Transparent pricing in Indian Rupees (INR).
+        High burst rate limits, zero artificial queuing, and full programmatic access to Axom's sovereign engines: Xuna (Speech-to-Text), Puhor (24kHz Studio Voice), and Xetu (Assamese-English Translation). Transparent pricing in Indian Rupees (INR).
       </p>
     </div>
 
@@ -85,7 +181,7 @@
         {% if is_active_plan %}
         Your developer plan provides <strong>{{ current_tier.monthly_quota_str }}</strong> API calls/month, a burst rate limit of <strong>{{ current_tier.rate_limit }} req/min</strong>, and up to <strong>{{ current_tier.max_keys }} active secret keys</strong>.
         {% else %}
-        You are currently on the Free Developer Sandbox with <strong>1,000 requests/month</strong> and <strong>60 req/min</strong> burst limit. Upgrade anytime for higher volume and the Axom Pro reasoning model.
+        You are currently on the Free Developer Sandbox with <strong>1,000 requests/month</strong> and <strong>60 req/min</strong> burst limit. Upgrade anytime for higher volume, longer audio limits, and priority inference queues.
         {% endif %}
       </p>
     </div>
@@ -288,16 +384,45 @@
             <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">Up to 10 Keys</td>
           </tr>
 
-          <!-- Section 2: Model Access & Context -->
+          <!-- Section 2: Sovereign AI Models & Capacity -->
           <tr class="bg-slate-50/40">
             <td colspan="5" class="py-2.5 px-6 font-bold text-slate-900 uppercase tracking-wider text-[10px] bg-slate-50">
-              <i class="fa-solid fa-microchip mr-1.5 text-indigo-600"></i> AI Models & Token Windows
+              <i class="fa-solid fa-microchip mr-1.5 text-indigo-600"></i> Sovereign AI Engines & Audio Limits
             </td>
           </tr>
           <tr>
             <td class="py-3.5 px-6 font-semibold text-slate-900">
-              <div>Axom Indic-1 (Assamese & Indic Flagship)</div>
-              <div class="text-[11px] text-slate-400 font-normal">Native orthography, grammar purification & Indic translation</div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-slate-900">Xuna STT</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">axomai-speech-xuna</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-normal">Assamese 600M Conformer Speech-to-Text with phoneme alignment</div>
+            </td>
+            <td class="py-3.5 px-4 text-center font-mono text-slate-700">Up to 30s</td>
+            <td class="py-3.5 px-4 text-center font-mono text-slate-700">Up to 3m</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">Up to 10m</td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">Unlimited Stream</td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-slate-900">Puhor Voice</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">axomai-voice-puhor</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-normal">24kHz studio-grade Assamese neural voice synthesis (TTS)</div>
+            </td>
+            <td class="py-3.5 px-4 text-center text-slate-700">Standard Voice</td>
+            <td class="py-3.5 px-4 text-center text-slate-700">Standard Voice</td>
+            <td class="py-3.5 px-4 text-center font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">Dual Personas</td>
+            <td class="py-3.5 px-4 text-center font-extrabold text-slate-900">Custom Voice Cloning</td>
+          </tr>
+          <tr>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-slate-900">Xetu Translation</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">axomai-trans-xetu</span>
+              </div>
+              <div class="text-[11px] text-slate-400 font-normal">Bidirectional Assamese ⇄ English neural translation bridge</div>
             </td>
             <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
             <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
@@ -306,30 +431,13 @@
           </tr>
           <tr>
             <td class="py-3.5 px-6 font-semibold text-slate-900">
-              <div>Axom Turbo (Low-Latency High-Speed)</div>
-              <div class="text-[11px] text-slate-400 font-normal">Sub-second generation for autocomplete, chat & UI prompts</div>
+              <div>Audio Duration & Text Context Limits</div>
+              <div class="text-[11px] text-slate-400 font-normal">Per-request audio payload size and translation buffer</div>
             </td>
-            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
-            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
-            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
-            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
-          </tr>
-          <tr>
-            <td class="py-3.5 px-6 font-semibold text-slate-900">
-              <div>Axom Pro (Deep Reasoning STEM Engine)</div>
-              <div class="text-[11px] text-slate-400 font-normal">Complex math, coding, legal analysis & multi-step tool agents</div>
-            </td>
-            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
-            <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
-            <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
-            <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
-          </tr>
-          <tr>
-            <td class="py-3.5 px-6 font-semibold text-slate-900">Max Context Window Length</td>
-            <td class="py-3.5 px-4 text-center font-mono">8,192 tokens</td>
-            <td class="py-3.5 px-4 text-center font-mono">16,384 tokens</td>
-            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">32,768 tokens</td>
-            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">128,000 tokens</td>
+            <td class="py-3.5 px-4 text-center font-mono">30s / 4k text</td>
+            <td class="py-3.5 px-4 text-center font-mono">3m / 16k text</td>
+            <td class="py-3.5 px-4 text-center font-mono font-bold bg-indigo-50/30 text-indigo-700 border-x border-indigo-100">10m / 32k text</td>
+            <td class="py-3.5 px-4 text-center font-mono font-extrabold text-slate-900">Stream / 128k text</td>
           </tr>
 
           <!-- Section 3: Security & Enterprise Controls -->
@@ -346,7 +454,7 @@
             <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
           </tr>
           <tr>
-            <td class="py-3.5 px-6 font-semibold text-slate-900">Granular Scoped Keys (Chat / Translation)</td>
+            <td class="py-3.5 px-6 font-semibold text-slate-900">Granular Scoped Keys (Audio / Translation / All)</td>
             <td class="py-3.5 px-4 text-center text-slate-300"><i class="fa-solid fa-minus"></i></td>
             <td class="py-3.5 px-4 text-center text-emerald-600"><i class="fa-solid fa-check"></i></td>
             <td class="py-3.5 px-4 text-center text-emerald-600 bg-indigo-50/30 border-x border-indigo-100"><i class="fa-solid fa-check"></i></td>
@@ -448,7 +556,7 @@
         <i class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 group-open:rotate-180 text-xs"></i>
       </summary>
       <p class="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
-        On Starter, Pro, and Enterprise tiers, you can restrict keys to specific endpoints (e.g. <code>Translation Only</code> for a mobile app) and lock them to your backend servers' static IP addresses or CIDR ranges. Even if a secret key is accidentally leaked, unauthorized hosts are immediately blocked with HTTP 403.
+        On Starter, Pro, and Enterprise tiers, you can restrict keys to specific endpoints (e.g. <code>Audio Only</code> for Xuna/Puhor or <code>Translation Only</code> for Xetu) and lock them to your backend servers' static IP addresses or CIDR ranges. Even if a secret key is accidentally leaked, unauthorized hosts are immediately blocked with HTTP 403.
       </p>
     </details>
 
@@ -487,7 +595,7 @@
       <ul class="text-xs text-slate-500 space-y-1.5 pl-3 list-disc">
         <li>Your monthly request quota will return to <strong>1,000 requests/month</strong>.</li>
         <li>Burst rate limit will drop to <strong>60 requests/minute</strong>.</li>
-        <li>Access to <code>Axom Pro</code> reasoning model will be suspended.</li>
+        <li>Priority queues for <code>Puhor 24kHz Voice</code> and <code>Xuna STT</code> will return to standard free tier latency.</li>
       </ul>
 
       <div class="mt-4">
