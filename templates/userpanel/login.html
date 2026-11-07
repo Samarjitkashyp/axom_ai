@@ -363,15 +363,19 @@
         </div>
         <pre class="text-[11px] leading-relaxed text-indigo-200 overflow-x-auto p-1 font-mono"><code><span class="text-purple-400">from</span> openai <span class="text-purple-400">import</span> OpenAI
 
+<span class="text-slate-400"># Connect OpenAI SDK to Sovereign Axom AI Studio</span>
 client = OpenAI(
     base_url=<span class="text-emerald-300">"https://aiaxom.co.in/v1"</span>,
-    api_key=<span class="text-emerald-300">"axom-sec-prod-your-api-key"</span>
+    api_key=<span class="text-emerald-300">"sk_live_axom_your_api_key"</span>
 )
-response = client.chat.completions.create(
-    model=<span class="text-emerald-300">"axom-indic"</span>,
-    messages=[{<span class="text-emerald-300">"role"</span>: <span class="text-emerald-300">"user"</span>, <span class="text-emerald-300">"content"</span>: <span class="text-emerald-300">"Explain AI in Assamese"</span>}]
+
+<span class="text-slate-400"># Sovereign 24kHz Studio Voice (Puhor)</span>
+audio = client.audio.speech.create(
+    model=<span class="text-emerald-300">"axomai-voice-puhor"</span>,
+    voice=<span class="text-emerald-300">"bidyut"</span>,
+    input=<span class="text-emerald-300">"নমস্কাৰ, আপোনালোকক অসমলৈ স্বাগতম জনাইছোঁ ।"</span>
 )
-<span class="text-purple-400">print</span>(response.choices[<span class="text-amber-300">0</span>].message.content)</code></pre>
+audio.stream_to_file(<span class="text-emerald-300">"speech.mp3"</span>)</code></pre>
       </div>
     </div>
 
@@ -499,7 +503,7 @@ response = client.chat.completions.create(
             <!-- Username Field -->
             <div>
               <label for="username" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center justify-between">
-                <span>Username</span>
+                <span>Username or Email Address</span>
                 <span class="text-[10px] text-slate-500 font-mono font-normal">Account ID</span>
               </label>
               <div class="relative group">
@@ -519,7 +523,7 @@ response = client.chat.completions.create(
                   maxlength="150"
                   {% if is_locked %}disabled{% endif %}
                   value="{{ last_username|default:'' }}"
-                  placeholder="Enter your username"
+                  placeholder="Enter your username or email"
                   class="w-full pl-11 pr-4 py-3.5 bg-[#0b1120] border border-slate-700/90 hover:border-slate-600 rounded-2xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all shadow-inner font-medium disabled:opacity-50 disabled:cursor-not-allowed">
               </div>
             </div>

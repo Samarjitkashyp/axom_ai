@@ -103,16 +103,23 @@ def require_developer_api_key(view_func):
 
         # 3. Endpoint Scope / Permission check
         req_path = request.path.lower()
-        if api_key.permissions == 'chat' and ('/translate' in req_path):
+        if api_key.permissions == 'audio' and ('/audio/' not in req_path):
             return openai_error_response(
-                "Access denied: This API key is restricted to Chat completions only.",
+                "Access denied: This API key is restricted to Voice & Speech endpoints (/v1/audio/...) only.",
                 error_type="permission_error",
                 code="insufficient_scope",
                 status=403
             )
-        elif api_key.permissions == 'translate' and ('/chat/' in req_path):
+        elif api_key.permissions == 'translate' and ('/translate' not in req_path):
             return openai_error_response(
-                "Access denied: This API key is restricted to Translation endpoints only.",
+                "Access denied: This API key is restricted to Translation endpoints (/v1/translate) only.",
+                error_type="permission_error",
+                code="insufficient_scope",
+                status=403
+            )
+        elif api_key.permissions == 'chat' and ('/translate' in req_path):
+            return openai_error_response(
+                "Access denied: This API key is restricted to Chat completions only.",
                 error_type="permission_error",
                 code="insufficient_scope",
                 status=403

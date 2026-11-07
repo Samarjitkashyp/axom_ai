@@ -366,107 +366,126 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
     <div>
       <div class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">
-        <i class="fa-solid fa-code"></i> Integration Quickstart
+        <i class="fa-solid fa-code"></i> Sovereign AI Integration Quickstart
       </div>
       <h3 class="text-lg font-bold text-slate-900">Connect to Axom AI in Under 2 Minutes</h3>
-      <p class="text-xs text-slate-500 mt-0.5">Axom AI endpoints are 100% compatible with the OpenAI API format.</p>
+      <p class="text-xs text-slate-500 mt-0.5">Sovereign Assamese AI engines: Xuna (STT), Puhor (TTS) &amp; Xetu (Translation) with 100% OpenAI SDK compatibility.</p>
     </div>
     
     <!-- Code Language Tabs -->
     <div class="flex items-center gap-1 overflow-x-auto max-w-full bg-slate-100 p-1 rounded-xl text-xs font-semibold shrink-0">
-      <button onclick="switchTab('curl')" id="tab-btn-curl" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg bg-white text-indigo-700 shadow-sm transition">cURL</button>
-      <button onclick="switchTab('python')" id="tab-btn-python" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Python</button>
-      <button onclick="switchTab('node')" id="tab-btn-node" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Node.js</button>
-      <button onclick="switchTab('translate')" id="tab-btn-translate" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Translation API</button>
+      <button onclick="switchTab('xuna')" id="tab-btn-xuna" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg bg-white text-indigo-700 shadow-sm transition">Xuna STT</button>
+      <button onclick="switchTab('puhor')" id="tab-btn-puhor" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Puhor TTS</button>
+      <button onclick="switchTab('xetu')" id="tab-btn-xetu" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Xetu Translate</button>
+      <button onclick="switchTab('curl')" id="tab-btn-curl" class="tab-btn whitespace-nowrap px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">cURL Suite</button>
     </div>
   </div>
 
-  <!-- Tab 1: cURL -->
-  <div id="tab-pane-curl" class="tab-pane">
+  <!-- Tab 1: Xuna STT -->
+  <div id="tab-pane-xuna" class="tab-pane">
     <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
-      <button onclick="copySnippet('curl-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+      <button onclick="copySnippet('xuna-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
         <i class="fa-regular fa-copy"></i>
         <span>Copy</span>
       </button>
-      <pre id="curl-snippet"><code>curl https://aiaxom.co.in/v1/chat/completions   -H "Content-Type: application/json"   -H "Authorization: Bearer <span class="text-amber-400">YOUR_AXOM_API_KEY</span>"   -d '{
-    "model": "axom-gpt-4o",
-    "messages": [
-      {"role": "system", "content": "You are Axom AI assistant."},
-      {"role": "user", "content": "Hello! How do you say welcome in Assamese?"}
-    ]
-  }'</code></pre>
-    </div>
-  </div>
+      <pre id="xuna-snippet"><code><span class="text-purple-400">from</span> openai <span class="text-purple-400">import</span> OpenAI
 
-  <!-- Tab 2: Python -->
-  <div id="tab-pane-python" class="tab-pane hidden">
-    <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
-      <button onclick="copySnippet('python-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
-        <i class="fa-regular fa-copy"></i>
-        <span>Copy</span>
-      </button>
-      <pre id="python-snippet"><code><span class="text-purple-400">from</span> openai <span class="text-purple-400">import</span> OpenAI
-
-<span class="text-slate-400"># Point the standard OpenAI SDK to Axom AI Base URL</span>
+<span class="text-slate-400"># Point official OpenAI SDK to Axom AI (Zero code changes)</span>
 client = OpenAI(
     api_key=<span class="text-emerald-400">"YOUR_AXOM_API_KEY"</span>,
     base_url=<span class="text-emerald-400">"https://aiaxom.co.in/v1"</span>
 )
 
-response = client.chat.completions.create(
-    model=<span class="text-emerald-400">"axom-gpt-4o"</span>,
-    messages=[
-        {<span class="text-emerald-400">"role"</span>: <span class="text-emerald-400">"system"</span>, <span class="text-emerald-400">"content"</span>: <span class="text-emerald-400">"You are an expert bilingual AI assistant."</span>},
-        {<span class="text-emerald-400">"role"</span>: <span class="text-emerald-400">"user"</span>, <span class="text-emerald-400">"content"</span>: <span class="text-emerald-400">"Explain quantum computing in simple words."</span>}
-    ]
+<span class="text-slate-400"># Xuna 600M Conformer ASR (Pure Assamese script ৰ/ৱ)</span>
+audio_file = open(<span class="text-emerald-400">"speech.mp3"</span>, <span class="text-emerald-400">"rb"</span>)
+transcription = client.audio.transcriptions.create(
+    model=<span class="text-emerald-400">"axomai-speech-xuna"</span>,
+    file=audio_file,
+    language=<span class="text-emerald-400">"as"</span>
 )
 
-<span class="text-indigo-400">print</span>(response.choices[<span class="text-amber-400">0</span>].message.content)</code></pre>
+<span class="text-indigo-400">print</span>(transcription.text)</code></pre>
     </div>
   </div>
 
-  <!-- Tab 3: Node.js -->
-  <div id="tab-pane-node" class="tab-pane hidden">
+  <!-- Tab 2: Puhor TTS -->
+  <div id="tab-pane-puhor" class="tab-pane hidden">
     <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
-      <button onclick="copySnippet('node-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+      <button onclick="copySnippet('puhor-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
         <i class="fa-regular fa-copy"></i>
         <span>Copy</span>
       </button>
-      <pre id="node-snippet"><code><span class="text-purple-400">import</span> OpenAI <span class="text-purple-400">from</span> <span class="text-emerald-400">"openai"</span>;
+      <pre id="puhor-snippet"><code><span class="text-purple-400">from</span> openai <span class="text-purple-400">import</span> OpenAI
 
-<span class="text-slate-400">// Point the official OpenAI npm library to Axom AI</span>
-<span class="text-purple-400">const</span> client = <span class="text-purple-400">new</span> OpenAI({
-  apiKey: <span class="text-emerald-400">"YOUR_AXOM_API_KEY"</span>,
-  baseURL: <span class="text-emerald-400">"https://aiaxom.co.in/v1"</span>
-});
+client = OpenAI(
+    api_key=<span class="text-emerald-400">"YOUR_AXOM_API_KEY"</span>,
+    base_url=<span class="text-emerald-400">"https://aiaxom.co.in/v1"</span>
+)
 
-<span class="text-purple-400">async function</span> <span class="text-indigo-400">main</span>() {
-  <span class="text-purple-400">const</span> response = <span class="text-purple-400">await</span> client.chat.completions.create({
-    model: <span class="text-emerald-400">"axom-gpt-4o"</span>,
-    messages: [
-      { role: <span class="text-emerald-400">"user"</span>, content: <span class="text-emerald-400">"Build a Next.js component in TypeScript."</span> }
-    ],
-  });
+<span class="text-slate-400"># Puhor 24kHz Studio Speech Synthesis (Dual Persona: bidyut / ananya)</span>
+response = client.audio.speech.create(
+    model=<span class="text-emerald-400">"axomai-voice-puhor"</span>,
+    voice=<span class="text-emerald-400">"bidyut"</span>,
+    input=<span class="text-emerald-400">"নমস্কাৰ! আপোনালোকক অসমলৈ আন্তৰিক স্বাগতম জনাইছোঁ ।"</span>
+)
 
-  console.log(response.choices[<span class="text-amber-400">0</span>].message.content);
+response.stream_to_file(<span class="text-emerald-400">"output_studio_voice.mp3"</span>)</code></pre>
+    </div>
+  </div>
+
+  <!-- Tab 3: Xetu Translation -->
+  <div id="tab-pane-xetu" class="tab-pane hidden">
+    <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
+      <button onclick="copySnippet('xetu-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+        <i class="fa-regular fa-copy"></i>
+        <span>Copy</span>
+      </button>
+      <pre id="xetu-snippet"><code><span class="text-purple-400">import</span> requests
+
+<span class="text-slate-400"># Xetu 200M Transformer Neural Translation Bridge (en &lt;-&gt; as)</span>
+url = <span class="text-emerald-400">"https://aiaxom.co.in/v1/translate"</span>
+headers = {
+    <span class="text-emerald-400">"Authorization"</span>: <span class="text-emerald-400">"Bearer YOUR_AXOM_API_KEY"</span>,
+    <span class="text-emerald-400">"Content-Type"</span>: <span class="text-emerald-400">"application/json"</span>
+}
+payload = {
+    <span class="text-emerald-400">"text"</span>: <span class="text-emerald-400">"Artificial Intelligence transforms local education in Assam."</span>,
+    <span class="text-emerald-400">"source_lang"</span>: <span class="text-emerald-400">"en"</span>,
+    <span class="text-emerald-400">"target_lang"</span>: <span class="text-emerald-400">"as"</span>,
+    <span class="text-emerald-400">"model"</span>: <span class="text-emerald-400">"axomai-trans-xetu"</span>
 }
 
-main();</code></pre>
+response = requests.post(url, json=payload, headers=headers)
+<span class="text-indigo-400">print</span>(response.json()[<span class="text-emerald-400">"translated_text"</span>])</code></pre>
     </div>
   </div>
 
-  <!-- Tab 4: Translation API -->
-  <div id="tab-pane-translate" class="tab-pane hidden">
+  <!-- Tab 4: cURL Suite -->
+  <div id="tab-pane-curl" class="tab-pane hidden">
     <div class="relative bg-slate-950 rounded-2xl p-5 border border-slate-800 text-slate-100 font-mono-code text-xs leading-relaxed overflow-x-auto">
-      <button onclick="copySnippet('translate-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
+      <button onclick="copySnippet('curl-snippet')" class="absolute top-4 right-4 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-sans font-semibold transition border border-slate-700 flex items-center gap-1.5">
         <i class="fa-regular fa-copy"></i>
         <span>Copy</span>
       </button>
-      <pre id="translate-snippet"><code>curl -X POST https://aiaxom.co.in/v1/translate   -H "Content-Type: application/json"   -H "Authorization: Bearer <span class="text-amber-400">YOUR_AXOM_API_KEY</span>"   -d '{
-    "text": "Artificial Intelligence is transforming Assam.",
-    "source_lang": "en",
-    "target_lang": "as"
-  }'</code></pre>
+      <pre id="curl-snippet"><code><span class="text-slate-400"># 1. Speech-to-Text (Xuna)</span>
+curl -X POST https://aiaxom.co.in/v1/audio/transcriptions \
+  -H "Authorization: Bearer <span class="text-amber-400">YOUR_AXOM_API_KEY</span>" \
+  -F "file=@audio.mp3" \
+  -F "model=axomai-speech-xuna" \
+  -F "language=as"
+
+<span class="text-slate-400"># 2. Text-to-Speech (Puhor 24kHz)</span>
+curl -X POST https://aiaxom.co.in/v1/audio/speech \
+  -H "Authorization: Bearer <span class="text-amber-400">YOUR_AXOM_API_KEY</span>" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "axomai-voice-puhor", "voice": "bidyut", "input": "নমস্কাৰ!"}' \
+  --output voice.mp3
+
+<span class="text-slate-400"># 3. Translation Bridge (Xetu)</span>
+curl -X POST https://aiaxom.co.in/v1/translate \
+  -H "Authorization: Bearer <span class="text-amber-400">YOUR_AXOM_API_KEY</span>" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello world", "source_lang": "en", "target_lang": "as"}'</code></pre>
     </div>
   </div>
 
@@ -478,15 +497,33 @@ main();</code></pre>
   <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
     <div>
       <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono-code text-[10px] font-bold">POST</span>
-        <span class="font-mono-code text-xs font-bold text-slate-800">/v1/chat/completions</span>
+        <span class="px-2 py-0.5 rounded bg-violet-100 text-violet-800 font-mono-code text-[10px] font-bold">POST</span>
+        <span class="font-mono-code text-xs font-bold text-slate-800">/v1/audio/transcriptions</span>
       </div>
-      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-        Full OpenAI schema compatibility. Supports streaming, multi-turn conversation, JSON mode, and reasoning models.
+      <h4 class="font-bold text-sm text-slate-900 mt-2">Xuna — শুনা (600M Conformer ASR)</h4>
+      <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+        Sovereign Assamese Speech-to-Text with 100% pure script orthography (ৰ/ৱ), 6.8% WER, and 0.26x RTF inference.
       </p>
     </div>
-    <a href="https://aiaxom.co.in/docs/developer#chat-completions" target="_blank" class="mt-4 text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
-      <span>View Chat Schema</span>
+    <a href="https://aiaxom.co.in/docs/developer#endpoints" target="_blank" class="mt-4 text-xs font-bold text-violet-600 hover:text-violet-700 flex items-center gap-1">
+      <span>View STT Documentation</span>
+      <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </a>
+  </div>
+
+  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-mono-code text-[10px] font-bold">POST</span>
+        <span class="font-mono-code text-xs font-bold text-slate-800">/v1/audio/speech</span>
+      </div>
+      <h4 class="font-bold text-sm text-slate-900 mt-2">Puhor — পোহৰ (24kHz Studio TTS)</h4>
+      <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+        Studio-grade 24,000 Hz neural speech voice synthesis with authentic dual personas (Bidyut Male &amp; Ananya Female).
+      </p>
+    </div>
+    <a href="https://aiaxom.co.in/docs/developer#endpoints" target="_blank" class="mt-4 text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1">
+      <span>View TTS Documentation</span>
       <i class="fa-solid fa-arrow-right text-[10px]"></i>
     </a>
   </div>
@@ -497,27 +534,16 @@ main();</code></pre>
         <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono-code text-[10px] font-bold">POST</span>
         <span class="font-mono-code text-xs font-bold text-slate-800">/v1/translate</span>
       </div>
-      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-        Neural translation with Assamese orthography purification (Bengali script clean-up and proper grammatical conjuncts).
+      <h4 class="font-bold text-sm text-slate-900 mt-2">Xetu — সেতু (200M Translation Bridge)</h4>
+      <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+        High-precision English &lt;-&gt; Assamese translation preserving grammatical inflections (-লৈ, -ৰ, -ত) and legal context.
       </p>
     </div>
-    <a href="https://aiaxom.co.in/docs/developer#translate" target="_blank" class="mt-4 text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+    <a href="https://aiaxom.co.in/docs/developer#endpoints" target="_blank" class="mt-4 text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
       <span>View Translation Docs</span>
       <i class="fa-solid fa-arrow-right text-[10px]"></i>
     </a>
   </div>
-
-  <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
-    <div>
-      <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-mono-code text-[10px] font-bold">GET</span>
-        <span class="font-mono-code text-xs font-bold text-slate-800">/v1/models</span>
-      </div>
-      <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-        Query the active model catalog, reasoning flags, context length specifications, and supported token windows.
-      </p>
-    </div>
-    <a href="https://aiaxom.co.in/docs/developer#models" target="_blank" class="mt-4 text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
       <span>View Models Docs</span>
       <i class="fa-solid fa-arrow-right text-[10px]"></i>
     </a>
@@ -550,7 +576,7 @@ main();</code></pre>
         <span class="flex items-center gap-1.5 text-indigo-300 font-bold">
           <i class="fa-brands fa-python text-sm"></i> Python (openai &gt;= 1.0.0)
         </span>
-        <button onclick="navigator.clipboard.writeText('from openai import OpenAI\n\nclient = OpenAI(\n    base_url=\x22https://aiaxom.co.in/v1\x22,\n    api_key=\x22YOUR_AXOM_SECRET_KEY\x22\n)\nresponse = client.chat.completions.create(\n    model=\x22axom-indic\x22,\n    messages=[{\x22role\x22: \x22user\x22, \x22content\x22: \x22Hello Axom AI\x22}]\n)\nprint(response.choices[0].message.content)'); showToast('Python code copied to clipboard!')" class="text-slate-400 hover:text-white transition text-[11px] flex items-center gap-1">
+        <button onclick="navigator.clipboard.writeText('from openai import OpenAI\n\nclient = OpenAI(\n    base_url=\x22https://aiaxom.co.in/v1\x22,\n    api_key=\x22YOUR_AXOM_SECRET_KEY\x22\n)\nwith open(\x22recording.mp3\x22, \x22rb\x22) as f:\n    res = client.audio.transcriptions.create(\n        model=\x22axomai-speech-xuna\x22,\n        file=f,\n        language=\x22as\x22\n    )\nprint(res.text)'); showToast('Python code copied to clipboard!')" class="text-slate-400 hover:text-white transition text-[11px] flex items-center gap-1">
           <i class="fa-regular fa-copy"></i> Copy
         </button>
       </div>
@@ -560,11 +586,15 @@ client = OpenAI(
     base_url=<span class="text-emerald-300">"https://aiaxom.co.in/v1"</span>,
     api_key=<span class="text-emerald-300">"YOUR_AXOM_SECRET_KEY"</span>
 )
-response = client.chat.completions.create(
-    model=<span class="text-emerald-300">"axom-indic"</span>,
-    messages=[{<span class="text-emerald-300">"role"</span>: <span class="text-emerald-300">"user"</span>, <span class="text-emerald-300">"content"</span>: <span class="text-emerald-300">"Hello Axom AI"</span>}]
-)
-<span class="text-purple-400">print</span>(response.choices[<span class="text-amber-300">0</span>].message.content)</code></pre>
+
+<span class="text-slate-400"># Transcribe speech with Sovereign Xuna ASR</span>
+<span class="text-purple-400">with</span> <span class="text-indigo-400">open</span>(<span class="text-emerald-300">"recording.mp3"</span>, <span class="text-emerald-300">"rb"</span>) <span class="text-purple-400">as</span> audio_file:
+    res = client.audio.transcriptions.create(
+        model=<span class="text-emerald-300">"axomai-speech-xuna"</span>,
+        file=audio_file,
+        language=<span class="text-emerald-300">"as"</span>
+    )
+<span class="text-purple-400">print</span>(res.text)</code></pre>
     </div>
 
     <!-- cURL Box -->
@@ -573,17 +603,19 @@ response = client.chat.completions.create(
         <span class="flex items-center gap-1.5 text-sky-300 font-bold">
           <i class="fa-solid fa-terminal text-sm"></i> cURL Terminal Command
         </span>
-        <button onclick="navigator.clipboard.writeText('curl -X POST https://aiaxom.co.in/v1/chat/completions \\\n  -H \x22Authorization: Bearer YOUR_AXOM_SECRET_KEY\x22 \\\n  -H \x22Content-Type: application/json\x22 \\\n  -d \x27{\x22model\x22: \x22axom-indic\x22, \x22messages\x22: [{\x22role\x22: \x22user\x22, \x22content\x22: \x22Hello\x22}]}\x27'); showToast('cURL command copied to clipboard!')" class="text-slate-400 hover:text-white transition text-[11px] flex items-center gap-1">
+        <button onclick="navigator.clipboard.writeText('curl -X POST https://aiaxom.co.in/v1/audio/speech \\\n  -H \x22Authorization: Bearer YOUR_AXOM_SECRET_KEY\x22 \\\n  -H \x22Content-Type: application/json\x22 \\\n  -d \x27{\x22model\x22: \x22axomai-voice-puhor\x22, \x22voice\x22: \x22bidyut\x22, \x22input\x22: \x22নমস্কাৰ!\x22}\x27 \\\n  --output voice.mp3'); showToast('cURL command copied to clipboard!')" class="text-slate-400 hover:text-white transition text-[11px] flex items-center gap-1">
           <i class="fa-regular fa-copy"></i> Copy
         </button>
       </div>
-      <pre class="text-[11px] text-sky-200 overflow-x-auto p-1 leading-relaxed"><code>curl -X POST https://aiaxom.co.in/v1/chat/completions \
+      <pre class="text-[11px] text-sky-200 overflow-x-auto p-1 leading-relaxed"><code>curl -X POST https://aiaxom.co.in/v1/audio/speech \
   -H <span class="text-emerald-300">"Authorization: Bearer YOUR_AXOM_SECRET_KEY"</span> \
   -H <span class="text-emerald-300">"Content-Type: application/json"</span> \
   -d <span class="text-amber-300">'{
-    "model": "axom-indic",
-    "messages": [{"role": "user", "content": "Hello"}]
-  }'</span></code></pre>
+    "model": "axomai-voice-puhor",
+    "voice": "bidyut",
+    "input": "নমস্কাৰ! অসমলৈ স্বাগতম।"
+  }'</span> \
+  --output voice.mp3</code></pre>
     </div>
   </div>
 </div>
@@ -622,21 +654,21 @@ response = client.chat.completions.create(
           <input type="hidden" id="newKeyPermissions" value="all">
           <button type="button" id="keyPermTrigger" onclick="toggleKeyPermDropdown(event)" class="w-full bg-slate-50 hover:bg-slate-100/80 border border-slate-200 hover:border-indigo-300 rounded-xl px-3.5 py-2.5 text-slate-900 text-xs flex items-center justify-between transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 group shadow-xs">
             <span class="font-semibold text-slate-900 text-xs truncate" id="keyPermLabel">
-              All Endpoints (Chat + Translation)
+              All Sovereign Models (STT, TTS &amp; Translation)
             </span>
             <i id="keyPermChevron" class="fa-solid fa-chevron-down text-slate-400 group-hover:text-slate-600 text-[10px] transition-transform duration-200 shrink-0 ml-2"></i>
           </button>
           <div id="keyPermMenu" class="hidden absolute left-0 right-0 mt-1.5 p-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 space-y-1 animate-in fade-in zoom-in-95 duration-100">
-            <button type="button" onclick="selectKeyPerm('all', 'All Endpoints (Chat + Translation)', 'Full Access')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 perm-opt" data-val="all">
-              <span class="text-xs truncate font-medium">All Endpoints (Chat + Translation)</span>
+            <button type="button" onclick="selectKeyPerm('all', 'All Sovereign Models (STT, TTS &amp; Translation)', 'Full Access')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 bg-indigo-50 text-indigo-900 font-bold border border-indigo-200/60 perm-opt" data-val="all">
+              <span class="text-xs truncate font-medium">All Sovereign Models (STT, TTS &amp; Translation)</span>
               <span class="perm-check text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
             </button>
-            <button type="button" onclick="selectKeyPerm('chat', 'Chat Completions Only (/v1/chat/completions)', 'Chat Scoped')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent perm-opt" data-val="chat">
-              <span class="text-xs truncate font-medium">Chat Completions Only (/v1/chat/completions)</span>
+            <button type="button" onclick="selectKeyPerm('audio', 'Speech &amp; Voice Only (Xuna STT + Puhor TTS)', 'Audio Scoped')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent perm-opt" data-val="audio">
+              <span class="text-xs truncate font-medium">Speech &amp; Voice Only (Xuna STT + Puhor TTS)</span>
               <span class="perm-check hidden text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
             </button>
-            <button type="button" onclick="selectKeyPerm('translate', 'Translation Only (/v1/translate)', 'Translate Scoped')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent perm-opt" data-val="translate">
-              <span class="text-xs truncate font-medium">Translation Only (/v1/translate)</span>
+            <button type="button" onclick="selectKeyPerm('translate', 'Translation Only (Xetu Bridge)', 'Translate Scoped')" class="w-full p-2.5 rounded-xl text-left transition flex items-center justify-between gap-2.5 hover:bg-slate-50 text-slate-700 border border-transparent perm-opt" data-val="translate">
+              <span class="text-xs truncate font-medium">Translation Only (Xetu Bridge)</span>
               <span class="perm-check hidden text-indigo-600 text-xs shrink-0"><i class="fa-solid fa-check"></i></span>
             </button>
           </div>

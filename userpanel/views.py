@@ -229,9 +229,16 @@ def login_view(request):
         u = _sanitize_input(raw_u, max_len=150)
         p = _sanitize_input(raw_p, max_len=256)
 
-        # Check lockout on username specifically
-        if u:
-            user_lock = _get_active_lockout(client_ip, u)
+        # Allow login via username OR email address
+        auth_username = u
+        if '@' in u:
+            matched_user = User.objects.filter(email__iexact=u).order_by('-date_joined').first()
+            if matched_user:
+                auth_username = matched_user.username
+
+        # Check lockout on username/email specifically
+        if auth_username:
+            user_lock = _get_active_lockout(client_ip, auth_username)
             if user_lock.get('is_locked'):
                 lockout_info = user_lock
                 h, m = user_lock['hours'], user_lock['mins']
@@ -245,10 +252,10 @@ def login_view(request):
                     'last_username': u
                 })
 
-        user = authenticate(request, username=u, password=p) if (u and p) else None
+        user = authenticate(request, username=auth_username, password=p) if (auth_username and p) else None
 
         if user is None:
-            fail_result = _record_failed_attempt(client_ip, u, user_agent)
+            fail_result = _record_failed_attempt(client_ip, auth_username or u, user_agent)
             if fail_result.get('is_locked'):
                 lockout_info = fail_result
                 error = "🚨 Extreme Security Lockout: 3 consecutive failed login attempts detected. Your IP address and account have been LOCKED FOR 24 HOURS. All further attempts are automatically blocked."
@@ -281,6 +288,8 @@ def login_view(request):
                 })
 
             _clear_failed_attempts(client_ip, u)
+            if auth_username != u:
+                _clear_failed_attempts(client_ip, auth_username)
             login(request, user)
             UserProfile.objects.get_or_create(user=user)
 
@@ -1996,7 +2005,7 @@ def create_api_key_api(request):
         
     key_name = _sanitize_input(raw_name, max_len=80) or f"Secret Key {active_count + 1}"
     allowed_ips = _sanitize_input(raw_ips, max_len=500).strip()
-    permissions = raw_perms if raw_perms in ('all', 'chat', 'translate') else 'all'
+    permissions = raw_perms if raw_perms in ('all', 'audio', 'translate', 'chat') else 'all'
     
     import secrets
     # Generate cryptographically secure random key
