@@ -377,7 +377,7 @@ class AboutPageConfig(models.Model):
     fact_headquarters = models.CharField(max_length=255, default='Guwahati, Assam, India (PIN: 781001, Geo: 26.1445° N, 91.7362° E)')
     fact_founder = models.CharField(max_length=200, default='Samarjit Kashyap (Lead Architect)')
     fact_languages = models.CharField(max_length=200, default='Assamese (অসমীয়া), English, Indic Transliterations')
-    fact_architecture = models.TextField(default='RAG over 25,000+ Assamese Wikipedia articles (~112K chunks), Groq LPU inference, IndicTrans2, Cloudflare FLUX & Gemini fallback')
+    fact_architecture = models.TextField(default='Sovereign Indic Foundation Models (Sarkar, Progya, Puhor, Xuna, Xuwor, Xetu), Multi-tier LLM Inference & Ultra-Low Latency Regional Pipeline')
     fact_coverage = models.CharField(max_length=255, default='Assam (all 35 districts), Northeast India, Pan-India, Global Assamese Diaspora')
 
     # 3. Why Assam Needs AI

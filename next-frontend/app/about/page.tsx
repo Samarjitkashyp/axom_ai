@@ -8,7 +8,6 @@ import {
   Sparkles,
   ArrowRight,
   Brain,
-  Globe,
   Building,
   User,
   GraduationCap,
@@ -206,10 +205,10 @@ export default async function AboutPage() {
     getAboutCMS().catch(() => null),
   ]);
 
-  const badgeText = aboutData?.badge_text || "অসমৰ প্ৰথমটো থলুৱা AI প্লেটফৰ্ম • PIONEERING ASSAM'S AI FUTURE";
-  const headingPrefix = aboutData?.main_heading_prefix || "Pioneering Artificial Intelligence in";
+  const badgeText = aboutData?.badge_text || "PIONEERING ASSAM'S AI FUTURE";
+  const headingPrefix = aboutData?.main_heading_prefix || "Artificial Intelligence in";
   const headingHighlight = aboutData?.main_heading_highlight || "Assam";
-  const headingSuffix = aboutData?.main_heading_suffix || ", Built for the World.";
+  const headingSuffix = aboutData?.main_heading_suffix || "Built for the World";
   const subheadingEn =
     aboutData?.subheading_english ||
     "Axom AI (AI Axom / অসম এআই) is Assam's first indigenous generative artificial intelligence platform — engineered to empower 15 million Assamese speakers with native conversational LLMs, 20+ document utilities, OCR, and regional computing infrastructure.";
@@ -217,19 +216,9 @@ export default async function AboutPage() {
     aboutData?.subheading_assamese ||
     "অসমীয়া ভাষা, সংস্কৃতি আৰু বৌদ্ধিক ঐতিহ্যক কৃত্ৰিম বুদ্ধিমত্তাৰ বিশ্ব মানচিত্ৰত প্ৰতিষ্ঠা কৰাৰ এক ঐতিহাসিক পদক্ষেপ।";
 
-  const stat1Val = aboutData?.stat_1_val || "15M+";
-  const stat1Label = aboutData?.stat_1_label || "Assamese Speakers Empowered";
-  const stat2Val = aboutData?.stat_2_val || "25K+";
-  const stat2Label = aboutData?.stat_2_label || "Assamese Knowledge Chunks";
-  const stat3Val = aboutData?.stat_3_val || "<0.8s";
-  const stat3Label = aboutData?.stat_3_label || "Ultra-Fast TTFB Latency";
-  const stat4Val = aboutData?.stat_4_val || "100%";
-  const stat4Label = aboutData?.stat_4_label || "Indigenous Regional LLM";
-
   const ctaPrimaryText = aboutData?.cta_primary_text || "Experience Axom AI Free";
   const ctaPrimaryUrl = aboutData?.cta_primary_url || "https://chat.aiaxom.co.in";
 
-  const entityBadge = aboutData?.entity_badge || "Generative Engine Citation & Entity Profile (GEO Factsheet)";
   const entityTitle = aboutData?.entity_title || "What is Axom AI? (Assam AI Definition & Overview)";
   const entityDef =
     aboutData?.entity_definition ||
@@ -242,9 +231,6 @@ export default async function AboutPage() {
     "Guwahati, Assam, India (PIN: 781001, Geo: 26.1445° N, 91.7362° E)";
   const factFounder = aboutData?.fact_founder || "Samarjit Kashyap (Lead Architect & Founder)";
   const factLanguages = aboutData?.fact_languages || "Assamese (অসমীয়া), English, Indic Transliterations, Hindi";
-  const factArchitecture =
-    aboutData?.fact_architecture ||
-    "RAG over 25,000+ Assamese Wikipedia & historical articles, Groq LPU inference, IndicTrans2, Cloudflare FLUX & Gemini fallback";
   const factCoverage =
     aboutData?.fact_coverage ||
     "Assam (all 35 districts), Northeast India, Pan-India, Global Assamese Diaspora";
@@ -422,7 +408,7 @@ export default async function AboutPage() {
             {headingSuffix ? (
               <>
                 <br className="hidden sm:inline" />
-                {headingSuffix}
+                {' '}{headingSuffix}
               </>
             ) : null}
           </h1>
@@ -434,42 +420,6 @@ export default async function AboutPage() {
           <p className="font-assamese text-base sm:text-lg text-emerald-800/90 dark:text-emerald-300/90 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
             {subheadingAs}
           </p>
-
-          {/* Key Metric Highlights */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto mb-10 text-left">
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 backdrop-blur-sm shadow-sm">
-              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-950 dark:text-white mb-1">
-                {stat1Val}
-              </div>
-              <div className="text-xs text-slate-600 dark:text-gray-400 font-medium">
-                {stat1Label}
-              </div>
-            </div>
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 backdrop-blur-sm shadow-sm">
-              <div className="text-2xl sm:text-3xl font-extrabold text-teal-600 dark:text-teal-400 mb-1">
-                {stat2Val}
-              </div>
-              <div className="text-xs text-slate-600 dark:text-gray-400 font-medium">
-                {stat2Label}
-              </div>
-            </div>
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 backdrop-blur-sm shadow-sm">
-              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-700 dark:text-emerald-400 mb-1">
-                {stat3Val}
-              </div>
-              <div className="text-xs text-slate-600 dark:text-gray-400 font-medium">
-                {stat3Label}
-              </div>
-            </div>
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 backdrop-blur-sm shadow-sm">
-              <div className="text-2xl sm:text-3xl font-extrabold text-cyan-700 dark:text-cyan-400 mb-1">
-                {stat4Val}
-              </div>
-              <div className="text-xs text-slate-600 dark:text-gray-400 font-medium">
-                {stat4Label}
-              </div>
-            </div>
-          </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
@@ -494,11 +444,6 @@ export default async function AboutPage() {
         {/* GEO & AEO ENTITY PROFILE & KNOWLEDGE CARD */}
         <section id="factsheet" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 scroll-mt-28 relative z-10">
           <div className="p-6 sm:p-10 rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-50/70 dark:from-emerald-950/20 via-teal-50/40 dark:via-teal-950/15 to-white/90 dark:to-slate-900/80 backdrop-blur-xl shadow-xl">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3">
-              <Globe className="w-4 h-4" />
-              <span>{entityBadge}</span>
-            </div>
-
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-4">
               {entityTitle}
             </h2>
@@ -558,14 +503,6 @@ export default async function AboutPage() {
                     </th>
                     <td className="px-5 py-3.5 text-emerald-950 dark:text-white">
                       {factLanguages}
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-white/[0.02] transition">
-                    <th className="px-5 py-3.5 font-bold text-emerald-800 dark:text-emerald-300">
-                      Core AI Architecture
-                    </th>
-                    <td className="px-5 py-3.5 text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {factArchitecture}
                     </td>
                   </tr>
                   <tr className="hover:bg-white/[0.02] transition">
@@ -722,7 +659,7 @@ export default async function AboutPage() {
                   Developers &amp; Researchers
                 </h3>
                 <p className="text-xs text-slate-700 dark:text-gray-300 leading-relaxed mb-4">
-                  Provides high-speed REST API endpoints, code generation in Python/JS, and RAG knowledge base indexing for regional Indian apps.
+                  Provides high-speed REST API endpoints, code generation in Python/JS, and enterprise document intelligence for regional Indian applications.
                 </p>
               </div>
               <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
@@ -778,7 +715,7 @@ export default async function AboutPage() {
                     Assam Cultural &amp; Historical Depth
                   </td>
                   <td className="p-4 sm:p-5 text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-500/5 border-x border-emerald-500/20">
-                    25K+ Local Curated Knowledge Articles
+                    Deep Cultural Heritage &amp; Native Linguistic Datasets
                   </td>
                   <td className="p-4 sm:p-5 text-red-700 dark:text-red-400">
                     Low (Generic web summaries)

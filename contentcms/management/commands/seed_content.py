@@ -338,7 +338,7 @@ class Command(BaseCommand):
             LandingFAQ.objects.bulk_create([
                 LandingFAQ(
                     question="How does Axom AI understand and reply in Assamese?",
-                    answer="Axom AI uses fine-tuned models integrated with IndicTrans2 and RAG over 25,000+ curated Assamese articles to guarantee native dialect fluency and accuracy.",
+                    answer="Axom AI uses fine-tuned models integrated with IndicTrans2 and sovereign Assamese linguistic tuning to guarantee native dialect fluency and accuracy.",
                     category="features",
                     order=1
                 ),
