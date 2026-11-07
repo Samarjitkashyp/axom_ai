@@ -705,15 +705,16 @@ def profile_page(request):
     user = request.user
     profile, _ = UserProfile.objects.get_or_create(user=user)
     user_plan = UserPlan.objects.filter(user=user, status='active').first()
-    plan_tier = (user_plan.plan if user_plan else 'free').lower()
+    plan_tier = (user_plan.plan if user_plan and user_plan.is_active() else 'free').lower()
 
-    tier_labels = {
-        'free': 'Free Developer Tier',
-        'starter': 'Starter Tier',
-        'pro': 'Pro Tier ⚡',
-        'enterprise': 'Enterprise Tier 🏢',
-    }
-    tier_label = tier_labels.get(plan_tier, plan_tier.title())
+    if 'business' in plan_tier:
+        tier_label = 'Enterprise API 🏢'
+    elif 'pro' in plan_tier:
+        tier_label = 'Pro Developer ⚡'
+    elif 'starter' in plan_tier:
+        tier_label = 'Starter Developer'
+    else:
+        tier_label = 'Free Developer Sandbox'
 
     active_keys_count = DeveloperApiKey.objects.filter(user=user, is_active=True).count()
     total_keys_count = DeveloperApiKey.objects.filter(user=user).count()
