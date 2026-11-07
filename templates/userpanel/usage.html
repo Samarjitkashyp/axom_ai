@@ -1,6 +1,10 @@
 {% extends 'userpanel/base.html' %}
-{% block title %}Developer API Usage & Quotas — Axom AI{% endblock %}
-{% block heading %}API Usage & Quota Consumption{% endblock %}
+{% block title %}API Usage & Quotas — Axom AI Developer Portal{% endblock %}
+{% block meta_title %}API Usage & Quotas — Axom AI Developer Portal{% endblock %}
+{% block meta_description %}Monitor real-time request volume, quota meters, and per-key usage across Axom AI's sovereign indigenous engines: Xuna (STT), Puhor (24kHz Studio Voice), and Xetu (Translation).{% endblock %}
+{% block meta_keywords %}Axom AI API usage, developer quota, token consumption, Assamese STT API usage, Puhor TTS telemetry, Xetu translation quota, Indic AI developer analytics{% endblock %}
+{% block canonical_url %}https://user.aiaxom.co.in/usage/{% endblock %}
+{% block heading %}API Usage & Quotas Telemetry{% endblock %}
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,23 +25,23 @@
     <div class="max-w-2xl">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
         <i class="fa-solid fa-chart-column text-indigo-400"></i>
-        <span>Developer Console • Live Quota Analytics</span>
+        <span>Sovereign Developer Console • Live Quota Analytics</span>
       </div>
       <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-        API Usage & Quota Consumption
+        API Usage &amp; Quota Consumption
       </h2>
       <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-        Monitor your OpenAI-compatible API requests, burst rate limits, per-key metrics, and real-time inference latency across all integrated endpoints.
+        Monitor real-time request volume, monthly quota meters, and low-latency inference across Axom AI's sovereign indigenous engines: <strong class="text-emerald-400">Xuna</strong> (Speech-to-Text), <strong class="text-purple-400">Puhor</strong> (24kHz Studio Voice), and <strong class="text-indigo-400">Xetu</strong> (Neural Translation).
       </p>
     </div>
 
-    <!-- Quick Action / Export CSV -->
+    <!-- Quick Actions / Export CSV -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-      <a href="/usage/export/" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold backdrop-blur-sm border border-white/10 transition shadow-sm">
+      <a href="/usage/export/" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold backdrop-blur-sm border border-white/10 transition shadow-sm active:scale-95">
         <i class="fa-solid fa-file-csv text-emerald-400 text-sm"></i>
         <span>Export Usage CSV</span>
       </a>
-      <a href="/subscription/" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition">
+      <a href="/subscription/" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition active:scale-95">
         <i class="fa-solid fa-layer-group text-xs"></i>
         <span>Manage Subscription</span>
       </a>
@@ -169,18 +173,18 @@
             Daily Volume
           </span>
         </h3>
-        <p class="text-xs text-slate-500 mt-0.5">Real-time daily API request distribution across OpenAI-compatible endpoints</p>
+        <p class="text-xs text-slate-500 mt-0.5">Real-time daily API request distribution across sovereign endpoints</p>
       </div>
 
       <!-- Chart Legend Pills -->
       <div class="flex items-center gap-3 text-xs">
         <span class="inline-flex items-center gap-1.5 text-slate-600 font-semibold">
           <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
-          <span>Chat Completions</span>
+          <span>Speech &amp; Voice (Puhor / Xuna)</span>
         </span>
         <span class="inline-flex items-center gap-1.5 text-slate-600 font-semibold">
           <span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>
-          <span>Translation</span>
+          <span>Translation (Xetu)</span>
         </span>
       </div>
     </div>
@@ -200,11 +204,11 @@
         <!-- Audio & Speech (Puhor / Xuna) -->
         <div>
           <div class="flex items-center justify-between text-xs mb-1.5">
-            <span class="font-bold text-slate-800 font-mono text-[11px]">POST /v1/audio/speech &amp; transcriptions</span>
+            <span class="font-bold text-slate-800 font-mono text-[11px]">POST /v1/audio/* (Speech/STT)</span>
             <span class="font-extrabold text-indigo-600">{{ chat_share_pct }}%</span>
           </div>
           <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-            <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ chat_share_pct }}%;"></div>
+            <div class="bg-indigo-600 h-2 rounded-full transition-all duration-500" style="width: {{ chat_share_pct }}%;"></div>
           </div>
           <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
             <span>{{ total_chat_requests }} total requests</span>
@@ -219,7 +223,7 @@
             <span class="font-extrabold text-violet-600">{{ translate_share_pct }}%</span>
           </div>
           <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-            <div class="bg-violet-500 h-2 rounded-full" style="width: {{ translate_share_pct }}%;"></div>
+            <div class="bg-violet-500 h-2 rounded-full transition-all duration-500" style="width: {{ translate_share_pct }}%;"></div>
           </div>
           <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
             <span>{{ total_translate_requests }} total requests</span>
@@ -233,13 +237,13 @@
     <div class="mt-6 pt-5 border-t border-slate-100 space-y-2.5">
       <div class="flex items-center justify-between text-xs">
         <span class="text-slate-500 font-medium">Estimated Tokens Processed</span>
-        <span class="font-bold text-slate-900 font-mono">~{{ total_tokens_consumed }} tokens</span>
+        <span class="font-bold text-slate-900 font-mono">~{{ total_tokens_consumed }} units</span>
       </div>
       <div class="flex items-center justify-between text-xs">
         <span class="text-slate-500 font-medium">Inference Latency SLA</span>
         <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
           <i class="fa-solid fa-circle text-[8px] mr-1 text-emerald-500 animate-pulse"></i>
-          Sub-second High Speed
+          Sub-second Low Latency
         </span>
       </div>
     </div>
@@ -252,7 +256,7 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
     <div>
       <h3 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-        <span>Secret Key Breakdown & Consumption</span>
+        <span>Secret Key Breakdown &amp; Consumption</span>
         <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
           {{ key_items|length }} Total Keys
         </span>
@@ -260,18 +264,86 @@
       <p class="text-xs text-slate-500 mt-0.5">Granular quota consumption, rate limits, and allowed IP scopes for each generated key</p>
     </div>
     
-    <a href="/" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200/60 transition shadow-sm">
+    <a href="/" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl border border-indigo-200/60 transition shadow-sm active:scale-95">
       <i class="fa-solid fa-plus text-[10px]"></i>
       <span>Generate New Key</span>
     </a>
   </div>
 
-  <div class="overflow-x-auto">
-    <table class="w-full text-left text-xs border-collapse">
+  <!-- Mobile Cards View for Keys (< md) -->
+  <div class="block md:hidden space-y-3">
+    {% for item in key_items %}
+    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-indigo-100/80 text-indigo-600 flex items-center justify-center text-xs shrink-0 font-bold">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="font-bold text-xs text-slate-900 truncate">{{ item.key.name }}</div>
+            <div class="font-mono text-[10px] text-slate-400 truncate">{{ item.key.masked_key }}</div>
+          </div>
+        </div>
+        <div>
+          {% if item.key.is_active %}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Active
+          </span>
+          {% else %}
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+            Revoked
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-[11px]">
+        <div class="bg-white p-2.5 rounded-xl border border-slate-200/70">
+          <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Scope &amp; Tier</div>
+          <div class="font-bold text-slate-800 capitalize mt-0.5 truncate">{{ item.key.tier }} ({{ item.key.rate_limit_per_minute }}/m)</div>
+          <div class="text-[10px] font-semibold mt-0.5 truncate">
+            {% if item.key.permissions == 'audio' %}
+              <span class="text-purple-600 font-bold">Speech &amp; Voice</span>
+            {% elif item.key.permissions == 'translate' %}
+              <span class="text-indigo-600 font-bold">Translation (Xetu)</span>
+            {% else %}
+              <span class="text-emerald-600 font-bold">All Sovereign Engines</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="bg-white p-2.5 rounded-xl border border-slate-200/70">
+          <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Requests Used</div>
+          <div class="font-bold text-slate-800 mt-0.5">{{ item.key.current_usage }} <span class="text-slate-400 font-normal">/ {{ item.key.monthly_quota }}</span></div>
+          <div class="text-[10px] text-slate-400 mt-0.5 truncate">
+            Last: {% if item.key.last_used_at %}{{ item.key.last_used_at|date:"d M, H:i" }}{% else %}Never{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini Progress Gauge -->
+      <div>
+        <div class="flex justify-between text-[10px] font-mono text-slate-400 mb-1">
+          <span>Quota Consumed</span>
+          <span>{{ item.quota_percent }}%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+          <div class="bg-indigo-600 h-1.5 rounded-full" style="width: {{ item.quota_percent }}%;"></div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="p-6 text-center text-slate-400 text-xs">No API secret keys found.</div>
+    {% endfor %}
+  </div>
+
+  <!-- Desktop Table (>= md) -->
+  <div class="hidden md:block overflow-x-auto">
+    <table class="w-full text-left text-xs border-collapse min-w-[700px]">
       <thead>
         <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
-          <th class="py-3 px-4">Key Name & Identifier</th>
-          <th class="py-3 px-4">Tier & Scope</th>
+          <th class="py-3 px-4">Key Name &amp; Identifier</th>
+          <th class="py-3 px-4">Tier &amp; Scope</th>
           <th class="py-3 px-4">Allowed Client IPs</th>
           <th class="py-3 px-4">Quota Consumption</th>
           <th class="py-3 px-4 text-center">Burst RPM</th>
@@ -295,9 +367,14 @@
             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
               {{ item.key.tier }}
             </span>
-            <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
-              <i class="fa-solid fa-lock text-[10px] text-slate-400"></i>
-              <span>{{ item.key.get_permissions_display|default:item.key.permissions }}</span>
+            <div class="text-[11px] mt-1 flex items-center gap-1">
+              {% if item.key.permissions == 'audio' %}
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">Speech &amp; Voice</span>
+              {% elif item.key.permissions == 'translate' %}
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">Translation (Xetu)</span>
+              {% else %}
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">All Sovereign Engines</span>
+              {% endif %}
             </div>
           </td>
           <td class="py-3.5 px-4 font-mono text-[11px]">
@@ -367,18 +444,18 @@
       <p class="text-xs text-slate-500 mt-0.5">Real-time HTTP logs including response status codes, tokens, latency, and client IP</p>
     </div>
 
-    <a href="/usage/export/" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
+    <a href="/usage/export/" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition active:scale-95">
       <i class="fa-solid fa-download text-[11px] text-slate-500"></i>
       <span>Download Full Logs</span>
     </a>
   </div>
 
   <div class="overflow-x-auto">
-    <table class="w-full text-left text-xs border-collapse">
+    <table class="w-full text-left text-xs border-collapse min-w-[750px]">
       <thead>
         <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
           <th class="py-3 px-4">Timestamp</th>
-          <th class="py-3 px-4">Endpoint & Method</th>
+          <th class="py-3 px-4">Endpoint &amp; Method</th>
           <th class="py-3 px-4">Status</th>
           <th class="py-3 px-4">Model Used</th>
           <th class="py-3 px-4">Secret Key</th>
@@ -414,7 +491,7 @@
             {% endif %}
           </td>
           <td class="py-3 px-4 text-slate-700">
-            {{ log.model_name|default:"axom-indic-1" }}
+            {{ log.model_name|default:"axomai-voice-puhor" }}
           </td>
           <td class="py-3 px-4 text-slate-600 font-sans text-xs">
             {{ log.api_key.name|default:"Default Key" }}
@@ -432,7 +509,7 @@
             <i class="fa-solid fa-satellite-dish text-2xl text-slate-300 mb-2 block"></i>
             <span>No detailed request logs recorded yet in this cycle.</span>
             <div class="text-xs text-slate-500 mt-1">
-              Execute live requests using curl or the Live Interactive Sandbox to see real-time audit logs populate here.
+              Execute live requests using curl or the OpenAI Python SDK to see real-time audit logs populate here.
             </div>
           </td>
         </tr>
@@ -448,12 +525,15 @@
     <i class="fa-solid fa-shield-halved"></i>
   </div>
   <div class="text-xs text-slate-600 leading-relaxed space-y-1.5">
-    <div class="font-extrabold text-slate-900 text-sm">Developer Quota & Security Guidelines</div>
+    <div class="font-extrabold text-slate-900 text-sm">Developer Quota &amp; Security Guidelines</div>
     <p>
       • <strong>Automated 429 Exponential Backoff:</strong> When reaching burst limits ({{ peak_rate_limit }} RPM), your backend client should read the <code>retry-after</code> header and implement exponential jitter backoff.
     </p>
     <p>
       • <strong>Server-Side Proxy Requirement:</strong> Always call Axom AI endpoints from backend servers (Node.js, Python, Go, Java, PHP) rather than client-side SPAs or mobile apps, and bind secret keys to static IP ranges for maximum protection.
+    </p>
+    <p>
+      • <strong>Data Sovereignty &amp; Privacy:</strong> All inference requests to Xuna, Puhor, and Xetu are processed within sovereign Indian data borders in accordance with the Digital Personal Data Protection (DPDP) Act 2023. Audio payloads are never retained without consent.
     </p>
   </div>
 </div>
@@ -481,7 +561,7 @@
             maxBarThickness: 28,
           },
           {
-            label: 'POST /v1/translate',
+            label: 'POST /v1/translate (Xetu)',
             data: translateData,
             backgroundColor: '#8b5cf6',
             borderRadius: 6,

@@ -1351,9 +1351,8 @@ def usage_page(request):
         if has_logs:
             c_calls = DeveloperApiRequestLog.objects.filter(
                 user=user,
-                endpoint__contains='chat',
                 created_at__range=(day_start, day_end)
-            ).count()
+            ).filter(Q(endpoint__contains='audio') | Q(endpoint__contains='speech') | Q(endpoint__contains='chat')).count()
             t_calls = DeveloperApiRequestLog.objects.filter(
                 user=user,
                 endpoint__contains='translate',
@@ -1362,7 +1361,7 @@ def usage_page(request):
             other_calls = DeveloperApiRequestLog.objects.filter(
                 user=user,
                 created_at__range=(day_start, day_end)
-            ).exclude(endpoint__contains='chat').exclude(endpoint__contains='translate').count()
+            ).exclude(endpoint__contains='chat').exclude(endpoint__contains='audio').exclude(endpoint__contains='speech').exclude(endpoint__contains='translate').count()
             tot = c_calls + t_calls + other_calls
         else:
             # Fallback if logs table was just introduced: distribute existing usage realistically across recent active days
@@ -1383,20 +1382,20 @@ def usage_page(request):
 
     # Endpoint distribution totals
     if has_logs:
-        total_chat_requests = DeveloperApiRequestLog.objects.filter(user=user, endpoint__contains='chat').count()
+        total_audio_requests = DeveloperApiRequestLog.objects.filter(user=user).filter(Q(endpoint__contains='audio') | Q(endpoint__contains='speech') | Q(endpoint__contains='chat')).count()
         total_translate_requests = DeveloperApiRequestLog.objects.filter(user=user, endpoint__contains='translate').count()
-        total_models_requests = DeveloperApiRequestLog.objects.filter(user=user, endpoint__contains='models').count()
         total_tokens_consumed = sum(l.tokens_used for l in DeveloperApiRequestLog.objects.filter(user=user)[:500])
-        total_logged = max(1, total_chat_requests + total_translate_requests + total_models_requests)
-        chat_share_pct = int((total_chat_requests / total_logged) * 100)
+        total_logged = max(1, total_audio_requests + total_translate_requests)
+        chat_share_pct = int((total_audio_requests / total_logged) * 100)
         translate_share_pct = int((total_translate_requests / total_logged) * 100)
+        total_chat_requests = total_audio_requests
     else:
-        total_chat_requests = int(total_api_calls * 0.85)
-        total_translate_requests = total_api_calls - total_chat_requests
-        total_models_requests = 0
+        total_audio_requests = int(total_api_calls * 0.85)
+        total_translate_requests = total_api_calls - total_audio_requests
         total_tokens_consumed = total_api_calls * 180
         chat_share_pct = 85 if total_api_calls > 0 else 0
         translate_share_pct = 15 if total_api_calls > 0 else 0
+        total_chat_requests = total_audio_requests
 
     # Recent request audit logs (up to 25)
     recent_logs = DeveloperApiRequestLog.objects.filter(user=user).select_related('api_key').order_by('-created_at')[:25]
@@ -1420,8 +1419,9 @@ def usage_page(request):
         'key_items': key_items,
         'recent_logs': recent_logs,
         'total_chat_requests': total_chat_requests,
+        'total_audio_requests': total_audio_requests,
         'total_translate_requests': total_translate_requests,
-        'total_models_requests': total_models_requests,
+        'total_models_requests': 0,
         'total_tokens_consumed': total_tokens_consumed,
         'chat_share_pct': chat_share_pct,
         'translate_share_pct': translate_share_pct,
