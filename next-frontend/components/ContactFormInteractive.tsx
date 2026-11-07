@@ -249,29 +249,32 @@ export default function ContactFormInteractive() {
         {/* Name and Email */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
               Full Name <span className="text-emerald-600 dark:text-emerald-400">*</span>
             </label>
             <input
               type="text"
               required
+              autoComplete="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Samarjit Das"
-              className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-sm placeholder-gray-500 transition"
+              className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-base sm:text-sm placeholder-gray-500 transition"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
               Work or Personal Email <span className="text-emerald-600 dark:text-emerald-400">*</span>
             </label>
             <input
               type="email"
               required
+              autoComplete="email"
+              inputMode="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g. name@example.com"
-              className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-sm placeholder-gray-500 transition"
+              className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-base sm:text-sm placeholder-gray-500 transition"
             />
           </div>
         </div>
@@ -279,25 +282,27 @@ export default function ContactFormInteractive() {
         {/* Phone & Category */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1.5">
-              Phone / WhatsApp <span className="text-slate-600 dark:text-gray-500 text-[11px]">(Optional)</span>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
+              Phone / WhatsApp <span className="text-slate-600 dark:text-gray-500 text-[11px] font-normal">(Optional)</span>
             </label>
             <input
               type="tel"
+              autoComplete="tel"
+              inputMode="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+91 98765 43210"
-              className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-sm placeholder-gray-500 transition"
+              className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-base sm:text-sm placeholder-gray-500 transition"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
               Inquiry Department <span className="text-emerald-600 dark:text-emerald-400">*</span>
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-sm transition"
+              className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-base sm:text-sm transition"
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat.id} value={cat.id} className="bg-white dark:bg-slate-800 text-emerald-950 dark:text-white">
@@ -310,21 +315,21 @@ export default function ContactFormInteractive() {
 
         {/* Subject */}
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1.5">
-            Subject Line <span className="text-slate-600 dark:text-gray-500 text-[11px]">(Optional)</span>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
+            Subject Line <span className="text-slate-600 dark:text-gray-500 text-[11px] font-normal">(Optional)</span>
           </label>
           <input
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="e.g. Enterprise API integration inquiry for Guwahati college"
-            className="w-full px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-sm placeholder-gray-500 transition"
+            className="w-full min-h-[44px] px-4 py-2.5 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-base sm:text-sm placeholder-gray-500 transition"
           />
         </div>
 
         {/* Message */}
         <div>
-          <label className="block text-xs font-medium text-slate-700 dark:text-gray-300 mb-1.5">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-gray-300 mb-1.5">
             Your Message / Question <span className="text-emerald-600 dark:text-emerald-400">*</span>
           </label>
           <textarea
@@ -333,7 +338,7 @@ export default function ContactFormInteractive() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Write your question, technical issue, or business requirement in English or Assamese (অসমীয়া)..."
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-sm placeholder-gray-500 transition resize-y"
+            className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-emerald-900/15 dark:border-white/10 focus:border-emerald-500 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-emerald-950 dark:text-white text-base sm:text-sm placeholder-gray-500 transition resize-y"
           />
         </div>
 
