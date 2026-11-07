@@ -103,10 +103,10 @@ export default function DeveloperDocsInteractive() {
   const [activeStack, setActiveStack] = useState<'mobile' | 'web' | 'php' | 'python' | 'node'>('mobile');
 
   // Active Endpoint Tab in Documentation
-  const [activeEndpoint, setActiveEndpoint] = useState<'audio' | 'speech' | 'translate' | 'models'>('audio');
+  const [activeEndpoint, setActiveEndpoint] = useState<'audio' | 'speech' | 'translate'>('audio');
 
   // Live Playground State
-  const [playgroundEndpoint, setPlaygroundEndpoint] = useState<'audio' | 'speech' | 'translate' | 'models'>('audio');
+  const [playgroundEndpoint, setPlaygroundEndpoint] = useState<'audio' | 'speech' | 'translate'>('audio');
   const [translateText, setTranslateText] = useState<string>('Artificial Intelligence is empowering the youth of Assam.');
   const [translateTarget, setTranslateTarget] = useState<string>('as');
 
@@ -464,12 +464,6 @@ export default function DeveloperDocsInteractive() {
           method: 'POST',
           headers: audioHeaders,
           body: formData,
-        };
-      } else if (playgroundEndpoint === 'models') {
-        url = '/v1/models';
-        options = {
-          method: 'GET',
-          headers,
         };
       }
 
@@ -1781,24 +1775,6 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                 <Globe size={13} />
                 <span>Xetu Translate (/v1/translate)</span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setPlaygroundEndpoint('models');
-                  setApiResponse(null);
-                  setHttpStatus(null);
-                  setAudioOutputUrl(null);
-                }}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
-                  playgroundEndpoint === 'models'
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                }`}
-              >
-                <span className="px-1.5 py-0.5 rounded bg-black/20 text-[10px] font-mono">GET</span>
-                <span>/v1/models</span>
-              </button>
             </div>
 
             {/* Quick Demo Key Injector in Sandbox Header */}
@@ -2121,12 +2097,6 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                 </>
               )}
 
-              {playgroundEndpoint === 'models' && (
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
-                  <p>GET /v1/models queries the active catalog of models running on the Axom AI cluster.</p>
-                  <p className="mt-2 font-mono text-[11px] text-slate-500">Requires Bearer key authorization header.</p>
-                </div>
-              )}
 
               <div className="pt-2">
                 <button
@@ -2585,18 +2555,6 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
             <span className="px-1.5 py-0.5 rounded bg-black/20 text-xs font-mono">POST</span>
             /v1/translate
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveEndpoint('models')}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-              activeEndpoint === 'models'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <span className="px-1.5 py-0.5 rounded bg-black/20 text-xs font-mono">GET</span>
-            /v1/models
-          </button>
         </div>
 
         {/* Tab: /v1/audio/speech */}
@@ -2834,59 +2792,6 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
           </div>
         )}
 
-        {/* Tab 3: /v1/models */}
-        {activeEndpoint === 'models' && (
-          <div className="space-y-6">
-            <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-emerald-900/10 dark:border-white/10 shadow-sm space-y-4">
-              <div className="flex items-center gap-3">
-                <span className="px-2 py-1 rounded bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 font-mono text-xs font-bold">
-                  GET
-                </span>
-                <code className="font-mono text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
-                  https://aiaxom.co.in/v1/models
-                </code>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
-                Lists all currently available models and their capabilities. No request body required.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-800 bg-[#0b1220] p-4 sm:p-6 text-slate-200">
-              <div className="text-xs font-mono text-slate-400 mb-2">// 200 OK Response</div>
-              <pre className="font-mono text-xs sm:text-sm text-emerald-300 overflow-x-auto">
-{`{
-  "object": "list",
-  "data": [
-    {
-      "id": "axomai-speech-xuna",
-      "object": "model",
-      "created": 1730000000,
-      "owned_by": "axom-ai",
-      "description": "600M Conformer ASR sovereign Assamese speech-to-text with ONNX decoder & Bengali script purification",
-      "type": "audio.transcription"
-    },
-    {
-      "id": "axomai-voice-puhor",
-      "object": "model",
-      "created": 1730000000,
-      "owned_by": "axom-ai",
-      "description": "24kHz Studio neural text-to-speech engine with authentic Assamese prosody & multi-speaker personas",
-      "type": "audio.speech"
-    },
-    {
-      "id": "axomai-trans-xetu",
-      "object": "model",
-      "created": 1730000000,
-      "owned_by": "axom-ai",
-      "description": "200M Transformer translation bridge specializing in English-Assamese and Indic cross-lingual mapping",
-      "type": "translation"
-    }
-  ]
-}`}
-              </pre>
-            </div>
-          </div>
-        )}
       </section>
 
       {/* 9. Rate Limits & Error Handling */}

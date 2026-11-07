@@ -24,7 +24,7 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   title: 'Axom AI Developer Platform — OpenAI-Compatible Assamese & Indic LLMs, Speech-to-Text Voice API & SDKs',
   description:
-    'Official Axom AI Developer Documentation. Integrate OpenAI-compatible REST endpoints (/v1/chat/completions, /v1/audio/transcriptions, /v1/models, /v1/translate) for native Assamese & Indic LLMs and high-precision Speech-to-Text voice models. Complete SDK quickstarts (Python, Node.js, PHP, cURL, Flutter), API keys, live sandbox, pricing, and latency benchmarks.',
+    'Official Axom AI Developer Documentation. Integrate OpenAI-compatible REST endpoints (/v1/audio/transcriptions, /v1/audio/speech, /v1/translate) for sovereign Assamese speech-to-text, 24kHz studio TTS voice synthesis, and neural translation. Complete SDK quickstarts (Python, Node.js, PHP, cURL, Flutter), API keys, live sandbox, pricing, and latency benchmarks.',
   keywords: [
     'Axom AI Developer API',
     'Assamese Speech-to-Text API',
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Axom AI Developer API Docs — OpenAI-Compatible Assamese & Indic LLMs',
     description:
-      'Official documentation for Axom AI API. Drop-in OpenAI-compatible REST endpoints (/v1/chat/completions, /v1/models, /v1/translate) for native Assamese & Indic LLMs. Sub-280ms latency, SDK quickstarts, and live sandbox.',
+      'Official documentation for Axom AI API. Drop-in OpenAI-compatible REST endpoints (/v1/audio/transcriptions, /v1/audio/speech, /v1/translate) for sovereign Assamese STT, 24kHz Studio TTS, and neural translation. Sub-280ms latency, SDK quickstarts, and live sandbox.',
     url: 'https://aiaxom.co.in/docs/developer',
     siteName: 'Axom AI Developer Platform',
     type: 'article',
@@ -198,7 +198,7 @@ export default async function DeveloperDocsPage() {
           offerCount: '3',
         },
         featureList: [
-          'OpenAI v1 REST Drop-in Replacement (/v1/chat/completions, /v1/models, /v1/translate)',
+          'OpenAI v1 REST Drop-in Replacement (/v1/audio/transcriptions, /v1/audio/speech, /v1/translate)',
           'Sub-280ms Latency on Indian GPU Cloud Infrastructure (Asia-South-1)',
           'Grammatically Pure Native Assamese Orthography (No Bengali script contamination)',
           'Free Sandbox Developer Tier with Instant API Key Generation',
@@ -294,7 +294,7 @@ export default async function DeveloperDocsPage() {
             name: 'What is the Axom AI Developer API?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'The Axom AI Developer API is an enterprise-grade, OpenAI-compatible REST API providing developers direct programmatic access to Assam\'s sovereign foundation models: Xuna (600M Speech-to-Text), Puhor (24kHz Studio Text-to-Speech), and Xetu (200M Neural Translation Bridge). It enables developers to integrate high-speed speech transcriptions (/v1/audio/transcriptions), voice speech synthesis (/v1/audio/speech), model listings (/v1/models), and neural Assamese translation (/v1/translate) into web apps, mobile apps, bots, and automated pipelines.',
+              text: 'The Axom AI Developer API is an enterprise-grade, OpenAI-compatible REST API providing developers direct programmatic access to Assam\'s sovereign foundation models: Xuna (600M Speech-to-Text), Puhor (24kHz Studio Text-to-Speech), and Xetu (200M Neural Translation Bridge). It enables developers to integrate high-speed speech transcriptions (/v1/audio/transcriptions), voice speech synthesis (/v1/audio/speech), and neural Assamese translation (/v1/translate) into web apps, mobile apps, bots, and automated pipelines.',
             },
           },
           {
@@ -572,7 +572,7 @@ export default async function DeveloperDocsPage() {
                 </summary>
                 <div className="mt-3.5 pt-3.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed space-y-2">
                   <p>
-                    The <strong>Axom AI Developer API</strong> is an enterprise-grade, OpenAI-compatible REST API providing developers direct programmatic access to Assam&apos;s first indigenous Large Language Models (LLMs) and Indic neural intelligence engines. It enables developers to integrate high-speed chat completions (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/chat/completions</code>), model listings (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/models</code>), and neural Assamese translation (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/translate</code>) into web applications, mobile apps, bots, and automated workflows with sub-280ms response times.
+                    The <strong>Axom AI Developer API</strong> is an enterprise-grade, OpenAI-compatible REST API providing developers direct programmatic access to Assam&apos;s sovereign foundation models: Xuna (600M Speech-to-Text), Puhor (24kHz Studio Text-to-Speech), and Xetu (200M Neural Translation Bridge). It enables developers to integrate high-speed speech transcriptions (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/audio/transcriptions</code>), studio voice synthesis (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/audio/speech</code>), and neural Assamese translation (<code className="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">/v1/translate</code>) into web applications, mobile apps, bots, and automated workflows.
                   </p>
                 </div>
               </details>
