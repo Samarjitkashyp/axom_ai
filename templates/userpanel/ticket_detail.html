@@ -2,6 +2,10 @@
 {% block title %}Ticket #{{ ticket.ticket_id }} — Axom AI Support{% endblock %}
 {% block heading %}Ticket #{{ ticket.ticket_id }}{% endblock %}
 
+{% block extra_head %}
+<meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
 {% block content %}
 <div class="max-w-4xl mx-auto space-y-6 mb-12">
 

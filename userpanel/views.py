@@ -1666,6 +1666,21 @@ def support_page(request):
         status_filter = 'all'
         tickets = all_tickets
 
+    # Search filter by ticket ID, subject, or category
+    search_q = request.GET.get('q', '').strip()
+    if search_q:
+        clean_q = search_q.lstrip('#')
+        tickets = tickets.filter(
+            Q(ticket_id__icontains=clean_q) |
+            Q(subject__icontains=search_q) |
+            Q(category__icontains=search_q)
+        )
+
+    # Pagination: 10 tickets per page
+    paginator = Paginator(tickets, 10)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     unread_notif_count = InAppNotification.objects.filter(user=user, is_read=False).count()
 
     context = {
@@ -1674,11 +1689,13 @@ def support_page(request):
         'support_sla': support_sla,
         'sla_badge': sla_badge,
         'is_active_plan': is_active_plan,
-        'tickets': tickets,
+        'tickets': page_obj,
+        'page_obj': page_obj,
         'total_tickets': total_tickets,
         'open_tickets_count': open_tickets_count,
         'resolved_tickets_count': resolved_tickets_count,
         'status_filter': status_filter,
+        'search_q': search_q,
         'categories': SupportTicket.CATEGORY_CHOICES,
         'priorities': SupportTicket.PRIORITY_CHOICES,
         'unread_notif_count': unread_notif_count,
