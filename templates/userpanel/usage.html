@@ -197,10 +197,10 @@
       <p class="text-xs text-slate-500 mb-5">Traffic share by production endpoint</p>
 
       <div class="space-y-4">
-        <!-- Chat Completions -->
+        <!-- Audio & Speech (Puhor / Xuna) -->
         <div>
           <div class="flex items-center justify-between text-xs mb-1.5">
-            <span class="font-bold text-slate-800 font-mono text-[11px]">POST /v1/chat/completions</span>
+            <span class="font-bold text-slate-800 font-mono text-[11px]">POST /v1/audio/speech &amp; transcriptions</span>
             <span class="font-extrabold text-indigo-600">{{ chat_share_pct }}%</span>
           </div>
           <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
@@ -208,11 +208,11 @@
           </div>
           <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
             <span>{{ total_chat_requests }} total requests</span>
-            <span>Axom Indic-1 / Turbo / Pro</span>
+            <span>Puhor (TTS) &amp; Xuna (STT)</span>
           </div>
         </div>
 
-        <!-- Translation -->
+        <!-- Translation (Xetu) -->
         <div>
           <div class="flex items-center justify-between text-xs mb-1.5">
             <span class="font-bold text-slate-800 font-mono text-[11px]">POST /v1/translate</span>
@@ -223,20 +223,8 @@
           </div>
           <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
             <span>{{ total_translate_requests }} total requests</span>
-            <span>Assamese & Indic engines</span>
+            <span>Xetu (Neural Translation)</span>
           </div>
-        </div>
-
-        <!-- Models Discovery -->
-        <div>
-          <div class="flex items-center justify-between text-xs mb-1.5">
-            <span class="font-bold text-slate-800 font-mono text-[11px]">GET /v1/models</span>
-            <span class="font-extrabold text-slate-600">{{ total_models_requests }}</span>
-          </div>
-          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-            <div class="bg-slate-400 h-2 rounded-full" style="width: {% if total_models_requests > 0 %}10{% else %}0{% endif %}%;"></div>
-          </div>
-          <div class="text-[10px] text-slate-400 mt-1">Model list discovery & health checks</div>
         </div>
       </div>
     </div>
@@ -485,7 +473,7 @@
         labels: labels,
         datasets: [
           {
-            label: 'POST /v1/chat/completions',
+            label: 'POST /v1/audio/* (Puhor & Xuna)',
             data: chatData,
             backgroundColor: '#4f46e5',
             borderRadius: 6,

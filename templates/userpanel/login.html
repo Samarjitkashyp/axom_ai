@@ -7,10 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- Primary SEO Meta Tags -->
-<title>Axom AI Developer Portal — API Key Management, Usage & Quotas</title>
-<meta name="title" content="Axom AI Developer Portal — API Key Management, Usage & Quotas">
-<meta name="description" content="Axom AI Developer Portal — Generate secret API keys, monitor real-time token usage and quotas, configure rate limits, and integrate high-performance OpenAI-compatible Assamese & Indic language AI inference models.">
-<meta name="keywords" content="Axom AI developer portal, API keys, AI developer console, OpenAI compatible API, Assamese AI API, Indic LLM API, token usage monitoring, API quota management, AI inference API India, Guwahati AI platform">
+<title>Axom AI Developer Portal — API Key Console, Assamese Speech & Translation Models</title>
+<meta name="title" content="Axom AI Developer Portal — API Key Console, Assamese Speech & Translation Models">
+<meta name="description" content="Official Axom AI Developer Portal (user.aiaxom.co.in). Generate secret API keys, monitor real-time quotas, and integrate sovereign Assamese AI: Xuna (Speech-to-Text), Puhor (24kHz Studio Neural Voice), and Xetu (Translation). OpenAI SDK compatible, DPDP Act 2023 compliant.">
+<meta name="keywords" content="Axom AI developer portal, API keys, Axom AI console, Assamese Speech-to-Text, Assamese TTS, Assamese Translation API, Xuna STT, Puhor Voice, Xetu Translation, Indic AI API, OpenAI compatible audio API, axomai-voice-puhor, axomai-speech-xuna, axomai-trans-xetu, Guwahati AI startup, DPDP 2023 compliant AI, BharatGen">
 <meta name="author" content="Axom AI Engineering">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 <link rel="canonical" href="https://user.aiaxom.co.in/">
@@ -19,16 +19,19 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Axom AI Developer Platform">
 <meta property="og:url" content="https://user.aiaxom.co.in/">
-<meta property="og:title" content="Axom AI Developer Portal — API Key Management, Usage & Quotas">
-<meta property="og:description" content="Enterprise developer console to generate OpenAI-compatible API secret keys, inspect real-time token usage, and deploy bilingual Assamese and Indic AI reasoning models.">
+<meta property="og:title" content="Axom AI Developer Portal — API Key Console, Assamese Speech & Translation Models">
+<meta property="og:description" content="Enterprise developer console to generate secret API keys, inspect real-time quotas, and deploy sovereign Assamese models: Xuna (STT), Puhor (24kHz Studio Voice), and Xetu (Translation).">
 <meta property="og:image" content="https://aiaxom.co.in/axom-browser-logo.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_US">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@AxomAI">
-<meta name="twitter:title" content="Axom AI Developer Portal — API Secret Keys & Usage Console">
-<meta name="twitter:description" content="Generate and manage OpenAI-compatible API secret keys, inspect real-time token quotas, and access Assamese & Indic AI inference models.">
+<meta name="twitter:creator" content="@AxomAI">
+<meta name="twitter:title" content="Axom AI Developer Portal — Sovereign API Keys & Usage Console">
+<meta name="twitter:description" content="Generate API secret keys, inspect real-time quotas, and access sovereign Assamese AI models: Xuna STT, Puhor TTS, and Xetu Translation.">
 <meta name="twitter:image" content="https://aiaxom.co.in/axom-browser-logo.png">
 
 <!-- Regional / GEO Targeting Meta Tags (Guwahati, Assam, India) -->
@@ -38,10 +41,10 @@
 <meta name="ICBM" content="26.1445, 91.7362">
 <meta name="DC.title" content="Axom AI Developer Portal">
 <meta name="DC.creator" content="Axom AI">
-<meta name="DC.subject" content="Artificial Intelligence, Developer API, Assamese Language Model, LLM Inference">
+<meta name="DC.subject" content="Artificial Intelligence, Developer API, Assamese Speech to Text, Assamese Voice Synthesis, Neural Machine Translation">
 <meta name="DC.coverage" content="World, India, Assam, Guwahati">
 
-<!-- Structured Data: Organization, WebSite, SoftwareApplication & FAQPage -->
+<!-- Structured Data: Organization, WebSite, SoftwareApplication, TechArticle, WebAPI & FAQPage (AEO/GEO Optimized) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -50,8 +53,16 @@
       "@type": "Organization",
       "@id": "https://aiaxom.co.in/#organization",
       "name": "Axom AI",
+      "legalName": "Axom AI Private Limited",
       "url": "https://aiaxom.co.in",
       "logo": "https://aiaxom.co.in/axom-browser-logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Guwahati",
+        "addressRegion": "Assam",
+        "postalCode": "781001",
+        "addressCountry": "IN"
+      },
       "sameAs": [
         "https://twitter.com/AxomAI",
         "https://github.com/axom-ai",
@@ -70,7 +81,7 @@
       "@id": "https://user.aiaxom.co.in/#website",
       "url": "https://user.aiaxom.co.in/",
       "name": "Axom AI Developer Portal",
-      "description": "Developer platform to generate API secret keys, monitor real-time token quotas, and build with Assamese & Indic language AI models.",
+      "description": "Developer platform to generate API secret keys, monitor real-time token quotas, and build with sovereign Assamese & Indic AI models.",
       "publisher": { "@id": "https://aiaxom.co.in/#organization" }
     },
     {
@@ -79,33 +90,75 @@
       "name": "Axom AI Developer Platform & API Console",
       "applicationCategory": "DeveloperApplication",
       "applicationSubCategory": "AI Inference API Platform",
-      "operatingSystem": "Cloud API / All Platforms (Python, JavaScript, REST)",
+      "operatingSystem": "Cloud API / All Platforms (Python, JavaScript, REST, cURL)",
       "url": "https://user.aiaxom.co.in/",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "INR",
-        "description": "Free developer tier available with starter API token quota"
+        "description": "Free developer tier with starter quota for Xuna, Puhor, and Xetu APIs"
       },
       "featureList": [
-        "OpenAI SDK Compatible v1 REST Endpoints (/v1/chat/completions)",
-        "Instant Secret API Key Generation (axom-bearer tokens)",
-        "Real-Time Token Usage, Quotas & Burst Rate Limit Monitoring",
-        "Assamese Native Orthography & Indic Multilingual Reasoning Engines",
-        "Automated GST Tax Invoicing and Razorpay Payment Integration",
-        "Comprehensive Developer Engineering Support and Documentation"
+        "Xuna (axomai-speech-xuna): Sovereign Assamese & Indic Speech-to-Text (/v1/audio/transcriptions)",
+        "Puhor (axomai-voice-puhor): 24kHz Studio Neural Voice Text-to-Speech (/v1/audio/speech)",
+        "Xetu (axomai-trans-xetu): Neural Assamese-English Bidirectional Translation (/v1/translate)",
+        "OpenAI SDK Drop-in Compatibility (client.audio.speech & client.audio.transcriptions)",
+        "Cryptographic API Secret Key Management (axom-bearer tokens with custom permission scopes)",
+        "Real-Time Usage Telemetry, Rate Limits & 3-Strike Security Lockout Defense",
+        "Digital Personal Data Protection (DPDP) Act 2023 Compliant Sovereign India Hosting"
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://user.aiaxom.co.in/#techarticle",
+      "headline": "Axom AI Developer Portal — Sovereign Voice, Speech & Translation API Key Management",
+      "description": "Comprehensive developer guide to provisioning secret keys, configuring OpenAI SDK clients, and consuming sovereign Assamese speech, voice, and translation APIs.",
+      "author": { "@id": "https://aiaxom.co.in/#organization" },
+      "publisher": { "@id": "https://aiaxom.co.in/#organization" },
+      "inLanguage": "en-US",
+      "speakable": {
+        "@type": "SpeakableSpecification",
+        "cssSelector": ["#aeo-summary", "#portal-features", "#faq"]
+      }
+    },
+    {
+      "@type": "WebAPI",
+      "@id": "https://user.aiaxom.co.in/#webapi",
+      "name": "Axom AI Sovereign Inference API",
+      "description": "RESTful endpoints for Assamese Speech-to-Text, 24kHz Studio Voice synthesis, and Neural Machine Translation.",
+      "documentation": "https://aiaxom.co.in/docs/developer",
+      "provider": { "@id": "https://aiaxom.co.in/#organization" },
+      "termsOfService": "https://aiaxom.co.in/terms",
+      "endpointUrl": "https://aiaxom.co.in/v1"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://user.aiaxom.co.in/#breadcrumbs",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Axom AI",
+          "item": "https://aiaxom.co.in"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Developer Console",
+          "item": "https://user.aiaxom.co.in"
+        }
       ]
     },
     {
       "@type": "FAQPage",
-      "@id": "https://user.aiaxom.co.in/#faq",
+      "@id": "https://user.aiaxom.co.in/#faq-schema",
       "mainEntity": [
         {
           "@type": "Question",
           "name": "What is the Axom AI Developer Portal?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The Axom AI Developer Portal (user.aiaxom.co.in) is the official developer console for Axom AI. It allows developers and enterprises to generate secure API secret keys, monitor real-time token consumption, manage monthly request quotas, configure rate limits, and access OpenAI-compatible REST endpoints for high-speed Assamese and Indic AI models."
+            "text": "The Axom AI Developer Portal (user.aiaxom.co.in) is the unified developer console for managing API keys, tracking usage telemetry, and integrating Axom AI's sovereign indigenous engines: Xuna (Speech-to-Text), Puhor (24kHz Studio Neural Voice), and Xetu (Neural Assamese-English Translation)."
           }
         },
         {
@@ -113,31 +166,39 @@
           "name": "How do developers generate and manage API keys on Axom AI?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Developers sign in to the Axom AI Developer Portal at user.aiaxom.co.in, navigate to the API Keys & Credentials tab, and click 'Create New Secret Key'. The portal generates a cryptographically masked bearer key prefixed with 'axom-'. Developers can assign custom labels, inspect last-used timestamps, and revoke keys at any time."
+            "text": "Developers sign in to user.aiaxom.co.in, navigate to the API Keys & Credentials console, and click 'Create New Secret Key'. The system issues a cryptographically secure bearer token prefixed with 'axom-'. Developers can configure permission scopes (all, audio, or translate), view last-used telemetry, and instantly revoke keys."
           }
         },
         {
           "@type": "Question",
-          "name": "Is Axom AI compatible with the OpenAI API and SDKs?",
+          "name": "What sovereign AI models are available in the Axom AI Developer Portal?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Axom AI features drop-in compatibility with the official OpenAI SDKs for Python, Node.js, and cURL. Developers simply configure base_url='https://aiaxom.co.in/v1' and pass their Axom API key to access chat completions, streaming, and embeddings without code rewrites."
+            "text": "The Developer Portal provides access to three sovereign engines: 1) Xuna (axomai-speech-xuna) for high-accuracy Assamese speech-to-text; 2) Puhor (axomai-voice-puhor) for studio-grade 24kHz Assamese neural voice synthesis; and 3) Xetu (axomai-trans-xetu) for bidirectional Assamese-English machine translation."
           }
         },
         {
           "@type": "Question",
-          "name": "How does token usage and quota monitoring work in the developer portal?",
+          "name": "Is Axom AI compatible with the official OpenAI SDK?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The Developer Portal provides real-time analytics displaying monthly API request counts, remaining token quotas, burst rate limits (requests per minute), and usage breakdowns across text inference, document processing, and OCR."
+            "text": "Yes. Axom AI audio and voice endpoints are 100% compatible with the official OpenAI Python and Node.js SDKs. By setting base_url='https://aiaxom.co.in/v1' and passing an Axom API key, developers can invoke client.audio.speech.create() for Puhor and client.audio.transcriptions.create() for Xuna without rewriting code."
           }
         },
         {
           "@type": "Question",
-          "name": "What security standards protect developer credentials on Axom AI?",
+          "name": "How does token usage, billing, and quota monitoring work in the developer portal?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "The portal enforces bank-grade security: TLS 1.3 encryption, SHA-256 hashed secret keys, brute-force defense with a 3-strike 24-hour lockout, CSRF token verification, and real-time email alerts upon key creation or revocation."
+            "text": "The console provides real-time telemetry tracking monthly API request volume, quota utilization percentages, burst rate limits (requests per minute), and per-model consumption charts with exportable 30-day audit logs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Axom AI compliant with India's Digital Personal Data Protection (DPDP) Act 2023?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Axom AI enforces strict data sovereignty. All voice, speech, and translation inferences are processed on domestic sovereign infrastructure in India under DPDP Act 2023 guidelines. Data in transit is protected by TLS 1.3 encryption, and customer audio payloads are never retained or used for training without consent."
           }
         }
       ]
@@ -631,181 +692,411 @@ audio.stream_to_file(<span class="text-emerald-300">"speech.mp3"</span>)</code><
 </main>
 
 <!-- Full-Width Developer Platform Overview, Architecture & AEO/GEO FAQ -->
-<section class="w-full max-w-7xl mx-auto py-12 px-4 sm:px-6 relative z-10 space-y-12">
+<section class="w-full max-w-7xl mx-auto py-10 sm:py-14 px-3.5 sm:px-6 relative z-10 space-y-10 sm:space-y-12">
   
-  <!-- Section 1: Developer Platform Overview -->
-  <div class="glass-card-obsidian rounded-3xl p-6 sm:p-10 border border-slate-800">
-    <div class="max-w-3xl">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-xs font-bold text-indigo-300 mb-4">
-        <i class="fa-solid fa-microchip text-indigo-400"></i>
-        <span>ENTERPRISE DEVELOPER ARCHITECTURE</span>
+  <!-- AEO Direct Answer Fact Capsule (AI Engine Optimization & Search Engine Grounding) -->
+  <div id="aeo-summary" class="glass-card-obsidian rounded-3xl p-5 sm:p-8 lg:p-10 border border-indigo-500/30 relative overflow-hidden shadow-2xl">
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="max-w-4xl space-y-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-bold text-emerald-400">
+          <i class="fa-solid fa-circle-check text-[10px]"></i>
+          <span>AEO VERIFIED DIRECT ANSWER</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-[11px] font-mono font-semibold text-indigo-300">
+          <span>AI OVERVIEWS & LLM FACT CAPSULE</span>
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-[11px] font-mono font-semibold text-purple-300">
+          <span>SOVEREIGN ASSAM AI</span>
+        </span>
       </div>
-      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
-        Axom AI Developer Platform & API Gateway
+
+      <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-snug">
+        What is the Axom AI Developer Portal?
       </h2>
-      <p class="text-sm text-slate-300 mt-3 leading-relaxed">
-        The Axom AI Developer Portal (<a href="https://user.aiaxom.co.in" class="text-indigo-400 underline font-semibold">user.aiaxom.co.in</a>) provides software engineers, startups, and institutions with developer console access to generate secret API keys, monitor real-time token quotas, inspect burst rate limits, and integrate OpenAI-compatible inference endpoints for Assamese and Indic language AI models.
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        The <strong class="text-white font-bold">Axom AI Developer Portal (<a href="https://user.aiaxom.co.in" class="text-indigo-400 underline underline-offset-2 hover:text-indigo-300">user.aiaxom.co.in</a>)</strong> is the official enterprise console for managing API keys, tracking real-time inference telemetry, and integrating indigenous generative AI for Assamese and Indic languages. It provides instant access to three sovereign production models: <strong class="text-emerald-300">Xuna</strong> (Speech-to-Text), <strong class="text-purple-300">Puhor</strong> (24kHz Studio Neural Voice), and <strong class="text-indigo-300">Xetu</strong> (Neural Translation).
       </p>
-    </div>
 
-    <!-- 3 Pillars Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-      <article class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/30 transition">
-        <div class="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-base mb-3">
-          <i class="fa-solid fa-key"></i>
+      <!-- Key Facts Grid for Answer Engines -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 pt-3">
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Gateway</div>
+          <div class="text-xs font-bold text-white mt-0.5 truncate">user.aiaxom.co.in</div>
         </div>
-        <h3 class="text-base font-bold text-white mb-2">Scoped API Key Secrets</h3>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Provision cryptographically secure bearer keys prefixed with <code class="text-indigo-300 bg-indigo-950/60 px-1 py-0.5 rounded font-mono">axom-</code>. Inspect creation dates, last-used telemetry, and execute instant single-click revocation with automated security notifications.
-        </p>
-      </article>
-
-      <article class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-purple-500/30 transition">
-        <div class="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center text-base mb-3">
-          <i class="fa-solid fa-chart-line"></i>
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Base URL</div>
+          <div class="text-xs font-bold text-indigo-400 mt-0.5 truncate">/v1 (OpenAI SDK)</div>
         </div>
-        <h3 class="text-base font-bold text-white mb-2">Real-Time Usage & Quota Telemetry</h3>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Monitor token consumption meters, daily rate caps, and concurrency thresholds. Export 30-day chronological request audit trails to CSV with breakdown by model ID, latency, and status code.
-        </p>
-      </article>
-
-      <article class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-emerald-500/30 transition">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-base mb-3">
-          <i class="fa-solid fa-network-wired"></i>
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Voice Quality</div>
+          <div class="text-xs font-bold text-emerald-400 mt-0.5">24kHz Studio</div>
         </div>
-        <h3 class="text-base font-bold text-white mb-2">OpenAI SDK Drop-in Compatibility</h3>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Zero vendor lock-in. Direct compatibility with standard <code class="text-indigo-300 bg-indigo-950/60 px-1 py-0.5 rounded font-mono">/v1/chat/completions</code> endpoints. Plug into official OpenAI Python, TypeScript, LangChain, and LlamaIndex libraries by configuring your base URL.
-        </p>
-      </article>
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Auth Protocol</div>
+          <div class="text-xs font-bold text-purple-400 mt-0.5 truncate">Bearer axom-...</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Compliance</div>
+          <div class="text-xs font-bold text-teal-400 mt-0.5">DPDP Act 2023</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800">
+          <div class="text-[10px] font-mono uppercase text-slate-400 tracking-wider">Data Residency</div>
+          <div class="text-xs font-bold text-amber-400 mt-0.5">Guwahati, India</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Section 2: Developer Endpoints Specification -->
-  <div class="glass-card-obsidian rounded-3xl p-6 sm:p-8 border border-slate-800">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-bold text-white flex items-center gap-2">
-        <i class="fa-solid fa-terminal text-indigo-400"></i>
-        <span>REST API Endpoints Specification</span>
+  <!-- Section 1: Sovereign Models Architecture (GEO Anchor #portal-features) -->
+  <div id="portal-features" class="glass-card-obsidian rounded-3xl p-5 sm:p-8 lg:p-10 border border-slate-800 space-y-8">
+    <div class="max-w-3xl space-y-2">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-xs font-bold text-indigo-300">
+        <i class="fa-solid fa-microchip text-indigo-400"></i>
+        <span>SOVEREIGN ENGINES & CORE INFRASTRUCTURE</span>
+      </div>
+      <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+        Indigenous Generative Engines Available via API
       </h3>
-      <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">TLS 1.3 Active</span>
+      <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+        Engineered specifically for Northeast Indian linguistic nuances, Assamese orthography (ৰ/ৱ), and contextual semantic reasoning.
+      </p>
     </div>
-    
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-xs text-slate-300 font-mono-code">
+
+    <!-- 3 Sovereign Models Feature Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+      
+      <!-- Card 1: Xuna (Speech-to-Text) -->
+      <article class="p-5 sm:p-6 rounded-2xl bg-slate-900/60 border border-slate-800/90 hover:border-emerald-500/40 transition duration-300 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
+              <i class="fa-solid fa-microphone-lines"></i>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono font-bold text-emerald-300">STT ENGINE</span>
+          </div>
+          <h4 class="text-lg font-black text-white mb-1 flex items-center gap-2">
+            <span>Xuna</span>
+            <span class="text-xs font-mono font-normal text-slate-400">(axomai-speech-xuna)</span>
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            Sovereign Assamese &amp; Indic speech recognition. Transcribes raw audio (MP3, WAV, M4A, OGG) with automatic punctuation, phonetic accuracy, and dialect tolerance.
+          </p>
+          <div class="space-y-1.5 text-[11px] font-mono text-slate-400 border-t border-slate-800/80 pt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Endpoint:</span>
+              <span class="text-slate-200">POST /v1/audio/transcriptions</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Latency:</span>
+              <span class="text-emerald-400 font-bold">&lt; 350ms streaming</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Scope:</span>
+              <span class="text-slate-300">audio / all</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          <span>OpenAI SDK Drop-in Compatible</span>
+        </div>
+      </article>
+
+      <!-- Card 2: Puhor (Studio Neural Voice) -->
+      <article class="p-5 sm:p-6 rounded-2xl bg-slate-900/60 border border-slate-800/90 hover:border-purple-500/40 transition duration-300 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-11 h-11 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
+              <i class="fa-solid fa-waveform-lines"></i>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-[10px] font-mono font-bold text-purple-300">TTS STUDIO</span>
+          </div>
+          <h4 class="text-lg font-black text-white mb-1 flex items-center gap-2">
+            <span>Puhor</span>
+            <span class="text-xs font-mono font-normal text-slate-400">(axomai-voice-puhor)</span>
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            Studio-grade 24kHz neural speech synthesis for Assamese. Generates natural human cadence, conversational tone, and expressive emotional inflections.
+          </p>
+          <div class="space-y-1.5 text-[11px] font-mono text-slate-400 border-t border-slate-800/80 pt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Endpoint:</span>
+              <span class="text-slate-200">POST /v1/audio/speech</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Voices:</span>
+              <span class="text-purple-300 font-bold">bidyut, runjun, priya</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Sampling:</span>
+              <span class="text-slate-300">24kHz studio MP3/WAV</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-purple-400 font-semibold">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          <span>OpenAI SDK Drop-in Compatible</span>
+        </div>
+      </article>
+
+      <!-- Card 3: Xetu (Neural Translation) -->
+      <article class="p-5 sm:p-6 rounded-2xl bg-slate-900/60 border border-slate-800/90 hover:border-indigo-500/40 transition duration-300 flex flex-col justify-between group">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
+              <i class="fa-solid fa-language"></i>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-mono font-bold text-indigo-300">NMT ENGINE</span>
+          </div>
+          <h4 class="text-lg font-black text-white mb-1 flex items-center gap-2">
+            <span>Xetu</span>
+            <span class="text-xs font-mono font-normal text-slate-400">(axomai-trans-xetu)</span>
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed mb-4">
+            Neural bidirectional translation between Assamese and English. Preserves cultural idioms, colloquial context, and technical terminology with high BLEU accuracy.
+          </p>
+          <div class="space-y-1.5 text-[11px] font-mono text-slate-400 border-t border-slate-800/80 pt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Endpoint:</span>
+              <span class="text-slate-200">POST /v1/translate</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Pair:</span>
+              <span class="text-indigo-400 font-bold">as ↔ en, as ↔ hi</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500">Scope:</span>
+              <span class="text-slate-300">translate / all</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center gap-1.5 text-[11px] text-indigo-400 font-semibold">
+          <i class="fa-solid fa-check text-[10px]"></i>
+          <span>REST &amp; JSON Payload Ready</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+
+  <!-- Section 2: Production Endpoints & Interactive Quickstarts -->
+  <div class="glass-card-obsidian rounded-3xl p-5 sm:p-8 lg:p-10 border border-slate-800 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+          <i class="fa-solid fa-code text-indigo-400"></i>
+          <span>Production Endpoints &amp; SDK Quickstart</span>
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">
+          Seamless drop-in with the official OpenAI SDK and standard REST HTTP clients
+        </p>
+      </div>
+      <div class="inline-flex items-center gap-2 self-start sm:self-auto px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono text-emerald-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>TLS 1.3 High-Speed Endpoints</span>
+      </div>
+    </div>
+
+    <!-- Responsive Table for Endpoints -->
+    <div class="overflow-x-auto -mx-2 sm:mx-0">
+      <table class="w-full text-left text-xs font-mono-code border-collapse min-w-[580px]">
         <thead>
-          <tr class="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+          <tr class="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider bg-slate-900/50">
             <th class="py-3 px-4">Method</th>
             <th class="py-3 px-4">Endpoint Path</th>
-            <th class="py-3 px-4">Auth Header</th>
-            <th class="py-3 px-4">Payload Description</th>
+            <th class="py-3 px-4">Model Engine</th>
+            <th class="py-3 px-4">Required Scope</th>
+            <th class="py-3 px-4">Compatibility</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-800/60">
-          <tr>
-            <td class="py-3 px-4 font-bold text-emerald-400">POST</td>
-            <td class="py-3 px-4 text-white">/v1/chat/completions</td>
-            <td class="py-3 px-4 text-indigo-300">Bearer axom-...</td>
-            <td class="py-3 px-4 text-slate-400 font-sans">OpenAI-format chat completion with streaming and Assamese reasoning.</td>
+        <tbody class="divide-y divide-slate-800/60 text-slate-300">
+          <tr class="hover:bg-slate-900/30 transition">
+            <td class="py-3 px-4 font-bold text-purple-400">POST</td>
+            <td class="py-3 px-4 text-white font-bold break-all">/v1/audio/speech</td>
+            <td class="py-3 px-4 text-purple-300 font-sans">Puhor (axomai-voice-puhor)</td>
+            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 text-[10px]">audio</span></td>
+            <td class="py-3 px-4 text-emerald-400 font-sans text-[11px]"><i class="fa-solid fa-circle-check mr-1"></i> OpenAI SDK client.audio.speech</td>
           </tr>
-          <tr>
-            <td class="py-3 px-4 font-bold text-sky-400">GET</td>
-            <td class="py-3 px-4 text-white">/v1/models</td>
-            <td class="py-3 px-4 text-indigo-300">Bearer axom-...</td>
-            <td class="py-3 px-4 text-slate-400 font-sans">List active reasoning, fast inference, and multimodal vision engines.</td>
-          </tr>
-          <tr>
+          <tr class="hover:bg-slate-900/30 transition">
             <td class="py-3 px-4 font-bold text-emerald-400">POST</td>
-            <td class="py-3 px-4 text-white">/api/usage/</td>
-            <td class="py-3 px-4 text-indigo-300">Bearer axom-...</td>
-            <td class="py-3 px-4 text-slate-400 font-sans">Real-time quota inspection, remaining tokens, and subscription tier stats.</td>
+            <td class="py-3 px-4 text-white font-bold break-all">/v1/audio/transcriptions</td>
+            <td class="py-3 px-4 text-emerald-300 font-sans">Xuna (axomai-speech-xuna)</td>
+            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[10px]">audio</span></td>
+            <td class="py-3 px-4 text-emerald-400 font-sans text-[11px]"><i class="fa-solid fa-circle-check mr-1"></i> OpenAI SDK client.audio.transcriptions</td>
+          </tr>
+          <tr class="hover:bg-slate-900/30 transition">
+            <td class="py-3 px-4 font-bold text-indigo-400">POST</td>
+            <td class="py-3 px-4 text-white font-bold break-all">/v1/translate</td>
+            <td class="py-3 px-4 text-indigo-300 font-sans">Xetu (axomai-trans-xetu)</td>
+            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 text-[10px]">translate</span></td>
+            <td class="py-3 px-4 text-slate-300 font-sans text-[11px]">Standard REST / JSON Payload</td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <!-- Code Examples Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-2">
+      
+      <!-- Python SDK Example -->
+      <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4 font-mono-code text-xs text-slate-300 shadow-xl space-y-2 overflow-hidden">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pb-2 border-b border-slate-800">
+          <span class="flex items-center gap-2">
+            <i class="fa-brands fa-python text-indigo-400"></i>
+            <span class="font-bold text-slate-200">Python — OpenAI SDK (Puhor TTS)</span>
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">Puhor Voice</span>
+        </div>
+        <div class="overflow-x-auto">
+          <pre class="text-[11px] leading-relaxed text-indigo-200 whitespace-pre p-1"><code><span class="text-purple-400">from</span> openai <span class="text-purple-400">import</span> OpenAI
+
+client = OpenAI(
+    base_url=<span class="text-emerald-300">"https://aiaxom.co.in/v1"</span>,
+    api_key=<span class="text-emerald-300">"axom_live_your_api_key"</span>
+)
+
+<span class="text-slate-500"># 24kHz Assamese Studio Voice</span>
+speech = client.audio.speech.create(
+    model=<span class="text-emerald-300">"axomai-voice-puhor"</span>,
+    voice=<span class="text-emerald-300">"bidyut"</span>,
+    input=<span class="text-emerald-300">"নমস্কাৰ, আপোনালোকক অসমলৈ স্বাগতম জনাইছোঁ ।"</span>
+)
+speech.stream_to_file(<span class="text-emerald-300">"assamese_speech.mp3"</span>)</code></pre>
+        </div>
+      </div>
+
+      <!-- cURL / REST Example for Xetu -->
+      <div class="rounded-2xl bg-slate-950 border border-slate-800 p-4 font-mono-code text-xs text-slate-300 shadow-xl space-y-2 overflow-hidden">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pb-2 border-b border-slate-800">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-terminal text-emerald-400"></i>
+            <span class="font-bold text-slate-200">cURL — REST API (Xetu Translation)</span>
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold">Xetu NMT</span>
+        </div>
+        <div class="overflow-x-auto">
+          <pre class="text-[11px] leading-relaxed text-indigo-200 whitespace-pre p-1"><code>curl -X POST https://aiaxom.co.in/v1/translate \
+  -H <span class="text-emerald-300">"Authorization: Bearer axom_live_your_api_key"</span> \
+  -H <span class="text-emerald-300">"Content-Type: application/json"</span> \
+  -d '{
+    <span class="text-purple-300">"model"</span>: <span class="text-emerald-300">"axomai-trans-xetu"</span>,
+    <span class="text-purple-300">"text"</span>: <span class="text-emerald-300">"Welcome to Assam, the land of the red river and blue hills."</span>,
+    <span class="text-purple-300">"source_lang"</span>: <span class="text-emerald-300">"en"</span>,
+    <span class="text-purple-300">"target_lang"</span>: <span class="text-emerald-300">"as"</span>
+  }'</code></pre>
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Section 3: Frequently Asked Questions (AEO & GEO Knowledge Graph) -->
-  <div class="glass-card-obsidian rounded-3xl p-6 sm:p-10 border border-slate-800 space-y-6">
+  <!-- Section 3: Frequently Asked Questions (AEO & GEO Knowledge Base) -->
+  <div id="faq" class="glass-card-obsidian rounded-3xl p-5 sm:p-8 lg:p-10 border border-slate-800 space-y-6">
     <div class="text-center max-w-2xl mx-auto space-y-2">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/30 text-xs font-bold text-violet-300">
         <i class="fa-solid fa-circle-question"></i>
-        <span>DEVELOPER KNOWLEDGE BASE & FAQ</span>
+        <span>AUTHORITATIVE DEVELOPER FAQ &amp; AEO GROUNDING</span>
       </div>
       <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
-        Answers for Developers & Search Engines
+        Frequently Asked Questions
       </h2>
       <p class="text-xs sm:text-sm text-slate-400">
-        Essential answers regarding Axom AI API credentials, integration parameters, and usage quotas.
+        Verified answers for developers, systems integrators, and generative answer engines.
       </p>
     </div>
 
-    <div class="space-y-4 pt-4 max-w-4xl mx-auto">
-      <details class="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90" open>
-        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-sm text-white">
-          <span class="flex items-center gap-3">
-            <i class="fa-solid fa-question text-indigo-400 text-xs"></i>
+    <div class="space-y-3.5 pt-2 max-w-4xl mx-auto">
+      
+      <!-- FAQ 1 -->
+      <details class="group p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90" open>
+        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-xs sm:text-sm text-white">
+          <span class="flex items-center gap-2.5 sm:gap-3">
+            <i class="fa-solid fa-circle-info text-indigo-400 text-xs shrink-0"></i>
             <span>What is the Axom AI Developer Portal?</span>
           </span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform shrink-0 ml-2"></i>
         </summary>
-        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-7">
-          The Axom AI Developer Portal (user.aiaxom.co.in) is the unified developer console for Axom AI. It allows developers and enterprises to generate secure API secret keys, monitor real-time token consumption, manage monthly request quotas, configure rate limits, and access OpenAI-compatible REST endpoints for high-speed Assamese and Indic AI models.
+        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-6 sm:pl-7">
+          The Axom AI Developer Portal (<a href="https://user.aiaxom.co.in" class="text-indigo-400 underline font-semibold">user.aiaxom.co.in</a>) is the unified developer console for managing API keys, tracking usage telemetry, and integrating Axom AI's sovereign indigenous engines: <strong>Xuna</strong> (Speech-to-Text), <strong>Puhor</strong> (24kHz Studio Neural Voice), and <strong>Xetu</strong> (Neural Assamese-English Translation).
         </div>
       </details>
 
-      <details class="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
-        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-sm text-white">
-          <span class="flex items-center gap-3">
-            <i class="fa-solid fa-key text-indigo-400 text-xs"></i>
+      <!-- FAQ 2 -->
+      <details class="group p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
+        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-xs sm:text-sm text-white">
+          <span class="flex items-center gap-2.5 sm:gap-3">
+            <i class="fa-solid fa-key text-indigo-400 text-xs shrink-0"></i>
             <span>How do developers generate and manage API keys on Axom AI?</span>
           </span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform shrink-0 ml-2"></i>
         </summary>
-        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-7">
-          Developers sign in to the Axom AI Developer Portal at user.aiaxom.co.in, navigate to the API Keys & Credentials tab, and click 'Create New Secret Key'. The portal generates a cryptographically masked bearer key prefixed with 'axom-'. Developers can assign custom labels, inspect last-used timestamps, and revoke keys at any time.
+        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-6 sm:pl-7">
+          Developers sign in to <strong class="text-white">user.aiaxom.co.in</strong>, navigate to the API Keys &amp; Credentials console, and click <em>'Create New Secret Key'</em>. The system issues a cryptographically secure bearer token prefixed with <code class="text-indigo-300 bg-indigo-950/60 px-1 py-0.5 rounded font-mono">axom-</code>. Developers can configure permission scopes (<code>all</code>, <code>audio</code>, or <code>translate</code>), view last-used telemetry, and instantly revoke keys.
         </div>
       </details>
 
-      <details class="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
-        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-sm text-white">
-          <span class="flex items-center gap-3">
-            <i class="fa-solid fa-code-compare text-indigo-400 text-xs"></i>
-            <span>Is Axom AI compatible with the OpenAI API and SDKs?</span>
+      <!-- FAQ 3 -->
+      <details class="group p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
+        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-xs sm:text-sm text-white">
+          <span class="flex items-center gap-2.5 sm:gap-3">
+            <i class="fa-solid fa-microchip text-indigo-400 text-xs shrink-0"></i>
+            <span>What sovereign AI models are available in the Axom AI Developer Console?</span>
           </span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform shrink-0 ml-2"></i>
         </summary>
-        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-7">
-          Yes. Axom AI features drop-in compatibility with the official OpenAI SDKs for Python, Node.js, and cURL. Developers simply configure base_url='https://aiaxom.co.in/v1' and pass their Axom API key to access chat completions, streaming, and embeddings without code rewrites.
+        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-6 sm:pl-7">
+          The console provides access to three sovereign engines:
+          <ul class="list-disc pl-5 mt-2 space-y-1.5">
+            <li><strong class="text-white">Xuna (<code>axomai-speech-xuna</code>)</strong>: High-accuracy Assamese &amp; Indic speech-to-text with punctuation restoration.</li>
+            <li><strong class="text-white">Puhor (<code>axomai-voice-puhor</code>)</strong>: Studio-grade 24kHz Assamese neural voice synthesis with natural human inflection.</li>
+            <li><strong class="text-white">Xetu (<code>axomai-trans-xetu</code>)</strong>: Neural bidirectional translation between Assamese and English.</li>
+          </ul>
         </div>
       </details>
 
-      <details class="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
-        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-sm text-white">
-          <span class="flex items-center gap-3">
-            <i class="fa-solid fa-gauge text-indigo-400 text-xs"></i>
-            <span>How does token usage and quota monitoring work in the developer portal?</span>
+      <!-- FAQ 4 -->
+      <details class="group p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
+        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-xs sm:text-sm text-white">
+          <span class="flex items-center gap-2.5 sm:gap-3">
+            <i class="fa-solid fa-code-compare text-indigo-400 text-xs shrink-0"></i>
+            <span>Is Axom AI compatible with the official OpenAI SDK?</span>
           </span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform shrink-0 ml-2"></i>
         </summary>
-        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-7">
-          The Developer Portal provides real-time analytics displaying monthly API request counts, remaining token quotas, burst rate limits (requests per minute), and usage breakdowns across text inference, document processing, and OCR.
+        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-6 sm:pl-7">
+          Yes. Axom AI voice and speech endpoints are 100% compatible with the official OpenAI Python and Node.js SDKs. By setting <code class="text-indigo-300 bg-indigo-950/60 px-1 py-0.5 rounded font-mono">base_url="https://aiaxom.co.in/v1"</code> and passing your Axom API key, you can call <code class="text-indigo-300 bg-indigo-950/60 px-1 py-0.5 rounded font-mono">client.audio.speech.create()</code> for Puhor and <code class="text-indigo-300 bg-indigo-950/60 px-1 py-0.5 rounded font-mono">client.audio.transcriptions.create()</code> for Xuna without rewriting code.
         </div>
       </details>
 
-      <details class="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
-        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-sm text-white">
-          <span class="flex items-center gap-3">
-            <i class="fa-solid fa-shield-halved text-indigo-400 text-xs"></i>
-            <span>What security standards protect developer credentials on Axom AI?</span>
+      <!-- FAQ 5 -->
+      <details class="group p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
+        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-xs sm:text-sm text-white">
+          <span class="flex items-center gap-2.5 sm:gap-3">
+            <i class="fa-solid fa-chart-line text-indigo-400 text-xs shrink-0"></i>
+            <span>How does usage telemetry, billing, and quota monitoring work?</span>
           </span>
-          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform shrink-0 ml-2"></i>
         </summary>
-        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-7">
-          The portal enforces bank-grade security: TLS 1.3 encryption, SHA-256 hashed secret keys, brute-force defense with a 3-strike 24-hour lockout, CSRF token verification, and real-time email alerts upon key creation or revocation.
+        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-6 sm:pl-7">
+          The Developer Portal provides real-time analytics displaying monthly API request volume, quota consumption meters, burst rate limits (requests per minute), and usage breakdowns across audio processing and translation. Developers can download 30-day chronological request audit trails to CSV.
         </div>
       </details>
+
+      <!-- FAQ 6 -->
+      <details class="group p-4 sm:p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-indigo-500/40 transition open:bg-slate-900/90">
+        <summary class="flex items-center justify-between cursor-pointer list-none font-bold text-xs sm:text-sm text-white">
+          <span class="flex items-center gap-2.5 sm:gap-3">
+            <i class="fa-solid fa-shield-halved text-indigo-400 text-xs shrink-0"></i>
+            <span>Is Axom AI compliant with India's DPDP Act 2023 and data localization?</span>
+          </span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform shrink-0 ml-2"></i>
+        </summary>
+        <div class="text-xs sm:text-sm text-slate-300 mt-3 leading-relaxed pl-6 sm:pl-7">
+          Yes. Axom AI enforces strict data sovereignty. All voice, speech, and translation inference payloads are processed on domestic sovereign infrastructure in India under DPDP Act 2023 guidelines. Data in transit is protected by TLS 1.3 encryption, and customer audio payloads are never retained or used for model training without consent.
+        </div>
+      </details>
+
     </div>
   </div>
 </section>
