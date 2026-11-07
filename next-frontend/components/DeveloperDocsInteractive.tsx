@@ -2565,7 +2565,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                 <span className="px-2 py-1 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono text-xs font-bold">
                   POST
                 </span>
-                <code className="text-base sm:text-lg font-mono font-bold text-slate-900 dark:text-white">
+                <code className="text-sm sm:text-base md:text-lg font-mono font-bold text-slate-900 dark:text-white break-all">
                   https://aiaxom.co.in/v1/audio/speech
                 </code>
               </div>
@@ -2634,7 +2634,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                 <span className="px-2 py-1 rounded bg-violet-100 dark:bg-violet-950/60 text-violet-800 dark:text-violet-300 font-mono text-xs font-bold">
                   POST
                 </span>
-                <code className="text-base sm:text-lg font-mono font-bold text-slate-900 dark:text-white">
+                <code className="text-sm sm:text-base md:text-lg font-mono font-bold text-slate-900 dark:text-white break-all">
                   https://aiaxom.co.in/v1/audio/transcriptions
                 </code>
               </div>
@@ -2735,7 +2735,7 @@ app.listen(3000, () => console.log('Server running on port 3000'));`;
                 <span className="px-2 py-1 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-mono text-xs font-bold">
                   POST
                 </span>
-                <code className="font-mono text-sm sm:text-base font-semibold text-slate-900 dark:text-white">
+                <code className="font-mono text-sm sm:text-base font-semibold text-slate-900 dark:text-white break-all">
                   https://aiaxom.co.in/v1/translate
                 </code>
               </div>
