@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ContactFormInteractive from '../../components/ContactFormInteractive';
-import ContactFaqInteractive from '../../components/ContactFaqInteractive';
+import FAQSection from '../../components/FAQSection';
 import { CONTACT_CHANNELS, OFFICE_FACTSHEET, CONTACT_FAQS } from '../../components/contactData';
 import { getLandingCMS, getContactCMS } from '../../lib/api';
 import {
@@ -154,40 +154,40 @@ function renderChannelIcon(iconName?: string) {
   switch (iconName?.toLowerCase()) {
     case 'helpcircle':
     case 'help-circle':
-      return <HelpCircle className="w-4 h-4" />;
+      return <HelpCircle className="w-5 h-5" />;
     case 'briefcase':
-      return <Briefcase className="w-4 h-4" />;
+      return <Briefcase className="w-5 h-5" />;
     case 'code2':
     case 'code':
-      return <Code2 className="w-4 h-4" />;
+      return <Code2 className="w-5 h-5" />;
     case 'mail':
     case 'envelope':
-      return <Mail className="w-4 h-4" />;
+      return <Mail className="w-5 h-5" />;
     case 'shieldcheck':
     case 'shield':
-      return <ShieldCheck className="w-4 h-4" />;
+      return <ShieldCheck className="w-5 h-5" />;
     default:
-      return <HelpCircle className="w-4 h-4" />;
+      return <HelpCircle className="w-5 h-5" />;
   }
 }
 
 function renderAudienceIcon(iconName?: string) {
   switch (iconName?.toLowerCase()) {
     case 'sparkles':
-      return <Sparkles className="w-4 h-4" />;
+      return <Sparkles className="w-5 h-5" />;
     case 'briefcase':
-      return <Briefcase className="w-4 h-4" />;
+      return <Briefcase className="w-5 h-5" />;
     case 'code2':
     case 'code':
-      return <Code2 className="w-4 h-4" />;
+      return <Code2 className="w-5 h-5" />;
     case 'building':
     case 'building2':
-      return <Building className="w-4 h-4" />;
+      return <Building className="w-5 h-5" />;
     case 'graduationcap':
     case 'student':
-      return <GraduationCap className="w-4 h-4" />;
+      return <GraduationCap className="w-5 h-5" />;
     default:
-      return <Sparkles className="w-4 h-4" />;
+      return <Sparkles className="w-5 h-5" />;
   }
 }
 
@@ -389,7 +389,7 @@ export default async function ContactPage() {
       {/* Standard Unified Header */}
       <Header header={landingData?.header} />
 
-      <main className="flex-1 pt-24 sm:pt-28 pb-20 relative overflow-hidden">
+      <main className="flex-1 pt-24 sm:pt-28 pb-16 relative overflow-hidden">
         {/* Subtle Ambient Grid & Emerald/Teal Blur Mesh */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:60px_60px] opacity-25 pointer-events-none" />
         <div className="absolute w-[650px] h-[450px] rounded-full bg-emerald-500/10 blur-[130px] top-10 left-1/2 -translate-x-1/2 pointer-events-none" />
@@ -505,7 +505,7 @@ export default async function ContactPage() {
             </div>
           </section>
 
-          {/* DEPARTMENT RESPONSE CHANNELS */}
+          {/* DEPARTMENT RESPONSE CHANNELS — 2 CARDS PER ROW AS REQUESTED */}
           <section className="mb-20">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-3">
@@ -520,36 +520,36 @@ export default async function ContactPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {channelsList.map((ch) => (
                 <div
                   key={ch.id}
-                  className="rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 p-5 transition-all duration-200 flex flex-col justify-between group shadow-sm hover:shadow-md"
+                  className="rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/40 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 p-6 sm:p-7 transition-all duration-200 flex flex-col justify-between group shadow-sm hover:shadow-md"
                 >
                   <div>
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center group-hover:scale-110 transition-transform">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center group-hover:scale-110 transition-transform">
                         {renderChannelIcon(ch.iconName)}
                       </div>
-                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-white/70 dark:bg-white/5 text-slate-700 dark:text-gray-300 border border-emerald-900/10 dark:border-white/10">
+                      <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/70 dark:bg-white/5 text-slate-700 dark:text-gray-300 border border-emerald-900/10 dark:border-white/10">
                         {ch.badge}
                       </span>
                     </div>
-                    <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
+                    <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition">
                       {ch.title}
                     </h3>
-                    <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed mb-4">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed mb-6">
                       {ch.desc}
                     </p>
                   </div>
-                  <div>
-                    <div className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mb-2 flex items-center gap-1">
-                      <Clock className="w-3 h-3 shrink-0" />
-                      {ch.turnaround}
+                  <div className="pt-4 border-t border-emerald-900/10 dark:border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="text-xs text-emerald-700 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 shrink-0" />
+                      <span>{ch.turnaround}</span>
                     </div>
                     <a
                       href={`mailto:${ch.email}`}
-                      className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/80 dark:bg-white/5 hover:bg-emerald-600 hover:text-white border border-emerald-900/15 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-gray-200 hover:border-emerald-600 transition"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/80 dark:bg-white/5 hover:bg-emerald-600 hover:text-white border border-emerald-900/15 dark:border-white/10 text-xs font-semibold text-slate-800 dark:text-gray-200 hover:border-emerald-600 transition"
                     >
                       <Mail className="w-3.5 h-3.5" />
                       <span>{ch.email}</span>
@@ -678,7 +678,7 @@ export default async function ContactPage() {
             </div>
           </section>
 
-          {/* AUDIENCE BREAKDOWN: WHO WE HELP (4 PILLARS) */}
+          {/* AUDIENCE BREAKDOWN: WHO WE HELP — 2 CARDS PER ROW AS REQUESTED */}
           <section className="mb-20">
             <div className="text-center max-w-2xl mx-auto mb-10">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-800 dark:text-teal-300 text-xs font-semibold mb-3">
@@ -694,120 +694,92 @@ export default async function ContactPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Pillar 1 */}
-              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center mb-3.5">
+              <div className="p-6 sm:p-7 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center mb-4">
                   {renderAudienceIcon(contactCMS?.audience_1_icon || 'GraduationCap')}
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
+                <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
                   {contactCMS?.audience_1_title || 'Students & Job Aspirants'}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
                   {contactCMS?.audience_1_desc ||
                     'Assistance with APSC, UPSC, Assamese literature research, essay formulation, and subsidized student accounts.'}
                 </p>
               </div>
 
               {/* Pillar 2 */}
-              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
-                <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center mb-3.5">
+              <div className="p-6 sm:p-7 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-11 h-11 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center mb-4">
                   {renderAudienceIcon(contactCMS?.audience_2_icon || 'Briefcase')}
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
+                <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
                   {contactCMS?.audience_2_title || 'Assam MSMEs & Businesses'}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
                   {contactCMS?.audience_2_desc ||
                     'Bilingual customer care chatbots, Assamese invoice extraction, marketing copy, and multi-user business plans.'}
                 </p>
               </div>
 
               {/* Pillar 3 */}
-              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center mb-3.5">
+              <div className="p-6 sm:p-7 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 grid place-items-center mb-4">
                   {renderAudienceIcon(contactCMS?.audience_3_icon || 'Code2')}
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
+                <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
                   {contactCMS?.audience_3_title || 'Developers & Engineers'}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
                   {contactCMS?.audience_3_desc ||
                     'API tokens, webhooks, fine-tuned IndicTrans2 Assamese translation endpoints, and high-concurrency rate limits.'}
                 </p>
               </div>
 
               {/* Pillar 4 */}
-              <div className="p-6 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
-                <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center mb-3.5">
+              <div className="p-6 sm:p-7 rounded-3xl bg-white/80 dark:bg-slate-900/60 border border-emerald-900/15 dark:border-white/10 hover:border-emerald-500/30 hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 transition shadow-xs">
+                <div className="w-11 h-11 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 grid place-items-center mb-4">
                   {renderAudienceIcon(contactCMS?.audience_4_icon || 'Building')}
                 </div>
-                <h3 className="text-sm font-bold text-emerald-950 dark:text-white mb-1.5">
+                <h3 className="text-base sm:text-lg font-bold text-emerald-950 dark:text-white mb-2">
                   {contactCMS?.audience_4_title || 'Govt & Cultural Bodies'}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 leading-relaxed">
                   {contactCMS?.audience_4_desc ||
                     'Digitization and OCR for ancient Assamese manuscripts (সাঁচিপাত), archives, and institutional AI partnerships.'}
                 </p>
               </div>
             </div>
           </section>
-
-          {/* COMPREHENSIVE CONTACT FAQ ACCORDION */}
-          <section className="mb-20">
-            <div className="text-center max-w-2xl mx-auto mb-10">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-semibold mb-3">
-                <HelpCircle className="w-3.5 h-3.5" />
-                <span>{contactCMS?.faq_badge || 'Frequently Asked Questions'}</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-emerald-950 dark:text-white tracking-tight mb-2">
-                {contactCMS?.faq_title || 'Common Questions About Contacting Us'}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400">
-                {contactCMS?.faq_subtitle ||
-                  'Direct answers to popular questions regarding support, response times, and partnerships'}
-              </p>
-            </div>
-
-            <div className="max-w-4xl mx-auto">
-              <ContactFaqInteractive faqs={faqsList} />
-            </div>
-          </section>
-
-          {/* BOTTOM FAST ASSISTANCE CARD */}
-          <section className="rounded-3xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-600/10 dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-slate-900/40 border border-emerald-500/30 p-8 sm:p-12 text-center max-w-4xl mx-auto shadow-2xl relative overflow-hidden backdrop-blur-xl">
-            <div className="relative z-10">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 grid place-items-center mx-auto mb-4">
-                <Bot className="w-6 h-6" />
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-emerald-950 dark:text-white mb-3">
-                {contactCMS?.bottom_cta_heading || 'Need Instant Answers Right Now?'}
-              </h3>
-              <p className="text-slate-700 dark:text-gray-300 text-xs sm:text-sm max-w-lg mx-auto leading-relaxed mb-6">
-                {contactCMS?.bottom_cta_subheading ||
-                  'You can immediately query our AI directly in English or Assamese. For live conversational support, launch the Axom AI web application.'}
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <a
-                  href={contactCMS?.bottom_cta_primary_btn_url || 'https://chat.aiaxom.co.in/'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm transition shadow-lg shadow-emerald-500/25 transform hover:-translate-y-0.5"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />{' '}
-                  {contactCMS?.bottom_cta_primary_btn_text || 'Launch Axom AI Chat'}
-                </a>
-                <Link
-                  href={contactCMS?.bottom_cta_secondary_btn_url || '/faq'}
-                  className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-white/80 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-white/10 border border-emerald-900/15 dark:border-white/10 text-slate-800 dark:text-gray-200 hover:text-emerald-950 dark:hover:text-white font-semibold text-xs sm:text-sm transition"
-                >
-                  <HelpCircle className="w-3.5 h-3.5" />{' '}
-                  {contactCMS?.bottom_cta_secondary_btn_text || 'Browse Full FAQ Knowledgebase'}
-                </Link>
-              </div>
-            </div>
-          </section>
         </div>
+
+        {/* FAQS SECTION — IDENTICAL TO HOMEPAGE FAQS DESIGN WITH FULL CONTACT CONTENT */}
+        <FAQSection
+          faqs={faqsList}
+          badge={contactCMS?.faq_badge || 'Frequently Asked Questions'}
+          title={contactCMS?.faq_title || 'Common Questions About'}
+          titleHighlight="Contacting Us"
+          titleSuffix=""
+          description={
+            contactCMS?.faq_subtitle ||
+            'Direct answers to popular questions regarding support, response times, and partnerships'
+          }
+          id="contact-faq"
+          accentColor="emerald"
+          showSupportCard={true}
+          supportImage="/faq-assistant.jpg"
+          supportBadgeTop="Guwahati HQ Help Desk"
+          supportBadgeLocation="Guwahati, Assam"
+          supportCategory="Dedicated Help Desk"
+          supportTitle="Direct Support from Assam's AI Research Team"
+          supportDescription="Can't find what you're looking for? Whether you are a student, developer, academic institution, or enterprise, our local team is ready to help."
+          chatButtonText="Ask Axom AI Assistant Free"
+          chatButtonUrl="https://chat.aiaxom.co.in/"
+          emailButtonText={`Email Support (${primarySupportEmail})`}
+          emailButtonUrl={`mailto:${primarySupportEmail}`}
+          className="border-t border-emerald-900/10 dark:border-white/5 py-16 md:py-24 bg-transparent"
+        />
       </main>
 
       {/* Standard Unified Footer */}
