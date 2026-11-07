@@ -2,6 +2,23 @@
 {% block title %}Billing & Receipts — Axom AI{% endblock %}
 {% block heading %}Billing & Receipts{% endblock %}
 
+{% block extra_head %}
+<meta name="description" content="Axom AI Developer Platform Billing & Tax Receipts. Track payments, SAC 998314 GST invoices, and Razorpay verified transaction history for sovereign AI APIs.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AccountingService",
+  "name": "Axom AI Billing & Invoicing Console",
+  "description": "Cryptographically verified Razorpay developer payment receipts and GST-compliant tax invoices under SAC 998314.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Axom AI",
+    "url": "https://aiaxom.co.in"
+  }
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- Developer Hero Header -->
 <div class="mb-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden border border-slate-800">
@@ -11,7 +28,7 @@
     <div class="max-w-2xl">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
         <i class="fa-solid fa-file-invoice-dollar text-indigo-400"></i>
-        <span>Developer Billing • GST Tax Invoices</span>
+        <span>Developer Billing • SAC 998314 GST Invoices</span>
       </div>
       <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
         Billing History & Verified Receipts
@@ -21,9 +38,13 @@
       </p>
     </div>
 
-    <!-- Quick CTA to Plan Management -->
-    <div class="flex items-center gap-3 shrink-0">
-      <a href="/subscription/" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition transform active:scale-95">
+    <!-- Quick CTAs -->
+    <div class="flex flex-wrap items-center gap-3 shrink-0">
+      <a href="/payments/export/" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition">
+        <i class="fa-solid fa-file-arrow-down text-indigo-400 text-xs"></i>
+        <span>Export Ledger CSV</span>
+      </a>
+      <a href="/subscription/" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition transform active:scale-95">
         <i class="fa-solid fa-layer-group text-xs"></i>
         <span>Upgrade / Manage Plans</span>
       </a>
@@ -71,7 +92,7 @@
         ₹{{ total_spent_rupees|floatformat:2 }}
       </div>
       <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
-        <span>Across {{ paid_count }} verified payments</span>
+        <span>Across {{ paid_count }} verified payment{% if paid_count != 1 %}s{% endif %}</span>
       </div>
     </div>
   </div>
@@ -90,7 +111,7 @@
       </div>
       <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5">
         {% if is_active_plan %}
-        <span class="font-semibold text-indigo-600">{{ days_left }} days remaining</span>
+        <span class="font-semibold text-indigo-600">{{ days_left }} day{% if days_left != 1 %}s{% endif %} remaining</span>
         {% else %}
         <span>Zero recurring charges</span>
         {% endif %}
@@ -120,11 +141,11 @@
 
 </div>
 
-<!-- Filter Tabs & Transactions Table Card -->
+<!-- Filter Tabs, Search & Transactions Table Card -->
 <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-8">
   
-  <!-- Header with Filter Tabs -->
-  <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <!-- Header with Filter Tabs and Search Form -->
+  <div class="p-6 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
     <div>
       <h3 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
         <span>Payment Transactions</span>
@@ -135,26 +156,46 @@
       <p class="text-xs text-slate-500 mt-0.5">Every transaction is logged with its bank reference ID and verified cryptographic signature</p>
     </div>
 
-    <!-- Status Filters -->
-    <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold">
-      <a href="?status=all" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'all' %}bg-white text-slate-900 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
-        All ({{ total_transactions_count }})
-      </a>
-      <a href="?status=paid" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'paid' %}bg-white text-emerald-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
-        Paid ({{ paid_count }})
-      </a>
-      <a href="?status=pending" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'pending' %}bg-white text-amber-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
-        Pending ({{ pending_count }})
-      </a>
-      <a href="?status=failed" class="px-3 py-1.5 rounded-lg transition {% if status_filter == 'failed' %}bg-white text-rose-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
-        Failed ({{ failed_count }})
-      </a>
+    <!-- Search Form and Status Filters -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <!-- Search Input Form -->
+      <form method="GET" action="" class="flex items-center gap-1.5">
+        <div class="relative w-full sm:w-56">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" name="q" value="{{ search_q }}" placeholder="Search Order / Pay ID..." class="w-full pl-8 pr-7 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 placeholder-slate-400 font-mono">
+          {% if search_q %}
+          <a href="?status={{ status_filter }}" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs" title="Clear Search">
+            <i class="fa-solid fa-xmark"></i>
+          </a>
+          {% endif %}
+        </div>
+        <input type="hidden" name="status" value="{{ status_filter }}">
+        <button type="submit" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition shadow-sm">
+          Filter
+        </button>
+      </form>
+
+      <!-- Status Filter Tabs -->
+      <div class="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold overflow-x-auto">
+        <a href="?status=all{% if search_q %}&q={{ search_q }}{% endif %}" class="px-3 py-1.5 rounded-lg transition whitespace-nowrap {% if status_filter == 'all' %}bg-white text-slate-900 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+          All ({{ total_transactions_count }})
+        </a>
+        <a href="?status=paid{% if search_q %}&q={{ search_q }}{% endif %}" class="px-3 py-1.5 rounded-lg transition whitespace-nowrap {% if status_filter == 'paid' %}bg-white text-emerald-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+          Paid ({{ paid_count }})
+        </a>
+        <a href="?status=pending{% if search_q %}&q={{ search_q }}{% endif %}" class="px-3 py-1.5 rounded-lg transition whitespace-nowrap {% if status_filter == 'pending' %}bg-white text-amber-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+          Pending ({{ pending_count }})
+        </a>
+        <a href="?status=failed{% if search_q %}&q={{ search_q }}{% endif %}" class="px-3 py-1.5 rounded-lg transition whitespace-nowrap {% if status_filter == 'failed' %}bg-white text-rose-700 shadow-sm font-bold{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+          Failed ({{ failed_count }})
+        </a>
+      </div>
     </div>
   </div>
 
-  <!-- Table -->
+  <!-- Table Container (Horizontal Scroll on Mobile) -->
   <div class="overflow-x-auto">
-    <table class="w-full text-left text-xs border-collapse">
+    <table class="w-full text-left text-xs border-collapse min-w-[720px]">
       <thead class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
         <tr>
           <th class="py-3.5 px-6">Date & Time</th>
@@ -251,7 +292,11 @@
             <i class="fa-solid fa-receipt text-3xl text-slate-300 mb-2 block"></i>
             <div class="text-sm font-bold text-slate-700">No payment transactions found</div>
             <div class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-              You haven't made any paid transactions yet. Subscribe to a plan to unlock higher API rate limits and Axom Pro reasoning.
+              {% if search_q %}
+              No payments match your search query "<span class="font-mono text-slate-600">{{ search_q }}</span>". Clear the filter to view all records.
+              {% else %}
+              You haven't made any paid transactions yet. Subscribe to a developer plan to unlock higher request quotas and access sovereign AI engines (Xuna, Puhor, Xetu).
+              {% endif %}
             </div>
             <a href="/subscription/" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition">
               <span>Explore Developer Plans</span>
@@ -263,6 +308,45 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Pagination Controls -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+    <div>
+      Showing <span class="font-bold text-slate-800">{{ page_obj.start_index }}</span> to <span class="font-bold text-slate-800">{{ page_obj.end_index }}</span> of <span class="font-bold text-slate-800">{{ page_obj.paginator.count }}</span> transactions
+    </div>
+    <div class="flex items-center gap-1.5">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}{% if search_q %}&q={{ search_q }}{% endif %}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-bold transition flex items-center gap-1">
+        <i class="fa-solid fa-chevron-left text-[10px]"></i>
+        <span>Previous</span>
+      </a>
+      {% else %}
+      <span class="px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed font-medium flex items-center gap-1">
+        <i class="fa-solid fa-chevron-left text-[10px]"></i>
+        <span>Previous</span>
+      </span>
+      {% endif %}
+
+      <span class="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 font-bold">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}{% if search_q %}&q={{ search_q }}{% endif %}" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 font-bold transition flex items-center gap-1">
+        <span>Next</span>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+      </a>
+      {% else %}
+      <span class="px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed font-medium flex items-center gap-1">
+        <span>Next</span>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+      </span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 
 <!-- GST Compliance & Security Note -->
@@ -273,7 +357,7 @@
   <div class="text-xs text-slate-600 leading-relaxed space-y-1.5">
     <div class="font-extrabold text-slate-900 text-sm">GST Compliance & Financial Transparency</div>
     <p>
-      • <strong>Tax Invoices with SAC Code 998314:</strong> All Axom AI subscription receipts are issued in compliance with Indian GST regulations under SAC Code 998314 (Information Technology and Cloud AI Computing Services).
+      • <strong>Tax Invoices with SAC Code 998314:</strong> All Axom AI subscription receipts are issued in compliance with Indian GST regulations under SAC Code 998314 (Information Technology and Cloud AI Computing Services). Invoices are eligible for Business Input Tax Credit (ITC).
     </p>
     <p>
       • <strong>Automated Razorpay Webhook Reconciliation:</strong> Every payment undergoes automatic cryptographic HMAC signature verification. Your plan activates immediately without manual approval delays.

@@ -1152,7 +1152,9 @@ def payments_page(request):
     - Tracks all Razorpay payment transactions with instant status (paid, created, failed).
     - Summary KPI cards: Total spent (INR), active subscription, billing cycle, renewal date.
     - Filter transactions by status ('all', 'paid', 'pending', 'failed').
-    - Direct access to printable & downloadable GST tax invoices.
+    - Search by Razorpay Order ID, Payment ID, Plan key, or Coupon code.
+    - Direct access to printable & downloadable GST tax invoices (SAC 998314).
+    - Pagination support (15 per page).
     """
     user = request.user
     limits = _get_user_limits(user)
@@ -1202,6 +1204,21 @@ def payments_page(request):
         status_filter = 'all'
         filtered_payments = all_payments
 
+    # Search filter by order_id, payment_id, plan, or coupon
+    search_q = request.GET.get('q', '').strip()
+    if search_q:
+        filtered_payments = filtered_payments.filter(
+            Q(razorpay_order_id__icontains=search_q) |
+            Q(razorpay_payment_id__icontains=search_q) |
+            Q(plan__icontains=search_q) |
+            Q(coupon_code__icontains=search_q)
+        )
+
+    # Pagination: 15 per page
+    paginator = Paginator(filtered_payments, 15)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     unread_notif_count = InAppNotification.objects.filter(user=user, is_read=False).count()
 
     context = {
@@ -1212,16 +1229,63 @@ def payments_page(request):
         'active_plan_obj': active_plan_obj,
         'days_left': days_left,
         'renewal_date': renewal_date,
-        'payments': filtered_payments,
+        'payments': page_obj,
+        'page_obj': page_obj,
         'total_spent_rupees': total_spent_rupees,
         'total_transactions_count': total_transactions_count,
         'paid_count': paid_count,
         'pending_count': pending_count,
         'failed_count': failed_count,
         'status_filter': status_filter,
+        'search_q': search_q,
         'unread_notif_count': unread_notif_count,
     }
     return render(request, 'userpanel/payments.html', context)
+
+
+@user_login_required
+def export_payments_csv(request):
+    """
+    Secure, rate-limited CSV export of developer payment history and GST invoices ledger.
+    """
+    user = request.user
+    if _rate_limited(f"export_pay:{user.id}", max_calls=10, per_seconds=600):
+        return HttpResponse("Rate limit exceeded: Please wait a few minutes before exporting payment ledger again.", status=429)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="axom_ai_payments_ledger_{timezone.now():%Y%m%d_%H%M}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['AXOM AI DEVELOPER PAYMENT & GST INVOICES LEDGER'])
+    writer.writerow(['Developer Email', user.email or user.username])
+    writer.writerow(['Generated At', timezone.now().strftime('%Y-%m-%d %H:%M:%S UTC')])
+    writer.writerow(['SAC Code', '998314 (Information Technology and Cloud AI Computing Services)'])
+    writer.writerow([])
+    writer.writerow(['Date (UTC)', 'Invoice Number', 'Plan Name', 'Plan Key', 'Coupon Code', 'Base Taxable (INR)', 'CGST 9% (INR)', 'SGST 9% (INR)', 'Total Amount (INR)', 'Status', 'Razorpay Order ID', 'Razorpay Payment ID'])
+
+    payments = Payment.objects.filter(user=user).order_by('-created_at')
+    for p in payments:
+        total = p.amount / 100.0
+        base = round(total / 1.18, 2)
+        gst = round(total - base, 2)
+        cgst = round(gst / 2.0, 2)
+        sgst = round(gst - cgst, 2)
+        inv = f"INV-AXOM-{p.created_at:%Y%m}-{p.id:04d}" if p.status == 'paid' else 'N/A'
+        writer.writerow([
+            p.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            inv,
+            p.plan_label,
+            p.plan,
+            p.coupon_code or 'None',
+            f"{base:.2f}",
+            f"{cgst:.2f}",
+            f"{sgst:.2f}",
+            f"{total:.2f}",
+            p.status.upper(),
+            p.razorpay_order_id,
+            p.razorpay_payment_id or 'N/A'
+        ])
+    return response
 
 
 @user_login_required

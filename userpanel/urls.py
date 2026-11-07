@@ -21,6 +21,7 @@ urlpatterns = [
     path('subscription/', views.subscription_page, name='subscription'),
     path('subscription/cancel/', views.cancel_subscription_api, name='cancel_subscription'),
     path('payments/', views.payments_page, name='payments'),
+    path('payments/export/', views.export_payments_csv, name='export_payments'),
     path('payments/invoice/<int:payment_id>/', views.invoice_view, name='invoice'),
     path('usage/', views.usage_page, name='usage'),
     path('usage/export/', views.export_usage_csv, name='export_usage'),
