@@ -88,6 +88,10 @@ export default function ChatWindow({
 
   // Phonetic Assamese detection in input text
   useEffect(() => {
+    if (language === 'english') {
+      setPhoneticSuggestion(null);
+      return;
+    }
     if (!inputText || inputText.trim().length < 3 || /[\u0980-\u09FF]/.test(inputText)) {
       setPhoneticSuggestion(null);
       return;
@@ -98,7 +102,7 @@ export default function ChatWindow({
     } else {
       setPhoneticSuggestion(null);
     }
-  }, [inputText]);
+  }, [inputText, language]);
 
   const handleTransliterate = async () => {
     if (!inputText.trim() || isTransliterating) return;
@@ -163,6 +167,11 @@ export default function ChatWindow({
     if (typeof window !== 'undefined') {
       localStorage.setItem('axom_chat_language', newLang);
     }
+  };
+
+  const toggleEnglishMode = () => {
+    const nextLang = language === 'english' ? 'assamese' : 'english';
+    handleLanguageChange(nextLang);
   };
 
   // Progressive ChatGPT-style search status step timer
@@ -2006,6 +2015,23 @@ export default function ChatWindow({
             </div>
           )}
 
+          {language === 'english' && (
+            <div className="active-language-banner">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span className="dot-pulse-blue" />
+                <span><strong>English Mode Active:</strong> Axom AI will reply in English</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleLanguageChange('assamese')}
+                className="btn-switch-back"
+                title="Switch back to Assamese (অসমীয়া)"
+              >
+                Switch to অসমীয়া (Default)
+              </button>
+            </div>
+          )}
+
           <div className="input-row">
             <div ref={attachMenuRef} style={{ position: 'relative' }}>
               <button
@@ -2063,28 +2089,46 @@ export default function ChatWindow({
               value={inputText}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : (isListening ? (language === 'assamese' ? "শুনিয়ে আছো... অসমীয়াত কওক (Listening... speak now)" : "Listening... speak now...") : isTranscribing ? (language === 'assamese' ? "লিখি থকা হৈছে... (Writing down what you said...)" : "Writing down what you said...") : (language === 'assamese' ? "Axom AI ক যিকোনো প্ৰশ্ন সোধক..." : "Message Axom AI..."))}
+              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : (isListening ? (language === 'assamese' ? "শুনিয়ে আছো... অসমীয়াত কওক (Listening... speak now)" : "Listening... speak now in English...") : isTranscribing ? (language === 'assamese' ? "লিখি থকা হৈছে... (Writing down what you said...)" : "Writing down what you said...") : (language === 'english' ? "Message Axom AI in English..." : (language === 'hinglish' ? "Axom AI se kuch bhi poochiye..." : "Axom AI ক যিকোনো প্ৰশ্ন সোধক...")))}
               rows={1}
               disabled={isLoading || isConvertingDoc || isGeneratingImage}
             />
           </div>
           <div className="input-controls-row">
             <div className="controls-left">
+              {/* Dedicated 1-Click English Response Toggle Button */}
+              <button
+                type="button"
+                className={`english-toggle-btn ${language === 'english' ? 'active-en' : ''}`}
+                onClick={toggleEnglishMode}
+                title={
+                  language === 'english'
+                    ? 'English response active. Click to switch back to Assamese (অসমীয়া)'
+                    : 'Click to get responses in English (Default: Assamese)'
+                }
+                aria-pressed={language === 'english'}
+              >
+                <Languages size={13} style={{ color: language === 'english' ? '#38bdf8' : '#fbbf24' }} />
+                <span>English</span>
+                <span className={`toggle-pill-tag ${language === 'english' ? 'tag-on' : 'tag-off'}`}>
+                  {language === 'english' ? 'ON' : 'OFF'}
+                </span>
+              </button>
+
               {/* Language Switcher Dropdown */}
               <div ref={langMenuRef} style={{ position: 'relative' }}>
                 <button
                   type="button"
-                  className="lang-btn active"
+                  className={`lang-btn ${language !== 'english' ? 'active' : ''}`}
                   onClick={() => setIsLangMenuOpen((v) => !v)}
                   title="Choose response language (Default: Assamese)"
                   aria-haspopup="true"
                   aria-expanded={isLangMenuOpen}
                   style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}
                 >
-                  <Languages size={13} style={{ color: '#fbbf24' }} />
-                  <span>
+                  <span style={{ fontSize: '0.72rem' }}>
                     {language === 'assamese' && 'অসমীয়া (Default)'}
-                    {language === 'english' && 'English'}
+                    {language === 'english' && 'English Mode'}
                     {language === 'hinglish' && 'Hinglish'}
                   </span>
                   <ChevronDown
