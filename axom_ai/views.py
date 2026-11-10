@@ -4284,6 +4284,7 @@ _GEMINI_IMG_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/
 _VERTEX_SA_JSON_PATH = os.getenv('GEMINI_VERTEX_SA_JSON', '').strip()
 _VERTEX_PROJECT_ID = os.getenv('GEMINI_VERTEX_PROJECT_ID', '').strip()
 _VERTEX_LOCATION = os.getenv('GEMINI_VERTEX_LOCATION', 'us-central1').strip()
+_VERTEX_API_KEY = os.getenv('GEMINI_VERTEX_API_KEY', '').strip() or os.getenv('VERTEX_API_KEY', '').strip()
 _VERTEX_ENDPOINT = 'https://{loc}-aiplatform.googleapis.com/v1/projects/{proj}/locations/{loc}/publishers/google/models/{model}:generateContent'
 _VERTEX_CREDS = None
 _VERTEX_TOKEN_CACHE = {'token': None, 'expiry_ts': 0}
@@ -4316,12 +4317,14 @@ def _vertex_get_token():
 
 def _vertex_generate_image(prompt, model, timeout=90):
     """Generate an image via Vertex AI Gemini image model (Google Cloud billing).
+    Supports authentication via Service Account JSON token or Vertex AI Express API Key.
     Returns (PIL.Image, model_id) on success, or (None, error_string) on failure."""
-    if not (_VERTEX_SA_JSON_PATH and _VERTEX_PROJECT_ID):
-        return None, 'Vertex AI not configured (GEMINI_VERTEX_SA_JSON / GEMINI_VERTEX_PROJECT_ID missing)'
     token = _vertex_get_token()
-    if not token:
-        return None, 'Vertex AI OAuth token not available (service account JSON invalid or google-auth not installed)'
+    if not token and not _VERTEX_API_KEY:
+        return None, 'Vertex AI not configured (GEMINI_VERTEX_SA_JSON / GEMINI_VERTEX_API_KEY missing)'
+    if not _VERTEX_PROJECT_ID and not _VERTEX_API_KEY:
+        return None, 'Vertex AI project missing (GEMINI_VERTEX_PROJECT_ID)'
+
     try:
         from PIL import Image as _PILImage
         import io as _io
@@ -4329,8 +4332,19 @@ def _vertex_generate_image(prompt, model, timeout=90):
     except Exception as e:
         return None, f'Pillow not available: {e}'
 
-    url = _VERTEX_ENDPOINT.format(loc=_VERTEX_LOCATION, proj=_VERTEX_PROJECT_ID, model=model)
-    # Vertex requires explicit role on each content item; AI Studio doesn't.
+    if _VERTEX_PROJECT_ID:
+        url = _VERTEX_ENDPOINT.format(loc=_VERTEX_LOCATION, proj=_VERTEX_PROJECT_ID, model=model)
+    else:
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent'
+
+    headers = {'Content-Type': 'application/json'}
+    if token:
+        headers['Authorization'] = f'Bearer {token}'
+    elif _VERTEX_API_KEY:
+        headers['x-goog-api-key'] = _VERTEX_API_KEY
+        if '?' not in url:
+            url += f'?key={_VERTEX_API_KEY}'
+
     body = {
         "contents": [{"role": "user", "parts": [{"text": prompt[:2000]}]}],
         "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]},
@@ -4633,24 +4647,33 @@ def _detect_image_intent_with_openai(prompt, has_image=False):
     )
 
     system = (
-        "You are an AI intent classifier for Axom AI. "
-        "Determine if the user wants to GENERATE, DRAW, CREATE, or EDIT an image/artwork/photo. "
-        "The user may ask in Assamese (e.g. 'এখন কাজিৰঙাৰ গঁড়ৰ ছবি বনাই দিয়া', 'ছবি লাগে', 'চিত্ৰ আঁকি দিয়ক'), "
-        "Hindi / Hinglish (e.g. 'Kaziranga sunrise ki tasveer bana do', 'ek photo banao', 'ek image draw karo'), "
-        "or English (e.g. 'draw a sunset', 'generate an image of a tea garden', '/image a tiger in Assam').\n\n"
-        "CRITICAL RULES:\n"
-        "1. If the user asks a factual question, asks to solve a problem, or asks to explain/read an image, set is_image to false.\n"
-        "2. If the user wants a new picture/photo/artwork generated, or wants an attached image edited/background extracted, set is_image to true.\n"
-        "3. If is_image is true, formulate a rich, highly descriptive English visual prompt (under 60 words) suitable for Google Gemini Imagen image generation.\n"
-        "4. Reply with a valid JSON object ONLY: {\"is_image\": true, \"prompt\": \"English visual description\"} or {\"is_image\": false, \"prompt\": \"\"}.\n"
-        "5. STRICT RULE: Output no emojis."
+        "You are an expert AI Visual Art Director and Intent Classifier for Axom AI.\n"
+        "Your task is to understand what kind of image the user wants, and craft a master-level English visual prompt for Google Gemini / Imagen 3.\n\n"
+        "STAGE 1: INTENT & TYPE DETECTION\n"
+        "- Determine if the user genuinely wants to GENERATE, DRAW, PAINT, CREATE, or EDIT an image/artwork/photo/scene.\n"
+        "- The user may speak in Assamese (e.g. 'এখন কাজিৰঙাৰ গঁড়ৰ ছবি বনাই দিয়া', 'বিহু নাচৰ ফটো লাগে', 'এজন বৃদ্ধ কৃষকৰ ছবি আঁকি দিয়ক'), "
+        "Hindi / Hinglish (e.g. 'Kaziranga sunset ki photo bana do', 'ek traditional Assamese thali ki tasveer draw karo', 'ek futuristic Guwahati city banao'), "
+        "or English (e.g. 'generate an image of a tea garden', 'draw a dramatic storm over Brahmaputra river').\n"
+        "- CRITICAL: If the user is asking an informational/factual question, asking for code, asking to solve a problem, or asking to analyze/read an image without requesting a new or edited image, set is_image to false.\n\n"
+        "STAGE 2: VISUAL PROMPT ARCHITECT (WHEN is_image IS TRUE)\n"
+        "Thoroughly analyze what the user wants and synthesize a rich, photographic/artistic English prompt (60 to 100 words) tailored for Google Gemini / Imagen 3:\n"
+        "1. SUBJECT & ACTION: Clearly define who or what is the focal point, what they are doing, their expression, and pose.\n"
+        "2. VISUAL STYLE & MEDIUM: Pick the ideal medium based on context (e.g. 'award-winning 8k photorealistic photograph', 'cinematic 35mm film still', 'vibrant watercolor on textured paper', '3D digital octane render', or 'hyper-detailed illustration').\n"
+        "3. CULTURAL & ETHNIC ACCURACY: For Assamese, Northeast Indian, or Indian themes, describe accurate cultural attire and motifs (e.g. authentic Muga / Eri silk Mekhela Chador with traditional red floral Kingkhap embroidery, Kopou phool orchid in hair, red Gamusa, Jaapi hat, traditional Assamese jewellery like Golpata, Doog-doogi, Lokaparo, authentic Indian skin tones, genuine warm expressions, and lush Brahmaputra or tea garden landscapes).\n"
+        "4. LIGHTING & ATMOSPHERE: Atmospheric golden hour sunlight, misty morning fog, volumetric sunbeams, dramatic rim lighting, or cinematic studio lighting.\n"
+        "5. COMPOSITION & CAMERA: Specific camera angle, 85mm f/1.4 lens portrait with creamy bokeh / shallow depth of field, sharp foreground focus, award-winning National Geographic quality.\n\n"
+        "OUTPUT FORMAT RULE:\n"
+        "Reply with a STRICT JSON object only (NO Markdown, NO backticks, NO extra commentary):\n"
+        "{\"is_image\": true, \"prompt\": \"<detailed English prompt>\"}\n"
+        "OR if not an image request:\n"
+        "{\"is_image\": false, \"prompt\": \"\"}"
     )
 
     user_msg = f"[Attached reference image: {'YES' if has_image else 'NO'}]\nUser request: {clean_p}"
 
     try:
         from model_router.router import openai_generate
-        out, _ = openai_generate(system, user_msg, timeout=10)
+        out, _ = openai_generate(system, user_msg, timeout=12)
         if out and out.strip():
             raw = out.strip()
             if '```json' in raw:
@@ -5142,13 +5165,21 @@ def _generate_image_core(prompt, quality='normal', width=1024, height=1024, ref_
     pil_img = None
     tried_errors = []
 
-    # 1. Primary: Gemini AI Studio (with auto-fallback to backup key)
-    if _GEMINI_IMG_API_KEY or os.getenv('GEMINI_API_KEY'):
+    # 1. Primary A: Google Vertex AI (Google Cloud billing / Express Key)
+    if (_VERTEX_SA_JSON_PATH and _VERTEX_PROJECT_ID) or _VERTEX_API_KEY:
+        img, info = _vertex_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT)
+        if img is not None:
+            pil_img = img
+        else:
+            tried_errors.append(f'Vertex AI ({gemini_model}): {info}')
+
+    # 1. Primary B: Gemini AI Studio (Google AI Studio Key)
+    if pil_img is None and (_GEMINI_IMG_API_KEY or os.getenv('GEMINI_API_KEY')):
         img, info = _gemini_generate_image(prompt, gemini_model, timeout=_IMGGEN_TIMEOUT, ref_image_b64=ref_image_b64, ref_image_mime=ref_image_mime)
         if img is not None:
             pil_img = img
         else:
-            tried_errors.append(f'Gemini ({gemini_model}): {info}')
+            tried_errors.append(f'Gemini AI Studio ({gemini_model}): {info}')
 
     # 2. Safety net: Cloudflare Workers AI FLUX
     if pil_img is None and _CF_API_TOKEN and _CF_ACCOUNT_ID:
