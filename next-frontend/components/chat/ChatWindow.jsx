@@ -5,7 +5,7 @@ import {
   Menu, Sun, Moon, Sliders, Send, Globe, Copy, Check, AlertTriangle,
   FileText, Mic, MicOff, Volume2, ThumbsUp, ThumbsDown, Paperclip, Download,
   ExternalLink, Loader2, Sparkles, FileUp, Wrench, Languages, ChevronDown,
-  X, MessageSquare, Image as ImageIcon, Plus, Zap, ScanText, BookOpen
+  X, MessageSquare, Image as ImageIcon, Plus, Zap, ScanText, BookOpen, Palette, Paintbrush
 } from 'lucide-react';
 import { formatMarkdown } from './utils/format';
 import { getCsrfToken } from './utils/security';
@@ -46,6 +46,9 @@ export default function ChatWindow({
     else setAttachedFiles([fileOrNull]);
   };
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isPaintingImage, setIsPaintingImage] = useState(false);
+  const [paintingPrompt, setPaintingPrompt] = useState('');
+  const [paintingPhase, setPaintingPhase] = useState(0); // 0 = Concept, 1 = Canvas, 2 = Polish
   const [isDraggingDoc, setIsDraggingDoc] = useState(false);
   const [streamingText, setStreamingText] = useState(null);
   const [streamingSources, setStreamingSources] = useState([]);
@@ -183,6 +186,20 @@ export default function ChatWindow({
       clearTimeout(t2);
     };
   }, [isWebSearching, isLoading]);
+
+  // Progressive ChatGPT / Gemini style painting status step timer
+  useEffect(() => {
+    if (!isPaintingImage || !isLoading) {
+      setPaintingPhase(0);
+      return;
+    }
+    const t1 = setTimeout(() => setPaintingPhase(1), 2000);
+    const t2 = setTimeout(() => setPaintingPhase(2), 5200);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [isPaintingImage, isLoading]);
 
   const [isListening, setIsListening] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState({});
@@ -615,6 +632,9 @@ export default function ChatWindow({
     const finalPrompt = promptToUse || (attachedFile?.isImage ? 'Enhance and stylize this image in ultra-high quality' : 'A beautiful realistic scene');
 
     setIsGeneratingImage(true);
+    setIsPaintingImage(true);
+    setPaintingPrompt(finalPrompt);
+    setPaintingPhase(0);
     setIsLoading(true);
     setErrorMsg(null);
 
@@ -694,6 +714,9 @@ export default function ChatWindow({
       setErrorMsg(`Image generation error: ${err.message}`);
     } finally {
       setIsGeneratingImage(false);
+      setIsPaintingImage(false);
+      setPaintingPrompt('');
+      setPaintingPhase(0);
       setIsLoading(false);
       if (docFileInputRef.current) docFileInputRef.current.value = '';
     }
@@ -995,6 +1018,28 @@ export default function ChatWindow({
       return;
     }
 
+    // Check if user requested image generation (ChatGPT / Gemini style painting canvas)
+    const isImageReq = Boolean(
+      text && !webSearch && (
+        text.trim().toLowerCase().startsWith('/image') ||
+        text.trim().toLowerCase().startsWith('/img') ||
+        /(ছবি|ছৱি|ফটো|চিত্ৰ|দৃশ্য)\s*(এখন|এটা|এটি)?\s*(বনাই|বনাম|বনাও|আঁকি|আঁকা|লাগে|দিয়ক|দিয়া)/i.test(text) ||
+        /(এখন|এটা|এটি)\s*(.*?)\s*(ছবি|ছৱি|ফটো|চিত্ৰ)\s*(বনাই|বনা|আঁকি|দিয়া|লাগে)/i.test(text) ||
+        /(photo|tasveer|chitra|image|pic|artwork|wallpaper)\s*(bana|banado|banao|dikhaye|kheecho|generate|draw|paint|create)/i.test(text) ||
+        /(ek|koi)\s+(photo|tasveer|image|pic)\s+(banao|banado|chahiye)/i.test(text) ||
+        /^(generate|create|draw|paint|sketch)\s+(an?\s+)?(image|photo|picture|artwork|illustration|scene)\b/i.test(text)
+      )
+    );
+    if (isImageReq) {
+      setIsPaintingImage(true);
+      setPaintingPrompt(text);
+      setPaintingPhase(0);
+    } else {
+      setIsPaintingImage(false);
+      setPaintingPrompt('');
+      setPaintingPhase(0);
+    }
+
     const fileMeta = currentFiles.length > 0 ? {
       attached_file: {
         name: currentFiles[0].name,
@@ -1191,6 +1236,7 @@ export default function ChatWindow({
       // --- Instant AI Image Response (when OpenAI detects user requested image generation) ---
       if (res.ok && data && (data.image || data.image_url)) {
         setIsLoading(false);
+        setIsPaintingImage(false);
         setStreamingText(null);
         onAddMessage(sessionId, 'assistant', data.response, 'Axom AI', {
           image: data.image || data.image_url,
@@ -1602,16 +1648,6 @@ export default function ChatWindow({
                                 <Download size={13} />
                                 <span>Download</span>
                               </a>
-                              <a
-                                href={msg.image_url || msg.image}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-preview-pdf-card"
-                                style={{ padding: '6px 10px', fontSize: '0.74rem' }}
-                                title="Open full image"
-                              >
-                                <ExternalLink size={13} />
-                              </a>
                             </div>
                           </div>
                         </div>
@@ -1761,7 +1797,53 @@ export default function ChatWindow({
                 <div className="msg-avatar">✦</div>
                 <div className="msg-body">
                   <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--accent-pink)', marginBottom: '6px' }}>Axom AI</div>
-                  {isWebSearching ? (
+                  {isPaintingImage ? (
+                    <div className="painting-loading-widget">
+                      <div className="painting-widget-header">
+                        <div className="painting-icon-badge">
+                          <Paintbrush size={15} className="painting-brush-icon" />
+                          <span className="painting-ping-ring"></span>
+                        </div>
+                        <div className="painting-status-group">
+                          <span className="painting-main-label">
+                            {language === 'english'
+                              ? 'Axom AI is painting your image...'
+                              : language === 'hinglish'
+                              ? 'Axom AI aapki image paint kar raha hai...'
+                              : 'Axom AI-য়ে ছবিখন আঁকি আছে...'}
+                          </span>
+                          <span className="painting-sub-step">
+                            {paintingPhase === 0 && (language === 'english' ? 'Imagining visual composition & palette...' : language === 'hinglish' ? 'Visual composition & palette imagine ho raha hai...' : 'ছবিখনৰ কল্পনা আৰু ৰং নিৰ্বাচন কৰা হৈছে...')}
+                            {paintingPhase === 1 && (language === 'english' ? 'Applying realistic brushstrokes on canvas...' : language === 'hinglish' ? 'Canvas par realistic brushstrokes paint ho rahe hain...' : 'কেনভাছত তুলিকাৰ স্পৰ্শৰে আঁকি থকা হৈছে...')}
+                            {paintingPhase >= 2 && (language === 'english' ? 'Refining authentic lighting & fine details...' : language === 'hinglish' ? 'Authentic lighting aur details refine ho rahi hain...' : 'বাস্তৱিক পোহৰ আৰু সূক্ষ্ম খুঁটি-নাটি যোগ কৰা হৈছে...')}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Shimmering Animated Painting Canvas Frame */}
+                      <div className="painting-canvas-frame">
+                        <div className="painting-canvas-aurora"></div>
+                        <div className="painting-canvas-sweep"></div>
+                        <div className="painting-canvas-inner">
+                          <div className="painting-center-badge">
+                            <Palette size={24} className="painting-center-palette" />
+                          </div>
+                          {paintingPrompt && (
+                            <div className="painting-prompt-chip">
+                              "{paintingPrompt.length > 55 ? paintingPrompt.slice(0, 55) + '...' : paintingPrompt}"
+                            </div>
+                          )}
+                          <div className="painting-sparkles-row">
+                            <span className="art-sparkle">✦</span>
+                            <span className="art-phase-tag">
+                              {paintingPhase === 0 ? 'Studio Concept' : paintingPhase === 1 ? 'Canvas Rendering' : 'Final Polish'}
+                            </span>
+                            <span className="art-sparkle">✦</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : isWebSearching ? (
                     <div className="chatgpt-search-widget">
                       <div className="search-widget-header">
                         <div className="search-globe-wrapper">

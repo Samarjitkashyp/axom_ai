@@ -2292,27 +2292,26 @@ def chat_api_view(request):
                 ref_image_mime=attached_img_mime,
             )
             if img_data_uri:
-                oai_caption_sys = (
-                    "You are Axom AI. An image has been created based on the user's prompt. "
-                    "Write a short, engaging presentation message (1-2 sentences) introducing the generated image in the user's language. "
-                    f"Language: {language}."
-                )
-                caption = None
-                try:
-                    from model_router.router import openai_generate
-                    caption, _ = openai_generate(oai_caption_sys, f"User request: {prompt}", timeout=15)
-                except Exception:
-                    pass
-                if not caption:
-                    caption = (
-                        f"আপোনাৰ অনুৰোধ অনুসৰি প্ৰস্তুত কৰা ছবিখন:\n\n**বিৱৰণ:** *{prompt}*"
-                        if language == 'assamese'
-                        else (
-                            f"Aapke anurodh ke anusaar banayi gayi tasveer:\n\n**Description:** *{prompt}*"
-                            if language == 'hinglish'
-                            else f"Here is the image generated based on your request:\n\n**Prompt:** *{prompt}*"
-                        )
-                    )
+                import random
+                clean_p_short = prompt[:120] + ('...' if len(prompt) > 120 else '')
+                if language == 'english':
+                    greetings = [
+                        f"Here is the image created based on your request:\n\n**Visual Concept:** *{clean_p_short}*",
+                        f"I have painted this image for you:\n\n**Description:** *{clean_p_short}*",
+                        f"Here is your generated image:\n\n**Prompt:** *{clean_p_short}*",
+                    ]
+                elif language == 'hinglish':
+                    greetings = [
+                        f"Aapke anurodh ke anusaar banayi gayi tasveer:\n\n**Description:** *{clean_p_short}*",
+                        f"Aapki tasveer taiyaar hai:\n\n**Description:** *{clean_p_short}*",
+                    ]
+                else:
+                    greetings = [
+                        f"আপোনাৰ অনুৰোধ অনুসৰি প্ৰস্তুত কৰা ছবিখন:\n\n**বিৱৰণ:** *{clean_p_short}*",
+                        f"আপুনি বিচৰা ধৰণে এই ছবিখন তৈয়াৰ কৰা হৈছে:\n\n**বিৱৰণ:** *{clean_p_short}*",
+                        f"আপোনাৰ বাবে প্ৰস্তুত কৰা ছবিখন তলত দিয়া হ'ল:\n\n**বিৱৰণ:** *{clean_p_short}*",
+                    ]
+                caption = random.choice(greetings)
                 _save_chat(request, client_id, prompt, caption)
                 return JsonResponse({
                     'response': caption,
@@ -4648,20 +4647,20 @@ def _detect_image_intent_with_openai(prompt, has_image=False):
 
     system = (
         "You are an expert AI Visual Art Director and Intent Classifier for Axom AI.\n"
-        "Your task is to understand what kind of image the user wants, and craft a master-level English visual prompt for Google Gemini / Imagen 3.\n\n"
+        "Your task is to understand what kind of image the user wants, and craft a natural, realistic, NON-AI-LOOKING English visual prompt for Google Gemini / Imagen 3.\n\n"
         "STAGE 1: INTENT & TYPE DETECTION\n"
         "- Determine if the user genuinely wants to GENERATE, DRAW, PAINT, CREATE, or EDIT an image/artwork/photo/scene.\n"
         "- The user may speak in Assamese (e.g. 'এখন কাজিৰঙাৰ গঁড়ৰ ছবি বনাই দিয়া', 'বিহু নাচৰ ফটো লাগে', 'এজন বৃদ্ধ কৃষকৰ ছবি আঁকি দিয়ক'), "
         "Hindi / Hinglish (e.g. 'Kaziranga sunset ki photo bana do', 'ek traditional Assamese thali ki tasveer draw karo', 'ek futuristic Guwahati city banao'), "
         "or English (e.g. 'generate an image of a tea garden', 'draw a dramatic storm over Brahmaputra river').\n"
         "- CRITICAL: If the user is asking an informational/factual question, asking for code, asking to solve a problem, or asking to analyze/read an image without requesting a new or edited image, set is_image to false.\n\n"
-        "STAGE 2: VISUAL PROMPT ARCHITECT (WHEN is_image IS TRUE)\n"
-        "Thoroughly analyze what the user wants and synthesize a rich, photographic/artistic English prompt (60 to 100 words) tailored for Google Gemini / Imagen 3:\n"
-        "1. SUBJECT & ACTION: Clearly define who or what is the focal point, what they are doing, their expression, and pose.\n"
-        "2. VISUAL STYLE & MEDIUM: Pick the ideal medium based on context (e.g. 'award-winning 8k photorealistic photograph', 'cinematic 35mm film still', 'vibrant watercolor on textured paper', '3D digital octane render', or 'hyper-detailed illustration').\n"
-        "3. CULTURAL & ETHNIC ACCURACY: For Assamese, Northeast Indian, or Indian themes, describe accurate cultural attire and motifs (e.g. authentic Muga / Eri silk Mekhela Chador with traditional red floral Kingkhap embroidery, Kopou phool orchid in hair, red Gamusa, Jaapi hat, traditional Assamese jewellery like Golpata, Doog-doogi, Lokaparo, authentic Indian skin tones, genuine warm expressions, and lush Brahmaputra or tea garden landscapes).\n"
-        "4. LIGHTING & ATMOSPHERE: Atmospheric golden hour sunlight, misty morning fog, volumetric sunbeams, dramatic rim lighting, or cinematic studio lighting.\n"
-        "5. COMPOSITION & CAMERA: Specific camera angle, 85mm f/1.4 lens portrait with creamy bokeh / shallow depth of field, sharp foreground focus, award-winning National Geographic quality.\n\n"
+        "STAGE 2: VISUAL PROMPT ARCHITECT (WHEN is_image IS TRUE) — STRICT ANTI-AI & HYPER-REALISM RULES:\n"
+        "Thoroughly analyze what the user wants and synthesize a rich English prompt (60 to 95 words) tailored for Google Gemini / Imagen 3 adhering to these rules:\n"
+        "1. REAL-WORLD DOCUMENTARY PHOTOGRAPHY: The image MUST NOT look like typical plastic AI art, CGI, or a 3D digital render. Direct the model to generate a genuine, candid, unedited real-life photograph. Use terms like: 'authentic RAW candid photograph, natural organic ambient daylight, real-life film photography shot on 35mm film or DSLR with 50mm f/1.8 prime lens, subtle film grain'.\n"
+        "2. NATURAL SKIN & TEXTURES: Explicitly demand: 'natural human skin textures with realistic subtle pores, fine natural creases, genuine human imperfections, no plastic skin, no airbrushing, no cartoonish oversaturation, no 3D digital render look'.\n"
+        "3. NATURAL COLORS & LIGHTING: Avoid neon or unrealistically saturated colors. Request: 'true-to-life natural color grading, organic soft daylight, gentle realistic shadows, natural dynamic range, unedited documentary photography'.\n"
+        "4. CULTURAL ACCURACY: For Assamese, Northeast Indian, or Indian themes, describe accurate cultural attire and motifs (e.g. authentic handwoven Muga/Eri silk Mekhela Chador with traditional Kingkhap embroidery, Kopou phool in hair, traditional cotton Gamusa, Jaapi hat, authentic Indian facial features, warm candid expressions, real tea gardens or Brahmaputra riverbanks).\n"
+        "5. IF USER REQUESTS ART/DRAWING: specify traditional physical media: 'authentic handmade watercolor wash on textured cold-press cotton paper with natural pigment bleeding' or 'charcoal pencil sketch on textured off-white paper'.\n\n"
         "OUTPUT FORMAT RULE:\n"
         "Reply with a STRICT JSON object only (NO Markdown, NO backticks, NO extra commentary):\n"
         "{\"is_image\": true, \"prompt\": \"<detailed English prompt>\"}\n"
@@ -4672,8 +4671,34 @@ def _detect_image_intent_with_openai(prompt, has_image=False):
     user_msg = f"[Attached reference image: {'YES' if has_image else 'NO'}]\nUser request: {clean_p}"
 
     try:
-        from model_router.router import openai_generate
-        out, _ = openai_generate(system, user_msg, timeout=12)
+        from model_router.router import OPENAI_API_KEY, OPENAI_URL, _http
+        out = None
+        # Fast path: gpt-4o-mini (under 800ms) with concise output
+        if OPENAI_API_KEY:
+            try:
+                r_fast = _http.post(
+                    OPENAI_URL,
+                    headers={'Authorization': f'Bearer {OPENAI_API_KEY}'},
+                    json={
+                        'model': 'gpt-4o-mini',
+                        'max_tokens': 240,
+                        'temperature': 0.7,
+                        'messages': [
+                            {'role': 'system', 'content': system},
+                            {'role': 'user', 'content': user_msg},
+                        ],
+                    },
+                    timeout=7,
+                )
+                if r_fast.status_code == 200:
+                    out = r_fast.json().get('choices', [{}])[0].get('message', {}).get('content')
+            except Exception as e_fast:
+                logger.warning(f"Fast intent detection error, falling back to router: {e_fast}")
+
+        if not out:
+            from model_router.router import openai_generate
+            out, _ = openai_generate(system, user_msg, timeout=10)
+
         if out and out.strip():
             raw = out.strip()
             if '```json' in raw:

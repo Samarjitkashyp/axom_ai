@@ -3445,6 +3445,211 @@ kbd {
 }
 
 /* ==========================================================================
+   CHATGPT / GEMINI STYLE PAINTING CANVAS LOADING WIDGET
+   ========================================================================== */
+.painting-loading-widget {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 440px;
+    width: 100%;
+}
+
+.painting-widget-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.painting-icon-badge {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(236, 72, 153, 0.25));
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    flex-shrink: 0;
+}
+
+.painting-brush-icon {
+    animation: brushTilt 1.8s ease-in-out infinite;
+}
+
+@keyframes brushTilt {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-18deg) scale(1.1); }
+}
+
+.painting-ping-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(245, 158, 11, 0.5);
+    animation: pingRing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pingRing {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    80%, 100% { transform: scale(1.35); opacity: 0; }
+}
+
+.painting-status-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.painting-main-label {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    letter-spacing: -0.2px;
+}
+
+.painting-sub-step {
+    font-size: 0.73rem;
+    color: #f59e0b;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.3s ease;
+}
+
+/* Shimmering Animated Painting Canvas Frame */
+.painting-canvas-frame {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #090a14;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 0 20px rgba(245, 158, 11, 0.08);
+}
+
+.painting-canvas-aurora {
+    position: absolute;
+    inset: -50%;
+    background: radial-gradient(circle at 30% 30%, rgba(245, 158, 11, 0.35), transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(236, 72, 153, 0.3), transparent 45%),
+                radial-gradient(circle at 40% 80%, rgba(56, 189, 248, 0.25), transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.3), transparent 40%);
+    filter: blur(28px);
+    animation: auroraFlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes auroraFlow {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.15); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+.painting-canvas-sweep {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.12) 48%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+    animation: canvasBrushSweep 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+}
+
+@keyframes canvasBrushSweep {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(120%); }
+}
+
+.painting-canvas-inner {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(9, 10, 20, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+.painting-center-badge {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    animation: centerPulse 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes centerPulse {
+    0% { transform: scale(0.96); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2); }
+    100% { transform: scale(1.06); box-shadow: 0 0 24px rgba(245, 158, 11, 0.45); }
+}
+
+.painting-center-palette {
+    animation: paletteFloat 3s ease-in-out infinite alternate;
+}
+
+@keyframes paletteFloat {
+    0% { transform: rotate(-5deg); }
+    100% { transform: rotate(5deg); }
+}
+
+.painting-prompt-chip {
+    max-width: 85%;
+    font-size: 0.73rem;
+    color: var(--text-secondary, #cbd5e1);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-style: italic;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.painting-sparkles-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    color: #f59e0b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.art-sparkle {
+    animation: sparkleGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes sparkleGlow {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.2); }
+}
+
+.art-phase-tag {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+/* ==========================================================================
    DOCUMENT CONVERTER MODAL
    ========================================================================== */
 .doc-converter-overlay {
