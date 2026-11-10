@@ -54,37 +54,33 @@ export default function ChatWindow({
   const [copiedMessageIndex, setCopiedMessageIndex] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [remainingSearches, setRemainingSearches] = useState(null);
-  // Language selection: default to Assamese
+  // Language selection: strictly 'english' or 'assamese' (default Assamese)
   const [language, setLanguage] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('axom_chat_language') || 'assamese';
+      const stored = localStorage.getItem('axom_chat_language');
+      return stored === 'english' ? 'english' : 'assamese';
     }
     return 'assamese';
   });
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [isAttachMenuOpen, setIsAttachMenuOpen] = useState(false);
   const [phoneticSuggestion, setPhoneticSuggestion] = useState(null);
   const [isTransliterating, setIsTransliterating] = useState(false);
   const [isOcrLoading, setIsOcrLoading] = useState(false);
   const [ocrData, setOcrData] = useState(null);
 
-  const langMenuRef = useRef(null);
   const attachMenuRef = useRef(null);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
-      if (langMenuRef.current && !langMenuRef.current.contains(e.target)) {
-        setIsLangMenuOpen(false);
-      }
       if (attachMenuRef.current && !attachMenuRef.current.contains(e.target)) {
         setIsAttachMenuOpen(false);
       }
     };
-    if (isLangMenuOpen || isAttachMenuOpen) {
+    if (isAttachMenuOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
     }
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [isLangMenuOpen, isAttachMenuOpen]);
+  }, [isAttachMenuOpen]);
 
   // Phonetic Assamese detection in input text
   useEffect(() => {
@@ -162,10 +158,10 @@ export default function ChatWindow({
   };
 
   const handleLanguageChange = (newLang) => {
-    setLanguage(newLang);
-    setIsLangMenuOpen(false);
+    const targetLang = newLang === 'english' ? 'english' : 'assamese';
+    setLanguage(targetLang);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('axom_chat_language', newLang);
+      localStorage.setItem('axom_chat_language', targetLang);
     }
   };
 
@@ -2089,22 +2085,22 @@ export default function ChatWindow({
               value={inputText}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : (isListening ? (language === 'assamese' ? "শুনিয়ে আছো... অসমীয়াত কওক (Listening... speak now)" : "Listening... speak now in English...") : isTranscribing ? (language === 'assamese' ? "লিখি থকা হৈছে... (Writing down what you said...)" : "Writing down what you said...") : (language === 'english' ? "Message Axom AI in English..." : (language === 'hinglish' ? "Axom AI se kuch bhi poochiye..." : "Axom AI ক যিকোনো প্ৰশ্ন সোধক...")))}
+              placeholder={attachedFile ? (attachedFile.isImage ? "Ask about this image, or describe what to generate/edit..." : "Ask questions about this document or choose an action above...") : (isListening ? (language === 'english' ? "Listening... speak now in English..." : "শুনিয়ে আছো... অসমীয়াত কওক (Listening... speak now)") : isTranscribing ? (language === 'english' ? "Writing down what you said..." : "লিখি থকা হৈছে... (Writing down what you said...)") : (language === 'english' ? "Message Axom AI in English..." : "Axom AI ক যিকোনো প্ৰশ্ন সোধক..."))}
               rows={1}
               disabled={isLoading || isConvertingDoc || isGeneratingImage}
             />
           </div>
           <div className="input-controls-row">
             <div className="controls-left">
-              {/* Dedicated 1-Click English Response Toggle Button */}
+              {/* Dedicated 1-Click English Response Toggle Button (Assamese is Default) */}
               <button
                 type="button"
                 className={`english-toggle-btn ${language === 'english' ? 'active-en' : ''}`}
                 onClick={toggleEnglishMode}
                 title={
                   language === 'english'
-                    ? 'English response active. Click to switch back to Assamese (অসমীয়া)'
-                    : 'Click to get responses in English (Default: Assamese)'
+                    ? 'English mode is ON — replies will be in English. Click to switch back to Assamese (অসমীয়া).'
+                    : 'English mode is OFF (Assamese response active). Click to enable English responses.'
                 }
                 aria-pressed={language === 'english'}
               >
@@ -2115,122 +2111,15 @@ export default function ChatWindow({
                 </span>
               </button>
 
-              {/* Language Switcher Dropdown */}
-              <div ref={langMenuRef} style={{ position: 'relative' }}>
-                <button
-                  type="button"
-                  className={`lang-btn ${language !== 'english' ? 'active' : ''}`}
-                  onClick={() => setIsLangMenuOpen((v) => !v)}
-                  title="Choose response language (Default: Assamese)"
-                  aria-haspopup="true"
-                  aria-expanded={isLangMenuOpen}
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}
-                >
-                  <span style={{ fontSize: '0.72rem' }}>
-                    {language === 'assamese' && 'অসমীয়া (Default)'}
-                    {language === 'english' && 'English Mode'}
-                    {language === 'hinglish' && 'Hinglish'}
-                  </span>
-                  <ChevronDown
-                    size={11}
-                    style={{
-                      transform: isLangMenuOpen ? 'rotate(180deg)' : 'none',
-                      transition: 'transform 0.15s ease',
-                    }}
-                  />
-                </button>
-
-                {isLangMenuOpen && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 'calc(100% + 6px)',
-                      left: 0,
-                      background: 'var(--bg-card, #12131f)',
-                      border: '1px solid var(--border-color, rgba(255,255,255,0.12))',
-                      borderRadius: '10px',
-                      boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-                      padding: '4px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '2px',
-                      minWidth: '150px',
-                      zIndex: 100,
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleLanguageChange('assamese')}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '6px 10px',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        background: language === 'assamese' ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
-                        color: language === 'assamese' ? '#fbbf24' : 'var(--text-primary, #fff)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                      }}
-                    >
-                      <span>অসমীয়া (Default)</span>
-                      {language === 'assamese' && <Check size={12} />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleLanguageChange('english')}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '6px 10px',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        background: language === 'english' ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
-                        color: language === 'english' ? '#fbbf24' : 'var(--text-primary, #fff)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                      }}
-                    >
-                      <span>English</span>
-                      {language === 'english' && <Check size={12} />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleLanguageChange('hinglish')}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '6px 10px',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        background: language === 'hinglish' ? 'rgba(251, 191, 36, 0.15)' : 'transparent',
-                        color: language === 'hinglish' ? '#fbbf24' : 'var(--text-primary, #fff)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                      }}
-                    >
-                      <span>Hinglish</span>
-                      {language === 'hinglish' && <Check size={12} />}
-                    </button>
-                  </div>
-                )}
-              </div>
               <button
                 type="button"
                 className={`lang-btn ${webSearch ? 'active' : ''}`}
                 onClick={() => setWebSearch((v) => !v)}
                 title={webSearch
                   ? 'Web search ON — Axom AI will search the internet and cite sources. Limit: 5 searches per day.'
-                  : 'Turn on web search — get up-to-date answers with sources, translated into Assamese.'}
+                  : (language === 'english'
+                      ? 'Turn on web search — get up-to-date answers with sources in English.'
+                      : 'Turn on web search — get up-to-date answers with sources in Assamese.')}
                 aria-pressed={webSearch}
               >
                 <Globe size={13} /> Web {webSearch ? 'ON' : ''}
