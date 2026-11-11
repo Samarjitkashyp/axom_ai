@@ -5,19 +5,23 @@ const API_BASE =
 
 export interface HeaderNavItem {
   id: number;
+  parent_id?: number | null;
   title: string;
   url: string;
   order: number;
+  children?: HeaderNavItem[];
 }
 
 export interface HeaderMegaMenuItem {
   id: number;
+  parent_id?: number | null;
   title: string;
   description: string;
   icon_class: string;
   color_class: string;
   url: string;
   order: number;
+  children?: HeaderMegaMenuItem[];
 }
 
 export interface HeaderData {

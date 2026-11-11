@@ -584,8 +584,16 @@ class HeaderSettings(models.Model):
 
 
 class HeaderNavItem(models.Model):
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        related_name='children',
+        on_delete=models.CASCADE,
+        help_text='Optional parent nav item for multilevel dropdown submenus',
+    )
     title = models.CharField(max_length=100)
-    url = models.CharField(max_length=300)
+    url = models.CharField(max_length=300, blank=True, default='')
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
@@ -599,11 +607,19 @@ class HeaderNavItem(models.Model):
 
 
 class HeaderMegaMenuItem(models.Model):
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        related_name='children',
+        on_delete=models.CASCADE,
+        help_text='Optional parent item for nested multilevel AI Tools dropdown menus',
+    )
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=200, blank=True)
     icon_class = models.CharField(max_length=100, default='fa-solid fa-brain')
     color_class = models.CharField(max_length=100, default='text-fuchsia-400')
-    url = models.CharField(max_length=300, default='https://aiaxom.co.in/tools')
+    url = models.CharField(max_length=300, blank=True, default='https://aiaxom.co.in/tools')
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 

@@ -1,11 +1,62 @@
 {% extends 'contentcms/base.html' %}
 
 {% block title %}Header & Navigation Settings — Axom AI CMS{% endblock %}
-{% block page_title %}Header & Navigation Settings{% endblock %}
-{% block page_subtitle %}Manage Brand Logo, Top Navigation Links, AI Tools Mega Menu items, and CTA action buttons{% endblock %}
+{% block page_title %}Header & Multilevel Menu Builder{% endblock %}
+{% block page_subtitle %}Manage Brand Logo, Top Navbar Links, and AI Tools Multilevel Dropdown Menu with Drag & Drop{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<style>
+  .menu-ghost {
+    opacity: 0.4;
+    background: rgba(217, 70, 239, 0.12) !important;
+    border: 1.5px dashed rgba(217, 70, 239, 0.7) !important;
+  }
+  .menu-chosen > .menu-card {
+    border-color: rgba(168, 85, 247, 0.75) !important;
+    box-shadow: 0 10px 28px rgba(168, 85, 247, 0.22);
+  }
+  .menu-children {
+    min-height: 4px;
+    transition: all 0.18s ease;
+  }
+  .menu-children:not(:empty) {
+    margin-top: 0.5rem;
+    margin-left: 1.25rem;
+    padding-left: 1rem;
+    border-left: 2px dashed rgba(148, 163, 184, 0.22);
+  }
+  .is-dragging-tree .menu-children:empty {
+    min-height: 30px;
+    margin-top: 0.35rem;
+    margin-left: 1.5rem;
+    padding: 0 0.75rem;
+    border: 1px dashed rgba(192, 132, 252, 0.35);
+    border-radius: 0.65rem;
+    background: rgba(192, 132, 252, 0.04);
+    display: flex;
+    align-items: center;
+  }
+  .is-dragging-tree .menu-children:empty::after {
+    content: "↳ Drop here to make submenu";
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(192, 132, 252, 0.65);
+    pointer-events: none;
+  }
+  .drag-handle {
+    touch-action: none;
+  }
+
+  /* Admin Interactive Dropdown Preview */
+  .preview-dd-item:hover > .preview-dd-sub {
+    display: block;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="space-y-10 max-w-6xl">
+<div class="space-y-10 max-w-6xl pb-16">
 
   <!-- Section 1: Brand Logo & Header Actions -->
   <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-6">
@@ -13,22 +64,21 @@
       <div>
         <h2 class="text-base font-bold text-white flex items-center gap-2">
           <i class="fa-solid fa-gem text-fuchsia-400"></i>
-          Brand Logo & Top Actions
+          Brand Logo &amp; Top Actions
         </h2>
-        <p class="text-xs text-slate-400">Upload primary brand logo and configure navbar buttons</p>
+        <p class="text-xs text-slate-400">Upload primary brand logo and configure navbar dimensions</p>
       </div>
       <button onclick="saveHeaderGeneralSettings()" class="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
         <i class="fa-solid fa-floppy-disk"></i>
-        Save Brand & CTAs
+        Save Brand &amp; CTAs
       </button>
     </div>
 
-    <!-- Logo Upload & Preview -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
       <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col items-center justify-center text-center space-y-3">
         <div class="text-xs font-semibold text-slate-300">Logo Live Preview</div>
         <div class="h-24 w-full flex items-center justify-center p-3 rounded-lg bg-slate-950/80 border border-slate-800 overflow-hidden">
-          <img id="header_logo_preview" src="{{ header.logo_image_url|default:'/axom-logo.png' }}" alt="Logo Preview" 
+          <img id="header_logo_preview" src="{{ header.logo_image_url|default:'/axom-logo.png' }}" alt="Logo Preview"
             style="width: {{ header.logo_width|default:'180px' }}; height: {{ header.logo_height|default:'auto' }}; object-fit: {{ header.logo_fit|default:'contain' }}; max-width: 100%; max-height: 80px;">
         </div>
         <div class="w-full">
@@ -46,41 +96,31 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1.5">Logo Image URL / Path</label>
           <input type="text" id="header_logo_url" value="{{ header.logo_image_url|default:'/axom-logo.png' }}" placeholder="/axom-logo.png or https://..."
             oninput="updateLogoLivePreview()"
-            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500 font-mono text-xs">
+            class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:border-fuchsia-500 font-mono text-xs">
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1.5">
-              Logo Width (px)
-              <span class="text-[10px] text-slate-400 font-normal ml-1">(e.g. 180px)</span>
+              Logo Width (px) <span class="text-[10px] text-slate-400 font-normal ml-1">(e.g. 180px)</span>
             </label>
-            <div class="relative">
-              <input type="text" id="header_logo_width" value="{{ header.logo_width|default:'180px' }}" placeholder="180px"
-                oninput="updateLogoLivePreview()"
-                class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 font-mono">
-            </div>
+            <input type="text" id="header_logo_width" value="{{ header.logo_width|default:'180px' }}" placeholder="180px"
+              oninput="updateLogoLivePreview()"
+              class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 font-mono">
           </div>
-
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1.5">
-              Logo Height
-              <span class="text-[10px] text-slate-400 font-normal ml-1">(auto / px)</span>
+              Logo Height <span class="text-[10px] text-slate-400 font-normal ml-1">(auto / px)</span>
             </label>
-            <div class="relative">
-              <input type="text" id="header_logo_height" value="{{ header.logo_height|default:'auto' }}" placeholder="auto"
-                oninput="updateLogoLivePreview()"
-                class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 font-mono">
-            </div>
+            <input type="text" id="header_logo_height" value="{{ header.logo_height|default:'auto' }}" placeholder="auto"
+              oninput="updateLogoLivePreview()"
+              class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500 font-mono">
           </div>
-
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
-              Object Fit / Scaling
-            </label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Object Fit / Scaling</label>
             <select id="header_logo_fit" onchange="updateLogoLivePreview()" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-fuchsia-500">
               <option value="contain" {% if header.logo_fit == 'contain' or not header.logo_fit %}selected{% endif %}>contain (Keep Aspect Ratio)</option>
-              <option value="cover" {% if header.logo_fit == 'cover' %}selected{% endif %}>cover (Fill & Crop)</option>
+              <option value="cover" {% if header.logo_fit == 'cover' %}selected{% endif %}>cover (Fill &amp; Crop)</option>
               <option value="fill" {% if header.logo_fit == 'fill' %}selected{% endif %}>fill (Stretch)</option>
               <option value="scale-down" {% if header.logo_fit == 'scale-down' %}selected{% endif %}>scale-down</option>
               <option value="none" {% if header.logo_fit == 'none' %}selected{% endif %}>none (Original Size)</option>
@@ -93,160 +133,111 @@
           <input type="text" id="header_logo_alt" value="{{ header.logo_alt_text|default:'Axom AI — Smart. Assamese. AI For All.' }}" placeholder="Axom AI"
             class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-fuchsia-500">
         </div>
-
-
       </div>
     </div>
   </div>
 
-  <!-- Section 2: Navbar Navigation Menu Items -->
-  <div class="space-y-4">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+  <!-- Section 2: Top Navbar Links (Drag & Drop + Optional Multilevel) -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
       <div>
-        <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-compass text-fuchsia-400"></i>
-          Navbar Menu Links ({{ nav_items|length }})
-        </h2>
-        <p class="text-xs text-slate-400">Manage links shown in top navbar (e.g. AI Tools, Use Cases, Pricing, FAQ, Blog)</p>
-      </div>
-      <button onclick="openNavModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
-        <i class="fa-solid fa-plus"></i>
-        Add Menu Link
-      </button>
-    </div>
-
-    <div class="glass-card rounded-2xl border border-slate-800/80 overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs min-w-[540px]">
-          <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider font-bold text-[10px] border-b border-slate-800">
-            <tr>
-              <th class="px-6 py-3.5">Order</th>
-              <th class="px-6 py-3.5">Menu Title</th>
-              <th class="px-6 py-3.5">Destination URL</th>
-              <th class="px-6 py-3.5">Status</th>
-              <th class="px-6 py-3.5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/60 text-slate-200">
-            {% for item in nav_items %}
-            <tr class="hover:bg-slate-900/40 transition">
-              <td class="px-6 py-3.5 font-bold text-slate-400">#{{ item.order }}</td>
-              <td class="px-6 py-3.5">
-                <div class="font-semibold text-white text-sm">{{ item.title }}</div>
-              </td>
-              <td class="px-6 py-3.5 font-mono text-slate-300 text-xs">
-                {{ item.url }}
-              </td>
-              <td class="px-6 py-3.5">
-                <div class="flex items-center gap-2">
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="toggle_nav_{{ item.id }}" class="sr-only peer" {% if item.is_active %}checked{% endif %} onchange="toggleNavItem({{ item.id }}, this)">
-                    <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-400 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
-                  </label>
-                  <span id="badge_nav_{{ item.id }}" class="text-[10px] font-semibold px-2 py-0.5 rounded-full {% if item.is_active %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
-                    {% if item.is_active %}Active{% else %}Hidden{% endif %}
-                  </span>
-                </div>
-              </td>
-              <td class="px-6 py-3.5 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <button onclick="editNavItem({{ item.id }}, '{{ item.title|escapejs }}', '{{ item.url|escapejs }}', {{ item.order }}, {{ item.is_active|yesno:'true,false' }})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-pen text-fuchsia-400 text-[10px]"></i> Edit
-                  </button>
-                  <button onclick="deleteNavItem({{ item.id }})" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/20 text-rose-300 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-trash text-[10px]"></i> Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5" class="px-6 py-8 text-center text-slate-400">
-                No navigation items found. Click "Add Menu Link" above to create links.
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section 3: AI Tools Mega Menu Items -->
-  <div class="space-y-4">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-layer-group text-fuchsia-400"></i>
-          AI Tools Mega Menu Items ({{ mega_items|length }})
-        </h2>
-        <p class="text-xs text-slate-400">Manage 9 interactive AI capability tools shown inside the "AI Tools" mega dropdown</p>
-      </div>
-      <button onclick="openMegaModal()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
-        <i class="fa-solid fa-plus"></i>
-        Add Mega Menu Tool
-      </button>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {% for m in mega_items %}
-      <div class="glass-card rounded-2xl p-5 flex flex-col justify-between border border-slate-800/80 hover:border-slate-700 transition space-y-4">
-        <div>
-          <div class="flex items-center justify-between mb-2.5">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-base {{ m.color_class|default:'text-fuchsia-400' }}">
-                <i class="{{ m.icon_class|default:'fa-solid fa-brain' }}"></i>
-              </div>
-              <div>
-                <div class="font-bold text-white text-sm">{{ m.title }}</div>
-                <div class="text-[10px] text-slate-400 font-mono">Order: {{ m.order }}</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-1.5">
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" id="toggle_mega_{{ m.id }}" class="sr-only peer" {% if m.is_active %}checked{% endif %} onchange="toggleMegaItem({{ m.id }}, this)">
-                <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-400 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
-              </label>
-            </div>
-          </div>
-
-          <p class="text-xs text-slate-400 leading-relaxed mb-2">{{ m.description }}</p>
-          <div class="text-[11px] text-fuchsia-400 font-mono truncate bg-slate-950/60 p-2 rounded-lg border border-slate-800/80">
-            <i class="fa-solid fa-link text-[10px] mr-1 text-slate-500"></i>{{ m.url }}
-          </div>
-        </div>
-
-        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="badge_mega_{{ m.id }}" class="text-[10px] font-semibold px-2 py-0.5 rounded-full {% if m.is_active %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
-            {% if m.is_active %}Active (Visible){% else %}Inactive (Hidden){% endif %}
+        <div class="flex items-center gap-2.5">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-compass text-fuchsia-400"></i>
+            Top Navbar Menu Links (<span id="navCountBadge">{{ nav_items|length }}</span>)
+          </h2>
+          <span id="navSyncBadge" class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            Drag &amp; Drop Live Sync
           </span>
-          <div class="flex items-center gap-2">
-            <button onclick="editMegaItem({{ m.id }}, '{{ m.title|escapejs }}', '{{ m.description|escapejs }}', '{{ m.icon_class|escapejs }}', '{{ m.color_class|escapejs }}', '{{ m.url|escapejs }}', {{ m.order }}, {{ m.is_active|yesno:'true,false' }})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
-              <i class="fa-solid fa-pen text-fuchsia-400 text-[10px]"></i> Edit
-            </button>
-            <button onclick="deleteMegaItem({{ m.id }})" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/20 text-rose-300 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
-              <i class="fa-solid fa-trash text-[10px]"></i> Delete
-            </button>
+        </div>
+        <p class="text-xs text-slate-400 mt-1">Drag <i class="fa-solid fa-grip-vertical text-slate-500 mx-0.5"></i> to reorder top header links left-to-right on <span class="text-emerald-400 font-mono">aiaxom.co.in</span>, or nest sub-links underneath any item.</p>
+      </div>
+      <button onclick="openNavModal(null)" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-fuchsia-600/20 transition shrink-0">
+        <i class="fa-solid fa-plus"></i>
+        Add Navbar Link
+      </button>
+    </div>
+
+    <ul id="navTreeRoot" class="menu-tree-root space-y-2.5" data-parent-id=""></ul>
+  </div>
+
+  <!-- Section 3: AI Tools Multilevel Dropdown Menu Builder (Drag & Drop) -->
+  <div class="glass-card rounded-2xl border border-slate-800/80 p-6 space-y-5">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-sitemap text-fuchsia-400"></i>
+            AI Tools Multilevel Dropdown Menu (<span id="megaCountBadge">{{ mega_items|length }}</span>)
+          </h2>
+          <span id="megaSyncBadge" class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            Drag &amp; Drop Live Sync
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 mt-1">
+          Build normal cascading multilevel dropdown menus (Level 1 &rarr; Level 2 &rarr; Level 3). Drag any item into another item's nested slot or use <strong class="text-slate-200">↳ Nest</strong> / <strong class="text-slate-200">↰ Out</strong> to align tools your way.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <button type="button" onclick="toggleMegaPreview()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold rounded-xl text-xs flex items-center gap-2 transition">
+          <i class="fa-solid fa-eye text-emerald-400"></i>
+          <span id="previewBtnLabel">Show Dropdown Preview</span>
+        </button>
+        <button type="button" onclick="openMegaCategoryModal(null)" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-purple-500/30 text-purple-300 font-semibold rounded-xl text-xs flex items-center gap-2 transition">
+          <i class="fa-solid fa-folder-plus text-purple-400"></i>
+          + Category Folder
+        </button>
+        <button type="button" onclick="openMegaModal(null)" class="px-4 py-2.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs flex items-center gap-2 shadow-md shadow-fuchsia-600/20 transition">
+          <i class="fa-solid fa-plus"></i>
+          Add Tool / Item
+        </button>
+      </div>
+    </div>
+
+    <!-- Helpful usage legend -->
+    <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-slate-900/70 border border-slate-800 text-[11px] text-slate-300">
+      <div class="flex flex-wrap items-center gap-4">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-grip-vertical text-fuchsia-400"></i> Grab handle to reorder or drop inside any card</span>
+        <span class="flex items-center gap-1.5"><span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-bold">↳ Nest</span> Make submenu of item above</span>
+        <span class="flex items-center gap-1.5"><span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px] font-bold">↰ Out</span> Promote one level up</span>
+      </div>
+      <span class="text-emerald-400 font-medium flex items-center gap-1">
+        <i class="fa-solid fa-bolt text-[10px]"></i> Auto-saves immediately to aiaxom.co.in
+      </span>
+    </div>
+
+    <!-- Collapsible Live Dropdown Simulator Preview -->
+    <div id="megaPreviewPanel" class="hidden rounded-2xl bg-slate-950/90 border border-emerald-500/30 p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="text-xs font-bold text-emerald-400 flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          Live Multilevel Dropdown Preview (Hover items with <i class="fa-solid fa-chevron-right text-[9px]"></i> to test submenus)
+        </div>
+        <span class="text-[10px] text-slate-400">Only Active items are shown here</span>
+      </div>
+      <div class="p-4 rounded-xl bg-[#f0fdf4] border border-[#cfe9dc] min-h-[220px] flex items-start">
+        <div class="relative inline-block">
+          <div class="px-4 py-1.5 rounded-full bg-[#ecfdf5] border border-[#cfe9dc] text-[#059669] font-extrabold text-sm inline-flex items-center gap-1.5 shadow-sm">
+            <span>AI Tools</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
           </div>
+          <div id="liveDropdownPreviewBox" class="mt-2"></div>
         </div>
       </div>
-      {% empty %}
-      <div class="col-span-3 glass-card rounded-2xl p-12 text-center border border-slate-800 space-y-3">
-        <div class="text-sm font-semibold text-white">No Mega Menu Items Added</div>
-        <p class="text-xs text-slate-400">Click "Add Mega Menu Tool" above to add tools.</p>
-      </div>
-      {% endfor %}
     </div>
+
+    <!-- Nested Draggable AI Tools Tree -->
+    <ul id="megaTreeRoot" class="menu-tree-root space-y-2.5" data-parent-id=""></ul>
   </div>
 
 </div>
 
-<!-- Modal 1: Nav Item Add/Edit -->
+<!-- Modal 1: Navbar Link Add/Edit -->
 <div id="navModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4" onclick="if(event.target===this) closeNavModal()">
   <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-lg shadow-2xl relative overflow-hidden" onclick="event.stopPropagation()">
     <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
-      <h3 id="navModalTitle" class="text-base font-bold text-white">Add Navigation Item</h3>
+      <h3 id="navModalTitle" class="text-base font-bold text-white">Add Navbar Link</h3>
       <button onclick="closeNavModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
@@ -254,17 +245,23 @@
     <div class="p-6 space-y-4 text-xs">
       <input type="hidden" id="nav_id">
       <div>
+        <label class="block font-semibold text-slate-300 mb-1">Parent Navbar Item (Optional — for Submenus)</label>
+        <select id="nav_parent_id" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+          <option value="">None (Top-Level Header Link)</option>
+        </select>
+      </div>
+      <div>
         <label class="block font-semibold text-slate-300 mb-1">Menu Title *</label>
         <input type="text" id="nav_title" placeholder="AI Tools / Use Cases / Pricing / FAQ / Blog" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
       </div>
       <div>
-        <label class="block font-semibold text-slate-300 mb-1">Target URL *</label>
-        <input type="text" id="nav_url" placeholder="/#tools or /pricing/ or /faq/ or /blog/" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
+        <label class="block font-semibold text-slate-300 mb-1">Target URL <span class="text-slate-500 font-normal">(Leave # if this item only opens a submenu)</span></label>
+        <input type="text" id="nav_url" placeholder="/tools or /pricing or #" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Order</label>
-          <input type="number" id="nav_order" min="0" value="0" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+          <input type="number" id="nav_order" min="0" value="" placeholder="Auto" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
         </div>
         <div class="flex items-center pt-6">
           <label class="inline-flex items-center cursor-pointer gap-2">
@@ -276,30 +273,52 @@
     </div>
     <div class="px-6 py-3.5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90">
       <button onclick="closeNavModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold transition text-xs">Cancel</button>
-      <button onclick="submitNavItem()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-md shadow-fuchsia-600/20 transition">Save Menu Item</button>
+      <button onclick="submitNavItem()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-md shadow-fuchsia-600/20 transition">Save Navbar Item</button>
     </div>
   </div>
 </div>
 
-<!-- Modal 2: Mega Menu Tool Add/Edit -->
+<!-- Modal 2: AI Tools Dropdown Item / Category Add/Edit -->
 <div id="megaModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4" onclick="if(event.target===this) closeMegaModal()">
-  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-lg shadow-2xl relative overflow-hidden" onclick="event.stopPropagation()">
+  <div class="glass-card rounded-2xl border border-slate-700 w-full max-w-xl shadow-2xl relative overflow-hidden" onclick="event.stopPropagation()">
     <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
-      <h3 id="megaModalTitle" class="text-base font-bold text-white">Add Mega Menu Tool</h3>
+      <h3 id="megaModalTitle" class="text-base font-bold text-white">Add Dropdown Menu Item</h3>
       <button onclick="closeMegaModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
-    <div class="p-6 space-y-4 text-xs">
+    <div class="p-6 space-y-4 text-xs max-h-[75vh] overflow-y-auto">
       <input type="hidden" id="mega_id">
-      <div>
-        <label class="block font-semibold text-slate-300 mb-1">Tool Title *</label>
-        <input type="text" id="mega_title" placeholder="Axom Chat / Deep Vision / Code Studio" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+
+      <!-- Quick Pick from Live Axom Tools -->
+      <div class="p-3 rounded-xl bg-fuchsia-500/5 border border-fuchsia-500/20 space-y-2">
+        <label class="block font-bold text-fuchsia-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          Quick Fill from Existing Axom AI Tools (Optional)
+        </label>
+        <select id="mega_quick_pick" onchange="applyQuickToolPreset(this.value)" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-xs focus:outline-none focus:border-fuchsia-500">
+          <option value="">— Pick a live tool to auto-fill Title, URL &amp; Icon —</option>
+        </select>
       </div>
+
       <div>
-        <label class="block font-semibold text-slate-300 mb-1">Short Description</label>
-        <input type="text" id="mega_desc" placeholder="Assamese & Multilingual conversational AI" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+        <label class="block font-semibold text-slate-300 mb-1">Parent Menu (Level / Hierarchy)</label>
+        <select id="mega_parent_id" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+          <option value="">Top Level (Directly inside "AI Tools" dropdown)</option>
+        </select>
+        <p class="text-[10px] text-slate-500 mt-1">Select a parent folder to nest this item as Level 2, Level 3, etc. (You can also drag &amp; drop anytime).</p>
       </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Menu / Tool Title *</label>
+        <input type="text" id="mega_title" placeholder="e.g. PDF Tools or Merge PDF or Axom AI Chat" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-300 mb-1">Short Description <span class="text-slate-500 font-normal">(Optional)</span></label>
+        <input type="text" id="mega_desc" placeholder="Short subtitle shown below title (keep empty for clean compact menu)" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+      </div>
+
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block font-semibold text-slate-300 mb-1">FontAwesome Icon</label>
@@ -310,24 +329,33 @@
           <input type="text" id="mega_color" placeholder="text-fuchsia-400" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
         </div>
       </div>
-      <!-- Quick Palette -->
-      <div class="flex flex-wrap items-center gap-1.5 p-2 rounded-lg bg-slate-900/60 border border-slate-800">
-        <span class="text-[10px] text-slate-500 font-semibold mr-1">Quick Icons:</span>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-brain', 'text-fuchsia-400')" class="px-2 py-0.5 rounded bg-slate-800 text-fuchsia-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-brain"></i> Brain</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-wand-magic-sparkles', 'text-purple-400')" class="px-2 py-0.5 rounded bg-slate-800 text-purple-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-wand-magic-sparkles"></i> Image</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-file-pdf', 'text-pink-400')" class="px-2 py-0.5 rounded bg-slate-800 text-pink-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-file-pdf"></i> Doc</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-globe', 'text-sky-400')" class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-globe"></i> Web</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-code', 'text-emerald-400')" class="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-code"></i> Code</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-microphone-lines', 'text-amber-400')" class="px-2 py-0.5 rounded bg-slate-800 text-amber-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-microphone-lines"></i> Voice</button>
+
+      <!-- Quick Icon Palette -->
+      <div class="flex flex-wrap items-center gap-1.5 p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
+        <span class="text-[10px] text-slate-500 font-semibold mr-1">Icons:</span>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-folder-open', 'text-emerald-400')" class="px-2 py-1 rounded bg-slate-800 text-emerald-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-folder-open"></i> Folder</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-brain', 'text-fuchsia-400')" class="px-2 py-1 rounded bg-slate-800 text-fuchsia-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-brain"></i> AI</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-wand-magic-sparkles', 'text-purple-400')" class="px-2 py-1 rounded bg-slate-800 text-purple-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-wand-magic-sparkles"></i> Image</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-file-pdf', 'text-rose-400')" class="px-2 py-1 rounded bg-slate-800 text-rose-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-video', 'text-sky-400')" class="px-2 py-1 rounded bg-slate-800 text-sky-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-video"></i> Video</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-qrcode', 'text-amber-400')" class="px-2 py-1 rounded bg-slate-800 text-amber-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-qrcode"></i> QR</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-code', 'text-indigo-400')" class="px-2 py-1 rounded bg-slate-800 text-indigo-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-code"></i> Code</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-pen-nib', 'text-pink-400')" class="px-2 py-1 rounded bg-slate-800 text-pink-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-pen-nib"></i> Design</button>
+        <button type="button" onclick="selectMegaPreset('fa-solid fa-microphone-lines', 'text-cyan-400')" class="px-2 py-1 rounded bg-slate-800 text-cyan-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-microphone-lines"></i> Voice</button>
       </div>
+
       <div>
-        <label class="block font-semibold text-slate-300 mb-1">Target Tool URL</label>
-        <input type="text" id="mega_url" placeholder="https://aiaxom.co.in/tools" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
+        <label class="block font-semibold text-slate-300 mb-1">
+          Target URL
+          <span class="text-slate-500 font-normal ml-1">(Leave empty or <code>#</code> if this is a Category Folder for submenus)</span>
+        </label>
+        <input type="text" id="mega_url" placeholder="https://aiaxom.co.in/tools/merge-pdf or #" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-fuchsia-500">
       </div>
+
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Order</label>
-          <input type="number" id="mega_order" min="0" value="0" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
+          <input type="number" id="mega_order" min="0" value="" placeholder="Auto" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
         </div>
         <div class="flex items-center pt-6">
           <label class="inline-flex items-center cursor-pointer gap-2">
@@ -339,7 +367,7 @@
     </div>
     <div class="px-6 py-3.5 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-900/90">
       <button onclick="closeMegaModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold transition text-xs">Cancel</button>
-      <button onclick="submitMegaItem()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-md shadow-fuchsia-600/20 transition">Save Tool</button>
+      <button onclick="submitMegaItem()" class="px-5 py-2 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-semibold rounded-xl text-xs shadow-md shadow-fuchsia-600/20 transition">Save Item</button>
     </div>
   </div>
 </div>
@@ -347,6 +375,441 @@
 
 {% block extra_scripts %}
 <script>
+const INITIAL_NAV_TREE = {{ nav_tree_json|safe }};
+const INITIAL_MEGA_TREE = {{ mega_tree_json|safe }};
+const QUICK_TOOLS_CATALOG = {{ quick_tools_json|safe }};
+
+let navTree = Array.isArray(INITIAL_NAV_TREE) ? INITIAL_NAV_TREE : [];
+let megaTree = Array.isArray(INITIAL_MEGA_TREE) ? INITIAL_MEGA_TREE : [];
+const sortableInstances = { nav: [], mega: [] };
+
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getTreeByKind(kind) {
+  return kind === 'nav' ? navTree : megaTree;
+}
+
+function setTreeByKind(kind, nextTree) {
+  if (kind === 'nav') navTree = nextTree;
+  else megaTree = nextTree;
+}
+
+function countNodes(nodes) {
+  let c = 0;
+  for (const n of nodes || []) {
+    c += 1 + countNodes(n.children || []);
+  }
+  return c;
+}
+
+function findNodeAndList(nodes, id) {
+  for (let i = 0; i < nodes.length; i++) {
+    if (nodes[i].id === id) {
+      return { list: nodes, index: i, node: nodes[i], parentNode: null };
+    }
+    const found = findNodeAndList(nodes[i].children || [], id);
+    if (found) {
+      if (!found.parentNode) found.parentNode = nodes[i];
+      return found;
+    }
+  }
+  return null;
+}
+
+function collectExcludedIds(node, set) {
+  if (!node) return;
+  set.add(node.id);
+  for (const ch of node.children || []) {
+    collectExcludedIds(ch, set);
+  }
+}
+
+function flattenForSelect(nodes, depth, excludeIds, out) {
+  const prefix = depth > 0 ? '— '.repeat(depth) : '';
+  for (const n of nodes || []) {
+    if (excludeIds.has(n.id)) continue;
+    out.push({ id: n.id, label: prefix + n.title });
+    flattenForSelect(n.children || [], depth + 1, excludeIds, out);
+  }
+}
+
+function setSyncBadge(kind, state) {
+  const el = document.getElementById(kind === 'nav' ? 'navSyncBadge' : 'megaSyncBadge');
+  if (!el) return;
+  if (state === 'saving') {
+    el.className = 'text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30';
+    el.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Saving...';
+  } else if (state === 'error') {
+    el.className = 'text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30';
+    el.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Save Failed';
+  } else {
+    el.className = 'text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+    el.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Synced Live';
+  }
+}
+
+function destroySortables(kind) {
+  while (sortableInstances[kind].length > 0) {
+    const inst = sortableInstances[kind].pop();
+    try { inst.destroy(); } catch {}
+  }
+}
+
+function createTreeLiElement(node, depth, indexInSiblings, kind) {
+  const li = document.createElement('li');
+  li.className = 'menu-node';
+  li.dataset.id = String(node.id);
+
+  const isNav = kind === 'nav';
+  const hasChildren = (node.children || []).length > 0;
+  const isCategory = !node.url || node.url.trim() === '' || node.url.trim() === '#';
+  const isAiToolsNav = isNav && (node.title.toLowerCase().includes('tool') || node.url === '/#tools');
+  const levelLabel = depth === 0 ? 'Level 1' : `Level ${depth + 1}`;
+  const levelBadgeClass = depth === 0
+    ? 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/25'
+    : depth === 1
+      ? 'bg-indigo-500/15 text-indigo-300 border-indigo-500/25'
+      : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/25';
+
+  const card = document.createElement('div');
+  card.className = `menu-card rounded-xl bg-slate-900/90 border ${node.is_active ? 'border-slate-800 hover:border-slate-700' : 'border-slate-800/50 opacity-60'} px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition`;
+
+  const iconHtml = isNav
+    ? `<div class="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-xs text-fuchsia-400 shrink-0">
+         <i class="fa-solid ${hasChildren ? 'fa-folder-tree' : 'fa-link'}"></i>
+       </div>`
+    : `<div class="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-sm ${escapeHtml(node.color_class || 'text-fuchsia-400')} shrink-0">
+         <i class="${escapeHtml(node.icon_class || 'fa-solid fa-brain')}"></i>
+       </div>`;
+
+  const metaUrlHtml = isCategory
+    ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/25">Submenu Folder</span>`
+    : `<span class="text-[11px] font-mono text-slate-400 truncate max-w-[240px]">${escapeHtml(node.url)}</span>`;
+
+  const extraNavNote = isAiToolsNav
+    ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">↓ Uses AI Tools Dropdown Tree</span>`
+    : '';
+
+  const childBadge = hasChildren
+    ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">${node.children.length} sub</span>`
+    : '';
+
+  card.innerHTML = `
+    <div class="flex items-center gap-3 min-w-0 flex-1">
+      <button type="button" title="Drag to reorder or nest" class="drag-handle w-7 h-8 rounded-lg bg-slate-950/60 hover:bg-slate-800 border border-slate-800 text-slate-500 hover:text-fuchsia-400 flex items-center justify-center cursor-grab active:cursor-grabbing shrink-0 transition">
+        <i class="fa-solid fa-grip-vertical text-xs"></i>
+      </button>
+      ${iconHtml}
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-bold text-white text-xs sm:text-sm truncate">${escapeHtml(node.title)}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${levelBadgeClass}">${levelLabel}</span>
+          ${childBadge}
+          ${extraNavNote}
+        </div>
+        <div class="flex flex-wrap items-center gap-2 mt-0.5">
+          ${metaUrlHtml}
+          ${!isNav && node.description ? `<span class="text-[11px] text-slate-500 truncate max-w-[260px]">• ${escapeHtml(node.description)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-1.5 justify-end shrink-0">
+      <button type="button" onclick="indentMenuNode('${kind}', ${node.id})" ${indexInSiblings === 0 ? 'disabled' : ''} title="Indent / Make Submenu of item above" class="px-2 py-1 rounded-lg text-[11px] font-semibold border transition ${indexInSiblings === 0 ? 'bg-slate-900/40 border-slate-800/50 text-slate-600 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300 hover:text-white'}">
+        ↳ Nest
+      </button>
+      <button type="button" onclick="outdentMenuNode('${kind}', ${node.id})" ${depth === 0 ? 'disabled' : ''} title="Move Out one level" class="px-2 py-1 rounded-lg text-[11px] font-semibold border transition ${depth === 0 ? 'bg-slate-900/40 border-slate-800/50 text-slate-600 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300 hover:text-white'}">
+        ↰ Out
+      </button>
+      <button type="button" onclick="${isNav ? `openNavModal(${node.id})` : `openMegaModal(${node.id})`}" title="Add Sub-item inside '${escapeHtml(node.title)}'" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 transition">
+        + Sub
+      </button>
+      <label class="relative inline-flex items-center cursor-pointer mx-1" title="Show/Hide on website">
+        <input type="checkbox" class="sr-only peer" ${node.is_active ? 'checked' : ''} onchange="${isNav ? `toggleNavItem(${node.id}, this)` : `toggleMegaItem(${node.id}, this)`}">
+        <div class="w-8 h-4 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+      </label>
+      <button type="button" onclick="${isNav ? `openEditNavModal(${node.id})` : `openEditMegaModal(${node.id})`}" title="Edit item" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-fuchsia-400 flex items-center justify-center transition">
+        <i class="fa-solid fa-pen text-[11px]"></i>
+      </button>
+      <button type="button" onclick="${isNav ? `deleteNavItem(${node.id})` : `deleteMegaItem(${node.id})`}" title="Delete item" class="w-7 h-7 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/20 text-rose-300 flex items-center justify-center transition">
+        <i class="fa-solid fa-trash text-[11px]"></i>
+      </button>
+    </div>
+  `;
+
+  li.appendChild(card);
+
+  const childUl = document.createElement('ul');
+  childUl.className = 'menu-children space-y-2';
+  childUl.dataset.parentId = String(node.id);
+  const children = node.children || [];
+  children.forEach((child, idx) => {
+    childUl.appendChild(createTreeLiElement(child, depth + 1, idx, kind));
+  });
+  li.appendChild(childUl);
+  return li;
+}
+
+function attachSortables(rootEl, kind) {
+  destroySortables(kind);
+  const allLists = [rootEl, ...rootEl.querySelectorAll('ul.menu-children')];
+  for (const ul of allLists) {
+    const inst = new Sortable(ul, {
+      group: `nested-${kind}`,
+      handle: '.drag-handle',
+      animation: 180,
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      emptyInsertThreshold: 24,
+      ghostClass: 'menu-ghost',
+      chosenClass: 'menu-chosen',
+      onMove: (evt) => {
+        // Never allow dropping a parent inside its own subtree
+        if (evt.dragged && evt.to && evt.dragged.contains(evt.to)) {
+          return false;
+        }
+        return true;
+      },
+      onStart: () => {
+        rootEl.classList.add('is-dragging-tree');
+      },
+      onEnd: () => {
+        rootEl.classList.remove('is-dragging-tree');
+        syncTreeFromDomAndSave(kind);
+      },
+    });
+    sortableInstances[kind].push(inst);
+  }
+}
+
+function readDomBranch(ulEl, nodeById) {
+  const items = [];
+  const childrenLis = Array.from(ulEl.children).filter((el) => el.tagName === 'LI');
+  for (const li of childrenLis) {
+    const id = parseInt(li.dataset.id, 10);
+    const baseNode = nodeById.get(id);
+    if (!baseNode) continue;
+    const subUl = Array.from(li.children).find((el) => el.tagName === 'UL');
+    const updated = {
+      ...baseNode,
+      children: subUl ? readDomBranch(subUl, nodeById) : [],
+    };
+    items.push(updated);
+  }
+  return items;
+}
+
+function indexNodesById(nodes, map) {
+  for (const n of nodes || []) {
+    map.set(n.id, n);
+    indexNodesById(n.children || [], map);
+  }
+}
+
+function buildFlatReorderPayload(nodes, parentId, out) {
+  nodes.forEach((n, idx) => {
+    n.parent_id = parentId;
+    n.order = idx;
+    out.push({ id: n.id, parent_id: parentId, order: idx });
+    if (n.children && n.children.length > 0) {
+      buildFlatReorderPayload(n.children, n.id, out);
+    }
+  });
+}
+
+async function syncTreeFromDomAndSave(kind) {
+  const rootEl = document.getElementById(kind === 'nav' ? 'navTreeRoot' : 'megaTreeRoot');
+  const nodeMap = new Map();
+  indexNodesById(getTreeByKind(kind), nodeMap);
+  const nextTree = readDomBranch(rootEl, nodeMap);
+  await persistTreeOrder(kind, nextTree);
+}
+
+async function persistTreeOrder(kind, nextTree) {
+  setTreeByKind(kind, nextTree);
+  renderTree(kind);
+  setSyncBadge(kind, 'saving');
+
+  const itemsPayload = [];
+  buildFlatReorderPayload(nextTree, null, itemsPayload);
+
+  const endpoint = kind === 'nav'
+    ? '/axomai-content/settings/header/nav/reorder/'
+    : '/axomai-content/settings/header/mega/reorder/';
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify({ items: itemsPayload }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setSyncBadge(kind, 'saved');
+      if (kind === 'mega') renderLiveDropdownPreview();
+    } else {
+      setSyncBadge(kind, 'error');
+      showToast(data.error || 'Failed to save alignment', 'error');
+    }
+  } catch {
+    setSyncBadge(kind, 'error');
+    showToast('Network error saving menu order', 'error');
+  }
+}
+
+async function indentMenuNode(kind, nodeId) {
+  const tree = structuredClone(getTreeByKind(kind));
+  const loc = findNodeAndList(tree, nodeId);
+  if (!loc || loc.index === 0) return;
+  const prevSibling = loc.list[loc.index - 1];
+  const [moved] = loc.list.splice(loc.index, 1);
+  prevSibling.children = prevSibling.children || [];
+  prevSibling.children.push(moved);
+  await persistTreeOrder(kind, tree);
+}
+
+async function outdentMenuNode(kind, nodeId) {
+  const tree = structuredClone(getTreeByKind(kind));
+  const loc = findNodeAndList(tree, nodeId);
+  if (!loc || !loc.parentNode) return;
+  const parentLoc = findNodeAndList(tree, loc.parentNode.id);
+  if (!parentLoc) return;
+  const [moved] = loc.list.splice(loc.index, 1);
+  parentLoc.list.splice(parentLoc.index + 1, 0, moved);
+  await persistTreeOrder(kind, tree);
+}
+
+function renderTree(kind) {
+  const rootEl = document.getElementById(kind === 'nav' ? 'navTreeRoot' : 'megaTreeRoot');
+  const nodes = getTreeByKind(kind);
+  rootEl.innerHTML = '';
+
+  const countBadge = document.getElementById(kind === 'nav' ? 'navCountBadge' : 'megaCountBadge');
+  if (countBadge) countBadge.innerText = String(countNodes(nodes));
+
+  if (!nodes || nodes.length === 0) {
+    rootEl.innerHTML = `
+      <li class="rounded-xl border border-dashed border-slate-700 p-8 text-center text-xs text-slate-400">
+        No items yet. Click the Add button above to create items and drag to arrange them.
+      </li>
+    `;
+    return;
+  }
+
+  nodes.forEach((node, idx) => {
+    rootEl.appendChild(createTreeLiElement(node, 0, idx, kind));
+  });
+
+  attachSortables(rootEl, kind);
+  if (kind === 'mega') renderLiveDropdownPreview();
+}
+
+// ── Live Preview Simulator ──
+function toggleMegaPreview() {
+  const panel = document.getElementById('megaPreviewPanel');
+  const lbl = document.getElementById('previewBtnLabel');
+  if (!panel) return;
+  const hidden = panel.classList.toggle('hidden');
+  lbl.innerText = hidden ? 'Show Dropdown Preview' : 'Hide Preview';
+  if (!hidden) renderLiveDropdownPreview();
+}
+
+function buildPreviewBranchHtml(nodes) {
+  const activeNodes = (nodes || []).filter((n) => n.is_active);
+  if (activeNodes.length === 0) return '';
+  let html = `<div class="w-[240px] py-1.5 rounded-2xl bg-white border border-[#cfe9dc] shadow-xl text-xs">`;
+  for (const item of activeNodes) {
+    const activeChildren = (item.children || []).filter((c) => c.is_active);
+    const hasSub = activeChildren.length > 0;
+    html += `
+      <div class="relative preview-dd-item px-1.5">
+        <div class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl hover:bg-[#ecfdf5] text-[#022c22] font-semibold cursor-default transition">
+          <div class="flex items-center gap-2 min-w-0">
+            <i class="${escapeHtml(item.icon_class || 'fa-solid fa-brain')} text-[#059669] w-4 text-center shrink-0"></i>
+            <span class="truncate">${escapeHtml(item.title)}</span>
+          </div>
+          ${hasSub ? '<i class="fa-solid fa-chevron-right text-[10px] text-[#059669] shrink-0"></i>' : ''}
+        </div>
+        ${hasSub ? `<div class="preview-dd-sub hidden absolute left-full top-0 pl-1.5 z-20">${buildPreviewBranchHtml(activeChildren)}</div>` : ''}
+      </div>
+    `;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function renderLiveDropdownPreview() {
+  const box = document.getElementById('liveDropdownPreviewBox');
+  if (!box) return;
+  const activeCount = (megaTree || []).filter((n) => n.is_active).length;
+  if (activeCount === 0) {
+    box.innerHTML = `<div class="px-4 py-3 rounded-xl bg-white border border-[#cfe9dc] text-xs text-slate-500">No active menu items yet.</div>`;
+    return;
+  }
+  box.innerHTML = buildPreviewBranchHtml(megaTree);
+}
+
+// ── Quick Pick Dropdown Population ──
+function populateQuickPickSelect() {
+  const sel = document.getElementById('mega_quick_pick');
+  if (!sel) return;
+  const byCat = new Map();
+  QUICK_TOOLS_CATALOG.forEach((tool, idx) => {
+    const cat = tool.category || 'Tools';
+    if (!byCat.has(cat)) byCat.set(cat, []);
+    byCat.get(cat).push({ ...tool, _idx: idx });
+  });
+  let html = `<option value="">— Pick a live tool to auto-fill Title, URL & Icon —</option>`;
+  for (const [cat, list] of byCat.entries()) {
+    html += `<optgroup label="${escapeHtml(cat)}">`;
+    for (const t of list) {
+      html += `<option value="${t._idx}">${escapeHtml(t.title)} (${escapeHtml(t.url)})</option>`;
+    }
+    html += `</optgroup>`;
+  }
+  sel.innerHTML = html;
+}
+
+function applyQuickToolPreset(idxStr) {
+  if (idxStr === '') return;
+  const tool = QUICK_TOOLS_CATALOG[parseInt(idxStr, 10)];
+  if (!tool) return;
+  document.getElementById('mega_title').value = tool.title;
+  document.getElementById('mega_desc').value = tool.description || '';
+  document.getElementById('mega_icon').value = tool.icon_class || 'fa-solid fa-brain';
+  document.getElementById('mega_color').value = tool.color_class || 'text-fuchsia-400';
+  document.getElementById('mega_url').value = tool.url || '';
+}
+
+function populateParentSelect(selectElId, kind, excludeNodeId, selectedParentId) {
+  const sel = document.getElementById(selectElId);
+  if (!sel) return;
+  const excludeSet = new Set();
+  if (excludeNodeId) {
+    const loc = findNodeAndList(getTreeByKind(kind), excludeNodeId);
+    if (loc) collectExcludedIds(loc.node, excludeSet);
+  }
+  const options = [];
+  flattenForSelect(getTreeByKind(kind), 0, excludeSet, options);
+  const rootLabel = kind === 'nav'
+    ? 'None (Top-Level Header Link)'
+    : 'Top Level (Directly inside "AI Tools" dropdown)';
+  let html = `<option value="">${rootLabel}</option>`;
+  for (const opt of options) {
+    html += `<option value="${opt.id}">${escapeHtml(opt.label)}</option>`;
+  }
+  sel.innerHTML = html;
+  sel.value = selectedParentId ? String(selectedParentId) : '';
+}
+
+// ── Logo & General Settings ──
 function updateLogoLivePreview() {
   const url = document.getElementById('header_logo_url').value.trim();
   const width = document.getElementById('header_logo_width').value.trim();
@@ -363,15 +826,13 @@ function updateLogoLivePreview() {
 
 async function uploadBrandLogo(input) {
   if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
   const formData = new FormData();
-  formData.append('logo', file);
-
+  formData.append('logo', input.files[0]);
   try {
     const res = await fetch('/axomai-content/settings/header/upload-logo/', {
       method: 'POST',
       headers: { 'X-CSRFToken': csrftoken },
-      body: formData
+      body: formData,
     });
     const data = await res.json();
     if (data.success) {
@@ -381,7 +842,7 @@ async function uploadBrandLogo(input) {
     } else {
       showToast(data.error || 'Failed to upload logo', 'error');
     }
-  } catch (err) {
+  } catch {
     showToast('Error uploading logo', 'error');
   }
 }
@@ -392,14 +853,13 @@ async function saveHeaderGeneralSettings() {
     logo_alt_text: document.getElementById('header_logo_alt').value.trim(),
     logo_width: document.getElementById('header_logo_width').value.trim() || '180px',
     logo_height: document.getElementById('header_logo_height').value.trim() || 'auto',
-    logo_fit: document.getElementById('header_logo_fit').value || 'contain'
+    logo_fit: document.getElementById('header_logo_fit').value || 'contain',
   };
-
   try {
     const res = await fetch('/axomai-content/settings/header/save/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (data.success) {
@@ -408,29 +868,34 @@ async function saveHeaderGeneralSettings() {
     } else {
       showToast(data.error || 'Failed to save settings', 'error');
     }
-  } catch (err) {
+  } catch {
     showToast('Error saving header settings', 'error');
   }
 }
 
-// Nav items
-function openNavModal() {
-  document.getElementById('navModalTitle').innerText = 'Add Menu Link';
+// ── Nav Item CRUD ──
+function openNavModal(presetParentId) {
+  document.getElementById('navModalTitle').innerText = presetParentId ? 'Add Submenu Navbar Link' : 'Add Navbar Link';
   document.getElementById('nav_id').value = '';
   document.getElementById('nav_title').value = '';
   document.getElementById('nav_url').value = '';
-  document.getElementById('nav_order').value = 0;
+  document.getElementById('nav_order').value = '';
   document.getElementById('nav_active').checked = true;
+  populateParentSelect('nav_parent_id', 'nav', null, presetParentId || null);
   document.getElementById('navModal').classList.remove('hidden');
 }
 
-function editNavItem(id, title, url, order, active) {
-  document.getElementById('navModalTitle').innerText = 'Edit Menu Link: ' + title;
-  document.getElementById('nav_id').value = id;
-  document.getElementById('nav_title').value = title;
-  document.getElementById('nav_url').value = url;
-  document.getElementById('nav_order').value = order;
-  document.getElementById('nav_active').checked = active !== false;
+function openEditNavModal(id) {
+  const loc = findNodeAndList(navTree, id);
+  if (!loc) return;
+  const item = loc.node;
+  document.getElementById('navModalTitle').innerText = 'Edit Navbar Link: ' + item.title;
+  document.getElementById('nav_id').value = item.id;
+  document.getElementById('nav_title').value = item.title;
+  document.getElementById('nav_url').value = item.url || '';
+  document.getElementById('nav_order').value = item.order ?? 0;
+  document.getElementById('nav_active').checked = item.is_active !== false;
+  populateParentSelect('nav_parent_id', 'nav', item.id, item.parent_id);
   document.getElementById('navModal').classList.remove('hidden');
 }
 
@@ -440,33 +905,34 @@ function closeNavModal() {
 
 async function submitNavItem() {
   const title = document.getElementById('nav_title').value.trim();
-  const url = document.getElementById('nav_url').value.trim();
-  if (!title || !url) {
-    showToast('Title and URL are required', 'error');
+  const url = document.getElementById('nav_url').value.trim() || '#';
+  if (!title) {
+    showToast('Menu title is required', 'error');
     return;
   }
+  const orderRaw = document.getElementById('nav_order').value;
   const payload = {
     id: document.getElementById('nav_id').value || null,
-    title: title,
-    url: url,
-    order: parseInt(document.getElementById('nav_order').value || 0),
-    is_active: document.getElementById('nav_active').checked
+    parent_id: document.getElementById('nav_parent_id').value || null,
+    title,
+    url,
+    order: orderRaw === '' ? '' : parseInt(orderRaw, 10),
+    is_active: document.getElementById('nav_active').checked,
   };
-
   try {
     const res = await fetch('/axomai-content/settings/header/nav/save/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (data.success) {
       showToast(data.message, 'success');
-      setTimeout(() => location.reload(), 400);
+      setTimeout(() => location.reload(), 300);
     } else {
       showToast(data.error || 'Failed to save item', 'error');
     }
-  } catch (err) {
+  } catch {
     showToast('Error saving navigation item', 'error');
   }
 }
@@ -475,79 +941,87 @@ async function toggleNavItem(id, el) {
   try {
     const res = await fetch(`/axomai-content/settings/header/nav/toggle/${id}/`, {
       method: 'POST',
-      headers: { 'X-CSRFToken': csrftoken }
+      headers: { 'X-CSRFToken': csrftoken },
     });
     const data = await res.json();
     if (data.success) {
+      const loc = findNodeAndList(navTree, id);
+      if (loc) loc.node.is_active = data.is_active;
+      renderTree('nav');
       showToast(data.message, 'success');
-      const badge = document.getElementById(`badge_nav_${id}`);
-      if (badge) {
-        if (data.is_active) {
-          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-          badge.innerText = 'Active';
-        } else {
-          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
-          badge.innerText = 'Hidden';
-        }
-      }
     } else {
       showToast(data.error || 'Failed to toggle', 'error');
       if (el) el.checked = !el.checked;
     }
-  } catch (err) {
+  } catch {
     showToast('Error toggling status', 'error');
     if (el) el.checked = !el.checked;
   }
 }
 
 async function deleteNavItem(id) {
-  if (!confirm('Are you sure you want to delete this navigation link?')) return;
+  if (!confirm('Delete this navigation link (and any sub-items nested under it)?')) return;
   try {
     const res = await fetch(`/axomai-content/settings/header/nav/delete/${id}/`, {
       method: 'POST',
-      headers: { 'X-CSRFToken': csrftoken }
+      headers: { 'X-CSRFToken': csrftoken },
     });
     const data = await res.json();
     if (data.success) {
       showToast(data.message, 'success');
-      setTimeout(() => location.reload(), 400);
+      setTimeout(() => location.reload(), 300);
     } else {
       showToast(data.error || 'Failed to delete', 'error');
     }
-  } catch (err) {
+  } catch {
     showToast('Error deleting item', 'error');
   }
 }
 
-// Mega menu items
+// ── AI Tools Dropdown CRUD ──
 function selectMegaPreset(icon, color) {
   document.getElementById('mega_icon').value = icon;
   document.getElementById('mega_color').value = color;
 }
 
-function openMegaModal() {
-  document.getElementById('megaModalTitle').innerText = 'Add Mega Menu Tool';
+function openMegaModal(presetParentId) {
+  document.getElementById('megaModalTitle').innerText = presetParentId ? 'Add Submenu Tool' : 'Add AI Tools Menu Item';
   document.getElementById('mega_id').value = '';
+  document.getElementById('mega_quick_pick').value = '';
   document.getElementById('mega_title').value = '';
   document.getElementById('mega_desc').value = '';
   document.getElementById('mega_icon').value = 'fa-solid fa-brain';
   document.getElementById('mega_color').value = 'text-fuchsia-400';
   document.getElementById('mega_url').value = 'https://aiaxom.co.in/tools';
-  document.getElementById('mega_order').value = 0;
+  document.getElementById('mega_order').value = '';
   document.getElementById('mega_active').checked = true;
+  populateParentSelect('mega_parent_id', 'mega', null, presetParentId || null);
   document.getElementById('megaModal').classList.remove('hidden');
 }
 
-function editMegaItem(id, title, desc, icon, color, url, order, active) {
-  document.getElementById('megaModalTitle').innerText = 'Edit Mega Menu Tool: ' + title;
-  document.getElementById('mega_id').value = id;
-  document.getElementById('mega_title').value = title;
-  document.getElementById('mega_desc').value = desc;
-  document.getElementById('mega_icon').value = icon || 'fa-solid fa-brain';
-  document.getElementById('mega_color').value = color || 'text-fuchsia-400';
-  document.getElementById('mega_url').value = url || 'https://aiaxom.co.in/tools';
-  document.getElementById('mega_order').value = order;
-  document.getElementById('mega_active').checked = active !== false;
+function openMegaCategoryModal(presetParentId) {
+  openMegaModal(presetParentId);
+  document.getElementById('megaModalTitle').innerText = 'Add Submenu Category Folder';
+  document.getElementById('mega_icon').value = 'fa-solid fa-folder-open';
+  document.getElementById('mega_color').value = 'text-emerald-400';
+  document.getElementById('mega_url').value = '#';
+}
+
+function openEditMegaModal(id) {
+  const loc = findNodeAndList(megaTree, id);
+  if (!loc) return;
+  const item = loc.node;
+  document.getElementById('megaModalTitle').innerText = 'Edit Menu Item: ' + item.title;
+  document.getElementById('mega_id').value = item.id;
+  document.getElementById('mega_quick_pick').value = '';
+  document.getElementById('mega_title').value = item.title;
+  document.getElementById('mega_desc').value = item.description || '';
+  document.getElementById('mega_icon').value = item.icon_class || 'fa-solid fa-brain';
+  document.getElementById('mega_color').value = item.color_class || 'text-fuchsia-400';
+  document.getElementById('mega_url').value = item.url || '';
+  document.getElementById('mega_order').value = item.order ?? 0;
+  document.getElementById('mega_active').checked = item.is_active !== false;
+  populateParentSelect('mega_parent_id', 'mega', item.id, item.parent_id);
   document.getElementById('megaModal').classList.remove('hidden');
 }
 
@@ -561,32 +1035,33 @@ async function submitMegaItem() {
     showToast('Title is required', 'error');
     return;
   }
+  const orderRaw = document.getElementById('mega_order').value;
   const payload = {
     id: document.getElementById('mega_id').value || null,
-    title: title,
+    parent_id: document.getElementById('mega_parent_id').value || null,
+    title,
     description: document.getElementById('mega_desc').value.trim(),
     icon_class: document.getElementById('mega_icon').value.trim(),
     color_class: document.getElementById('mega_color').value.trim(),
     url: document.getElementById('mega_url').value.trim(),
-    order: parseInt(document.getElementById('mega_order').value || 0),
-    is_active: document.getElementById('mega_active').checked
+    order: orderRaw === '' ? '' : parseInt(orderRaw, 10),
+    is_active: document.getElementById('mega_active').checked,
   };
-
   try {
     const res = await fetch('/axomai-content/settings/header/mega/save/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (data.success) {
       showToast(data.message, 'success');
-      setTimeout(() => location.reload(), 400);
+      setTimeout(() => location.reload(), 300);
     } else {
-      showToast(data.error || 'Failed to save tool', 'error');
+      showToast(data.error || 'Failed to save item', 'error');
     }
-  } catch (err) {
-    showToast('Error saving tool', 'error');
+  } catch {
+    showToast('Error saving menu item', 'error');
   }
 }
 
@@ -594,48 +1069,48 @@ async function toggleMegaItem(id, el) {
   try {
     const res = await fetch(`/axomai-content/settings/header/mega/toggle/${id}/`, {
       method: 'POST',
-      headers: { 'X-CSRFToken': csrftoken }
+      headers: { 'X-CSRFToken': csrftoken },
     });
     const data = await res.json();
     if (data.success) {
+      const loc = findNodeAndList(megaTree, id);
+      if (loc) loc.node.is_active = data.is_active;
+      renderTree('mega');
       showToast(data.message, 'success');
-      const badge = document.getElementById(`badge_mega_${id}`);
-      if (badge) {
-        if (data.is_active) {
-          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-          badge.innerText = 'Active (Visible)';
-        } else {
-          badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
-          badge.innerText = 'Inactive (Hidden)';
-        }
-      }
     } else {
       showToast(data.error || 'Failed to toggle', 'error');
       if (el) el.checked = !el.checked;
     }
-  } catch (err) {
+  } catch {
     showToast('Error toggling status', 'error');
     if (el) el.checked = !el.checked;
   }
 }
 
 async function deleteMegaItem(id) {
-  if (!confirm('Are you sure you want to delete this mega menu tool?')) return;
+  if (!confirm('Delete this menu item (and any child submenus inside it)?')) return;
   try {
     const res = await fetch(`/axomai-content/settings/header/mega/delete/${id}/`, {
       method: 'POST',
-      headers: { 'X-CSRFToken': csrftoken }
+      headers: { 'X-CSRFToken': csrftoken },
     });
     const data = await res.json();
     if (data.success) {
       showToast(data.message, 'success');
-      setTimeout(() => location.reload(), 400);
+      setTimeout(() => location.reload(), 300);
     } else {
       showToast(data.error || 'Failed to delete', 'error');
     }
-  } catch (err) {
-    showToast('Error deleting tool', 'error');
+  } catch {
+    showToast('Error deleting item', 'error');
   }
 }
+
+// ── Boot ──
+document.addEventListener('DOMContentLoaded', () => {
+  populateQuickPickSelect();
+  renderTree('nav');
+  renderTree('mega');
+});
 </script>
 {% endblock %}

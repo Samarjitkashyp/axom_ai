@@ -84,8 +84,16 @@ from .terms_defaults import (
     DEFAULT_TERMS_FAQS,
     ensure_terms_defaults,
 )
-from django.db.models import Q
+from django.db.models import Q, Max
 from datetime import timedelta
+from .menu_utils import (
+    build_menu_tree,
+    serialize_nav_item,
+    serialize_mega_item,
+    flatten_tree_options,
+    would_create_cycle,
+    apply_menu_reorder,
+)
 
 
 def _is_staff_or_admin(u):
@@ -1513,11 +1521,80 @@ def header_settings_page(request):
     header, _ = HeaderSettings.objects.get_or_create(id=1)
     nav_items = HeaderNavItem.objects.all().order_by('order', 'id')
     mega_items = HeaderMegaMenuItem.objects.all().order_by('order', 'id')
+    nav_tree = build_menu_tree(HeaderNavItem, serialize_nav_item, active_only=False, include_is_active=True)
+    mega_tree = build_menu_tree(HeaderMegaMenuItem, serialize_mega_item, active_only=False, include_is_active=True)
+    nav_parent_options = flatten_tree_options(nav_tree)
+    mega_parent_options = flatten_tree_options(mega_tree)
+
+    # Build quick-pick catalog of live site tools (Chat + 31+ Converters + AITool records)
+    quick_tools = [
+        {
+            'title': 'Axom AI Chat',
+            'description': 'Assamese & Multilingual AI Chat Workspace',
+            'icon_class': 'fa-solid fa-brain',
+            'color_class': 'text-fuchsia-400',
+            'url': 'https://chat.aiaxom.co.in/',
+            'category': 'AI Assistants',
+        },
+        {
+            'title': 'All AI Tools Directory',
+            'description': 'Browse all 34+ AI & PDF tools',
+            'icon_class': 'fa-solid fa-cubes',
+            'color_class': 'text-emerald-400',
+            'url': 'https://aiaxom.co.in/tools',
+            'category': 'AI Assistants',
+        },
+    ]
+    seen_urls = {t['url'] for t in quick_tools}
+
+    for slug, meta in CONVERTER_TOOLS_METADATA.items():
+        raw_icon = meta.get('icon', 'fa-solid fa-sparkles text-fuchsia-400')
+        parts = raw_icon.split()
+        color_cls = next((p for p in parts if p.startswith('text-')), 'text-fuchsia-400')
+        icon_cls = ' '.join(p for p in parts if not p.startswith('text-')) or 'fa-solid fa-sparkles'
+        t_url = meta.get('target_url') or f"https://aiaxom.co.in/tools/{slug}"
+        if t_url not in seen_urls:
+            seen_urls.add(t_url)
+            quick_tools.append({
+                'title': meta.get('name', slug),
+                'description': meta.get('subtitle', ''),
+                'icon_class': icon_cls,
+                'color_class': color_cls,
+                'url': t_url,
+                'category': meta.get('cat', 'Tools'),
+            })
+
+    try:
+        from superadmin.models import AITool
+        for t in AITool.objects.filter(is_active=True).order_by('order', 'id'):
+            t_url = t.custom_url or f"https://aiaxom.co.in/tools/{t.slug}"
+            if t_url.startswith('/'):
+                t_url = f"https://aiaxom.co.in{t_url}"
+            if t_url not in seen_urls:
+                seen_urls.add(t_url)
+                quick_tools.append({
+                    'title': t.name,
+                    'description': t.hint or (t.description[:100] if t.description else ''),
+                    'icon_class': t.icon_class or 'fa-solid fa-wand-magic-sparkles',
+                    'color_class': t.color_class or 'text-fuchsia-400',
+                    'url': t_url,
+                    'category': t.category or 'AI Tools',
+                })
+    except Exception:
+        pass
+
     return render(request, 'contentcms/header_settings.html', {
         'active': 'header_settings',
         'header': header,
         'nav_items': nav_items,
         'mega_items': mega_items,
+        'nav_tree': nav_tree,
+        'mega_tree': mega_tree,
+        'nav_tree_json': json.dumps(nav_tree),
+        'mega_tree_json': json.dumps(mega_tree),
+        'nav_parent_options': nav_parent_options,
+        'mega_parent_options': mega_parent_options,
+        'quick_tools_json': json.dumps(quick_tools),
     })
 
 
@@ -1577,6 +1654,27 @@ def upload_brand_logo_api(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+def _assign_parent_and_order(model_cls, item, data):
+    """Validate optional parent_id (preventing cycles) and assign order."""
+    if 'parent_id' in data:
+        raw_parent = data.get('parent_id')
+        parent_id = int(raw_parent) if raw_parent not in (None, '', 'null', 'root') else None
+        if parent_id is not None:
+            parent_obj = get_object_or_404(model_cls, id=parent_id)
+            if item.pk and would_create_cycle(model_cls, item.pk, parent_obj.id):
+                raise ValueError('Cannot nest a menu item inside itself or its descendant.')
+            item.parent = parent_obj
+        else:
+            item.parent = None
+
+    raw_order = data.get('order')
+    if raw_order not in (None, ''):
+        item.order = int(raw_order)
+    elif not item.pk:
+        max_order = model_cls.objects.filter(parent_id=item.parent_id).aggregate(m=Max('order'))['m']
+        item.order = (max_order + 1) if max_order is not None else 0
+
+
 @content_admin_required
 @require_POST
 def save_header_nav_item_api(request):
@@ -1585,16 +1683,29 @@ def save_header_nav_item_api(request):
         item_id = data.get('id')
         item = get_object_or_404(HeaderNavItem, id=item_id) if item_id else HeaderNavItem()
         title = data.get('title', '').strip()
-        url = data.get('url', '').strip()
-        if not title or not url:
-            return JsonResponse({'success': False, 'error': 'Title and URL are required.'}, status=400)
+        url = data.get('url', '').strip() or '#'
+        if not title:
+            return JsonResponse({'success': False, 'error': 'Title is required.'}, status=400)
+        _assign_parent_and_order(HeaderNavItem, item, data)
         item.title = title
         item.url = url
-        item.order = int(data.get('order', 0))
         if 'is_active' in data:
             item.is_active = bool(data.get('is_active'))
         item.save()
-        return JsonResponse({'success': True, 'message': 'Navigation item saved successfully!'})
+        return JsonResponse({'success': True, 'id': item.id, 'message': 'Navigation item saved successfully!'})
+    except ValueError as ve:
+        return JsonResponse({'success': False, 'error': str(ve)}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def reorder_header_nav_items_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        count = apply_menu_reorder(HeaderNavItem, data.get('items', []))
+        return JsonResponse({'success': True, 'updated': count, 'message': 'Navbar order & nesting saved!'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
@@ -1633,16 +1744,29 @@ def save_mega_menu_item_api(request):
         title = data.get('title', '').strip()
         if not title:
             return JsonResponse({'success': False, 'error': 'Title is required.'}, status=400)
+        _assign_parent_and_order(HeaderMegaMenuItem, item, data)
         item.title = title
         item.description = data.get('description', '').strip()
-        item.icon_class = data.get('icon_class', 'fa-solid fa-brain').strip()
-        item.color_class = data.get('color_class', 'text-fuchsia-400').strip()
-        item.url = data.get('url', 'https://aiaxom.co.in/tools').strip()
-        item.order = int(data.get('order', 0))
+        item.icon_class = data.get('icon_class', 'fa-solid fa-brain').strip() or 'fa-solid fa-brain'
+        item.color_class = data.get('color_class', 'text-fuchsia-400').strip() or 'text-fuchsia-400'
+        item.url = data.get('url', '').strip()
         if 'is_active' in data:
             item.is_active = bool(data.get('is_active'))
         item.save()
-        return JsonResponse({'success': True, 'message': 'Mega menu tool saved successfully!'})
+        return JsonResponse({'success': True, 'id': item.id, 'message': 'AI Tools menu item saved successfully!'})
+    except ValueError as ve:
+        return JsonResponse({'success': False, 'error': str(ve)}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@content_admin_required
+@require_POST
+def reorder_mega_menu_items_api(request):
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        count = apply_menu_reorder(HeaderMegaMenuItem, data.get('items', []))
+        return JsonResponse({'success': True, 'updated': count, 'message': 'AI Tools menu alignment saved!'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 

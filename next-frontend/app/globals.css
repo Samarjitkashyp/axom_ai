@@ -212,44 +212,55 @@ body.light-theme * {
   to { transform: translateX(-50%); }
 }
 
-/* Mega Menu */
-.nav-item:hover .mega-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: auto;
-}
-.mega-menu {
+/* Normal Multilevel Cascading Dropdown Menu */
+.nav-item > .nav-dropdown-wrap {
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(8px);
+  left: 0;
+  padding-top: 0.45rem;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.2s ease;
+  transform: translateY(6px);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
   pointer-events: none;
   z-index: 60;
 }
-.mega-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  transition: all 0.15s;
+.nav-item:hover > .nav-dropdown-wrap,
+.nav-item:focus-within > .nav-dropdown-wrap {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
 }
-.mega-item:hover {
-  background: rgba(52, 211, 153, 0.08);
+.dropdown-item-wrap {
+  position: relative;
 }
-.mega-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(245, 158, 11, 0.1));
-  border: 1px solid rgba(52, 211, 153, 0.2);
+.dropdown-item-wrap > .dropdown-submenu-wrap {
+  position: absolute;
+  top: -0.35rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(6px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
+  z-index: 70;
+}
+.dropdown-item-wrap > .dropdown-submenu-wrap.flip-left {
+  right: 100%;
+  left: auto;
+  padding-right: 0.4rem;
+  transform: translateX(-6px);
+}
+.dropdown-item-wrap > .dropdown-submenu-wrap:not(.flip-left) {
+  left: 100%;
+  padding-left: 0.4rem;
+}
+.dropdown-item-wrap:hover > .dropdown-submenu-wrap,
+.dropdown-item-wrap:focus-within > .dropdown-submenu-wrap {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 /* Drawer */

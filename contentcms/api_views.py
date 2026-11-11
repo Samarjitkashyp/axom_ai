@@ -19,6 +19,7 @@ from .usecases_defaults import ensure_usecases_defaults
 from .contact_defaults import ensure_contact_defaults
 from .privacy_defaults import ensure_privacy_defaults
 from .terms_defaults import ensure_terms_defaults
+from .menu_utils import build_menu_tree, serialize_nav_item, serialize_mega_item
 
 
 @require_GET
@@ -106,12 +107,10 @@ def cms_landing_api(request):
             'link': link,
         })
 
-    # Header Data
+    # Header Data (Hierarchical / Multilevel Tree)
     header_obj = HeaderSettings.objects.first()
-    header_nav = list(HeaderNavItem.objects.filter(is_active=True).order_by('order', 'id').values('id', 'title', 'url', 'order'))
-    header_mega = list(HeaderMegaMenuItem.objects.filter(is_active=True).order_by('order', 'id').values(
-        'id', 'title', 'description', 'icon_class', 'color_class', 'url', 'order'
-    ))
+    header_nav = build_menu_tree(HeaderNavItem, serialize_nav_item, active_only=True)
+    header_mega = build_menu_tree(HeaderMegaMenuItem, serialize_mega_item, active_only=True)
 
     # Footer Data
     footer_obj = FooterSettings.objects.first()

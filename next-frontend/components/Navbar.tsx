@@ -20,15 +20,32 @@ import {
   Users,
   Crown,
   ChevronDown,
+  ChevronRight,
   HelpCircle,
   Newspaper,
   Mail,
   LogOut,
   User as UserIcon,
   Loader2,
-  Cpu
+  Cpu,
+  Folder,
+  FolderOpen,
+  QrCode,
+  Video,
+  Scissors,
+  Lock,
+  Palette,
+  Minimize2,
+  Fuel,
+  BookOpen,
+  Search,
+  Mic,
+  Terminal,
+  Boxes,
+  Layers,
+  Link2
 } from 'lucide-react';
-import { HeaderData } from '@/lib/api';
+import { HeaderData, HeaderMegaMenuItem, HeaderNavItem } from '@/lib/api';
 
 const GOOGLE_CLIENT_ID = "514662966676-fo4atqrjblkn8sadd2t0enhqi5mch5aq.apps.googleusercontent.com";
 
@@ -65,31 +82,358 @@ function getOrCreateDeviceId(): string {
   }
 }
 
-const DEFAULT_TOOLS = [
-  { icon: Bot, title: 'AI Chat', desc: 'ChatGPT-style Assamese chat', color: 'text-fuchsia-700 dark:text-fuchsia-400', url: 'https://chat.aiaxom.co.in/' },
-  { icon: PenTool, title: 'AI Writer', desc: 'Emails, posts, essays', color: 'text-purple-700 dark:text-purple-400', url: '/tools' },
-  { icon: ImageIcon, title: 'Image Generator', desc: 'Native Axom Multimodal Engine', color: 'text-pink-700 dark:text-pink-400', url: '/tools' },
-  { icon: FileText, title: 'Document Analyzer', desc: 'Summarize PDFs & DOCX', color: 'text-blue-700 dark:text-blue-400', url: '/tools' },
-  { icon: Code, title: 'Code Assistant', desc: 'Write, debug, explain code', color: 'text-indigo-700 dark:text-indigo-400', url: '/tools' },
-  { icon: Globe, title: 'Web Search', desc: 'Real-time answers via Tavily', color: 'text-amber-700 dark:text-amber-400', url: '/tools' },
-  { icon: FileCode, title: 'PDF Tools', desc: 'Merge / split / OCR / edit', color: 'text-red-700 dark:text-red-400', url: '/tools' },
-  { icon: BarChart3, title: 'Data Analyzer', desc: 'Excel & CSV insights', color: 'text-cyan-700 dark:text-cyan-400', url: '/tools' },
-  { icon: Languages, title: 'Translator', desc: 'IndicTrans2 Assamese', color: 'text-emerald-700 dark:text-emerald-400', url: '/tools' },
+interface DropdownNode {
+  id: number | string;
+  icon: React.ElementType;
+  iconClass?: string;
+  title: string;
+  desc: string;
+  color: string;
+  url: string;
+  children: DropdownNode[];
+}
+
+const DEFAULT_TOOLS: HeaderMegaMenuItem[] = [
+  {
+    id: 9001,
+    title: 'AI Assistants',
+    description: 'Chat, notes & PDF intelligence',
+    icon_class: 'fa-solid fa-brain',
+    color_class: 'text-emerald-600 dark:text-emerald-400',
+    url: '#',
+    order: 1,
+    children: [
+      { id: 9011, title: 'Axom AI Chat', description: 'Pure Assamese AI chat', icon_class: 'fa-solid fa-robot', color_class: 'text-fuchsia-500', url: 'https://chat.aiaxom.co.in/', order: 1 },
+      { id: 9012, title: 'AI Notes Generator', description: 'Smart study & lecture notes', icon_class: 'fa-solid fa-pen-nib', color_class: 'text-purple-500', url: '/tools/ai-notes-generator', order: 2 },
+      { id: 9013, title: 'Voice Notes Generator', description: 'Assamese & English voice notes', icon_class: 'fa-solid fa-microphone-lines', color_class: 'text-amber-500', url: '/tools/voice-notes-generator', order: 3 },
+      { id: 9014, title: 'Chat with PDF', description: 'Ask questions to PDFs', icon_class: 'fa-solid fa-file-pdf', color_class: 'text-blue-500', url: '/tools/chat-with-pdf', order: 4 },
+    ],
+  },
+  {
+    id: 9002,
+    title: 'PDF & Document Tools',
+    description: 'Edit, merge & convert PDFs',
+    icon_class: 'fa-solid fa-file-pdf',
+    color_class: 'text-rose-600 dark:text-rose-400',
+    url: '#',
+    order: 2,
+    children: [
+      { id: 9021, title: 'PDF Editor', description: 'Annotate & edit PDF pages', icon_class: 'fa-solid fa-pen-nib', color_class: 'text-rose-500', url: '/tools/edit-pdf', order: 1 },
+      { id: 9022, title: 'Merge PDF', description: 'Combine multiple PDFs', icon_class: 'fa-solid fa-layer-group', color_class: 'text-pink-500', url: '/tools/merge-pdf', order: 2 },
+      {
+        id: 9023,
+        title: 'PDF Converters',
+        description: 'Word, JPG, PNG & Office',
+        icon_class: 'fa-solid fa-folder-open',
+        color_class: 'text-emerald-500',
+        url: '#',
+        order: 3,
+        children: [
+          { id: 9031, title: 'Word to PDF', description: 'DOCX to crisp PDF', icon_class: 'fa-solid fa-file-word', color_class: 'text-blue-500', url: '/tools/word-to-pdf', order: 1 },
+          { id: 9032, title: 'PDF to Word', description: 'Editable DOCX extract', icon_class: 'fa-solid fa-file-word', color_class: 'text-indigo-500', url: '/tools/pdf-to-word', order: 2 },
+          { id: 9033, title: 'PDF to JPG', description: 'High-res image export', icon_class: 'fa-solid fa-image', color_class: 'text-amber-500', url: '/tools/pdf-to-jpg', order: 3 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 9003,
+    title: 'Image, Video & Utilities',
+    description: 'Media, QR & design studio',
+    icon_class: 'fa-solid fa-wand-magic-sparkles',
+    color_class: 'text-purple-600 dark:text-purple-400',
+    url: '#',
+    order: 3,
+    children: [
+      { id: 9041, title: 'Generate Image', description: 'AI image studio', icon_class: 'fa-solid fa-wand-magic-sparkles', color_class: 'text-pink-500', url: '/tools/ai-image-generator', order: 1 },
+      { id: 9042, title: 'Background Remover', description: 'Instant clean cutout', icon_class: 'fa-solid fa-scissors', color_class: 'text-purple-500', url: '/tools/background-remover', order: 2 },
+      { id: 9043, title: 'QR Code Generator', description: 'UPI, URL, WiFi QR codes', icon_class: 'fa-solid fa-qrcode', color_class: 'text-amber-500', url: '/tools/qr-code-generator', order: 3 },
+      { id: 9044, title: 'Video Compressor', description: 'Reduce MP4 size cleanly', icon_class: 'fa-solid fa-video', color_class: 'text-sky-500', url: '/tools/video-compressor', order: 4 },
+    ],
+  },
 ];
 
 const ICON_MAP: Record<string, React.ElementType> = {
   'fa-solid fa-brain': Bot,
   'fa-solid fa-robot': Bot,
   'fa-solid fa-pen-nib': PenTool,
-  'fa-solid fa-wand-magic-sparkles': ImageIcon,
+  'fa-solid fa-wand-magic-sparkles': Sparkles,
   'fa-solid fa-file-pdf': FileText,
-  'fa-solid fa-code': Code,
-  'fa-solid fa-globe': Globe,
+  'fa-solid fa-file-word': FileText,
+  'fa-solid fa-file-excel': BarChart3,
+  'fa-solid fa-file-powerpoint': FileCode,
+  'fa-solid fa-file-image': ImageIcon,
   'fa-solid fa-file-contract': FileCode,
+  'fa-solid fa-code': Code,
+  'fa-solid fa-terminal': Terminal,
+  'fa-solid fa-globe': Globe,
+  'fa-solid fa-magnifying-glass': Search,
   'fa-solid fa-chart-pie': BarChart3,
   'fa-solid fa-language': Languages,
-  'fa-solid fa-microphone-lines': Sparkles,
+  'fa-solid fa-microphone-lines': Mic,
+  'fa-solid fa-folder': Folder,
+  'fa-solid fa-folder-open': FolderOpen,
+  'fa-solid fa-folder-tree': FolderOpen,
+  'fa-solid fa-sitemap': Layers,
+  'fa-solid fa-layer-group': Layers,
+  'fa-solid fa-cubes': Boxes,
+  'fa-solid fa-qrcode': QrCode,
+  'fa-solid fa-video': Video,
+  'fa-solid fa-image': ImageIcon,
+  'fa-solid fa-images': ImageIcon,
+  'fa-solid fa-scissors': Scissors,
+  'fa-solid fa-lock': Lock,
+  'fa-solid fa-palette': Palette,
+  'fa-solid fa-compress': Minimize2,
+  'fa-solid fa-gas-pump': Fuel,
+  'fa-solid fa-book-open': BookOpen,
+  'fa-solid fa-link': Link2,
+  'fa-solid fa-sparkles': Sparkles,
 };
+
+function resolveMenuIcon(iconClass?: string, hasChildren?: boolean): React.ElementType {
+  if (iconClass) {
+    const cleanKey = iconClass
+      .split(/\s+/)
+      .filter((t) => !t.startsWith('text-'))
+      .join(' ')
+      .trim();
+    if (ICON_MAP[cleanKey]) return ICON_MAP[cleanKey];
+  }
+  return hasChildren ? FolderOpen : Bot;
+}
+
+function normalizeToolNodes(items?: HeaderMegaMenuItem[]): DropdownNode[] {
+  if (!items || items.length === 0) return [];
+  return items.map((m) => {
+    const children = normalizeToolNodes(m.children);
+    return {
+      id: m.id,
+      icon: resolveMenuIcon(m.icon_class, children.length > 0),
+      iconClass: m.icon_class,
+      title: m.title,
+      desc: m.description || '',
+      color: m.color_class || 'text-[#059669] dark:text-[#34d399]',
+      url: m.url || '',
+      children,
+    };
+  });
+}
+
+function normalizeNavChildren(items?: HeaderNavItem[]): DropdownNode[] {
+  if (!items || items.length === 0) return [];
+  return items.map((n) => {
+    const children = normalizeNavChildren(n.children);
+    return {
+      id: n.id,
+      icon: children.length > 0 ? FolderOpen : Link2,
+      title: n.title,
+      desc: '',
+      color: 'text-[#059669] dark:text-[#34d399]',
+      url: n.url || '',
+      children,
+    };
+  });
+}
+
+function DropdownRow({
+  item,
+  resolveUrl,
+}: {
+  item: DropdownNode;
+  resolveUrl: (u: string) => string;
+}) {
+  const [flipLeft, setFlipLeft] = useState(false);
+  const hasChildren = item.children && item.children.length > 0;
+  const IconComponent = item.icon;
+  const trimmedUrl = (item.url || '').trim();
+  const isNavigable = trimmedUrl !== '' && trimmedUrl !== '#';
+  const targetUrl = isNavigable ? resolveUrl(trimmedUrl) : '';
+  const isExternal = targetUrl.startsWith('http');
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!hasChildren || typeof window === 'undefined') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    setFlipLeft(rect.right + 275 > window.innerWidth);
+  };
+
+  const rowInner = (
+    <>
+      <div className="w-7 h-7 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc]/90 dark:border-[#1f2f46] flex items-center justify-center shrink-0 text-[#059669] dark:text-[#34d399] group-hover/row:bg-[#059669] group-hover/row:text-white dark:group-hover/row:bg-[#10b981] dark:group-hover/row:text-[#022c22] transition-colors">
+        <IconComponent className="w-3.5 h-3.5" />
+      </div>
+      <div className="min-w-0 flex-1 text-left">
+        <div className="text-[13px] font-bold text-[#022c22] dark:text-white leading-tight truncate">
+          {item.title}
+        </div>
+        {item.desc && (
+          <div className="text-[11px] text-[#5b6b66] dark:text-[#94a3b8] leading-tight truncate mt-0.5">
+            {item.desc}
+          </div>
+        )}
+      </div>
+      {hasChildren && (
+        <ChevronRight className="w-3.5 h-3.5 text-[#059669] dark:text-[#34d399] opacity-75 group-hover/row:opacity-100 group-hover/row:translate-x-0.5 transition shrink-0" />
+      )}
+    </>
+  );
+
+  const rowClassName =
+    'group/row w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition-colors';
+
+  return (
+    <div className="dropdown-item-wrap px-1.5" onMouseEnter={handleMouseEnter}>
+      {!isNavigable ? (
+        <button type="button" className={`${rowClassName} cursor-default`}>
+          {rowInner}
+        </button>
+      ) : isExternal ? (
+        <a
+          href={targetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={rowClassName}
+        >
+          {rowInner}
+        </a>
+      ) : (
+        <Link href={targetUrl} className={rowClassName}>
+          {rowInner}
+        </Link>
+      )}
+
+      {hasChildren && (
+        <div className={`dropdown-submenu-wrap ${flipLeft ? 'flip-left' : ''}`}>
+          <DropdownMenuBranch items={item.children} resolveUrl={resolveUrl} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DropdownMenuBranch({
+  items,
+  resolveUrl,
+  showViewAllFooter = false,
+}: {
+  items: DropdownNode[];
+  resolveUrl: (u: string) => string;
+  showViewAllFooter?: boolean;
+}) {
+  return (
+    <div className="w-[264px] py-1.5 bg-white/95 dark:bg-[#0b1220]/98 backdrop-blur-xl border border-[#cfe9dc] dark:border-[#1f2f46] rounded-2xl shadow-[0_18px_45px_rgba(5,150,105,0.16)] dark:shadow-[0_22px_55px_rgba(0,0,0,0.72)]">
+      <div className="space-y-0.5 max-h-[72vh] overflow-y-visible">
+        {items.map((node) => (
+          <DropdownRow key={node.id} item={node} resolveUrl={resolveUrl} />
+        ))}
+      </div>
+      {showViewAllFooter && (
+        <div className="border-t border-[#cfe9dc] dark:border-[#1f2f46] mt-1.5 pt-1.5 px-3 pb-1">
+          <Link
+            href={resolveUrl('/tools')}
+            className="text-xs text-[#059669] dark:text-[#34d399] hover:text-[#10b981] font-bold inline-flex items-center gap-1 hover:gap-2 transition-all py-0.5"
+          >
+            <span>All AI Tools</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileMenuBranch({
+  items,
+  prefix,
+  depth,
+  expandedIds,
+  onToggleExpand,
+  resolveUrl,
+  onCloseDrawer,
+}: {
+  items: DropdownNode[];
+  prefix: string;
+  depth: number;
+  expandedIds: Record<string, boolean>;
+  onToggleExpand: (key: string) => void;
+  resolveUrl: (u: string) => string;
+  onCloseDrawer: () => void;
+}) {
+  return (
+    <div className={`space-y-0.5 ${depth > 0 ? 'pl-3 ml-3 border-l border-[#cfe9dc] dark:border-[#1f2f46] mt-1' : ''}`}>
+      {items.map((node) => {
+        const key = `${prefix}_${node.id}`;
+        const hasChildren = node.children && node.children.length > 0;
+        const isExpanded = !!expandedIds[key];
+        const IconComponent = node.icon;
+        const trimmedUrl = (node.url || '').trim();
+        const isNavigable = trimmedUrl !== '' && trimmedUrl !== '#';
+        const targetUrl = isNavigable ? resolveUrl(trimmedUrl) : '';
+        const isExternal = targetUrl.startsWith('http');
+
+        return (
+          <div key={key}>
+            <div className="flex items-center gap-1">
+              {!isNavigable ? (
+                <button
+                  type="button"
+                  onClick={() => hasChildren && onToggleExpand(key)}
+                  className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
+                >
+                  <IconComponent className="w-4 h-4 text-[#059669] dark:text-[#34d399] shrink-0" />
+                  <span className="truncate">{node.title}</span>
+                </button>
+              ) : isExternal ? (
+                <a
+                  href={targetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={onCloseDrawer}
+                  className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
+                >
+                  <IconComponent className="w-4 h-4 text-[#059669] dark:text-[#34d399] shrink-0" />
+                  <span className="truncate">{node.title}</span>
+                </a>
+              ) : (
+                <Link
+                  href={targetUrl}
+                  onClick={onCloseDrawer}
+                  className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
+                >
+                  <IconComponent className="w-4 h-4 text-[#059669] dark:text-[#34d399] shrink-0" />
+                  <span className="truncate">{node.title}</span>
+                </Link>
+              )}
+
+              {hasChildren && (
+                <button
+                  type="button"
+                  onClick={() => onToggleExpand(key)}
+                  aria-label={`Toggle ${node.title}`}
+                  className="w-8 h-8 rounded-lg grid place-items-center text-[#059669] dark:text-[#34d399] hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition shrink-0"
+                >
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                </button>
+              )}
+            </div>
+
+            {hasChildren && isExpanded && (
+              <MobileMenuBranch
+                items={node.children}
+                prefix={key}
+                depth={depth + 1}
+                expandedIds={expandedIds}
+                onToggleExpand={onToggleExpand}
+                resolveUrl={resolveUrl}
+                onCloseDrawer={onCloseDrawer}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 interface NavbarProps {
   header?: HeaderData;
@@ -116,6 +460,11 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   const [header, setHeader] = useState<HeaderData | undefined>(initialHeader);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState<Record<string, boolean>>({});
+
+  const toggleMobileBranch = useCallback((key: string) => {
+    setMobileExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
 
   // Authentication & User state
   const [user, setUser] = useState<UserState | null>(null);
@@ -341,7 +690,7 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
       setHeader(initialHeader);
     } else {
       // Automatically sync with CMS API on client pages (e.g. /tools)
-      fetch('/api/cms/landing/')
+      fetch('/api/cms/landing/', { cache: 'no-store' })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data?.header) {
@@ -426,32 +775,33 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   const hasOurModels = initialNavItems.some((i: any) => i.url === '/our-models' || i.title?.toLowerCase().includes('model'));
   const rawNavItems = hasOurModels ? initialNavItems : [
     ...initialNavItems.slice(0, 2),
-    { id: 99, title: 'Our Models', url: '/our-models', order: 2.5 },
+    { id: -101, title: 'Our Models', url: '/our-models', order: 2.5 },
     ...initialNavItems.slice(2),
   ];
 
   const mappedNavItems = rawNavItems.map((item) => {
+    const safeUrl = item.url || '';
     if (
-      item.url === '/#usecases' ||
-      item.url === '#usecases' ||
-      item.url === '/#use-cases' ||
-      (item.title.toLowerCase().includes('use case') && item.url.includes('usecase'))
+      safeUrl === '/#usecases' ||
+      safeUrl === '#usecases' ||
+      safeUrl === '/#use-cases' ||
+      (item.title.toLowerCase().includes('use case') && safeUrl.includes('usecase'))
     ) {
       return { ...item, url: '/use-cases' };
     }
     if (
-      item.url === '/#pricing' ||
-      item.url === '#pricing' ||
-      (item.title.toLowerCase().includes('pricing') && item.url.includes('pricing'))
+      safeUrl === '/#pricing' ||
+      safeUrl === '#pricing' ||
+      (item.title.toLowerCase().includes('pricing') && safeUrl.includes('pricing'))
     ) {
       return { ...item, url: '/pricing' };
     }
     if (
-      item.url === '/#contact' ||
-      item.url === '#contact' ||
-      item.url === 'mailto:samarjitkashyp@aiaxom.co.in' ||
-      item.url === 'mailto:samarjitkashyp@gmail.com' ||
-      item.url === 'mailto:support@aiaxom.co.in'
+      safeUrl === '/#contact' ||
+      safeUrl === '#contact' ||
+      safeUrl === 'mailto:samarjitkashyp@aiaxom.co.in' ||
+      safeUrl === 'mailto:samarjitkashyp@gmail.com' ||
+      safeUrl === 'mailto:support@aiaxom.co.in'
     ) {
       return { ...item, url: '/contact' };
     }
@@ -464,26 +814,13 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
   );
   const navItems = hasContact
     ? mappedNavItems
-    : [...mappedNavItems, { id: 99, title: 'Contact Us', url: '/contact', order: 99 }];
+    : [...mappedNavItems, { id: -102, title: 'Contact Us', url: '/contact', order: 99 }];
 
-  // Dynamic Mega Menu Items
-  const megaItems = header?.mega_menu_items && header.mega_menu_items.length > 0
-    ? header.mega_menu_items.map((m) => ({
-        icon: ICON_MAP[m.icon_class] || Bot,
-        iconClass: m.icon_class,
-        title: m.title,
-        desc: m.description,
-        color: m.color_class || 'text-fuchsia-700 dark:text-fuchsia-400',
-        url: m.url || 'https://aiaxom.co.in/tools',
-      }))
-    : DEFAULT_TOOLS.map((t) => ({
-        icon: t.icon,
-        iconClass: '',
-        title: t.title,
-        desc: t.desc,
-        color: t.color,
-        url: t.url,
-      }));
+  // Dynamic Multilevel Dropdown Items (for AI Tools)
+  const rawToolsTree = header?.mega_menu_items && header.mega_menu_items.length > 0
+    ? header.mega_menu_items
+    : DEFAULT_TOOLS;
+  const megaItems = normalizeToolNodes(rawToolsTree);
 
   return (
     <>
@@ -520,86 +857,60 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center gap-1 text-[0.92rem]">
             {navItems.map((item) => {
-              const isMega = item.title.toLowerCase().includes('tool') || item.url === '/#tools';
+              const isToolsMenu = item.title.toLowerCase().includes('tool') || item.url === '/#tools';
+              const itemSubtree = isToolsMenu
+                ? megaItems
+                : normalizeNavChildren((item as HeaderNavItem).children);
+              const hasDropdown = itemSubtree.length > 0;
 
-              if (isMega) {
-                return (
-                  <div key={item.id} className="nav-item relative">
-                    <Link
-                      href={item.url}
-                      className="px-3.5 py-1.5 rounded-full text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] font-bold transition inline-flex items-center gap-1.5"
-                    >
-                      <span>{item.title}</span>
-                      <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-                    </Link>
-                    <div className="mega-menu w-[660px] p-3.5 bg-[linear-gradient(145deg,#ffffff_0%,#f0fdf4_45%,#e1f8eb_100%)] dark:bg-[linear-gradient(145deg,#0b1220_0%,#0f172a_50%,#111c2e_100%)] border border-[#cfe9dc] dark:border-[#1f2f46] rounded-2xl shadow-[0_22px_60px_rgba(5,150,105,0.18)] dark:shadow-[0_22px_60px_rgba(0,0,0,0.65)] mt-2">
-                      <div className="text-[10px] uppercase tracking-wider text-[#059669] dark:text-[#34d399] font-extrabold px-3 pt-1.5 pb-2">
-                        Explore AI Tools
-                      </div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {megaItems.map((m, idx) => {
-                          const IconComponent = m.icon;
-                          const targetMegaUrl = resolveUrl(m.url);
-                          const isMegaExternal = targetMegaUrl.startsWith('http');
-                          const itemContent = (
-                            <>
-                              <div className="mega-icon w-9 h-9 rounded-xl bg-white/90 dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] flex items-center justify-center shrink-0 text-[#059669] dark:text-[#34d399] shadow-xs">
-                                <IconComponent className="w-4 h-4" />
-                              </div>
-                              <div>
-                                <div className="text-sm font-bold text-[#022c22] dark:text-white leading-snug">{m.title}</div>
-                                <div className="text-xs text-[#5b6b66] dark:text-[#94a3b8] leading-tight mt-0.5">{m.desc}</div>
-                              </div>
-                            </>
-                          );
-                          return isMegaExternal ? (
-                            <a
-                              key={idx}
-                              href={targetMegaUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mega-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/80 dark:hover:bg-white/5 border border-transparent hover:border-[#cfe9dc]/80 dark:hover:border-[#1f2f46] transition-all"
-                            >
-                              {itemContent}
-                            </a>
-                          ) : (
-                            <Link
-                              key={idx}
-                              href={targetMegaUrl}
-                              className="mega-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/80 dark:hover:bg-white/5 border border-transparent hover:border-[#cfe9dc]/80 dark:hover:border-[#1f2f46] transition-all"
-                            >
-                              {itemContent}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                      <div className="border-t border-[#cfe9dc] dark:border-[#1f2f46] mt-2.5 pt-2.5 px-3">
-                        <Link
-                          href={resolveUrl('/tools')}
-                          className="text-xs text-[#059669] dark:text-[#34d399] hover:text-[#10b981] font-bold inline-flex items-center gap-1 hover:gap-2 transition-all"
-                        >
-                          Launch all tools in Axom AI <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              const targetUrl = resolveUrl(item.url);
+              const rawNavUrl = (item.url || '').trim();
+              const isNavigable = rawNavUrl !== '' && rawNavUrl !== '#';
+              const targetUrl = isNavigable ? resolveUrl(rawNavUrl) : '#';
               const isExternal = targetUrl.startsWith('http');
 
               // Determine accurate active state based on current pathname
               const cleanTarget = targetUrl.replace(/\/+$/, '');
               const cleanPath = (pathname || '').replace(/\/+$/, '');
               const isActive =
+                isNavigable &&
                 cleanTarget !== '' &&
                 cleanTarget !== '#' &&
                 (cleanPath === cleanTarget || (cleanTarget !== '/' && cleanPath.startsWith(cleanTarget + '/')));
 
               const linkClass = isActive
-                ? "px-3.5 py-1.5 rounded-full text-[#059669] dark:text-[#34d399] font-extrabold bg-[#ecfdf5] dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] shadow-sm transition"
-                : "px-3.5 py-1.5 rounded-full text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] font-bold transition";
+                ? 'px-3.5 py-1.5 rounded-full text-[#059669] dark:text-[#34d399] font-extrabold bg-[#ecfdf5] dark:bg-[#111c2e] border border-[#cfe9dc] dark:border-[#1f2f46] shadow-sm transition inline-flex items-center gap-1.5'
+                : 'px-3.5 py-1.5 rounded-full text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] font-bold transition inline-flex items-center gap-1.5';
+
+              if (hasDropdown) {
+                return (
+                  <div key={item.id} className="nav-item relative">
+                    {!isNavigable ? (
+                      <button type="button" className={linkClass}>
+                        <span>{item.title}</span>
+                        <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                      </button>
+                    ) : isExternal ? (
+                      <a href={targetUrl} className={linkClass}>
+                        <span>{item.title}</span>
+                        <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                      </a>
+                    ) : (
+                      <Link href={targetUrl} className={linkClass}>
+                        <span>{item.title}</span>
+                        <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                      </Link>
+                    )}
+
+                    <div className="nav-dropdown-wrap">
+                      <DropdownMenuBranch
+                        items={itemSubtree}
+                        resolveUrl={resolveUrl}
+                        showViewAllFooter={isToolsMenu}
+                      />
+                    </div>
+                  </div>
+                );
+              }
 
               return isExternal ? (
                 <a
@@ -682,11 +993,19 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
         {/* Navigation Items */}
         <div className="p-3 space-y-1 text-sm">
           {navItems.map((it) => {
+            const isToolsMenu = it.title.toLowerCase().includes('tool') || it.url === '/#tools';
+            const subItems = isToolsMenu
+              ? megaItems
+              : normalizeNavChildren((it as HeaderNavItem).children);
+            const hasSub = subItems.length > 0;
+            const branchKey = `mob_root_${it.id}`;
+            const isExpanded = !!mobileExpanded[branchKey];
+
             const IconComponent = it.title.toLowerCase().includes('about')
               ? HelpCircle
               : it.title.toLowerCase().includes('tool')
               ? Bot
-              : (it.title.toLowerCase().includes('model') || it.url.includes('model'))
+              : (it.title.toLowerCase().includes('model') || (it.url || '').includes('model'))
               ? Cpu
               : it.title.toLowerCase().includes('case')
               ? Users
@@ -700,43 +1019,84 @@ export default function Navbar({ header: initialHeader, onBackToChat }: NavbarPr
               ? Mail
               : Sparkles;
 
-            const targetUrl = resolveUrl(it.url);
+            const rawUrl = (it.url || '').trim();
+            const isNavigable = rawUrl !== '' && rawUrl !== '#';
+            const targetUrl = isNavigable ? resolveUrl(rawUrl) : '#';
             const isExternal = targetUrl.startsWith('http');
             const cleanTarget = targetUrl.replace(/\/+$/, '');
             const cleanPath = (pathname || '').replace(/\/+$/, '');
             const isDrawerActive =
+              isNavigable &&
               cleanTarget !== '' &&
               cleanTarget !== '#' &&
               (cleanPath === cleanTarget || (cleanTarget !== '/' && cleanPath.startsWith(cleanTarget + '/')));
 
             const drawerItemClass = isDrawerActive
-              ? "flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold bg-[#ecfdf5] dark:bg-[#111c2e] text-[#059669] dark:text-[#34d399] border border-[#cfe9dc] dark:border-[#1f2f46] transition"
-              : "flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition";
+              ? "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold bg-[#ecfdf5] dark:bg-[#111c2e] text-[#059669] dark:text-[#34d399] border border-[#cfe9dc] dark:border-[#1f2f46] transition"
+              : "flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition";
 
-            return isExternal ? (
-              <a
-                key={it.id}
-                href={targetUrl}
-                onClick={() => setOpen(false)}
-                className={drawerItemClass}
-              >
-                <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center shrink-0 text-[#059669] dark:text-[#34d399]">
-                  <IconComponent className="w-4 h-4" />
+            return (
+              <div key={it.id}>
+                <div className="flex items-center gap-1">
+                  {!isNavigable ? (
+                    <button
+                      type="button"
+                      onClick={() => hasSub && toggleMobileBranch(branchKey)}
+                      className={drawerItemClass}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center shrink-0 text-[#059669] dark:text-[#34d399]">
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      <span>{it.title}</span>
+                    </button>
+                  ) : isExternal ? (
+                    <a
+                      href={targetUrl}
+                      onClick={() => setOpen(false)}
+                      className={drawerItemClass}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center shrink-0 text-[#059669] dark:text-[#34d399]">
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      <span>{it.title}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={targetUrl}
+                      onClick={() => setOpen(false)}
+                      className={drawerItemClass}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center shrink-0 text-[#059669] dark:text-[#34d399]">
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      <span>{it.title}</span>
+                    </Link>
+                  )}
+
+                  {hasSub && (
+                    <button
+                      type="button"
+                      onClick={() => toggleMobileBranch(branchKey)}
+                      aria-label={`Toggle ${it.title} submenu`}
+                      className="w-9 h-9 rounded-xl grid place-items-center text-[#059669] dark:text-[#34d399] hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition shrink-0"
+                    >
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                    </button>
+                  )}
                 </div>
-                <span>{it.title}</span>
-              </a>
-            ) : (
-              <Link
-                key={it.id}
-                href={targetUrl}
-                onClick={() => setOpen(false)}
-                className={drawerItemClass}
-              >
-                <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc] dark:border-[#1f2f46] grid place-items-center shrink-0 text-[#059669] dark:text-[#34d399]">
-                  <IconComponent className="w-4 h-4" />
-                </div>
-                <span>{it.title}</span>
-              </Link>
+
+                {hasSub && isExpanded && (
+                  <MobileMenuBranch
+                    items={subItems}
+                    prefix={branchKey}
+                    depth={1}
+                    expandedIds={mobileExpanded}
+                    onToggleExpand={toggleMobileBranch}
+                    resolveUrl={resolveUrl}
+                    onCloseDrawer={() => setOpen(false)}
+                  />
+                )}
+              </div>
             );
           })}
         </div>

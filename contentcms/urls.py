@@ -133,9 +133,11 @@ urlpatterns = [
     path('settings/header/save/', views.save_header_settings_api, name='save_header_settings_api'),
     path('settings/header/upload-logo/', views.upload_brand_logo_api, name='upload_brand_logo_api'),
     path('settings/header/nav/save/', views.save_header_nav_item_api, name='save_header_nav_item_api'),
+    path('settings/header/nav/reorder/', views.reorder_header_nav_items_api, name='reorder_header_nav_items_api'),
     path('settings/header/nav/delete/<int:item_id>/', views.delete_header_nav_item_api, name='delete_header_nav_item_api'),
     path('settings/header/nav/toggle/<int:item_id>/', views.toggle_header_nav_item_api, name='toggle_header_nav_item_api'),
     path('settings/header/mega/save/', views.save_mega_menu_item_api, name='save_mega_menu_item_api'),
+    path('settings/header/mega/reorder/', views.reorder_mega_menu_items_api, name='reorder_mega_menu_items_api'),
     path('settings/header/mega/delete/<int:item_id>/', views.delete_mega_menu_item_api, name='delete_mega_menu_item_api'),
     path('settings/header/mega/toggle/<int:item_id>/', views.toggle_mega_menu_item_api, name='toggle_mega_menu_item_api'),
     # Footer Settings
