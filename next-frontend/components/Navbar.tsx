@@ -245,7 +245,6 @@ function DropdownRow({
 }) {
   const [flipLeft, setFlipLeft] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
-  const IconComponent = item.icon;
   const trimmedUrl = (item.url || '').trim();
   const isNavigable = trimmedUrl !== '' && trimmedUrl !== '#';
   const targetUrl = isNavigable ? resolveUrl(trimmedUrl) : '';
@@ -254,16 +253,13 @@ function DropdownRow({
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!hasChildren || typeof window === 'undefined') return;
     const rect = e.currentTarget.getBoundingClientRect();
-    setFlipLeft(rect.right + 275 > window.innerWidth);
+    setFlipLeft(rect.right + 250 > window.innerWidth);
   };
 
   const rowInner = (
     <>
-      <div className="w-7 h-7 rounded-lg bg-[#ecfdf5] dark:bg-[#0f172a] border border-[#cfe9dc]/90 dark:border-[#1f2f46] flex items-center justify-center shrink-0 text-[#059669] dark:text-[#34d399] group-hover/row:bg-[#059669] group-hover/row:text-white dark:group-hover/row:bg-[#10b981] dark:group-hover/row:text-[#022c22] transition-colors">
-        <IconComponent className="w-3.5 h-3.5" />
-      </div>
       <div className="min-w-0 flex-1 text-left">
-        <div className="text-[13px] font-bold text-[#022c22] dark:text-white leading-tight truncate">
+        <div className="text-[13px] font-semibold text-[#022c22] dark:text-white leading-tight truncate group-hover/row:text-[#059669] dark:group-hover/row:text-[#34d399] transition-colors">
           {item.title}
         </div>
         {item.desc && (
@@ -273,13 +269,13 @@ function DropdownRow({
         )}
       </div>
       {hasChildren && (
-        <ChevronRight className="w-3.5 h-3.5 text-[#059669] dark:text-[#34d399] opacity-75 group-hover/row:opacity-100 group-hover/row:translate-x-0.5 transition shrink-0" />
+        <ChevronRight className="w-3.5 h-3.5 text-[#059669] dark:text-[#34d399] opacity-75 group-hover/row:opacity-100 group-hover/row:translate-x-0.5 transition shrink-0 ml-1.5" />
       )}
     </>
   );
 
   const rowClassName =
-    'group/row w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition-colors';
+    'group/row w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition-colors';
 
   return (
     <div className="dropdown-item-wrap px-1.5" onMouseEnter={handleMouseEnter}>
@@ -321,7 +317,7 @@ function DropdownMenuBranch({
   showViewAllFooter?: boolean;
 }) {
   return (
-    <div className="w-[264px] py-1.5 bg-white/95 dark:bg-[#0b1220]/98 backdrop-blur-xl border border-[#cfe9dc] dark:border-[#1f2f46] rounded-2xl shadow-[0_18px_45px_rgba(5,150,105,0.16)] dark:shadow-[0_22px_55px_rgba(0,0,0,0.72)]">
+    <div className="w-[240px] py-1.5 bg-white/95 dark:bg-[#0b1220]/98 backdrop-blur-xl border border-[#cfe9dc] dark:border-[#1f2f46] rounded-2xl shadow-[0_18px_45px_rgba(5,150,105,0.16)] dark:shadow-[0_22px_55px_rgba(0,0,0,0.72)]">
       <div className="space-y-0.5 max-h-[72vh] overflow-y-visible">
         {items.map((node) => (
           <DropdownRow key={node.id} item={node} resolveUrl={resolveUrl} />
@@ -365,7 +361,6 @@ function MobileMenuBranch({
         const key = `${prefix}_${node.id}`;
         const hasChildren = node.children && node.children.length > 0;
         const isExpanded = !!expandedIds[key];
-        const IconComponent = node.icon;
         const trimmedUrl = (node.url || '').trim();
         const isNavigable = trimmedUrl !== '' && trimmedUrl !== '#';
         const targetUrl = isNavigable ? resolveUrl(trimmedUrl) : '';
@@ -378,9 +373,8 @@ function MobileMenuBranch({
                 <button
                   type="button"
                   onClick={() => hasChildren && onToggleExpand(key)}
-                  className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
+                  className="flex-1 flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-left text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
                 >
-                  <IconComponent className="w-4 h-4 text-[#059669] dark:text-[#34d399] shrink-0" />
                   <span className="truncate">{node.title}</span>
                 </button>
               ) : isExternal ? (
@@ -389,18 +383,16 @@ function MobileMenuBranch({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={onCloseDrawer}
-                  className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
+                  className="flex-1 flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
                 >
-                  <IconComponent className="w-4 h-4 text-[#059669] dark:text-[#34d399] shrink-0" />
                   <span className="truncate">{node.title}</span>
                 </a>
               ) : (
                 <Link
                   href={targetUrl}
                   onClick={onCloseDrawer}
-                  className="flex-1 flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
+                  className="flex-1 flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-[#166534] dark:text-[#94a3b8] hover:text-[#022c22] dark:hover:text-white hover:bg-[#ecfdf5] dark:hover:bg-[#111c2e] transition"
                 >
-                  <IconComponent className="w-4 h-4 text-[#059669] dark:text-[#34d399] shrink-0" />
                   <span className="truncate">{node.title}</span>
                 </Link>
               )}

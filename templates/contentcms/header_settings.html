@@ -297,7 +297,7 @@
           Quick Fill from Existing Axom AI Tools (Optional)
         </label>
         <select id="mega_quick_pick" onchange="applyQuickToolPreset(this.value)" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-xs focus:outline-none focus:border-fuchsia-500">
-          <option value="">— Pick a live tool to auto-fill Title, URL &amp; Icon —</option>
+          <option value="">— Pick a live tool to auto-fill Title &amp; URL —</option>
         </select>
       </div>
 
@@ -319,30 +319,9 @@
         <input type="text" id="mega_desc" placeholder="Short subtitle shown below title (keep empty for clean compact menu)" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">FontAwesome Icon</label>
-          <input type="text" id="mega_icon" placeholder="fa-solid fa-brain" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Color Class</label>
-          <input type="text" id="mega_color" placeholder="text-fuchsia-400" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none focus:border-fuchsia-500">
-        </div>
-      </div>
-
-      <!-- Quick Icon Palette -->
-      <div class="flex flex-wrap items-center gap-1.5 p-2.5 rounded-lg bg-slate-900/60 border border-slate-800">
-        <span class="text-[10px] text-slate-500 font-semibold mr-1">Icons:</span>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-folder-open', 'text-emerald-400')" class="px-2 py-1 rounded bg-slate-800 text-emerald-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-folder-open"></i> Folder</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-brain', 'text-fuchsia-400')" class="px-2 py-1 rounded bg-slate-800 text-fuchsia-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-brain"></i> AI</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-wand-magic-sparkles', 'text-purple-400')" class="px-2 py-1 rounded bg-slate-800 text-purple-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-wand-magic-sparkles"></i> Image</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-file-pdf', 'text-rose-400')" class="px-2 py-1 rounded bg-slate-800 text-rose-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-video', 'text-sky-400')" class="px-2 py-1 rounded bg-slate-800 text-sky-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-video"></i> Video</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-qrcode', 'text-amber-400')" class="px-2 py-1 rounded bg-slate-800 text-amber-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-qrcode"></i> QR</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-code', 'text-indigo-400')" class="px-2 py-1 rounded bg-slate-800 text-indigo-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-code"></i> Code</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-pen-nib', 'text-pink-400')" class="px-2 py-1 rounded bg-slate-800 text-pink-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-pen-nib"></i> Design</button>
-        <button type="button" onclick="selectMegaPreset('fa-solid fa-microphone-lines', 'text-cyan-400')" class="px-2 py-1 rounded bg-slate-800 text-cyan-400 text-[10px] border border-slate-700 flex items-center gap-1"><i class="fa-solid fa-microphone-lines"></i> Voice</button>
-      </div>
+      <!-- Icon & Color Class hidden: dropdown menu displays clean text without icons -->
+      <input type="hidden" id="mega_icon" value="fa-solid fa-circle">
+      <input type="hidden" id="mega_color" value="text-fuchsia-400">
 
       <div>
         <label class="block font-semibold text-slate-300 mb-1">
@@ -485,9 +464,7 @@ function createTreeLiElement(node, depth, indexInSiblings, kind) {
     ? `<div class="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-xs text-fuchsia-400 shrink-0">
          <i class="fa-solid ${hasChildren ? 'fa-folder-tree' : 'fa-link'}"></i>
        </div>`
-    : `<div class="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-sm ${escapeHtml(node.color_class || 'text-fuchsia-400')} shrink-0">
-         <i class="${escapeHtml(node.icon_class || 'fa-solid fa-brain')}"></i>
-       </div>`;
+    : '';
 
   const metaUrlHtml = isCategory
     ? `<span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/25">Submenu Folder</span>`
@@ -731,9 +708,8 @@ function buildPreviewBranchHtml(nodes) {
     html += `
       <div class="relative preview-dd-item px-1.5">
         <div class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl hover:bg-[#ecfdf5] text-[#022c22] font-semibold cursor-default transition">
-          <div class="flex items-center gap-2 min-w-0">
-            <i class="${escapeHtml(item.icon_class || 'fa-solid fa-brain')} text-[#059669] w-4 text-center shrink-0"></i>
-            <span class="truncate">${escapeHtml(item.title)}</span>
+          <div class="min-w-0 flex-1">
+            <span class="truncate block">${escapeHtml(item.title)}</span>
           </div>
           ${hasSub ? '<i class="fa-solid fa-chevron-right text-[10px] text-[#059669] shrink-0"></i>' : ''}
         </div>
